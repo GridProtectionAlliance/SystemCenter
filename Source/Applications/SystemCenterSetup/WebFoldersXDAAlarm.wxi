@@ -1,0 +1,12 @@
+<Include>
+<Directory Id="wwwrootXDAAlarm_WWWROOTXDAALARMFOLDER" Name="wwwrootXDAAlarm">
+  <Directory Id="wwwrootXDAAlarm_CONTENTFOLDER" Name="Content">
+    <Directory Id="wwwrootXDAAlarm_CONTENTIMAGESFOLDER" Name="images" />
+  </Directory>
+  <Directory Id="wwwrootXDAAlarm_FONTSFOLDER" Name="fonts" />
+  <Directory Id="wwwrootXDAAlarm_IMAGESFOLDER" Name="Images">
+    <Directory Id="wwwrootXDAAlarm_IMAGESICONSFOLDER" Name="Icons" />
+  </Directory>
+  <Directory Id="wwwrootXDAAlarm_SCRIPTSFOLDER" Name="Scripts" />
+</Directory>
+</Include>

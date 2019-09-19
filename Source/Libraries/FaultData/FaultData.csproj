@@ -1,0 +1,224 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{11AE594D-2B2B-473C-8550-6BF62914C3E2}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>FaultData</RootNamespace>
+    <AssemblyName>FaultData</AssemblyName>
+    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\..\Build\Output\Debug\Libraries\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\..\Build\Output\Release\Libraries\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="EzDNAApiNet64">
+      <HintPath>..\..\Dependencies\eDNA\EzDNAApiNet64.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="GSF.COMTRADE">
+      <HintPath>..\..\Dependencies\GSF\GSF.COMTRADE.dll</HintPath>
+    </Reference>
+    <Reference Include="GSF.Core, Version=2.0.195.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependencies\GSF\GSF.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="GSF.EMAX">
+      <HintPath>..\..\Dependencies\GSF\GSF.EMAX.dll</HintPath>
+    </Reference>
+    <Reference Include="GSF.PQDIF">
+      <HintPath>..\..\Dependencies\GSF\GSF.PQDIF.dll</HintPath>
+    </Reference>
+    <Reference Include="GSF.SELEventParser">
+      <HintPath>..\..\Dependencies\GSF\GSF.SELEventParser.dll</HintPath>
+    </Reference>
+    <Reference Include="HtmlAgilityPack, Version=1.5.5.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
+      <HintPath>..\..\Dependencies\NuGet\HtmlAgilityPack.1.5.5\lib\Net45\HtmlAgilityPack.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Ionic.Zlib">
+      <HintPath>..\..\Dependencies\DotNetZip\Ionic.Zlib.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\..\Dependencies\NuGet\log4net.2.0.3\lib\net40-full\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="MathNet.Numerics, Version=3.17.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Dependencies\NuGet\MathNet.Numerics.3.17.0\lib\net40\MathNet.Numerics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\openHistorian\Source\Dependencies\GSF\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Numerics" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Configuration\BreakerSettings.cs" />
+    <Compile Include="Configuration\COMTRADESettings.cs" />
+    <Compile Include="Configuration\EDNASettings.cs" />
+    <Compile Include="Configuration\EmailSettings.cs" />
+    <Compile Include="Configuration\EMAXSettings.cs" />
+    <Compile Include="Configuration\FaultLocationSettings.cs" />
+    <Compile Include="Configuration\HistorianSettings.cs" />
+    <Compile Include="DataAnalysis\CycleDataGroup.cs" />
+    <Compile Include="DataAnalysis\DataGroup.cs" />
+    <Compile Include="DataAnalysis\DataPoint.cs" />
+    <Compile Include="DataAnalysis\DataSeries.cs" />
+    <Compile Include="DataAnalysis\Disturbance.cs" />
+    <Compile Include="DataAnalysis\FaultGroup.cs" />
+    <Compile Include="DataAnalysis\ReportedDisturbance.cs" />
+    <Compile Include="DataAnalysis\VoltageDisturbanceAnalyzer.cs" />
+    <Compile Include="DataAnalysis\Fault.cs" />
+    <Compile Include="DataAnalysis\Transform.cs" />
+    <Compile Include="DataAnalysis\VICycleDataGroup.cs" />
+    <Compile Include="DataAnalysis\VIDataGroup.cs" />
+    <Compile Include="DataOperations\AlarmOperation.cs" />
+    <Compile Include="DataOperations\BreakerRestrikeOperation.cs" />
+    <Compile Include="DataOperations\BreakerTimingOperation.cs" />
+    <Compile Include="DataOperations\ConfigurationOperation.cs" />
+    <Compile Include="DataOperations\DailySummaryOperation.cs" />
+    <Compile Include="DataOperations\DataOperationBase.cs" />
+    <Compile Include="DataOperations\DataPusherOperation.cs" />
+    <Compile Include="DataOperations\DataQualityOperation.cs" />
+    <Compile Include="DataOperations\RelayEnergization.cs" />
+    <Compile Include="DataOperations\StatisticOperation.cs" />
+    <Compile Include="DataOperations\DisturbanceSeverityOperation.cs" />
+    <Compile Include="DataOperations\DoubleEndedFaultOperation.cs" />
+    <Compile Include="DataOperations\TrendingDataSummaryOperation.cs" />
+    <Compile Include="DataOperations\TVA\StructureQueryOperation.cs" />
+    <Compile Include="DataReaders\PQubeTrendingDataCSVReader.cs" />
+    <Compile Include="DataReaders\IGridPQDIFReader.cs" />
+    <Compile Include="DataReaders\PQViewDIFReader.cs" />
+    <Compile Include="DataReaders\SELEVEReader.cs" />
+    <Compile Include="DataResources\BreakerDataResource.cs" />
+    <Compile Include="DataResources\GTC\BreakerRestrikeResource.cs" />
+    <Compile Include="DataResources\CycleDataResource.cs" />
+    <Compile Include="DataResources\EventClassificationResource.cs" />
+    <Compile Include="DataResources\DataGroupsResource.cs" />
+    <Compile Include="DataResources\DataResourceBase.cs" />
+    <Compile Include="DataOperations\EventOperation.cs" />
+    <Compile Include="DataOperations\FaultLocationOperation.cs" />
+    <Compile Include="DataOperations\IDataOperation.cs" />
+    <Compile Include="DataResources\FaultDataResource.cs" />
+    <Compile Include="DataResources\IDataResource.cs" />
+    <Compile Include="DataResources\InterruptionDataResource.cs" />
+    <Compile Include="DataResources\LightningDataResource.cs" />
+    <Compile Include="DataResources\SagDataResource.cs" />
+    <Compile Include="DataResources\SCADADataResource.cs" />
+    <Compile Include="DataResources\SwellDataResource.cs" />
+    <Compile Include="DataResources\SystemEventResource.cs" />
+    <Compile Include="DataResources\SnapshotDataResource.cs" />
+    <Compile Include="DataResources\TransientDataResource.cs" />
+    <Compile Include="DataSets\ConfigurationDataSet.cs" />
+    <Compile Include="DataSets\IDataSet.cs" />
+    <Compile Include="DataResources\TrendingDataSummaryResource.cs" />
+    <Compile Include="DataResources\TrendingGroupsResource.cs" />
+    <Compile Include="DataReaders\COMTRADEReader.cs" />
+    <Compile Include="DataReaders\EMAXReader.cs" />
+    <Compile Include="DataReaders\IDataReader.cs" />
+    <Compile Include="DataReaders\PQDIFReader.cs" />
+    <Compile Include="DataSets\INFDataSet.cs" />
+    <Compile Include="DataWriters\ChartGenerator.cs" />
+    <Compile Include="DataWriters\COMTRADEWriter.cs" />
+    <Compile Include="DataWriters\EmailService.cs" />
+    <Compile Include="DataWriters\EventEmailService.cs" />
+    <Compile Include="DataWriters\FaultTypeGenerator.cs" />
+    <Compile Include="DataWriters\LightningGenerator.cs" />
+    <Compile Include="DataWriters\PQIGenerator.cs" />
+    <None Include="DataWriters\XMLWriter.cs" />
+    <Compile Include="DataSets\MeterDataSet.cs" />
+    <Compile Include="Configuration\IConfigurationLoader.cs" />
+    <Compile Include="DataWriters\StructureLocationGenerator.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{3259AA49-8AA1-44D3-9025-A0B520596A8C}" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\openXDA.DataPusher\openXDA.DataPusher.csproj">
+      <Project>{666EB8A6-FBA9-454C-8537-9113C2EE68D4}</Project>
+      <Name>openXDA.DataPusher</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\openXDA.Model\openXDA.Model.csproj">
+      <Project>{a1a0bc13-50ed-4dc9-8c1e-3293b0b69281}</Project>
+      <Name>openXDA.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\FaultAlgorithms\FaultAlgorithms.csproj">
+      <Project>{24eb0e7b-9f79-4e3a-94fb-87bd4d06a400}</Project>
+      <Name>FaultAlgorithms</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\openHistorian.XDALink\openHistorian.XDALink.csproj">
+      <Project>{7F731255-FA83-4DBF-9E0F-C22AE4845E76}</Project>
+      <Name>openHistorian.XDALink</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\Dependencies\eDNA\*" Link="%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" Visible="false" />
+    <Content Include="DataWriters\DisturbanceEmailTemplate.xslt" />
+    <Content Include="DataWriters\FaultEmailTemplate.xslt">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\Dependencies\GSF\TagDefinitions.xml">
+      <Link>TagDefinitions.xml</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

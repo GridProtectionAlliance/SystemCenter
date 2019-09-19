@@ -1,0 +1,141 @@
+<Include>
+<ComponentGroup Id="wwwroot_Components" Directory="wwwroot_WWWROOTFOLDER">
+  <Component Id="wwwroot_index_cshtml">
+    <File Id="wwwroot_index.cshtml" Name="index.cshtml" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\index.cshtml" />
+  </Component>
+  <Component Id="wwwroot_Layout_cshtml">
+    <File Id="wwwroot_Layout.cshtml" Name="Layout.cshtml" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Layout.cshtml" />
+  </Component>
+</ComponentGroup>
+<ComponentGroup Id="wwwroot_Content_Components" Directory="wwwroot_CONTENTFOLDER">
+  <Component Id="wwwroot_Content_Site_css">
+    <File Id="wwwroot_Content_Site.css" Name="Site.css" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Content\Site.css" />
+  </Component>
+</ComponentGroup>
+<ComponentGroup Id="wwwroot_Images_Components" Directory="wwwroot_IMAGESFOLDER">
+  <Component Id="wwwroot_Images_2_Line_500_png">
+    <File Id="wwwroot_Images_2_Line_500.png" Name="2-Line - 500.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\2-Line - 500.png" />
+  </Component>
+  <Component Id="wwwroot_Images_GPA_Logo_30_pix_on_white_png">
+    <File Id="wwwroot_Images_GPA_Logo_30_pix_on_white.png" Name="GPA-Logo---30-pix(on-white).png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\GPA-Logo---30-pix(on-white).png" />
+  </Component>
+  <Component Id="wwwroot_Images_GPA_Logo_png">
+    <File Id="wwwroot_Images_GPA_Logo.png" Name="GPA-Logo.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\GPA-Logo.png" />
+  </Component>
+  <Component Id="wwwroot_Images_gpa_smalllock_png">
+    <File Id="wwwroot_Images_gpa_smalllock.png" Name="gpa-smalllock.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\gpa-smalllock.png" />
+  </Component>
+  <Component Id="wwwroot_Images_openXDA_png">
+    <File Id="wwwroot_Images_openXDA.png" Name="openXDA.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\openXDA.png" />
+  </Component>
+  <Component Id="wwwroot_Images_XDA_ico">
+    <File Id="wwwroot_Images_XDA.ico" Name="XDA.ico" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\XDA.ico" />
+  </Component>
+</ComponentGroup>
+<ComponentGroup Id="wwwroot_Images_Icons_Components" Directory="wwwroot_IMAGESICONSFOLDER">
+  <Component Id="wwwroot_Images_Icons_apple_touch_icon_114x114_png">
+    <File Id="wwwroot_Images_Icons_apple_touch_icon_114x114.png" Name="apple-touch-icon-114x114.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\apple-touch-icon-114x114.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_apple_touch_icon_120x120_png">
+    <File Id="wwwroot_Images_Icons_apple_touch_icon_120x120.png" Name="apple-touch-icon-120x120.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\apple-touch-icon-120x120.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_apple_touch_icon_144x144_png">
+    <File Id="wwwroot_Images_Icons_apple_touch_icon_144x144.png" Name="apple-touch-icon-144x144.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\apple-touch-icon-144x144.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_apple_touch_icon_152x152_png">
+    <File Id="wwwroot_Images_Icons_apple_touch_icon_152x152.png" Name="apple-touch-icon-152x152.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\apple-touch-icon-152x152.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_apple_touch_icon_57x57_png">
+    <File Id="wwwroot_Images_Icons_apple_touch_icon_57x57.png" Name="apple-touch-icon-57x57.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\apple-touch-icon-57x57.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_apple_touch_icon_60x60_png">
+    <File Id="wwwroot_Images_Icons_apple_touch_icon_60x60.png" Name="apple-touch-icon-60x60.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\apple-touch-icon-60x60.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_apple_touch_icon_72x72_png">
+    <File Id="wwwroot_Images_Icons_apple_touch_icon_72x72.png" Name="apple-touch-icon-72x72.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\apple-touch-icon-72x72.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_apple_touch_icon_76x76_png">
+    <File Id="wwwroot_Images_Icons_apple_touch_icon_76x76.png" Name="apple-touch-icon-76x76.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\apple-touch-icon-76x76.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_favicon_128_png">
+    <File Id="wwwroot_Images_Icons_favicon_128.png" Name="favicon-128.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\favicon-128.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_favicon_16x16_png">
+    <File Id="wwwroot_Images_Icons_favicon_16x16.png" Name="favicon-16x16.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\favicon-16x16.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_favicon_196x196_png">
+    <File Id="wwwroot_Images_Icons_favicon_196x196.png" Name="favicon-196x196.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\favicon-196x196.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_favicon_32x32_png">
+    <File Id="wwwroot_Images_Icons_favicon_32x32.png" Name="favicon-32x32.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\favicon-32x32.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_favicon_96x96_png">
+    <File Id="wwwroot_Images_Icons_favicon_96x96.png" Name="favicon-96x96.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\favicon-96x96.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_favicon_ico">
+    <File Id="wwwroot_Images_Icons_favicon.ico" Name="favicon.ico" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\favicon.ico" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_mstile_144x144_png">
+    <File Id="wwwroot_Images_Icons_mstile_144x144.png" Name="mstile-144x144.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\mstile-144x144.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_mstile_150x150_png">
+    <File Id="wwwroot_Images_Icons_mstile_150x150.png" Name="mstile-150x150.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\mstile-150x150.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_mstile_310x150_png">
+    <File Id="wwwroot_Images_Icons_mstile_310x150.png" Name="mstile-310x150.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\mstile-310x150.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_mstile_310x310_png">
+    <File Id="wwwroot_Images_Icons_mstile_310x310.png" Name="mstile-310x310.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\mstile-310x310.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_mstile_70x70_png">
+    <File Id="wwwroot_Images_Icons_mstile_70x70.png" Name="mstile-70x70.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\mstile-70x70.png" />
+  </Component>
+  <Component Id="wwwroot_Images_Icons_openXDA_png">
+    <File Id="wwwroot_Images_Icons_openXDA.png" Name="openXDA.png" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Images\Icons\openXDA.png" />
+  </Component>
+</ComponentGroup>
+<ComponentGroup Id="wwwroot_Scripts_Components" Directory="wwwroot_SCRIPTSFOLDER">
+  <Component Id="wwwroot_Scripts_default_polyfill_min_js">
+    <File Id="wwwroot_Scripts_default.polyfill.min.js" Name="default.polyfill.min.js" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Scripts\default.polyfill.min.js" />
+  </Component>
+  <Component Id="wwwroot_Scripts_Site_js">
+    <File Id="wwwroot_Scripts_Site.js" Name="Site.js" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Scripts\Site.js" />
+  </Component>
+  <Component Id="wwwroot_Scripts_SystemCenter_js">
+    <File Id="wwwroot_Scripts_SystemCenter.js" Name="SystemCenter.js" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Scripts\SystemCenter.js" />
+  </Component>
+</ComponentGroup>
+<ComponentGroup Id="wwwroot_Scripts_TSX_Components" Directory="wwwroot_SCRIPTSTSXFOLDER">
+  <Component Id="wwwroot_Scripts_TSX_Table_tsx">
+    <File Id="wwwroot_Scripts_TSX_Table.tsx" Name="Table.tsx" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Scripts\TSX\Table.tsx" />
+  </Component>
+</ComponentGroup>
+<ComponentGroup Id="wwwroot_Scripts_TSX_SystemCenter_Components" Directory="wwwroot_SCRIPTSTSXSYSTEMCENTERFOLDER">
+  <Component Id="wwwroot_Scripts_TSX_SystemCenter_ByLocation_tsx">
+    <File Id="wwwroot_Scripts_TSX_SystemCenter_ByLocation.tsx" Name="ByLocation.tsx" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Scripts\TSX\SystemCenter\ByLocation.tsx" />
+  </Component>
+  <Component Id="wwwroot_Scripts_TSX_SystemCenter_ByMeter_tsx">
+    <File Id="wwwroot_Scripts_TSX_SystemCenter_ByMeter.tsx" Name="ByMeter.tsx" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Scripts\TSX\SystemCenter\ByMeter.tsx" />
+  </Component>
+  <Component Id="wwwroot_Scripts_TSX_SystemCenter_SystemCenter_tsx">
+    <File Id="wwwroot_Scripts_TSX_SystemCenter_SystemCenter.tsx" Name="SystemCenter.tsx" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Scripts\TSX\SystemCenter\SystemCenter.tsx" />
+  </Component>
+</ComponentGroup>
+<ComponentGroup Id="wwwroot_Scripts_TSX_SystemCenter_Meter_Components" Directory="wwwroot_SCRIPTSTSXSYSTEMCENTERMETERFOLDER">
+  <Component Id="wwwroot_Scripts_TSX_SystemCenter_Meter_ConnectionInfo_tsx">
+    <File Id="wwwroot_Scripts_TSX_SystemCenter_Meter_ConnectionInfo.tsx" Name="ConnectionInfo.tsx" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Scripts\TSX\SystemCenter\Meter\ConnectionInfo.tsx" />
+  </Component>
+  <Component Id="wwwroot_Scripts_TSX_SystemCenter_Meter_GeneralMeterInfo_tsx">
+    <File Id="wwwroot_Scripts_TSX_SystemCenter_Meter_GeneralMeterInfo.tsx" Name="GeneralMeterInfo.tsx" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Scripts\TSX\SystemCenter\Meter\GeneralMeterInfo.tsx" />
+  </Component>
+  <Component Id="wwwroot_Scripts_TSX_SystemCenter_Meter_Meter_tsx">
+    <File Id="wwwroot_Scripts_TSX_SystemCenter_Meter_Meter.tsx" Name="Meter.tsx" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Scripts\TSX\SystemCenter\Meter\Meter.tsx" />
+  </Component>
+  <Component Id="wwwroot_Scripts_TSX_SystemCenter_Meter_MeterLocation_tsx">
+    <File Id="wwwroot_Scripts_TSX_SystemCenter_Meter_MeterLocation.tsx" Name="MeterLocation.tsx" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Scripts\TSX\SystemCenter\Meter\MeterLocation.tsx" />
+  </Component>
+  <Component Id="wwwroot_Scripts_TSX_SystemCenter_Meter_MeterNote_tsx">
+    <File Id="wwwroot_Scripts_TSX_SystemCenter_Meter_MeterNote.tsx" Name="MeterNote.tsx" Source="$(var.SolutionDir)Applications\SystemCenter\SystemCenter\wwwroot\Scripts\TSX\SystemCenter\Meter\MeterNote.tsx" />
+  </Component>
+</ComponentGroup>
+</Include>
