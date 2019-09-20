@@ -70,7 +70,7 @@ using System;
 using System.IO;
 using System.Text;
 
-namespace SystemCeneter.Logging
+namespace SystemCenter.Logging
 {
     public class SimpleLogger : IDisposable
     {

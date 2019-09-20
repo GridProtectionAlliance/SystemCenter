@@ -34,7 +34,7 @@ using GSF.Data;
 using GSF.Data.Model;
 using SystemCenter.Model;
 
-namespace SystemCeneter.Controllers.SystemCenter.Meter
+namespace SystemCenter.Controllers.SystemCenter.Meter
 {
     [RoutePrefix("api/SystemCenter/Meter/MeterLocation")]
     public class MeterLocationController : ApiController

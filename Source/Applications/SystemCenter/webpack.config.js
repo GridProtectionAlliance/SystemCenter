@@ -13,12 +13,6 @@ module.exports = env => {
         context: path.resolve(__dirname, 'wwwroot', 'Scripts'),
         cache: true,
         entry: {
-            PeriodicDataDisplay: "./TSX/PeriodicDataDisplay.tsx",
-            TrendingDataDisplay: "./TSX/TrendingDataDisplay.tsx",
-            DataQualitySummary: "./TSX/DataQualitySummary.tsx",
-            PQTrendingWebReport: "./TSX/PQTrendingWebReport.tsx",
-            StepChangeWebReport: "./TSX/StepChangeWebReport.tsx",
-            SpectralDataDisplay: "./TSX/SpectralDataDisplay.tsx",
             SystemCenter: "./TSX/SystemCenter/SystemCenter.tsx"
         },
         output: {

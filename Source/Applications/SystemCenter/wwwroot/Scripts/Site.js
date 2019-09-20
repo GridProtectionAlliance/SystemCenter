@@ -218,8 +218,8 @@ $(function () {
     updateHubDependentControlState(false);
 
     // Initialize proxy references to the SignalR hubs
-    dataHub = $.connection.dataHub.server;
-    dataHubClient = $.connection.dataHub.client;
+    //dataHub = $.connection.dataHub.server;
+    //dataHubClient = $.connection.dataHub.client;
     securityHub = $.connection.securityHub.server;
     securityHubClient = $.connection.securityHub.client;
     serviceHub = $.connection.serviceHub.server;
@@ -268,18 +268,18 @@ $(function () {
         hubConnected();
     });
 
-    // Create hub client functions for message control
-    dataHubClient.sendInfoMessage = function (message, timeout) {
-        // Html encode message
-        const encodedMessage = $("<div />").text(message).html();
-        showInfoMessage(encodedMessage, timeout);
-    }
+    //// Create hub client functions for message control
+    //dataHubClient.sendInfoMessage = function (message, timeout) {
+    //    // Html encode message
+    //    const encodedMessage = $("<div />").text(message).html();
+    //    showInfoMessage(encodedMessage, timeout);
+    //}
 
-    dataHubClient.sendErrorMessage = function (message, timeout) {
-        // Html encode message
-        const encodedMessage = $("<div />").text(message).html();
-        showErrorMessage(encodedMessage, timeout);
-    }
+    //dataHubClient.sendErrorMessage = function (message, timeout) {
+    //    // Html encode message
+    //    const encodedMessage = $("<div />").text(message).html();
+    //    showErrorMessage(encodedMessage, timeout);
+    //}
 
     // Enable tool-tips on the page
     $("[data-toggle='tooltip']").tooltip();

@@ -150,6 +150,46 @@ GO
 INSERT INTO ApplicationRoleSecurityGroup(ApplicationRoleID, SecurityGroupID) VALUES((SELECT ID FROM ApplicationRole), (SELECT ID FROM SecurityGroup))
 GO
 
+CREATE TABLE AssetType
+(
+    ID INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+    Name VARCHAR(200) NOT NULL UNIQUE,
+)
+GO
+
+CREATE TABLE Asset(
+    ID INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+    AssetKey VARCHAR(200) NOT NULL UNIQUE,
+	AssetTypeID INT NOT NULL FOREIGN KEY REFERENCES AssetType(ID)
+)
+GO
+
+
+CREATE TABLE AssetTypeField
+(
+    ID INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+	AssetTypeID INT NOT NULL REFERENCES AssetType(ID),
+    Name VARCHAR(200) NOT NULL UNIQUE,
+    Description VARCHAR(MAX) NULL
+)
+GO
+
+CREATE TABLE AssetTypeFieldValue
+(
+    ID INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
+	AssetID INT NOT NULL REFERENCES Asset(ID),
+    AssetTypeFieldID INT NOT NULL REFERENCES AssetTypeField(ID),
+    Value VARCHAR(MAX) NULL
+)
+GO
+
+CREATE NONCLUSTERED INDEX IX_AssetTypeFieldValue_AssetID
+ON AssetTypeFieldValue(AssetID ASC)
+GO
+
+CREATE NONCLUSTERED INDEX IX_AssetTypeFieldValue_AssetTypeFieldID
+ON AssetTypeFieldValue(AssetTypeFieldID ASC)
+GO
 
 -- Author: Kevin Conner
 -- Source: http://stackoverflow.com/questions/116968/in-sql-server-2005-can-i-do-a-cascade-delete-without-setting-the-property-on-my

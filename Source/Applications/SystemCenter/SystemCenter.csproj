@@ -228,6 +228,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\SystemCenter\AssetTypes\AssetTypeFieldsController.cs" />
+    <Compile Include="Controllers\SystemCenter\AssetTypes\AssetTypesController.cs" />
     <Compile Include="Model\AppModel.cs" />
     <Compile Include="Configuration\CategorizedSetting.cs" />
     <Compile Include="Controllers\SystemCenter\MeterController.cs" />
@@ -243,6 +245,9 @@
     <Compile Include="DebugHost.Designer.cs">
       <DependentUpon>DebugHost.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model\AssetTypeFieldValue.cs" />
+    <Compile Include="Model\AssetTypeField.cs" />
+    <Compile Include="Model\AssetType.cs" />
     <Compile Include="Model\ConfigurationLoader.cs" />
     <Compile Include="Model\DataObjectWrapper.cs" />
     <Compile Include="Model\GlobalSettings.cs" />
@@ -292,6 +297,7 @@
     <None Include="wwwroot\Content\Site.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="wwwroot\Groups.cshtml" />
     <None Include="wwwroot\Images\2-Line - 500.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -398,12 +404,15 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="XDA.ico" />
+    <Content Include="wwwroot\Users.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetTypes\AssetTypePreviewPane.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ByLocation.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetTypes\AssetTypes.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterLocation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ConnectionInfo.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Meter.tsx" />
@@ -411,6 +420,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\GeneralMeterInfo.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterNote.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\SystemCenter.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\Table.tsx" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -21,17 +21,11 @@
 //
 //******************************************************************************************************
 
-using System.Collections.Generic;
-using System.Collections.Specialized;
 using System.Data;
-using System.Linq;
-using System.Net.Http;
 using System.Web.Http;
 using GSF.Data;
-using GSF.Data.Model;
-using SystemCenter.Model;
 
-namespace SystemCenter.Controllers.SystemCenter
+namespace SystemCenter.Controllers
 {
     [RoutePrefix("api/SystemCenter/Meters")]
     public class MetersController : ApiController
