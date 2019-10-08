@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  MeterNote.tsx - Gbtc
+//  AssetNote.tsx - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,16 +16,18 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  09/04/2019 - Billy Ernest
+//  10/08/2019 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
+
 import * as React from 'react';
 import * as moment from 'moment';
+import { Note } from '../global';
 declare var homePath: string;
 
-function MeterNoteWindow(props: { meterId: number }): JSX.Element {
+function AssetNoteWindow(props: { assetID: number }): JSX.Element {
     const [tableRows, setTableRows] = React.useState<Array<JSX.Element>>([]);
     const [note, setNote] = React.useState<string>('');
     const [collapsed, setCollapsed] = React.useState<boolean>(true);
@@ -33,85 +35,58 @@ function MeterNoteWindow(props: { meterId: number }): JSX.Element {
     var jqueryHandle: JQuery.jqXHR;
 
     React.useEffect(() => {
-        createTableRows();
-    }, [props.meterId]);
+        getNotes();
+    }, [props.assetID]);
 
-    function createTableRows() {
-        getNotes().done(data => {
-            var rows = data.map(d => <tr key={d.ID}><td>{d.Note}</td><td>{moment.utc(d.TimeStamp).format("MM/DD/YYYY HH:mm")}</td><td>{d.UserAccount}</td><td>
-                <button className="btn btn-sm" onClick={(e) => handleEdit(d)}><span><i className="fa fa-pencil"></i></span></button>
-                <button className="btn btn-sm" onClick={(e) => handleDelete(d)}><span><i className="fa fa-times"></i></span></button>
-            </td></tr>)
-
-            setTableRows(rows);
-            setCount(rows.length);
-        });
-    }
-
-    function handleAdd(): void {
-        addNote().done(e => {
-            setNote('');
-            createTableRows();
-        });
-    }
-
-    function handleDelete(d) {
-        deleteNote(d.ID).done(() => createTableRows());
-    }
-
-    function handleEdit(d) {
+    function handleEdit(d: Note) {
         setNote(d.Note);
-        deleteNote(d.ID).done(() => createTableRows());
+        deleteNote(d);
     }
 
-    function getNotes(): JQuery.jqXHR {
-        if (jqueryHandle !== undefined)
-            jqueryHandle.abort();
-
-        jqueryHandle = $.ajax({
+    function getNotes(): void {
+       $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/Meter/Notes/${props.meterId}`,
+           url: `${homePath}api/Notes/${props.assetID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        });
+       }).done((data: Array<Note>) => {
+           var rows = data.map(d => <tr key={d.ID}><td>{d.Note}</td><td>{moment.utc(d.Timestamp).format("MM/DD/YYYY HH:mm")}</td><td>{d.UserAccount}</td><td>
+               <button className="btn btn-sm" onClick={(e) => handleEdit(d)}><span><i className="fa fa-pencil"></i></span></button>
+               <button className="btn btn-sm" onClick={(e) => deleteNote(d)}><span><i className="fa fa-times"></i></span></button>
+           </td></tr>)
 
-        return jqueryHandle;
+           setTableRows(rows);
+           setCount(rows.length);
+       });;
     }
 
-    function deleteNote(id:number): JQuery.jqXHR {
-        if (jqueryHandle !== undefined)
-            jqueryHandle.abort();
-
-        jqueryHandle = $.ajax({
+    function deleteNote(d: Note): void {
+        $.ajax({
             type: "DELETE",
-            url: `${homePath}api/SystemCenter/Meter/Notes/${id}`,
+            url: `${homePath}api/Notes`,
             contentType: "application/json; charset=utf-8",
-            dataType: 'json',
+            data: JSON.stringify(d),
             cache: true,
             async: true
-        });
-
-        return jqueryHandle;
+        }).done(() => getNotes());
     }
 
 
-    function addNote(): JQuery.jqXHR {
-        if (jqueryHandle !== undefined)
-            jqueryHandle.abort();
-
-        jqueryHandle = $.ajax({
+    function addNote(): void {
+        $.ajax({
             type: "POST",
-            url: `${homePath}api/SystemCenter/Meter/Notes/Add`,
+            url: `${homePath}api/Notes`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({ID:0, NoteTypeID: 0, ReferenceTableID: props.meterId, Note: note, Timestamp: null, UserAccount: '' }),
+            data: JSON.stringify({ ID: 0, AssetID: props.assetID, Note: note, Timestamp: moment().format('MM/DD/YYYY HH:mm'), UserAccount: '' }),
             dataType: 'json',
             cache: true,
             async: true
+        }).done(e => {
+            setNote('');
+            getNotes();
         });
-
-        return jqueryHandle;
     }
 
     return (
@@ -143,10 +118,10 @@ function MeterNoteWindow(props: { meterId: number }): JSX.Element {
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className="btn btn-primary" onClick={handleAdd} disabled={note.length == 0}>Add Note</button>
+                        <button className="btn btn-primary" onClick={addNote} style={{ cursor: note.length == 0 ? 'not-allowed' : 'pointer' }} disabled={note.length == 0}>Add Note</button>
                     </div>
                     <div className="btn-group mr-2">
-                        <button className="btn btn-default" onClick={() => setNote('')} disabled={note.length == 0}>Clear</button>
+                        <button className="btn btn-default" onClick={() => setNote('')} style={{ cursor: note.length == 0 ? 'not-allowed' : 'pointer' }} disabled={note.length == 0}>Clear</button>
                     </div>
                 </div>
 
@@ -156,4 +131,4 @@ function MeterNoteWindow(props: { meterId: number }): JSX.Element {
     );
 }
 
-export default MeterNoteWindow;
+export default AssetNoteWindow;

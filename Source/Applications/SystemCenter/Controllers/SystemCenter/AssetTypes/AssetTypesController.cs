@@ -66,7 +66,18 @@ namespace SystemCenter.Controllers.AssetTypes
             {
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
-                    IEnumerable<AssetType> types = new TableOperations<AssetType>(connection).QueryRecords();
+                    DataTable types = connection.RetrieveData(@"
+                        SELECT
+	                        AssetType.ID,
+	                        AssetType.Name,
+	                        Count(Asset.ID)	as Assets
+                        FROM
+	                        AssetType LEFT JOIN
+	                        Asset On AssetType.ID = Asset.AssetTypeID
+                        GROUP BY 
+	                        AssetType.ID,
+	                        AssetType.Name                            
+                    ");
                     return Ok(types);
                 }
 

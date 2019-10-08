@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  AssetTypeField.cs - Gbtc
+//  Note.cs - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,21 +16,34 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  09/20/2019 - Billy Ernest
+//  10/08/2019 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
 using GSF.Data.Model;
+using System;
+using System.Web.Http;
+using SystemCenter.Controllers;
+
 namespace SystemCenter.Model
 {
-    public class AssetTypeField
+    [TableName("Note")]
+    public class Notes
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
-        public int AssetTypeID { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Description { get; set; }
+        public int AssetID { get; set; }
+        public string Note { get; set; }
+        public string UserAccount { get; set; }
+        public DateTime Timestamp { get; set; }
+    }
+
+    [RoutePrefix("api/Notes")]
+    public class NoteController : ModelController<Notes> {
+        public NoteController() : base(true, "AssetID") {
+
+        }
+
     }
 }

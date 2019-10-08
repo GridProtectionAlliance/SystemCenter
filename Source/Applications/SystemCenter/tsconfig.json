@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
-      "baseUrl": ".",
-      "paths": { "*": ["types/*"] },
+    "baseUrl": ".",
+    "paths": { "*": [ "types/*" ] },
+    "downlevelIteration": true,
     "jsx": "react",
     "lib": [ "dom", "es5", "scripthost", "es2015" ],
     "noEmitOnError": true,

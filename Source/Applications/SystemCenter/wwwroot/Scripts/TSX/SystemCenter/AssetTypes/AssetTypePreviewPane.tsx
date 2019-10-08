@@ -25,16 +25,17 @@ import * as React from 'react';
 import * as moment from 'moment';
 import Table from '../../Table';
 import * as _ from 'lodash';
+import { AssetTypeField } from '../global';
 
 declare var homePath: string;
 
-export default class AssetTypePreviewPane extends React.Component<{ assetTypeID: number }, { AssetType: { ID: number, Name: string }, AssetTypeFields: {ID: number, AssetTypeID: number, Name: string, Description: string } }> {
+export default class AssetTypePreviewPane extends React.Component<{ assetTypeID: number }, { AssetType: { ID: number, Name: string }, AssetTypeFields: AssetTypeField }> {
     constructor(props, context) {
         super(props, context);
 
         this.state = {
             AssetType: null,
-            AssetTypeFields: null
+            AssetTypeFields: null,
         };
     }
 
@@ -69,7 +70,7 @@ export default class AssetTypePreviewPane extends React.Component<{ assetTypeID:
     }
 }
 
-class AssetTypeFieldTable extends React.Component<{ assetTypeID: number, assetTypeName: string }, { data: Array<{ ID: number, AssetTypeID: number, Name: string, Description: string }>, ascending: boolean, addNew: boolean, newEditName: string, newEditID: number, newEditDescription: string}, {}>{
+class AssetTypeFieldTable extends React.Component<{ assetTypeID: number, assetTypeName: string }, { data: Array<AssetTypeField>, ascending: boolean, addNew: boolean, newEditName: string, newEditID: number, newEditDescription: string, newEditType: string, OptionList: Array<string>}, {}>{
     constructor(props, context) {
         super(props, context);
         this.state = {
@@ -78,13 +79,16 @@ class AssetTypeFieldTable extends React.Component<{ assetTypeID: number, assetTy
             addNew: true,
             newEditName: '',
             newEditID: 0,
-            newEditDescription: ''
+            newEditDescription: '',
+            newEditType: 'string',
+            OptionList: ["string", "integer", "number", "boolean"]
         }
 
     }
 
 
     componentDidMount() {
+        this.getOptions();
         if (this.props.assetTypeID > 0)
             this.getTypeFields(this.props);
     }
@@ -104,12 +108,12 @@ class AssetTypeFieldTable extends React.Component<{ assetTypeID: number, assetTy
         }).done(data => this.setState({ data: data })).fail((msg) => console.log(msg.responseJSON));
     }
 
-    addTypeField(name: string, description: string): void {
+    addTypeField(name: string, description: string, type: string): void {
         $.ajax({
             type: "POST",
             url: `${homePath}api/AssetTypeFields`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({ ID: 0, AssetTypeID: this.props.assetTypeID, Name: name, Description: description }),
+            data: JSON.stringify({ ID: 0, AssetTypeID: this.props.assetTypeID, Type: type,Name: name, Description: description }),
             dataType: 'json',
             cache: true,
             async: true
@@ -119,12 +123,12 @@ class AssetTypeFieldTable extends React.Component<{ assetTypeID: number, assetTy
         });
     }
 
-    editTypeField(id:number, assetTypeID: number, name:string, description: string): void {
+    editTypeField(id:number, assetTypeID: number, type:string, name:string, description: string): void {
         $.ajax({
             type: "PATCH",
             url: `${homePath}api/AssetTypeFields`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({ ID: id, AssetTypeID: assetTypeID, Name: name, Description: description }),
+            data: JSON.stringify({ ID: id, AssetTypeID: assetTypeID, Type: type, Name: name, Description: description }),
             dataType: 'json',
             cache: true,
             async: true
@@ -147,6 +151,18 @@ class AssetTypeFieldTable extends React.Component<{ assetTypeID: number, assetTy
         }
     }
 
+    getOptions() {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueListGroup/`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        }).done(valueListGroups => this.setState({ OptionList: ["string", "integer", "number", "boolean", ...valueListGroups.map(vlg => vlg.Name)] })).fail((msg) => console.log(msg.responseJSON));
+    }
+
+
 
     render() {
         return (
@@ -154,17 +170,24 @@ class AssetTypeFieldTable extends React.Component<{ assetTypeID: number, assetTy
                 <div className="card-header">Asset Type ({this.props.assetTypeName}) Fields
                     <button className='btn btn-primary pull-right' data-toggle="modal" data-target="#assetTypeFieldModal" onClick={(evt) => {
                         evt.preventDefault()
-                        this.setState({ addNew: true });
+                        this.setState({
+                            newEditName: '',
+                            newEditID: 0,
+                            newEditDescription: '',
+                            newEditType: 'string',
+                            addNew: true
+                        });
                     }} >Add New Field</button>
                 </div>
                 <div className="card-body">
-                <Table
+                <Table<AssetTypeField>
                     cols={[
-                        { key: 'Name', label: 'Name', headerStyle: { width: '80%' }, rowStyle: { width: '80%' } },
+                        { key: 'Name', label: 'Name', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
+                        { key: 'Type', label: 'Data Type', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
                         {
                             key: 'Edit', label: '', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => <button className="btn btn-sm" data-toggle="modal" data-target="#assetTypeFieldModal" onClick={(e) => {
                                 e.preventDefault();
-                                this.setState({ newEditID: item.ID, newEditName: item.Name, newEditDescription: item.Description,addNew: false })
+                                this.setState({ newEditID: item.ID, newEditName: item.Name, newEditDescription: item.Description,newEditType: item.Type, addNew: false })
                             }}><span><i className="fa fa-pencil"></i></span></button>
                         },
                         {
@@ -200,6 +223,12 @@ class AssetTypeFieldTable extends React.Component<{ assetTypeID: number, assetTy
                                 <form>
                                     <label>Name</label>
                                     <input className='form-control' type='text' value={this.state.newEditName} onChange={(evt) => this.setState({ newEditName: evt.target.value })} />
+                                    <label>Data Type</label>
+                                        <select className='form-control' value={this.state.newEditType} onChange={(evt) => this.setState({ newEditType: evt.target.value })}>
+                                        {
+                                                this.state.OptionList.map(x => <option key={x}>{x}</option>)
+                                        }
+                                        </select>
                                     <label>Description</label>
                                     <textarea className='form-control' rows={3} value={this.state.newEditDescription} onChange={(evt) => this.setState({ newEditDescription: evt.target.value })}></textarea>
 
@@ -208,9 +237,9 @@ class AssetTypeFieldTable extends React.Component<{ assetTypeID: number, assetTy
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={(evt) => {
                                     if (this.state.addNew)
-                                        this.addTypeField(this.state.newEditName, this.state.newEditDescription);
+                                        this.addTypeField(this.state.newEditName, this.state.newEditDescription, this.state.newEditType);
                                     else
-                                        this.editTypeField(this.state.newEditID, this.props.assetTypeID, this.state.newEditName, this.state.newEditDescription);
+                                        this.editTypeField(this.state.newEditID, this.props.assetTypeID, this.state.newEditType, this.state.newEditName, this.state.newEditDescription);
 
                                     this.setState({ newEditName: '', newEditDescription: '',newEditID: 0 });
 

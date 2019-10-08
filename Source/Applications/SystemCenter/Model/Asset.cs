@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  AssetTypeField.cs - Gbtc
+//  Asset.cs - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,21 +16,21 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  09/20/2019 - Billy Ernest
+//  10/08/2019 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
+
+
 using GSF.Data.Model;
 namespace SystemCenter.Model
 {
-    public class AssetTypeField
+    public class Asset
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
         public int AssetTypeID { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Description { get; set; }
+        public string AssetKey { get; set; }
     }
 }

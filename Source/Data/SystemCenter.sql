@@ -141,6 +141,36 @@ CREATE TABLE SecurityGroupUserAccount
 )
 GO
 
+CREATE TABLE [dbo].[ValueListGroup](
+	[ID] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[Name] [varchar](200) NULL,
+	[Description] [varchar](max) NULL,
+	[Enabled] [bit] NOT NULL,
+	[CreatedOn] [datetime] NULL DEFAULT GETDATE(),
+)
+GO
+
+
+CREATE TABLE [dbo].[ValueList](
+	[ID] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	[GroupID] [int] NOT NULL FOREIGN KEY REFERENCES ValueListGroup(ID),
+	[Key] [int] NOT NULL,
+	[Text] [varchar](200) NULL,
+	[AltText1] [varchar](200) NULL,
+	[AltText2] [varchar](200) NULL,
+	[Abbreviation] [varchar](12) NULL,
+	[Value] [int] NULL,
+	[Flag] [bit] NOT NULL,
+	[Description] [varchar](max) NULL,
+	[SortOrder] [int] NULL,
+	[IsDefault] [bit] NOT NULL,
+	[Hidden] [bit] NOT NULL,
+	[Enabled] [bit] NOT NULL,
+	[CreatedOn] [datetime] NOT NULL DEFAULT GETDATE(),
+)
+GO
+
+
 INSERT INTO ApplicationRole(Name, Description) VALUES('Administrator', 'Admin Role')
 GO
 
@@ -149,6 +179,27 @@ GO
 
 INSERT INTO ApplicationRoleSecurityGroup(ApplicationRoleID, SecurityGroupID) VALUES((SELECT ID FROM ApplicationRole), (SELECT ID FROM SecurityGroup))
 GO
+
+
+CREATE TABLE Note(
+	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	AssetID int NOT NULL,
+	Note varchar(max) NOT NULL,
+	UserAccount varchar(max) NOT NULL,
+	Timestamp datetime NOT NULL,
+)
+GO
+
+ALTER TABLE Note ADD  DEFAULT (suser_name()) FOR UserAccount
+GO
+
+ALTER TABLE Note ADD  DEFAULT (getutcdate()) FOR Timestamp
+GO
+
+ALTER TABLE Note  WITH CHECK ADD FOREIGN KEY(AssetID)
+REFERENCES Asset (ID)
+GO
+
 
 CREATE TABLE AssetType
 (
@@ -160,7 +211,8 @@ GO
 CREATE TABLE Asset(
     ID INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
     AssetKey VARCHAR(200) NOT NULL UNIQUE,
-	AssetTypeID INT NOT NULL FOREIGN KEY REFERENCES AssetType(ID)
+	AssetTypeID INT NOT NULL FOREIGN KEY REFERENCES AssetType(ID),
+	CONSTRAINT UC_Asset_AssetKey_AssetTypeID UNIQUE (AssetTypeID, AssetKey)
 )
 GO
 
@@ -169,8 +221,11 @@ CREATE TABLE AssetTypeField
 (
     ID INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
 	AssetTypeID INT NOT NULL REFERENCES AssetType(ID),
-    Name VARCHAR(200) NOT NULL UNIQUE,
-    Description VARCHAR(MAX) NULL
+    Name VARCHAR(200) NOT NULL,
+	Type VARCHAR(50) NOT NULL,
+    Description VARCHAR(MAX) NULL,
+	CONSTRAINT UC_AssetTypeField_Name_AssetTypeID UNIQUE (AssetTypeID, Name)
+
 )
 GO
 
@@ -179,7 +234,8 @@ CREATE TABLE AssetTypeFieldValue
     ID INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
 	AssetID INT NOT NULL REFERENCES Asset(ID),
     AssetTypeFieldID INT NOT NULL REFERENCES AssetTypeField(ID),
-    Value VARCHAR(MAX) NULL
+    Value VARCHAR(MAX) NULL,
+	CONSTRAINT UC_AssetTypeFieldValue_AssetID_AssetTypeField UNIQUE (AssetID, AssetTypeFieldID)
 )
 GO
 

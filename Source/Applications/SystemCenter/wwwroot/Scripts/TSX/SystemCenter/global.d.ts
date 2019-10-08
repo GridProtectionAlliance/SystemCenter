@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  AssetTypeField.cs - Gbtc
+//  global.d.ts - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,21 +16,15 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  09/20/2019 - Billy Ernest
+//  10/04/2019 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using GSF.Data.Model;
-namespace SystemCenter.Model
-{
-    public class AssetTypeField
-    {
-        [PrimaryKey(true)]
-        public int ID { get; set; }
-        public int AssetTypeID { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Description { get; set; }
-    }
-}
+export interface AssetType { Name: string, ID: number }
+export interface AssetTypeWithCount extends AssetType { Assets: number }
+export interface AssetTypeField { Name: string, ID: number, Type: string, Description: string }
+export interface Asset { ID: number, AssetKey: string, AssetTypeID: number }
+export interface AssetTypeFieldAndValue { FieldName: string, FieldDescription: string, FieldType: string, AssetTypeFieldValueID: number, AssetTypeFieldValue: string }
+export interface ValueListItem { ID: number, GroupID: number, Text: string, Value: number, Key: number, Hidden: boolean, IsDefault: boolean, SortOrder: number }
+export interface Note { ID: number, AssetID: number, Note: string, UserAccount: string, Timestamp: string }

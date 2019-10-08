@@ -21,16 +21,19 @@
 //
 //******************************************************************************************************
 
+/// <reference path="SystemCenter.d.ts">
+
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, NavLink } from 'react-router-dom';
-import ByMeter from './ByMeter';
-import ByLocation from './ByLocation';
+//import ByMeter from './ByMeter';
+//import ByLocation from './ByLocation';
 import AssetTypes from './AssetTypes/AssetTypes';
 
 import Meter from './Meter/Meter';
 import * as queryString from "query-string";
 import createHistory from "history/createBrowserHistory"
+import Assets from './Assets/Assets';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -52,8 +55,11 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                         <div style={{ width: '100%', height: '100%', marginTop: 30 }}>
                             <div className="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical" style={{ height: 'calc(100% - 240px)' }}>
                                 <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath || location.pathname + location.search == controllerViewPath + "?name=AssetTypes"} to={controllerViewPath + "?name=AssetTypes"}>Asset Types</NavLink>
-                                <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Meters"} to={controllerViewPath + "?name=Meters" }>By Meter</NavLink>
-                                <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=MeterLocations"} to={controllerViewPath + "?name=MeterLocation"}>By Location</NavLink>
+                                {/*<NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Meters"} to={controllerViewPath + "?name=Meters" }>By Meter</NavLink>*/}
+                                {/*<NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=MeterLocations"} to={controllerViewPath + "?name=MeterLocation"}>By Location</NavLink> */}
+
+                                <hr />
+                                <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ValueLists"} to={controllerViewPath + "?name=ValueLists"}>Value Lists</NavLink>
 
                                 <hr />
                                 <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Users"} to={controllerViewPath + "?name=Users"}>Security Users</NavLink>
@@ -76,18 +82,18 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                                 return null;
                         }} />
 
-                        <Route children={({ match, ...rest }) => {
+                        {/*<Route children={({ match, ...rest }) => {
                             if (rest.location.pathname + rest.location.search == controllerViewPath + "?name=Meters")
                                 return <ByMeter />
                             else
                                 return null;
                         }} />
-                        <Route children={({ match, ...rest }) => {
-                            if (rest.location.pathname + rest.location.search == controllerViewPath + "?name=MeterLocations")
-                                return <ByLocation />
-                            else
-                                return null;
-                        }} />
+                            <Route children={({ match, ...rest }) => {
+                                if (rest.location.pathname + rest.location.search == controllerViewPath + "?name=MeterLocations")
+                                    return <ByLocation />
+                                else
+                                    return null;
+                            }} />*/}
                         <Route children={({ match, ...rest }) => {
                             if ( queryString.parse(rest.location.search).name == "Meter")
                                 return <Meter meterId={queryString.parse(rest.location.search).meterId}/>
@@ -103,6 +109,19 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                         <Route children={({ match, ...rest }) => {
                             if (queryString.parse(rest.location.search).name == "Groups")
                                 return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'Groups.cshtml'}></iframe>
+                            else
+                                return null;
+                        }} />
+                        <Route children={({ match, ...rest }) => {
+                            if (queryString.parse(rest.location.search).name == "ValueLists")
+                                return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'ValueListGroups.cshtml'}></iframe>
+                            else
+                                return null;
+                        }} />
+
+                        <Route children={({ match, ...rest }) => {
+                            if (queryString.parse(rest.location.search).name == "Assets")
+                                return <Assets assetTypeID={queryString.parse(rest.location.search).assetTypeID} assetTypeName={queryString.parse(rest.location.search).assetTypeName}/>
                             else
                                 return null;
                         }} />

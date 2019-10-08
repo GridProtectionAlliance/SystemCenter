@@ -22,8 +22,11 @@
 //******************************************************************************************************
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Web.Http;
+using System.Web.Http.Controllers;
+using System.Web.Http.Routing;
 using GSF.Configuration;
 using GSF.Web.Hosting;
 using GSF.Web.Model.Handlers;
@@ -91,10 +94,8 @@ namespace SystemCenter
             app.MapSignalR(hubConfig);
 
             // Set configuration to use reflection to setup routes
-            httpConfig.MapHttpAttributeRoutes();
+            httpConfig.MapHttpAttributeRoutes(new CustomDirectRouteProvider());
 
-            // Load new GSF web page controllers app.UseWebPageController
-            
             // Load the WebPageController class and assign its routes
             app.UseWebApi(httpConfig);
 
@@ -112,5 +113,15 @@ namespace SystemCenter
         /// </summary>
         public static AuthenticationOptions AuthenticationOptions { get; } = new AuthenticationOptions();
 
+    }
+
+    public class CustomDirectRouteProvider : DefaultDirectRouteProvider
+    {
+        protected override IReadOnlyList<IDirectRouteFactory>
+        GetActionRouteFactories(HttpActionDescriptor actionDescriptor)
+        {
+            return actionDescriptor.GetCustomAttributes<IDirectRouteFactory>
+            (inherit: true);
+        }
     }
 }

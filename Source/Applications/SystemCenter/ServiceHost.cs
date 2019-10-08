@@ -415,6 +415,8 @@ namespace SystemCenter
                 // we must define configuration types for all paged view model based Razor views here:
                 webServer.PagedViewModelTypes.TryAdd("Users.cshtml", new Tuple<Type, Type>(typeof(UserAccount), typeof(SecurityHub)));
                 webServer.PagedViewModelTypes.TryAdd("Groups.cshtml", new Tuple<Type, Type>(typeof(SecurityGroup), typeof(SecurityHub)));
+                webServer.PagedViewModelTypes.TryAdd("ValueListGroups.cshtml", new Tuple<Type, Type>(typeof(ValueListGroup), typeof(DataHub)));
+                webServer.PagedViewModelTypes.TryAdd("ValueListItems.cshtml", new Tuple<Type, Type>(typeof(ValueList), typeof(DataHub)));
 
                 // Parse configured authentication schemes
                 if (!Enum.TryParse(systemSettings["AuthenticationSchemes"].ValueAs(AuthenticationOptions.DefaultAuthenticationSchemes.ToString()), true, out AuthenticationSchemes authenticationSchemes))
@@ -692,6 +694,14 @@ namespace SystemCenter
             DisplayStatusMessage(message, type);
         }
 
+        /// <summary>
+        /// Logs an exception to the service.
+        /// </summary>
+        /// <param name="ex">Exception to log.</param>
+        public void LogException(Exception ex)
+        {
+            DisplayStatusMessage($"{ex.Message}", UpdateType.Alarm);
+        }
 
         /// <summary>
         /// Displays a broadcast message to all subscribed clients.

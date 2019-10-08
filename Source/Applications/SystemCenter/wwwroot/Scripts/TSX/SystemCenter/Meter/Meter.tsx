@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import MeterNoteWindow from './MeterNote';
+//import MeterNoteWindow from './MeterNote';
 import GeneralMeterInfoWindow from './GeneralMeterInfo';
 import ConnectionInfoWindow from './ConnectionInfo';
 import MeterLocationWindow from './MeterLocation';
@@ -67,7 +67,7 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
             <div className="card-header accordian" id="accordianHead" style={{ width: '100%',height: '100%', maxHeight: '100%', overflowY: 'auto' }}>
                 <h2>{this.state.Meter.Name}</h2>
                 <hr />
-                <MeterNoteWindow meterId={this.props.meterId} />
+                {/*<MeterNoteWindow meterId={this.props.meterId} />*/}
                 <GeneralMeterInfoWindow meterId={this.props.meterId} />
                 <ConnectionInfoWindow meterId={this.props.meterId} />
                 <MeterLocationWindow meterId={this.props.meterId} />

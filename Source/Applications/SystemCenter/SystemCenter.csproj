@@ -186,6 +186,7 @@
     <Reference Include="System.Net.Http.Formatting">
       <HintPath>..\..\Dependencies\GSF\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http.WebRequest" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\Dependencies\NuGet\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
@@ -199,8 +200,8 @@
     <Reference Include="System.Web.Http.Owin">
       <HintPath>..\..\Dependencies\GSF\System.Web.Http.Owin.dll</HintPath>
     </Reference>
-    <Reference Include="System.Web.Mvc, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\..\Dependencies\NuGet\Microsoft.AspNet.Mvc.5.2.3\lib\net45\System.Web.Mvc.dll</HintPath>
+    <Reference Include="System.Web.Mvc, Version=5.2.4.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\Dependencies\NuGet\Microsoft.AspNet.Mvc.5.2.4\lib\net45\System.Web.Mvc.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Razor, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\Dependencies\NuGet\Microsoft.AspNet.Razor.3.2.3\lib\net45\System.Web.Razor.dll</HintPath>
@@ -228,23 +229,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\OpenXDAController.cs" />
+    <Compile Include="Controllers\ModelController.cs" />
+    <Compile Include="Controllers\SystemCenter\Assets\AssetsController.cs" />
     <Compile Include="Controllers\SystemCenter\AssetTypes\AssetTypeFieldsController.cs" />
     <Compile Include="Controllers\SystemCenter\AssetTypes\AssetTypesController.cs" />
+    <Compile Include="DataHub.cs" />
     <Compile Include="Model\AppModel.cs" />
     <Compile Include="Configuration\CategorizedSetting.cs" />
     <Compile Include="Controllers\SystemCenter\MeterController.cs" />
     <Compile Include="Controllers\SystemCenter\MetersController.cs" />
     <Compile Include="Controllers\SystemCenter\Meter\ExternalLinksController.cs" />
-    <Compile Include="Controllers\SystemCenter\Meter\ConnectionInfoController.cs" />
     <Compile Include="Controllers\SystemCenter\Meter\MeterLocationController.cs" />
-    <Compile Include="Controllers\SystemCenter\Meter\GeneralMeterInfoController.cs" />
-    <Compile Include="Controllers\SystemCenter\Meter\NotesController.cs" />
     <Compile Include="DebugHost.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="DebugHost.Designer.cs">
       <DependentUpon>DebugHost.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model\Asset.cs" />
+    <Compile Include="Model\Note.cs" />
     <Compile Include="Model\AssetTypeFieldValue.cs" />
     <Compile Include="Model\AssetTypeField.cs" />
     <Compile Include="Model\AssetType.cs" />
@@ -252,6 +256,8 @@
     <Compile Include="Model\DataObjectWrapper.cs" />
     <Compile Include="Model\GlobalSettings.cs" />
     <Compile Include="Model\Setting.cs" />
+    <Compile Include="Model\ValueList.cs" />
+    <Compile Include="Model\ValueListGroup.cs" />
     <Compile Include="SystemCenterEngine.cs" />
     <Compile Include="ServiceConnection.cs" />
     <Compile Include="ServiceHub.cs" />
@@ -405,11 +411,15 @@
     </None>
     <Content Include="XDA.ico" />
     <Content Include="wwwroot\Users.cshtml" />
+    <Content Include="wwwroot\ValueListGroups.cshtml" />
+    <Content Include="wwwroot\ValueListItems.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\AssetPreviewPane.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\Assets.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetTypes\AssetTypePreviewPane.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ByLocation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetTypes\AssetTypes.tsx" />
@@ -418,11 +428,14 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Meter.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ByMeter.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\GeneralMeterInfo.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterNote.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\AssetNote.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\global.d.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\SystemCenter.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\Table.tsx" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Controllers\SystemCenter\ValueList\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Target Name="AfterBuild">

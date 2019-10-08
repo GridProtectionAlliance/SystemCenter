@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
-//  AssetTypeField.cs - Gbtc
+//  ValueListGroup.cs - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2018, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,21 +16,52 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  09/20/2019 - Billy Ernest
+//  09/10/2018 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
+using GSF.ComponentModel.DataAnnotations;
 using GSF.Data.Model;
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.Web.Http;
+using SystemCenter.Controllers;
+
 namespace SystemCenter.Model
 {
-    public class AssetTypeField
+    [RoutePrefix("api/ValueListGroup")]
+    public class ValueListGroupController : ModelController<ValueListGroup> { }
+
+    [PrimaryLabel("Name")]
+    public class ValueListGroup
     {
         [PrimaryKey(true)]
-        public int ID { get; set; }
-        public int AssetTypeID { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public string Description { get; set; }
+        public int ID
+        {
+            get; set;
+        }
+
+        [StringLength(200)]
+        public string Name
+        {
+            get; set;
+        }
+
+        public string Description
+        {
+            get; set;
+        }
+
+        [InitialValueScript("true")]
+        public bool Enabled
+        {
+            get; set;
+        }
+
+        public DateTime CreatedOn
+        {
+            get; set;
+        }
     }
 }

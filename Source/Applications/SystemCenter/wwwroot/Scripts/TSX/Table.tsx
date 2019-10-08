@@ -26,24 +26,24 @@ import * as _ from 'lodash';
 
 const AngleIcon: React.FunctionComponent<{ ascending: boolean }> = (props) => <span style={{ width: 10, height: 10, margin: 3 }} className={"fa fa-angle-" + (props.ascending ? 'up' : 'down')}></span>
 
-export interface TableProps {
-    cols: Array<{ key: string, label: string, headerStyle?: React.CSSProperties, rowStyle?: React.CSSProperties, content?(item: any, key: string, style: React.CSSProperties): void }>,
-    data: Array<any>,
+export interface TableProps<T> {
+    cols: Array<{ key: string, label: string, headerStyle?: React.CSSProperties, rowStyle?: React.CSSProperties, content?(item: T, key: string, style: React.CSSProperties): void }>,
+    data: Array<T>,
     onClick: Function,
     sortField: string,
     ascending: boolean,
-    onSort(data: any): void,
+    onSort(data: {col: string, asending: boolean}): void,
     tableClass?: string,
     tableStyle?: React.CSSProperties,
     theadStyle?: React.CSSProperties,
     theadClass?: string,
     tbodyStyle?: React.CSSProperties,
     tbodyClass?: string,
-    selected?(data: any): boolean,
+    selected?(data: T): boolean,
     rowStyle?: React.CSSProperties,
 }
 
-export default class Table extends React.Component<TableProps, {}> {
+export default class Table<T> extends React.Component<TableProps<T>, {}> {
     constructor(props) {
         super(props);
     }
@@ -100,13 +100,16 @@ export default class Table extends React.Component<TableProps, {}> {
             var style: React.CSSProperties;
 
             if (this.props.rowStyle != undefined) {
-                style = this.props.rowStyle;
+                style = _.clone(this.props.rowStyle);
             }
             else
                 style = {};
 
             if (style.cursor == undefined)
                 style.cursor = 'pointer';
+
+            if (this.props.selected(item))
+                style.backgroundColor = 'yellow';
 
             return <tr style={style} key={index.toString()}>{cells}</tr>;
         });
