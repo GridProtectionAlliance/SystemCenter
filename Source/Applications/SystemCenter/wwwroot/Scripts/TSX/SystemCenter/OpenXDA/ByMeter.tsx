@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '../Table';
+import Table from '../../Table';
 import * as _ from 'lodash';
 
 declare var homePath: string;

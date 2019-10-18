@@ -27,7 +27,7 @@ import * as ReactDOM from 'react-dom';
 declare var homePath: string;
 declare var controllerViewPath: string;
 
-export default class ByLocation extends React.Component<{}, {}, {}>{
+export default class ByLocation extends React.Component<{meterLocationID: number}, {}, {}>{
     constructor(props, context) {
         super(props, context);
     }

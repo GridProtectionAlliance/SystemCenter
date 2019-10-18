@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using GSF.ComponentModel.DataAnnotations;
+using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Security;
 using System;
@@ -133,7 +134,20 @@ namespace SystemCenter.Model
         #region [ Constructor ]
         public ValueListController() : base(true, "GroupID")
         {
+
         }
+
+        [HttpGet, Route("Group/{groupName}")]
+        public IHttpActionResult GetValueListForGroup(string groupName)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                IEnumerable<ValueList> records = new TableOperations<ValueList>(connection).QueryRecordsWhere("GroupID = ( SELECT ID FROM ValueListGroup WHERE Name = {0})", groupName);
+                return Ok(records);
+            }
+        }
+
+
         #endregion
 
     }

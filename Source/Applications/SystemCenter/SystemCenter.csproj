@@ -168,6 +168,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\..\Dependencies\GSF\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="openXDA.Model">
+      <HintPath>..\..\Dependencies\GSF\openXDA.Model.dll</HintPath>
+    </Reference>
     <Reference Include="Owin">
       <HintPath>..\..\Dependencies\GSF\Owin.dll</HintPath>
     </Reference>
@@ -229,7 +232,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\OpenXDAController.cs" />
+    <Compile Include="Controllers\OpenXDAControllers.cs" />
     <Compile Include="Controllers\ModelController.cs" />
     <Compile Include="Controllers\SystemCenter\Assets\AssetsController.cs" />
     <Compile Include="Controllers\SystemCenter\AssetTypes\AssetTypeFieldsController.cs" />
@@ -237,10 +240,7 @@
     <Compile Include="DataHub.cs" />
     <Compile Include="Model\AppModel.cs" />
     <Compile Include="Configuration\CategorizedSetting.cs" />
-    <Compile Include="Controllers\SystemCenter\MeterController.cs" />
     <Compile Include="Controllers\SystemCenter\MetersController.cs" />
-    <Compile Include="Controllers\SystemCenter\Meter\ExternalLinksController.cs" />
-    <Compile Include="Controllers\SystemCenter\Meter\MeterLocationController.cs" />
     <Compile Include="DebugHost.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -420,22 +420,28 @@
   <ItemGroup>
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\AssetPreviewPane.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\Assets.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDALineDataWindow.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDAMeterDataWindow.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDAMeterLocationDataWindow.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\ValueListInput.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetTypes\AssetTypePreviewPane.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ByLocation.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\NewMeter.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\TransmissionElement.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\OpenXDA\ByLocation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetTypes\AssetTypes.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterLocation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ConnectionInfo.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Meter.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ByMeter.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\OpenXDA\Meter.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\OpenXDA\ByLine.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\OpenXDA\ByMeter.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\GeneralMeterInfo.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\AssetNote.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\global.d.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDADataWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\SystemCenter.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\Table.tsx" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Controllers\SystemCenter\ValueList\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Target Name="AfterBuild">

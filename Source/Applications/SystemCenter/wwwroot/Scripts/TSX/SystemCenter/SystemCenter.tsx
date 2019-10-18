@@ -27,13 +27,15 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, NavLink } from 'react-router-dom';
 //import ByMeter from './ByMeter';
-//import ByLocation from './ByLocation';
+
 import AssetTypes from './AssetTypes/AssetTypes';
 
-import Meter from './Meter/Meter';
+import Meter from './OpenXDA/Meter';
 import * as queryString from "query-string";
 import createHistory from "history/createBrowserHistory"
 import Assets from './Assets/Assets';
+import ByLocation from './OpenXDA/ByLocation';
+import ByLine from './OpenXDA/ByLine';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -87,16 +89,23 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                                 return <ByMeter />
                             else
                                 return null;
+                        }} />*/}
+                        <Route children={({ match, ...rest }) => {
+                            if (queryString.parse(rest.location.search).name == "MeterLocations")
+                                return <ByLocation meterLocationID={queryString.parse(rest.location.search).meterLocationID} />
+                            else
+                                return null;
                         }} />
-                            <Route children={({ match, ...rest }) => {
-                                if (rest.location.pathname + rest.location.search == controllerViewPath + "?name=MeterLocations")
-                                    return <ByLocation />
-                                else
-                                    return null;
-                            }} />*/}
+                        <Route children={({ match, ...rest }) => {
+                            if (queryString.parse(rest.location.search).name == "Lines")
+                                return <ByLine lineID={queryString.parse(rest.location.search).lineID} />
+                            else
+                                return null;
+                        }} />
+
                         <Route children={({ match, ...rest }) => {
                             if ( queryString.parse(rest.location.search).name == "Meter")
-                                return <Meter meterId={queryString.parse(rest.location.search).meterId}/>
+                                return <Meter meterId={queryString.parse(rest.location.search).meterID}/>
                             else
                                 return null;
                         }} />

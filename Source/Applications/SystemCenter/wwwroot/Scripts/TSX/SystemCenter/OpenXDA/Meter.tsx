@@ -23,57 +23,57 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-//import MeterNoteWindow from './MeterNote';
-import GeneralMeterInfoWindow from './GeneralMeterInfo';
-import ConnectionInfoWindow from './ConnectionInfo';
-import MeterLocationWindow from './MeterLocation';
-
+import MeterLocationWindow from '../Meter/MeterLocation';
+import { OpenXDAMeter } from '../global';
+import GeneralMeterInfoWindow from '../Meter/GeneralMeterInfo';
+import NewMeterInfoWindow from '../Meter/NewMeter';
 declare var homePath: string;
 
-export default class Meter extends React.Component<{ meterId: number}, { Meter: any}, {}>{
-    jqueryHandle: JQuery.jqXHR;
+export default class Meter extends React.Component<{ meterId: number}, { Meter: OpenXDAMeter}, {}>{
     constructor(props, context) {
         super(props, context);
 
         this.state = {
-            Meter: {}
+            Meter: null
         }
     }
 
-    getMeter(): JQuery.jqXHR {
-        if (this.jqueryHandle !== undefined)
-            this.jqueryHandle.abort();
-
-        this.jqueryHandle = $.ajax({
+    getMeter(): void {
+       if (this.props.meterId == undefined) return;
+       $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/Meter/${this.props.meterId}`,
+            url: `${homePath}api/OpenXDA/Meter/One/${this.props.meterId}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            cache: true,
+            cache: false,
             async: true
-        });
-
-        return this.jqueryHandle;
+        }).done((data: OpenXDAMeter) => this.setState({ Meter: data }));
     }
 
     componentDidMount() {
-        this.getMeter().done(data => this.setState({ Meter: data }));
+        this.getMeter();
     }
 
     render() {
         var windowHeight = window.innerHeight;
 
-        return (
-            <div className="card-header accordian" id="accordianHead" style={{ width: '100%',height: '100%', maxHeight: '100%', overflowY: 'auto' }}>
-                <h2>{this.state.Meter.Name}</h2>
-                <hr />
-                {/*<MeterNoteWindow meterId={this.props.meterId} />*/}
-                <GeneralMeterInfoWindow meterId={this.props.meterId} />
-                <ConnectionInfoWindow meterId={this.props.meterId} />
-                <MeterLocationWindow meterId={this.props.meterId} />
-
-            </div>
-        )
+        if (this.props.meterId == undefined || this.props.meterId == 0)
+            return (
+                <div className="card-header accordian" id="accordianHead" style={{ width: '100%', height: '100%', maxHeight: '100%', overflowY: 'auto' }}>
+                    <h2>Add New Meter</h2>
+                    <hr />
+                    <NewMeterInfoWindow />
+                </div>
+            )
+        else
+            return (
+                <div className="card-header accordian" id="accordianHead" style={{ width: '100%',height: '100%', maxHeight: '100%', overflowY: 'auto' }}>
+                    <h2>{this.state.Meter != null ? this.state.Meter.Name : ''}</h2>
+                    <hr />
+                    <GeneralMeterInfoWindow meter={this.state.Meter} />
+                    <MeterLocationWindow meter={this.state.Meter} />
+                </div>
+            )
     }
 }
 
