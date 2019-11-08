@@ -420,9 +420,6 @@
   <ItemGroup>
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\AssetPreviewPane.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\Assets.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDALineDataWindow.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDAMeterDataWindow.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDAMeterLocationDataWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\ValueListInput.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetTypes\AssetTypePreviewPane.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\NewMeter.tsx" />

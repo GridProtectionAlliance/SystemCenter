@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDAMeter, OpenXDAMeterLocation } from '../global';
 declare var homePath: string;
 
-export default class MeterLocationWindow extends React.Component<{ meter: OpenXDAMeter }, { MeterLocation: OpenXDAMeterLocation, collapsed: boolean, changed: boolean, MeterLocations: Array<OpenXDAMeterLocation>}, {}> {
+export default class MeterLocationWindow extends React.Component<{ meter: OpenXDAMeter, stateSetter: (OpenXDAMeter) => void }, { MeterLocation: OpenXDAMeterLocation, collapsed: boolean, changed: boolean, MeterLocations: Array<OpenXDAMeterLocation>}, {}> {
     jqueryHandle: JQuery.jqXHR;
     constructor(props, context) {
         super(props, context);
@@ -51,14 +51,20 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
 
     componentDidMount() {
         this.getAllLocations();
-        this.getMeterLocation();
+        this.getMeterLocation(this.props.meter);
     }
 
-    getMeterLocation(): void {
-        if (this.props.meter == null || this.props.meter.MeterLocationID == null) return;
+    componentWillReceiveProps(nextProps): void {
+        if (this.state.MeterLocation.ID != nextProps.meter.MeterLocationID)
+            this.getMeterLocation(nextProps.meter);
+    }
+
+
+    getMeterLocation(meter: OpenXDAMeter): void {
+        if (meter == null || meter.MeterLocationID == null) return;
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/MeterLocation/One/${this.props.meter.MeterLocationID}`,
+            url: `${homePath}api/OpenXDA/MeterLocation/One/${meter.MeterLocationID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -112,31 +118,37 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
 
 
     updateMeterLocation(): JQuery.jqXHR {
-        var meterLocation: any = _.clone(this.state.MeterLocation, true);
-        meterLocation.MeterID = this.props.meter.ID;
+        var meter: OpenXDAMeter = _.clone(this.props.meter, true);
+        meter.MeterLocationID = this.state.MeterLocation.ID;
 
        return $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/Meter/MeterLocation/Update`,
+            type: "PATCH",
+            url: `${homePath}api/OpenXDA/Meter/Update`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(meterLocation),
+            data: JSON.stringify(meter),
             dataType: 'json',
             cache: true,
             async: true
-       }).done((meterLocation: OpenXDAMeterLocation) => {
-           this.setState({ MeterLocation: meterLocation, changed: false }, () => this.getAllLocations())
+       }).done((meterLocationID: number) => {
+           this.props.stateSetter(meter)
+           this.setState({ changed: false }, () => this.getAllLocations())
        });
     }
 
     deleteMeterLocation(): JQuery.jqXHR {
         return $.ajax({
             type: "DELETE",
-            url: `${homePath}api/SystemCenter/Meter/MeterLocation/Delete/${this.state.MeterLocation.ID}`,
+            url: `${homePath}api/OpenXDA/Meter/MeterLocation/Delete`,
             contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(this.props.meter),
             dataType: 'json',
             cache: true,
             async: true
         }).done((meterLocation: OpenXDAMeterLocation) => {
+            var meter: OpenXDAMeter = _.clone(this.props.meter, true);
+            meter.MeterLocationID = meterLocation.ID;
+            this.props.stateSetter(meter)
+
             this.setState({ MeterLocation: meterLocation, changed: false }, () => this.getAllLocations())
         });
     }
@@ -279,7 +291,7 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
                             <button className="btn btn-primary" onClick={() => this.updateMeterLocation()} hidden={this.state.MeterLocation.ID == 0} disabled={!this.state.changed}>Update</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className="btn btn-default" onClick={() => this.getMeterLocation()} disabled={!this.state.changed}>Reset</button>
+                            <button className="btn btn-default" onClick={() => this.getMeterLocation(this.props.meter)} disabled={!this.state.changed}>Reset</button>
                         </div>
                         <div className="btn-group mr-2">
                             <button className="btn btn-danger" onClick={() => this.deleteMeterLocation()} disabled={this.state.MeterLocation.ID == 0 || this.state.changed}>Delete Meter Location</button>

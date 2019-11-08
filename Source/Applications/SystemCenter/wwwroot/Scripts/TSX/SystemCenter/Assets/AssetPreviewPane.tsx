@@ -77,13 +77,13 @@ export default class AssetPreviewPane extends React.Component<AssetPreviewPanePr
                     cards.map(name => {
                         if (name == "OpenXDA") {
                             if (this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.MeterLocation.') >= 0).length > 0)
-                                return <OpenXDADataWindow key={name} class="MeterLocation" fields={this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.MeterLocation.') >= 0)} getData={() => this.getData(this.props)} />
+                                return <OpenXDADataWindow key={name} class="MeterLocation" fields={this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.MeterLocation.') >= 0)} getData={() => this.getData(this.props)} assetKey={this.props.assetName}/>
                             else if (this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.Meter.') >= 0).length > 0)
-                                return <OpenXDADataWindow key={name} class="Meter" fields={this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.Meter.') >= 0)} getData={() => this.getData(this.props)} />
+                                return <OpenXDADataWindow key={name} class="Meter" fields={this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.Meter.') >= 0)} getData={() => this.getData(this.props)} assetKey={this.props.assetName}/>
                             else if (this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.Line.') >= 0).length > 0)
-                                return <OpenXDADataWindow key={name} class="Line" fields={this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.Line.') >= 0)} getData={() => this.getData(this.props)} />
+                                return <OpenXDADataWindow key={name} class="Line" fields={this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.Line.') >= 0)} getData={() => this.getData(this.props)} assetKey={this.props.assetName}/>
                             else
-                                return <OpenXDADataWindow key={name} class="" fields={this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.') >= 0)} getData={() => this.getData(this.props)} />
+                                return <OpenXDADataWindow key={name} class="" fields={this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.') >= 0)} getData={() => this.getData(this.props)} assetKey={this.props.assetName} />
                         }
                         else
                             return <GenericDataWindow key={name} groupName={name} fields={this.state.fields.filter(x => x.FieldName.indexOf(name) >= 0)} getData={() => this.getData(this.props)} />

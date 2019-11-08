@@ -127,8 +127,10 @@ export default class Assets extends React.Component<AssetsProps, AssetsState , {
                             <li className="nav-item" style={{ width: '50%', paddingRight: 10 }}>
                                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                     <form>
-                                        <button className='btn btn-primary' data-toggle="modal" data-target="#assetTypeModal" onClick={(evt) => {
+                                        <button className='btn btn-primary' data-toggle={(this.props.assetTypeName != "Meter" ? "modal" : '')} data-target="#assetTypeModal" onClick={(evt) => {
                                             evt.preventDefault()
+                                            if (this.props.assetTypeName == "Meter")
+                                                window.location.href = homePath + 'index.cshtml?name=Meter'
                                             this.setState({addNew: true});
                                         }} >Add New {this.props.assetTypeName}</button>
                                     </form>
@@ -165,7 +167,7 @@ export default class Assets extends React.Component<AssetsProps, AssetsState , {
                             this.setState({ ascending: !this.state.ascending, data: ordered });
                         }}
                         onClick={(col, row, data) => {
-                            if(col.col == "Name")
+                            if(col.col == "AssetKey")
                                 this.setState({ assetID: col.row.ID, assetName: col.row.AssetKey })
                         }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

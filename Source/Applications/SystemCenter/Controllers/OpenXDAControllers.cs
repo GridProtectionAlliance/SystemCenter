@@ -39,6 +39,7 @@ using GSF.Web;
 using GSF.Web.Security;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
+using SystemCenter.Model;
 
 namespace SystemCenter.Controllers
 {
@@ -52,6 +53,16 @@ namespace SystemCenter.Controllers
             using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
             {
                 IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("ID IN ( SELECT MeterID FROM MeterLine WHERE LineID = {0})", lineID);
+                return Ok(records);
+            }
+        }
+
+        [HttpGet, Route("MeterLocation/{meterLocationID:int}")]
+        public IHttpActionResult GetMetersForMeterLocation(int meterLocationID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("MeterLocationID = {0}", meterLocationID);
                 return Ok(records);
             }
         }
@@ -71,18 +82,35 @@ namespace SystemCenter.Controllers
         {
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connXDA = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connSS = new AdoDataConnection("systemSettings"))
                 {
                     MeterLocation meterLocation = record["MeterLocation"].ToObject<MeterLocation>();
                     Meter meter = record["Meter"].ToObject<Meter>();
 
                     if (meterLocation.ID == 0)
                     {
-                        new TableOperations<MeterLocation>(connection).AddNewRecord(meterLocation);
-                        meter.MeterLocationID = new TableOperations<MeterLocation>(connection).QueryRecordWhere("AssetKey = {0}", meterLocation.AssetKey).ID;
+                        new TableOperations<MeterLocation>(connXDA).AddNewRecord(meterLocation);
+                        meter.MeterLocationID = new TableOperations<MeterLocation>(connXDA).QueryRecordWhere("AssetKey = {0}", meterLocation.AssetKey).ID;
+                        int mlassetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Station'");
+                        int mlassetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.MeterLocation.ID'");
+
+                        new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = meterLocation.AssetKey, AssetTypeID = mlassetTypeID });
+                        int mlassetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", meterLocation.AssetKey);
+                        new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = mlassetID, AssetTypeFieldID = mlassetTypeFieldID, Value = meter.MeterLocationID.ToString() });
+
                     }
                     base.Post(meter);
-                    meter = new TableOperations<Meter>(connection).QueryRecordWhere("AssetKey = {0}", meter.AssetKey);
+                    meter = new TableOperations<Meter>(connXDA).QueryRecordWhere("AssetKey = {0}", meter.AssetKey);
+
+
+                    int assetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Meter'");
+                    int assetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.Meter.ID'");
+
+                    new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = meter.AssetKey, AssetTypeID = assetTypeID});
+                    int assetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", meter.AssetKey);
+                    new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = assetID, AssetTypeFieldID = assetTypeFieldID, Value = meter.ID.ToString()});
+
                     return Ok(meter);
                 }
 
@@ -92,6 +120,52 @@ namespace SystemCenter.Controllers
             }
         }
 
+        [HttpDelete, Route("MeterLocation/Delete")]
+        public IHttpActionResult DeleteMeterLocation(Meter record)
+        {
+            try
+            {
+                using (AdoDataConnection connXDA = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connSS = new AdoDataConnection("systemSettings"))
+                {
+                    int assetID = connSS.ExecuteScalar<int>("SELECT AssetID FROM AssetTypeFieldValue WHERE AssetTypeFieldID = (SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.MeterLocation.ID') AND Value = {0}", record.MeterLocationID.ToString());
+                    connSS.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'Asset', 'ID = {assetID}'");
+                    int tempMeterLocationID = connXDA.ExecuteScalar<int>("SELECT TOP 1 ID FROM MeterLocation");
+                    connXDA.ExecuteNonQuery("UPDATE Meter SET MeterLocationID = {0} WHERE ID = {1}", tempMeterLocationID, record.ID);
+                    MeterLocationController meterLocationController = new MeterLocationController();
+                    MeterLocation meterLocation = new TableOperations<MeterLocation>(connXDA).QueryRecordWhere("ID = {0}", record.MeterLocationID);
+                    meterLocationController.Delete(meterLocation);
+                    MeterLocation newMeterLocation = new TableOperations<MeterLocation>(connXDA).QueryRecordWhere("ID = {0}", tempMeterLocationID);
+                    return Ok(newMeterLocation);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
+
+        public override IHttpActionResult Delete(Meter record)
+        {
+            try
+            {
+                using (AdoDataConnection connSS = new AdoDataConnection("systemSettings"))
+                {
+                    int assetID = connSS.ExecuteScalar<int>("SELECT AssetID FROM AssetTypeFieldValue WHERE AssetTypeFieldID = (SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.Meter.ID') AND Value = {0}", record.ID.ToString());
+                    connSS.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'Asset', 'ID = {assetID}'");
+                    return base.Delete(record);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
+
+
+
     }
 
     [RoutePrefix("api/OpenXDA/MeterLocation")]
@@ -100,10 +174,19 @@ namespace SystemCenter.Controllers
 
         public override IHttpActionResult Post([FromBody] MeterLocation record)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connXDA = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connSS = new AdoDataConnection("systemSettings"))
             {
                 base.Post(record);
-                record = new TableOperations<MeterLocation>(connection).QueryRecordWhere("AssetKey = {0}", record.AssetKey);
+                record = new TableOperations<MeterLocation>(connXDA).QueryRecordWhere("AssetKey = {0}", record.AssetKey);
+
+                int assetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Station'");
+                int assetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.MeterLocation.ID'");
+
+                new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = record.AssetKey, AssetTypeID = assetTypeID });
+                int assetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", record.AssetKey);
+                new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = assetID, AssetTypeFieldID = assetTypeFieldID, Value = record.ID.ToString() });
+
                 return Ok(record);
             }
         }

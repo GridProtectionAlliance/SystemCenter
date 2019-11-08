@@ -25,13 +25,10 @@ import { AssetTypeFieldAndValue, OpenXDAMeterLocation } from "../global";
 import * as React from 'react';
 import * as _ from 'lodash';
 import ValueListInput from "./ValueListInput";
-import OpenXDAMeterLocationDataWindow from "./OpenXDAMeterLocationDataWindow";
-import OpenXDALineDataWindow from "./OpenXDALineDataWindow";
-import OpenXDAMeterDataWindow from "./OpenXDAMeterDataWindow";
 
 declare var homePath: string;
 
-export default class OpenXDADataWindow extends React.Component<{ fields: Array<AssetTypeFieldAndValue>, getData(): void, class: '' | 'Meter' | 'MeterLocation' | 'Line' }, { fields: Array<AssetTypeFieldAndValue>, collapsed: boolean }, {}> {
+export default class OpenXDADataWindow extends React.Component<{ assetKey: string, fields: Array<AssetTypeFieldAndValue>, getData(): void, class: '' | 'Meter' | 'MeterLocation' | 'Line' }, { fields: Array<AssetTypeFieldAndValue>, collapsed: boolean }, {}> {
     constructor(props, context) {
         super(props, context);
 
@@ -46,33 +43,12 @@ export default class OpenXDADataWindow extends React.Component<{ fields: Array<A
             this.setState({ fields: _.cloneDeep(nextProps.fields) });
     }
 
-
-    disableButton(): boolean {
-        return JSON.stringify(this.state.fields) == JSON.stringify(this.props.fields);
-    }
-
-    editAssetFields(): void {
-        $.ajax({
-            type: "PATCH",
-            url: `${homePath}api/Assets/Update`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(this.state.fields),
-            cache: true,
-            async: true
-        }).done(() => this.props.getData()).fail((msg) => {
-            alert('Unable to update type.  Ensure you are not adding a duplicate name to the list of types.');
-            console.log(msg.responseJSON)
-        });
+    getRecordID(): number {
+        return this.state.fields.filter(x => x.FieldName == 'OpenXDA.' + this.props.class + '.ID')[0].AssetTypeFieldValue == null ? 0 : parseInt(this.state.fields.filter(x => x.FieldName == 'OpenXDA.' + this.props.class +'.ID')[0].AssetTypeFieldValue);
     }
 
     render() {
-        if (this.props.class == 'MeterLocation')
-            return <OpenXDAMeterLocationDataWindow fields={this.props.fields} getData={this.props.getData} />;
-        else if (this.props.class == 'Line')
-            return <OpenXDALineDataWindow fields={this.props.fields} getData={this.props.getData} />;
-        else if (this.props.class == 'Meter')
-            return <OpenXDAMeterDataWindow fields={this.props.fields} getData={this.props.getData} />;
-        else
+        var recordID = this.getRecordID();
         return (
             <div className="card" style={{ marginBottom: 10 }}>
                 <div className="card-header">
@@ -95,17 +71,22 @@ export default class OpenXDADataWindow extends React.Component<{ fields: Array<A
                                         var obj: Array<AssetTypeFieldAndValue> = _.clone(this.state.fields);
                                         obj[obj.findIndex(x => x.FieldName == fieldName)].AssetTypeFieldValue = result;
                                         this.setState({ fields: obj })
-                                    }} disabled={false}/>
+                                    }} disabled={true}/>
                                 )
                             }
                         </form>
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className='btn btn-primary pull-right' onClick={(evt) => {
+                            <button className='btn btn-primary' onClick={(evt) => {
                                 evt.preventDefault()
-                                this.editAssetFields();
-                            }} style={{ cursor: this.disableButton() ? 'not-allowed' : 'pointer' }} disabled={this.disableButton()} >Update OpenXDA Data</button>
+                                if (this.props.class == 'Meter')
+                                    window.location.href = `${homePath}index.cshtml?name=Meter&meterID=${recordID}`
+                                else if (this.props.class == 'MeterLocation')
+                                    window.location.href = `${homePath}index.cshtml?name=MeterLocations&meterLocationID=${recordID}&AssetKey=${this.props.assetKey}`
+                                else if (this.props.class == 'Line')
+                                    window.location.href = `${homePath}index.cshtml?name=Lines&lineID=${recordID}`
+                            }} style={{ cursor: recordID == null ? 'not-allowed' : 'pointer' }} disabled={recordID == null} >View Associated OpenXDA Meter{(this.props.class == 'Meter' ? '': 's')}</button>
                         </div>
                     </div>
                 </div>

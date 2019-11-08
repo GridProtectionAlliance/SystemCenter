@@ -93,7 +93,7 @@ namespace SystemCenter.Controllers.Assets
                     FROM
 	                    Asset JOIN
 	                    AssetTypeField ON Asset.AssetTypeID = AssetTypeField.AssetTypeID LEFT JOIN
-	                    AssetTypeFieldValue ON AssetTypeField.ID = AssetTypeFieldValue.AssetTypeFieldID
+	                    AssetTypeFieldValue ON AssetTypeField.ID = AssetTypeFieldValue.AssetTypeFieldID AND AssetTypeFieldValue.AssetID = Asset.ID
                     WHERE 
 	                    Asset.ID = {0}
                     ", assetID);

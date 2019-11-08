@@ -70,8 +70,8 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
                 <div className="card-header accordian" id="accordianHead" style={{ width: '100%',height: '100%', maxHeight: '100%', overflowY: 'auto' }}>
                     <h2>{this.state.Meter != null ? this.state.Meter.Name : ''}</h2>
                     <hr />
-                    <GeneralMeterInfoWindow meter={this.state.Meter} />
-                    <MeterLocationWindow meter={this.state.Meter} />
+                    <GeneralMeterInfoWindow meter={this.state.Meter} stateSetter={(meter: OpenXDAMeter) => this.setState({ Meter: meter })}/>
+                    <MeterLocationWindow meter={this.state.Meter} stateSetter={(meter: OpenXDAMeter) => this.setState({ Meter: meter })}/>
                 </div>
             )
     }

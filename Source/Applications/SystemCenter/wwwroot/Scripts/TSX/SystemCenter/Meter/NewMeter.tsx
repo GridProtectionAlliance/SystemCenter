@@ -68,6 +68,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
         this.getMeterLocations();
     }
 
+
     getTimeZones(): void {
         $.ajax({
             type: "GET",
@@ -87,7 +88,10 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
             dataType: 'json',
             cache: true,
             async: true
-        }).done((mls: Array<OpenXDAMeterLocation>) => this.setState({ MeterLocations: mls }));
+        }).done((mls: Array<OpenXDAMeterLocation>) => {
+            var ordered = _.orderBy(mls, ['AssetKey'], ['ASC']);
+            this.setState({ MeterLocations: mls })
+        });
     }
 
     addNewMeter(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
@@ -102,7 +106,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
             cache: true,
             async: true
         }).done((meter: OpenXDAMeter) => {
-            window.location.href = homePath + 'SystemCenter/index.cshtml?name=Meter&meterId=' + meter.ID
+            window.location.href = homePath + 'index.cshtml?name=Meter&meterID=' + meter.ID
         });
     }
 

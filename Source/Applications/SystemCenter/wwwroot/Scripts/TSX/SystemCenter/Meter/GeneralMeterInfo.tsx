@@ -28,23 +28,12 @@ import * as _ from 'lodash';
 import { OpenXDAMeter, ValueListItem } from '../global';
 declare var homePath: string;
 
-export default class GeneralMeterInfoWindow extends React.Component<{ meter: OpenXDAMeter }, { Meter: OpenXDAMeter, collapsed: boolean, changed: boolean, TimeZones: Array<ValueListItem> }, {}> {
+export default class GeneralMeterInfoWindow extends React.Component<{ meter: OpenXDAMeter, stateSetter: (OpenXDAMeter) => void }, { collapsed: boolean, changed: boolean, TimeZones: Array<ValueListItem> }, {}> {
     jqueryHandle: JQuery.jqXHR;
     constructor(props, context) {
         super(props, context);
 
         this.state = {
-            Meter: (this.props.meter != null ? _.cloneDeep(this.props.meter,true) : {
-                ID: 0,
-                AssetKey: '',
-                Name: '',
-                ShortName: '',
-                Alias: '',
-                Make: '',
-                Model: '',
-                TimeZone: '',
-                Description: '',
-            }),
             collapsed: true,
             changed: false,
             TimeZones: null
@@ -56,6 +45,23 @@ export default class GeneralMeterInfoWindow extends React.Component<{ meter: Ope
 
     componentDidMount() {
         this.getTimeZones();
+    }
+
+    componentWillReceiveProps(nextProps): void {
+    }
+
+    getMeter(): void {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Meter/One/${this.props.meter.ID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        }).done((meter: OpenXDAMeter) => {
+            this.props.stateSetter(meter)
+            this.setState({ changed: false });
+        });
     }
 
     getTimeZones(): void {
@@ -74,7 +80,7 @@ export default class GeneralMeterInfoWindow extends React.Component<{ meter: Ope
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Meter/Delete`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(this.state.Meter),
+            data: JSON.stringify(this.props.meter),
             dataType: 'json',
             cache: true,
             async: true
@@ -87,17 +93,19 @@ export default class GeneralMeterInfoWindow extends React.Component<{ meter: Ope
             type: "PATCH",
             url: `${homePath}api/OpenXDA/Meter/Update`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(this.state.Meter),
+            data: JSON.stringify(this.props.meter),
             dataType: 'json',
             cache: true,
             async: true
-        });
+       }).done((meter: OpenXDAMeter) => {
+           this.setState({ changed: false });
+       });
     }
 
     addNewMeter(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
         event.preventDefault();
 
-        var meter: any = _.clone(this.state.Meter, true);
+        var meter: any = _.clone(this.props.meter, true);
 
         $.ajax({
             type: "POST",
@@ -108,12 +116,14 @@ export default class GeneralMeterInfoWindow extends React.Component<{ meter: Ope
             cache: true,
             async: true
         }).done((meter: OpenXDAMeter) => {
-            this.setState({ Meter: meter, changed: false })
+            this.props.stateSetter(meter);
+            this.setState({ changed: false });
         });
     }
 
 
     render() {
+        if (this.props.meter == null) return null;
         return (
             <div className="card" style={{ marginBottom: 10 }}>
                 <div className="card-header">
@@ -133,44 +143,48 @@ export default class GeneralMeterInfoWindow extends React.Component<{ meter: Ope
                                 <div className="form-group">
                                     <label>Asset Key</label>
                                     <input className={"form-control"} onChange={(evt) => {
-                                        var meter: OpenXDAMeter = _.clone(this.state.Meter, true);
+                                        var meter: OpenXDAMeter = _.clone(this.props.meter, true);
                                         if (evt.target.value != "")
                                             meter.AssetKey = evt.target.value;
                                         else
                                             meter.AssetKey = null;
 
-                                        this.setState({ Meter: meter, changed: true });
-                                    }} value={this.state.Meter == null || this.state.Meter.AssetKey == null ? '' : this.state.Meter.AssetKey} required={true}/>
+                                        this.props.stateSetter(meter);
+                                        this.setState({ changed: true });
+                                    }} value={this.props.meter == null || this.props.meter.AssetKey == null ? '' : this.props.meter.AssetKey} required={true}/>
                                     <label>Name</label>
                                     <input className="form-control" onChange={(evt) => {
-                                        var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                        var meter: OpenXDAMeter  = _.clone(this.props.meter, true);
                                         if (evt.target.value != "")
                                             meter.Name = evt.target.value;
                                         else
                                             meter.Name = null;
 
-                                        this.setState({ Meter: meter, changed: true });
-                                    }} value={this.state.Meter == null || this.state.Meter.Name == null ? '' : this.state.Meter.Name} />
+                                        this.props.stateSetter(meter);
+                                        this.setState({ changed: true });
+                                    }} value={this.props.meter == null || this.props.meter.Name == null ? '' : this.props.meter.Name} />
                                     <label>Short Name</label>
                                     <input className="form-control" onChange={(evt) => {
-                                        var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                        var meter: OpenXDAMeter  = _.clone(this.props.meter, true);
                                         if (evt.target.value != "")
                                             meter.ShortName = evt.target.value;
                                         else
                                             meter.ShortName = null;
 
-                                        this.setState({ Meter: meter, changed: true });
-                                    }} value={this.state.Meter == null || this.state.Meter.ShortName == null ? '' : this.state.Meter.ShortName} />
+                                        this.props.stateSetter(meter);
+                                        this.setState({ changed: true });
+                                    }} value={this.props.meter == null || this.props.meter.ShortName == null ? '' : this.props.meter.ShortName} />
                                     <label>Alias</label>
                                     <input className="form-control" onChange={(evt) => {
-                                        var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                        var meter: OpenXDAMeter  = _.clone(this.props.meter, true);
                                         if (evt.target.value != "")
                                             meter.Alias = evt.target.value;
                                         else
                                             meter.Alias = null;
 
-                                        this.setState({ Meter: meter, changed: true });
-                                    }} value={this.state.Meter == null || this.state.Meter.Alias == null ? '' : this.state.Meter.Alias} />
+                                        this.props.stateSetter(meter);
+                                        this.setState({ changed: true });
+                                    }} value={this.props.meter == null || this.props.meter.Alias == null ? '' : this.props.meter.Alias} />
                                 </div>
                             </div>
                             <div className="col">
@@ -178,33 +192,36 @@ export default class GeneralMeterInfoWindow extends React.Component<{ meter: Ope
 
                                     <label>Make</label>
                                     <input className="form-control" onChange={(evt) => {
-                                        var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                        var meter: OpenXDAMeter  = _.clone(this.props.meter, true);
                                         if (evt.target.value != "")
                                             meter.Make = evt.target.value;
                                         else
                                             meter.Make = null;
 
-                                        this.setState({ Meter: meter, changed: true });
-                                    }} value={this.state.Meter == null || this.state.Meter.Make == null ? '' : this.state.Meter.Make} />
+                                        this.props.stateSetter(meter);
+                                        this.setState({ changed: true });
+                                    }} value={this.props.meter == null || this.props.meter.Make == null ? '' : this.props.meter.Make} />
                                     <label>Model</label>
                                     <input className="form-control" onChange={(evt) => {
-                                        var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                        var meter: OpenXDAMeter  = _.clone(this.props.meter, true);
                                         if (evt.target.value != "")
                                             meter.Model = evt.target.value;
                                         else
                                             meter.Model = null;
 
-                                        this.setState({ Meter: meter, changed: true });
-                                    }} value={this.state.Meter == null || this.state.Meter.Model == null ? '' : this.state.Meter.Model} />
+                                        this.props.stateSetter(meter);
+                                        this.setState({ changed: true });
+                                    }} value={this.props.meter == null || this.props.meter.Model == null ? '' : this.props.meter.Model} />
 
                                     <label>Time Zone</label>
-                                    <select className="form-control" value={this.state.Meter == null || this.state.Meter.TimeZone == null ? '-1' : this.state.Meter.TimeZone} onChange={(evt) => {
-                                        var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                    <select className="form-control" value={this.props.meter == null || this.props.meter.TimeZone == null ? '-1' : this.props.meter.TimeZone} onChange={(evt) => {
+                                        var meter: OpenXDAMeter  = _.clone(this.props.meter, true);
                                         if (evt.target.value != "-1")
                                             meter.TimeZone = evt.target.value;
                                         else
                                             meter.TimeZone = null;
-                                        this.setState({ Meter: meter, changed: true });
+                                        this.props.stateSetter(meter);
+                                        this.setState({ changed: true });
                                     }}>
                                         <option value="-1">None Selected</option>
                                         {
@@ -214,14 +231,15 @@ export default class GeneralMeterInfoWindow extends React.Component<{ meter: Ope
 
                                     <label>Description</label>
                                     <textarea rows={2} className="form-control" onChange={(evt) => {
-                                        var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                        var meter: OpenXDAMeter  = _.clone(this.props.meter, true);
                                         if (evt.target.value != "")
                                             meter.Description = evt.target.value;
                                         else
                                             meter.Description = null;
 
-                                        this.setState({ Meter: meter, changed: true });
-                                    }} value={this.state.Meter == null || this.state.Meter.Description == null ? '' : this.state.Meter.Description} />
+                                        this.props.stateSetter(meter);
+                                        this.setState({ changed: true });
+                                    }} value={this.props.meter == null || this.props.meter.Description == null ? '' : this.props.meter.Description} />
 
 
                                 </div>
@@ -230,27 +248,16 @@ export default class GeneralMeterInfoWindow extends React.Component<{ meter: Ope
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className="btn btn-primary" onClick={this.addNewMeter} hidden={this.state.Meter.ID != 0}  type="submit">Add New</button>
+                            <button className="btn btn-primary" onClick={this.addNewMeter} hidden={this.props.meter.ID != 0}  type="submit">Add New</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className="btn btn-primary" type="submit" onClick={() => this.updateMeter()} hidden={this.state.Meter.ID == 0}  disabled={!this.state.changed}>Update</button>
+                            <button className="btn btn-primary" type="submit" onClick={() => this.updateMeter()} hidden={this.props.meter.ID == 0}  disabled={!this.state.changed}>Update</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className="btn btn-default" onClick={() => this.setState({
-                                Meter: (this.props.meter != null ? _.cloneDeep(this.props.meter) : {
-                                    ID: 0,
-                                    AssetKey: '',
-                                    Name: '',
-                                    ShortName: '',
-                                    Alias: '',
-                                    Make: '',
-                                    Model: '',
-                                    TimeZone: '',
-                                    Description: '',
-                                }), changed: false })} disabled={!this.state.changed}>Reset</button>
+                            <button className="btn btn-default" onClick={() => this.getMeter()} disabled={!this.state.changed}>Reset</button>
                         </div>
                         <div className="btn-group mr-2">
-                            <button className="btn btn-danger" hidden={this.props.meter == null}  onClick={() => this.deleteMeter().done(() => window.location.href = homePath + 'SystemCenter/index.cshtml?name=Meters')}>Delete Meter (Permanent)</button>
+                            <button className="btn btn-danger" hidden={this.props.meter == null}  onClick={() => this.deleteMeter().done(() => window.location.href = homePath + 'index.cshtml?name=Meter')}>Delete Meter (Permanent)</button>
                         </div>
 
                     </div>

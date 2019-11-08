@@ -92,7 +92,7 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                         }} />*/}
                         <Route children={({ match, ...rest }) => {
                             if (queryString.parse(rest.location.search).name == "MeterLocations")
-                                return <ByLocation meterLocationID={queryString.parse(rest.location.search).meterLocationID} />
+                                return <ByLocation meterLocationID={queryString.parse(rest.location.search).meterLocationID} meterLocationAssetKey={queryString.parse(rest.location.search).AssetKey} />
                             else
                                 return null;
                         }} />
