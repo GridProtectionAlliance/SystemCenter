@@ -21,6 +21,7 @@
 //
 //******************************************************************************************************
 
+// System Center Models
 export interface AssetType { Name: string, ID: number }
 export interface AssetTypeWithCount extends AssetType { Assets: number }
 export interface AssetTypeField { Name: string, ID: number, Type: string, Description: string }
@@ -28,6 +29,14 @@ export interface Asset { ID: number, AssetKey: string, AssetTypeID: number }
 export interface AssetTypeFieldAndValue { FieldName: string, FieldDescription: string, FieldType: string, AssetTypeFieldValueID: number, AssetTypeFieldValue: string }
 export interface ValueListItem { ID: number, GroupID: number, Text: string, Value: number, Key: number, Hidden: boolean, IsDefault: boolean, SortOrder: number, AltText1: string, Enabled: boolean }
 export interface Note { ID: number, AssetID: number, Note: string, UserAccount: string, Timestamp: string }
+
+// OpenXDA Models
 export interface OpenXDAMeterLocation { ID: number, AssetKey: string, Name: string, Alias: string, Latitude: number, Longitude: number, Description: string, ShortName: string }
 export interface OpenXDALine { ID: number, AssetKey: string, VoltageKV: number, ThermalRating: number, Length: number, MaxFaultDistance: number, MinFaultDistance: number, Description: string }
-export interface OpenXDAMeter { ID: number, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, MeterLocationID: number,Description: string }
+export interface OpenXDAMeterLine { ID: number, MeterID: number, LineID: number, LineName: string }
+export interface OpenXDALineImpedance { ID: number, LineID: number, R0: number, X0: number, R1: number, X1: number }
+export interface OpenXDAEDNAPoint { ID: number, LineID: number, Point: number }
+export interface OpenXDAMeter { ID: number, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, MeterLocationID: number, Description: string }
+
+// System Center - OpenXDA Link models
+export interface OpenXDASCMeterLine extends OpenXDALine { LineName: string, LineImpedanceID: number, R0: number, X0: number, R1: number, X1: number}

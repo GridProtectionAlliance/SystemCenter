@@ -420,6 +420,8 @@
   <ItemGroup>
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\AssetPreviewPane.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\Assets.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDAEDNADataWindow.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDAPQViewDataWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\ValueListInput.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetTypes\AssetTypePreviewPane.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\NewMeter.tsx" />

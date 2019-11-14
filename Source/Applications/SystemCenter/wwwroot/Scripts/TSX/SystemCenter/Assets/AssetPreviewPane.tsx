@@ -29,6 +29,8 @@ import { AssetTypeField, Asset, ValueListItem, AssetTypeFieldAndValue } from '..
 import AssetNoteWindow from './AssetNote';
 import OpenXDADataWindow from './OpenXDADataWindow';
 import ValueListInput from './ValueListInput';
+import OpenXDAPQViewDataWindow from './OpenXDAPQViewDataWindow';
+import OpenXDAEDNADataWindow from './OpenXDAEDNADataWindow';
 
 declare var homePath: string;
 declare interface AssetPreviewPaneProps { assetID: number, assetTypeID: number, assetTypeName: string, assetName: string }
@@ -69,6 +71,13 @@ export default class AssetPreviewPane extends React.Component<AssetPreviewPanePr
         if (this.state.fields.length == 0) return <div></div>;
 
         var cards = [...new Set(this.state.fields.filter(x => x.FieldName.indexOf('.') >= 0).map(x => x.FieldName.split('.')[0]))];
+        var meterID, lineID = 0;
+
+        if (this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.Meter.ID') >= 0).length > 0)
+            meterID = parseInt(this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.Meter.ID') >= 0)[0].AssetTypeFieldValue);
+        else if (this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.Line.ID') >= 0).length > 0)
+            lineID = parseInt(this.state.fields.filter(x => x.FieldName.indexOf('OpenXDA.Line.ID') >= 0)[0].AssetTypeFieldValue);
+
         return (
             <>
                 <AssetNoteWindow assetID={this.props.assetID} />
@@ -91,6 +100,9 @@ export default class AssetPreviewPane extends React.Component<AssetPreviewPanePr
 
                     })
                 }
+                {(this.props.assetTypeName == 'Meter' ? <OpenXDAPQViewDataWindow meterID={meterID}/> : null)}
+                {(this.props.assetTypeName == 'Line' ? <OpenXDAEDNADataWindow lineID={lineID}/> : null)}
+
             </>
         );
     }

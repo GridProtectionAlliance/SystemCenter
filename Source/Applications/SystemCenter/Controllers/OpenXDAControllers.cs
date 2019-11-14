@@ -120,6 +120,44 @@ namespace SystemCenter.Controllers
             }
         }
 
+        [HttpGet, Route("PQViewSite/{meterID:int}")]
+        public IHttpActionResult GetPQViewSite(int meterID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                PQViewSite record = new TableOperations<PQViewSite>(connection).QueryRecordWhere("MeterID = {0}", meterID);
+                return Ok(record);
+            }
+        }
+
+
+
+        [HttpPost, Route("PQViewSite")]
+        public IHttpActionResult PostPQViewSite([FromBody] PQViewSite record)
+        {
+            try
+            {
+                using (AdoDataConnection connXDA = new AdoDataConnection("dbOpenXDA"))
+                {
+
+                    if (record.SiteID != string.Empty)
+                    {
+                        new TableOperations<PQViewSite>(connXDA).AddNewOrUpdateRecord(record);
+                    }
+                    else
+                    {
+                        connXDA.ExecuteNonQuery("DELETE FROM PQViewSite WHERE MeterID = {0}", record.MeterID);
+                    }
+                    return Ok();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
         [HttpDelete, Route("MeterLocation/Delete")]
         public IHttpActionResult DeleteMeterLocation(Meter record)
         {
@@ -195,6 +233,86 @@ namespace SystemCenter.Controllers
     public class LineController : ModelController<Line> {
         protected override string Connection { get; } = "dbOpenXDA";
 
+        [HttpGet, Route("Meter/{meterID:int}")]
+        public IHttpActionResult GetLinesForMeter(int meterID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                IEnumerable<Line> records = new TableOperations<Line>(connection).QueryRecordsWhere("ID IN ( SELECT LineID FROM MeterLine WHERE MeterID = {0})", meterID);
+                return Ok(records);
+            }
+        }
+
+        [HttpGet, Route("AllLines")]
+        public IHttpActionResult GetAllLines()
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                DataTable records = connection.RetrieveData(@"
+                    SELECT
+	                    Line.ID,
+	                    Line.AssetKey,
+	                    Line.VoltageKV,
+	                    Line.ThermalRating,
+	                    Line.Length,
+	                    Line.Description,
+	                    Line.MaxFaultDistance,
+	                    Line.MinFaultDistance,
+                        LineImpedance.ID as LineImpedanceID,
+	                    LineImpedance.R0,
+	                    LineImpedance.X0,
+	                    LineImpedance.R1,
+	                    LineImpedance.X1,
+                        '' as LineName
+                    FROM
+	                    Line LEFT JOIN
+	                    LineImpedance ON Line.ID = LineImpedance.LineID
+                ");
+                return Ok(records);
+            }
+        }
+
+
+        [HttpGet, Route("MeterLocation/{meterLocationID:int}")]
+        public IHttpActionResult GetMetersForMeterLocation(int meterLocationID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("MeterLocationID = {0}", meterLocationID);
+                return Ok(records);
+            }
+        }
+
+        public class PostMeterLineContent {
+            public Line Line { get; set; }
+            public MeterLine MeterLine { get; set; }
+            public LineImpedance LineImpedance { get; set; }
+        }
+        [HttpPost, Route("MeterLine")]
+        public IHttpActionResult PostMeterLine([FromBody]PostMeterLineContent content)
+        {
+            using (AdoDataConnection connXDA = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connSS = new AdoDataConnection("systemSettings"))
+            {
+                new TableOperations<Line>(connXDA).AddNewOrUpdateRecord(content.Line);
+
+                content.LineImpedance.LineID = content.MeterLine.LineID = content.Line.ID = new TableOperations<Line>(connXDA).QueryRecordWhere("AssetKey = {0}", content.Line.AssetKey).ID;
+                new TableOperations<LineImpedance>(connXDA).AddNewOrUpdateRecord(content.LineImpedance);
+
+                new TableOperations<MeterLine>(connXDA).AddNewRecord(content.MeterLine);
+
+
+                int assetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Line'");
+                int assetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.Line.ID'");
+
+                new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = content.Line.AssetKey, AssetTypeID = assetTypeID });
+                int assetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", content.Line.AssetKey);
+                new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = assetID, AssetTypeFieldID = assetTypeFieldID, Value = content.Line.ID.ToString() });
+
+                return Ok();
+            }
+        }
+
         public override IHttpActionResult Post([FromBody] Line record)
         {
             using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
@@ -205,5 +323,23 @@ namespace SystemCenter.Controllers
             }
         }
 
+        //[HttpGet, Route("EDNAPoints/{lineID:int}")]
+        //public IHttpActionResult GetEDNAPointsForLine(int lineID)
+        //{
+        //    using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+        //    {
+        //        IEnumerable<EDNAPoint> records = new TableOperations<EDNAPoint>(connection).QueryRecordsWhere("LineID = {0}", lineID);
+        //        return Ok(records);
+        //    }
+        //}
+
+    }
+
+    [RoutePrefix("api/OpenXDA/EDNAPoint")]
+    public class EDNAPointController : ModelController<EDNAPoint>
+    {
+        EDNAPointController(): base(true, "LineID"){}
+        protected override string Connection { get; } = "dbOpenXDA";        
     }
 }
+

@@ -27,6 +27,7 @@ import MeterLocationWindow from '../Meter/MeterLocation';
 import { OpenXDAMeter } from '../global';
 import GeneralMeterInfoWindow from '../Meter/GeneralMeterInfo';
 import NewMeterInfoWindow from '../Meter/NewMeter';
+import TransmissionElementWindow from '../Meter/TransmissionElement';
 declare var homePath: string;
 
 export default class Meter extends React.Component<{ meterId: number}, { Meter: OpenXDAMeter}, {}>{
@@ -55,7 +56,6 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
     }
 
     render() {
-        var windowHeight = window.innerHeight;
 
         if (this.props.meterId == undefined || this.props.meterId == 0)
             return (
@@ -65,13 +65,15 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
                     <NewMeterInfoWindow />
                 </div>
             )
+        else if (this.state.Meter == null) return null;
         else
             return (
                 <div className="card-header accordian" id="accordianHead" style={{ width: '100%',height: '100%', maxHeight: '100%', overflowY: 'auto' }}>
                     <h2>{this.state.Meter != null ? this.state.Meter.Name : ''}</h2>
                     <hr />
                     <GeneralMeterInfoWindow meter={this.state.Meter} stateSetter={(meter: OpenXDAMeter) => this.setState({ Meter: meter })}/>
-                    <MeterLocationWindow meter={this.state.Meter} stateSetter={(meter: OpenXDAMeter) => this.setState({ Meter: meter })}/>
+                    <MeterLocationWindow meter={this.state.Meter} stateSetter={(meter: OpenXDAMeter) => this.setState({ Meter: meter })} />
+                    <TransmissionElementWindow meter={this.state.Meter}/>
                 </div>
             )
     }
