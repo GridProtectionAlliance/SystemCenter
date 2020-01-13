@@ -39,10 +39,45 @@ using GSF.Web;
 using GSF.Web.Security;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
-using SystemCenter.Model;
+using System.Transactions;
+using System.Data.SqlClient;
 
 namespace SystemCenter.Controllers
 {
+    [RoutePrefix("api/OpenXDA/AssetConnection")]
+    public class AssetConnectionController : ModelController<openXDA.Model.AssetConnection>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
+    }
+
+    [RoutePrefix("api/OpenXDA/AssetConnectionType")]
+    public class AssetConnectionTypeController : ModelController<openXDA.Model.AssetConnectionType>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
+    }
+
+    [RoutePrefix("api/OpenXDA/AssetType")]
+    public class AssetTypeController : ModelController<openXDA.Model.AssetTypes>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
+    }
+
+    [RoutePrefix("api/OpenXDA/Phase")]
+    public class PhaseController:ModelController<Phase> {
+        protected override string Connection { get; } = "dbOpenXDA";
+    }
+
+    [RoutePrefix("api/OpenXDA/MeasurementType")]
+    public class MeasurementTypeController:ModelController<MeasurementType> {
+        protected override string Connection { get; } = "dbOpenXDA";
+    }
+
+    [RoutePrefix("api/OpenXDA/Asset")]
+    public class AssetController : ModelController<Asset>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
+    }
+
     [RoutePrefix("api/OpenXDA/Meter")]
     public class MeterController : ModelController<Meter> {
         protected override string Connection { get; } = "dbOpenXDA";
@@ -76,43 +111,78 @@ namespace SystemCenter.Controllers
                 return Ok(record);
             }
         }
-
+        /*
+         record fields
+         MeterInfo: { ID: int, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, LocationID: int, Description: string }
+         LocationInfo:  { ID: int, LocationKey: string, Name: string, Alias: string, Latitude: double, Longitude: double, Description: string, ShortName: string }
+         Channels: List<{ ID: number, Meter: string, Asset: string, MeasurementType: string, Measurementcharacteristic: string, Phase: string, Name: string, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, Series: { ID: number, ChannelID: number, SeriesType: string, SourceIndexes: string } }>
+         Assets: List<{ ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Channels: Array<OpenXDA.Channel> }>
+            interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number }
+            interface Bus extends Asset { }
+            interface CapBank extends Asset { NumberOfBanks: number, CansPerBank: number, CapacitancePerBank: number }
+            interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Segment: LineSegment }
+            interface LineSegment extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number }
+            interface Transformer extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, PrimaryVoltageKV: number, SecondaryVoltageKV: number, Tap: number }
+          AssetConnections: List<{ ID: int, AssetRelationshipTypeID: int, Parent: string, Child: string }>
+             */
         [HttpPost, Route("New")]
         public IHttpActionResult PostNewMeter([FromBody] JObject record)
         {
             try
             {
-                using (AdoDataConnection connXDA = new AdoDataConnection("dbOpenXDA"))
-                using (AdoDataConnection connSS = new AdoDataConnection("systemSettings"))
-                {
-                    MeterLocation meterLocation = record["MeterLocation"].ToObject<MeterLocation>();
-                    Meter meter = record["Meter"].ToObject<Meter>();
-
-                    if (meterLocation.ID == 0)
+                string commandText = @"";
+                using (TransactionScope scope = new TransactionScope()) {
+                    using(AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                    using (SqlConnection connection1 = new SqlConnection(connection.Connection.ConnectionString))
                     {
-                        new TableOperations<MeterLocation>(connXDA).AddNewRecord(meterLocation);
-                        meter.MeterLocationID = new TableOperations<MeterLocation>(connXDA).QueryRecordWhere("AssetKey = {0}", meterLocation.AssetKey).ID;
-                        int mlassetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Station'");
-                        int mlassetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.MeterLocation.ID'");
+                        Meter meter = record["MeterInfo"].ToObject<Meter>();
+                        Location location = record["LocationInfo"].ToObject<Location>();
 
-                        new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = meterLocation.AssetKey, AssetTypeID = mlassetTypeID });
-                        int mlassetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", meterLocation.AssetKey);
-                        new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = mlassetID, AssetTypeFieldID = mlassetTypeFieldID, Value = meter.MeterLocationID.ToString() });
+                        // Opening the connection automatically enlists it in the 
+                        // TransactionScope as a lightweight transaction.
+                        connection1.Open();
 
+                        // Create the SqlCommand object and execute the first command.
+                        SqlCommand command = new SqlCommand(commandText, connection1);
+                        command.ExecuteNonQuery();
                     }
-                    base.Post(meter);
-                    meter = new TableOperations<Meter>(connXDA).QueryRecordWhere("AssetKey = {0}", meter.AssetKey);
 
-
-                    int assetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Meter'");
-                    int assetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.Meter.ID'");
-
-                    new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = meter.AssetKey, AssetTypeID = assetTypeID});
-                    int assetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", meter.AssetKey);
-                    new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = assetID, AssetTypeFieldID = assetTypeFieldID, Value = meter.ID.ToString()});
-
-                    return Ok(meter);
+                    // The Complete method commits the transaction. If an exception has been thrown,
+                    // Complete is not  called and the transaction is rolled back.
+                    scope.Complete();
                 }
+
+                //using (AdoDataConnection connXDA = new AdoDataConnection("dbOpenXDA"))
+                //using (AdoDataConnection connSS = new AdoDataConnection("systemSettings"))
+                //{
+                //    Location meterLocation = record["MeterLocation"].ToObject<Location>();
+                //    Meter meter = record["Meter"].ToObject<Meter>();
+
+                //    if (meterLocation.ID == 0)
+                //    {
+                //        new TableOperations<Location>(connXDA).AddNewRecord(meterLocation);
+                //        meter.LocationID = new TableOperations<Location>(connXDA).QueryRecordWhere("AssetKey = {0}", meterLocation.LocationKey).ID;
+                //        int mlassetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Station'");
+                //        int mlassetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.MeterLocation.ID'");
+
+                //        new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = meterLocation.LocationKey, AssetTypeID = mlassetTypeID });
+                //        int mlassetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", meterLocation.LocationKey);
+                //        //new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = mlassetID, AssetTypeFieldID = mlassetTypeFieldID, Value = meter.LocationID.ToString() });
+
+                //    }
+                //    base.Post(meter);
+                //    meter = new TableOperations<Meter>(connXDA).QueryRecordWhere("AssetKey = {0}", meter.AssetKey);
+
+
+                //    int assetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Meter'");
+                //    int assetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.Meter.ID'");
+
+                //    new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = meter.AssetKey, AssetTypeID = assetTypeID});
+                //    int assetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", meter.AssetKey);
+                //    //new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = assetID, AssetTypeFieldID = assetTypeFieldID, Value = meter.ID.ToString()});
+
+                return Ok();
+                
 
             }
             catch (Exception ex) {
@@ -140,13 +210,13 @@ namespace SystemCenter.Controllers
                 using (AdoDataConnection connXDA = new AdoDataConnection("dbOpenXDA"))
                 {
 
-                    if (record.SiteID != string.Empty)
+                    if (record.SiteID != null)
                     {
                         new TableOperations<PQViewSite>(connXDA).AddNewOrUpdateRecord(record);
                     }
                     else
                     {
-                        connXDA.ExecuteNonQuery("DELETE FROM PQViewSite WHERE MeterID = {0}", record.MeterID);
+                        //connXDA.ExecuteNonQuery("DELETE FROM PQViewSite WHERE MeterID = {0}", record.MeterID);
                     }
                     return Ok();
                 }
@@ -166,14 +236,14 @@ namespace SystemCenter.Controllers
                 using (AdoDataConnection connXDA = new AdoDataConnection("dbOpenXDA"))
                 using (AdoDataConnection connSS = new AdoDataConnection("systemSettings"))
                 {
-                    int assetID = connSS.ExecuteScalar<int>("SELECT AssetID FROM AssetTypeFieldValue WHERE AssetTypeFieldID = (SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.MeterLocation.ID') AND Value = {0}", record.MeterLocationID.ToString());
+                    int assetID = connSS.ExecuteScalar<int>("SELECT AssetID FROM AssetTypeFieldValue WHERE AssetTypeFieldID = (SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.MeterLocation.ID') AND Value = {0}", record.LocationID.ToString());
                     connSS.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'Asset', 'ID = {assetID}'");
                     int tempMeterLocationID = connXDA.ExecuteScalar<int>("SELECT TOP 1 ID FROM MeterLocation");
                     connXDA.ExecuteNonQuery("UPDATE Meter SET MeterLocationID = {0} WHERE ID = {1}", tempMeterLocationID, record.ID);
-                    MeterLocationController meterLocationController = new MeterLocationController();
-                    MeterLocation meterLocation = new TableOperations<MeterLocation>(connXDA).QueryRecordWhere("ID = {0}", record.MeterLocationID);
+                    LocationController meterLocationController = new LocationController();
+                    Location meterLocation = new TableOperations<Location>(connXDA).QueryRecordWhere("ID = {0}", record.LocationID);
                     meterLocationController.Delete(meterLocation);
-                    MeterLocation newMeterLocation = new TableOperations<MeterLocation>(connXDA).QueryRecordWhere("ID = {0}", tempMeterLocationID);
+                    Location newMeterLocation = new TableOperations<Location>(connXDA).QueryRecordWhere("ID = {0}", tempMeterLocationID);
                     return Ok(newMeterLocation);
                 }
             }
@@ -201,34 +271,13 @@ namespace SystemCenter.Controllers
             }
 
         }
-
-
-
     }
 
-    [RoutePrefix("api/OpenXDA/MeterLocation")]
-    public class MeterLocationController : ModelController<MeterLocation> {
+    [RoutePrefix("api/OpenXDA/Location")]
+    public class LocationController : ModelController<Location> {
         protected override string Connection { get; } = "dbOpenXDA";
-
-        public override IHttpActionResult Post([FromBody] MeterLocation record)
-        {
-            using (AdoDataConnection connXDA = new AdoDataConnection("dbOpenXDA"))
-            using (AdoDataConnection connSS = new AdoDataConnection("systemSettings"))
-            {
-                base.Post(record);
-                record = new TableOperations<MeterLocation>(connXDA).QueryRecordWhere("AssetKey = {0}", record.AssetKey);
-
-                int assetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Station'");
-                int assetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.MeterLocation.ID'");
-
-                new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = record.AssetKey, AssetTypeID = assetTypeID });
-                int assetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", record.AssetKey);
-                new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = assetID, AssetTypeFieldID = assetTypeFieldID, Value = record.ID.ToString() });
-
-                return Ok(record);
-            }
-        }
     }
+    
     [RoutePrefix("api/OpenXDA/Line")]
     public class LineController : ModelController<Line> {
         protected override string Connection { get; } = "dbOpenXDA";
@@ -285,8 +334,8 @@ namespace SystemCenter.Controllers
 
         public class PostMeterLineContent {
             public Line Line { get; set; }
-            public MeterLine MeterLine { get; set; }
-            public LineImpedance LineImpedance { get; set; }
+            public MeterAsset MeterAsset { get; set; }
+            //public LineImpedance LineImpedance { get; set; }
         }
         [HttpPost, Route("MeterLine")]
         public IHttpActionResult PostMeterLine([FromBody]PostMeterLineContent content)
@@ -296,18 +345,18 @@ namespace SystemCenter.Controllers
             {
                 new TableOperations<Line>(connXDA).AddNewOrUpdateRecord(content.Line);
 
-                content.LineImpedance.LineID = content.MeterLine.LineID = content.Line.ID = new TableOperations<Line>(connXDA).QueryRecordWhere("AssetKey = {0}", content.Line.AssetKey).ID;
-                new TableOperations<LineImpedance>(connXDA).AddNewOrUpdateRecord(content.LineImpedance);
+                //content.LineImpedance.LineID = content.MeterLine.LineID = content.Line.ID = new TableOperations<Line>(connXDA).QueryRecordWhere("AssetKey = {0}", content.Line.AssetKey).ID;
+                //new TableOperations<LineImpedance>(connXDA).AddNewOrUpdateRecord(content.LineImpedance);
 
-                new TableOperations<MeterLine>(connXDA).AddNewRecord(content.MeterLine);
+                //new TableOperations<MeterLine>(connXDA).AddNewRecord(content.MeterLine);
 
 
-                int assetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Line'");
-                int assetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.Line.ID'");
+                //int assetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Line'");
+                //int assetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.Line.ID'");
 
-                new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = content.Line.AssetKey, AssetTypeID = assetTypeID });
-                int assetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", content.Line.AssetKey);
-                new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = assetID, AssetTypeFieldID = assetTypeFieldID, Value = content.Line.ID.ToString() });
+                //new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = content.Line.AssetKey, AssetTypeID = assetTypeID });
+                //int assetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", content.Line.AssetKey);
+                //new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = assetID, AssetTypeFieldID = assetTypeFieldID, Value = content.Line.ID.ToString() });
 
                 return Ok();
             }
@@ -340,6 +389,36 @@ namespace SystemCenter.Controllers
     {
         EDNAPointController(): base(true, "LineID"){}
         protected override string Connection { get; } = "dbOpenXDA";        
+    }
+
+    [RoutePrefix("api/OpenXDA/Breaker")]
+    public class BreakerController : ModelController<Breaker>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
+    }
+
+    [RoutePrefix("api/OpenXDA/Bus")]
+    public class BusController : ModelController<Bus>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
+    }
+
+    [RoutePrefix("api/OpenXDA/CapBank")]
+    public class CapBankController : ModelController<CapBank>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
+    }
+
+    [RoutePrefix("api/OpenXDA/LineSegment")]
+    public class LineSegmentController : ModelController<LineSegment>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
+    }
+
+    [RoutePrefix("api/OpenXDA/Transformer")]
+    public class TransformerController : ModelController<Transformer>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
     }
 }
 

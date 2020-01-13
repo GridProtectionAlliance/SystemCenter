@@ -190,6 +190,7 @@
       <HintPath>..\..\Dependencies\GSF\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
     <Reference Include="System.Net.Http.WebRequest" />
+    <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Helpers, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\..\Dependencies\NuGet\Microsoft.AspNet.WebPages.3.2.3\lib\net45\System.Web.Helpers.dll</HintPath>
@@ -237,6 +238,7 @@
     <Compile Include="Controllers\SystemCenter\Assets\AssetsController.cs" />
     <Compile Include="Controllers\SystemCenter\AssetTypes\AssetTypeFieldsController.cs" />
     <Compile Include="Controllers\SystemCenter\AssetTypes\AssetTypesController.cs" />
+    <Compile Include="Controllers\SystemCenter\PingController.cs" />
     <Compile Include="DataHub.cs" />
     <Compile Include="Model\AppModel.cs" />
     <Compile Include="Configuration\CategorizedSetting.cs" />
@@ -426,6 +428,12 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetTypes\AssetTypePreviewPane.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\NewMeter.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\TransmissionElement.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\NewMeterWizard.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page5.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page4.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page3.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page2.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page1.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\OpenXDA\ByLocation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetTypes\AssetTypes.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterLocation.tsx" />
@@ -439,6 +447,8 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDADataWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\SystemCenter.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\Table.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TS\PARParser.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TS\CFGParser.ts" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

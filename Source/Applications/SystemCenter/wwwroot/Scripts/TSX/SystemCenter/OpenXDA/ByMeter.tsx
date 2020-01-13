@@ -89,6 +89,18 @@ export default class ByMeter extends React.Component<{}, { searchText: string, d
                                     </form>
                                 </fieldset>
                             </li>
+                            <li className="nav-item" style={{ width: '15%' }}>
+                                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                    <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
+                                    <form>
+                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                                            event.preventDefault();
+                                            window.location.href = `${homePath}index.cshtml?name=NewMeterWizard`
+                                        }}>New Meter</button>
+                                    </form>
+                                </fieldset>
+                            </li>
+
 
                         </ul>
                     </div>

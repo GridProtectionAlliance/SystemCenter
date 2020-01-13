@@ -24,10 +24,10 @@
 import * as React from 'react';
 import * as moment from 'moment';
 import * as _ from 'lodash';
-import { OpenXDAMeter, ValueListItem, OpenXDAMeterLocation } from '../global';
+import { OpenXDA, ValueListItem } from '../global';
 declare var homePath: string;
 
-export default class NewMeterInfoWindow extends React.Component<{}, { Meter: OpenXDAMeter, MeterLocation: OpenXDAMeterLocation, TimeZones: Array<ValueListItem>, MeterLocations: Array<OpenXDAMeterLocation> }, {}> {
+export default class NewMeterInfoWindow extends React.Component<{}, { Meter: OpenXDA.Meter, MeterLocation: OpenXDA.Location, TimeZones: Array<ValueListItem>, MeterLocations: Array<OpenXDA.Location> }, {}> {
     jqueryHandle: JQuery.jqXHR;
     constructor(props, context) {
         super(props, context);
@@ -43,11 +43,11 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
                 Model: '',
                 TimeZone: '',
                 Description: '',
-                MeterLocationID: 0
+                LocationID: 0
             },
             MeterLocation: {
                 ID: 0,
-                AssetKey: '',
+                LocationKey: '',
                 Name: '',
                 Alias: '',
                 ShortName: '',
@@ -88,7 +88,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
             dataType: 'json',
             cache: true,
             async: true
-        }).done((mls: Array<OpenXDAMeterLocation>) => {
+        }).done((mls: Array<OpenXDA.Location>) => {
             var ordered = _.orderBy(mls, ['AssetKey'], ['ASC']);
             this.setState({ MeterLocations: mls })
         });
@@ -105,7 +105,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
             dataType: 'json',
             cache: true,
             async: true
-        }).done((meter: OpenXDAMeter) => {
+        }).done((meter: OpenXDA.Meter) => {
             window.location.href = homePath + 'index.cshtml?name=Meter&meterID=' + meter.ID
         });
     }
@@ -126,19 +126,19 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
 
                                 <label>Select Location</label>
                                 <select className="form-control" value={this.state.MeterLocation.ID} onChange={(evt) => {
-                                        var meterLocation: OpenXDAMeterLocation = _.clone(this.state.MeterLocation, true);
-                                        var meter: OpenXDAMeter = _.clone(this.state.Meter, true);
+                                        var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
+                                        var meter: OpenXDA.Meter = _.clone(this.state.Meter, true);
 
                                         if (evt.target.value != "0") {
-                                            meter.MeterLocationID = parseInt(evt.target.value);
+                                            meter.LocationID = parseInt(evt.target.value);
                                             this.setState({ MeterLocation: this.state.MeterLocations.find(x => x.ID == parseInt(evt.target.value)), Meter: meter });
                                         }
                                         else {
-                                            meter.MeterLocationID = 0;
+                                            meter.LocationID = 0;
                                             this.setState({
                                                 MeterLocation: {
                                                     ID: 0,
-                                                    AssetKey: '',
+                                                    LocationKey: '',
                                                     Name: '',
                                                     Alias: '',
                                                     ShortName: '',
@@ -150,22 +150,22 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
                                 }
                                 }}>
                                     <option value="0">Add New</option>
-                                    {this.state.MeterLocations.map(ml => <option value={ml.ID} key={ml.ID}>{ml.AssetKey}</option>)}
+                                    {this.state.MeterLocations.map(ml => <option value={ml.ID} key={ml.ID}>{ml.LocationKey}</option>)}
                                 </select>
 
                                 <label>Asset Key</label>
                                     <input className="form-control" onChange={(evt) => {
-                                        var meterLocation: OpenXDAMeterLocation = _.clone(this.state.MeterLocation, true);
+                                        var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
                                         if (evt.target.value != "")
-                                            meterLocation.AssetKey = evt.target.value;
+                                            meterLocation.LocationKey = evt.target.value;
                                         else
-                                            meterLocation.AssetKey = null;
+                                            meterLocation.LocationKey = null;
 
                                         this.setState({ MeterLocation: meterLocation });
-                                    }} value={this.state.MeterLocation.AssetKey == null ? '' : this.state.MeterLocation.AssetKey} disabled={this.state.MeterLocation.ID != 0}/>
+                                    }} value={this.state.MeterLocation.LocationKey == null ? '' : this.state.MeterLocation.LocationKey} disabled={this.state.MeterLocation.ID != 0}/>
                                 <label>Name</label>
                                 <input className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDAMeterLocation = _.clone(this.state.MeterLocation, true);
+                                        var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
                                     if (evt.target.value != "")
                                         meterLocation.Name = evt.target.value;
                                     else
@@ -175,7 +175,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
                                     }} value={this.state.MeterLocation.Name == null ? '' : this.state.MeterLocation.Name} disabled={this.state.MeterLocation.ID != 0}/>
                                 <label>Short Name</label>
                                 <input className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDAMeterLocation = _.clone(this.state.MeterLocation, true);
+                                        var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
                                     if (evt.target.value != "")
                                         meterLocation.ShortName = evt.target.value;
                                     else
@@ -185,7 +185,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
                                     }} value={this.state.MeterLocation.ShortName == null ? '' : this.state.MeterLocation.ShortName} disabled={this.state.MeterLocation.ID != 0} />
                                 <label>Alias</label>
                                 <input className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDAMeterLocation = _.clone(this.state.MeterLocation, true);
+                                        var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
                                     if (evt.target.value != "")
                                         meterLocation.Alias = evt.target.value;
                                     else
@@ -201,7 +201,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
                             <div className="form-group">
                                 <label>Latitude</label>
                                 <input className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDAMeterLocation = _.clone(this.state.MeterLocation, true);
+                                        var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
                                     if (evt.target.value != "")
                                         meterLocation.Latitude = parseFloat(evt.target.value);
                                     else
@@ -212,7 +212,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
 
                                 <label>Longitude</label>
                                 <input className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDAMeterLocation = _.clone(this.state.MeterLocation, true);
+                                        var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
                                     if (evt.target.value != "")
                                         meterLocation.Longitude = parseFloat(evt.target.value);
                                     else
@@ -225,7 +225,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
 
                                 <label>Description</label>
                                 <textarea rows={2} className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDAMeterLocation = _.clone(this.state.MeterLocation, true);
+                                        var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
                                     if (evt.target.value != "")
                                         meterLocation.Description = evt.target.value;
                                     else
@@ -255,7 +255,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
                             <div className="form-group">
                                 <label>Asset Key</label>
                                 <input className={"form-control"} onChange={(evt) => {
-                                    var meter: OpenXDAMeter = _.clone(this.state.Meter, true);
+                                    var meter: OpenXDA.Meter = _.clone(this.state.Meter, true);
                                     if (evt.target.value != "")
                                         meter.AssetKey = evt.target.value;
                                     else
@@ -265,7 +265,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
                                 }} value={this.state.Meter == null || this.state.Meter.AssetKey == null ? '' : this.state.Meter.AssetKey} required={true}/>
                                 <label>Name</label>
                                 <input className="form-control" onChange={(evt) => {
-                                    var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                    var meter: OpenXDA.Meter  = _.clone(this.state.Meter, true);
                                     if (evt.target.value != "")
                                         meter.Name = evt.target.value;
                                     else
@@ -275,7 +275,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
                                 }} value={this.state.Meter == null || this.state.Meter.Name == null ? '' : this.state.Meter.Name} />
                                 <label>Short Name</label>
                                 <input className="form-control" onChange={(evt) => {
-                                    var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                    var meter: OpenXDA.Meter  = _.clone(this.state.Meter, true);
                                     if (evt.target.value != "")
                                         meter.ShortName = evt.target.value;
                                     else
@@ -285,7 +285,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
                                 }} value={this.state.Meter == null || this.state.Meter.ShortName == null ? '' : this.state.Meter.ShortName} />
                                 <label>Alias</label>
                                 <input className="form-control" onChange={(evt) => {
-                                    var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                    var meter: OpenXDA.Meter  = _.clone(this.state.Meter, true);
                                     if (evt.target.value != "")
                                         meter.Alias = evt.target.value;
                                     else
@@ -300,7 +300,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
 
                                 <label>Make</label>
                                 <input className="form-control" onChange={(evt) => {
-                                    var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                    var meter: OpenXDA.Meter  = _.clone(this.state.Meter, true);
                                     if (evt.target.value != "")
                                         meter.Make = evt.target.value;
                                     else
@@ -310,7 +310,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
                                 }} value={this.state.Meter == null || this.state.Meter.Make == null ? '' : this.state.Meter.Make} />
                                 <label>Model</label>
                                 <input className="form-control" onChange={(evt) => {
-                                    var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                    var meter: OpenXDA.Meter  = _.clone(this.state.Meter, true);
                                     if (evt.target.value != "")
                                         meter.Model = evt.target.value;
                                     else
@@ -321,7 +321,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
 
                                 <label>Time Zone</label>
                                 <select className="form-control" value={this.state.Meter == null || this.state.Meter.TimeZone == null ? '-1' : this.state.Meter.TimeZone} onChange={(evt) => {
-                                    var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                    var meter: OpenXDA.Meter  = _.clone(this.state.Meter, true);
                                     if (evt.target.value != "-1")
                                         meter.TimeZone = evt.target.value;
                                     else
@@ -336,7 +336,7 @@ export default class NewMeterInfoWindow extends React.Component<{}, { Meter: Ope
 
                                 <label>Description</label>
                                 <textarea rows={2} className="form-control" onChange={(evt) => {
-                                    var meter: OpenXDAMeter  = _.clone(this.state.Meter, true);
+                                    var meter: OpenXDA.Meter  = _.clone(this.state.Meter, true);
                                     if (evt.target.value != "")
                                         meter.Description = evt.target.value;
                                     else

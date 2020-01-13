@@ -97,7 +97,7 @@ namespace SystemCenter.Controllers
                             tableName = tableNameAttribute.TableName;
                         else
                             tableName = typeof(T).Name;
-                        return BadRequest(string.Format("ID provided does not exist in '{0}' table.", tableName));
+                        return BadRequest(string.Format("ID provided does not exist in '{0}'.", tableName));
                     }
                     else
                         return Ok(result);

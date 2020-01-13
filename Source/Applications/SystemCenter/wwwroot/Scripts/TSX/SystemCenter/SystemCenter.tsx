@@ -36,6 +36,8 @@ import createHistory from "history/createBrowserHistory"
 import Assets from './Assets/Assets';
 import ByLocation from './OpenXDA/ByLocation';
 import ByLine from './OpenXDA/ByLine';
+import ByMeter from './OpenXDA/ByMeter';
+import NewMeterWizard from './NewMeterWizard/NewMeterWizard';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -57,7 +59,7 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                         <div style={{ width: '100%', height: '100%', marginTop: 30 }}>
                             <div className="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical" style={{ height: 'calc(100% - 240px)' }}>
                                 <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath || location.pathname + location.search == controllerViewPath + "?name=AssetTypes"} to={controllerViewPath + "?name=AssetTypes"}>Asset Types</NavLink>
-                                {/*<NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Meters"} to={controllerViewPath + "?name=Meters" }>By Meter</NavLink>*/}
+                                <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Meters"} to={controllerViewPath + "?name=Meters" }>Meters</NavLink>
                                 {/*<NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=MeterLocations"} to={controllerViewPath + "?name=MeterLocation"}>By Location</NavLink> */}
 
                                 <hr />
@@ -84,12 +86,12 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                                 return null;
                         }} />
 
-                        {/*<Route children={({ match, ...rest }) => {
+                        <Route children={({ match, ...rest }) => {
                             if (rest.location.pathname + rest.location.search == controllerViewPath + "?name=Meters")
                                 return <ByMeter />
                             else
                                 return null;
-                        }} />*/}
+                        }} />
                         <Route children={({ match, ...rest }) => {
                             if (queryString.parse(rest.location.search).name == "MeterLocations")
                                 return <ByLocation meterLocationID={queryString.parse(rest.location.search).meterLocationID} meterLocationAssetKey={queryString.parse(rest.location.search).AssetKey} />
@@ -134,6 +136,13 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                             else
                                 return null;
                         }} />
+                        <Route children={({ match, ...rest }) => {
+                            if (queryString.parse(rest.location.search).name == "NewMeterWizard")
+                                return <NewMeterWizard />
+                            else
+                                return null;
+                        }} />
+
 
 
                     </div>

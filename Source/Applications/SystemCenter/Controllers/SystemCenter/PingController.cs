@@ -21,45 +21,20 @@
 //
 //******************************************************************************************************
 
+using System;
 using System.Data;
 using System.Web.Http;
 using GSF.Data;
 
 namespace SystemCenter.Controllers
 {
-    [RoutePrefix("api/SystemCenter/Meters")]
-    public class MetersController : ApiController
+    [RoutePrefix("api/SystemCenter/Ping")]
+    public class PingController : ApiController
     {
-        [Route(Name = "SystemCenter_Meters")]
-        public DataTable Get()
+        [Route(), HttpGet]
+        public IHttpActionResult Get()
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
-            {
-                return connection.RetrieveData(@"
-                    SELECT
-                        Meter.ID,
-                        Meter.AssetKey,
-                        Meter.Name,
-                        Meter.Make,
-                        Meter.Model,
-                        Location.Name as Location,
-                        CASE
-                            WHEN COUNT(MeterAsset.AssetID) > 1 THEN 'DFR'
-                            ELSE 'PQMeter'
-                        END as Type
-                    FROM 
-                        Meter JOIN
-                        Location ON Meter.LocationID = Location.ID LEFT JOIN
-                        MeterAsset ON Meter.ID = MeterAsset.MeterID
-					GROUP BY
-                        Meter.ID,
-						Meter.AssetKey,
-                        Meter.Name,
-                        Meter.Make,
-                        Meter.Model,
-                        Location.Name
-                ");
-            }
+            return Ok(DateTime.Now);
         }
     }
 }

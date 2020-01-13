@@ -72,6 +72,18 @@
     <script>
         var homePath = '@Html.Raw(Url.Content("~/"))';
         var controllerViewPath = homePath + 'index.cshtml';
+        setInterval(function () {
+             $.ajax({
+                type: "GET",
+                url: homePath + "api/SystemCenter/Ping",
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                cache: false,
+                async: true
+             }).done(function (time) {
+                //console.log(time)
+            });
+        }, 30000);
     </script>
     @if (Model.DetectIE(ViewBag.Request.Headers.UserAgent.ToString())) {
         <script src="~/Scripts/default.polyfill.min.js"></script>

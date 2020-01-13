@@ -31,12 +31,34 @@ export interface ValueListItem { ID: number, GroupID: number, Text: string, Valu
 export interface Note { ID: number, AssetID: number, Note: string, UserAccount: string, Timestamp: string }
 
 // OpenXDA Models
-export interface OpenXDAMeterLocation { ID: number, AssetKey: string, Name: string, Alias: string, Latitude: number, Longitude: number, Description: string, ShortName: string }
-export interface OpenXDALine { ID: number, AssetKey: string, VoltageKV: number, ThermalRating: number, Length: number, MaxFaultDistance: number, MinFaultDistance: number, Description: string }
-export interface OpenXDAMeterLine { ID: number, MeterID: number, LineID: number, LineName: string }
-export interface OpenXDALineImpedance { ID: number, LineID: number, R0: number, X0: number, R1: number, X1: number }
-export interface OpenXDAEDNAPoint { ID: number, LineID: number, Point: number }
-export interface OpenXDAMeter { ID: number, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, MeterLocationID: number, Description: string }
+export namespace OpenXDA {
+    interface Location { ID: number, LocationKey: string, Name: string, Alias: string, Latitude: number, Longitude: number, Description: string, ShortName: string }
+    interface OldLine { ID: number, AssetKey: string, VoltageKV: number, ThermalRating: number, Length: number, MaxFaultDistance: number, MinFaultDistance: number, Description: string }
+    interface MeterLine { ID: number, MeterID: number, LineID: number, LineName: string }
+    interface LineImpedance { ID: number, LineID: number, R0: number, X0: number, R1: number, X1: number }
+    interface EDNAPoint { ID: number, LineID: number, Point: number }
+    interface Meter { ID: number, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, LocationID: number, Description: string }
+    interface Channel { ID: number, Meter: string, Asset: string, MeasurementType: string, Measurementcharacteristic: string, Phase: string, Name: string, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, Series: OpenXDA.Series }
+    interface Series { ID: number, ChannelID: number, SeriesType: string, SourceIndexes: string }
 
-// System Center - OpenXDA Link models
-export interface OpenXDASCMeterLine extends OpenXDALine { LineName: string, LineImpedanceID: number, R0: number, X0: number, R1: number, X1: number}
+    // Assets
+    interface Asset { ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Channels: Array<OpenXDA.Channel> }
+    interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number }
+    interface Bus extends Asset { }
+    interface CapBank extends Asset { NumberOfBanks: number, CansPerBank: number, CapacitancePerBank: number }
+    interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Segment: LineSegment }
+    interface LineSegment extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number }
+    interface Transformer extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, PrimaryVoltageKV: number, SecondaryVoltageKV: number, Tap: number }
+
+    // Links
+    interface AssetConnection { ID: number, AssetRelationshipTypeID: number, Parent: string, Child: string }
+
+    // Types
+    interface Phase { ID: number, Name: string, Description: string }
+    interface MeasurementType { ID: number, Name: string, Description: string }
+    interface AssetType { ID: number, Name: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Description: string }
+    interface AssetConnectionType { ID: number, Name: string, Description: string, BiDirectional: boolean, JumpConnection: string, PassThrough: string }
+
+    // System Center - OpenXDA Link models
+    interface SCMeterLine extends OldLine { LineName: string, LineImpedanceID: number, R0: number, X0: number, R1: number, X1: number }
+}

@@ -21,10 +21,8 @@
 //
 //******************************************************************************************************
 
-import { AssetTypeFieldAndValue, OpenXDAMeterLocation } from "../global";
 import * as React from 'react';
 import * as _ from 'lodash';
-import ValueListInput from "./ValueListInput";
 
 declare var homePath: string;
 

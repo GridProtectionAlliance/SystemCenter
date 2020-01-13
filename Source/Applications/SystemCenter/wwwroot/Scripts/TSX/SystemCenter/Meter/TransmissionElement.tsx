@@ -23,10 +23,10 @@
 import * as React from 'react';
 import * as moment from 'moment';
 import * as _ from 'lodash';
-import { OpenXDAMeter, OpenXDALine, OpenXDASCMeterLine } from '../global';
+import { OpenXDA } from '../global';
 declare var homePath: string;
 
-export default class TransmissionElementWindow extends React.Component<{ meter: OpenXDAMeter }, { allLines : Array<OpenXDASCMeterLine>,lines: Array<OpenXDALine>, collapsed: boolean, changed: boolean, addNew: boolean, newEditMeterLine: OpenXDASCMeterLine }, {}> {
+export default class TransmissionElementWindow extends React.Component<{ meter: OpenXDA.Meter }, { allLines : Array<OpenXDA.SCMeterLine>,lines: Array<OpenXDA.Line>, collapsed: boolean, changed: boolean, addNew: boolean, newEditMeterLine: OpenXDA.SCMeterLine }, {}> {
     constructor(props, context) {
         super(props, context);
 
@@ -40,8 +40,8 @@ export default class TransmissionElementWindow extends React.Component<{ meter: 
         }
     }
 
-    createOpenXDAMeterLine(): OpenXDASCMeterLine {
-        var record: OpenXDASCMeterLine = {
+    createOpenXDAMeterLine(): OpenXDA.SCMeterLine {
+        var record: OpenXDA.SCMeterLine = {
             ID: 0,
             AssetKey: '',
             VoltageKV: null,
@@ -81,7 +81,7 @@ export default class TransmissionElementWindow extends React.Component<{ meter: 
             dataType: 'json',
             cache: false,
             async: true
-        }).done((lines: Array<OpenXDALine>) => this.setState({ lines: lines }));
+        }).done((lines: Array<OpenXDA.Line>) => this.setState({ lines: lines }));
     }
 
     getAllLines(): void {
@@ -93,7 +93,7 @@ export default class TransmissionElementWindow extends React.Component<{ meter: 
             dataType: 'json',
             cache: false,
             async: true
-        }).done((lines: Array<OpenXDASCMeterLine>) => {
+        }).done((lines: Array<OpenXDA.SCMeterLine>) => {
             this.setState({ allLines: lines })
         });
     }
@@ -198,21 +198,21 @@ export default class TransmissionElementWindow extends React.Component<{ meter: 
 
                                 <label>AssetKey: {(this.state.newEditMeterLine.AssetKey.length == 0 ? <span style={{color: 'darkred'}}><i>* Required</i></span>: null)}</label>
                                 <input className='form-control' type='text' value={this.state.newEditMeterLine.AssetKey} style={{ border: (this.state.newEditMeterLine.AssetKey.length == 0 ?'2px solid darkred': null)}} onChange={(evt) => {
-                                    var record: OpenXDASCMeterLine = _.clone(this.state.newEditMeterLine)
+                                    var record: OpenXDA.SCMeterLine = _.clone(this.state.newEditMeterLine)
                                     record.AssetKey = evt.target.value;
                                     this.setState({ newEditMeterLine: record })
                                 }} />
 
                                 <label>Line Name: {(this.state.newEditMeterLine.LineName.length == 0 ? <span style={{color: 'darkred'}}><i>* Required</i></span>: null)}</label>
                                     <input className='form-control' type='text' value={this.state.newEditMeterLine.LineName} style={{ border: (this.state.newEditMeterLine.LineName.length == 0 ?'2px solid darkred': null)}} onChange={(evt) => {
-                                    var record:OpenXDASCMeterLine = _.clone(this.state.newEditMeterLine)
+                                    var record:OpenXDA.SCMeterLine = _.clone(this.state.newEditMeterLine)
                                     record.LineName = evt.target.value;
                                     this.setState({ newEditMeterLine: record })
                                 }} />
 
                                 <label>Description:</label>
                                     <textarea rows={2} className='form-control' value={this.state.newEditMeterLine.Description} onChange={(evt) => {
-                                    var record:OpenXDASCMeterLine = _.clone(this.state.newEditMeterLine)
+                                    var record:OpenXDA.SCMeterLine = _.clone(this.state.newEditMeterLine)
                                     record.Description = evt.target.value;
                                     this.setState({ newEditMeterLine: record })
                                 }} />
@@ -221,35 +221,35 @@ export default class TransmissionElementWindow extends React.Component<{ meter: 
                                     <div className="col">
                                         <label>Voltage (kV): {(this.state.newEditMeterLine.VoltageKV == null ? <span style={{color: 'darkred'}}><i>* Required</i></span>: null)}</label>
                                             <input className='form-control' type='number' value={this.state.newEditMeterLine.VoltageKV} style={{ border: (this.state.newEditMeterLine.VoltageKV == null ? '2px solid darkred' : null) }} onChange={(evt) => {
-                                            var record: OpenXDASCMeterLine = _.clone(this.state.newEditMeterLine)
+                                            var record: OpenXDA.SCMeterLine = _.clone(this.state.newEditMeterLine)
                                             record.VoltageKV = parseFloat(evt.target.value);
                                             this.setState({ newEditMeterLine: record })
                                         }} />
 
                                         <label>Thermal Rating: : {(this.state.newEditMeterLine.ThermalRating == null ? <span style={{color: 'darkred'}}><i>* Required</i></span>: null)}</label>
                                             <input className='form-control' type='number' value={this.state.newEditMeterLine.ThermalRating} style={{ border: (this.state.newEditMeterLine.ThermalRating == null ? '2px solid darkred' : null) }} onChange={(evt) => {
-                                            var record: OpenXDASCMeterLine = _.clone(this.state.newEditMeterLine)
+                                            var record: OpenXDA.SCMeterLine = _.clone(this.state.newEditMeterLine)
                                             record.ThermalRating = parseFloat(evt.target.value);
                                             this.setState({ newEditMeterLine: record })
                                         }} />
 
                                         <label>Length: : {(this.state.newEditMeterLine.Length == null ? <span style={{color: 'darkred'}}><i>* Required</i></span>: null)}</label>
                                             <input className='form-control' type='number' value={this.state.newEditMeterLine.Length} style={{ border: (this.state.newEditMeterLine.Length == null ? '2px solid darkred' : null) }} onChange={(evt) => {
-                                            var record: OpenXDASCMeterLine = _.clone(this.state.newEditMeterLine)
+                                            var record: OpenXDA.SCMeterLine = _.clone(this.state.newEditMeterLine)
                                             record.Length = parseFloat(evt.target.value);
                                             this.setState({ newEditMeterLine: record })
                                         }} />
 
                                         <label>Maximum Fault Distance:</label>
                                             <input className='form-control' type='number' value={this.state.newEditMeterLine.MaxFaultDistance} onChange={(evt) => {
-                                            var record: OpenXDASCMeterLine = _.clone(this.state.newEditMeterLine)
+                                            var record: OpenXDA.SCMeterLine = _.clone(this.state.newEditMeterLine)
                                             record.MaxFaultDistance = parseFloat(evt.target.value);
                                             this.setState({ newEditMeterLine: record })
                                         }} />
 
                                         <label>Minimum Fault Distance:</label>
                                             <input className='form-control' type='number' value={this.state.newEditMeterLine.MinFaultDistance} onChange={(evt) => {
-                                            var record: OpenXDASCMeterLine = _.clone(this.state.newEditMeterLine)
+                                            var record: OpenXDA.SCMeterLine = _.clone(this.state.newEditMeterLine)
                                             record.MinFaultDistance = parseFloat(evt.target.value);
                                             this.setState({ newEditMeterLine: record })
                                         }} />
@@ -257,28 +257,28 @@ export default class TransmissionElementWindow extends React.Component<{ meter: 
                                     <div className="col">
                                         <label>R0:</label>
                                             <input className='form-control' type='number' value={this.state.newEditMeterLine.R0} onChange={(evt) => {
-                                            var record: OpenXDASCMeterLine = _.clone(this.state.newEditMeterLine)
+                                            var record: OpenXDA.SCMeterLine = _.clone(this.state.newEditMeterLine)
                                             record.R0 = parseFloat(evt.target.value);
                                             this.setState({ newEditMeterLine: record })
                                         }} />
 
                                         <label>X0:</label>
                                             <input className='form-control' type='number' value={this.state.newEditMeterLine.X0} onChange={(evt) => {
-                                            var record: OpenXDASCMeterLine = _.clone(this.state.newEditMeterLine)
+                                            var record: OpenXDA.SCMeterLine = _.clone(this.state.newEditMeterLine)
                                             record.X0 = parseFloat(evt.target.value);
                                             this.setState({ newEditMeterLine: record })
                                         }} />
 
                                         <label>R1:</label>
                                             <input className='form-control' type='number' value={this.state.newEditMeterLine.R1} onChange={(evt) => {
-                                            var record: OpenXDASCMeterLine = _.clone(this.state.newEditMeterLine)
+                                            var record: OpenXDA.SCMeterLine = _.clone(this.state.newEditMeterLine)
                                             record.R1 = parseFloat(evt.target.value);
                                             this.setState({ newEditMeterLine: record })
                                         }} />
 
                                         <label>X1:</label>
                                             <input className='form-control' type='number' value={this.state.newEditMeterLine.X1} onChange={(evt) => {
-                                            var record: OpenXDASCMeterLine = _.clone(this.state.newEditMeterLine)
+                                            var record: OpenXDA.SCMeterLine = _.clone(this.state.newEditMeterLine)
                                             record.X1 = parseFloat(evt.target.value);
                                             this.setState({ newEditMeterLine: record })
                                         }} />
