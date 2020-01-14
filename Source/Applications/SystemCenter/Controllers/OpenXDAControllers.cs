@@ -41,6 +41,7 @@ using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using System.Transactions;
 using System.Data.SqlClient;
+using System.Linq;
 
 namespace SystemCenter.Controllers
 {
@@ -130,60 +131,94 @@ namespace SystemCenter.Controllers
         {
             try
             {
-                string commandText = @"";
+                Meter meter = record["MeterInfo"].ToObject<Meter>();
+
+                meter.Description =  meter.Description == string.Empty ? "NULL" : "'" + meter.Description + "'";
+                meter.Alias = meter.Alias == string.Empty ? "NULL" : "'" + meter.Alias + "'";
+                meter.ShortName = meter.ShortName == string.Empty ? "NULL" : "'" + meter.ShortName + "'";
+                meter.TimeZone = meter.TimeZone == string.Empty ? "NULL" : "'" + meter.TimeZone + "'";
+
+                Location location = record["LocationInfo"].ToObject<Location>();
+
+                location.Description = location.Description == string.Empty ? "NULL" : "'" + location.Description + "'";
+                location.Alias = location.Alias == string.Empty ? "NULL" : "'" + location.Alias + "'";
+                location.ShortName = location.ShortName == string.Empty ? "NULL" : "'" + location.ShortName + "'";
+
+                if (location.Description == string.Empty) location.Description = "NULL";
+                if (location.Alias == string.Empty) location.Alias = "NULL";
+                if (location.ShortName == string.Empty) location.ShortName = "NULL";
+
+                string sqlString = @"";
+
+                if (location.ID == 0)
+                    sqlString += $"INSERT INTO Location (LocationKey, Name, Alias, Latitude, Longitude, Description, ShortName) VALUES ('{location.LocationKey}','{location.Name}', {location.Alias}, {location.Latitude}, {location.Longitude}, {location.Description}, {location.ShortName} ) \n";
+
+                sqlString += $"INSERT INTO Meter (AssetKey, LocationID, Name, Alias, ShortName, Make, Model, TimeZone, Description) VALUES ('{meter.AssetKey}', (SELECT ID FROM Location WHERE LocationKey ='{location.LocationKey}') ,'{meter.Name}', {meter.Alias}, {meter.ShortName} , '{meter.Make}', '{meter.Model}', {meter.TimeZone}, {meter.Description} ) \n";
+
+                JToken Assets = record["Assets"];
+
+                foreach(var asset in Assets)
+                {
+                    if (asset["ID"].ToString() == "0")
+                    {
+                        if (asset["AssetType"].ToString() == "Line")
+                        {
+                            sqlString += $"INSERT INTO Line (VoltageKV, AssetKey, Description, AssetName, AssetTypeID, MaxFaultDistance, MinFaultDistance) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Line'),{asset["MaxFaultDistance"].ToString()},{asset["MinFaultDistance"].ToString()}) \n";
+                            sqlString += $"INSERT INTO LineSegment (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,R0, X0, R1, X1, ThermalRating, Length) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}LineSegment','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'LineSegment'),{asset["Segment"]["R0"].ToString()},{asset["Segment"]["X0"].ToString()},{asset["Segment"]["R1"].ToString()},{asset["Segment"]["X1"].ToString()},{asset["Segment"]["ThermalRating"].ToString()},{asset["Segment"]["Length"].ToString()} ) \n";
+                            sqlString += $"INSERT INTO AssetRelationship (AssetRelationshipTypeID, ParentID, ChildID) VALUES ((SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}LineSegment')) \n";
+                        }
+                        else if (asset["AssetType"].ToString() == "LineSegment")
+                            sqlString += $"INSERT INTO LineSegment (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,R0, X0, R1, X1, ThermalRating, Length) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'LineSegment'),{asset["R0"].ToString()},{asset["X0"].ToString()},{asset["R1"].ToString()},{asset["X1"].ToString()},{asset["ThermalRating"].ToString()},{asset["Length"].ToString()} ) \n";
+                        else if (asset["AssetType"].ToString() == "Breaker")
+                            sqlString += $"INSERT INTO Breaker (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,ThermalRating, Speed, TripTime, PickupTime, TripCoilCondition) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Breaker'),{asset["ThermalRating"].ToString()},{asset["Speed"].ToString()},{asset["TripTime"].ToString()},{asset["PickupTime"].ToString()},{asset["TripCoilCondition"].ToString()} ) \n";
+                        else if (asset["AssetType"].ToString() == "Bus")
+                            sqlString += $"INSERT INTO Bus (VoltageKV, AssetKey, Description, AssetName, AssetTypeID) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Bus')) \n";
+                        else if (asset["AssetType"].ToString() == "CapacitorBank")
+                            sqlString += $"INSERT INTO CapBank (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,NumberOfBanks, CansPerBank, CapacitancePerBank) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'CapacitorBank'),{asset["NumberOfBanks"].ToString()},{asset["CansPerBank"].ToString()},{asset["CapacitancePerBank"].ToString()} ) \n";
+                        else if (asset["AssetType"].ToString() == "Transformer")
+                            sqlString += $"INSERT INTO Transformer (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,R0, X0, R1, X1, ThermalRating, PrimaryVoltageKV, SecondaryVoltageKV, Tap) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Transformer'),{asset["R0"].ToString()},{asset["X0"].ToString()},{asset["R1"].ToString()},{asset["X1"].ToString()},{asset["ThermalRating"].ToString()},{asset["PrimaryVoltageKV"].ToString()},{asset["SecondaryVoltageKV"].ToString()},{asset["Tap"].ToString()} ) \n";
+                        else
+                            sqlString += $"INSERT INTO Asset (VoltageKV, AssetKey, Description, AssetName, AssetTypeID) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Bus')) \n";
+                    }
+
+                    sqlString += $"INSERT INTO MeterAsset (MeterID, AssetID) VALUES ((SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}')) \n";
+                    sqlString += $"INSERT INTO AssetLocation (LocationID, AssetID) VALUES ((SELECT ID FROM Location WHERE LocationKey = '{location.LocationKey}'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}')) \n";
+
+                }
+
+                JToken AssetConnections = record["AssetConnections"];
+                foreach (var assetConnection in AssetConnections)
+                    sqlString += $"INSERT INTO AssetRelationship (AssetRelationshipTypeID, ParentID, ChildID) VALUES ({assetConnection["AssetRelationshipTypeID"].ToString()},(SELECT ID FROM Asset WHERE AssetKey = '{assetConnection["Parent"].ToString()}'),(SELECT ID FROM Asset WHERE AssetKey = '{assetConnection["Child"].ToString()}')) \n";
+
+
+                JToken Channels = record["Channels"];
+                foreach (var channel in Channels) {
+                    string assetName = channel["Asset"].ToString();
+                    string measurementType = channel["MeasurementType"].ToString();
+                    string measurementcharacteristic = channel["Measurementcharacteristic"].ToString();
+                    string phase = channel["Phase"].ToString();
+                    string name = channel["Name"].ToString();
+                    string description = channel["Description"].ToString() == string.Empty ? "NULL" : "'" +channel["Description"].ToString() + "'";
+                    JToken Series = channel["Series"];
+                    string sourceIndex = Series["SourceIndexes"].ToString();
+                    if (assetName == string.Empty) continue;
+
+                    sqlString += $"INSERT INTO Channel (AssetID, MeasurementTypeID, MeterID, MeasurementcharacteristicID, PhaseID, Name, SamplesPerHour, HarmonicGroup, Description, Enabled) VALUES ";
+                    sqlString += $"((SELECT ID FROM Asset WHERE AssetKey = '{assetName}'),(SELECT ID FROM MeasurementType WHERE Name = '{measurementType}'),(SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'),(SELECT ID FROM MeasurementCharacteristic WHERE Name = '{measurementcharacteristic}'),(SELECT ID FROM Phase WHERE Name = '{phase}'), '{name}', 0,0,{description}, 1 ) \n";
+                    sqlString += $"INSERT INTO Series (ChannelID, SeriesTypeID, SourceIndexes) VALUES ((SELECT @@Identity), (SELECT ID FROM SeriesType WHERE Name = 'Values'), '{sourceIndex}') \n";
+                }
+
                 using (TransactionScope scope = new TransactionScope()) {
                     using(AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
-                    using (SqlConnection connection1 = new SqlConnection(connection.Connection.ConnectionString))
                     {
-                        Meter meter = record["MeterInfo"].ToObject<Meter>();
-                        Location location = record["LocationInfo"].ToObject<Location>();
-
-                        // Opening the connection automatically enlists it in the 
-                        // TransactionScope as a lightweight transaction.
-                        connection1.Open();
-
-                        // Create the SqlCommand object and execute the first command.
-                        SqlCommand command = new SqlCommand(commandText, connection1);
-                        command.ExecuteNonQuery();
+                        connection.ExecuteNonQuery(sqlString);
                     }
 
                     // The Complete method commits the transaction. If an exception has been thrown,
                     // Complete is not  called and the transaction is rolled back.
                     scope.Complete();
                 }
-
-                //using (AdoDataConnection connXDA = new AdoDataConnection("dbOpenXDA"))
-                //using (AdoDataConnection connSS = new AdoDataConnection("systemSettings"))
-                //{
-                //    Location meterLocation = record["MeterLocation"].ToObject<Location>();
-                //    Meter meter = record["Meter"].ToObject<Meter>();
-
-                //    if (meterLocation.ID == 0)
-                //    {
-                //        new TableOperations<Location>(connXDA).AddNewRecord(meterLocation);
-                //        meter.LocationID = new TableOperations<Location>(connXDA).QueryRecordWhere("AssetKey = {0}", meterLocation.LocationKey).ID;
-                //        int mlassetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Station'");
-                //        int mlassetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.MeterLocation.ID'");
-
-                //        new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = meterLocation.LocationKey, AssetTypeID = mlassetTypeID });
-                //        int mlassetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", meterLocation.LocationKey);
-                //        //new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = mlassetID, AssetTypeFieldID = mlassetTypeFieldID, Value = meter.LocationID.ToString() });
-
-                //    }
-                //    base.Post(meter);
-                //    meter = new TableOperations<Meter>(connXDA).QueryRecordWhere("AssetKey = {0}", meter.AssetKey);
-
-
-                //    int assetTypeID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'Meter'");
-                //    int assetTypeFieldID = connSS.ExecuteScalar<int>("SELECT ID FROM AssetTypeField WHERE Name = 'OpenXDA.Meter.ID'");
-
-                //    new TableOperations<Asset>(connSS).AddNewRecord(new Asset() { AssetKey = meter.AssetKey, AssetTypeID = assetTypeID});
-                //    int assetID = connSS.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", meter.AssetKey);
-                //    //new TableOperations<AssetTypeFieldValue>(connSS).AddNewRecord(new AssetTypeFieldValue() { AssetID = assetID, AssetTypeFieldID = assetTypeFieldID, Value = meter.ID.ToString()});
-
-                return Ok();
-                
-
+                return Ok();             
             }
             catch (Exception ex) {
                 return InternalServerError(ex);
@@ -420,5 +455,65 @@ namespace SystemCenter.Controllers
     {
         protected override string Connection { get; } = "dbOpenXDA";
     }
+
+    [RoutePrefix("api/OpenXDA/Note")]
+    public class NoteController : ModelController<Notes>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
+
+        [HttpGet, Route("ForObject/{noteType}/{referenceTableID:int}")]
+        public IHttpActionResult GetNotes(string noteType, int referenceTableID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                try
+                {
+                    IEnumerable<Notes> result = new TableOperations<Notes>(connection).QueryRecordsWhere("NoteTypeID = (SELECT ID FROM NoteType WHERE ReferenceTableName = {0}) AND ReferenceTableID = {1} ", noteType, referenceTableID).OrderByDescending(x => x.Timestamp);
+                    return Ok(result);
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
+
+        public override IHttpActionResult Post([FromBody] Notes record)
+        {
+            try
+            {
+                if (User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        record.UserAccount = User.Identity.Name;
+                        int result = new TableOperations<Notes>(connection).AddNewRecord(record);
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+
+    }
+
+    [RoutePrefix("api/OpenXDA/NoteType")]
+    public class NoteTypeController : ModelController<NoteType>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
+
+    }
+
+
+
 }
 

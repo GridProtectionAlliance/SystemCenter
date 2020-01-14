@@ -90,8 +90,9 @@ export default class Page5 extends React.Component<{ Assets: Array<OpenXDA.Asset
     addAssetConnection(): void {
     }
 
-    deleteAssetConnection(index: number): void {
-        let list = _.clone(this.props.AssetConnections, true);
+    deleteAssetConnection(ac: OpenXDA.AssetConnection): void {
+        let list: Array<OpenXDA.AssetConnection> = _.clone(this.props.AssetConnections, true);
+        let index = list.findIndex(a => a == ac);
         let record: Array<OpenXDA.AssetConnection> = list.splice(index, 1);
         this.props.UpdateState({ AssetConnections: list });
     }
@@ -141,7 +142,7 @@ export default class Page5 extends React.Component<{ Assets: Array<OpenXDA.Asset
                                                         <td style={{ width: '20%' }}>{connectionAsset.AssetType}</td>
                                                         <td style={{ width: '50%' }}>{connectionType != undefined ? connectionType.Name : ''}</td>
                                                         <td style={{ width: '10%' }}>
-                                                            <button className="btn btn-sm" onClick={(e) => this.deleteAssetConnection(index)}><span><i className="fa fa-times"></i></span></button>
+                                                            <button className="btn btn-sm" onClick={(e) => this.deleteAssetConnection(ac)}><span><i className="fa fa-times"></i></span></button>
                                                         </td>
                                                     </tr>
                                                 )

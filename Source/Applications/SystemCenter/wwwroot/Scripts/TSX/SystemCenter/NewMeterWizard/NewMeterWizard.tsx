@@ -199,8 +199,16 @@ export default class NewMeterWizard extends React.Component<{}, WizardState, {}>
             dataType: 'json',
             cache: true,
             async: true
-        }).done((meter: OpenXDA.Meter) => {
-            //window.location.href = homePath + 'index.cshtml?name=Meter&meterID=' + meter.ID
+        }).done(() => {
+            this.clearData();
+            window.location.href = homePath + 'index.cshtml?name=Meters';
+        }).fail(msg => {
+            if (msg.status == 500)
+                alert(msg.responseJSON.ExceptionMessage)
+            else {
+                this.clearData();
+                window.location.href = homePath + 'index.cshtml?name=Meters';
+            }
         });
     }
 
@@ -250,6 +258,13 @@ export default class NewMeterWizard extends React.Component<{}, WizardState, {}>
     }
 
     clearData(): void {
+        this.clearLocalStorage();
+        this.clearSessionStorage();
+
+        this.setState({ MeterInfo: this.getMeterInfo(), LocationInfo: this.getLocationInfo(), Channels: this.getChannels(), currentStep: this.getCurrentStep(), Assets: this.getAssets() });
+    }
+
+    clearLocalStorage() {
         if (localStorage.hasOwnProperty('NewMeterWizard.MeterInfo'))
             localStorage.removeItem('NewMeterWizard.MeterInfo')
         if (localStorage.hasOwnProperty('NewMeterWizard.LocationInfo'))
@@ -263,7 +278,27 @@ export default class NewMeterWizard extends React.Component<{}, WizardState, {}>
         if (localStorage.hasOwnProperty('NewMeterWizard.CurrentStep'))
             localStorage.removeItem('NewMeterWizard.CurrentStep')
 
-        this.setState({ MeterInfo: this.getMeterInfo(), LocationInfo: this.getLocationInfo(), Channels: this.getChannels(), currentStep: this.getCurrentStep(), Assets: this.getAssets() });
+    }
+
+    clearSessionStorage() {
+        if (sessionStorage.hasOwnProperty('NewMeterWizard.MeterKeys'))
+            sessionStorage.removeItem('NewMeterWizard.MeterKeys')
+        if (sessionStorage.hasOwnProperty('NewMeterWizard.LocationKeys'))
+            sessionStorage.removeItem('NewMeterWizard.LocationKeys')
+        if (sessionStorage.hasOwnProperty('NewMeterWizard.TimeZones'))
+            sessionStorage.removeItem('NewMeterWizard.TimeZones')
+        if (sessionStorage.hasOwnProperty('NewMeterWizard.Locations'))
+            sessionStorage.removeItem('NewMeterWizard.Locations')
+        if (sessionStorage.hasOwnProperty('NewMeterWizard.Phases'))
+            sessionStorage.removeItem('NewMeterWizard.Phases')
+        if (sessionStorage.hasOwnProperty('NewMeterWizard.MeasurementTypes'))
+            sessionStorage.removeItem('NewMeterWizard.MeasurementTypes')
+        if (sessionStorage.hasOwnProperty('NewMeterWizard.AllAssets'))
+            sessionStorage.removeItem('NewMeterWizard.AllAssets')
+        if (sessionStorage.hasOwnProperty('NewMeterWizard.AssetTypes'))
+            sessionStorage.removeItem('NewMeterWizard.AssetTypes')
+        if (sessionStorage.hasOwnProperty('NewMeterWizard.AssetConnectionTypes'))
+            sessionStorage.removeItem('NewMeterWizard.AssetConnectionTypes')
     }
 
     getHeader(): string {

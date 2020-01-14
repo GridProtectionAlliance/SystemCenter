@@ -235,9 +235,6 @@
   <ItemGroup>
     <Compile Include="Controllers\OpenXDAControllers.cs" />
     <Compile Include="Controllers\ModelController.cs" />
-    <Compile Include="Controllers\SystemCenter\Assets\AssetsController.cs" />
-    <Compile Include="Controllers\SystemCenter\AssetTypes\AssetTypeFieldsController.cs" />
-    <Compile Include="Controllers\SystemCenter\AssetTypes\AssetTypesController.cs" />
     <Compile Include="Controllers\SystemCenter\PingController.cs" />
     <Compile Include="DataHub.cs" />
     <Compile Include="Model\AppModel.cs" />
@@ -425,7 +422,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDAEDNADataWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDAPQViewDataWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\ValueListInput.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetTypes\AssetTypePreviewPane.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterNote.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\NewMeter.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\TransmissionElement.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\NewMeterWizard.tsx" />
@@ -435,7 +432,6 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page2.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page1.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\OpenXDA\ByLocation.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetTypes\AssetTypes.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterLocation.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ConnectionInfo.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\OpenXDA\Meter.tsx" />

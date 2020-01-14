@@ -28,15 +28,24 @@ import { OpenXDA } from '../global';
 import GeneralMeterInfoWindow from '../Meter/GeneralMeterInfo';
 import NewMeterInfoWindow from '../Meter/NewMeter';
 import TransmissionElementWindow from '../Meter/TransmissionElement';
+import MeterNoteWindow from '../Meter/MeterNote';
 declare var homePath: string;
 
-export default class Meter extends React.Component<{ meterId: number}, { Meter: OpenXDA.Meter}, {}>{
+export default class Meter extends React.Component<{ meterId: number}, { Meter: OpenXDA.Meter, Tab: string}, {}>{
     constructor(props, context) {
         super(props, context);
 
         this.state = {
-            Meter: null
+            Meter: null,
+            Tab: this.getTab()
         }
+    }
+
+    getTab(): string {
+        if (sessionStorage.hasOwnProperty('Meter.Tab'))
+            return JSON.parse(sessionStorage.getItem('Meter.Tab'));
+        else
+            return 'notes';
     }
 
     getMeter(): void {
@@ -51,31 +60,79 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
         }).done((data: OpenXDA.Meter) => this.setState({ Meter: data }));
     }
 
+    deleteMeter(): JQuery.jqXHR {
+        return $.ajax({
+            type: "DELETE",
+            url: `${homePath}api/OpenXDA/Meter/Delete`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(this.state.Meter),
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+    }
+
+    setTab(tab:string): void {
+        sessionStorage.setItem('Meter.Tab', JSON.stringify(tab));
+        this.setState({Tab: tab});
+    }
+    
     componentDidMount() {
         this.getMeter();
     }
 
     render() {
+        return (
+            <div className="card-header"style={{ width: '100%',height: '100%', maxHeight: '100%', overflowY: 'auto' }}>
+                <div className="row">
+                    <div className="col">
+                        <h2>{this.state.Meter != null ? this.state.Meter.Name : ''}</h2>
+                    </div>
+                    <div className="col">
+                        <button className="btn btn-danger pull-right" hidden={this.state.Meter == null} onClick={() => this.deleteMeter().done(() => window.location.href = homePath + 'index.cshtml?name=Meter')}>Delete Meter (Permanent)</button>
+                    </div>
+                </div>
 
-        if (this.props.meterId == undefined || this.props.meterId == 0)
-            return (
-                <div className="card-header accordian" id="accordianHead" style={{ width: '100%', height: '100%', maxHeight: '100%', overflowY: 'auto' }}>
-                    <h2>Add New Meter</h2>
-                    <hr />
-                    <NewMeterInfoWindow />
+
+                <hr />
+                <ul className="nav nav-tabs">
+                    <li className="nav-item">
+                        <a className={"nav-link" + (this.state.Tab == "notes" ? " active" : "")} onClick={() => this.setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (this.state.Tab == "meterInfo" ? " active" : "")} onClick={() => this.setTab('meterInfo')} data-toggle="tab" href="#meterInfo">Meter Info</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (this.state.Tab == "substation" ? " active" : "")} onClick={() => this.setTab('substation')} data-toggle="tab" href="#substation">Substation</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (this.state.Tab == "channels" ? " active" : "")} onClick={() => this.setTab('channels')} data-toggle="tab" href="#channels">Channels</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (this.state.Tab == "assets" ? " active" : "")} onClick={() => this.setTab('assets')} data-toggle="tab" href="#assets">Assets</a>
+                    </li>
+
+                </ul>
+             
+                <div className="tab-content">
+                    <div className={"tab-pane " + (this.state.Tab == "notes" ? " active" : "fade")} id="notes">
+                        <MeterNoteWindow MeterID={this.props.meterId}/>
+                    </div>
+                    <div className={"tab-pane " + (this.state.Tab == "meterInfo" ? " active" : "fade")} id="meterInfo">
+                        <GeneralMeterInfoWindow meter={this.state.Meter} stateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
+                    </div>
+                    <div className={"tab-pane " + (this.state.Tab == "substation" ? " active" : "fade")} id="substation">
+                        <MeterLocationWindow meter={this.state.Meter} stateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
+                    </div>
+                    <div className={"tab-pane " + (this.state.Tab == "channels" ? " active" : "fade")} id="channels">...</div>
+                    <div className={"tab-pane " + (this.state.Tab == "assets" ? " active" : "fade")} id="assets">...</div>
+
                 </div>
-            )
-        else if (this.state.Meter == null) return null;
-        else
-            return (
-                <div className="card-header accordian" id="accordianHead" style={{ width: '100%',height: '100%', maxHeight: '100%', overflowY: 'auto' }}>
-                    <h2>{this.state.Meter != null ? this.state.Meter.Name : ''}</h2>
-                    <hr />
-                    <GeneralMeterInfoWindow meter={this.state.Meter} stateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })}/>
-                    <MeterLocationWindow meter={this.state.Meter} stateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
-                    <TransmissionElementWindow meter={this.state.Meter}/>
-                </div>
-            )
+                
+                
+                {/*<TransmissionElementWindow meter={this.state.Meter}/>*/}
+            </div>
+        )
     }
 }
 

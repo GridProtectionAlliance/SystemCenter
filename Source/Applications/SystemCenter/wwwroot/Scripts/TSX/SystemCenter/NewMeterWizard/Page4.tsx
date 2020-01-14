@@ -223,7 +223,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
             <>
                 <div className="row" style={{margin: -20}}>
                     <div className="col-lg-4">
-                        <ul style={{ width: '100%', height: window.innerHeight - 338, maxHeight: window.innerHeight - 338, overflowY: 'auto', padding: 0, margin: 0 }}>
+                        <ul style={{ width: '100%', height: window.innerHeight - 260, maxHeight: window.innerHeight - 260, overflowY: 'auto', padding: 0, margin: 0 }}>
                             {
                                 this.props.Channels.map((channel, index) => <li style={{textDecoration: (channel.Asset.length > 0 ? 'line-through' : null)}} key={index}>{channel.Name + ' - ' + channel.Description}</li>)
                             }
@@ -313,7 +313,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
 
                                         <div className="form-group">
                                             <label>Key</label>
-                                            <input className={(this.state.NewEditAsset.AssetKey != null && this.state.NewEditAsset.AssetKey.length > 0 && this.state.AllAssets.map(asset => asset.AssetKey).indexOf(this.state.NewEditAsset.AssetKey.toLowerCase()) < 0 ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
+                                            <input className={(this.state.NewEditAsset.AssetKey != null && this.state.NewEditAsset.AssetKey.length > 0 && this.state.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(this.state.NewEditAsset.AssetKey.toLowerCase()) < 0 ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
                                                 let asset = _.clone(this.state.NewEditAsset, true);
 
                                                 if (evt.target.value != "")
@@ -322,8 +322,8 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                                                     asset.AssetKey = null;
 
                                                 this.setState({ NewEditAsset: asset });
-                                            }} value={this.state.NewEditAsset.AssetKey == null ? '' : this.state.NewEditAsset.AssetKey} required={true} disabled={this.state.NewEditAsset.ID != 0} />
-                                            <div className='invalid-feedback'>{(this.state.AllAssets.map(asset => asset.AssetKey).indexOf(this.state.NewEditAsset.AssetKey) < 0 ? 'A unique key is required.' : 'The key provided is not unique.')}</div>
+                                            }} value={this.state.NewEditAsset.AssetKey == null ? '' : this.state.NewEditAsset.AssetKey} required={true} disabled={this.state.NewEdit == NewEdit.Edit ||this.state.NewEditAsset.ID != 0 } />
+                                            <div className='invalid-feedback'>{(this.state.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(this.state.NewEditAsset.AssetKey.toLowerCase()) < 0 ? 'A unique key is required.' : 'The key provided is not unique.')}</div>
                                         </div>
 
                                         <div className="form-group">
@@ -424,7 +424,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                                     this.props.UpdateState({ Channels: channels });
                                     this.props.UpdateState({ Assets: list });
                                     this.setState({ NewEditAsset: this.getNewAsset('Line') })
-                                }} disabled={this.disableModalSave()} hidden={this.state.NewEdit != NewEdit.Edit}>Edit</button>
+                                }} disabled={this.disableModalSave()} hidden={this.state.NewEdit != NewEdit.Edit}>Save</button>
 
 
                                 <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => {

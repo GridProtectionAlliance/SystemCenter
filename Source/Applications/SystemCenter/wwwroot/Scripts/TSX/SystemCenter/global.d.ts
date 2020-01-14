@@ -40,6 +40,7 @@ export namespace OpenXDA {
     interface Meter { ID: number, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, LocationID: number, Description: string }
     interface Channel { ID: number, Meter: string, Asset: string, MeasurementType: string, Measurementcharacteristic: string, Phase: string, Name: string, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, Series: OpenXDA.Series }
     interface Series { ID: number, ChannelID: number, SeriesType: string, SourceIndexes: string }
+    interface Note { ID: number, NoteTypeID: number, ReferenceTableID: number, Note: string, UserAccount: string, Timestamp: string }
 
     // Assets
     interface Asset { ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Channels: Array<OpenXDA.Channel> }
@@ -58,6 +59,8 @@ export namespace OpenXDA {
     interface MeasurementType { ID: number, Name: string, Description: string }
     interface AssetType { ID: number, Name: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Description: string }
     interface AssetConnectionType { ID: number, Name: string, Description: string, BiDirectional: boolean, JumpConnection: string, PassThrough: string }
+    interface NoteType { ID: number, Name: string, ReferenceTableName: string }
+
 
     // System Center - OpenXDA Link models
     interface SCMeterLine extends OldLine { LineName: string, LineImpedanceID: number, R0: number, X0: number, R1: number, X1: number }

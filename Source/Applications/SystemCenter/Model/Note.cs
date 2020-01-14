@@ -38,12 +38,4 @@ namespace SystemCenter.Model
         public string UserAccount { get; set; }
         public DateTime Timestamp { get; set; }
     }
-
-    [RoutePrefix("api/Notes")]
-    public class NoteController : ModelController<Notes> {
-        public NoteController() : base(true, "AssetID") {
-
-        }
-
-    }
 }

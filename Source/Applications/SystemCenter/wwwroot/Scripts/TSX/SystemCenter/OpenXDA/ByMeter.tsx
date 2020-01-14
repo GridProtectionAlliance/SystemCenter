@@ -130,7 +130,7 @@ export default class ByMeter extends React.Component<{}, { searchText: string, d
                                 this.setState({ ascending: true, data: ordered, sortField: d.col });
                             }
                         }}
-                        onClick={(item) => { window.location.href = homePath + 'SystemCenter/index.cshtml?name=Meter&meterId=' + item.row.ID}}
+                        onClick={(item) => { window.location.href = homePath + 'index.cshtml?name=Meter&meterId=' + item.row.ID}}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%'  }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
