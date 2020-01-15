@@ -112,11 +112,12 @@ namespace SystemCenter.Controllers
                 return Ok(record);
             }
         }
+
         /*
          record fields
          MeterInfo: { ID: int, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, LocationID: int, Description: string }
          LocationInfo:  { ID: int, LocationKey: string, Name: string, Alias: string, Latitude: double, Longitude: double, Description: string, ShortName: string }
-         Channels: List<{ ID: number, Meter: string, Asset: string, MeasurementType: string, Measurementcharacteristic: string, Phase: string, Name: string, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, Series: { ID: number, ChannelID: number, SeriesType: string, SourceIndexes: string } }>
+         Channels: List<{ ID: number, Meter: string, Asset: string, MeasurementType: string, MeasurementCharacteristic: string, Phase: string, Name: string, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, Series: { ID: number, ChannelID: number, SeriesType: string, SourceIndexes: string } }>
          Assets: List<{ ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Channels: Array<OpenXDA.Channel> }>
             interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number }
             interface Bus extends Asset { }
@@ -195,7 +196,7 @@ namespace SystemCenter.Controllers
                 foreach (var channel in Channels) {
                     string assetName = channel["Asset"].ToString();
                     string measurementType = channel["MeasurementType"].ToString();
-                    string measurementcharacteristic = channel["Measurementcharacteristic"].ToString();
+                    string measurementcharacteristic = channel["MeasurementCharacteristic"].ToString();
                     string phase = channel["Phase"].ToString();
                     string name = channel["Name"].ToString();
                     string description = channel["Description"].ToString() == string.Empty ? "NULL" : "'" +channel["Description"].ToString() + "'";
@@ -203,7 +204,7 @@ namespace SystemCenter.Controllers
                     string sourceIndex = Series["SourceIndexes"].ToString();
                     if (assetName == string.Empty) continue;
 
-                    sqlString += $"INSERT INTO Channel (AssetID, MeasurementTypeID, MeterID, MeasurementcharacteristicID, PhaseID, Name, SamplesPerHour, HarmonicGroup, Description, Enabled) VALUES ";
+                    sqlString += $"INSERT INTO Channel (AssetID, MeasurementTypeID, MeterID, MeasurementCharacteristicID, PhaseID, Name, SamplesPerHour, HarmonicGroup, Description, Enabled) VALUES ";
                     sqlString += $"((SELECT ID FROM Asset WHERE AssetKey = '{assetName}'),(SELECT ID FROM MeasurementType WHERE Name = '{measurementType}'),(SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'),(SELECT ID FROM MeasurementCharacteristic WHERE Name = '{measurementcharacteristic}'),(SELECT ID FROM Phase WHERE Name = '{phase}'), '{name}', 0,0,{description}, 1 ) \n";
                     sqlString += $"INSERT INTO Series (ChannelID, SeriesTypeID, SourceIndexes) VALUES ((SELECT @@Identity), (SELECT ID FROM SeriesType WHERE Name = 'Values'), '{sourceIndex}') \n";
                 }
@@ -222,6 +223,127 @@ namespace SystemCenter.Controllers
             }
             catch (Exception ex) {
                 return InternalServerError(ex);
+            }
+        }
+
+        /*
+        Channels: List<{ ID: number, Meter: string, Asset: string, MeasurementType: string, MeasurementCharacteristic: string, Phase: string, Name: string, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, Series: { ID: number, ChannelID: number, SeriesType: string, SourceIndexes: string } }>
+        */
+        [HttpPost, Route("{meterID:int}/Channel/Update")]
+        public IHttpActionResult UpdateMeterChannels([FromBody] JObject postData, int meterID)
+        {
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                {
+                    JToken Channels = postData["Channels"];
+                    IEnumerable<MeasurementType> measurementTypes = new TableOperations<MeasurementType>(connection).QueryRecords();
+                    IEnumerable<MeasurementCharacteristic> measurementCharacteristics = new TableOperations<MeasurementCharacteristic>(connection).QueryRecords();
+                    IEnumerable<Phase> phases = new TableOperations<Phase>(connection).QueryRecords();
+                    IEnumerable<Asset> assets = new TableOperations<Asset>(connection).QueryRecordsWhere("ID IN (SELECT AssetID FROM MeterAsset WHERE MeterID = {0})", meterID);
+                    IEnumerable<SeriesType> seriesTypes = new TableOperations<SeriesType>(connection).QueryRecords();
+                    List<int> channelIDs = new List<int>();
+                    foreach (var channel in Channels)
+                    {
+                        JToken Series = channel["Series"];
+                        string sourceIndex = Series["SourceIndexes"].ToString();
+
+                        Channel record = new Channel();
+                        record.ID = channel["ID"].ToObject<int>();
+                        record.MeterID = meterID;
+                        record.AssetID = assets.FirstOrDefault(asset => asset.AssetKey == channel["Asset"].ToString()).ID;
+                        record.MeasurementTypeID = measurementTypes.First(mt => mt.Name == channel["MeasurementType"].ToString()).ID;
+                        record.MeasurementCharacteristicID = measurementCharacteristics.First(mc => mc.Name == channel["MeasurementCharacteristic"].ToString()).ID;
+                        record.PhaseID = phases.First(phase => phase.Name == channel["Phase"].ToString()).ID;
+                        record.Name = channel["Name"].ToString();
+                        record.Description = channel["Description"].ToString() == string.Empty ? null : channel["Description"].ToString();
+                        record.SamplesPerHour = channel["SamplesPerHour"].ToObject<double>();
+                        record.PerUnitValue = channel["PerUnitValue"].ToObject<double?>();
+                        record.HarmonicGroup = channel["HarmonicGroup"].ToObject<int>();
+                        record.Enabled = channel["Enabled"].ToObject<bool>();
+
+                        if (record.AssetID == 0) continue;
+                        else if (record.ID != 0)
+                        {
+                            new TableOperations<Channel>(connection).UpdateRecord(record);
+                            Series series = new TableOperations<Series>(connection).QueryRecordWhere("ChannelID = {0}", record.ID);
+                            series.SourceIndexes = sourceIndex;
+                            new TableOperations<Series>(connection).UpdateRecord(series);
+                            channelIDs.Add(record.ID);
+                        }
+                        else
+                        {
+                            new TableOperations<Channel>(connection).AddNewRecord(record);
+                            int channelID = connection.ExecuteScalar<int>("SELECT @@IDENTITY");
+                            Series series = new Series();
+                            series.ChannelID = channelID;
+                            series.SeriesTypeID = seriesTypes.First(st => st.Name == "Values").ID;
+                            series.SourceIndexes = sourceIndex;
+                            new TableOperations<Series>(connection).AddNewRecord(series);
+                            channelIDs.Add(channelID);
+                        }
+
+
+                        connection.ExecuteNonQuery(@"
+                            EXEC UniversalCascadeDelete 'Channel', 'ID NOT IN (" + string.Join(",", channelIDs)+ @")'
+                        ");
+                    }
+
+                    return Ok();
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpGet,Route("{meterID:int}/Channels")]
+        public IHttpActionResult GetMeterChannels(int meterID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                DataTable table = connection.RetrieveData(@"
+                    SELECT
+	                    Channel.ID,
+	                    Meter.AssetKey as Meter,
+	                    Asset.AssetKey as Asset,
+	                    MeasurementType.Name as MeasurementType,
+	                    MeasurementCharacteristic.Name as MeasurementCharacteristic,
+	                    Phase.Name as Phase,
+	                    Channel.Name,
+	                    Channel.SamplesPerHour,
+	                    Channel.PerUnitValue,
+	                    Channel.HarmonicGroup,
+	                    Channel.Description,
+	                    Channel.Enabled,
+                        Series.ID as SeriesID,
+	                    Series.SourceIndexes as SeriesSourceIndexes
+
+                    FROM
+	                    Channel JOIN
+	                    Series ON Channel.ID = Series.ChannelID JOIN
+	                    Asset ON Channel.AssetID = Asset.ID JOIN
+	                    Meter ON Channel.MeterID = Meter.ID JOIN
+	                    MeasurementType ON Channel.MeasurementTypeID = MeasurementType.ID JOIN
+	                    MeasurementCharacteristic ON Channel.MeasurementCharacteristicID = MeasurementCharacteristic.ID JOIN
+	                    Phase ON Channel.PhaseID = Phase.ID
+                    WHERE 
+	                    MeterID = {0}
+                ", meterID);
+                return Ok(table);
+            }
+        }
+
+        [HttpGet, Route("{meterID:int}/Asset")]
+        public IHttpActionResult GetMeterAssets(int meterID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                IEnumerable<Asset> records = new TableOperations<Asset>(connection).QueryRecordsWhere("ID IN (SELECT AssetID FROM MeterAsset WHERE MeterID = {0})", meterID);
+                return Ok(records);
             }
         }
 

@@ -29,6 +29,7 @@ import GeneralMeterInfoWindow from '../Meter/GeneralMeterInfo';
 import NewMeterInfoWindow from '../Meter/NewMeter';
 import TransmissionElementWindow from '../Meter/TransmissionElement';
 import MeterNoteWindow from '../Meter/MeterNote';
+import MeterChannelWindow from '../Meter/MeterChannel';
 declare var homePath: string;
 
 export default class Meter extends React.Component<{ meterId: number}, { Meter: OpenXDA.Meter, Tab: string}, {}>{
@@ -82,8 +83,9 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
     }
 
     render() {
+        if (this.state.Meter == null) return null;
         return (
-            <div className="card-header"style={{ width: '100%',height: '100%', maxHeight: '100%', overflowY: 'auto' }}>
+            <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
                 <div className="row">
                     <div className="col">
                         <h2>{this.state.Meter != null ? this.state.Meter.Name : ''}</h2>
@@ -114,7 +116,7 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
 
                 </ul>
              
-                <div className="tab-content">
+                <div className="tab-content" style={{maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
                     <div className={"tab-pane " + (this.state.Tab == "notes" ? " active" : "fade")} id="notes">
                         <MeterNoteWindow MeterID={this.props.meterId}/>
                     </div>
@@ -124,7 +126,9 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
                     <div className={"tab-pane " + (this.state.Tab == "substation" ? " active" : "fade")} id="substation">
                         <MeterLocationWindow meter={this.state.Meter} stateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
                     </div>
-                    <div className={"tab-pane " + (this.state.Tab == "channels" ? " active" : "fade")} id="channels">...</div>
+                    <div className={"tab-pane " + (this.state.Tab == "channels" ? " active" : "fade")} id="channels">
+                        <MeterChannelWindow Meter={this.state.Meter} />
+                    </div>
                     <div className={"tab-pane " + (this.state.Tab == "assets" ? " active" : "fade")} id="assets">...</div>
 
                 </div>

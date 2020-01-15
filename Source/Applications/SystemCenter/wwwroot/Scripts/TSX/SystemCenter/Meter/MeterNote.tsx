@@ -113,34 +113,28 @@ function MeterNoteWindow(props: { MeterID: number }): JSX.Element {
                     </div>
                 </div>
             </div>
-            <div id="collapseNotes">
-                <div className="card-body">
-                    <div style={{ height: window.innerHeight - 435 ,maxHeight: window.innerHeight - 435, overflowY: 'auto' }}>
-                        <table className="table" >
-                            <thead>
-                                <tr><th style={{ width: '50%' }}>Note</th><th>Time</th><th>User</th><th></th></tr>
-                            </thead>
-                            <tbody>
-                                {tableRows}
-                            </tbody>
+            <div className="card-body">
+                <div style={{ height: window.innerHeight - 491 ,maxHeight: window.innerHeight - 491, overflowY: 'auto' }}>
+                    <table className="table" >
+                        <thead>
+                            <tr><th style={{ width: '50%' }}>Note</th><th>Time</th><th>User</th><th></th></tr>
+                        </thead>
+                        <tbody>
+                            {tableRows}
+                        </tbody>
 
-                        </table>
-                    </div>
-                    <textarea className="form-control" rows={4} value={note} onChange={(e) => setNote((e.target as any).value)}></textarea>
-
-
+                    </table>
                 </div>
-                <div className="card-footer">
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-primary" onClick={addNote} style={{ cursor: note.length == 0 ? 'not-allowed' : 'pointer' }} disabled={note.length == 0}>Add Note</button>
-                    </div>
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-default" onClick={() => setNote('')} style={{ cursor: note.length == 0 ? 'not-allowed' : 'pointer' }} disabled={note.length == 0}>Clear</button>
-                    </div>
-                </div>
-
+                <textarea className="form-control" rows={4} value={note} onChange={(e) => setNote((e.target as any).value)}></textarea>
             </div>
-
+            <div className="card-footer">
+                <div className="btn-group mr-2">
+                    <button className="btn btn-primary" onClick={addNote} style={{ cursor: note.length == 0 ? 'not-allowed' : 'pointer' }} disabled={note.length == 0}>Add Note</button>
+                </div>
+                <div className="btn-group mr-2">
+                    <button className="btn btn-default" onClick={() => setNote('')} style={{ cursor: note.length == 0 ? 'not-allowed' : 'pointer' }} disabled={note.length == 0}>Clear</button>
+                </div>
+            </div>
         </div>
     );
 }

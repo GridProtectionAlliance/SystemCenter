@@ -38,12 +38,12 @@ export namespace OpenXDA {
     interface LineImpedance { ID: number, LineID: number, R0: number, X0: number, R1: number, X1: number }
     interface EDNAPoint { ID: number, LineID: number, Point: number }
     interface Meter { ID: number, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, LocationID: number, Description: string }
-    interface Channel { ID: number, Meter: string, Asset: string, MeasurementType: string, Measurementcharacteristic: string, Phase: string, Name: string, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, Series: OpenXDA.Series }
+    interface Channel { ID: number, Meter: string, Asset: string, MeasurementType: string, MeasurementCharacteristic: string, Phase: string, Name: string, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, Series: OpenXDA.Series }
     interface Series { ID: number, ChannelID: number, SeriesType: string, SourceIndexes: string }
     interface Note { ID: number, NoteTypeID: number, ReferenceTableID: number, Note: string, UserAccount: string, Timestamp: string }
 
     // Assets
-    interface Asset { ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Channels: Array<OpenXDA.Channel> }
+    interface Asset { ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Spare:boolean, Channels: Array<OpenXDA.Channel> }
     interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number }
     interface Bus extends Asset { }
     interface CapBank extends Asset { NumberOfBanks: number, CansPerBank: number, CapacitancePerBank: number }

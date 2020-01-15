@@ -151,13 +151,13 @@ export default class Page3 extends React.Component<{ MeterKey: string, Channels:
                     <div className="col">
                         <button className="btn btn-primary" onClick={() => {
                             let channels: Array<OpenXDA.Channel> = [
-                                { ID: 0, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Voltage', Measurementcharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
-                                { ID: 1, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Voltage', Measurementcharacteristic: 'Instantaneous', Phase: 'BN', Name: 'VBN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage BN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
-                                { ID: 2, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Voltage', Measurementcharacteristic: 'Instantaneous', Phase: 'CN', Name: 'VCN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage CN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
-                                { ID: 3, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Current', Measurementcharacteristic: 'Instantaneous', Phase: 'AN', Name: 'IA', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current A', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
-                                { ID: 4, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Current', Measurementcharacteristic: 'Instantaneous', Phase: 'BN', Name: 'IB', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current B', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
-                                { ID: 5, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Current', Measurementcharacteristic: 'Instantaneous', Phase: 'CN', Name: 'IC', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current C', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
-                                { ID: 6, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Current', Measurementcharacteristic: 'Instantaneous', Phase: 'NG', Name: 'IN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current NG', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                                { ID: 0, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                                { ID: 1, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'VBN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage BN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                                { ID: 2, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'VCN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage CN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                                { ID: 3, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'IA', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current A', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                                { ID: 4, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'IB', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current B', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                                { ID: 5, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'IC', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current C', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                                { ID: 6, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'NG', Name: 'IN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current NG', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
 
                             ]
                             this.props.UpdateState({ Channels: channels });
@@ -174,7 +174,7 @@ export default class Page3 extends React.Component<{ MeterKey: string, Channels:
                     </div>
                     <div className="col">
                         <button className="btn btn-primary pull-right" onClick={() => {
-                            let channel: OpenXDA.Channel = { ID: this.props.Channels.length, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Voltage', Measurementcharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel
+                            let channel: OpenXDA.Channel = { ID: this.props.Channels.length, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel
                             let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels, true);
                             channels.push(channel);
                             this.props.UpdateState({ Channels: channels });
@@ -183,7 +183,7 @@ export default class Page3 extends React.Component<{ MeterKey: string, Channels:
                     </div>
 
                 </div>
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 300, padding: 30, overflowY: 'auto' }}>
+                <div style={{ width: '100%', maxHeight: 'calc(100% - 35px)', padding: 30, overflowY: 'auto' }}>
                     <table className="table table-hover">
                         <thead>
                             <tr>

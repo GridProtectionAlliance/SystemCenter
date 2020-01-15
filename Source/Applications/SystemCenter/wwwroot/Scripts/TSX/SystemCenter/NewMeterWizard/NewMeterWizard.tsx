@@ -357,21 +357,21 @@ export default class NewMeterWizard extends React.Component<{}, WizardState, {}>
 
     render() {
         return (
-            <div>
+            <div style={{padding: 10, height: 'inherit', overflowY: 'hidden'}}>
                 <h2>New Meter Wizard</h2>
-                <div className="card">
+                <hr/>
+                <div className="card" style={{height: 'calc(100% - 75px)'}}>
                     <div className="card-header">
                         <button className="btn btn-primary pull-right" onClick={this.clearData} >Clear Data</button>
                         <h4 style={{width: '90%'}}>{this.getHeader()}</h4>
                     </div>
-                    <div className="card-body">
+                    <div className="card-body" style={{maxHeight: 'calc(100% - 126px)'}}>
                         {this.getPage()}
                     </div>
                     <div className="card-footer">
                         <button className="btn btn-primary pull-left" onClick={this.prev} hidden={this.state.currentStep <= 1}>Prev</button>
                         <button className="btn btn-primary pull-right" onClick={this.next} hidden={this.state.currentStep >= 5} disabled={this.state.currentStep >= 5 || this.disableNext()}>Next</button>
                         <button className="btn btn-primary pull-right" onClick={this.addNewMeter} hidden={this.state.currentStep < 5}>Submit</button>
-
                     </div>
                 </div>
 

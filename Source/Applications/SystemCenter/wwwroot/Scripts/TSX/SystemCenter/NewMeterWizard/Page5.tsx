@@ -115,7 +115,7 @@ export default class Page5 extends React.Component<{ Assets: Array<OpenXDA.Asset
                                 <button className="btn btn-primary pull-right" data-toggle='modal' data-target='#newConnection' disabled={this.props.Assets.length <= 1}>Add Connection</button>
                                 <h4 style={{ width: '100%' }}>{currentAsset.AssetKey}</h4>
                             </div>
-                            <div className="card-body">
+                            <div className="card-body" style={{overflowY:'scroll', maxHeight: window.innerHeight - 415}}>
                                 <table className="table table-hover">
                                     <thead>
                                         <tr>

@@ -302,6 +302,7 @@
     <None Include="wwwroot\Content\Site.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="wwwroot\Content\dashboard.css" />
     <Content Include="wwwroot\Groups.cshtml" />
     <None Include="wwwroot\Images\2-Line - 500.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -424,6 +425,8 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\ValueListInput.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterNote.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\NewMeter.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterChannel.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterAsset.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\TransmissionElement.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\NewMeterWizard.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page5.tsx" />
