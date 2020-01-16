@@ -35,7 +35,7 @@ export default class GeneralMeterInfoWindow extends React.Component<{ meter: Ope
 
         this.state = {
             changed: false,
-            TimeZones: null
+            TimeZones: []
         }
     }
 
@@ -62,14 +62,21 @@ export default class GeneralMeterInfoWindow extends React.Component<{ meter: Ope
     }
 
     getTimeZones(): void {
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/ValueList/Group/TimeZones`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((tzs: Array<ValueListItem>) => this.setState({ TimeZones: tzs }));
+        if (sessionStorage.hasOwnProperty('SystemCenter.TimeZones'))
+            this.setState({ TimeZones: JSON.parse(sessionStorage.getItem('SystemCenter.TimeZones')) });
+        else
+            $.ajax({
+                type: "GET",
+                url: `${homePath}api/ValueList/Group/TimeZones`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                cache: true,
+                async: true
+            }).done((tzs: Array<ValueListItem>) => {
+                this.setState({ TimeZones: tzs });
+                sessionStorage.setItem('SystemCenter.TimeZones', JSON.stringify(tzs));
+
+            });
     }
 
 

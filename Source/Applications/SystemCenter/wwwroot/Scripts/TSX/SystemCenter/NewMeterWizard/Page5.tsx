@@ -103,7 +103,7 @@ export default class Page5 extends React.Component<{ Assets: Array<OpenXDA.Asset
             <>
                 <div className="row" style={{ margin: -20 }}>
                     <div className="col-lg-4">
-                        <ul style={{ width: '100%', height: window.innerHeight - 338,maxHeight: window.innerHeight - 338, overflowY: 'auto', padding: 0, margin: 0 }}>
+                        <ul style={{ width: '100%', height: window.innerHeight - 285, maxHeight: window.innerHeight - 285, overflowY: 'auto', padding: 0, margin: 0 }}>
                             {
                                 this.props.Assets.map((asset, index) => <li style={{ textDecoration: (index <= this.state.AssetIndex ? 'line-through' : null) }} key={index}>{asset.AssetKey}</li>)
                             }

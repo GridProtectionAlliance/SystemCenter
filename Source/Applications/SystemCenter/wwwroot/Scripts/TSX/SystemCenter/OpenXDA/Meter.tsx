@@ -82,6 +82,10 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
         this.getMeter();
     }
 
+    componentWillUnmount() {
+        sessionStorage.clear();
+    }
+
     render() {
         if (this.state.Meter == null) return null;
         return (
@@ -91,7 +95,7 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
                         <h2>{this.state.Meter != null ? this.state.Meter.Name : ''}</h2>
                     </div>
                     <div className="col">
-                        <button className="btn btn-danger pull-right" hidden={this.state.Meter == null} onClick={() => this.deleteMeter().done(() => window.location.href = homePath + 'index.cshtml?name=Meter')}>Delete Meter (Permanent)</button>
+                        <button className="btn btn-danger pull-right" hidden={this.state.Meter == null} onClick={() => this.deleteMeter().done(() => window.location.href = homePath + 'index.cshtml?name=Meters')}>Delete Meter (Permanent)</button>
                     </div>
                 </div>
 
@@ -131,10 +135,7 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "assets" ? " active" : "fade")} id="assets">...</div>
 
-                </div>
-                
-                
-                {/*<TransmissionElementWindow meter={this.state.Meter}/>*/}
+                </div>                
             </div>
         )
     }

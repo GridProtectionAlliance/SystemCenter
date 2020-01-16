@@ -43,8 +43,8 @@ export default class Page1 extends React.Component<{ MeterInfo: OpenXDA.Meter, U
 
 
     getTimeZones(): void {
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.TimeZones'))
-            this.setState({ TimeZones: JSON.parse(sessionStorage.getItem('NewMeterWizard.TimeZones')) });
+        if (sessionStorage.hasOwnProperty('SystemCenter.TimeZones'))
+            this.setState({ TimeZones: JSON.parse(sessionStorage.getItem('SystemCenter.TimeZones')) });
         else
             $.ajax({
                 type: "GET",
@@ -55,7 +55,7 @@ export default class Page1 extends React.Component<{ MeterInfo: OpenXDA.Meter, U
                 async: true
             }).done((tzs: Array<ValueListItem>) => {
                 this.setState({ TimeZones: tzs });
-                sessionStorage.setItem('NewMeterWizard.TimeZones', JSON.stringify(tzs));
+                sessionStorage.setItem('SystemCenter.TimeZones', JSON.stringify(tzs));
 
             });
     }

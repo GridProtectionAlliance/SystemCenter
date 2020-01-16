@@ -80,6 +80,10 @@ export default class NewMeterWizard extends React.Component<{}, WizardState, {}>
         this.getLocationKeys();
     }
 
+    componentWillUnmount() {
+        sessionStorage.clear();
+    }
+
     getCurrentStep(): number {
         if (localStorage.hasOwnProperty('NewMeterWizard.CurrentStep'))
             return JSON.parse(localStorage.getItem('NewMeterWizard.CurrentStep'))
@@ -259,7 +263,7 @@ export default class NewMeterWizard extends React.Component<{}, WizardState, {}>
 
     clearData(): void {
         this.clearLocalStorage();
-        this.clearSessionStorage();
+        sessionStorage.clear();
 
         this.setState({ MeterInfo: this.getMeterInfo(), LocationInfo: this.getLocationInfo(), Channels: this.getChannels(), currentStep: this.getCurrentStep(), Assets: this.getAssets() });
     }
@@ -278,27 +282,6 @@ export default class NewMeterWizard extends React.Component<{}, WizardState, {}>
         if (localStorage.hasOwnProperty('NewMeterWizard.CurrentStep'))
             localStorage.removeItem('NewMeterWizard.CurrentStep')
 
-    }
-
-    clearSessionStorage() {
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.MeterKeys'))
-            sessionStorage.removeItem('NewMeterWizard.MeterKeys')
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.LocationKeys'))
-            sessionStorage.removeItem('NewMeterWizard.LocationKeys')
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.TimeZones'))
-            sessionStorage.removeItem('NewMeterWizard.TimeZones')
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.Locations'))
-            sessionStorage.removeItem('NewMeterWizard.Locations')
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.Phases'))
-            sessionStorage.removeItem('NewMeterWizard.Phases')
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.MeasurementTypes'))
-            sessionStorage.removeItem('NewMeterWizard.MeasurementTypes')
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.AllAssets'))
-            sessionStorage.removeItem('NewMeterWizard.AllAssets')
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.AssetTypes'))
-            sessionStorage.removeItem('NewMeterWizard.AssetTypes')
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.AssetConnectionTypes'))
-            sessionStorage.removeItem('NewMeterWizard.AssetConnectionTypes')
     }
 
     getHeader(): string {

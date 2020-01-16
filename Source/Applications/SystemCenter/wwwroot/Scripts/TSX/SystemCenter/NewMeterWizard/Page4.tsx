@@ -201,8 +201,8 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
     }
 
     getDifferentAsset(assetID: number): void {
-        let asset = this.state.AllAssets.find(a => a.ID == assetID); 
-        let assetType = this.state.AssetTypes.find(at => at.ID == asset['AssetTypeID'])
+        let assetTypeID = this.state.AllAssets.find(a => a.ID == assetID)['AssetTypeID']; 
+        let assetType = this.state.AssetTypes.find(at => at.ID == assetTypeID)
         $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/${assetType.Name}/One/${assetID}`,
@@ -216,16 +216,37 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
 
             if (assetType.Name == 'Line')
                 (asset as OpenXDA.Line).Segment = this.getNewAsset('LineSegment') as OpenXDA.LineSegment;
-            this.setState({ NewEditAsset: asset });
+            this.setState({ NewEditAsset: asset }, () => {
+                if (this.state.NewEditAsset.AssetType == 'Breaker')
+                    this.getEDNAPoint(this.state.NewEditAsset.ID);
+            });
         });
     }
+
+    getEDNAPoint(assetID: number): void {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Asset/${assetID}/EDNAPoint`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done((ednaPoint: OpenXDA.EDNAPoint) => {
+            let record: OpenXDA.Breaker = _.clone(this.state.NewEditAsset, true);
+            if (ednaPoint != undefined) {
+                record.EDNAPoint = ednaPoint.Point
+                this.setState({ NewEditAsset: record });
+            }
+        });
+    }
+
 
     render() {
         return (
             <>
                 <div className="row" style={{margin: -20}}>
                     <div className="col-lg-4">
-                        <ul style={{ width: '100%', height: 'calc(100% - 189px)', maxHeight: 'calc(100% - 189px)', overflowY: 'auto', padding: 0, margin: 0 }}>
+                        <ul style={{ width: '100%', height: window.innerHeight - 285, maxHeight: window.innerHeight - 285, overflowY: 'auto', padding: 0, margin: 0 }}>
                             {
                                 this.props.Channels.map((channel, index) => <li style={{textDecoration: (channel.Asset.length > 0 ? 'line-through' : null)}} key={index}>{channel.Name + ' - ' + channel.Description}</li>)
                             }
@@ -370,17 +391,6 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                                             }} value={this.state.NewEditAsset == null || this.state.NewEditAsset.Description == null ? '' : this.state.NewEditAsset.Description} disabled={this.state.NewEditAsset.ID != 0} />
                                         </div>
 
-                                        <div className="form-group">
-                                            <div className="custom-control custom-checkbox">
-                                                <input type="checkbox" className="custom-control-input" style={{left: 2, top: 6, zIndex: 1}} checked={this.state.NewEditAsset.Spare} onChange={(evt) => {
-                                                    var asset: OpenXDA.Asset = _.clone(this.state.NewEditAsset, true);
-                                                    asset.Spare = evt.target.checked;
-
-                                                    this.setState({ NewEditAsset: asset });
-                                                }}/>
-                                                <label className="custom-control-label" >Spare</label>
-                                            </div>
-                                        </div>
 
                                     </div>
                                     <div className="col">
@@ -537,6 +547,30 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                     }} value={record == null || record.TripCoilCondition == null ? 0 : record.TripCoilCondition} type='number' disabled={this.state.NewEditAsset.ID != 0} />
                 </div>
 
+                <div className="form-group">
+                    <label>EDNA Point</label>
+                    <input className="form-control" onChange={(evt) => {
+                        var asset = _.clone(record, true);
+                        if (evt.target.value != "")
+                            asset.EDNAPoint = evt.target.value;
+                        else
+                            asset.EDNAPoint = null;
+
+                        this.setState({ NewEditAsset: asset });
+                    }} value={record == null || record.EDNAPoint == null ? '' : record.EDNAPoint} type='text' disabled={this.state.NewEditAsset.ID != 0} />
+                </div>
+
+                <div className="form-group">
+                    <div className="custom-control custom-checkbox">
+                        <input type="checkbox" className="custom-control-input" style={{ left: 2, top: 6, zIndex: 1 }} checked={this.state.NewEditAsset.Spare} onChange={(evt) => {
+                            var asset: OpenXDA.Asset = _.clone(this.state.NewEditAsset, true);
+                            asset.Spare = evt.target.checked;
+
+                            this.setState({ NewEditAsset: asset });
+                        }} />
+                        <label className="custom-control-label" >Spare</label>
+                    </div>
+                </div>
 
 
             </>

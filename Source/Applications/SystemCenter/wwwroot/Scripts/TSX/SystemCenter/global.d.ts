@@ -36,7 +36,7 @@ export namespace OpenXDA {
     interface OldLine { ID: number, AssetKey: string, VoltageKV: number, ThermalRating: number, Length: number, MaxFaultDistance: number, MinFaultDistance: number, Description: string }
     interface MeterLine { ID: number, MeterID: number, LineID: number, LineName: string }
     interface LineImpedance { ID: number, LineID: number, R0: number, X0: number, R1: number, X1: number }
-    interface EDNAPoint { ID: number, LineID: number, Point: number }
+    interface EDNAPoint { ID: number, BreakerID: number, Point: string }
     interface Meter { ID: number, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, LocationID: number, Description: string }
     interface Channel { ID: number, Meter: string, Asset: string, MeasurementType: string, MeasurementCharacteristic: string, Phase: string, Name: string, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, Series: OpenXDA.Series }
     interface Series { ID: number, ChannelID: number, SeriesType: string, SourceIndexes: string }
@@ -44,7 +44,7 @@ export namespace OpenXDA {
 
     // Assets
     interface Asset { ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Spare:boolean, Channels: Array<OpenXDA.Channel> }
-    interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number }
+    interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number, EDNAPoint?: string }
     interface Bus extends Asset { }
     interface CapBank extends Asset { NumberOfBanks: number, CansPerBank: number, CapacitancePerBank: number }
     interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Segment: LineSegment }

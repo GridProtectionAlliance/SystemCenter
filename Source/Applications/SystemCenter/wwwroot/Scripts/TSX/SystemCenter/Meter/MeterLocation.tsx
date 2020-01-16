@@ -43,7 +43,7 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
                 Description: '',
             },
             changed: false,
-            MeterLocations: null
+            MeterLocations: []
         }
     }
 
@@ -84,17 +84,21 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
         return jqueryHandle.done((meterLocation: OpenXDA.Location) => this.setState({ MeterLocation: meterLocation, changed: true }));
     }
 
-    getAllLocations(): JQuery.jqXHR {
-        var jqueryHandle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Location`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        });
-
-        return jqueryHandle.done(mls => this.setState({ MeterLocations: mls }));
+    getAllLocations(): void {
+        if (sessionStorage.hasOwnProperty('SystemCenter.Locations'))
+            this.setState({ MeterLocations: JSON.parse(sessionStorage.getItem('SystemCenter.Locations')) });
+        else
+            $.ajax({
+                type: "GET",
+                url: `${homePath}api/OpenXDA/Location`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                cache: true,
+                async: true
+            }).done(mls => {
+                this.setState({ MeterLocations: mls })
+                sessionStorage.setItem('SystemCenter.Locations', JSON.stringify(mls));
+            });
     }
 
 

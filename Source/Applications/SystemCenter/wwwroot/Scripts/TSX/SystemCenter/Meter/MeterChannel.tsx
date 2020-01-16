@@ -36,6 +36,9 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
             MeasurementTypes: [],
             AllAssets: []
         }
+
+        this.getChannels = this.getChannels.bind(this);
+        this.updateChannels = this.updateChannels.bind(this);
     }
 
     componentDidMount() {
@@ -59,17 +62,42 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
         });
     }
 
-    getAssets(): void {
+    updateChannels(): void {
         $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Meter/${this.props.Meter.ID}/Asset`,
+            type: "POST",
+            url: `${homePath}api/OpenXDA/Meter/${this.props.Meter.ID}/Channel/Update`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            cache: true,
+            data: JSON.stringify({Channels: this.state.Channels}),
+            cache: false,
             async: true
-        }).done((assets: Array<OpenXDA.Asset>) => {
-            this.setState({ AllAssets: assets })
-        });
+        }).done(() => {
+            this.getChannels();
+        }).fail(msg => {
+            if (msg.status == 500)
+                alert(msg.responseJSON.ExceptionMessage)
+            else {
+                this.getChannels();
+            }
+        });;
+    }
+
+
+    getAssets(): void {
+        if (sessionStorage.hasOwnProperty('SystemCenter.Assets'))
+            this.setState({ AllAssets: JSON.parse(sessionStorage.getItem('SystemCenter.Assets')) });
+        else
+            $.ajax({
+                type: "GET",
+                url: `${homePath}api/OpenXDA/Meter/${this.props.Meter.ID}/Asset`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                cache: true,
+                async: true
+            }).done((assets: Array<OpenXDA.Asset>) => {
+                this.setState({ AllAssets: assets })
+                sessionStorage.setItem('SystemCenter.Assets', JSON.stringify(assets));
+            });
     }
 
 
@@ -193,15 +221,10 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                         }}>Add Channel</button>
                     </div>
                     <div className="btn-group mr-2">
-                        <button className="btn btn-primary pull-right" onClick={() => {
-                            let channel: OpenXDA.Channel = { ID: 0, Meter: this.props.Meter.AssetKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel
-                            let channels: Array<OpenXDA.Channel> = _.clone(this.state.Channels, true);
-                            channels.push(channel);
-                            this.setState({ Channels: channels });
-                        }}>Save Changes</button>
+                        <button className="btn btn-primary pull-right" onClick={this.updateChannels}>Save Changes</button>
                     </div>
                     <div className="btn-group mr-2">
-                        <button className="btn btn-default" onClick={() => this.getChannels()}>Clear Changes</button>
+                        <button className="btn btn-default" onClick={this.getChannels}>Clear Changes</button>
                     </div>
                 </div>
             </div>
