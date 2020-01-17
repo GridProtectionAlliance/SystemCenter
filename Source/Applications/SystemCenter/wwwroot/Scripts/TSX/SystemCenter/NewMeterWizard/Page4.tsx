@@ -178,7 +178,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                 cache: true,
                 async: true
             }).done((assets: Array<OpenXDA.Asset>) => {
-                this.setState({ AllAssets: assets });
+                this.setState({ AllAssets: _.orderBy(assets,['AssetKey'], ['asc']) });
                 sessionStorage.setItem('NewMeterWizard.AllAssets', JSON.stringify(assets));
             });
     }

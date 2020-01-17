@@ -192,7 +192,7 @@ namespace SystemCenter
 
         private void WebServer_StatusMessage(object sender, EventArgs<string> e)
         {
-            //DisplayStatusMessage(e.Argument, UpdateType.Information);
+            DisplayStatusMessage(e.Argument, UpdateType.Information);
         }
 
         private void ServiceHelper_ServiceStarted(object sender, EventArgs e)

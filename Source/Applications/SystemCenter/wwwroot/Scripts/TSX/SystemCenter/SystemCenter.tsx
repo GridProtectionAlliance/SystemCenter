@@ -98,7 +98,7 @@ class SystemCenter extends React.Component<{}, {}, {}>{
 
                             </div>
                         </nav>
-                        <main className="col-md-9 ml-sm-auto col-lg-10" style={{ width: '100%', height: 'inherit', padding: '62px 0 0 0', overflowY: 'hidden' }}>
+                        <div className="col-md-9 ml-sm-auto col-lg-10" style={{ width: '100%', height: 'inherit', padding: '62px 0 0 0', overflowY: 'hidden' }}>
                             <Route children={({ match, ...rest }) => {
                                 if (rest.location.pathname + rest.location.search == controllerViewPath + "?name=Meters")
                                     return <ByMeter />
@@ -158,7 +158,7 @@ class SystemCenter extends React.Component<{}, {}, {}>{
 
 
 
-                        </main>
+                        </div>
 
                     </div>
                 </div>

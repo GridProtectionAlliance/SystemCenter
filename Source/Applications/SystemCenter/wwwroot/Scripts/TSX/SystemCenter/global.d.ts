@@ -29,6 +29,7 @@ export interface Asset { ID: number, AssetKey: string, AssetTypeID: number }
 export interface AssetTypeFieldAndValue { FieldName: string, FieldDescription: string, FieldType: string, AssetTypeFieldValueID: number, AssetTypeFieldValue: string }
 export interface ValueListItem { ID: number, GroupID: number, Text: string, Value: number, Key: number, Hidden: boolean, IsDefault: boolean, SortOrder: number, AltText1: string, Enabled: boolean }
 export interface Note { ID: number, AssetID: number, Note: string, UserAccount: string, Timestamp: string }
+export type NewEdit =  'New' | 'Edit'
 
 // OpenXDA Models
 export namespace OpenXDA {
@@ -43,7 +44,7 @@ export namespace OpenXDA {
     interface Note { ID: number, NoteTypeID: number, ReferenceTableID: number, Note: string, UserAccount: string, Timestamp: string }
 
     // Assets
-    interface Asset { ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Spare:boolean, Channels: Array<OpenXDA.Channel> }
+    interface Asset { ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: AssetTypeName, Spare:boolean, Channels: Array<OpenXDA.Channel> }
     interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number, EDNAPoint?: string }
     interface Bus extends Asset { }
     interface CapBank extends Asset { NumberOfBanks: number, CansPerBank: number, CapacitancePerBank: number }
@@ -55,9 +56,10 @@ export namespace OpenXDA {
     interface AssetConnection { ID: number, AssetRelationshipTypeID: number, Parent: string, Child: string }
 
     // Types
+    type AssetTypeName = 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer'
     interface Phase { ID: number, Name: string, Description: string }
     interface MeasurementType { ID: number, Name: string, Description: string }
-    interface AssetType { ID: number, Name: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Description: string }
+    interface AssetType { ID: number, Name: AssetTypeName , Description: string }
     interface AssetConnectionType { ID: number, Name: string, Description: string, BiDirectional: boolean, JumpConnection: string, PassThrough: string }
     interface NoteType { ID: number, Name: string, ReferenceTableName: string }
 

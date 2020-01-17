@@ -30,6 +30,7 @@ import NewMeterInfoWindow from '../Meter/NewMeter';
 import TransmissionElementWindow from '../Meter/TransmissionElement';
 import MeterNoteWindow from '../Meter/MeterNote';
 import MeterChannelWindow from '../Meter/MeterChannel';
+import MeterAssetWindow from '../Meter/MeterAsset';
 declare var homePath: string;
 
 export default class Meter extends React.Component<{ meterId: number}, { Meter: OpenXDA.Meter, Tab: string}, {}>{
@@ -112,10 +113,10 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
                         <a className={"nav-link" + (this.state.Tab == "substation" ? " active" : "")} onClick={() => this.setTab('substation')} data-toggle="tab" href="#substation">Substation</a>
                     </li>
                     <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "channels" ? " active" : "")} onClick={() => this.setTab('channels')} data-toggle="tab" href="#channels">Channels</a>
+                        <a className={"nav-link" + (this.state.Tab == "assets" ? " active" : "")} onClick={() => this.setTab('assets')} data-toggle="tab" href="#assets">Assets</a>
                     </li>
                     <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "assets" ? " active" : "")} onClick={() => this.setTab('assets')} data-toggle="tab" href="#assets">Assets</a>
+                        <a className={"nav-link" + (this.state.Tab == "channels" ? " active" : "")} onClick={() => this.setTab('channels')} data-toggle="tab" href="#channels">Channels</a>
                     </li>
 
                 </ul>
@@ -133,7 +134,9 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
                     <div className={"tab-pane " + (this.state.Tab == "channels" ? " active" : "fade")} id="channels">
                         <MeterChannelWindow Meter={this.state.Meter} />
                     </div>
-                    <div className={"tab-pane " + (this.state.Tab == "assets" ? " active" : "fade")} id="assets">...</div>
+                    <div className={"tab-pane " + (this.state.Tab == "assets" ? " active" : "fade")} id="assets">
+                        <MeterAssetWindow Meter={this.state.Meter} />
+                    </div>
 
                 </div>                
             </div>
