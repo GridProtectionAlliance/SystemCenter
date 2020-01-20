@@ -22,8 +22,8 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { OpenXDA } from '../global';
-function BusAttributes(props: { Asset: OpenXDA.Bus, UpdateState: (newEditAsset: OpenXDA.Bus) => void }): JSX.Element {
+import { OpenXDA, NewEdit } from '../global';
+function BusAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Bus, UpdateState: (newEditAsset: OpenXDA.Bus) => void }): JSX.Element {
     return <span>No Additional Attributes</span>;
 }
 

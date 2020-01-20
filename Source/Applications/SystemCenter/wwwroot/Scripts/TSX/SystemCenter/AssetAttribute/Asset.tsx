@@ -49,11 +49,11 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
     static getNewAsset(type: OpenXDA.AssetTypeName): OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.LineSegment | OpenXDA.Transformer {
         let asset: OpenXDA.Asset = {
             ID: 0,
-            AssetKey: '',
-            AssetName: '',
+            AssetKey: null,
+            AssetName: null,
             AssetType: type,
-            Description: '',
-            VoltageKV: 0,
+            Description: null,
+            VoltageKV: null,
             Spare: false,
             Channels: []
         }
@@ -66,19 +66,19 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
     static getNewAssetAttributes(asset: OpenXDA.Asset, type: OpenXDA.AssetTypeName): OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.LineSegment | OpenXDA.Transformer {
         if (type == 'Line') {
             let record = asset as OpenXDA.Line;
-            record.MaxFaultDistance = 0;
-            record.MinFaultDistance = 0;
+            record.MaxFaultDistance = null;
+            record.MinFaultDistance = null;
             record.Segment = this.getNewAsset('LineSegment') as OpenXDA.LineSegment;
 
             return record;
         }
         else if (type == 'Breaker') {
             let record = asset as OpenXDA.Breaker;
-            record.ThermalRating = 0;
-            record.Speed = 0;
-            record.TripTime = 0;
-            record.PickupTime = 0;
-            record.TripCoilCondition = 0;
+            record.ThermalRating = null;
+            record.Speed = null;
+            record.TripTime = null;
+            record.PickupTime = null;
+            record.TripCoilCondition = null;
             return record;
         }
         else if (type == 'Bus') {
@@ -87,36 +87,45 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
         }
         else if (type == 'CapacitorBank') {
             let record = asset as OpenXDA.CapBank;
-            record.NumberOfBanks = 0;
-            record.CansPerBank = 0;
-            record.CapacitancePerBank = 0;
+            record.NumberOfBanks = null;
+            record.CansPerBank = null;
+            record.CapacitancePerBank = null;
             return record;
 
         }
         else if (type == 'LineSegment') {
             let record = asset as OpenXDA.LineSegment;
-            record.R0 = 0;
-            record.X0 = 0;
-            record.R1 = 0;
-            record.X1 = 0;
-            record.ThermalRating = 0;
-            record.Length = 0;
+            record.R0 = null;
+            record.X0 = null;
+            record.R1 = null;
+            record.X1 = null;
+            record.ThermalRating = null;
+            record.Length = null;
             return record
         }
         else {
             let record = asset as OpenXDA.Transformer;
-            record.R0 = 0;
-            record.X0 = 0;
-            record.R1 = 0;
-            record.X1 = 0;
-            record.ThermalRating = 0;
-            record.PrimaryVoltageKV = 0;
-            record.SecondaryVoltageKV = 0;
-            record.Tap = 0;
+            record.R0 = null;
+            record.X0 = null;
+            record.R1 = null;
+            record.X1 = null;
+            record.ThermalRating = null;
+            record.PrimaryVoltageKV = null;
+            record.SecondaryVoltageKV = null;
+            record.Tap = null;
             return record
         }
 
 
+    }
+
+    static isInteger(value: any) {
+        var regex = /^[0-9]+$/;
+        return value.toString().match(regex) != null;
+    }
+    static isRealNumber(value: any) {
+        var regex = /^[0-9]+(\.[0-9]+)?$/;
+        return value.toString().match(regex) != null;
     }
 
     changeAssetType(type: OpenXDA.AssetTypeName): void {
@@ -137,7 +146,7 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
 
     valid(field: keyof (OpenXDA.Asset)): boolean {       
         if (field == 'AssetKey') {
-            if (this.props.Asset.AssetKey.length == 0) return false;
+            if (this.props.Asset.AssetKey == null || this.props.Asset.AssetKey.length == 0) return false;
             else if (this.props.NewEdit == 'New') {
                 if (this.props.Asset.ID == 0) {
                     return this.props.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(this.props.Asset.AssetKey.toLowerCase()) < 0;
@@ -151,9 +160,9 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
             }
         }
         else if (field == 'AssetName')
-            return this.props.Asset.AssetName.length > 0;
+            return this.props.Asset.AssetName != null && this.props.Asset.AssetName.length > 0;
         else if (field == 'VoltageKV')
-            return this.props.Asset.VoltageKV.toString().length != 0 && !isNaN(this.props.Asset.VoltageKV);
+            return this.props.Asset.VoltageKV != null && AssetAttributes.isRealNumber(this.props.Asset.VoltageKV);
         return false;
     }
 
@@ -194,20 +203,26 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
                 <label>Key</label>
                 <input className={(this.valid('AssetKey') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
                     let asset = _.clone(this.props.Asset, true);
-                    asset.AssetKey = evt.target.value;
+                    if (evt.target.value != "")
+                        asset.AssetKey = evt.target.value;
+                    else
+                        asset.AssetKey = null;
 
                     this.props.UpdateState(asset);
-                }} value={this.props.Asset.AssetKey} required={true} disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
-                <div className='invalid-feedback'>{(this.props.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(this.props.Asset.AssetKey.toLowerCase()) < 0 ? 'A unique key is required.' : 'The key provided is not unique.')}</div>
+                }} value={this.props.Asset.AssetKey == null ? '' : this.props.Asset.AssetKey} disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
+                <div className='invalid-feedback'>{'A unique key is required.'}</div>
             </div>
 
             <div className="form-group">
                 <label>Name</label>
                 <input className={(this.valid('AssetName')? "form-control" : "form-control is-invalid")} onChange={(evt) => {
                     var asset = _.clone(this.props.Asset, true);
-                    asset.AssetName = evt.target.value;
+                    if (evt.target.value != "")
+                        asset.AssetName = evt.target.value;
+                    else
+                        asset.AssetName = null;
                     this.props.UpdateState(asset);
-                }} value={this.props.Asset.AssetName} disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
+                    }} value={this.props.Asset.AssetName == null ? '' : this.props.Asset.AssetName} disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
                 <div className='invalid-feedback'>Name is a required field.</div>
             </div>
 
@@ -215,10 +230,14 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
                 <label>Nominal Voltage (kV)</label>
                 <input className={(this.valid('VoltageKV') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
                     var asset = _.clone(this.props.Asset, true);
-                    asset.VoltageKV = evt.target.value;
+                    if (evt.target.value != "")
+                        asset.VoltageKV = evt.target.value;
+                    else
+                        asset.VoltageKV = null;
+
 
                     this.props.UpdateState(asset);
-                }} value={this.props.Asset.VoltageKV} disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
+                }} value={this.props.Asset.VoltageKV == null ? '' : this.props.Asset.VoltageKV} disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
                 <div className='invalid-feedback'>Nominal Voltage requires a numerical value.</div>
             </div>
 

@@ -23,13 +23,25 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
-function CapBankAttributes(props: { Asset: OpenXDA.CapBank, UpdateState: (newEditAsset: OpenXDA.CapBank) => void }): JSX.Element {
+import { OpenXDA, NewEdit } from '../global';
+import AssetAttributes from './Asset';
+function CapBankAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.CapBank, UpdateState: (newEditAsset: OpenXDA.CapBank) => void }): JSX.Element {
+    function valid(field: keyof (OpenXDA.CapBank)): boolean {
+        if (field == 'NumberOfBanks')
+            return props.Asset.NumberOfBanks != null && AssetAttributes.isInteger(props.Asset.NumberOfBanks);
+        else if (field == 'CansPerBank')
+            return props.Asset.CansPerBank != null && AssetAttributes.isInteger(props.Asset.CansPerBank);
+        else if (field == 'CapacitancePerBank')
+            return props.Asset.CapacitancePerBank != null && AssetAttributes.isInteger(props.Asset.CapacitancePerBank);
+    
+        return false;
+    }
+    if (props.Asset == null) return null;
     return (
         <>
             <div className="form-group">
                 <label>Number of Banks</label>
-                <input className={(props.Asset.NumberOfBanks != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
+                <input className={(valid('NumberOfBanks') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
                     var asset = _.clone(props.Asset, true);
                     if (evt.target.value != "")
                         asset.NumberOfBanks = evt.target.value;
@@ -37,13 +49,13 @@ function CapBankAttributes(props: { Asset: OpenXDA.CapBank, UpdateState: (newEdi
                         asset.NumberOfBanks = null;
 
                     props.UpdateState(asset);
-                }} value={props.Asset == null || props.Asset.NumberOfBanks == null ? 0 : props.Asset.NumberOfBanks} type='number' disabled={props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Number Of Banks is a required field.</div>
+                }} value={props.Asset.NumberOfBanks == null ? '' : props.Asset.NumberOfBanks} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                <div className='invalid-feedback'>Number Of Banks is a required integer field.</div>
             </div>
 
             <div className="form-group">
                 <label>Cans per Bank</label>
-                <input className={(props.Asset.CansPerBank != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
+                <input className={(valid('CansPerBank') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
                     var asset = _.clone(props.Asset, true);
                     if (evt.target.value != "")
                         asset.CansPerBank = evt.target.value;
@@ -51,13 +63,13 @@ function CapBankAttributes(props: { Asset: OpenXDA.CapBank, UpdateState: (newEdi
                         asset.CansPerBank = null;
 
                     props.UpdateState(asset);
-                }} value={props.Asset == null || props.Asset.CansPerBank == null ? 0 : props.Asset.CansPerBank} type='number' disabled={props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Cans Per Bank is a required field.</div>
+                }} value={props.Asset.CansPerBank == null ? '' : props.Asset.CansPerBank} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                <div className='invalid-feedback'>Cans Per Bank is a required integer field.</div>
             </div>
 
             <div className="form-group">
                 <label>Capacitance per Bank</label>
-                <input className={(props.Asset.CapacitancePerBank != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
+                <input className={(valid('CapacitancePerBank') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
                     var asset = _.clone(props.Asset, true);
                     if (evt.target.value != "")
                         asset.CapacitancePerBank = evt.target.value;
@@ -65,8 +77,8 @@ function CapBankAttributes(props: { Asset: OpenXDA.CapBank, UpdateState: (newEdi
                         asset.CapacitancePerBank = null;
 
                     props.UpdateState(asset);
-                }} value={props.Asset == null || props.Asset.CapacitancePerBank == null ? 0 : props.Asset.CapacitancePerBank} type='number' disabled={props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Capacitance per Bank is a required field.</div>
+                }} value={props.Asset.CapacitancePerBank == null ? '' : props.Asset.CapacitancePerBank} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                <div className='invalid-feedback'>Capacitance per Bank is a required integer field.</div>
             </div>
 
         </>
