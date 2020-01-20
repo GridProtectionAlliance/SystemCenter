@@ -59,7 +59,7 @@ function TransformerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Transfo
                     else
                         asset.R0 = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.R0 == null ? '' : props.Asset.R0} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>R0 is a required numeric field.</div>
             </div>
@@ -73,7 +73,7 @@ function TransformerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Transfo
                     else
                         asset.X0 = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.X0 == null ? '' : props.Asset.X0} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>X0 is a required numeric field.</div>
             </div>
@@ -87,7 +87,7 @@ function TransformerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Transfo
                     else
                         asset.R1 = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.R1 == null ? '' : props.Asset.R1} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>R1 is a required numeric field.</div>
             </div>
@@ -101,7 +101,7 @@ function TransformerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Transfo
                     else
                         asset.X1 = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.X1 == null ? '' : props.Asset.X1} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>X1 is a required numeric field.</div>
             </div>
@@ -115,7 +115,7 @@ function TransformerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Transfo
                     else
                         asset.ThermalRating = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.ThermalRating == null ? '' : props.Asset.ThermalRating} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>Thermal Rating is a required numeric field.</div>
             </div>
@@ -129,7 +129,7 @@ function TransformerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Transfo
                     else
                         asset.PrimaryVoltageKV = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.PrimaryVoltageKV == null ? '' : props.Asset.PrimaryVoltageKV} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>Primary Voltage (kV) is a numeric field.</div>
             </div>
@@ -143,7 +143,7 @@ function TransformerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Transfo
                     else
                         asset.SecondaryVoltageKV = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.SecondaryVoltageKV == null ? '' : props.Asset.SecondaryVoltageKV} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>Secondary Voltage (kV) is a numeric field.</div>
             </div>
@@ -157,7 +157,7 @@ function TransformerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Transfo
                     else
                         asset.Tap = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.Tap == null ? '' : props.Asset.Tap} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>Tap is a numeric field.</div>
             </div>

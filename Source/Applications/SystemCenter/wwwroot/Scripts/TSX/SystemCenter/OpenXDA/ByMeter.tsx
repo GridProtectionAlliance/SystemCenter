@@ -25,46 +25,46 @@ import * as React from 'react';
 import Table from '../../Table';
 import * as _ from 'lodash';
 
+type FieldName = 'AssetKey' | 'Name' | 'Location' | 'Make' | 'Model' | 'Note';
+interface Search {
+    Field: FieldName,
+    SearchText: string
+}   
+
 declare var homePath: string;
 
-export default class ByMeter extends React.Component<{}, { searchText: string, dfr: boolean, pqMeter: boolean, data: Array<{ ID: number, AssetKey: string, Name: string, Location: string, Type: 'DFR' | 'PQMeter', Make: string, Model: string }>, sortField: string, ascending: boolean }, {}>{
-    jqueryHandle: JQuery.jqXHR;
+export default class ByMeter extends React.Component<{}, { Search: Array<Search>, Data: Array<{ ID: number, AssetKey: string, Name: string, Location: string, Type: 'DFR' | 'PQMeter', Make: string, Model: string }>, SortField: string, Ascending: boolean }, {}>{
     constructor(props, context) {
         super(props, context);
         this.state = {
-            searchText: '',
-            dfr: true,
-            pqMeter: true,
-            data: [],
-            sortField: 'AssetName',
-            ascending: true
+            Search: [{Field:'AssetKey', SearchText:''}],
+            Data: [],
+            SortField: 'AssetName',
+            Ascending: true
         }
+
+        this.getMeters = this.getMeters.bind(this);
     }
 
-    getMeters(): JQuery.jqXHR {
-        if (this.jqueryHandle !== undefined)
-            this.jqueryHandle.abort();
-
-        this.jqueryHandle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/Meters`,
+    getMeters(): void{
+        $.ajax({
+            type: "Post",
+            url: `${homePath}api/OpenXDA/Meter/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
+            data: JSON.stringify(this.state.Search),
             cache: false,
             async: true
-        });
-
-        return this.jqueryHandle;
+        }).done(data => this.setState({ Data: data }));
     }
 
     componentDidMount() {
-        this.getMeters().done(data => this.setState({ data: data }));
+        this.getMeters();
     }
 
     render() {
         var windowHeight = window.innerHeight;
 
-        var data = this.state.data.filter(x => (x.Name.toLowerCase().indexOf(this.state.searchText) >= 0 || x.AssetKey.toLowerCase().indexOf(this.state.searchText) >= 0 || x.Make.toLowerCase().indexOf(this.state.searchText) >= 0) && ((this.state.pqMeter ? x.Type == 'PQMeter' : x.Type != 'PQMeter') || (this.state.dfr ? x.Type == 'DFR' : x.Type != 'DFR') ))
         return (
             <div style={{ width: '100%', height: '100%' }}>
                 <nav className="navbar navbar-expand-lg navbar-light bg-light">
@@ -72,20 +72,62 @@ export default class ByMeter extends React.Component<{}, { searchText: string, d
                         <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
                             <li className="nav-item" style={{ width: '50%', paddingRight: 10 }}>
                                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                    <legend className="w-auto" style={{ fontSize: 'large' }}>Text Search:</legend>
+                                    <legend className="w-auto" style={{ fontSize: 'large' }}>Search: </legend>
                                     <form>
-                                        <input className='form-control' type='text' placeholder='Search...' value={this.state.searchText} onChange={(evt) => this.setState({ searchText: evt.target.value })} />
+                                        {
+                                            this.state.Search.map((search, index, array) => {
+
+                                                return (
+                                                    <div className="input-group" key={index} style={{ border: '1px solid lightgray'}}>
+                                                        <div className="input-group-prepend">
+                                                            <select className='form-control' style={{height: '100%'}} value={search.Field} onChange={(evt) => {
+                                                                search.Field = evt.target.value as FieldName;
+                                                                this.setState({ Search: array })
+                                                            }}>
+                                                                <option value='AssetKey'>AssetKey</option>
+                                                                <option value='Name'>Name</option>
+                                                                <option value='Location'>Location</option>
+                                                                <option value='Make'>Make</option>
+                                                                <option value='Model'>Model</option>
+                                                                <option value='Note'>Note</option>
+                                                            </select>
+                                                        </div>
+                                                        <input className='form-control' type='text' placeholder='Search...' value={search.SearchText} onChange={(evt) => {
+                                                            search.SearchText = evt.target.value;
+                                                            this.setState({ Search: array })
+                                                        }} />
+                                                        <div className="input-group-append">
+                                                            <button className="btn btn-danger" type="button" onClick={(evt) => {
+                                                                array.splice(index, 1);
+                                                                this.setState({ Search: array })
+                                                            }}><span><i className="fa fa-times"></i></span></button>
+                                                        </div>
+                                                    </div>
+                                               )
+                                            })
+                                        
+                                    }
                                     </form>
                                 </fieldset>
                             </li>
                             <li className="nav-item" style={{ width: '15%' }}>
                                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                    <legend className="w-auto" style={{ fontSize: 'large' }}>Meter Types:</legend>
+                                    <legend className="w-auto" style={{ fontSize: 'large' }}>Search Params:</legend>
                                     <form>
-                                        <ul style={{ listStyleType: 'none', padding: 0 }}>
-                                            <li><label><input type="checkbox" onChange={() => this.setState({ dfr: !this.state.dfr })} checked={this.state.dfr} />  DFR</label></li>
-                                            <li><label><input type="checkbox" onChange={() => this.setState({ pqMeter: !this.state.pqMeter })} checked={this.state.pqMeter} />  PQMeter</label></li>
-                                        </ul>
+                                        <div className="form-group">
+                                            <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                                                event.preventDefault();
+                                                let array = _.clone(this.state.Search, true);
+                                                array.push({ Field: 'AssetKey', SearchText: '' });
+                                                this.setState({ Search: array })
+                                            }}>Add Parameter</button>
+                                        </div>
+                                        <div className="form-group">
+                                            <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                                                event.preventDefault();
+                                                this.getMeters();
+                                            }}>Update Search</button>
+                                        </div>
                                     </form>
                                 </fieldset>
                             </li>
@@ -112,22 +154,22 @@ export default class ByMeter extends React.Component<{}, { searchText: string, d
                             { key: 'AssetKey', label: 'AssetKey', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                             { key: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                             { key: 'Location', label: 'Location', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Type', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                            { key: 'MappedAssets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                             { key: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                             { key: 'Model', label: 'Model', headerStyle: { width: 'calc(10%)' }, rowStyle: { width: 'calc(10% - 17px)' } },
                         ]}
                         tableClass="table table-hover"
-                        data={data}
-                        sortField={this.state.sortField}
-                        ascending={this.state.ascending}
+                        data={this.state.Data}
+                        sortField={this.state.SortField}
+                        ascending={this.state.Ascending}
                         onSort={(d) => {
-                            if (d.col == this.state.sortField) {
-                                var ordered = _.orderBy(this.state.data, [d.col], [(!this.state.ascending ? "asc" : "desc")]);
-                                this.setState({ ascending: !this.state.ascending, data: ordered });
+                            if (d.col == this.state.SortField) {
+                                var ordered = _.orderBy(this.state.Data, [d.col], [(!this.state.Ascending ? "asc" : "desc")]);
+                                this.setState({ Ascending: !this.state.Ascending, Data: ordered });
                             }
                             else {
-                                var ordered = _.orderBy(this.state.data, [d.col], ["asc"]);
-                                this.setState({ ascending: true, data: ordered, sortField: d.col });
+                                var ordered = _.orderBy(this.state.Data, [d.col], ["asc"]);
+                                this.setState({ Ascending: true, Data: ordered, SortField: d.col });
                             }
                         }}
                         onClick={(item) => { window.location.href = homePath + 'index.cshtml?name=Meter&meterId=' + item.row.ID}}

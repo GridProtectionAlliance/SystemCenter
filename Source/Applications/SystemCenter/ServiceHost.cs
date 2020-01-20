@@ -104,6 +104,7 @@ using System.Security;
 using System.Net;
 using SystemCenter.Model;
 using SystemCenter.Configuration;
+using PQViewSite = openXDA.Model.PQViewSite;
 
 namespace SystemCenter
 {
@@ -417,6 +418,7 @@ namespace SystemCenter
                 webServer.PagedViewModelTypes.TryAdd("Groups.cshtml", new Tuple<Type, Type>(typeof(SecurityGroup), typeof(SecurityHub)));
                 webServer.PagedViewModelTypes.TryAdd("ValueListGroups.cshtml", new Tuple<Type, Type>(typeof(ValueListGroup), typeof(DataHub)));
                 webServer.PagedViewModelTypes.TryAdd("ValueListItems.cshtml", new Tuple<Type, Type>(typeof(ValueList), typeof(DataHub)));
+                webServer.PagedViewModelTypes.TryAdd("PQViewDataLoader.cshtml", new Tuple<Type, Type>(typeof(PQViewSite), typeof(DataHub)));
 
                 // Parse configured authentication schemes
                 if (!Enum.TryParse(systemSettings["AuthenticationSchemes"].ValueAs(AuthenticationOptions.DefaultAuthenticationSchemes.ToString()), true, out AuthenticationSchemes authenticationSchemes))

@@ -61,7 +61,7 @@ function LineAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Line, UpdateSt
                     else
                         asset.MaxFaultDistance = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.MaxFaultDistance == null ? '' : props.Asset.MaxFaultDistance} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>Max Fault Distance is a numeric field.</div>
 
@@ -76,7 +76,7 @@ function LineAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Line, UpdateSt
                     else
                         asset.MinFaultDistance = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.MinFaultDistance == null ? '' : props.Asset.MinFaultDistance} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>Min Fault Distance is a numeric field.</div>
             </div>
@@ -90,7 +90,7 @@ function LineAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Line, UpdateSt
                     else
                         asset.Segment.Length = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.Segment == null || props.Asset.Segment.Length == null   ? '' : props.Asset.Segment.Length} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>Length is a required numeric field.</div>
             </div>
@@ -105,7 +105,7 @@ function LineAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Line, UpdateSt
                     else
                         asset.Segment.R0 = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.Segment == null || props.Asset.Segment.R0 == null ? '' : props.Asset.Segment.R0}  disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>R0 is a required numeric field.</div>
             </div>
@@ -119,7 +119,7 @@ function LineAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Line, UpdateSt
                     else
                         asset.Segment.X0 = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.Segment == null || props.Asset.Segment.X0 == null ? '' : props.Asset.Segment.X0} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>X0 is a required numeric field.</div>
             </div>
@@ -133,7 +133,7 @@ function LineAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Line, UpdateSt
                     else
                         asset.Segment.R1 = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.Segment == null || props.Asset.Segment.R1 == null ? '' : props.Asset.Segment.R1} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>R1 is a required numeric field.</div>
             </div>
@@ -147,7 +147,7 @@ function LineAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Line, UpdateSt
                     else
                         asset.Segment.X1 = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.Segment == null || props.Asset.Segment.X1 == null ? '' : props.Asset.Segment.X1} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>X1 is a required numeric field.</div>
             </div>
@@ -161,7 +161,7 @@ function LineAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Line, UpdateSt
                     else
                         asset.Segment.ThermalRating = null;
 
-                    this.setState({ NewEditAsset: asset });
+                    props.UpdateState(asset);
                 }} value={props.Asset.Segment == null || props.Asset.Segment.ThermalRating == null  ? '' : props.Asset.Segment.ThermalRating} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 <div className='invalid-feedback'>Thermal Rating is a required numeric field.</div>
             </div>

@@ -23,7 +23,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA, NewEdit } from '../global';
+import BreakerAttributes from '../AssetAttribute/Breaker';
+import BusAttributes from '../AssetAttribute/Bus';
+import CapBankAttributes from '../AssetAttribute/CapBank';
+import LineAttributes from '../AssetAttribute/Line';
+import TransformerAttributes from '../AssetAttribute/Transformer';
+import AssetAttributes from '../AssetAttribute/Asset';
 declare var homePath: string;
 
 interface Page4Props {
@@ -37,15 +43,15 @@ interface Page4State {
     AssetTypes: Array<OpenXDA.AssetType>,
     NewEdit: NewEdit
 }
-enum NewEdit { New, Edit}
+
 export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
     constructor(props, context) {
         super(props, context);
         this.state = {
-            NewEditAsset: this.getNewAsset('Line'),
+            NewEditAsset: AssetAttributes.getNewAsset('Line'),
             AllAssets: [],
             AssetTypes: [],
-            NewEdit: NewEdit.New
+            NewEdit: 'New'
         }
     }
 
@@ -55,7 +61,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
     }
 
     editAsset(index: number) {
-        this.setState({ NewEdit: NewEdit.Edit,NewEditAsset: this.props.Assets[index] });
+        this.setState({ NewEdit: 'Edit',NewEditAsset: this.props.Assets[index] });
     }
 
     deleteAsset(index: number) {
@@ -88,82 +94,8 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
             Spare: this.state.NewEditAsset.Spare
         }
 
-        asset = this.getNewAssetAttributes(asset, type);
+        asset = AssetAttributes.getNewAssetAttributes(asset, type);
         this.setState({NewEditAsset: asset});
-    }
-
-    getNewAsset(type: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer'): OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.LineSegment | OpenXDA.Transformer {
-        let asset: OpenXDA.Asset = {
-            ID: 0,
-            AssetKey: '',
-            AssetName: '',
-            AssetType: type,
-            Description: '',
-            VoltageKV: 0,
-            Spare: false,
-            Channels: []
-        }
-
-        asset = this.getNewAssetAttributes(asset, type);
-
-        return asset;
-    }
-
-    getNewAssetAttributes(asset: OpenXDA.Asset, type: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer'): OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.LineSegment |  OpenXDA.Transformer
-    {
-        if (type == 'Line') {
-            let record = asset as OpenXDA.Line;
-            record.MaxFaultDistance = 0;
-            record.MinFaultDistance = 0;
-            record.Segment = this.getNewAsset('LineSegment') as OpenXDA.LineSegment;
-
-            return record;
-        }
-        else if (type == 'Breaker') {
-            let record = asset as OpenXDA.Breaker;
-            record.ThermalRating = 0;
-            record.Speed = 0;
-            record.TripTime = 0;
-            record.PickupTime = 0;
-            record.TripCoilCondition = 0;
-            return record;
-        }
-        else if (type == 'Bus') {
-            let record = asset as OpenXDA.Bus;
-            return record
-        }
-        else if (type == 'CapacitorBank') {
-            let record = asset as OpenXDA.CapBank;
-            record.NumberOfBanks = 0;
-            record.CansPerBank = 0;
-            record.CapacitancePerBank = 0;
-            return record;
-
-        }
-        else if (type == 'LineSegment') {
-            let record = asset as OpenXDA.LineSegment;
-            record.R0 = 0;
-            record.X0 = 0;
-            record.R1 = 0;
-            record.X1 = 0;
-            record.ThermalRating = 0;
-            record.Length = 0;
-            return record
-        }
-        else {
-            let record = asset as OpenXDA.Transformer;
-            record.R0 = 0;
-            record.X0 = 0;
-            record.R1 = 0;
-            record.X1 = 0;
-            record.ThermalRating = 0;
-            record.PrimaryVoltageKV = 0;
-            record.SecondaryVoltageKV = 0;
-            record.Tap = 0;
-            return record
-        }
-
-
     }
 
     getAllAssets(): void {
@@ -214,19 +146,42 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
             asset.AssetType = assetType.Name;
             asset.Channels = [];
 
-            if (assetType.Name == 'Line')
-                (asset as OpenXDA.Line).Segment = this.getNewAsset('LineSegment') as OpenXDA.LineSegment;
             this.setState({ NewEditAsset: asset }, () => {
                 if (this.state.NewEditAsset.AssetType == 'Breaker')
                     this.getEDNAPoint(this.state.NewEditAsset.ID);
+                else if (assetType.Name == 'Line')
+                    this.getLineSegment(this.state.NewEditAsset.ID);
+
             });
         });
     }
 
-    getEDNAPoint(assetID: number): void {
+    getLineSegment(lineID: number): void {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Asset/${assetID}/EDNAPoint`,
+            url: `${homePath}api/OpenXDA/Line/${lineID}/LineSegment`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done((lineSegment: OpenXDA.LineSegment) => {
+            let record: OpenXDA.Line = _.clone(this.state.NewEditAsset, true);
+            if (lineSegment != undefined) {
+                record.Segment = lineSegment
+            }
+            else {
+                record.Segment = AssetAttributes.getNewAsset('LineSegment') as OpenXDA.LineSegment;
+            }
+
+            this.setState({ NewEditAsset: record });
+
+        });
+    }
+
+    getEDNAPoint(breakerID: number): void {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Breaker/${breakerID}/EDNAPoint`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -239,6 +194,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
             }
         });
     }
+
 
 
     render() {
@@ -254,7 +210,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                     </div>
                     <div className="col" style={{padding: 20}}>
                         <div style={{ width: '100%', height: 38 }}>
-                            <button className="btn btn-primary pull-right" data-toggle='modal' data-target='#assetModal' onClick={() => this.setState({NewEdit: NewEdit.New})}>Add Asset</button>
+                            <button className="btn btn-primary pull-right" data-toggle='modal' data-target='#assetModal' onClick={() => this.setState({NewEdit: 'New'})}>Add Asset</button>
                         </div>
 
                         <div style={{ width: '100%', maxHeight: window.innerHeight - 350, padding: 30, overflowY: 'auto' }}>
@@ -299,99 +255,13 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                     <div className="modal-dialog" style={{maxWidth: '100%', width: '90%'}}>
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h4 className="modal-title">{this.state.NewEdit == NewEdit.New ? 'Add New Asset to Meter': 'Edit ' + this.state.NewEditAsset.AssetKey + ' for Meter' }</h4>
+                                <h4 className="modal-title">{this.state.NewEdit == 'New' ? 'Add New Asset to Meter': 'Edit ' + this.state.NewEditAsset.AssetKey + ' for Meter' }</h4>
                                 <button type="button" className="close" data-dismiss="modal">&times;</button>
                             </div>
                             <div className="modal-body">
                                 <div className="row">
                                     <div className="col">
-                                        <div className="form-group">
-                                            <label>Select Asset</label>
-                                            <select className="form-control" value={this.state.NewEditAsset.ID.toString()} onChange={(evt) => {
-                                                if (evt.target.value != "0")
-                                                    this.getDifferentAsset(parseInt(evt.target.value));
-                                                else
-                                                    this.setState({ NewEditAsset: this.getNewAsset('Line') });
-                                            }}>
-                                                <option key={0} value="0">Add New</option>
-
-                                                {
-                                                    this.state.AllAssets.map((asset, index) => <option key={index + 1} value={asset.ID} >{asset.AssetKey}</option>)
-                                                }
-
-                                            </select>
-                                        </div>
-
-                                        <div className="form-group">
-                                            <label>Type</label>
-                                            <select className="form-control" value={this.state.NewEditAsset.AssetType} onChange={(evt) => {
-                                                this.changeAssetType(evt.target.value as 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer')
-                                            }} disabled={this.state.NewEditAsset.ID != 0}>
-                                                {
-                                                    this.state.AssetTypes.map(assetType => <option value={assetType.Name} key={assetType.ID} hidden={assetType.Name == 'LineSegment'}>{assetType.Name}</option>)
-                                                }
-
-                                            </select>
-                                        </div>
-
-                                        <div className="form-group">
-                                            <label>Key</label>
-                                            <input className={(this.state.NewEditAsset.AssetKey != null && this.state.NewEditAsset.AssetKey.length > 0 && this.state.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(this.state.NewEditAsset.AssetKey.toLowerCase()) < 0 ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                                                let asset = _.clone(this.state.NewEditAsset, true);
-
-                                                if (evt.target.value != "")
-                                                    asset.AssetKey = evt.target.value;
-                                                else
-                                                    asset.AssetKey = null;
-
-                                                this.setState({ NewEditAsset: asset });
-                                            }} value={this.state.NewEditAsset.AssetKey == null ? '' : this.state.NewEditAsset.AssetKey} required={true} disabled={this.state.NewEdit == NewEdit.Edit ||this.state.NewEditAsset.ID != 0 } />
-                                            <div className='invalid-feedback'>{(this.state.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(this.state.NewEditAsset.AssetKey.toLowerCase()) < 0 ? 'A unique key is required.' : 'The key provided is not unique.')}</div>
-                                        </div>
-
-                                        <div className="form-group">
-                                            <label>Name</label>
-                                            <input className={(this.state.NewEditAsset.AssetName != null && this.state.NewEditAsset.AssetName.length > 0 ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                                                var asset = _.clone(this.state.NewEditAsset, true);
-                                                if (evt.target.value != "")
-                                                    asset.AssetName = evt.target.value;
-                                                else
-                                                    asset.AssetName = null;
-
-                                                this.setState({ NewEditAsset: asset });
-                                            }} value={this.state.NewEditAsset == null || this.state.NewEditAsset.AssetName == null ? '' : this.state.NewEditAsset.AssetName} disabled={this.state.NewEditAsset.ID != 0} />
-                                            <div className='invalid-feedback'>Name is a required field.</div>
-                                        </div>
-
-                                        <div className="form-group">
-                                            <label>Nominal Voltage (kV)</label>
-                                            <input className={(this.state.NewEditAsset.VoltageKV != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                                                var asset = _.clone(this.state.NewEditAsset, true);
-                                                if (evt.target.value != "")
-                                                    asset.VoltageKV = evt.target.value;
-                                                else
-                                                    asset.VoltageKV = null;
-
-                                                this.setState({ NewEditAsset: asset });
-                                            }} value={this.state.NewEditAsset == null || this.state.NewEditAsset.VoltageKV == null ? '' : this.state.NewEditAsset.VoltageKV} disabled={this.state.NewEditAsset.ID != 0}/>
-                                            <div className='invalid-feedback'>Nominal Voltage is a required field.</div>
-                                        </div>
-
-
-                                        <div className="form-group">
-                                            <label>Description</label>
-                                            <textarea rows={2} className="form-control" onChange={(evt) => {
-                                                var asset: OpenXDA.Asset = _.clone(this.state.NewEditAsset, true);
-                                                if (evt.target.value != "")
-                                                    asset.Description = evt.target.value;
-                                                else
-                                                    asset.Description = null;
-
-                                                this.setState({ NewEditAsset: asset });
-                                            }} value={this.state.NewEditAsset == null || this.state.NewEditAsset.Description == null ? '' : this.state.NewEditAsset.Description} disabled={this.state.NewEditAsset.ID != 0} />
-                                        </div>
-
-
+                                        <AssetAttributes Asset={this.state.NewEditAsset} NewEdit={this.state.NewEdit} AssetTypes={this.state.AssetTypes} AllAssets={this.state.AllAssets} UpdateState={(asset) => this.setState({ NewEditAsset: asset })} GetDifferentAsset={this.getDifferentAsset} />
                                     </div>
                                     <div className="col">
                                         { this.showAttributes() }
@@ -425,9 +295,9 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                                     list.push(record);
                                     this.props.UpdateState({ Channels: channels });
                                     this.props.UpdateState({ Assets: list });
-                                    this.setState({ NewEditAsset: this.getNewAsset('Line') });
+                                    this.setState({ NewEditAsset: AssetAttributes.getNewAsset('Line') });
 
-                                }} hidden={this.state.NewEdit != NewEdit.New}>Save</button>
+                                }} hidden={this.state.NewEdit != 'New'}>Save</button>
 
                                 <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={(evt) => {
                                     let record: OpenXDA.Asset = _.clone(this.state.NewEditAsset, true);
@@ -445,12 +315,12 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
 
                                     this.props.UpdateState({ Channels: channels });
                                     this.props.UpdateState({ Assets: list });
-                                    this.setState({ NewEditAsset: this.getNewAsset('Line') })
-                                }} hidden={this.state.NewEdit != NewEdit.Edit}>Save</button>
+                                    this.setState({ NewEditAsset: AssetAttributes.getNewAsset('Line') })
+                                }} hidden={this.state.NewEdit != 'Edit'}>Save</button>
 
 
                                 <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => {
-                                    this.setState({ NewEditAsset: this.getNewAsset('Line') })
+                                    this.setState({ NewEditAsset: AssetAttributes.getNewAsset('Line') })
                                 }}>Close</button>
                             </div>
 
@@ -468,410 +338,15 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
 
     showAttributes(): JSX.Element {
         if (this.state.NewEditAsset.AssetType == 'Breaker')
-            return this.showBreakerAttributes();
+            return <BreakerAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.Breaker} UpdateState={(newEditAsset: OpenXDA.Breaker) => this.setState({ NewEditAsset: newEditAsset })} />;
         else if (this.state.NewEditAsset.AssetType == 'Bus')
-            return this.showBusAttributes();
+            return <BusAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset} UpdateState={(newEditAsset: OpenXDA.Bus) => this.setState({ NewEditAsset: newEditAsset })} />;
         else if (this.state.NewEditAsset.AssetType == 'CapacitorBank')
-            return this.showCapBankAttributes();
+            return <CapBankAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.CapBank} UpdateState={(newEditAsset: OpenXDA.CapBank) => this.setState({ NewEditAsset: newEditAsset })} />;
         else if (this.state.NewEditAsset.AssetType == 'Line')
-            return this.showLineAttributes();
+            return <LineAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.Line} UpdateState={(newEditAsset: OpenXDA.Line) => this.setState({ NewEditAsset: newEditAsset })} />;
         else if (this.state.NewEditAsset.AssetType == 'Transformer')
-            return this.showTransformerAttributes();
+            return <TransformerAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.Transformer} UpdateState={(newEditAsset: OpenXDA.Transformer) => this.setState({ NewEditAsset: newEditAsset })} />;
     }
-
-    showBreakerAttributes(): JSX.Element {
-        var record = this.state.NewEditAsset as OpenXDA.Breaker
-        return (
-            <>
-                <div className="form-group">
-                    <label>Thermal Rating</label>
-                    <input className={(record.ThermalRating != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.ThermalRating = evt.target.value;
-                        else
-                            asset.ThermalRating = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.ThermalRating == null ? 0 : record.ThermalRating} type='number' disabled={this.state.NewEditAsset.ID != 0}/>
-                    <div className='invalid-feedback'>Thermal rating is a required field.</div>
-                </div>
-                <div className="form-group">
-                    <label>Speed</label>
-                    <input className={(record.Speed != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.Speed = evt.target.value;
-                        else
-                            asset.Speed = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.Speed == null ? 0 : record.Speed} type='number' disabled={this.state.NewEditAsset.ID != 0}/>
-                    <div className='invalid-feedback'>Speed is a required field.</div>
-                </div>
-                <div className="form-group">
-                    <label>Trip Time</label>
-                    <input className="form-control" onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.TripTime = evt.target.value;
-                        else
-                            asset.TripTime = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.TripTime == null ? 0 : record.TripTime} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                </div>
-                <div className="form-group">
-                    <label>Pickup Time</label>
-                    <input className="form-control" onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.PickupTime = evt.target.value;
-                        else
-                            asset.PickupTime = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.PickupTime == null ? 0 : record.PickupTime} type='number' disabled={this.state.NewEditAsset.ID != 0}/>
-                </div>
-
-                <div className="form-group">
-                    <label>TripCoil Condition</label>
-                    <input className="form-control" onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.TripCoilCondition = evt.target.value;
-                        else
-                            asset.TripCoilCondition = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.TripCoilCondition == null ? 0 : record.TripCoilCondition} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                </div>
-
-                <div className="form-group">
-                    <label>EDNA Point</label>
-                    <input className="form-control" onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.EDNAPoint = evt.target.value;
-                        else
-                            asset.EDNAPoint = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.EDNAPoint == null ? '' : record.EDNAPoint} type='text' disabled={this.state.NewEditAsset.ID != 0} />
-                </div>
-
-                <div className="form-group">
-                    <div className="custom-control custom-checkbox">
-                        <input type="checkbox" className="custom-control-input" style={{ left: 2, top: 6, zIndex: 1 }} checked={this.state.NewEditAsset.Spare} onChange={(evt) => {
-                            var asset: OpenXDA.Asset = _.clone(this.state.NewEditAsset, true);
-                            asset.Spare = evt.target.checked;
-
-                            this.setState({ NewEditAsset: asset });
-                        }} />
-                        <label className="custom-control-label" >Spare</label>
-                    </div>
-                </div>
-
-
-            </>
-        );
-    }
-
-    showBusAttributes(): JSX.Element {
-        var record = this.state.NewEditAsset as OpenXDA.Bus
-
-        return <span>No Additional Attributes</span>;
-    }
-
-    showCapBankAttributes(): JSX.Element {
-        var record = this.state.NewEditAsset as OpenXDA.CapBank
-
-        return (
-            <>
-                <div className="form-group">
-                    <label>Number of Banks</label>
-                    <input className={(record.NumberOfBanks != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.NumberOfBanks = evt.target.value;
-                        else
-                            asset.NumberOfBanks = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.NumberOfBanks == null ? 0 : record.NumberOfBanks} type='number' disabled={this.state.NewEditAsset.ID != 0}/>
-                    <div className='invalid-feedback'>Number Of Banks is a required field.</div>
-                </div>
-
-                <div className="form-group">
-                    <label>Cans per Bank</label>
-                    <input className={(record.CansPerBank != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.CansPerBank = evt.target.value;
-                        else
-                            asset.CansPerBank = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.CansPerBank == null ? 0 : record.CansPerBank} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                    <div className='invalid-feedback'>Cans Per Bank is a required field.</div>
-                </div>
-
-                <div className="form-group">
-                    <label>Capacitance per Bank</label>
-                    <input className={(record.CapacitancePerBank != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.CapacitancePerBank = evt.target.value;
-                        else
-                            asset.CapacitancePerBank = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.CapacitancePerBank == null ? 0 : record.CapacitancePerBank} type='number' disabled={this.state.NewEditAsset.ID != 0}/>
-                    <div className='invalid-feedback'>Capacitance per Bank is a required field.</div>
-                </div>
-
-            </>
-        );
-    }
-
-    showLineAttributes(): JSX.Element {
-        var record = this.state.NewEditAsset as OpenXDA.Line
-
-        return (
-            <>
-                <div className="form-group">
-                    <label>Max Fault Distance</label>
-                    <input className="form-control" onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.MaxFaultDistance = evt.target.value;
-                        else
-                            asset.MaxFaultDistance = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.MaxFaultDistance == null ? 0 : record.MaxFaultDistance} type='number' disabled={this.state.NewEditAsset.ID != 0}/>
-                </div>
-
-                <div className="form-group">
-                    <label>MinFaultDistance</label>
-                    <input className="form-control" onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.MinFaultDistance = evt.target.value;
-                        else
-                            asset.MinFaultDistance = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.MinFaultDistance == null ? 0 : record.MinFaultDistance} type='number' disabled={this.state.NewEditAsset.ID != 0}/>
-                </div>
-
-                <div className="form-group">
-                    <label>Length</label>
-                    <input className={(record.Segment != null && record.Segment.Length != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.Segment.Length = evt.target.value;
-                        else
-                            asset.Segment.Length = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.Segment == null || record.Segment.Length == null ? 0 : record.Segment.Length} type='number' disabled={this.state.NewEditAsset.ID != 0}/>
-                    <div className='invalid-feedback'>Length is a required field.</div>
-                </div>
-
-
-                <div className="form-group">
-                    <label>R0</label>
-                    <input className={(record.Segment != null && record.Segment.R0 != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.Segment.R0 = evt.target.value;
-                        else
-                            asset.Segment.R0 = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.Segment == null || record.Segment.R0 == null ? 0 : record.Segment.R0} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                    <div className='invalid-feedback'>R0 is a required field.</div>
-                </div>
-
-                <div className="form-group">
-                    <label>X0</label>
-                    <input className={(record.Segment != null && record.Segment.X0 != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.Segment.X0 = evt.target.value;
-                        else
-                            asset.Segment.X0 = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.Segment == null || record.Segment.X0 == null ? 0 : record.Segment.X0} type='number' disabled={this.state.NewEditAsset.ID != 0}/>
-                    <div className='invalid-feedback'>X0 is a required field.</div>
-                </div>
-
-                <div className="form-group">
-                    <label>R1</label>
-                    <input className={(record.Segment != null && record.Segment.R1 != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.Segment.R1 = evt.target.value;
-                        else
-                            asset.Segment.R1 = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.Segment == null || record.Segment.R1 == null ? 0 : record.Segment.R1} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                    <div className='invalid-feedback'>R1 is a required field.</div>
-                </div>
-
-                <div className="form-group">
-                    <label>X1</label>
-                    <input className={(record.Segment != null && record.Segment.X1 != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.Segment.X1 = evt.target.value;
-                        else
-                            asset.Segment.X1 = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.Segment == null || record.Segment.X1 == null ? 0 : record.Segment.X1} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                    <div className='invalid-feedback'>X1 is a required field.</div>
-                </div>
-
-                <div className="form-group">
-                    <label>Thermal Rating</label>
-                    <input className={(record.Segment != null && record.Segment.ThermalRating != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.Segment.ThermalRating = evt.target.value;
-                        else
-                            asset.Segment.ThermalRating = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.Segment == null || record.Segment.ThermalRating == null ? 0 : record.Segment.ThermalRating} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                    <div className='invalid-feedback'>Thermal Rating is a required field.</div>
-                </div>
-
-
-            </>
-        );
-    }
-
-    showTransformerAttributes(): JSX.Element {
-        var record = this.state.NewEditAsset as OpenXDA.Transformer
-
-        return (
-            <>
-                <div className="form-group">
-                    <label>R0</label>
-                    <input className={(record.R0 != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.R0 = evt.target.value;
-                        else
-                            asset.R0 = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.R0 == null ? 0 : record.R0} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                    <div className='invalid-feedback'>R0 is a required field.</div>
-                </div>
-
-                <div className="form-group">
-                    <label>X0</label>
-                    <input className={(record.X0 != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.X0 = evt.target.value;
-                        else
-                            asset.X0 = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.X0 == null ? 0 : record.X0} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                    <div className='invalid-feedback'>X0 is a required field.</div>
-                </div>
-
-                <div className="form-group">
-                    <label>R1</label>
-                    <input className={(record.R1 != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.R1 = evt.target.value;
-                        else
-                            asset.R1 = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.R1 == null ? 0 : record.R1} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                    <div className='invalid-feedback'>R1 is a required field.</div>
-                </div>
-
-                <div className="form-group">
-                    <label>X1</label>
-                    <input className={(record.X1 != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.X1 = evt.target.value;
-                        else
-                            asset.X1 = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.X1 == null ? 0 : record.X1} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                    <div className='invalid-feedback'>X1 is a required field.</div>
-                </div>
-
-                <div className="form-group">
-                    <label>Thermal Rating</label>
-                    <input className={(record.ThermalRating != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.ThermalRating = evt.target.value;
-                        else
-                            asset.ThermalRating = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.ThermalRating == null ? 0 : record.ThermalRating} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                    <div className='invalid-feedback'>Thermal Rating is a required field.</div>
-                </div>
-
-                <div className="form-group">
-                    <label>Primary Voltage (kV)</label>
-                    <input className="form-control" onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.PrimaryVoltageKV = evt.target.value;
-                        else
-                            asset.PrimaryVoltageKV = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.PrimaryVoltageKV == null ? 0 : record.PrimaryVoltageKV} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                </div>
-
-                <div className="form-group">
-                    <label>Secondary Voltage (kV)</label>
-                    <input className="form-control" onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.SecondaryVoltageKV = evt.target.value;
-                        else
-                            asset.SecondaryVoltageKV = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.SecondaryVoltageKV == null ? 0 : record.SecondaryVoltageKV} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                </div>
-
-                <div className="form-group">
-                    <label>Tap</label>
-                    <input className="form-control" onChange={(evt) => {
-                        var asset = _.clone(record, true);
-                        if (evt.target.value != "")
-                            asset.Tap = evt.target.value;
-                        else
-                            asset.Tap = null;
-
-                        this.setState({ NewEditAsset: asset });
-                    }} value={record == null || record.Tap == null ? 0 : record.Tap} type='number' disabled={this.state.NewEditAsset.ID != 0} />
-                </div>
-
-            </>
-        );
-    }
-
 }
 

@@ -69,6 +69,48 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        public class MeterSearch { 
+            public string Field { get; set; }
+            public string SearchText { get; set; }
+        }
+        [HttpPost, Route("SearchableList")]
+        public IHttpActionResult GetMetersUsingSearchableList([FromBody] IEnumerable<MeterSearch> searches)
+        {
+            string whereClause = string.Join(" AND ", searches.Select(search => search.Field + " LIKE '%" + search.SearchText + "%'"));
+            if (searches.Any())
+                whereClause = "WHERE \n" + whereClause;
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                DataTable table = connection.RetrieveData(@"
+                    SELECT
+	                    DISTINCT
+                        Meter.ID,
+                        Meter.AssetKey,
+                        Meter.Name,
+                        Meter.Make,
+                        Meter.Model,
+                        Location.Name as Location,
+                        COUNT(MeterAsset.AssetID)  as MappedAssets
+                    FROM 
+                        Meter LEFT JOIN
+                        Location ON Meter.LocationID = Location.ID LEFT JOIN
+                        MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN
+	                    Note ON Note.NoteTypeID = (SELECT ID FROM NoteType WHERE Name = 'Meter') AND Note.ReferenceTableID = Meter.ID
+                   " + whereClause + @"
+                    GROUP BY
+                        Meter.ID,
+	                    Meter.AssetKey,
+                        Meter.Name,
+                        Meter.Make,
+                        Meter.Model,
+                        Location.Name,
+	                    Note.Note
+                ");
+                return Ok(table);
+            }
+        }
+
+
 
         /*
          record fields

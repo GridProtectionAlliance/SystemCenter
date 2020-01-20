@@ -75,6 +75,14 @@ class SystemCenter extends React.Component<{}, {}, {}>{
 
                                 <ul className="nav flex-column">
                                     <li className="nav-item">
+                                        <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=PQViewSites"} to={controllerViewPath + "?name=PQViewSites"}>PQView Sites</NavLink>
+                                    </li>
+                                </ul>
+
+                                <hr />
+
+                                <ul className="nav flex-column">
+                                    <li className="nav-item">
                                         <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ValueLists"} to={controllerViewPath + "?name=ValueLists"}>Value Lists</NavLink>
                                     </li>
                                 </ul>
@@ -139,6 +147,12 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                             <Route children={({ match, ...rest }) => {
                                 if (queryString.parse(rest.location.search).name == "ValueLists")
                                     return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'ValueListGroups.cshtml'}></iframe>
+                                else
+                                    return null;
+                            }} />
+                            <Route children={({ match, ...rest }) => {
+                                if (queryString.parse(rest.location.search).name == "PQViewSites")
+                                    return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'PQViewDataLoader.cshtml'}></iframe>
                                 else
                                     return null;
                             }} />
