@@ -73,13 +73,6 @@ namespace SystemCenter.Controllers.OpenXDA
         protected override string Connection { get; } = "dbOpenXDA";
     }
 
-    [RoutePrefix("api/OpenXDA/Location")]
-    public class LocationController : ModelController<Location> {
-        protected override string Connection { get; } = "dbOpenXDA";
-    }
-    
-
-
     [RoutePrefix("api/OpenXDA/Note")]
     public class NoteController : ModelController<Notes>
     {

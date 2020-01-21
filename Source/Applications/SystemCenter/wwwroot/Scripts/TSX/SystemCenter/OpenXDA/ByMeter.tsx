@@ -30,10 +30,12 @@ interface Search {
     Field: FieldName,
     SearchText: string
 }   
-
+interface Meter {
+    ID: number, AssetKey: string, Name: string, Location: string, MappedAssets: number, Make: string, Model: string 
+}
 declare var homePath: string;
 
-export default class ByMeter extends React.Component<{}, { Search: Array<Search>, Data: Array<{ ID: number, AssetKey: string, Name: string, Location: string, Type: 'DFR' | 'PQMeter', Make: string, Model: string }>, SortField: string, Ascending: boolean }, {}>{
+export default class ByMeter extends React.Component<{}, { Search: Array<Search>, Data: Array<Meter>, SortField: string, Ascending: boolean }, {}>{
     constructor(props, context) {
         super(props, context);
         this.state = {
@@ -55,7 +57,7 @@ export default class ByMeter extends React.Component<{}, { Search: Array<Search>
             data: JSON.stringify(this.state.Search),
             cache: false,
             async: true
-        }).done(data => this.setState({ Data: data }));
+        }).done((data: Array<Meter>) => this.setState({ Data: data }));
     }
 
     componentDidMount() {

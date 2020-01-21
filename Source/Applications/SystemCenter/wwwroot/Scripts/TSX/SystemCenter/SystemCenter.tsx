@@ -70,6 +70,10 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                                     <li className="nav-item">
                                         <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Meters"} to={controllerViewPath + "?name=Meters"}>Meters</NavLink>
                                     </li>
+                                    <li className="nav-item">
+                                        <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Locations"} to={controllerViewPath + "?name=Locations"}>Substations</NavLink>
+                                    </li>
+
                                 </ul>
                                 <hr />
 
@@ -114,8 +118,8 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                                     return null;
                             }} />
                             <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "MeterLocations")
-                                    return <ByLocation meterLocationID={queryString.parse(rest.location.search).meterLocationID} meterLocationAssetKey={queryString.parse(rest.location.search).AssetKey} />
+                                if (queryString.parse(rest.location.search).name == "Locations")
+                                    return <ByLocation />
                                 else
                                     return null;
                             }} />

@@ -234,6 +234,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ModelController.cs" />
+    <Compile Include="Controllers\OpenXDA\OpenXDALocationController.cs" />
     <Compile Include="Controllers\OpenXDA\OpenXDAAssetController.cs" />
     <Compile Include="Controllers\OpenXDA\OpenXDAControllers.cs" />
     <Compile Include="Controllers\OpenXDA\OpenXDAMeterController.cs" />
@@ -241,7 +242,6 @@
     <Compile Include="DataHub.cs" />
     <Compile Include="Model\AppModel.cs" />
     <Compile Include="Configuration\CategorizedSetting.cs" />
-    <Compile Include="Controllers\SystemCenter\MetersController.cs" />
     <Compile Include="DebugHost.cs">
       <SubType>Form</SubType>
     </Compile>

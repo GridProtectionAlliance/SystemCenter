@@ -31,7 +31,7 @@ using GSF.Data.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 
-namespace SystemCenter.Controllers
+namespace SystemCenter.Controllers.OpenXDA
 {
     [RoutePrefix("api/OpenXDA/Asset")]
     public class OpenXDAAssetController : ModelController<Asset>
