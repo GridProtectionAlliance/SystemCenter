@@ -25,6 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, NewEdit } from '../global';
 import AssetAttributes from './Asset';
+import FormInput from '../CommonComponents/FormInput';
 function TransformerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Transformer, UpdateState: (newEditAsset: OpenXDA.Transformer) => void }): JSX.Element {
     function valid(field: keyof (OpenXDA.Transformer)): boolean {
         if (field == 'PrimaryVoltageKV')
@@ -50,118 +51,14 @@ function TransformerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Transfo
     if (props.Asset == null) return null;
     return (
         <>
-            <div className="form-group">
-                <label>R0</label>
-                <input className={(valid("R0") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.R0 = evt.target.value;
-                    else
-                        asset.R0 = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.R0 == null ? '' : props.Asset.R0} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>R0 is a required numeric field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>X0</label>
-                <input className={(valid("X0") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.X0 = evt.target.value;
-                    else
-                        asset.X0 = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.X0 == null ? '' : props.Asset.X0} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>X0 is a required numeric field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>R1</label>
-                <input className={(valid("R1") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.R1 = evt.target.value;
-                    else
-                        asset.R1 = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.R1 == null ? '' : props.Asset.R1} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>R1 is a required numeric field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>X1</label>
-                <input className={(valid("X1") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.X1 = evt.target.value;
-                    else
-                        asset.X1 = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.X1 == null ? '' : props.Asset.X1} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>X1 is a required numeric field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>Thermal Rating</label>
-                <input className={(valid("ThermalRating") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.ThermalRating = evt.target.value;
-                    else
-                        asset.ThermalRating = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.ThermalRating == null ? '' : props.Asset.ThermalRating} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Thermal Rating is a required numeric field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>Primary Voltage (kV)</label>
-                <input className={(valid("PrimaryVoltageKV") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.PrimaryVoltageKV = evt.target.value;
-                    else
-                        asset.PrimaryVoltageKV = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.PrimaryVoltageKV == null ? '' : props.Asset.PrimaryVoltageKV} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Primary Voltage (kV) is a numeric field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>Secondary Voltage (kV)</label>
-                <input className={(valid("SecondaryVoltageKV") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.SecondaryVoltageKV = evt.target.value;
-                    else
-                        asset.SecondaryVoltageKV = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.SecondaryVoltageKV == null ? '' : props.Asset.SecondaryVoltageKV} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Secondary Voltage (kV) is a numeric field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>Tap</label>
-                <input className={(valid("Tap") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.Tap = evt.target.value;
-                    else
-                        asset.Tap = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.Tap == null ? '' : props.Asset.Tap} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Tap is a numeric field.</div>
-            </div>
-
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'R0'} Feedback={'R0 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'X0'} Feedback={'X0 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'R1'} Feedback={'R1 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'X1'} Feedback={'X1 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'Thermal Rating is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'PrimaryVoltageKV'} Label={'Primary Voltage (kV)'} Feedback={'Primary Voltage (kV) is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'SecondaryVoltageKV'} Label={'Secondary Voltage (kV)'} Feedback={'Secondary Voltage (kV) is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'Tap'} Feedback={'Tap is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
         </>
     );
 }

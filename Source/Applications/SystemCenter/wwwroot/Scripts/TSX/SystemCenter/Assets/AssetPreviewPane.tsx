@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as moment from 'moment';
-import Table from '../../Table';
+import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
 import { AssetTypeField, Asset, ValueListItem, AssetTypeFieldAndValue } from '../global';
 import AssetNoteWindow from './AssetNote';

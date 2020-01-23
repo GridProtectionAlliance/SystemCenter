@@ -25,8 +25,6 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import CFGParser from '../../../TS/CFGParser';
-import PARParser from '../../../TS/PARParser';
-import Table from '../../Table';
 
 declare var homePath: string;
 

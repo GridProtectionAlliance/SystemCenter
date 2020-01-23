@@ -25,6 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, NewEdit } from '../global';
 import AssetAttributes from './Asset';
+import FormInput from '../CommonComponents/FormInput';
 function CapBankAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.CapBank, UpdateState: (newEditAsset: OpenXDA.CapBank) => void }): JSX.Element {
     function valid(field: keyof (OpenXDA.CapBank)): boolean {
         if (field == 'NumberOfBanks')
@@ -39,48 +40,9 @@ function CapBankAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.CapBank, Up
     if (props.Asset == null) return null;
     return (
         <>
-            <div className="form-group">
-                <label>Number of Banks</label>
-                <input className={(valid('NumberOfBanks') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.NumberOfBanks = evt.target.value;
-                    else
-                        asset.NumberOfBanks = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.NumberOfBanks == null ? '' : props.Asset.NumberOfBanks} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Number Of Banks is a required integer field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>Cans per Bank</label>
-                <input className={(valid('CansPerBank') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.CansPerBank = evt.target.value;
-                    else
-                        asset.CansPerBank = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.CansPerBank == null ? '' : props.Asset.CansPerBank} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Cans Per Bank is a required integer field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>Capacitance per Bank</label>
-                <input className={(valid('CapacitancePerBank') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.CapacitancePerBank = evt.target.value;
-                    else
-                        asset.CapacitancePerBank = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.CapacitancePerBank == null ? '' : props.Asset.CapacitancePerBank} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Capacitance per Bank is a required integer field.</div>
-            </div>
-
+            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NumberOfBanks'} Label={'Number Of Banks'} Feedback={'Number Of Banks is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'CansPerBank'} Label={'Cans Per Bank'} Feedback={'Cans Per Bank is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'CapacitancePerBank'} Label={'Capacitance Per Bank'} Feedback={'Capacitance per Bank is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
         </>
     );
 

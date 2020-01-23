@@ -55,6 +55,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 DataTable table = connection.RetrieveData(@"
                 SELECT
 	                DISTINCT
+                    Location.ID,
 	                Location.LocationKey,
 	                Location.Name,
 	                COUNT(DISTINCT Meter.ID) as Meters,
@@ -63,9 +64,11 @@ namespace SystemCenter.Controllers.OpenXDA
 	                Location LEFT JOIN
 	                Meter ON Location.ID = Meter.LocationID LEFT JOIN
 	                AssetLocation ON Location.ID = AssetLocation.LocationID LEFT JOIN
+                    Asset ON AssetLocation.AssetID = Asset.ID LEFT JOIN
 	                Note ON Note.NoteTypeID = (SELECT ID FROM NoteType WHERE Name = 'Location') AND Note.ReferenceTableID = Meter.ID
                    " + whereClause + @"
                 GROUP BY
+                    Location.ID,
 	                Location.LocationKey,
 	                Location.Name
                 ");
@@ -73,6 +76,48 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        [HttpGet, Route("{locationID:int}/Meters")]
+        public IHttpActionResult GetMetersForLocation(int locationID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                try
+                {
+                    IEnumerable<Meter> result = new TableOperations<Meter>(connection).QueryRecordsWhere("LocationID = {0}", locationID);
+                    return Ok(result);
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
+
+        [HttpGet, Route("{locationID:int}/Assets")]
+        public IHttpActionResult GetAssetsForLocation(int locationID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                try
+                {
+                    DataTable result = connection.RetrieveData(@"
+                    SELECT 
+	                    Asset.*,
+	                    AssetType.Name as AssetType
+                    FROM
+	                    Asset JOIN 
+	                    AssetType ON Asset.AssetTypeID = AssetType.ID JOIN
+	                    AssetLocation ON Asset.ID = AssetLocation.AssetID
+                    WHERE
+                        AssetLocation.LocationID = {0}", locationID);
+                    return Ok(result);
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
 
     }
 

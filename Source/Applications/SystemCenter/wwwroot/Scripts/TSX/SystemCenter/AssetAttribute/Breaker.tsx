@@ -25,8 +25,11 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, NewEdit } from '../global';
 import AssetAttributes from './Asset';
+import FormInput from '../CommonComponents/FormInput';
+import FormCheckBox from '../CommonComponents/FormCheckBox';
+import { getSpareBreakersForSubstation } from '../../../TS/Services/Asset';
 
-function BreakerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Breaker, UpdateState: (newEditAsset: OpenXDA.Breaker) => void }): JSX.Element {
+function BreakerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Breaker, UpdateState: (newEditAsset: OpenXDA.Breaker) => void, ShowSpare?: boolean }): JSX.Element {
     function valid(field: keyof(OpenXDA.Breaker)): boolean {
         if (field == 'ThermalRating')
             return props.Asset.ThermalRating != null && AssetAttributes.isRealNumber(props.Asset.ThermalRating);
@@ -38,105 +41,48 @@ function BreakerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Breaker, Up
             return props.Asset.PickupTime == null || AssetAttributes.isInteger(props.Asset.PickupTime);
         else if (field == 'TripCoilCondition')
             return props.Asset.TripCoilCondition == null || AssetAttributes.isRealNumber(props.Asset.TripCoilCondition);
-
+        else if (field == 'EDNAPoint') return true;
+        else if (field == 'Spare') return true;
+        else if (field == 'SpareBreakerID') return true;
         return false;
     }
+    const [spares, setSpares] = React.useState<Array<OpenXDA.Breaker>>([]);
+
+    React.useEffect(() => {
+        getSpareBreakersForSubstation(props.Asset).then(sps => {
+            setSpares(sps);
+        });
+    }, [props.Asset]);
 
     if (props.Asset == null) return null;
     return (
         <>
-            <div className="form-group">
-                <label>Thermal Rating</label>
-                <input className={(valid('ThermalRating') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.ThermalRating = evt.target.value;
+            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'Thermal rating is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={ props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'Speed'} Feedback={'Speed is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'TripTime'} Label={'Trip Time'} Feedback={'Trip Time is an integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'PickupTime'} Label={'Pickup Time'} Feedback={'Pickup Time is an integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition'} Feedback={'Trip Coil Condition is an numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'EDNAPoint'} Label={'EDNA Point'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+
+            <div className="form-group" hidden={props.ShowSpare != true}>
+                <label>Spare Breaker</label>
+                <select className="form-control" value={props.Asset.SpareBreakerID == null ? 0 : props.Asset.SpareBreakerID} onChange={(evt) => {
+                    let record: OpenXDA.Breaker = _.clone(props.Asset, true);
+                    if (evt.target.value == '0')
+                        record.SpareBreakerID = null;
                     else
-                        asset.ThermalRating = null;
+                        record.SpareBreakerID = parseInt(evt.target.value as string);
+                    props.UpdateState(record)
+                }} disabled={props.NewEdit == 'New' && props.Asset.ID != 0}>
+                    <option value={0} key={0} >None</option>
+                    {
+                        spares.map(spare => <option value={spare.ID} key={spare.ID} >{spare.AssetKey}</option>)
+                    }
 
-                    props.UpdateState(asset);
-                }} value={props.Asset.ThermalRating == null ? '' : props.Asset.ThermalRating} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Thermal rating is a required numeric field.</div>
+                </select>
             </div>
-            <div className="form-group">
-                <label>Speed</label>
-                <input className={(valid('Speed') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.Speed = evt.target.value;
-                    else
-                        asset.Speed = null;
-                    props.UpdateState(asset);
-                }} value={props.Asset.Speed == null ? '' : props.Asset.Speed} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Speed is a required numeric field.</div>
-            </div>
-            <div className="form-group">
-                <label>Trip Time</label>
-                <input className={(valid('TripTime') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.TripTime = evt.target.value;
-                    else
-                        asset.TripTime = null;
+            <FormCheckBox<OpenXDA.Breaker> Record={props.Asset} Field={'Spare'} Label={'Is Spare'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.TripTime == null ? '' : props.Asset.TripTime} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Trip Time is an integer field.</div>
-            </div>
-            <div className="form-group">
-                <label>Pickup Time</label>
-                <input className={(valid('PickupTime') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.PickupTime = evt.target.value;
-                    else
-                        asset.PickupTime = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.PickupTime == null ? '' : props.Asset.PickupTime} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Pickup Time is an integer field.</div>
-
-            </div>
-
-            <div className="form-group">
-                <label>TripCoil Condition</label>
-                <input className={(valid('TripCoilCondition') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.TripCoilCondition = evt.target.value;
-                    else
-                        asset.TripCoilCondition = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.TripCoilCondition == null ? '' : props.Asset.TripCoilCondition} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>TripCoil Condition is an numeric field.</div>
-
-            </div>
-
-            <div className="form-group">
-                <label>EDNA Point</label>
-                <input className="form-control" onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.EDNAPoint = evt.target.value;
-                    else
-                        asset.EDNAPoint = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.EDNAPoint == null ? '' : props.Asset.EDNAPoint} type='text' disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            </div>
-            <div className="form-group">
-                <div className="custom-control custom-checkbox">
-                        <input type="checkbox" className="custom-control-input" style={{ left: 2, top: 6, zIndex: 1 }} value={props.Asset.Spare ? 'on' : 'off'} onChange={(evt) => {
-                        var asset = _.clone(props.Asset, true);
-                        asset.Spare = evt.target.checked;
-
-                        props.UpdateState(asset);
-                    }} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <label className="custom-control-label" >Spare</label>
-                </div>
-            </div>
         </>
     );
 

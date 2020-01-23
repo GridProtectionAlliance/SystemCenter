@@ -24,9 +24,12 @@ import * as React from 'react';
 import * as moment from 'moment';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
+import AssetAttributes from '../AssetAttribute/Asset';
+import FormInput from '../CommonComponents/FormInput';
+import FormTextArea from '../CommonComponents/FormTextArea';
 declare var homePath: string;
 
-export default class MeterLocationWindow extends React.Component<{ meter: OpenXDA.Meter, stateSetter: (OpenXDAMeter) => void }, { MeterLocation: OpenXDA.Location, changed: boolean, MeterLocations: Array<OpenXDA.Location>}, {}> {
+export default class MeterLocationWindow extends React.Component<{ Meter: OpenXDA.Meter, StateSetter: (OpenXDAMeter) => void }, { MeterLocation: OpenXDA.Location, changed: boolean, MeterLocations: Array<OpenXDA.Location>}, {}> {
     jqueryHandle: JQuery.jqXHR;
     constructor(props, context) {
         super(props, context);
@@ -34,28 +37,32 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
         this.state = {
             MeterLocation: {
                 ID: 0,
-                LocationKey: '',
-                Name: '',
-                Alias: '',
-                ShortName: '',
-                Latitude: 0,
-                Longitude: 0,
-                Description: '',
+                LocationKey: null,
+                Name: null,
+                Alias: null,
+                ShortName: null,
+                Latitude: null,
+                Longitude: null,
+                Description: null,
             },
             changed: false,
             MeterLocations: []
         }
+
+        this.valid = this.valid.bind(this);
+        this.updateState = this.updateState.bind(this);
+
     }
 
 
     componentDidMount() {
         this.getAllLocations();
-        this.getMeterLocation(this.props.meter);
+        this.getMeterLocation(this.props.Meter);
     }
 
     componentWillReceiveProps(nextProps): void {
-        if (this.state.MeterLocation.ID != nextProps.meter.MeterLocationID)
-            this.getMeterLocation(nextProps.meter);
+        if (this.state.MeterLocation.ID != nextProps.Meter.MeterLocationID)
+            this.getMeterLocation(nextProps.Meter);
     }
 
 
@@ -104,7 +111,7 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
 
     addNewMeterLocation(): JQuery.jqXHR {
         var meterLocation: any = _.clone(this.state.MeterLocation, true);
-        meterLocation.MeterID = this.props.meter.ID;
+        meterLocation.MeterID = this.props.Meter.ID;
 
         return $.ajax({
             type: "POST",
@@ -122,7 +129,7 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
 
     updateMeterLocation(): JQuery.jqXHR {
         var location: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
-        var meter: OpenXDA.Meter = _.clone(this.props.meter, true);
+        var meter: OpenXDA.Meter = _.clone(this.props.Meter, true);
 
        return $.ajax({
             type: "PATCH",
@@ -144,7 +151,7 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
                    cache: true,
                    async: true
                }).done((msg) => {
-                   this.props.stateSetter(meter);
+                   this.props.StateSetter(meter);
                });
 
            }
@@ -152,6 +159,29 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
            this.setState({ changed: false }, () => this.getAllLocations())
        });
     }
+
+    valid(field: keyof (OpenXDA.Location)): boolean {
+        if (field == 'LocationKey')
+            return this.state.MeterLocation.LocationKey != null && this.state.MeterLocation.LocationKey.length > 0 && this.state.MeterLocation.LocationKey.length <= 50;
+        else if (field == 'Name')
+            return this.state.MeterLocation.Name != null && this.state.MeterLocation.Name.length > 0 && this.state.MeterLocation.Name.length <= 200;
+        else if (field == 'Alias')
+            return this.state.MeterLocation.Alias == null || this.state.MeterLocation.Alias.length <= 200;
+        else if (field == 'ShortName')
+            return this.state.MeterLocation.ShortName == null || this.state.MeterLocation.ShortName.length <= 50;
+        else if (field == 'Latitude')
+            return this.state.MeterLocation.Latitude != null && AssetAttributes.isRealNumber(this.state.MeterLocation.Latitude);
+        else if (field == 'Longitude')
+            return this.state.MeterLocation.Longitude != null && AssetAttributes.isRealNumber(this.state.MeterLocation.Longitude);
+        else if (field == 'Description')
+            return true;
+        return false;
+    }
+
+    updateState(location: OpenXDA.Location) {
+        this.setState({ MeterLocation: location, changed: true });
+    }
+
 
     render() {
         return (
@@ -177,14 +207,16 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
                                         this.setState({
                                             MeterLocation: {
                                                 ID: 0,
-                                                LocationKey: '',
-                                                Name: '',
-                                                Alias: '',
-                                                ShortName: '',
-                                                Latitude: 0,
-                                                Longitude: 0,
-                                                Description: '',
-                                            }, changed: true});
+                                                LocationKey: null,
+                                                Name: null,
+                                                Alias: null,
+                                                ShortName: null,
+                                                Latitude: null,
+                                                Longitude: null,
+                                                Description: null,
+
+                                            }, changed: true
+                                        });
                                 }}>
                                     <option value="0">Add New</option>
                                     {
@@ -192,91 +224,18 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
                                     }
 
                                 </select>
-
-                                <label>Asset Key</label>
-                                <input className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
-                                    if (evt.target.value != "")
-                                        meterLocation.LocationKey = evt.target.value;
-                                    else
-                                        meterLocation.LocationKey = null;
-
-                                    this.setState({ MeterLocation: meterLocation, changed: true });
-                                }} value={this.state.MeterLocation.LocationKey == null ? '' : this.state.MeterLocation.LocationKey} />
-                                <label>Name</label>
-                                <input className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
-                                    if (evt.target.value != "")
-                                        meterLocation.Name = evt.target.value;
-                                    else
-                                        meterLocation.Name = null;
-
-                                    this.setState({ MeterLocation: meterLocation, changed: true });
-                                }} value={this.state.MeterLocation.Name == null ? '' : this.state.MeterLocation.Name} />
-                                <label>Short Name</label>
-                                <input className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
-                                    if (evt.target.value != "")
-                                        meterLocation.ShortName = evt.target.value;
-                                    else
-                                        meterLocation.ShortName = null;
-
-                                    this.setState({ MeterLocation: meterLocation, changed: true });
-                                }} value={this.state.MeterLocation.ShortName == null ? '' : this.state.MeterLocation.ShortName} />
-
                             </div>
+
+                            <FormInput<OpenXDA.Location> Record={this.state.MeterLocation} Field={'LocationKey'} Label={'Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={this.valid} Setter={this.updateState} />
+                            <FormInput<OpenXDA.Location> Record={this.state.MeterLocation} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={this.valid} Setter={this.updateState} />
+                            <FormInput<OpenXDA.Location> Record={this.state.MeterLocation} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={this.valid} Setter={this.updateState} />
+                            
                         </div>
                         <div className="col">
-                            <div className="form-group">
-                                <label>Alias</label>
-                                <input className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
-                                    if (evt.target.value != "")
-                                        meterLocation.Alias = evt.target.value;
-                                    else
-                                        meterLocation.Alias = null;
-
-                                    this.setState({ MeterLocation: meterLocation, changed: true });
-                                }} value={this.state.MeterLocation.Alias == null ? '' : this.state.MeterLocation.Alias} />
-
-
-                                <label>Latitude</label>
-                                <input className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
-                                    if (evt.target.value != "")
-                                        meterLocation.Latitude = parseFloat(evt.target.value);
-                                    else
-                                        meterLocation.Latitude = null;
-
-                                    this.setState({ MeterLocation: meterLocation, changed: true });
-                                }} value={this.state.MeterLocation.Latitude == null ? '' : this.state.MeterLocation.Latitude} type="number" step={3} />
-
-                                <label>Longitude</label>
-                                <input className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
-                                    if (evt.target.value != "")
-                                        meterLocation.Longitude = parseFloat(evt.target.value);
-                                    else
-                                        meterLocation.Longitude = null;
-
-                                    this.setState({ MeterLocation: meterLocation, changed: true });
-                                }} value={this.state.MeterLocation.Longitude == null ? '' : this.state.MeterLocation.Longitude} type="number" step={3}/>
-
-
-
-                                <label>Description</label>
-                                <textarea rows={2} className="form-control" onChange={(evt) => {
-                                    var meterLocation: OpenXDA.Location = _.clone(this.state.MeterLocation, true);
-                                    if (evt.target.value != "")
-                                        meterLocation.Description = evt.target.value;
-                                    else
-                                        meterLocation.Description = null;
-
-                                    this.setState({ MeterLocation: meterLocation, changed: true });
-                                }} value={this.state.MeterLocation.Description == null ? '' : this.state.MeterLocation.Description} />
-
-
-                            </div>
+                            <FormInput<OpenXDA.Location> Record={this.state.MeterLocation} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={this.valid} Setter={this.updateState} />
+                            <FormInput<OpenXDA.Location> Record={this.state.MeterLocation} Field={'Latitude'} Feedback={'Latitude is a require numeric field.'} Valid={this.valid} Setter={this.updateState} />
+                            <FormInput<OpenXDA.Location> Record={this.state.MeterLocation} Field={'Longitude'} Feedback={'Longitude is a require numeric field.'} Valid={this.valid} Setter={this.updateState} />
+                            <FormTextArea<OpenXDA.Location> Rows={3} Record={this.state.MeterLocation} Field={'Description'} Valid={this.valid} Setter={this.updateState} />
                         </div>
                     </div>
                 </div>
@@ -288,7 +247,7 @@ export default class MeterLocationWindow extends React.Component<{ meter: OpenXD
                         <button className="btn btn-primary" onClick={() => this.updateMeterLocation()} hidden={this.state.MeterLocation.ID == 0} disabled={!this.state.changed}>Update</button>
                     </div>
                     <div className="btn-group mr-2">
-                        <button className="btn btn-default" onClick={() => this.getMeterLocation(this.props.meter)} disabled={!this.state.changed}>Reset</button>
+                        <button className="btn btn-default" onClick={() => this.getMeterLocation(this.props.Meter)} disabled={!this.state.changed}>Reset</button>
                     </div>
                 </div>
 

@@ -25,6 +25,8 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { NewEdit } from '../global';
+import FormInput from '../CommonComponents/FormInput';
+import FormTextArea from '../CommonComponents/FormTextArea';
 
 interface AssetAttributesProps {
     Asset: OpenXDA.Asset,
@@ -37,14 +39,8 @@ interface AssetAttributesProps {
 export default class AssetAttributes extends React.Component<AssetAttributesProps, {}, {}>{
     constructor(props, context) {
         super(props, context);
-        this.state = {
-
-        }
+        this.valid = this.valid.bind(this);
     }
-
-    componentDidMount() {
-    }
-
 
     static getNewAsset(type: OpenXDA.AssetTypeName): OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.LineSegment | OpenXDA.Transformer {
         let asset: OpenXDA.Asset = {
@@ -163,6 +159,8 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
             return this.props.Asset.AssetName != null && this.props.Asset.AssetName.length > 0;
         else if (field == 'VoltageKV')
             return this.props.Asset.VoltageKV != null && AssetAttributes.isRealNumber(this.props.Asset.VoltageKV);
+        else if (field == 'Description')
+            return true;
         return false;
     }
 
@@ -170,91 +168,40 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
         if (this.props.Asset == null) return null;
         return (
             <>
-            <div className="form-group" hidden={this.props.NewEdit == 'Edit'}>
-                <label>Select Asset</label>
-                <select className="form-control" value={this.props.Asset.ID.toString()} disabled={this.props.NewEdit == 'Edit'} onChange={(evt) => {
-                    if (evt.target.value != "0")
-                        this.props.GetDifferentAsset(parseInt(evt.target.value));
-                    else
-                        this.props.UpdateState(AssetAttributes.getNewAsset('Line'));
-                }}>
-                    <option key={0} value="0">Add New</option>
+                <div className="form-group" hidden={this.props.NewEdit == 'Edit'}>
+                    <label>Select Asset</label>
+                    <select className="form-control" value={this.props.Asset.ID.toString()} disabled={this.props.NewEdit == 'Edit'} onChange={(evt) => {
+                        if (evt.target.value != "0")
+                            this.props.GetDifferentAsset(parseInt(evt.target.value));
+                        else
+                            this.props.UpdateState(AssetAttributes.getNewAsset('Line'));
+                    }}>
+                        <option key={0} value="0">Add New</option>
 
-                    {
-                        this.props.AllAssets.map((asset, index) => <option key={index + 1} value={asset.ID} >{asset.AssetKey}</option>)
-                    }
+                        {
+                            this.props.AllAssets.map((asset, index) => <option key={index + 1} value={asset.ID} >{asset.AssetKey}</option>)
+                        }
 
-                </select>
-            </div>
+                    </select>
+                </div>
 
-            <div className="form-group">
-                <label>Type</label>
-                <select className="form-control" value={this.props.Asset.AssetType} onChange={(evt) => {
-                    this.changeAssetType(evt.target.value as 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer')
-                }} disabled={this.props.NewEdit == 'Edit' || this.props.Asset.ID != 0}>
-                    {
-                        this.props.AssetTypes.map(assetType => <option value={assetType.Name} key={assetType.ID} hidden={assetType.Name == 'LineSegment'}>{assetType.Name}</option>)
-                    }
+                <div className="form-group">
+                    <label>Type</label>
+                    <select className="form-control" value={this.props.Asset.AssetType} onChange={(evt) => {
+                        this.changeAssetType(evt.target.value as 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer')
+                    }} disabled={this.props.NewEdit == 'Edit' || this.props.Asset.ID != 0}>
+                        {
+                            this.props.AssetTypes.map(assetType => <option value={assetType.Name} key={assetType.ID} hidden={assetType.Name == 'LineSegment'}>{assetType.Name}</option>)
+                        }
 
-                </select>
-            </div>
+                    </select>
+                </div>
 
-            <div className="form-group">
-                <label>Key</label>
-                <input className={(this.valid('AssetKey') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    let asset = _.clone(this.props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.AssetKey = evt.target.value;
-                    else
-                        asset.AssetKey = null;
-
-                    this.props.UpdateState(asset);
-                }} value={this.props.Asset.AssetKey == null ? '' : this.props.Asset.AssetKey} disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
-                <div className='invalid-feedback'>{'A unique key is required.'}</div>
-            </div>
-
-            <div className="form-group">
-                <label>Name</label>
-                <input className={(this.valid('AssetName')? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(this.props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.AssetName = evt.target.value;
-                    else
-                        asset.AssetName = null;
-                    this.props.UpdateState(asset);
-                    }} value={this.props.Asset.AssetName == null ? '' : this.props.Asset.AssetName} disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Name is a required field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>Nominal Voltage (kV)</label>
-                <input className={(this.valid('VoltageKV') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(this.props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.VoltageKV = evt.target.value;
-                    else
-                        asset.VoltageKV = null;
-
-
-                    this.props.UpdateState(asset);
-                }} value={this.props.Asset.VoltageKV == null ? '' : this.props.Asset.VoltageKV} disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Nominal Voltage requires a numerical value.</div>
-            </div>
-
-
-            <div className="form-group">
-                <label>Description</label>
-                <textarea rows={2} className="form-control" onChange={(evt) => {
-                    var asset: OpenXDA.Asset = _.clone(this.props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.Description = evt.target.value;
-                    else
-                        asset.Description = null;
-
-                    this.props.UpdateState(asset);
-                }} value={this.props.Asset.Description != null ? this.props.Asset.Description : ''} disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
-            </div>
-        </>
+                <FormInput<OpenXDA.Asset> Record={this.props.Asset} Field={'AssetKey'} Label={'Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
+                <FormInput<OpenXDA.Asset> Record={this.props.Asset} Field={'AssetName'} Label={'Name'} Feedback={'Name must be less than 200 and is required.'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
+                <FormInput<OpenXDA.Asset> Record={this.props.Asset} Field={'VoltageKV'} Label={'Nominal Voltage (kV)'} Feedback={'Nominal Voltage requires a numerical value.'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
+                <FormTextArea<OpenXDA.Asset> Rows={3} Record={this.props.Asset} Field={'Description'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
+            </>
         );
     }
 }

@@ -34,7 +34,8 @@ declare var homePath: string;
 
 interface Page4Props {
     Assets: Array<OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer>,
-    Channels: Array<OpenXDA.Channel>
+    Channels: Array<OpenXDA.Channel>,
+    AssetConnections: Array<OpenXDA.AssetConnection>,
     UpdateState: (record) => void 
 }
 interface Page4State {
@@ -53,6 +54,8 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
             AssetTypes: [],
             NewEdit: 'New'
         }
+
+        this.getDifferentAsset = this.getDifferentAsset.bind(this);
     }
 
     componentDidMount() {
@@ -67,7 +70,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
     deleteAsset(index: number) {
         let list = _.clone(this.props.Assets, true);
         let record: Array<OpenXDA.Asset> = list.splice(index, 1);
-        this.props.UpdateState({ Assets: list });
+        let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(this.props.AssetConnections, true);
         let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels, true);
 
         $.each(channels, (index, channel) => {
@@ -75,7 +78,15 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                 channel.Asset = ''
         });
 
+        var index = assetConnections.findIndex(assetConnection => assetConnection.Parent == record[0].AssetKey || assetConnection.Child == record[0].AssetKey);
+        while (index >= 0) {
+            assetConnections.splice(index, 1);
+            index = assetConnections.findIndex(assetConnection => assetConnection.Parent == record[0].AssetKey || assetConnection.Child == record[0].AssetKey);
+        }
+
+        this.props.UpdateState({ Assets: list });
         this.props.UpdateState({ Channels: channels });
+        this.props.UpdateState({ AssetConnections: assetConnections });
 
     }
 

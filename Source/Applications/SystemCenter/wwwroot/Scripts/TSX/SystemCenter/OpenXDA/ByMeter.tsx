@@ -22,10 +22,11 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '../../Table';
+import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
+import { useHistory } from "react-router-dom";
 
-type FieldName = 'AssetKey' | 'Name' | 'Location' | 'Make' | 'Model' | 'Note';
+type FieldName = 'Meter.AssetKey' | 'Meter.Name' | 'Meter.Location' | 'Meter.Make' | 'Meter.Model' | 'Asset.AssetKey' | 'Note.Note';
 interface Search {
     Field: FieldName,
     SearchText: string
@@ -35,154 +36,160 @@ interface Meter {
 }
 declare var homePath: string;
 
-export default class ByMeter extends React.Component<{}, { Search: Array<Search>, Data: Array<Meter>, SortField: string, Ascending: boolean }, {}>{
-    constructor(props, context) {
-        super(props, context);
-        this.state = {
-            Search: [{Field:'AssetKey', SearchText:''}],
-            Data: [],
-            SortField: 'AssetName',
-            Ascending: true
-        }
+function ByMeter(): JSX.Element {
+    let history = useHistory();
 
-        this.getMeters = this.getMeters.bind(this);
-    }
+    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Meter.AssetKey', SearchText: '' }]);
+    const [data, setData] = React.useState<Array<Meter>>([]);
+    const [sortField, setSortField] = React.useState<string>('AssetKey');
+    const [ascending, setAscending] = React.useState<boolean>(true);
 
-    getMeters(): void{
+    React.useEffect(() => {
+        getMeters();
+    }, []);
+
+    function getMeters(): void{
         $.ajax({
             type: "Post",
             url: `${homePath}api/OpenXDA/Meter/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(this.state.Search),
+            data: JSON.stringify(search),
             cache: false,
             async: true
-        }).done((data: Array<Meter>) => this.setState({ Data: data }));
+        }).done((data: Array<Meter>) => setData( data));
     }
 
-    componentDidMount() {
-        this.getMeters();
+    function handleSelect(item) {
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&meterId=' + item.row.ID, state: {} })
+    }
+    function goNewMeterWizard() {
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard', state: {} })
     }
 
-    render() {
-        var windowHeight = window.innerHeight;
 
-        return (
-            <div style={{ width: '100%', height: '100%' }}>
-                <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                    <div className="collapse navbar-collapse" id="navbarSupportedContent" style={{ width: '100%' }}>
-                        <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
-                            <li className="nav-item" style={{ width: '50%', paddingRight: 10 }}>
-                                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                    <legend className="w-auto" style={{ fontSize: 'large' }}>Search: </legend>
-                                    <form>
-                                        {
-                                            this.state.Search.map((search, index, array) => {
+    return (
+        <div style={{ width: '100%', height: '100%' }}>
+            <nav className="navbar navbar-expand-lg navbar-light bg-light">
+                <div className="collapse navbar-collapse" id="navbarSupportedContent" style={{ width: '100%' }}>
+                    <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
+                        <li className="nav-item" style={{ width: '50%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search: </legend>
+                                <form>
+                                    {
+                                        search.map((s, index, a) => {
 
-                                                return (
-                                                    <div className="input-group" key={index} style={{ border: '1px solid lightgray'}}>
-                                                        <div className="input-group-prepend">
-                                                            <select className='form-control' style={{height: '100%'}} value={search.Field} onChange={(evt) => {
-                                                                search.Field = evt.target.value as FieldName;
-                                                                this.setState({ Search: array })
-                                                            }}>
-                                                                <option value='AssetKey'>AssetKey</option>
-                                                                <option value='Name'>Name</option>
-                                                                <option value='Location'>Location</option>
-                                                                <option value='Make'>Make</option>
-                                                                <option value='Model'>Model</option>
-                                                                <option value='Note'>Note</option>
-                                                            </select>
-                                                        </div>
-                                                        <input className='form-control' type='text' placeholder='Search...' value={search.SearchText} onChange={(evt) => {
-                                                            search.SearchText = evt.target.value;
-                                                            this.setState({ Search: array })
-                                                        }} />
-                                                        <div className="input-group-append">
-                                                            <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                                array.splice(index, 1);
-                                                                this.setState({ Search: array })
-                                                            }}><span><i className="fa fa-times"></i></span></button>
-                                                        </div>
+                                            return (
+                                                <div className="input-group" key={index} style={{ border: '1px solid lightgray'}}>
+                                                    <div className="input-group-prepend">
+                                                        <select className='form-control' style={{height: '100%'}} value={s.Field} onChange={(evt) => {
+                                                            s.Field = evt.target.value as FieldName;
+                                                            let array = _.clone(a, true);
+                                                            setSearch(array);
+                                                        }}>
+                                                            <option value='Meter.AssetKey'>Key</option>
+                                                            <option value='Meter.Name'>Name</option>
+                                                            <option value='Meter.Location'>Location</option>
+                                                            <option value='Meter.Make'>Make</option>
+                                                            <option value='Meter.Model'>Model</option>
+                                                            <option value='Meter.Model'>Model</option>
+                                                            <option value='Asset.AssetKey'>Asset</option>
+                                                            <option value='Note.Note'>Note</option>
+                                                        </select>
                                                     </div>
-                                               )
-                                            })
+                                                    <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
+                                                        s.SearchText = evt.target.value;
+                                                        let array = _.clone(a, true);
+                                                        setSearch(array);
+                                                    }} />
+                                                    <div className="input-group-append">
+                                                        <button className="btn btn-danger" type="button" onClick={(evt) => {
+                                                            let array = _.clone(a, true);
+                                                            array.splice(index, 1);
+                                                            setSearch(array);
+                                                        }}><span><i className="fa fa-times"></i></span></button>
+                                                    </div>
+                                                </div>
+                                            )
+                                        })
                                         
-                                    }
-                                    </form>
-                                </fieldset>
-                            </li>
-                            <li className="nav-item" style={{ width: '15%' }}>
-                                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                    <legend className="w-auto" style={{ fontSize: 'large' }}>Search Params:</legend>
-                                    <form>
-                                        <div className="form-group">
-                                            <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                                event.preventDefault();
-                                                let array = _.clone(this.state.Search, true);
-                                                array.push({ Field: 'AssetKey', SearchText: '' });
-                                                this.setState({ Search: array })
-                                            }}>Add Parameter</button>
-                                        </div>
-                                        <div className="form-group">
-                                            <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                                event.preventDefault();
-                                                this.getMeters();
-                                            }}>Update Search</button>
-                                        </div>
-                                    </form>
-                                </fieldset>
-                            </li>
-                            <li className="nav-item" style={{ width: '15%' }}>
-                                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                    <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
-                                    <form>
+                                }
+                                </form>
+                            </fieldset>
+                        </li>
+                        <li className="nav-item" style={{ width: '15%' }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search Params:</legend>
+                                <form>
+                                    <div className="form-group">
                                         <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                                             event.preventDefault();
-                                            window.location.href = `${homePath}index.cshtml?name=NewMeterWizard`
-                                        }}>New Meter</button>
-                                    </form>
-                                </fieldset>
-                            </li>
+                                            let array = _.clone(search, true);
+                                            array.push({ Field: 'AssetKey', SearchText: '' });
+                                            setSearch(array);
+                                        }}>Add Parameter</button>
+                                    </div>
+                                    <div className="form-group">
+                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+                                            event.preventDefault();
+                                            getMeters();
+                                        }}>Update Search</button>
+                                    </div>
+                                </form>
+                            </fieldset>
+                        </li>
+                        <li className="nav-item" style={{ width: '15%' }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
+                                <form>
+                                    <button className="btn btn-primary" onClick={goNewMeterWizard}>New Meter</button>
+                                </form>
+                            </fieldset>
+                        </li>
 
 
-                        </ul>
-                    </div>
-                </nav>
-
-                <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <Table
-                        cols={[
-                            { key: 'AssetKey', label: 'AssetKey', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'Location', label: 'Location', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'MappedAssets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Model', label: 'Model', headerStyle: { width: 'calc(10%)' }, rowStyle: { width: 'calc(10% - 17px)' } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={this.state.Data}
-                        sortField={this.state.SortField}
-                        ascending={this.state.Ascending}
-                        onSort={(d) => {
-                            if (d.col == this.state.SortField) {
-                                var ordered = _.orderBy(this.state.Data, [d.col], [(!this.state.Ascending ? "asc" : "desc")]);
-                                this.setState({ Ascending: !this.state.Ascending, Data: ordered });
-                            }
-                            else {
-                                var ordered = _.orderBy(this.state.Data, [d.col], ["asc"]);
-                                this.setState({ Ascending: true, Data: ordered, SortField: d.col });
-                            }
-                        }}
-                        onClick={(item) => { window.location.href = homePath + 'index.cshtml?name=Meter&meterId=' + item.row.ID}}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%'  }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                    />
+                    </ul>
                 </div>
+            </nav>
+
+            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
+                <Table
+                    cols={[
+                        { key: 'AssetKey', label: 'AssetKey', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                        { key: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                        { key: 'Location', label: 'Location', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'MappedAssets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Model', label: 'Model', headerStyle: { width: 'calc(10%)' }, rowStyle: { width: 'calc(10% - 17px)' } },
+                    ]}
+                    tableClass="table table-hover"
+                    data={data}
+                    sortField={sortField}
+                    ascending={ascending}
+                    onSort={(d) => {
+                        if (d.col == sortField) {
+                            var ordered = _.orderBy(data, [d.col], [(!ascending ? "asc" : "desc")]);
+                            setAscending(!ascending);
+                            setData(ordered);
+                        }
+                        else {
+                            var ordered = _.orderBy(data, [d.col], ["asc"]);
+                            setAscending(!ascending);
+                            setData(ordered);
+                            setSortField(d.col);
+                        }
+                    }}
+                    onClick={handleSelect}
+                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%'  }}
+                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    selected={(item) => false}
+                />
             </div>
-        )
-    }
+        </div>
+    )
 }
+
+export default ByMeter;
 

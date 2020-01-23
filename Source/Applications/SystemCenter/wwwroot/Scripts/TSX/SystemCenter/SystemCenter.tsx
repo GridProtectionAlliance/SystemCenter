@@ -25,33 +25,37 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, NavLink } from 'react-router-dom';
+import { Router, Route, NavLink } from 'react-router-dom';
 
-import Meter from './OpenXDA/Meter';
+import Meter from './Meter/Meter';
+import Location from './Location/Location';
+
 import * as queryString from "query-string";
-import createHistory from "history/createBrowserHistory"
-import Assets from './Assets/Assets';
+import { createBrowserHistory } from "history"
+//import Assets from './Assets/Assets';
 import ByLocation from './OpenXDA/ByLocation';
-import ByLine from './OpenXDA/ByLine';
+import ByAsset from './OpenXDA/ByAsset';
 import ByMeter from './OpenXDA/ByMeter';
 import NewMeterWizard from './NewMeterWizard/NewMeterWizard';
+import Asset from './Asset/Asset';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
 
 class SystemCenter extends React.Component<{}, {}, {}>{
+    history: any;
     constructor(props, context) {
         super(props, context);
+
+        this.history = createBrowserHistory();
     }
 
     render() {
-        var windowHeight = window.innerHeight;
-
         return (
-            <Router>
+            <Router history={this.history}>
             <>
-                <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow">
-                    <a className="navbar-brand col-sm-3 col-md-2 mr-0" style={{textAlign:'center'}}href="https://www.gridprotectionalliance.org"><img style={{ width: 230, margin: -5 }} src={"../Images/2-Line - 500.png"} /></a>
+                <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow" style={{height: 75}}>
+                    <a className="col-sm-3 col-md-2 mr-0" style={{textAlign:'center'}}href="https://www.gridprotectionalliance.org"><img style={{ width: '100%', margin: -5 }} src={"../Images/SystemCenter-TopLeft.png"} /></a>
                     {/*<input className="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"/>*/}
                     <ul className="navbar-nav px-3">
                         <li className="nav-item text-nowrap">
@@ -59,7 +63,7 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                         </li>
                     </ul>
                 </nav>
-                <div className="container-fluid" style={{ position: 'absolute', width: '100%', height: '100%', overflow: 'hidden' }}>
+                <div className="container-fluid" style={{ top: 75,  position: 'absolute', width: '100%', height: 'calc(100% - 75px)', overflow: 'hidden' }}>
                     <div className="row" style={{height: '100%'}}>
                         <nav className="col-md-2 d-none d-md-block bg-light sidebar">
                             <div className="sidebar-sticky">
@@ -72,6 +76,9 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                                     </li>
                                     <li className="nav-item">
                                         <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Locations"} to={controllerViewPath + "?name=Locations"}>Substations</NavLink>
+                                    </li>
+                                    <li className="nav-item">
+                                        <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Assets"} to={controllerViewPath + "?name=Assets"}>Transmission Assets</NavLink>
                                     </li>
 
                                 </ul>
@@ -110,9 +117,9 @@ class SystemCenter extends React.Component<{}, {}, {}>{
 
                             </div>
                         </nav>
-                        <div className="col-md-9 ml-sm-auto col-lg-10" style={{ width: '100%', height: 'inherit', padding: '62px 0 0 0', overflowY: 'hidden' }}>
+                        <div className="col-md-9 ml-sm-auto col-lg-10" style={{ width: '100%', height: 'inherit', padding: '0 0 0 0', overflowY: 'hidden' }}>
                             <Route children={({ match, ...rest }) => {
-                                if (rest.location.pathname + rest.location.search == controllerViewPath + "?name=Meters")
+                                if (queryString.parse(rest.location.search).name == undefined || rest.location.pathname + rest.location.search == controllerViewPath + "?name=Meters")
                                     return <ByMeter />
                                 else
                                     return null;
@@ -124,8 +131,8 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                                     return null;
                             }} />
                             <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "Lines")
-                                    return <ByLine lineID={queryString.parse(rest.location.search).lineID} />
+                                if (queryString.parse(rest.location.search).name == "Assets")
+                                    return <ByAsset />
                                 else
                                     return null;
                             }} />
@@ -136,6 +143,19 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                                 else
                                     return null;
                             }} />
+                            <Route children={({ match, ...rest }) => {
+                                if (queryString.parse(rest.location.search).name == "Location")
+                                    return <Location LocationID={queryString.parse(rest.location.search).LocationID} />
+                                else
+                                    return null;
+                            }} />
+                                <Route children={({ match, ...rest }) => {
+                                    if (queryString.parse(rest.location.search).name == "Asset")
+                                        return <Asset AssetID={queryString.parse(rest.location.search).AssetID} />
+                                    else
+                                        return null;
+                                }} />
+
                             <Route children={({ match, ...rest }) => {
                                 if (queryString.parse(rest.location.search).name == "Users")
                                     return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'Users.cshtml'}></iframe>
@@ -161,12 +181,6 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                                     return null;
                             }} />
 
-                            <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "Assets")
-                                    return <Assets assetTypeID={queryString.parse(rest.location.search).assetTypeID} assetTypeName={queryString.parse(rest.location.search).assetTypeName} />
-                                else
-                                    return null;
-                            }} />
                             <Route children={({ match, ...rest }) => {
                                 if (queryString.parse(rest.location.search).name == "NewMeterWizard")
                                     return <NewMeterWizard />

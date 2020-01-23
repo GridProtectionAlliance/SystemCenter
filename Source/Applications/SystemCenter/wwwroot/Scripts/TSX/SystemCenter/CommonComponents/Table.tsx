@@ -27,12 +27,12 @@ import * as _ from 'lodash';
 const AngleIcon: React.FunctionComponent<{ ascending: boolean }> = (props) => <span style={{ width: 10, height: 10, margin: 3 }} className={"fa fa-angle-" + (props.ascending ? 'up' : 'down')}></span>
 
 export interface TableProps<T> {
-    cols: Array<{ key: string, label: string, headerStyle?: React.CSSProperties, rowStyle?: React.CSSProperties, content?(item: T, key: string, style: React.CSSProperties): void }>,
+    cols: Array<{ key: keyof(T) | null, label: string, headerStyle?: React.CSSProperties, rowStyle?: React.CSSProperties, content?(item: T, key: keyof(T), style: React.CSSProperties): React.ReactNode }>,
     data: Array<T>,
-    onClick: Function,
+    onClick: (data: { col: keyof (T), row: T, data: T[keyof(T)] }, event: any) => void,
     sortField: string,
     ascending: boolean,
-    onSort(data: {col: string, asending: boolean}): void,
+    onSort(data: { col: keyof (T), asending: boolean}): void,
     tableClass?: string,
     tableStyle?: React.CSSProperties,
     theadStyle?: React.CSSProperties,
@@ -65,7 +65,7 @@ export default class Table<T> extends React.Component<TableProps<T>, {}> {
     generateHeaders() {
         if (this.props.cols.length == 0) return null;
 
-        var cells = this.props.cols.map(colData => {
+        var cells = this.props.cols.map((colData, index) => {
             var style: React.CSSProperties;
             if (colData.headerStyle != undefined) {
                 style = colData.headerStyle;
@@ -76,7 +76,7 @@ export default class Table<T> extends React.Component<TableProps<T>, {}> {
             if (style.cursor == undefined)
                 style.cursor = 'pointer';
 
-            return <th key={colData.key} style={style} onClick={(e) => this.handleSort({ col: colData.key, ascending: this.props.ascending }, e)}>{colData.label}{(this.props.sortField == colData.key ? <AngleIcon ascending={this.props.ascending} /> : null)}</th>
+            return <th key={index} style={style} onClick={(e) => this.handleSort({ col: colData.key, ascending: this.props.ascending }, e)}>{colData.label}{(this.props.sortField == colData.key ? <AngleIcon ascending={this.props.ascending} /> : null)}</th>
         });
 
         return <tr>{cells}</tr>;
@@ -115,8 +115,8 @@ export default class Table<T> extends React.Component<TableProps<T>, {}> {
         });
     }
 
-    handleClick(data, event) {
-        this.props.onClick(data);
+    handleClick(data: { col: keyof(T), row: T, data: any }, event) {
+        this.props.onClick(data, event);
     }
 
     handleSort(data, event) {

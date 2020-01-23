@@ -31,6 +31,7 @@ import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import AssetAttributes from '../AssetAttribute/Asset';
+import { getAssetTypes, getAllAssets, getAsset2, editExistingAsset } from '../../../TS/Services/Asset';
 
 declare var homePath: string;
 
@@ -54,38 +55,18 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
 
         }
 
-        this.getDifferentAsset = this.getDifferentAsset.bind(this);
         this.addNewAsset = this.addNewAsset.bind(this);
         this.addExistingAsset = this.addExistingAsset.bind(this);
-        this.editExistingAsset = this.editExistingAsset.bind(this);
         this.addNewButton = this.addNewButton.bind(this);
     }
 
     componentDidMount() {
         this.getMeterAssets();
-        this.getAllAssets();
-        this.getAssetTypes();
-    }
-
-    editAsset(asset: OpenXDA.Asset) {
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/${asset.AssetType}/One/${asset.ID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((returnAsset: OpenXDA.Asset) => {
-            returnAsset.AssetType = asset.AssetType;
-            returnAsset.Channels = [];
-
-            this.setState({ NewEdit: 'Edit', NewEditAsset: returnAsset }, () => {
-                if (this.state.NewEditAsset.AssetType == 'Breaker')
-                    this.getEDNAPoint(this.state.NewEditAsset.ID);
-                else if (this.state.NewEditAsset.AssetType == 'Line')
-                    this.getLineSegment(this.state.NewEditAsset.ID);
-
-            });
+        getAllAssets().then((assets: Array<OpenXDA.Asset>) => {
+            this.setState({ AllAssets: assets });
+        });
+        getAssetTypes().then((assetTypes: Array<OpenXDA.AssetType>) => {
+            this.setState({ AssetTypes: assetTypes });
         });
     }
 
@@ -113,6 +94,7 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
     addNewButton(): void {
         this.setState({ NewEdit: 'New', NewEditAsset: AssetAttributes.getNewAsset('Line') });
     }
+
     addNewAsset() {
         $.ajax({
             type: "POST",
@@ -159,86 +141,6 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
 
     }
 
-    editExistingAsset() {
-        $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/Asset/Edit/Meter`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Asset: this.state.NewEditAsset }),
-            cache: false,
-            async: true
-        }).done(() => {
-        }).fail((msg) => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
-            else {
-                sessionStorage.clear();
-                this.componentDidMount();
-                this.setState({ NewEditAsset: AssetAttributes.getNewAsset('Line') });
-            }
-
-        });
-
-    }
-
-    getAllAssets(): void {
-        if (sessionStorage.hasOwnProperty('OpenXDA.AllAssets'))
-            this.setState({ AllAssets: JSON.parse(sessionStorage.getItem('OpenXDA.AllAssets')) });
-        else
-            $.ajax({
-                type: "GET",
-                url: `${homePath}api/OpenXDA/Asset`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            }).done((assets: Array<OpenXDA.Asset>) => {
-                this.setState({ AllAssets: _.orderBy(assets, ['AssetKey'], ['asc']) });
-                sessionStorage.setItem('OpenXDA.AllAssets', JSON.stringify(assets));
-            });
-    }
-
-    getAssetTypes(): void {
-        if (sessionStorage.hasOwnProperty('OpenXDA.AssetTypes'))
-            this.setState({ AssetTypes: JSON.parse(sessionStorage.getItem('OpenXDA.AssetTypes')) });
-        else
-            $.ajax({
-                type: "GET",
-                url: `${homePath}api/OpenXDA/AssetType`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            }).done((assetTypes: Array<OpenXDA.AssetType>) => {
-                this.setState({ AssetTypes: assetTypes });
-                sessionStorage.setItem('OpenXDA.AssetTypes', JSON.stringify(assetTypes));
-            });
-    }
-
-    getDifferentAsset(assetID: number): void {
-        let asset = this.state.AllAssets.find(a => a.ID == assetID); 
-        let assetType = this.state.AssetTypes.find(at => at.ID == asset['AssetTypeID'])
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/${assetType.Name}/One/${assetID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((asset: OpenXDA.Asset) => {
-            asset.AssetType = assetType.Name;
-            asset.Channels = [];
-
-            this.setState({ NewEditAsset: asset }, () => {
-                if (this.state.NewEditAsset.AssetType == 'Breaker')
-                    this.getEDNAPoint(this.state.NewEditAsset.ID);
-                else if (assetType.Name == 'Line')
-                    this.getLineSegment(this.state.NewEditAsset.ID);
-
-            });
-        });
-    }
 
     getMeterAssets(): void {
         $.ajax({
@@ -250,45 +152,6 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
             async: true
         }).done((assets: Array<OpenXDA.Asset>) => {
             this.setState({ Assets: assets });
-        });
-    }
-
-    getEDNAPoint(breakerID: number): void {
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Breaker/${breakerID}/EDNAPoint`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((ednaPoint: OpenXDA.EDNAPoint) => {
-            let record: OpenXDA.Breaker = _.clone(this.state.NewEditAsset, true);
-            if (ednaPoint != undefined) {
-                record.EDNAPoint = ednaPoint.Point
-                this.setState({ NewEditAsset: record });
-            }
-        });
-    }
-
-    getLineSegment(lineID: number): void {
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Line/${lineID}/LineSegment`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((lineSegment: OpenXDA.LineSegment) => {
-            let record: OpenXDA.Line = _.clone(this.state.NewEditAsset, true);
-            if (lineSegment != undefined) {
-                record.Segment = lineSegment
-            }
-            else {
-                record.Segment = AssetAttributes.getNewAsset('LineSegment') as OpenXDA.LineSegment;
-            }
-
-            this.setState({ NewEditAsset: record });
-
         });
     }
 
@@ -328,7 +191,10 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
                                                         <td style={{ width: '10%' }}>{asset.VoltageKV}</td>
                                                         <td style={{ width: '10%' }}>{asset.Channels}</td>
                                                         <td style={{ width: '10%' }}>
-                                                            <button className="btn btn-sm" data-toggle='modal' data-target='#assetModal' onClick={(e) => this.editAsset(asset)}><span><i className="fa fa-pencil"></i></span></button>
+                                                            <button className="btn btn-sm" data-toggle='modal' data-target='#assetModal' onClick={(e) => {
+                                                                let assetType = this.state.AssetTypes.find(at => at.ID == asset['AssetTypeID'])
+                                                                getAsset2(asset.ID, assetType.Name).then(record => this.setState({ NewEditAsset: record, NewEdit: 'Edit' }));
+                                                            }}><span><i className="fa fa-pencil"></i></span></button>
                                                             <button className="btn btn-sm" onClick={(e) => this.deleteAsset(asset)}><span><i className="fa fa-times"></i></span></button>
                                                         </td>
                                                     </tr>
@@ -353,7 +219,11 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
                                 <div className="modal-body">
                                     <div className="row">
                                         <div className="col">
-                                            <AssetAttributes Asset={this.state.NewEditAsset} NewEdit={this.state.NewEdit} AssetTypes={this.state.AssetTypes} AllAssets={this.state.AllAssets} UpdateState={(asset) => this.setState({ NewEditAsset: asset })} GetDifferentAsset={this.getDifferentAsset}/>
+                                            <AssetAttributes Asset={this.state.NewEditAsset} NewEdit={this.state.NewEdit} AssetTypes={this.state.AssetTypes} AllAssets={this.state.AllAssets} UpdateState={(asset) => this.setState({ NewEditAsset: asset })} GetDifferentAsset={(assetID) => {
+                                                let asset = this.state.AllAssets.find(a => a.ID == assetID);
+                                                let assetType = this.state.AssetTypes.find(at => at.ID == asset['AssetTypeID'])
+                                                getAsset2(assetID, assetType.Name).then(asset => this.setState({ NewEditAsset: asset }));
+                                            }} />
                                         </div>
                                         <div className="col">
                                             { this.showAttributes() }
@@ -363,7 +233,13 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
                                 <div className="modal-footer">
                                     <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={this.addNewAsset} hidden={this.state.NewEdit == 'Edit' || this.state.NewEditAsset.ID != 0}>Save</button>
                                     <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={this.addExistingAsset} hidden={this.state.NewEdit == 'Edit' || this.state.NewEditAsset.ID == 0 }>Save</button>
-                                    <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={this.editExistingAsset} hidden={this.state.NewEdit == 'New'}>Save</button>
+                                    <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={(e) => {
+                                        editExistingAsset(this.state.NewEditAsset).then((asset) => {
+                                            sessionStorage.clear();
+                                            this.componentDidMount();
+                                            this.setState({ NewEditAsset: AssetAttributes.getNewAsset('Line') });
+                                        });
+                                    }} hidden={this.state.NewEdit == 'New'}>Save</button>
 
 
                                     <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => {
@@ -386,7 +262,7 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
 
     showAttributes(): JSX.Element {
         if (this.state.NewEditAsset.AssetType == 'Breaker')
-            return <BreakerAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.Breaker} UpdateState={(newEditAsset: OpenXDA.Breaker) => this.setState({ NewEditAsset: newEditAsset })} />;
+            return <BreakerAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.Breaker} UpdateState={(newEditAsset: OpenXDA.Breaker) => this.setState({ NewEditAsset: newEditAsset })} ShowSpare={true} />;
         else if (this.state.NewEditAsset.AssetType == 'Bus')
             return <BusAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset} UpdateState={(newEditAsset: OpenXDA.Bus) => this.setState({NewEditAsset: newEditAsset})} />;
         else if (this.state.NewEditAsset.AssetType == 'CapacitorBank')

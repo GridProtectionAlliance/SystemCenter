@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
-//  SystemCenter.tsx - Gbtc
+//  ByAsset.tsx - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,7 +16,7 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/22/2019 - Billy Ernest
+//  01/22/2020 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
@@ -28,52 +28,52 @@ import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
 
-type FieldName = 'Location.LocationKey' | 'Location.Name' | 'Note.Note' | 'Meter.AssetKey' | 'Asset.AssetKey';
+type FieldName = 'Asset.AssetKey' | 'Asset.AssetName' | 'AssetType.Name' | 'Asset.VoltageKV' | 'Meter.AssetKey' | 'Location.LocationKey' | 'Note.Note';
 interface Search {
     Field: FieldName,
     SearchText: string
-}   
-interface Location {
-    ID: number, LocationKey: string, Name: string, Assets: number, Meters: number
 }
+interface Asset {
+    ID: number, AssetKey: string, AssetName: string, AssetType: string, VoltageKV: number, Meters: number, Locations: string
+}
+declare var homePath: string;
 
-
-function ByLocation() {
+function ByAsset(): JSX.Element {
     let history = useHistory();
-    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Location.LocationKey', SearchText: '' }]);
-    const [data, setData] = React.useState<Array<Location>>([]);
-    const [sortField, setSortField] = React.useState<string>('LocationKey');
+
+    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Asset.AssetKey', SearchText: '' }]);
+    const [data, setData] = React.useState<Array<Asset>>([]);
+    const [sortField, setSortField] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
     React.useEffect(() => {
-        getLocations();
+        getMeters();
     }, []);
 
-    function getLocations(): void {
+    function getMeters(): void {
         $.ajax({
             type: "Post",
-            url: `${homePath}api/OpenXDA/Location/SearchableList`,
+            url: `${homePath}api/OpenXDA/Asset/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify(search),
             cache: false,
             async: true
-        }).done((data: Array<Location>) => setData(data));
+        }).done((data: Array<Asset>) => setData(data));
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Location&LocationID=' + item.row.ID, state: {} })
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID, state: {} })
     }
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-
             <nav className="navbar navbar-expand-lg navbar-light bg-light">
                 <div className="collapse navbar-collapse" id="navbarSupportedContent" style={{ width: '100%' }}>
                     <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
                         <li className="nav-item" style={{ width: '50%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search:</legend>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search: </legend>
                                 <form>
                                     {
                                         search.map((s, index, a) => {
@@ -82,19 +82,21 @@ function ByLocation() {
                                                 <div className="input-group" key={index} style={{ border: '1px solid lightgray' }}>
                                                     <div className="input-group-prepend">
                                                         <select className='form-control' style={{ height: '100%' }} value={s.Field} onChange={(evt) => {
-                                                            s.Field = evt.target.value as FieldName;
                                                             let array = _.clone(a, true);
+                                                            s.Field = evt.target.value as FieldName;
                                                             setSearch(array);
                                                         }}>
-                                                            <option value='Location.LocationKey'>Key</option>
-                                                            <option value='Location.Name'>Name</option>
-                                                            <option value='Note.Note'>Note</option>
+                                                            <option value='Asset.AssetKey'>AssetKey</option>
+                                                            <option value='Asset.AssetName'>Name</option>
+                                                            <option value='AssetType.Name'>AssetType</option>
+                                                            <option value='Asset.VoltageKV'>VoltageKV</option>
                                                             <option value='Meter.AssetKey'>Meter</option>
-                                                            <option value='Asset.AssetKey'>Asset</option>
-
+                                                            <option value='Location.LocationKey'>Location</option>
+                                                            <option value='Note.Note'>Note</option>
                                                         </select>
                                                     </div>
                                                     <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
+                                                        
                                                         s.SearchText = evt.target.value;
                                                         let array = _.clone(a, true);
                                                         setSearch(array);
@@ -122,32 +124,33 @@ function ByLocation() {
                                         <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                                             event.preventDefault();
                                             let array = _.clone(search, true);
-                                            array.push({ Field: 'LocationKey', SearchText: '' });
+                                            array.push({ Field: 'Asset.AssetKey', SearchText: '' });
                                             setSearch(array);
                                         }}>Add Parameter</button>
                                     </div>
                                     <div className="form-group">
                                         <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                                             event.preventDefault();
-                                            getLocations();
+                                            getMeters();
                                         }}>Update Search</button>
                                     </div>
                                 </form>
                             </fieldset>
                         </li>
+
                     </ul>
                 </div>
             </nav>
 
-
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<Location>
+            <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
+                <Table
                     cols={[
-                        { key: 'LocationKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                        { key: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                        //{ key: 'Type', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'AssetKey', label: 'AssetKey', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                        { key: 'AssetName', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                        { key: 'AssetType', label: 'Asset Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Meters', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Assets', label: 'Assets', headerStyle: { width: 'calc(10%)' }, rowStyle: { width: '10%' } },
+                        { key: 'Locations', label: 'Locations', headerStyle: { width: 'calc(10%)' }, rowStyle: { width: 'calc(10% - 17px)' } },
                     ]}
                     tableClass="table table-hover"
                     data={data}
@@ -156,26 +159,26 @@ function ByLocation() {
                     onSort={(d) => {
                         if (d.col == sortField) {
                             var ordered = _.orderBy(data, [d.col], [(!ascending ? "asc" : "desc")]);
+                            setAscending(!ascending);
                             setData(ordered);
                         }
                         else {
                             var ordered = _.orderBy(data, [d.col], ["asc"]);
+                            setAscending(!ascending);
                             setData(ordered);
                             setSortField(d.col);
                         }
-                        setAscending(!ascending);
-
                     }}
                     onClick={handleSelect}
-                    //theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    //tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%' }}
-                    //rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     selected={(item) => false}
                 />
             </div>
         </div>
     )
-   
 }
 
-export default ByLocation;
+export default ByAsset;
+

@@ -25,6 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, NewEdit } from '../global';
 import AssetAttributes from './Asset';
+import FormInput from '../CommonComponents/FormInput';
 
 function LineAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Line, UpdateState: (newEditAsset: OpenXDA.Line) => void }): JSX.Element {
     function valid(field: keyof (OpenXDA.Line) | keyof(OpenXDA.LineSegment)): boolean {
@@ -48,125 +49,27 @@ function LineAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Line, UpdateSt
         return false;
     }
 
-    if (props.Asset == null || props.Asset.Segment == null) return null;
+    function updateLineSegment(record: OpenXDA.LineSegment): void {
+        var asset: OpenXDA.Line = _.clone(props.Asset, true);
+        asset.Segment = record;
+        props.UpdateState(asset);
 
+    }
+
+    React.useEffect(() => {
+    }, [props.Asset]);
+
+    if (props.Asset == null || props.Asset.Segment == null) return null;
     return (
         <>
-            <div className="form-group">
-                <label>Max Fault Distance</label>
-                <input className={(valid('MaxFaultDistance') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.MaxFaultDistance = evt.target.value;
-                    else
-                        asset.MaxFaultDistance = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.MaxFaultDistance == null ? '' : props.Asset.MaxFaultDistance} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Max Fault Distance is a numeric field.</div>
-
-            </div>
-
-            <div className="form-group">
-                <label>MinFaultDistance</label>
-                <input className={(valid('MinFaultDistance') ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.MinFaultDistance = evt.target.value;
-                    else
-                        asset.MinFaultDistance = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.MinFaultDistance == null ? '' : props.Asset.MinFaultDistance} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Min Fault Distance is a numeric field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>Length</label>
-                <input className={(valid("Length") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.Segment.Length = evt.target.value;
-                    else
-                        asset.Segment.Length = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.Segment == null || props.Asset.Segment.Length == null   ? '' : props.Asset.Segment.Length} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Length is a required numeric field.</div>
-            </div>
-
-
-            <div className="form-group">
-                <label>R0</label>
-                <input className={(valid("R0") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.Segment.R0 = evt.target.value;
-                    else
-                        asset.Segment.R0 = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.Segment == null || props.Asset.Segment.R0 == null ? '' : props.Asset.Segment.R0}  disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>R0 is a required numeric field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>X0</label>
-                <input className={(valid("X0") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.Segment.X0 = evt.target.value;
-                    else
-                        asset.Segment.X0 = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.Segment == null || props.Asset.Segment.X0 == null ? '' : props.Asset.Segment.X0} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>X0 is a required numeric field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>R1</label>
-                <input className={(valid("R1") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.Segment.R1 = evt.target.value;
-                    else
-                        asset.Segment.R1 = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.Segment == null || props.Asset.Segment.R1 == null ? '' : props.Asset.Segment.R1} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>R1 is a required numeric field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>X1</label>
-                <input className={(valid("X1") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.Segment.X1 = evt.target.value;
-                    else
-                        asset.Segment.X1 = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.Segment == null || props.Asset.Segment.X1 == null ? '' : props.Asset.Segment.X1} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>X1 is a required numeric field.</div>
-            </div>
-
-            <div className="form-group">
-                <label>Thermal Rating</label>
-                <input className={(valid("ThermalRating") ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    var asset = _.clone(props.Asset, true);
-                    if (evt.target.value != "")
-                        asset.Segment.ThermalRating = evt.target.value;
-                    else
-                        asset.Segment.ThermalRating = null;
-
-                    props.UpdateState(asset);
-                }} value={props.Asset.Segment == null || props.Asset.Segment.ThermalRating == null  ? '' : props.Asset.Segment.ThermalRating} disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                <div className='invalid-feedback'>Thermal Rating is a required numeric field.</div>
-            </div>
-
-
+            <FormInput<OpenXDA.Line> Record={props.Asset} Field={'MaxFaultDistance'} Label={'Max Fault Distance'} Feedback={'Max Fault Distance is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Line> Record={props.Asset} Field={'MinFaultDistance'} Label={'Min Fault Distance'} Feedback={'Min Fault Distance is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.LineSegment> Record={props.Asset.Segment} Field={'Length'} Feedback={'Length is a required numeric field.'} Valid={valid} Setter={updateLineSegment} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.LineSegment> Record={props.Asset.Segment} Field={'R0'} Feedback={'R0 is a required numeric field.'} Valid={valid} Setter={updateLineSegment} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.LineSegment> Record={props.Asset.Segment} Field={'X0'} Feedback={'X0 is a required numeric field.'} Valid={valid} Setter={updateLineSegment} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.LineSegment> Record={props.Asset.Segment} Field={'R1'} Feedback={'R1 is a required numeric field.'} Valid={valid} Setter={updateLineSegment} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.LineSegment> Record={props.Asset.Segment} Field={'X1'} Feedback={'X1 is a required numeric field.'} Valid={valid} Setter={updateLineSegment} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.LineSegment> Record={props.Asset.Segment} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'Thermal Rating is a required numeric field.'} Valid={valid} Setter={updateLineSegment} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
         </>
     );
 }

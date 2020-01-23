@@ -94,7 +94,8 @@ namespace SystemCenter.Controllers.OpenXDA
                     FROM 
                         Meter LEFT JOIN
                         Location ON Meter.LocationID = Location.ID LEFT JOIN
-                        MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN
+                        MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN 
+                        Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
 	                    Note ON Note.NoteTypeID = (SELECT ID FROM NoteType WHERE Name = 'Meter') AND Note.ReferenceTableID = Meter.ID
                    " + whereClause + @"
                     GROUP BY
@@ -175,7 +176,6 @@ namespace SystemCenter.Controllers.OpenXDA
                             sqlString += $"INSERT INTO Breaker (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,ThermalRating, Speed, TripTime, PickupTime, TripCoilCondition, Spare) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Breaker'),{asset["ThermalRating"].ToString()},{asset["Speed"].ToString()},{asset["TripTime"].ToString()},{asset["PickupTime"].ToString()},{asset["TripCoilCondition"].ToString()}, {(asset["Spare"].ToString() == "true" ? "1" : "0")} ) \n";
                             if (asset["EDNAPoint"] != null)
                                 sqlString += $"INSERT INTO EDNAPoint (BreakerID, Point) VALUES ((SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'),'{asset["EDNAPoint"].ToString()}') \n";
-
                         }
                         else if (assetType == "Bus")
                             sqlString += $"INSERT INTO Bus (VoltageKV, AssetKey, Description, AssetName, AssetTypeID) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Bus')) \n";

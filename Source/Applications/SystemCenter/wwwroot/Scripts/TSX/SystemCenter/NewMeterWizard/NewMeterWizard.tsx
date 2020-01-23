@@ -300,13 +300,13 @@ export default class NewMeterWizard extends React.Component<{}, WizardState, {}>
 
     getPage() {
         if (this.state.currentStep == 1)
-            return <Page1 MeterInfo={this.state.MeterInfo} UpdateState={this.updateState} />
+            return <Page1 MeterInfo={this.state.MeterInfo} UpdateState={(meter) => this.updateState({MeterInfo: meter})} />
         else if (this.state.currentStep == 2)
             return <Page2 LocationInfo={this.state.LocationInfo} UpdateState={this.updateState} />
         else if (this.state.currentStep == 3)
             return <Page3 MeterKey={this.state.MeterInfo.AssetKey} Channels={this.state.Channels} UpdateState={this.updateState} />
         else if (this.state.currentStep == 4)
-            return <Page4 Channels={this.state.Channels} Assets={this.state.Assets} UpdateState={this.updateState} />
+            return <Page4 AssetConnections={this.state.AssetConnections} Channels={this.state.Channels} Assets={this.state.Assets} UpdateState={this.updateState} />
         else if (this.state.currentStep == 5)
             return <Page5 Assets={this.state.Assets} AssetConnections={this.state.AssetConnections} UpdateState={this.updateState} />
 

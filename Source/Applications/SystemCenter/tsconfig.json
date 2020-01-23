@@ -12,7 +12,7 @@
     "target": "es5",
     "typeRoots": [ "node_modules/@types" ]
   },
-  "include": [ "wwwroot/Scripts/TSX", "wwwroot/Scripts/TS/*" ],
+  "include": [ "wwwroot/Scripts/TSX", "wwwroot/Scripts/TS/*", "wwwroot/Scripts/TS/Services/AssetServices.ts" ],
   "exclude": [
     "node_modules"
   ]

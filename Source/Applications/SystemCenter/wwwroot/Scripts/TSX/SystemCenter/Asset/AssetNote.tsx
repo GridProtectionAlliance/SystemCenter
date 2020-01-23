@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  MeterNote.tsx - Gbtc
+//  AssetNote.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,7 +16,7 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  01/14/2020 - Billy Ernest
+//  01/22/2020 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
@@ -26,7 +26,7 @@ import * as moment from 'moment';
 import { OpenXDA } from '../global';
 declare var homePath: string;
 
-function MeterNoteWindow(props: { MeterID: number }): JSX.Element {
+function AssetNoteWindow(props: { AssetID: number }): JSX.Element {
     const [noteTypeID, setNoteTypeID] = React.useState<number>(0);
     const [tableRows, setTableRows] = React.useState<Array<JSX.Element>>([]);
     const [note, setNote] = React.useState<string>('');
@@ -35,7 +35,7 @@ function MeterNoteWindow(props: { MeterID: number }): JSX.Element {
     React.useEffect(() => {
         getNoteTypeID();
         getNotes();
-    }, [props.MeterID]);
+    }, [props.AssetID]);
 
     function handleEdit(d: OpenXDA.Note) {
         setNote(d.Note);
@@ -45,7 +45,7 @@ function MeterNoteWindow(props: { MeterID: number }): JSX.Element {
     function getNotes(): void {
        $.ajax({
             type: "GET",
-           url: `${homePath}api/OpenXDA/Note/ForObject/Meter/${props.MeterID}`,
+           url: `${homePath}api/OpenXDA/Note/ForObject/Asset/${props.AssetID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -70,7 +70,7 @@ function MeterNoteWindow(props: { MeterID: number }): JSX.Element {
             cache: true,
             async: true
         }).done((data: Array<OpenXDA.NoteType>) => {
-            var record = data.find(d => d.ReferenceTableName == 'Meter')
+            var record = data.find(d => d.ReferenceTableName == 'Asset')
             setNoteTypeID(record.ID);
         });;
     }
@@ -94,7 +94,7 @@ function MeterNoteWindow(props: { MeterID: number }): JSX.Element {
             type: "POST",
             url: `${homePath}api/OpenXDA/Note/Add`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({ ID: 0, NoteTypeID: noteTypeID,ReferenceTableID: props.MeterID, Note: note, Timestamp: moment().format('MM/DD/YYYY HH:mm'), UserAccount: '' } as OpenXDA.Note),
+            data: JSON.stringify({ ID: 0, NoteTypeID: noteTypeID, ReferenceTableID: props.AssetID, Note: note, Timestamp: moment().format('MM/DD/YYYY HH:mm'), UserAccount: '' } as OpenXDA.Note),
             dataType: 'json',
             cache: true,
             async: true
@@ -139,4 +139,4 @@ function MeterNoteWindow(props: { MeterID: number }): JSX.Element {
     );
 }
 
-export default MeterNoteWindow;
+export default AssetNoteWindow;

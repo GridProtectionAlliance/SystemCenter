@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '../../Table';
+import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
 import AssetPreviewPane from './AssetPreviewPane';
 import { Asset } from '../global';
@@ -142,39 +142,41 @@ export default class Assets extends React.Component<AssetsProps, AssetsState , {
                 </nav>
 
                 <div style={{ width: '50%', height: 'calc( 100% - 136px)', position: 'relative', float:'left', overflowY: 'hidden' }}>
-                    <Table<Asset>
-                        cols={[
-                            { key: 'AssetKey', label: 'Asset Key', headerStyle: { width: '50%' }, rowStyle: { width: '50%' } },
-                            //{
-                            //    key: 'Edit', label: '', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => <button className="btn btn-sm" data-toggle="modal" data-target="#assetTypeModal" onClick={(e) => {
-                            //        e.preventDefault();
-                            //        this.setState({ newEditID: item.ID, newEditName: item.Name, addNew: false })
-                            //    }}><span><i className="fa fa-pencil"></i></span></button>
-                            //},
-                            {
-                                key: 'Delete', label: '', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => <button className="btn btn-sm" onClick={(e) => {
-                                    e.preventDefault();
-                                    this.deleteAsset(item.ID);
-                                }}><span><i className="fa fa-times"></i></span></button>
-                            },
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortField={"Name"}
-                        ascending={this.state.ascending}
-                        onSort={(d) => {
-                            var ordered = _.orderBy(this.state.data, [d.col], ["asc"]);
-                            this.setState({ ascending: !this.state.ascending, data: ordered });
-                        }}
-                        onClick={(col, row, data) => {
-                            if(col.col == "AssetKey")
-                                this.setState({ assetID: col.row.ID, assetName: col.row.AssetKey })
-                        }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%'  }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => item.ID == this.state.assetID}
-                    />
+                    <>{
+                        //Table<Asset>
+                        //cols={[
+                        //    { key: 'AssetKey', label: 'Asset Key', headerStyle: { width: '50%' }, rowStyle: { width: '50%' } },
+                        //    //{
+                        //    //    key: 'Edit', label: '', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => <button className="btn btn-sm" data-toggle="modal" data-target="#assetTypeModal" onClick={(e) => {
+                        //    //        e.preventDefault();
+                        //    //        this.setState({ newEditID: item.ID, newEditName: item.Name, addNew: false })
+                        //    //    }}><span><i className="fa fa-pencil"></i></span></button>
+                        //    //},
+                        //    {
+                        //        key: 'Delete', label: '', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => <button className="btn btn-sm" onClick={(e) => {
+                        //            e.preventDefault();
+                        //            this.deleteAsset(item.ID);
+                        //        }}><span><i className="fa fa-times"></i></span></button>
+                        //    },
+                        //]}
+                        //tableClass="table table-hover"
+                        //data={data}
+                        //sortField={"Name"}
+                        //ascending={this.state.ascending}
+                        //onSort={(d) => {
+                        //    var ordered = _.orderBy(this.state.data, [d.col], ["asc"]);
+                        //    this.setState({ ascending: !this.state.ascending, data: ordered });
+                        //}}
+                        //onClick={(col, row, data) => {
+                        //    if(col.col == "AssetKey")
+                        //        this.setState({ assetID: col.row.ID, assetName: col.row.AssetKey })
+                        //}}
+                        //theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        //tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%'  }}
+                        //rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        //selected={(item) => item.ID == this.state.assetID}
+                    }
+                    </>
                 </div>
                 <div style={{ width: '50%', height: 'calc( 100% - 136px)', position: 'relative', float: 'right', overflowY: 'auto' }}>
                     <AssetPreviewPane assetID={this.state.assetID} assetTypeID={this.props.assetTypeID} assetTypeName={this.props.assetTypeName} assetName={this.state.assetName}/>

@@ -24,15 +24,20 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, ValueListItem } from '../global';
+import FormInput from '../CommonComponents/FormInput';
+import FormTextArea from '../CommonComponents/FormTextArea';
+
 declare var homePath: string;
 
-export default class Page1 extends React.Component<{ MeterInfo: OpenXDA.Meter, UpdateState: (record) => void }, { TimeZones: Array<ValueListItem>, MeterKeys: Array<string> }, {}>{
+export default class Page1 extends React.Component<{ MeterInfo: OpenXDA.Meter, UpdateState: (record: OpenXDA.Meter) => void }, { TimeZones: Array<ValueListItem>, MeterKeys: Array<string> }, {}>{
     constructor(props, context) {
         super(props, context);
         this.state = {
             TimeZones: [],
             MeterKeys: []
         }
+
+        this.valid = this.valid.bind(this);
     }
 
     componentDidMount() {
@@ -78,96 +83,38 @@ export default class Page1 extends React.Component<{ MeterInfo: OpenXDA.Meter, U
             });
     }
 
+
+    valid(field: keyof (OpenXDA.Meter)): boolean {
+        if (field == 'AssetKey')
+            return this.props.MeterInfo.AssetKey != null && this.state.MeterKeys.indexOf(this.props.MeterInfo.AssetKey.toLowerCase()) < 0 &&this.props.MeterInfo.AssetKey.length > 0 && this.props.MeterInfo.AssetKey.length <= 50;
+        else if (field == 'Name')
+            return this.props.MeterInfo.Name != null && this.props.MeterInfo.Name.length > 0 && this.props.MeterInfo.Name.length <= 200;
+        else if (field == 'Alias')
+            return this.props.MeterInfo.Alias == null || this.props.MeterInfo.Alias.length <= 200;
+        else if (field == 'ShortName')
+            return this.props.MeterInfo.ShortName == null || this.props.MeterInfo.ShortName.length <= 50;
+        else if (field == 'Make')
+            return this.props.MeterInfo.Name != null && this.props.MeterInfo.Make.length > 0 && this.props.MeterInfo.Make.length <= 200;
+        else if (field == 'Model')
+            return this.props.MeterInfo.Name != null && this.props.MeterInfo.Model.length > 0 && this.props.MeterInfo.Model.length <= 200;
+        else if (field == 'Description')
+            return true;
+        return false;
+    }
+
     render() {
         return (
             <div className="row">
                 <div className="col">
-                    <div className="form-group">
-                        <label>Key</label>
-                        <input className={(this.props.MeterInfo.AssetKey != null && this.props.MeterInfo.AssetKey.length > 0 && this.state.MeterKeys.indexOf(this.props.MeterInfo.AssetKey.toLowerCase()) < 0 ? "form-control" : "form-control is-invalid" )} onChange={(evt) => {
-                            var meter: OpenXDA.Meter = _.clone(this.props.MeterInfo, true);
-                            if (evt.target.value != "")
-                                meter.AssetKey = evt.target.value;
-                            else
-                                meter.AssetKey = null;
-
-                            this.props.UpdateState({ MeterInfo: meter });
-                        }} value={this.props.MeterInfo == null || this.props.MeterInfo.AssetKey == null ? '' : this.props.MeterInfo.AssetKey} required={true} />
-                        <div className='invalid-feedback'>{(this.state.MeterKeys.indexOf(this.props.MeterInfo.AssetKey) < 0 ? 'A unique key is required.': 'The key provided is not unique.')}</div>
-                    </div>
-                    <div className="form-group">
-
-                        <label>Name</label>
-                        <input className={(this.props.MeterInfo.Name != null && this.props.MeterInfo.Name.length > 0 ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                            var meter: OpenXDA.Meter = _.clone(this.props.MeterInfo, true);
-                            if (evt.target.value != "")
-                                meter.Name = evt.target.value;
-                            else
-                                meter.Name = null;
-
-                            this.props.UpdateState({ MeterInfo: meter });
-                        }} value={this.props.MeterInfo == null || this.props.MeterInfo.Name == null ? '' : this.props.MeterInfo.Name} />
-                        <div className='invalid-feedback'>Name is a required field.</div>
-                    </div>
-                    <div className="form-group">
-
-                        <label>Short Name</label>
-                        <input className="form-control" onChange={(evt) => {
-                            var meter: OpenXDA.Meter = _.clone(this.props.MeterInfo, true);
-                            if (evt.target.value != "")
-                                meter.ShortName = evt.target.value;
-                            else
-                                meter.ShortName = null;
-
-                            this.props.UpdateState({ MeterInfo: meter });
-                        }} value={this.props.MeterInfo == null || this.props.MeterInfo.ShortName == null ? '' : this.props.MeterInfo.ShortName} />
-                    </div>
-                    <div className="form-group">
-
-                        <label>Alias</label>
-                        <input className="form-control" onChange={(evt) => {
-                            var meter: OpenXDA.Meter = _.clone(this.props.MeterInfo, true);
-                            if (evt.target.value != "")
-                                meter.Alias = evt.target.value;
-                            else
-                                meter.Alias = null;
-
-                            this.props.UpdateState({ MeterInfo: meter });
-                        }} value={this.props.MeterInfo == null || this.props.MeterInfo.Alias == null ? '' : this.props.MeterInfo.Alias} />
-                    </div>
+                    <FormInput<OpenXDA.Meter> Record={this.props.MeterInfo} Field={'AssetKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={this.valid} Setter={this.props.UpdateState} />
+                    <FormInput<OpenXDA.Meter> Record={this.props.MeterInfo} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={this.valid} Setter={this.props.UpdateState} />
+                    <FormInput<OpenXDA.Meter> Record={this.props.MeterInfo} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={this.valid} Setter={this.props.UpdateState} />
+                    <FormInput<OpenXDA.Meter> Record={this.props.MeterInfo} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={this.valid} Setter={this.props.UpdateState} />
                 </div>
                 <div className="col">
+                    <FormInput<OpenXDA.Meter> Record={this.props.MeterInfo} Field={'Make'} Feedback={'Make must be less than 200 characters.'} Valid={this.valid} Setter={this.props.UpdateState} />
+                    <FormInput<OpenXDA.Meter> Record={this.props.MeterInfo} Field={'Model'} Feedback={'Model must be less than 200 characters.'} Valid={this.valid} Setter={this.props.UpdateState} />
                     <div className="form-group">
-
-                        <label>Make</label>
-                        <input className={(this.props.MeterInfo.Make != null && this.props.MeterInfo.Make.length > 0 ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                            var meter: OpenXDA.Meter = _.clone(this.props.MeterInfo, true);
-                            if (evt.target.value != "")
-                                meter.Make = evt.target.value;
-                            else
-                                meter.Make = null;
-
-                            this.props.UpdateState({ MeterInfo: meter });
-                        }} value={this.props.MeterInfo == null || this.props.MeterInfo.Make == null ? '' : this.props.MeterInfo.Make} />
-                        <div className='invalid-feedback'>Make is a required field.</div>
-                    </div>
-                    <div className="form-group">
-
-
-                        <label>Model</label>
-                        <input className={(this.props.MeterInfo.Model != null && this.props.MeterInfo.Model.length > 0 ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                            var meter: OpenXDA.Meter = _.clone(this.props.MeterInfo, true);
-                            if (evt.target.value != "")
-                                meter.Model = evt.target.value;
-                            else
-                                meter.Model = null;
-
-                            this.props.UpdateState({ MeterInfo: meter });
-                        }} value={this.props.MeterInfo == null || this.props.MeterInfo.Model == null ? '' : this.props.MeterInfo.Model} />
-                        <div className='invalid-feedback'>Model is a required field.</div>
-                    </div>
-                    <div className="form-group">
-
                         <label>Time Zone</label>
                         <select className="form-control" value={this.props.MeterInfo == null || this.props.MeterInfo.TimeZone == null ? '-1' : this.props.MeterInfo.TimeZone} onChange={(evt) => {
                             var meter: OpenXDA.Meter = _.clone(this.props.MeterInfo, true);
@@ -175,7 +122,7 @@ export default class Page1 extends React.Component<{ MeterInfo: OpenXDA.Meter, U
                                 meter.TimeZone = evt.target.value;
                             else
                                 meter.TimeZone = null;
-                            this.props.UpdateState({ MeterInfo: meter });
+                            this.props.UpdateState(meter);
                         }}>
                             <option value="-1">None Selected</option>
                             {
@@ -183,21 +130,7 @@ export default class Page1 extends React.Component<{ MeterInfo: OpenXDA.Meter, U
                             }
                         </select>
                     </div>
-                    <div className="form-group">
-
-                        <label>Description</label>
-                        <textarea rows={2} className="form-control" onChange={(evt) => {
-                            var meter: OpenXDA.Meter = _.clone(this.props.MeterInfo, true);
-                            if (evt.target.value != "")
-                                meter.Description = evt.target.value;
-                            else
-                                meter.Description = null;
-
-                            this.props.UpdateState({ MeterInfo: meter });
-                        }} value={this.props.MeterInfo == null || this.props.MeterInfo.Description == null ? '' : this.props.MeterInfo.Description} />
-
-
-                    </div>
+                    <FormTextArea<OpenXDA.Meter> Rows={3} Record={this.props.MeterInfo} Field={'Description'} Valid={this.valid} Setter={this.props.UpdateState} />
                 </div>
             </div>
         );
