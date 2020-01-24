@@ -26,6 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import AssetNoteWindow from './AssetNote';
 import AssetInfoWindow from './AssetInfo';
+import AssetLocationWindow from './AssetLocation';
 declare var homePath: string;
 declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters'
 export default class Asset extends React.Component<{ AssetID: number }, { Asset: OpenXDA.Asset, Tab: Tab }, {}>{
@@ -88,7 +89,7 @@ export default class Asset extends React.Component<{ AssetID: number }, { Asset:
             <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
                 <div className="row">
                     <div className="col">
-                        <h2>{this.state.Asset != null ? this.state.Asset.AssetName : ''}</h2>
+                        <h2>{this.state.Asset != null ? this.state.Asset.AssetKey : ''}</h2>
                     </div>
                     <div className="col">
                         <button className="btn btn-danger pull-right" hidden={this.state.Asset == null} onClick={() => this.deleteAsset().done(() => window.location.href = homePath + 'index.cshtml?name=Assets')}>Delete Asset (Permanent)</button>
@@ -120,6 +121,7 @@ export default class Asset extends React.Component<{ AssetID: number }, { Asset:
                         <AssetInfoWindow Asset={this.state.Asset} StateSetter={(asset) => this.setState({Asset:asset})} />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "substations" ? " active" : "fade")} id="substations">
+                        <AssetLocationWindow Asset={this.state.Asset} />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "meters" ? " active" : "fade")} id="meters">
                     </div>

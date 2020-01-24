@@ -52,6 +52,44 @@ namespace SystemCenter.Controllers.OpenXDA
 
         protected override string Connection { get; } = "dbOpenXDA";
 
+
+        [HttpGet, Route("{assetID:int}/Locations")]
+        public IHttpActionResult GetAssetLocations(int assetID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                try
+                {
+                    IEnumerable<Location> records = new TableOperations<Location>(connection).QueryRecordsWhere("ID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", assetID);
+
+                    return Ok(records);
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
+
+        [HttpGet, Route("{assetID:int}/OtherLocations")]
+        public IHttpActionResult GetOtherLocations(int assetID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                try
+                {
+                    IEnumerable<Location> records = new TableOperations<Location>(connection).QueryRecordsWhere("ID NOT IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", assetID);
+
+                    return Ok(records);
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
+
+
         public class MeterSearch
         {
             public string Field { get; set; }
@@ -74,8 +112,8 @@ namespace SystemCenter.Controllers.OpenXDA
 	                    Asset.AssetName,
 	                    Asset.VoltageKV,
 	                    AssetType.Name as AssetType,
-	                    COUNT(Meter.ID) as Meters,
-	                    COUNT(Location.ID) as Locations
+	                    COUNT(DISTINCT Meter.ID) as Meters,
+	                    COUNT(DISTINCT Location.ID) as Locations
                     FROM
 	                    Asset Join
 	                    AssetType ON Asset.AssetTypeID = AssetType.ID LEFT JOIN
@@ -217,7 +255,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     }
 
                     scope.Complete();
-                    return Ok();
+                    return Ok("Completed without errors.");
 
                 }
             }
@@ -342,7 +380,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     }
 
                     scope.Complete();
-                    return Ok();
+                    return Ok("Completed without errors");
 
                 }
             }
@@ -371,7 +409,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         new TableOperations<AssetLocation>(connection).AddNewRecord(assetLocation);
                     }
                     scope.Complete();
-                    return Ok();
+                    return Ok("Completed without errors");
                 }
             }
             catch (Exception ex)
@@ -386,17 +424,13 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             try
             {
-                using (TransactionScope scope = new TransactionScope())
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
                 {
-                    using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
-                    {
-                        JToken asset = record["Asset"];
-                        int assetID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", asset["AssetKey"].ToString());
-                        AssetLocation assetLocation = new AssetLocation() { LocationID = locationID, AssetID = assetID };
-                        new TableOperations<AssetLocation>(connection).AddNewRecord(assetLocation);
-                    }
-                    scope.Complete();
-                    return Ok();
+                    JToken asset = record["Asset"];
+                    int assetID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", asset["AssetKey"].ToString());
+                    AssetLocation assetLocation = new AssetLocation() { LocationID = locationID, AssetID = assetID };
+                    new TableOperations<AssetLocation>(connection).AddNewRecord(assetLocation);
+                    return Ok(assetLocation);
                 }
             }
             catch (Exception ex)
@@ -404,6 +438,26 @@ namespace SystemCenter.Controllers.OpenXDA
                 return InternalServerError(ex);
             }
         }
+
+        [HttpPost, Route("{assetID:int}/Location/{locationID:int}")]
+        public IHttpActionResult PostExistingLocationForAsset(int assetID, int locationID)
+        {
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                {
+                    AssetLocation assetLocation = new AssetLocation() { LocationID = locationID, AssetID = assetID };
+                    new TableOperations<AssetLocation>(connection).AddNewRecord(assetLocation);
+                    return Ok(assetLocation);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+
 
 
         [HttpPost, Route("Edit")]
@@ -465,7 +519,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         }
 
                         AssetSpare assetSpare = new TableOperations<AssetSpare>(connection).QueryRecordWhere("AssetID = {0}", breaker.ID);
-                        if (assetSpare == null && asset["SpareBreakerID"] != null)
+                        if (assetSpare == null && asset["SpareBreakerID"] != null && asset["SpareBreakerID"].ToObject<int?>() != null)
                         {
                             assetSpare = new AssetSpare()
                             {
@@ -513,7 +567,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     }
                 }
 
-                return Ok();
+                return Ok("The asset was saved.");
 
             }
             catch (Exception ex)
@@ -531,7 +585,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     new TableOperations<AssetLocation>(connection).DeleteRecordWhere("LocationID = {0} AND AssetID = {1}", locationID, assetID);
 
-                    return Ok();
+                    return Ok("Deleted");
                 }
                 catch (Exception ex)
                 {

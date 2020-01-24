@@ -91,7 +91,7 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
             <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
                 <div className="row">
                     <div className="col">
-                        <h2>{this.state.Meter != null ? this.state.Meter.Name : ''}</h2>
+                        <h2>{this.state.Meter != null ? this.state.Meter.AssetKey : ''}</h2>
                     </div>
                     <div className="col">
                         <button className="btn btn-danger pull-right" hidden={this.state.Meter == null} onClick={() => this.deleteMeter().done(() => window.location.href = homePath + 'index.cshtml?name=Meters')}>Delete Meter (Permanent)</button>

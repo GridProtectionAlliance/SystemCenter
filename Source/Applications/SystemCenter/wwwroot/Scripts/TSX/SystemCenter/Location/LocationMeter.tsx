@@ -91,9 +91,6 @@ function LocationMeterWindow(props: { Location: OpenXDA.Location }): JSX.Element
                             }
                         }}
                         onClick={handleSelect}
-                        //theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        //tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%' }}
-                        //rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         selected={() => false}
                     />
 

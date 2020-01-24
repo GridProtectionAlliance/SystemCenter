@@ -31,7 +31,7 @@ import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import AssetAttributes from '../AssetAttribute/Asset';
-import { getAssetTypes, getAllAssets, getAsset2, editExistingAsset } from '../../../TS/Services/Asset';
+import { getAssetTypes, getAllAssets, getAssetWithAdditionalFields, editExistingAsset } from '../../../TS/Services/Asset';
 
 declare var homePath: string;
 
@@ -193,7 +193,7 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
                                                         <td style={{ width: '10%' }}>
                                                             <button className="btn btn-sm" data-toggle='modal' data-target='#assetModal' onClick={(e) => {
                                                                 let assetType = this.state.AssetTypes.find(at => at.ID == asset['AssetTypeID'])
-                                                                getAsset2(asset.ID, assetType.Name).then(record => this.setState({ NewEditAsset: record, NewEdit: 'Edit' }));
+                                                                getAssetWithAdditionalFields(asset.ID, assetType.Name).then(record => this.setState({ NewEditAsset: record, NewEdit: 'Edit' }));
                                                             }}><span><i className="fa fa-pencil"></i></span></button>
                                                             <button className="btn btn-sm" onClick={(e) => this.deleteAsset(asset)}><span><i className="fa fa-times"></i></span></button>
                                                         </td>
@@ -222,7 +222,7 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
                                             <AssetAttributes Asset={this.state.NewEditAsset} NewEdit={this.state.NewEdit} AssetTypes={this.state.AssetTypes} AllAssets={this.state.AllAssets} UpdateState={(asset) => this.setState({ NewEditAsset: asset })} GetDifferentAsset={(assetID) => {
                                                 let asset = this.state.AllAssets.find(a => a.ID == assetID);
                                                 let assetType = this.state.AssetTypes.find(at => at.ID == asset['AssetTypeID'])
-                                                getAsset2(assetID, assetType.Name).then(asset => this.setState({ NewEditAsset: asset }));
+                                                getAssetWithAdditionalFields(assetID, assetType.Name).then(asset => this.setState({ NewEditAsset: asset }));
                                             }} />
                                         </div>
                                         <div className="col">

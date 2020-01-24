@@ -99,7 +99,7 @@ namespace SystemCenter
     /// Represents an engine that processes power quality data
     /// to determine the locations of faults along power lines.
     /// </summary>
-    public class SystemCenterEngine : IDisposable
+    public class SystemCenterEngine
     {
         #region [ Members ]
 
@@ -107,30 +107,11 @@ namespace SystemCenter
         // Fields
         private string m_dbConnectionString;
         private SystemSettings m_systemSettings;
-
-        //private LogicalThreadScheduler m_meterDataScheduler;
-        //private Dictionary<string, LogicalThread> m_meterDataThreadLookup;
-        //private LogicalThread m_noMeterThread;
-        //private int m_meterTaskCount;
-
-        private bool m_stopped;
-        private bool m_disposed;
-
         #endregion
 
-        #region [ Constructors ]
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="SystemCenterEngine"/> class.
-        /// </summary>
-        public SystemCenterEngine()
-        {
-            m_stopped = true;
-        }
-
-        #endregion
 
         #region [ Properties ]
+        private bool Stopped { get; set; } = true;
 
         /// <summary>
         /// Gets the current status of the XDA engine.
@@ -142,11 +123,9 @@ namespace SystemCenter
                 SystemSettings systemSettings = m_systemSettings;
                 StringBuilder statusBuilder = new StringBuilder();
 
-                statusBuilder.AppendLine("Meter Data Status:");
+                statusBuilder.AppendLine("System Center Status:");
                 statusBuilder.AppendLine(new string('=', 50));
-                statusBuilder.AppendLine($"          SystemCenter Time Zone: {systemSettings.SystemCenterTimeZone}");
                 statusBuilder.AppendLine($"       Database Timeout: {systemSettings.DbTimeout} seconds");
-                statusBuilder.AppendLine($"   Max thread pool size: {systemSettings.ProcessingThreadCount}");
                 statusBuilder.AppendLine();
 
 
@@ -169,8 +148,7 @@ namespace SystemCenter
             // Reload configuration at startup
             ReloadConfiguration();
 
-
-            m_stopped = false;
+            Stopped = false;
 
         }
 
@@ -259,28 +237,10 @@ namespace SystemCenter
             }
             finally
             {
-                m_stopped = true;
+                Stopped = true;
             }
         }
 
-        /// <summary>
-        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-        /// </summary>
-        /// <filterpriority>2</filterpriority>
-        public void Dispose()
-        {
-            if (m_disposed)
-                return;
-
-            try
-            {
-                Stop();
-            }
-            finally
-            {
-                m_disposed = true;
-            }
-        }
 
         // Loads system settings from the database.
         private string LoadSystemSettings()

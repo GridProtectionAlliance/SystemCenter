@@ -86,7 +86,7 @@ function ByAsset(): JSX.Element {
                                                             s.Field = evt.target.value as FieldName;
                                                             setSearch(array);
                                                         }}>
-                                                            <option value='Asset.AssetKey'>AssetKey</option>
+                                                            <option value='Asset.AssetKey'>Key</option>
                                                             <option value='Asset.AssetName'>Name</option>
                                                             <option value='AssetType.Name'>AssetType</option>
                                                             <option value='Asset.VoltageKV'>VoltageKV</option>
@@ -116,7 +116,7 @@ function ByAsset(): JSX.Element {
                                 </form>
                             </fieldset>
                         </li>
-                        <li className="nav-item" style={{ width: '15%' }}>
+                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Search Params:</legend>
                                 <form>
@@ -137,7 +137,14 @@ function ByAsset(): JSX.Element {
                                 </form>
                             </fieldset>
                         </li>
-
+                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                                <form>
+                                    <button className="btn btn-primary" onClick={() => { }}>Add Asset</button>
+                                </form>
+                            </fieldset>
+                        </li>
                     </ul>
                 </div>
             </nav>
@@ -145,12 +152,13 @@ function ByAsset(): JSX.Element {
             <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
                 <Table
                     cols={[
-                        { key: 'AssetKey', label: 'AssetKey', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                        { key: 'AssetName', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                        { key: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'AssetType', label: 'Asset Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Meters', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Locations', label: 'Locations', headerStyle: { width: 'calc(10%)' }, rowStyle: { width: 'calc(10% - 17px)' } },
+                        { key: 'Locations', label: 'Substations', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"
                     data={data}
@@ -171,7 +179,7 @@ function ByAsset(): JSX.Element {
                     }}
                     onClick={handleSelect}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     selected={(item) => false}
                 />

@@ -93,7 +93,6 @@ function ByMeter(): JSX.Element {
                                                             <option value='Meter.Location'>Location</option>
                                                             <option value='Meter.Make'>Make</option>
                                                             <option value='Meter.Model'>Model</option>
-                                                            <option value='Meter.Model'>Model</option>
                                                             <option value='Asset.AssetKey'>Asset</option>
                                                             <option value='Note.Note'>Note</option>
                                                         </select>
@@ -118,7 +117,7 @@ function ByMeter(): JSX.Element {
                                 </form>
                             </fieldset>
                         </li>
-                        <li className="nav-item" style={{ width: '15%' }}>
+                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Search Params:</legend>
                                 <form>
@@ -139,7 +138,7 @@ function ByMeter(): JSX.Element {
                                 </form>
                             </fieldset>
                         </li>
-                        <li className="nav-item" style={{ width: '15%' }}>
+                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
                                 <form>
@@ -156,12 +155,14 @@ function ByMeter(): JSX.Element {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table
                     cols={[
-                        { key: 'AssetKey', label: 'AssetKey', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                        { key: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                        { key: 'Location', label: 'Location', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'AssetKey', label: 'AssetKey', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Location', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'MappedAssets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Model', label: 'Model', headerStyle: { width: 'calc(10%)' }, rowStyle: { width: 'calc(10% - 17px)' } },
+                        { key: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+
                     ]}
                     tableClass="table table-hover"
                     data={data}
@@ -182,7 +183,7 @@ function ByMeter(): JSX.Element {
                     }}
                     onClick={handleSelect}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%'  }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%'  }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     selected={(item) => false}
                 />

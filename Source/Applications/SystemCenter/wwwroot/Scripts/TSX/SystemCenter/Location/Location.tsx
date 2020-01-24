@@ -91,7 +91,7 @@ export default class Location extends React.Component<{ LocationID: number }, { 
             <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
                 <div className="row">
                     <div className="col">
-                        <h2>{this.state.Location != null ? this.state.Location.Name : ''}</h2>
+                        <h2>{this.state.Location != null ? this.state.Location.LocationKey : ''}</h2>
                     </div>
                     <div className="col">
                         <button className="btn btn-danger pull-right" hidden={this.state.Location == null} onClick={() => this.deleteLocation().done(() => window.location.href = homePath + 'index.cshtml?name=Locations')}>Delete Location (Permanent)</button>

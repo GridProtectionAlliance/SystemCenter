@@ -39,22 +39,9 @@ namespace SystemCenter.Configuration
     public class SystemSettings
     {
         #region [ Members ]
-
-        private string m_scTimeZone;
-        private int m_processingThreadCount;
-        private TimeZoneInfo m_defaultMeterTimeZoneInfo;
-        private TimeZoneInfo m_scTimeZoneInfo;
-
         #endregion
 
         #region [ Constructors ]
-
-        /// <summary>
-        /// Creates a new instance of the <see cref="SystemSettings"/> class.
-        /// </summary>
-        public SystemSettings()
-        {
-        }
 
         /// <summary>
         /// Creates a new instance of the <see cref="SystemSettings"/> class.
@@ -84,70 +71,6 @@ namespace SystemCenter.Configuration
         [Setting]
         [DefaultValue(120)]
         public int DbTimeout { get; set; }
-
-        /// <summary>
-        /// Gets or sets the time zone identifier for the
-        /// time zone used by openXDA to store data.
-        /// </summary>
-        /// <remarks>
-        /// The default value for this setting (empty string)
-        /// causes the setting to assume the value of the local
-        /// time zone of the system openXDA is running on.
-        /// </remarks>
-        [Setting]
-        [DefaultValue("UTC")]
-        public string SystemCenterTimeZone
-        {
-            get
-            {
-                return m_scTimeZone;
-            }
-            set
-            {
-                if (string.IsNullOrEmpty(value))
-                    m_scTimeZone = TimeZoneInfo.Local.Id;
-                else
-                    m_scTimeZone = value;
-            }
-        }
-
-        /// <summary>
-        /// Gets or sets the number of threads used
-        /// for processing meter data concurrently.
-        /// </summary>
-        /// <remarks>
-        /// Values less than or equal to zero will be set to the number of logical processors.
-        /// </remarks>
-        [Setting]
-        [DefaultValue(0)]
-        public int ProcessingThreadCount
-        {
-            get
-            {
-                return m_processingThreadCount;
-            }
-            set
-            {
-                m_processingThreadCount = value;
-
-                if (m_processingThreadCount <= 0)
-                    m_processingThreadCount = Environment.ProcessorCount;
-            }
-        }
-        /// <summary>
-        /// Gets the <see cref="TimeZoneInfo"/> for the
-        /// time zone used by openXDA to store data.
-        /// </summary>
-        public TimeZoneInfo XDATimeZoneInfo
-        {
-            get
-            {
-                if ((object)m_scTimeZoneInfo == null)
-                    m_scTimeZoneInfo = TimeZoneInfo.FindSystemTimeZoneById(m_scTimeZone);
-
-                return m_scTimeZoneInfo;
-            }
-        }
 
         #endregion
 

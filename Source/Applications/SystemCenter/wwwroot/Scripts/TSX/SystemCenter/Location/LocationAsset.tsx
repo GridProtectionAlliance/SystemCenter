@@ -32,7 +32,7 @@ import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
-import { getAllAssets, getAssetTypes } from '../../../TS/Services/Asset';
+import { getAllAssets, getAssetTypes, getAssetWithAdditionalFields, editExistingAsset } from '../../../TS/Services/Asset';
 
 declare var homePath: string;
 
@@ -81,64 +81,6 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
         }).done((data, _ ) => setData(data));
     }
 
-    function getDifferentAsset(assetID: number): void {
-        let asset = allAssets.find(a => a.ID == assetID);
-        let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/${assetType.Name}/One/${assetID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((asset: OpenXDA.Asset) => {
-            asset.AssetType = assetType.Name;
-            asset.Channels = [];
-
-            if (newEditAsset.AssetType == 'Breaker')
-                getEDNAPoint(asset as OpenXDA.Breaker);
-            else if (assetType.Name == 'Line')
-                getLineSegment(asset as OpenXDA.Line);
-            else
-                setNewEditAsset(asset);
-        });
-    }
-
-    function getEDNAPoint(breaker: OpenXDA.Breaker): void {
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/EDNAPoint`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((ednaPoint: OpenXDA.EDNAPoint) => {
-            if (ednaPoint != undefined) {
-                breaker.EDNAPoint = ednaPoint.Point
-            }
-            setNewEditAsset(breaker);
-        });
-    }
-
-    function getLineSegment(line: OpenXDA.Line): void {
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Line/${line.ID}/LineSegment`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((lineSegment: OpenXDA.LineSegment) => {
-            if (lineSegment != undefined) {
-                line.Segment = lineSegment
-            }
-            else {
-                line.Segment = AssetAttributes.getNewAsset('LineSegment') as OpenXDA.LineSegment;
-            }
-
-            setNewEditAsset(line);
-        });
-    }
 
     function addNewAsset() {
         $.ajax({
@@ -163,8 +105,8 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
 
     }
 
-    function addExistingAsset() {
-        $.ajax({
+    async function addExistingAsset() {
+        return $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/Asset/Existing/Location/${props.Location.ID}`,
             contentType: "application/json; charset=utf-8",
@@ -186,54 +128,8 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
 
     }
 
-    function editExistingAsset() {
-        $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/Asset/Edit`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Asset: newEditAsset }),
-            cache: false,
-            async: true
-        }).done(() => {
-        }).fail((msg) => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
-            else {
-                sessionStorage.clear();
-                getDatas();
-                setNewEditAsset(AssetAttributes.getNewAsset('Line'))
-            }
-
-        });
-
-    }
-
-    function editAsset(asset: OpenXDA.Asset) {
-        let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
-        setNewEdit('Edit');
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/${asset.AssetType}/One/${asset.ID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((returnAsset: OpenXDA.Asset) => {
-            returnAsset.AssetType = assetType.Name;
-            returnAsset.Channels = [];
-
-            if (returnAsset.AssetType == 'Breaker')
-                getEDNAPoint(returnAsset as OpenXDA.Breaker);
-            else if (assetType.Name == 'Line')
-                getLineSegment(returnAsset as OpenXDA.Line);
-            else
-                setNewEditAsset(returnAsset);
-        });
-    }
-
-    function deleteAsset(asset: OpenXDA.Asset) {
-        $.ajax({
+    async function deleteAsset(asset: OpenXDA.Asset) {
+      return  $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Asset/${asset.ID}/Location/${props.Location.ID}`,
             contentType: "application/json; charset=utf-8",
@@ -257,6 +153,12 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
         setNewEditAsset(AssetAttributes.getNewAsset('Line'));
     }
 
+    async function saveButtonForExistingAssets() {
+        let thing = await editExistingAsset(newEditAsset);
+        getDatas();
+        setNewEditAsset(AssetAttributes.getNewAsset('Line'))
+    }
+
     function showAttributes(): JSX.Element {
         if (newEditAsset.AssetType == 'Breaker')
             return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Breaker} UpdateState={setNewEditAsset} ShowSpare={true} />;
@@ -269,7 +171,10 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
         else if (newEditAsset.AssetType == 'Transformer')
             return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Transformer} UpdateState={setNewEditAsset} />;
     }
-
+    function handleSelect(item, event) {
+        if (event.target.localName == 'td')
+            history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID, state: {} })
+    }
 
     return (
         <div className="card" style={{ marginBottom: 10 }}>
@@ -291,7 +196,9 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
                                 key: null, label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (asset, key, style) => <>
                                     <button className="btn btn-sm" data-toggle='modal' data-target='#assetModal' onClick={(e) => {
                                         e.preventDefault();
-                                        editAsset(asset)
+                                        let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
+                                        getAssetWithAdditionalFields(asset.ID, assetType.Name).then(asset => setNewEditAsset(asset));
+                                        setNewEdit('Edit');
                                     }}><span><i className="fa fa-pencil"></i></span></button>
                                     <button className="btn btn-sm" onClick={(e) => {
                                         e.preventDefault();
@@ -318,10 +225,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
                                 setSortField(d.col);
                             }
                         }}
-                        onClick={(item, event) => {
-                            if(event.target.localName == 'td')
-                                window.location.href = homePath + 'index.cshtml?name=Meter&meterId=' + item.row.ID
-                        }}
+                        onClick={handleSelect}
                         selected={(item) => false}
                     />
 
@@ -343,7 +247,11 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
                         <div className="modal-body">
                             <div className="row">
                                 <div className="col">
-                                    <AssetAttributes Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewEditAsset} GetDifferentAsset={getDifferentAsset} />
+                                    <AssetAttributes Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewEditAsset} GetDifferentAsset={(assetID) => {
+                                        let asset = allAssets.find(a => a.ID == assetID);
+                                        let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
+                                        getAssetWithAdditionalFields(assetID, assetType.Name).then(asset => setNewEditAsset(asset));
+                                    }} />
                                 </div>
                                 <div className="col">
                                     {showAttributes()}
@@ -353,7 +261,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
                         <div className="modal-footer">
                             <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewAsset} hidden={newEdit == 'Edit' || newEditAsset.ID != 0}>Save</button>
                             <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addExistingAsset} hidden={newEdit == 'Edit' || newEditAsset.ID == 0}>Save</button>
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={editExistingAsset} hidden={newEdit == 'New'}>Save</button>
+                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={(evt) => saveButtonForExistingAssets()} hidden={newEdit == 'New'}>Save</button>
 
 
                             <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => setNewEditAsset(AssetAttributes.getNewAsset('Line'))}>Close</button>

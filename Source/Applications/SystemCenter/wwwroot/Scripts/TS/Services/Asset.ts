@@ -27,29 +27,8 @@ import AssetAttributes from "../../TSX/SystemCenter/AssetAttribute/Asset";
 
 declare var homePath: string;
 
-export function getEDNAPoint(breaker: OpenXDA.Breaker): Promise<OpenXDA.EDNAPoint> {
-    return $.ajax({
-        type: "GET",
-        url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/EDNAPoint`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: true,
-        async: true
-    }).promise();
-}
 
-export function getLineSegment(line: OpenXDA.Line): Promise<OpenXDA.LineSegment> {
-    return $.ajax({
-        type: "GET",
-        url: `${homePath}api/OpenXDA/Line/${line.ID}/LineSegment`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: true,
-        async: true
-    }).promise();
-}
-
-export function getSpareBreaker(breaker: OpenXDA.Breaker): Promise<OpenXDA.Breaker> {
+function getSpareBreaker(breaker: OpenXDA.Breaker): Promise<OpenXDA.Breaker> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/SpareBreaker`,
@@ -60,7 +39,7 @@ export function getSpareBreaker(breaker: OpenXDA.Breaker): Promise<OpenXDA.Break
     }).promise();
 }
 
-function getLocationForBreaker(breaker: OpenXDA.Breaker): Promise<Array<OpenXDA.Breaker>> {
+function getLocationForBreaker(breaker: OpenXDA.Breaker): Promise<OpenXDA.Location> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/Location`,
@@ -68,9 +47,7 @@ function getLocationForBreaker(breaker: OpenXDA.Breaker): Promise<Array<OpenXDA.
         dataType: 'json',
         cache: true,
         async: true
-    }).promise().then(( location :OpenXDA.Location) => {
-        return getSparesForLocation(location);
-    })
+    }).promise();
 
 }
 function getSparesForLocation(location: OpenXDA.Location): Promise<Array<OpenXDA.Breaker>> {
@@ -81,14 +58,15 @@ function getSparesForLocation(location: OpenXDA.Location): Promise<Array<OpenXDA
         dataType: 'json',
         cache: true,
         async: true
-    }).promise().then((spares: OpenXDA.Location) => {
-        return spares;
-    })
+    }).promise();
 
 }
 
-export function getSpareBreakersForSubstation(breaker: OpenXDA.Breaker): Promise<Array<OpenXDA.Breaker>> {
-    return getLocationForBreaker(breaker);
+export async function getSpareBreakersForSubstation(breaker: OpenXDA.Breaker): Promise<Array<OpenXDA.Breaker>> {
+    const location = await getLocationForBreaker(breaker);
+    if (location == null) return [];
+    const spares = await getSparesForLocation(location);
+    return spares
 }
 
 
@@ -138,24 +116,50 @@ export function getAsset(assetID: number, assetType: OpenXDA.AssetTypeName): Pro
     });
 }
 
-export async function getAsset2(assetID: number, assetType: OpenXDA.AssetTypeName): Promise<OpenXDA.Asset> {
+export async function getAssetWithAdditionalFields(assetID: number, assetType: OpenXDA.AssetTypeName): Promise<OpenXDA.Asset> {
     var asset = await getAsset(assetID, assetType);
     asset.AssetType = assetType;
     asset.Channels = [];
 
     if (assetType == 'Breaker') {
         const eDNAPoint = await getEDNAPoint(asset as OpenXDA.Breaker)
-        if(eDNAPoint != null)
+        if (eDNAPoint != null)
             asset['EDNAPoint'] = eDNAPoint.Point;
+        else
+            asset['EDNAPoint'] = null;
 
         const spareBreaker = await await getSpareBreaker(asset as OpenXDA.Breaker)
         if (spareBreaker != null)
             asset['SpareBreakerID'] = spareBreaker.ID;
-    }
+        else
+            asset['SpareBreakerID'] = null;
+    }   
     else if (assetType == 'Line')
         asset['Segment'] = await getLineSegment(asset as OpenXDA.Line);
 
     return asset;
+}
+
+function getEDNAPoint(breaker: OpenXDA.Breaker): Promise<OpenXDA.EDNAPoint> {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/EDNAPoint`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: true,
+        async: true
+    }).promise();
+}
+
+function getLineSegment(line: OpenXDA.Line): Promise<OpenXDA.LineSegment> {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/OpenXDA/Line/${line.ID}/LineSegment`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: true,
+        async: true
+    }).promise();
 }
 
 
@@ -168,9 +172,7 @@ export function editExistingAsset(asset: OpenXDA.Asset): Promise<OpenXDA.Asset> 
         data: JSON.stringify({ Asset: asset }),
         cache: false,
         async: true
-    }).promise().then((msg) => new Promise((resolve, response) => {
-        resolve(asset);
-    }));
+    }).promise();
 
 }
 

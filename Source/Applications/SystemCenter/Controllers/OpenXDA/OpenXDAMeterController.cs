@@ -225,7 +225,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     // Complete is not  called and the transaction is rolled back.
                     scope.Complete();
                 }
-                return Ok();
+                return Ok("Compeleted without errors.");
             }
             catch (Exception ex)
             {
@@ -298,7 +298,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         ");
 
 
-                    return Ok();
+                    return Ok("Completed without errors");
 
                 }
 
@@ -391,52 +391,13 @@ namespace SystemCenter.Controllers.OpenXDA
                     new TableOperations<MeterAsset>(connection).DeleteRecordWhere("MeterID = {0} AND AssetID = {1}", meterID, assetID);
                     new TableOperations<AssetLocation>(connection).DeleteRecordWhere("LocationID = {0} AND AssetID = {1}", locationID, assetID);
 
-                    return Ok();
+                    return Ok("Completed without errors.");
                 }
                 catch (Exception ex) {
                     return InternalServerError(ex);
                 }
             }
         }
-
-        [HttpGet, Route("PQViewSite/{meterID:int}")]
-        public IHttpActionResult GetPQViewSite(int meterID)
-        {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
-            {
-                PQViewSite record = new TableOperations<PQViewSite>(connection).QueryRecordWhere("MeterID = {0}", meterID);
-                return Ok(record);
-            }
-        }
-
-
-
-        [HttpPost, Route("PQViewSite")]
-        public IHttpActionResult PostPQViewSite([FromBody] PQViewSite record)
-        {
-            try
-            {
-                using (AdoDataConnection connXDA = new AdoDataConnection("dbOpenXDA"))
-                {
-
-                    if (record.SiteID != null)
-                    {
-                        new TableOperations<PQViewSite>(connXDA).AddNewOrUpdateRecord(record);
-                    }
-                    else
-                    {
-                        //connXDA.ExecuteNonQuery("DELETE FROM PQViewSite WHERE MeterID = {0}", record.MeterID);
-                    }
-                    return Ok();
-                }
-
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
     }
 
 

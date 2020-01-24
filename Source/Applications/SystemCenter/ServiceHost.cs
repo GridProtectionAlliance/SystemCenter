@@ -316,7 +316,6 @@ namespace SystemCenter
 
             // Dispose of the analysis engine
             m_systemCenterEngine.Stop();
-            m_systemCenterEngine.Dispose();
 
 
             // Save updated settings to the configuration file

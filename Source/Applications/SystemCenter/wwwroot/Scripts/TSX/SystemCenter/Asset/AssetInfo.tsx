@@ -27,12 +27,14 @@ import * as moment from 'moment';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import AssetAttributes from '../AssetAttribute/Asset';
-import { getEDNAPoint, getLineSegment, getAssetTypes, getSpareBreaker, getAsset} from '../../../TS/Services/Asset';
+import { getAssetTypes, getAssetWithAdditionalFields, editExistingAsset} from '../../../TS/Services/Asset';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
+import LineSegmentAttributes from '../AssetAttribute/LineSegment';
+
 declare var homePath: string;
 
 export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.Asset, StateSetter: (asset: OpenXDA.Asset) => void }, { Asset: OpenXDA.Asset, AssetTypes: Array<OpenXDA.AssetType>, }, {}> {
@@ -52,7 +54,7 @@ export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.As
             this.setState({ AssetTypes: assetTypes });
             let assetType = assetTypes.find(at => at.ID == this.state.Asset['AssetTypeID'])
 
-            getAsset(this.props.Asset.ID,  assetType.Name);
+            getAssetWithAdditionalFields(this.props.Asset.ID, assetType.Name).then(asset => this.setState({Asset: asset}));
         });
     }
 
@@ -60,67 +62,8 @@ export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.As
         if (nextProps.Asset != this.state.Asset)
             this.setState({ Asset: nextProps.Asset }, () => {
                 let assetType = this.state.AssetTypes.find(at => at.ID == this.state.Asset['AssetTypeID'])
-                getAsset(this.state.Asset.ID, assetType.Name);
+                getAssetWithAdditionalFields(this.state.Asset.ID, assetType.Name).then(asset => this.setState({ Asset: asset }));
             });
-    }
-
-    //getAsset(): void {
-    //    let assetType = this.state.AssetTypes.find(at => at.ID == this.state.Asset['AssetTypeID'])
-    //    $.ajax({
-    //        type: "GET",
-    //        url: `${homePath}api/OpenXDA/${assetType.Name}/One/${this.state.Asset.ID}`,
-    //        contentType: "application/json; charset=utf-8",
-    //        dataType: 'json',
-    //        cache: true,
-    //        async: true
-    //    }).done((asset: OpenXDA.Asset) => {
-    //        asset.AssetType = assetType.Name;
-    //        asset.Channels = [];
-
-    //        if (asset.AssetType == 'Breaker')
-    //            getEDNAPoint(asset.ID).done(ednaPoint => {
-    //                let record: OpenXDA.Breaker = asset as OpenXDA.Breaker;
-    //                if (ednaPoint != undefined) {
-    //                    record.EDNAPoint = ednaPoint.Point
-    //                    this.setState({ Asset: record }, () => this.props.StateSetter(record));
-    //                }
-    //                getSpareBreaker(asset.ID).done(spare => {
-    //                    if (spare != null) {
-    //                        record.SpareBreakerID = spare.ID;
-    //                        this.setState({ Asset: record }, () => this.props.StateSetter(record));
-    //                    }
-    //                });
-    //            });
-    //        else if (asset.AssetType == 'Line')
-    //            getLineSegment(asset.ID).done(lineSegment => {
-    //                let record: OpenXDA.Line = asset as OpenXDA.Line;
-    //                if (lineSegment != undefined) {
-    //                    record.Segment = lineSegment
-    //                }
-    //                else {
-    //                    record.Segment = AssetAttributes.getNewAsset('LineSegment') as OpenXDA.LineSegment;
-    //                }
-
-    //                this.setState({ Asset: record }, () => this.props.StateSetter(record));
-
-    //            });
-
-    //        this.setState({ Asset: asset }, () => this.props.StateSetter(asset));
-    //    });
-    //}
-
-    updateAsset(): void {
-       $.ajax({
-            type: "PATCH",
-            url: `${homePath}api/OpenXDA/${this.state.Asset.AssetType}/Update`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(this.state.Asset),
-            dataType: 'json',
-            cache: true,
-            async: true
-       }).done((asset: OpenXDA.Asset) => {
-           this.props.StateSetter(this.state.Asset);
-       });
     }
 
     showAttributes(): JSX.Element {
@@ -134,6 +77,9 @@ export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.As
             return <LineAttributes NewEdit={'Edit'} Asset={this.state.Asset as OpenXDA.Line} UpdateState={this.updateState} />;
         else if (this.state.Asset.AssetType == 'Transformer')
             return <TransformerAttributes NewEdit={'Edit'} Asset={this.state.Asset as OpenXDA.Transformer} UpdateState={this.updateState} />;
+        else if (this.state.Asset.AssetType == 'LineSegment')
+            return <LineSegmentAttributes NewEdit={'Edit'} Asset={this.state.Asset as OpenXDA.LineSegment} UpdateState={this.updateState} />;
+
     }
 
 
@@ -164,7 +110,10 @@ export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.As
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className="btn btn-primary" type="submit" onClick={() => this.updateAsset()} disabled={this.state.Asset == this.props.Asset}>Save Changes</button>
+                        <button className="btn btn-primary" type="submit" onClick={() => {
+                            editExistingAsset(this.state.Asset);
+                            this.props.StateSetter(this.state.Asset);
+                        }} disabled={this.state.Asset == this.props.Asset}>Save Changes</button>
                     </div>
                     <div className="btn-group mr-2">
                         <button className="btn btn-default" onClick={() => this.setState({ Asset: this.props.Asset })} disabled={this.state.Asset == this.props.Asset}>Clear Changes</button>
