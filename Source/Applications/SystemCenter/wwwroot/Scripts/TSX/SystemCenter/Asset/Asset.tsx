@@ -27,108 +27,102 @@ import { OpenXDA } from '../global';
 import AssetNoteWindow from './AssetNote';
 import AssetInfoWindow from './AssetInfo';
 import AssetLocationWindow from './AssetLocation';
+import { useHistory } from 'react-router-dom';
 declare var homePath: string;
 declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters'
-export default class Asset extends React.Component<{ AssetID: number }, { Asset: OpenXDA.Asset, Tab: Tab }, {}>{
-    constructor(props, context) {
-        super(props, context);
+function Asset(props: { AssetID: number }) {
+    let history = useHistory();
+    const [asset, setAsset] = React.useState<OpenXDA.Asset>(null);
+    const [tab, setTabState] = React.useState<string>(getTab());
 
-        this.state = {
-            Asset: null,
-            Tab: this.getTab()
-        }
-    }
-
-    getTab(): Tab {
+    function getTab(): Tab {
         if (sessionStorage.hasOwnProperty('Asset.Tab'))
             return JSON.parse(sessionStorage.getItem('Asset.Tab'));
         else
             return 'notes';
     }
 
-    getAsset(): void {
-        if (this.props.AssetID == undefined) return;
+    function setTab(tab: Tab): void {
+        sessionStorage.setItem('Asset.Tab', JSON.stringify(tab));
+        setTabState(tab);
+    }
+
+    function getAsset(): void {
+        if (props.AssetID == undefined) return;
        $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Asset/One/${this.props.AssetID}`,
+            url: `${homePath}api/OpenXDA/Asset/One/${props.AssetID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-       }).done((data: OpenXDA.Asset) => this.setState({ Asset: data }));
+       }).done((data: OpenXDA.Asset) => setAsset(data));
     }
 
-    deleteAsset(): JQuery.jqXHR {
+    function deleteAsset(): JQuery.jqXHR {
         return $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Asset/Delete`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(this.state.Asset),
+            data: JSON.stringify(asset),
             dataType: 'json',
             cache: true,
             async: true
+        }).done((msg) => {
+            sessionStorage.clear();
+            history.push({ pathname: homePath + 'index.cshtml', search: '?name=Assets', state: {} });
         });
     }
 
-    setTab(tab:Tab): void {
-        sessionStorage.setItem('Asset.Tab', JSON.stringify(tab));
-        this.setState({Tab: tab});
-    }
-    
-    componentDidMount() {
-        this.getAsset();
-    }
+    React.useEffect(() => {
+        getAsset();
+    }, []);
 
-    componentWillUnmount() {
-        sessionStorage.clear();
-    }
+    if (asset == null) return null;
+    return (
+        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+            <div className="row">
+                <div className="col">
+                    <h2>{asset != null ? asset.AssetKey : ''}</h2>
+                </div>
+                <div className="col">
+                    <button className="btn btn-danger pull-right" hidden={asset == null} onClick={() => deleteAsset()}>Delete Asset (Permanent)</button>
+                </div>
+            </div>
 
-    render() {
-        if (this.state.Asset == null) return null;
-        return (
-            <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
-                <div className="row">
-                    <div className="col">
-                        <h2>{this.state.Asset != null ? this.state.Asset.AssetKey : ''}</h2>
-                    </div>
-                    <div className="col">
-                        <button className="btn btn-danger pull-right" hidden={this.state.Asset == null} onClick={() => this.deleteAsset().done(() => window.location.href = homePath + 'index.cshtml?name=Assets')}>Delete Asset (Permanent)</button>
-                    </div>
+
+            <hr />
+            <ul className="nav nav-tabs">
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "notes" ? " active" : "")} onClick={() => setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "assetInfo" ? " active" : "")} onClick={() => setTab('assetInfo')} data-toggle="tab" href="#assetInfo">Asset Info</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "substations" ? " active" : "")} onClick={() => setTab('substations')} data-toggle="tab" href="#substations">Substations</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "meters" ? " active" : "")} onClick={() => setTab('meters')} data-toggle="tab" href="#meters">Meters</a>
+                </li>
+            </ul>
+             
+            <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
+                <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes">
+                    <AssetNoteWindow AssetID={asset.ID} />
+                </div>
+                <div className={"tab-pane " + (tab == "assetInfo" ? " active" : "fade")} id="assetInfo">
+                    <AssetInfoWindow Asset={asset} StateSetter={setAsset} />
+                </div>
+                <div className={"tab-pane " + (tab == "substations" ? " active" : "fade")} id="substations">
+                    <AssetLocationWindow Asset={asset} />
+                </div>
+                <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
                 </div>
 
-
-                <hr />
-                <ul className="nav nav-tabs">
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "notes" ? " active" : "")} onClick={() => this.setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "assetInfo" ? " active" : "")} onClick={() => this.setTab('assetInfo')} data-toggle="tab" href="#assetInfo">Asset Info</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "substations" ? " active" : "")} onClick={() => this.setTab('substations')} data-toggle="tab" href="#substations">Substations</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "meters" ? " active" : "")} onClick={() => this.setTab('meters')} data-toggle="tab" href="#meters">Meters</a>
-                    </li>
-                </ul>
-             
-                <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                    <div className={"tab-pane " + (this.state.Tab == "notes" ? " active" : "fade")} id="notes">
-                        <AssetNoteWindow AssetID={this.state.Asset.ID} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "assetInfo" ? " active" : "fade")} id="assetInfo">
-                        <AssetInfoWindow Asset={this.state.Asset} StateSetter={(asset) => this.setState({Asset:asset})} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "substations" ? " active" : "fade")} id="substations">
-                        <AssetLocationWindow Asset={this.state.Asset} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "meters" ? " active" : "fade")} id="meters">
-                    </div>
-
-                </div>                
-            </div>
-        )
-    }
+            </div>                
+        </div>
+    )
 }
 
+export default Asset;

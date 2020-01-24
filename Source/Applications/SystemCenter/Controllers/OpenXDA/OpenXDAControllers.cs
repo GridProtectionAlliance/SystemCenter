@@ -95,7 +95,7 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        public override IHttpActionResult Post([FromBody] Notes record)
+        public override IHttpActionResult Post([FromBody] JObject record)
         {
             try
             {
@@ -103,8 +103,10 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                        record.UserAccount = User.Identity.Name;
-                        int result = new TableOperations<Notes>(connection).AddNewRecord(record);
+                        Notes newRecord = record.ToObject<Notes>();
+
+                        newRecord.UserAccount = User.Identity.Name;
+                        int result = new TableOperations<Notes>(connection).AddNewRecord(newRecord);
                         return Ok(result);
                     }
                 }

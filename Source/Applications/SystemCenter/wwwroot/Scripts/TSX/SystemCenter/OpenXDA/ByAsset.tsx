@@ -25,6 +25,15 @@ import * as React from 'react';
 import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
+import AssetAttributes from '../AssetAttribute/Asset';
+import { getAssetWithAdditionalFields, getAllAssets, getAssetTypes } from '../../../TS/Services/Asset';
+import { OpenXDA } from '../global';
+import BreakerAttributes from '../AssetAttribute/Breaker';
+import CapBankAttributes from '../AssetAttribute/CapBank';
+import BusAttributes from '../AssetAttribute/Bus';
+import LineAttributes from '../AssetAttribute/Line';
+import TransformerAttributes from '../AssetAttribute/Transformer';
+import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 
 declare var homePath: string;
 
@@ -45,12 +54,27 @@ function ByAsset(): JSX.Element {
     const [data, setData] = React.useState<Array<Asset>>([]);
     const [sortField, setSortField] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [newAsset, setNewAsset] = React.useState<OpenXDA.Asset>(AssetAttributes.getNewAsset('Line'));
+    const [allAssets, setAllAssets] = React.useState<Array<OpenXDA.Asset>>([]);
+    const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.AssetType>>([]);
 
     React.useEffect(() => {
-        getMeters();
+        getData();
     }, []);
 
-    function getMeters(): void {
+    async function getData() {
+
+        getAssets();
+        let aas = await getAllAssets();
+        setAllAssets(aas)
+        let ats = await getAssetTypes();
+        setAssetTypes(ats);
+        let asset = AssetAttributes.getNewAsset('Line');
+        asset['AssetTypeID'] = ats.find(ats => ats.Name == 'Line').ID;
+        setNewAsset(asset);
+    }
+
+    function getAssets(): void {
         $.ajax({
             type: "Post",
             url: `${homePath}api/OpenXDA/Asset/SearchableList`,
@@ -61,6 +85,41 @@ function ByAsset(): JSX.Element {
             async: true
         }).done((data: Array<Asset>) => setData(data));
     }
+
+    function addNewAsset() {
+        $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/${newAsset.AssetType}/Add`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify(newAsset),
+            cache: false,
+            async: true
+        }).done((newAsset: OpenXDA.Asset) => {
+            sessionStorage.clear();
+            history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + newAsset.ID, state: {} })
+        }).fail((msg) => {
+            if (msg.status == 500)
+                alert(msg.responseJSON.ExceptionMessage)
+        });
+
+    }
+
+    function showAttributes(): JSX.Element {
+        if (newAsset.AssetType == 'Breaker')
+            return <BreakerAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Breaker} UpdateState={setNewAsset} ShowSpare={true} />;
+        else if (newAsset.AssetType == 'Bus')
+            return <BusAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Bus} UpdateState={setNewAsset} />;
+        else if (newAsset.AssetType == 'CapacitorBank')
+            return <CapBankAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.CapBank} UpdateState={setNewAsset} />;
+        else if (newAsset.AssetType == 'Line')
+            return <LineAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Line} UpdateState={setNewAsset} />;
+        else if (newAsset.AssetType == 'LineSegment')
+            return <LineSegmentAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.LineSegment} UpdateState={setNewAsset} />;
+        else if (newAsset.AssetType == 'Transformer')
+            return <TransformerAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Transformer} UpdateState={setNewAsset} />;
+    }
+
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID, state: {} })
@@ -131,7 +190,7 @@ function ByAsset(): JSX.Element {
                                     <div className="form-group">
                                         <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                                             event.preventDefault();
-                                            getMeters();
+                                            getAssets();
                                         }}>Update Search</button>
                                     </div>
                                 </form>
@@ -141,7 +200,7 @@ function ByAsset(): JSX.Element {
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
-                                    <button className="btn btn-primary" onClick={() => { }}>Add Asset</button>
+                                    <button className="btn btn-primary" data-toggle='modal' data-target="#assetModal" onClick={(event) => { event.preventDefault() }}>Add Asset</button>
                                 </form>
                             </fieldset>
                         </li>
@@ -166,12 +225,12 @@ function ByAsset(): JSX.Element {
                     ascending={ascending}
                     onSort={(d) => {
                         if (d.col == sortField) {
-                            var ordered = _.orderBy(data, [d.col], [(!ascending ? "asc" : "desc")]);
+                            let ordered = _.orderBy(data, [d.col], [(!ascending ? "asc" : "desc")]);
                             setAscending(!ascending);
                             setData(ordered);
                         }
                         else {
-                            var ordered = _.orderBy(data, [d.col], ["asc"]);
+                            let ordered = _.orderBy(data, [d.col], ["asc"]);
                             setAscending(!ascending);
                             setData(ordered);
                             setSortField(d.col);
@@ -184,6 +243,41 @@ function ByAsset(): JSX.Element {
                     selected={(item) => false}
                 />
             </div>
+
+            <div className="modal" id="assetModal">
+                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h4 className="modal-title">Add a New Asset</h4>
+                            <button type="button" className="close" data-dismiss="modal" onClick={(evt) => {
+                                let asset = AssetAttributes.getNewAsset('Line');
+                                asset['AssetTypeID'] = assetTypes.find(ats => ats.Name == 'Line').ID;
+                                setNewAsset(asset);
+                            }}>&times;</button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="row">
+                                <div className="col">
+                                    <AssetAttributes Asset={newAsset} NewEdit={'New'} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} />
+                                </div>
+                                <div className="col">
+                                    {showAttributes()}
+                                </div>
+                            </div>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewAsset}>Save</button>
+                            <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => {
+                                let asset = AssetAttributes.getNewAsset('Line');
+                                asset['AssetTypeID'] = assetTypes.find(ats => ats.Name == 'Line').ID;
+                                setNewAsset(asset);
+                            }}>Close</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </div>
     )
 }

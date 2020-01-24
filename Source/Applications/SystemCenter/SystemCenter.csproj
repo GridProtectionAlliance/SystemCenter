@@ -234,8 +234,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ModelController.cs" />
+    <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineSegmentController.cs" />
+    <Compile Include="Controllers\OpenXDA\Assets\OpenXDACapBankController.cs" />
+    <Compile Include="Controllers\OpenXDA\Assets\OpenXDATransformerController.cs" />
+    <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineController.cs" />
+    <Compile Include="Controllers\OpenXDA\Assets\OpenXDABusController.cs" />
+    <Compile Include="Controllers\OpenXDA\Assets\OpenXDABreakerController.cs" />
     <Compile Include="Controllers\OpenXDA\OpenXDALocationController.cs" />
-    <Compile Include="Controllers\OpenXDA\OpenXDAAssetController.cs" />
+    <Compile Include="Controllers\OpenXDA\Assets\OpenXDAAssetController.cs" />
     <Compile Include="Controllers\OpenXDA\OpenXDAControllers.cs" />
     <Compile Include="Controllers\OpenXDA\OpenXDAMeterController.cs" />
     <Compile Include="Controllers\SystemCenter\PingController.cs" />

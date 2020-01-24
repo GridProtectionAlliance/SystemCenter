@@ -35,6 +35,7 @@ interface AssetAttributesProps {
     AssetTypes: Array<OpenXDA.AssetType>,
     AllAssets: Array<OpenXDA.Asset>,
     GetDifferentAsset: (assetID: number) => void,
+    HideSelectAsset?: boolean
 }
 export default class AssetAttributes extends React.Component<AssetAttributesProps, {}, {}>{
     constructor(props, context) {
@@ -55,7 +56,6 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
         }
 
         asset = AssetAttributes.getNewAssetAttributes(asset, type);
-
         return asset;
     }
 
@@ -137,6 +137,7 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
         }
 
         asset = AssetAttributes.getNewAssetAttributes(asset, type);
+        asset['AssetTypeID'] = this.props.AssetTypes.find(ats => ats.Name == type).ID;
         this.props.UpdateState(asset);
     }
 
@@ -168,7 +169,7 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
         if (this.props.Asset == null) return null;
         return (
             <>
-                <div className="form-group" hidden={this.props.NewEdit == 'Edit'}>
+                <div className="form-group" hidden={this.props.NewEdit == 'Edit' || this.props.HideSelectAsset == true}>
                     <label>Select Asset</label>
                     <select className="form-control" value={this.props.Asset.ID.toString()} disabled={this.props.NewEdit == 'Edit'} onChange={(evt) => {
                         if (evt.target.value != "0")

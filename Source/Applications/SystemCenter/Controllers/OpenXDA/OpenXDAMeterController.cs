@@ -59,16 +59,6 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        public override IHttpActionResult Post([FromBody] Meter record)
-        {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
-            {
-                base.Post(record);
-                record = new TableOperations<Meter>(connection).QueryRecordWhere("AssetKey = {0}", record.AssetKey);
-                return Ok(record);
-            }
-        }
-
         public class MeterSearch { 
             public string Field { get; set; }
             public string SearchText { get; set; }

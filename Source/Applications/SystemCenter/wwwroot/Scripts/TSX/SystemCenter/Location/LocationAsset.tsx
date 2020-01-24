@@ -92,15 +92,13 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
             cache: false,
             async: true
         }).done(() => {
+            sessionStorage.clear();
+            getDatas();
+            setNewEditAsset(AssetAttributes.getNewAsset('Line'))
+
         }).fail((msg) => {
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
-            else {
-                sessionStorage.clear();
-                getDatas();
-                setNewEditAsset(AssetAttributes.getNewAsset('Line'))
-            }
-
         });
 
     }

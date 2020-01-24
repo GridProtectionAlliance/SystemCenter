@@ -31,6 +31,7 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Reflection;
 using GSF.Web.Security;
+using Newtonsoft.Json.Linq;
 
 namespace SystemCenter.Controllers
 {
@@ -45,6 +46,17 @@ namespace SystemCenter.Controllers
         {
             HasParent = hasParent;
             ParentKey = parentKey;
+            HasUniqueKey = false;
+            UniqueKeyField = "";
+
+        }
+
+        public ModelController(bool hasParent, string parentKey, bool hasUniqueKey, string uniqueKey)
+        {
+            HasParent = hasParent;
+            ParentKey = parentKey;
+            HasUniqueKey = hasUniqueKey;
+            UniqueKeyField = uniqueKey;
         }
 
         #endregion
@@ -52,6 +64,8 @@ namespace SystemCenter.Controllers
         #region [ Properties ]
         protected bool HasParent { get; set; } = false;
         protected string ParentKey { get; set; } = "";
+        protected bool HasUniqueKey { get; set; } = false;
+        protected string UniqueKeyField { get; set; } = "";
         protected virtual string Connection { get; } = "systemSettings";
         protected virtual string PostRoles { get; } = "Administrator";
         protected virtual string PatchRoles { get; } = "Administrator";
@@ -111,7 +125,7 @@ namespace SystemCenter.Controllers
 
 
         [HttpPost, Route("Add")]
-        public virtual IHttpActionResult Post([FromBody] T record)
+        public virtual IHttpActionResult Post([FromBody] JObject record)
         {
             try
             {
@@ -119,7 +133,19 @@ namespace SystemCenter.Controllers
                 {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                        int result = new TableOperations<T>(connection).AddNewRecord(record);
+                        T newRecord = record.ToObject<T>();
+                        int result = new TableOperations<T>(connection).AddNewRecord(newRecord);
+                        if (HasUniqueKey)
+                        {
+                            PropertyInfo prop = typeof(T).GetProperty(UniqueKeyField);
+                            if (prop != null)
+                            {
+                                string uniqueKey = prop.GetValue(newRecord).ToString();
+                                newRecord = new TableOperations<T>(connection).QueryRecordWhere(UniqueKeyField + " = {0}", uniqueKey);
+                                return Ok(newRecord);
+                            }
+
+                        }
                         return Ok(result);
                     }
                 }

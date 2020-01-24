@@ -18,13 +18,22 @@
 //  ----------------------------------------------------------------------------------------------------
 //  08/26/2019 - Billy Ernest
 //       Generated original version of source code.
-//
+// record fields for asset JObject Post records
+//  Asset: { ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Channels: Array<OpenXDA.Channel>
+// interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number,EDNAPoint?:string }
+// interface Bus extends Asset { }
+// interface CapBank extends Asset { NumberOfBanks: number, CansPerBank: number, CapacitancePerBank: number }
+// interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Segment: LineSegment }
+// interface LineSegment extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number }
+// interface Transformer extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, PrimaryVoltageKV: number, SecondaryVoltageKV: number, Tap: number }
+// AssetConnections: List<{ ID: int, AssetRelationshipTypeID: int, Parent: string, Child: string }>
 //******************************************************************************************************
 
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net.Http;
 using System.Transactions;
 using System.Web.Http;
 using GSF.Data;
@@ -37,21 +46,9 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/Asset")]
     public class OpenXDAAssetController : ModelController<Asset>
     {
-        /*
-         record fields for asset JObject Post records
-         Asset: { ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Channels: Array<OpenXDA.Channel> 
-            interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number,EDNAPoint?:string }
-            interface Bus extends Asset { }
-            interface CapBank extends Asset { NumberOfBanks: number, CansPerBank: number, CapacitancePerBank: number }
-            interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Segment: LineSegment }
-            interface LineSegment extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number }
-            interface Transformer extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, PrimaryVoltageKV: number, SecondaryVoltageKV: number, Tap: number }
-          AssetConnections: List<{ ID: int, AssetRelationshipTypeID: int, Parent: string, Child: string }>
-        */
-
+        public OpenXDAAssetController() : base(false, "", true, "AssetKey") { }
 
         protected override string Connection { get; } = "dbOpenXDA";
-
 
         [HttpGet, Route("{assetID:int}/Locations")]
         public IHttpActionResult GetAssetLocations(int assetID)
@@ -674,132 +671,6 @@ namespace SystemCenter.Controllers.OpenXDA
             transformer.Tap = record["Tap"].ToObject<double>();
         }
         #endregion
-    }
-
-    [RoutePrefix("api/OpenXDA/Line")]
-    public class LineController : ModelController<Line>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-
-        [HttpGet, Route("{lineID:int}/LineSegment")]
-        public IHttpActionResult GetLineSegmentForLine(int lineID)
-        {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
-            {
-                LineSegment record = new TableOperations<LineSegment>(connection).QueryRecordWhere("ID = (select ChildID from AssetRelationship where AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment') AND ParentID = {0})", lineID);
-                return Ok(record);
-            }
-
-        }
-
-    }
-
-    [RoutePrefix("api/OpenXDA/Breaker")]
-    public class BreakerController : ModelController<Breaker>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-
-        [HttpGet, Route("{breakerID:int}/EDNAPoint")]
-        public IHttpActionResult GetEDNAPoinsForBreaker(int breakerID)
-        {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
-            {
-                EDNAPoint record = new TableOperations<EDNAPoint>(connection).QueryRecordWhere("BreakerID = {0}", breakerID);
-                return Ok(record);
-            }
-        }
-
-        [HttpGet, Route("{breakerID:int}/SpareBreaker")]
-        public IHttpActionResult GetSpareBreakerForBreaker(int breakerID)
-        {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
-            {
-                Breaker record = new TableOperations<Breaker>(connection).QueryRecordWhere("ID = (SELECT SpareAssetID FROM AssetSpare WHERE AssetID = {0})", breakerID);
-                return Ok(record);
-            }
-        }
-
-        [HttpGet, Route("{breakerID:int}/SpareBreakersForSubstation")]
-        public IHttpActionResult SpareBreakersForSubstationForBreaker(int breakerID)
-        {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
-            {
-                IEnumerable<Breaker> record = new TableOperations<Breaker>(connection).QueryRecordsWhere(@"
-                    Spare=1 AND ID IN 
-                    (SELECT AssetID FROM AssetLocation WHERE LocationID = 
-                        (
-                            SELECT 
-                             LocationID
-                            FROM
-                                Asset JOIN
-                                AssetLocation ON Asset.ID = AssetLocation.AssetID
-                            WHERE
-                                Asset.ID = {0}
-                        )
-                    )
-                ", breakerID);
-                return Ok(record);
-            }
-        }
-
-        [HttpGet, Route("SpareBreakers/Substation/{locationID:int}")]
-        public IHttpActionResult SpareBreakersForSubstation(int locationID)
-        {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
-            {
-                IEnumerable<Breaker> record = new TableOperations<Breaker>(connection).QueryRecordsWhere(@"
-                    Spare=1 AND ID IN 
-                    (SELECT AssetID FROM AssetLocation WHERE LocationID = {0})
-                ", locationID);
-                return Ok(record);
-            }
-        }
-
-        [HttpGet, Route("{breakerID:int}/Location")]
-        public IHttpActionResult GetLocationForAsset(int breakerID)
-        {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
-            {
-                try
-                {
-                    Location record = new TableOperations<Location>(connection).QueryRecordWhere("ID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", breakerID);
-                    return Ok(record);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
-                }
-            }
-        }
-
-    }
-
-
-
-
-
-    [RoutePrefix("api/OpenXDA/Bus")]
-    public class BusController : ModelController<Bus>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-    }
-
-    [RoutePrefix("api/OpenXDA/CapacitorBank")]
-    public class CapBankController : ModelController<CapBank>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-    }
-
-    [RoutePrefix("api/OpenXDA/LineSegment")]
-    public class LineSegmentController : ModelController<LineSegment>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-    }
-
-    [RoutePrefix("api/OpenXDA/Transformer")]
-    public class TransformerController : ModelController<Transformer>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
     }
 
 }
