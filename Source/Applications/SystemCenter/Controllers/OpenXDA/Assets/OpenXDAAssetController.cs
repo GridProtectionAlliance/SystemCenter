@@ -68,6 +68,24 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        [HttpGet, Route("{assetID:int}/Meters")]
+        public IHttpActionResult GetAssetMeters(int assetID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                try
+                {
+                    IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("ID IN (SELECT MeterID FROM MeterAsset WHERE AssetID = {0})", assetID);
+
+                    return Ok(records);
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
+
         [HttpGet, Route("{assetID:int}/OtherLocations")]
         public IHttpActionResult GetOtherLocations(int assetID)
         {

@@ -29,7 +29,7 @@ import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
 
-function LocationMeterWindow(props: { Location: OpenXDA.Location }): JSX.Element{
+function AssetMeterWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
     let history = useHistory();
     const [meters, setMeters] = React.useState<Array<OpenXDA.Meter>>([]);
     const [sortField, setSortField] = React.useState<keyof(OpenXDA.Meter)>('AssetKey');
@@ -37,12 +37,12 @@ function LocationMeterWindow(props: { Location: OpenXDA.Location }): JSX.Element
 
     React.useEffect(() => {
         getMeters();
-    }, [props.Location.ID]);
+    }, [props.Asset]);
 
     function getMeters(): void {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Meters`,
+            url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Meters`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -107,4 +107,4 @@ function LocationMeterWindow(props: { Location: OpenXDA.Location }): JSX.Element
 
 }
 
-export default LocationMeterWindow;
+export default AssetMeterWindow;

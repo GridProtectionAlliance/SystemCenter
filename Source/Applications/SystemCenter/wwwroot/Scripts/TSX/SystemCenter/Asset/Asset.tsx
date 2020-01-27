@@ -27,6 +27,8 @@ import { OpenXDA } from '../global';
 import AssetNoteWindow from './AssetNote';
 import AssetInfoWindow from './AssetInfo';
 import AssetLocationWindow from './AssetLocation';
+import AssetMeterWindow from './AssetMeter';
+
 import { useHistory } from 'react-router-dom';
 declare var homePath: string;
 declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters'
@@ -118,6 +120,7 @@ function Asset(props: { AssetID: number }) {
                     <AssetLocationWindow Asset={asset} />
                 </div>
                 <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
+                    <AssetMeterWindow Asset={asset} />
                 </div>
 
             </div>                
