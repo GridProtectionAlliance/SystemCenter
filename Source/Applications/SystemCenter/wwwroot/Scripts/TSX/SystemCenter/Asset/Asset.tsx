@@ -24,14 +24,15 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
-import AssetNoteWindow from './AssetNote';
 import AssetInfoWindow from './AssetInfo';
 import AssetLocationWindow from './AssetLocation';
 import AssetMeterWindow from './AssetMeter';
 
 import { useHistory } from 'react-router-dom';
+import NoteWindow from '../CommonComponents/NoteWindow';
+import AssetConnectionWindow from './AssetConnection';
 declare var homePath: string;
-declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters'
+declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections'
 function Asset(props: { AssetID: number }) {
     let history = useHistory();
     const [asset, setAsset] = React.useState<OpenXDA.Asset>(null);
@@ -78,7 +79,7 @@ function Asset(props: { AssetID: number }) {
 
     React.useEffect(() => {
         getAsset();
-    }, []);
+    }, [props.AssetID]);
 
     if (asset == null) return null;
     return (
@@ -107,11 +108,15 @@ function Asset(props: { AssetID: number }) {
                 <li className="nav-item">
                     <a className={"nav-link" + (tab == "meters" ? " active" : "")} onClick={() => setTab('meters')} data-toggle="tab" href="#meters">Meters</a>
                 </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "connections" ? " active" : "")} onClick={() => setTab('connections')} data-toggle="tab" href="#connections">Connections</a>
+                </li>
+
             </ul>
              
             <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes">
-                    <AssetNoteWindow AssetID={asset.ID} />
+                    <NoteWindow ID={asset.ID} Type='Asset' />
                 </div>
                 <div className={"tab-pane " + (tab == "assetInfo" ? " active" : "fade")} id="assetInfo">
                     <AssetInfoWindow Asset={asset} StateSetter={setAsset} />
@@ -121,6 +126,9 @@ function Asset(props: { AssetID: number }) {
                 </div>
                 <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
                     <AssetMeterWindow Asset={asset} />
+                </div>
+                <div className={"tab-pane " + (tab == "connections" ? " active" : "fade")} id="connections">
+                    <AssetConnectionWindow Asset={asset} />
                 </div>
 
             </div>                

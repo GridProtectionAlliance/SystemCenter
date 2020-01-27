@@ -68,6 +68,24 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        [HttpGet, Route("{assetID:int}/AssetNear")]
+        public IHttpActionResult GetAssetsNearAnAsset(int assetID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                try
+                {
+                    IEnumerable<Asset> records = new TableOperations<Asset>(connection).QueryRecordsWhere("ID IN (SELECT oal.AssetID FROM AssetLocation as oal WHERE oal.LocationID IN (SELECT ial.LocationID FROM AssetLocation as ial WHERE ial.AssetID = {0})) AND ID NOT IN (SELECT CASE WHEN ParentID = 4 THEN ChildID ELSE ParentID END as ID FROM AssetConnection WHERE ParentID = {0} OR ChildID = {0})", assetID).OrderBy(x => x.AssetKey);
+
+                    return Ok(records);
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
+
         [HttpGet, Route("{assetID:int}/Meters")]
         public IHttpActionResult GetAssetMeters(int assetID)
         {
@@ -85,6 +103,43 @@ namespace SystemCenter.Controllers.OpenXDA
                 }
             }
         }
+
+        [HttpGet, Route("{assetID:int}/AssetConnections")]
+        public IHttpActionResult GetAssetAssetConnections(int assetID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                try
+                {
+                    DataTable records = connection.RetrieveData(@"
+                        SELECT
+	                        AssetRelationship.AssetRelationshipTypeID,
+	                        AssetRelationshipType.Name,
+	                        Asset.ID as AssetID,
+	                        Asset.AssetKey
+                        FROM
+	                        AssetRelationship JOIN
+	                        AssetRelationshipType ON AssetRelationship.AssetRelationshipTypeID = AssetRelationshipType.ID JOIN
+	                        ASset ON Asset.ID = (
+		                        CASE 
+			                        WHEN ParentID = {0} THEN AssetRelationship.ChildID
+			                        ELSE AssetRelationship.ParentID
+		                        END
+	                        )
+                        WHERE
+	                        ParentID = {0} OR ChildID = {0}
+                    ", assetID);
+
+                    return Ok(records);
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
+
+
 
         [HttpGet, Route("{assetID:int}/OtherLocations")]
         public IHttpActionResult GetOtherLocations(int assetID)
@@ -599,6 +654,24 @@ namespace SystemCenter.Controllers.OpenXDA
                 try
                 {
                     new TableOperations<AssetLocation>(connection).DeleteRecordWhere("LocationID = {0} AND AssetID = {1}", locationID, assetID);
+
+                    return Ok("Deleted");
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
+
+        [HttpDelete, Route("{assetID:int}/Asset/{locationID:int}")]
+        public IHttpActionResult DeleteAssetConnections(int assetOneID, int assetTwoID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                try
+                {
+                    new TableOperations<AssetConnection>(connection).DeleteRecordWhere("(ChildID = {0} AND ParentID = {1}) OR (ParentID = {0} AND ChildID = {1})", assetOneID, assetTwoID);
 
                     return Ok("Deleted");
                 }

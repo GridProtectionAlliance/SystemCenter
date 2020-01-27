@@ -24,10 +24,10 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
-import LocationNoteWindow from './LocationNote';
 import LocationInfoWindow from './LocationInfo';
 import LocationMeterWindow from './LocationMeter';
 import LocationAssetWindow from './LocationAsset';
+import NoteWindow from '../CommonComponents/NoteWindow';
 
 declare var homePath: string;
 
@@ -117,7 +117,7 @@ export default class Location extends React.Component<{ LocationID: number }, { 
              
                 <div className="tab-content" style={{maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
                     <div className={"tab-pane " + (this.state.Tab == "notes" ? " active" : "fade")} id="notes">
-                        <LocationNoteWindow LocationID={this.props.LocationID}/>
+                        <NoteWindow ID={this.props.LocationID} Type='Location'/>
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "locationInfo" ? " active" : "fade")} id="locationInfo">
                         <LocationInfoWindow Location={this.state.Location} stateSetter={(Location: OpenXDA.Location) => this.setState({ Location: Location })} />

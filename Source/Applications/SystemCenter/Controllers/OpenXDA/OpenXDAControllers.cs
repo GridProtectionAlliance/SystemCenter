@@ -45,17 +45,6 @@ using System.Linq;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
-    [RoutePrefix("api/OpenXDA/AssetConnection")]
-    public class AssetConnectionController : ModelController<AssetConnection>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-    }
-
-    [RoutePrefix("api/OpenXDA/AssetConnectionType")]
-    public class AssetConnectionTypeController : ModelController<AssetConnectionType>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-    }
 
     [RoutePrefix("api/OpenXDA/AssetType")]
     public class AssetTypeController : ModelController<AssetTypes>

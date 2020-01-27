@@ -26,9 +26,10 @@ import * as _ from 'lodash';
 import MeterLocationWindow from '../Meter/MeterLocation';
 import { OpenXDA } from '../global';
 import MeterInfoWindow from './MeterInfo';
-import MeterNoteWindow from '../Meter/MeterNote';
 import MeterChannelWindow from '../Meter/MeterChannel';
 import MeterAssetWindow from '../Meter/MeterAsset';
+import NoteWindow from '../CommonComponents/NoteWindow';
+
 declare var homePath: string;
 
 export default class Meter extends React.Component<{ meterId: number}, { Meter: OpenXDA.Meter, Tab: string}, {}>{
@@ -121,7 +122,7 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
              
                 <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                     <div className={"tab-pane " + (this.state.Tab == "notes" ? " active" : "fade")} id="notes">
-                        <MeterNoteWindow MeterID={this.props.meterId}/>
+                        <NoteWindow ID={this.props.meterId} Type='Meter'/>
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "meterInfo" ? " active" : "fade")} id="meterInfo">
                         <MeterInfoWindow Meter={this.state.Meter} StateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
