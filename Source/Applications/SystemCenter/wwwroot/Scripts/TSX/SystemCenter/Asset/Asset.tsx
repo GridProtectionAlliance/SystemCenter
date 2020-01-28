@@ -31,8 +31,9 @@ import AssetMeterWindow from './AssetMeter';
 import { useHistory } from 'react-router-dom';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AssetConnectionWindow from './AssetConnection';
+import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 declare var homePath: string;
-declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections'
+declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields'
 function Asset(props: { AssetID: number }) {
     let history = useHistory();
     const [asset, setAsset] = React.useState<OpenXDA.Asset>(null);
@@ -103,6 +104,9 @@ function Asset(props: { AssetID: number }) {
                     <a className={"nav-link" + (tab == "assetInfo" ? " active" : "")} onClick={() => setTab('assetInfo')} data-toggle="tab" href="#assetInfo">Asset Info</a>
                 </li>
                 <li className="nav-item">
+                    <a className={"nav-link" + (tab == "additionalFields" ? " active" : "")} onClick={() => setTab('additionalFields')} data-toggle="tab" href="#additionalFields">Additional Fields</a>
+                </li>
+                <li className="nav-item">
                     <a className={"nav-link" + (tab == "substations" ? " active" : "")} onClick={() => setTab('substations')} data-toggle="tab" href="#substations">Substations</a>
                 </li>
                 <li className="nav-item">
@@ -120,6 +124,9 @@ function Asset(props: { AssetID: number }) {
                 </div>
                 <div className={"tab-pane " + (tab == "assetInfo" ? " active" : "fade")} id="assetInfo">
                     <AssetInfoWindow Asset={asset} StateSetter={setAsset} />
+                </div>
+                <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
+                    <AdditionalFieldsWindow ID={asset.ID} Type='Location' />
                 </div>
                 <div className={"tab-pane " + (tab == "substations" ? " active" : "fade")} id="substations">
                     <AssetLocationWindow Asset={asset} />

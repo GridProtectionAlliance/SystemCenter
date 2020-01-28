@@ -171,7 +171,7 @@ namespace SystemCenter.Controllers
 
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                        int result = new TableOperations<T>(connection).UpdateRecord(record);
+                        int result = new TableOperations<T>(connection).AddNewOrUpdateRecord(record);
                         return Ok(result);
                     }
                 }

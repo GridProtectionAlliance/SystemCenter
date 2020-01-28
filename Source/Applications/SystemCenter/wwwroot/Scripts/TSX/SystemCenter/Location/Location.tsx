@@ -28,6 +28,7 @@ import LocationInfoWindow from './LocationInfo';
 import LocationMeterWindow from './LocationMeter';
 import LocationAssetWindow from './LocationAsset';
 import NoteWindow from '../CommonComponents/NoteWindow';
+import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 
 declare var homePath: string;
 
@@ -108,6 +109,9 @@ export default class Location extends React.Component<{ LocationID: number }, { 
                         <a className={"nav-link" + (this.state.Tab == "locationInfo" ? " active" : "")} onClick={() => this.setTab('locationInfo')} data-toggle="tab" href="#locationInfo">Location Info</a>
                     </li>
                     <li className="nav-item">
+                        <a className={"nav-link" + (this.state.Tab == "additionalFields" ? " active" : "")} onClick={() => this.setTab('additionalFields')} data-toggle="tab" href="#additionalFields">Additional Fields</a>
+                    </li>
+                    <li className="nav-item">
                         <a className={"nav-link" + (this.state.Tab == "meters" ? " active" : "")} onClick={() => this.setTab('meters')} data-toggle="tab" href="#meters">Meters</a>
                     </li>
                     <li className="nav-item">
@@ -121,6 +125,9 @@ export default class Location extends React.Component<{ LocationID: number }, { 
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "locationInfo" ? " active" : "fade")} id="locationInfo">
                         <LocationInfoWindow Location={this.state.Location} stateSetter={(Location: OpenXDA.Location) => this.setState({ Location: Location })} />
+                    </div>
+                    <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
+                        <AdditionalFieldsWindow ID={this.props.LocationID} Type='Location' />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "meters" ? " active" : "fade")} id="meters">
                         <LocationMeterWindow Location={this.state.Location} />
