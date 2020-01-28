@@ -25,7 +25,6 @@ import * as React from 'react';
 import * as moment from 'moment';
 import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
-import { AssetTypeField, Asset, ValueListItem, AssetTypeFieldAndValue } from '../global';
 import AssetNoteWindow from './AssetNote';
 import OpenXDADataWindow from './OpenXDADataWindow';
 import ValueListInput from './ValueListInput';
@@ -34,7 +33,7 @@ import OpenXDAEDNADataWindow from './OpenXDAEDNADataWindow';
 
 declare var homePath: string;
 declare interface AssetPreviewPaneProps { assetID: number, assetTypeID: number, assetTypeName: string, assetName: string }
-declare interface AssetPreviewPaneState { fields: Array<AssetTypeFieldAndValue> }
+declare interface AssetPreviewPaneState { fields: Array<any> }
 export default class AssetPreviewPane extends React.Component<AssetPreviewPaneProps, AssetPreviewPaneState, { }> {
     constructor(props, context) {
         super(props, context);
@@ -64,7 +63,7 @@ export default class AssetPreviewPane extends React.Component<AssetPreviewPanePr
             dataType: 'json',
             cache: false,
             async: true
-        }).done((fields: Array<AssetTypeFieldAndValue>) => this.setState({ fields: fields })).fail((msg) => console.log(msg.responseJSON));
+        }).done((fields: Array<any>) => this.setState({ fields: fields })).fail((msg) => console.log(msg.responseJSON));
     }
 
     render() {
@@ -107,7 +106,7 @@ export default class AssetPreviewPane extends React.Component<AssetPreviewPanePr
         );
     }
 }
-class GenericDataWindow extends React.Component<{ groupName: string, fields: Array<AssetTypeFieldAndValue>, getData(): void }, { fields: Array<AssetTypeFieldAndValue>, collapsed: boolean}, {}> {
+class GenericDataWindow extends React.Component<{ groupName: string, fields: Array<any>, getData(): void }, { fields: Array<any>, collapsed: boolean}, {}> {
     constructor(props, context) {
         super(props, context);
 
@@ -161,7 +160,7 @@ class GenericDataWindow extends React.Component<{ groupName: string, fields: Arr
                             {
                                 this.state.fields.map(field =>
                                     <ValueListInput key={field.FieldName} valueListGroupID={1} field={field} onChange={(evt, fieldName, result) => {
-                                        var obj: Array<AssetTypeFieldAndValue> = _.clone(this.state.fields);
+                                        var obj: Array<any> = _.clone(this.state.fields);
                                         obj[obj.findIndex(x => x.FieldName == fieldName)].AssetTypeFieldValue = result;
                                         this.setState({ fields: obj })
                                     }} disabled={false}/>

@@ -22,14 +22,12 @@
 //******************************************************************************************************
 
 // System Center Models
-export interface AssetType { Name: string, ID: number }
-export interface AssetTypeWithCount extends AssetType { Assets: number }
-export interface AssetTypeField { Name: string, ID: number, Type: string, Description: string }
-export interface Asset { ID: number, AssetKey: string, AssetTypeID: number }
-export interface AssetTypeFieldAndValue { FieldName: string, FieldDescription: string, FieldType: string, AssetTypeFieldValueID: number, AssetTypeFieldValue: string }
+export interface AdditionalField { ID: number, OpenXDAParentTable: string, FieldName: string, Type: AdditionalFieldType, ExternalDB: string, ExternalDBTable: string, ExternalDBTableKey: string, IsSecure: boolean  }
+export interface AdditionalFieldValue { ID: number, OpenXDAParentTableID: number, AdditionalFieldID: number, Value: string }
+
 export interface ValueListItem { ID: number, GroupID: number, Text: string, Value: number, Key: number, Hidden: boolean, IsDefault: boolean, SortOrder: number, AltText1: string, Enabled: boolean }
-export interface Note { ID: number, AssetID: number, Note: string, UserAccount: string, Timestamp: string }
-export type NewEdit =  'New' | 'Edit'
+export type NewEdit = 'New' | 'Edit'
+export type AdditionalFieldType = 'integer' | 'number' | 'string' | 'boolean';
 
 // OpenXDA Models
 export namespace OpenXDA {

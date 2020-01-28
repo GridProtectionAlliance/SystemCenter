@@ -41,31 +41,6 @@ CREATE TABLE Setting
 )
 GO
 
-CREATE TABLE AuditLog
-(
-    ID INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
-    TableName VARCHAR(200) NOT NULL,
-    PrimaryKeyColumn VARCHAR(200) NOT NULL,
-    PrimaryKeyValue VARCHAR(MAX) NOT NULL,
-    ColumnName VARCHAR(200) NOT NULL,
-    OriginalValue VARCHAR(MAX) NULL,
-    NewValue VARCHAR(MAX) NULL,
-    Deleted BIT NOT NULL DEFAULT 0,
-    UpdatedBy VARCHAR(200) NULL DEFAULT suser_name(),
-    UpdatedOn DATETIME NULL DEFAULT getutcdate(),
-)
-GO
-
-CREATE TABLE ConfigurationLoader
-(
-    ID INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-    AssemblyName VARCHAR(200) NOT NULL,
-    TypeName VARCHAR(200) NOT NULL,
-    LoadOrder INT NOT NULL
-)
-GO
-
-
 -- -------- --
 -- Security --
 -- -------- --
@@ -180,24 +155,26 @@ GO
 INSERT INTO ApplicationRoleSecurityGroup(ApplicationRoleID, SecurityGroupID) VALUES((SELECT ID FROM ApplicationRole), (SELECT ID FROM SecurityGroup))
 GO
 
-
-CREATE TABLE Note(
+CREATE TABLE AdditionalField(
 	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	AssetID int NOT NULL,
-	Note varchar(max) NOT NULL,
-	UserAccount varchar(max) NOT NULL,
-	Timestamp datetime NOT NULL,
+	OpenXDAParentTable varchar(100) NOT NULL,
+	FieldName varchar(100) NOT NULL,
+	Type varchar(max) NULL DEFAULT ('string'),
+	ExternalDB varchar(max) NULL,
+	ExternalDBTable varchar(max) NULL,
+	ExternalDBTableKey varchar(max) NULL,
+	IsSecure bit NULL DEFAULT(0)
+	Constraint UC_AdditonaField UNIQUE(OpenXDAParentTable, FieldName)
 )
 GO
 
-ALTER TABLE Note ADD  DEFAULT (suser_name()) FOR UserAccount
-GO
-
-ALTER TABLE Note ADD  DEFAULT (getutcdate()) FOR Timestamp
-GO
-
-ALTER TABLE Note  WITH CHECK ADD FOREIGN KEY(AssetID)
-REFERENCES Asset (ID)
+CREATE TABLE AdditionalFieldValue(
+	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	OpenXDAParentTableID int NOT NULL,
+	AdditionalFieldID int NOT NULL FOREIGN KEY REFERENCES AdditionalField(ID),
+	Value varchar(max) NULL,
+	Constraint UC_AdditonaFieldValue UNIQUE(OpenXDAParentTableID, AdditionalFieldID)
+)
 GO
 
 

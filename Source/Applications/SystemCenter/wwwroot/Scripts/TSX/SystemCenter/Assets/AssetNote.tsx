@@ -24,7 +24,6 @@
 
 import * as React from 'react';
 import * as moment from 'moment';
-import { Note } from '../global';
 declare var homePath: string;
 
 function AssetNoteWindow(props: { assetID: number }): JSX.Element {
@@ -38,7 +37,7 @@ function AssetNoteWindow(props: { assetID: number }): JSX.Element {
         getNotes();
     }, [props.assetID]);
 
-    function handleEdit(d: Note) {
+    function handleEdit(d) {
         setNote(d.Note);
         deleteNote(d);
     }
@@ -51,7 +50,7 @@ function AssetNoteWindow(props: { assetID: number }): JSX.Element {
             dataType: 'json',
             cache: true,
             async: true
-       }).done((data: Array<Note>) => {
+       }).done((data) => {
            var rows = data.map(d => <tr key={d.ID}><td>{d.Note}</td><td>{moment.utc(d.Timestamp).format("MM/DD/YYYY HH:mm")}</td><td>{d.UserAccount}</td><td>
                <button className="btn btn-sm" onClick={(e) => handleEdit(d)}><span><i className="fa fa-pencil"></i></span></button>
                <button className="btn btn-sm" onClick={(e) => deleteNote(d)}><span><i className="fa fa-times"></i></span></button>
@@ -62,7 +61,7 @@ function AssetNoteWindow(props: { assetID: number }): JSX.Element {
        });;
     }
 
-    function deleteNote(d: Note): void {
+    function deleteNote(d): void {
         $.ajax({
             type: "DELETE",
             url: `${homePath}api/Notes`,

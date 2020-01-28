@@ -29,6 +29,7 @@ import MeterInfoWindow from './MeterInfo';
 import MeterChannelWindow from '../Meter/MeterChannel';
 import MeterAssetWindow from '../Meter/MeterAsset';
 import NoteWindow from '../CommonComponents/NoteWindow';
+import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 
 declare var homePath: string;
 
@@ -109,6 +110,9 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
                         <a className={"nav-link" + (this.state.Tab == "meterInfo" ? " active" : "")} onClick={() => this.setTab('meterInfo')} data-toggle="tab" href="#meterInfo">Meter Info</a>
                     </li>
                     <li className="nav-item">
+                        <a className={"nav-link" + (this.state.Tab == "additionalFields" ? " active" : "")} onClick={() => this.setTab('additionalFields')} data-toggle="tab" href="#additionalFields">Additional Fields</a>
+                    </li>
+                    <li className="nav-item">
                         <a className={"nav-link" + (this.state.Tab == "substation" ? " active" : "")} onClick={() => this.setTab('substation')} data-toggle="tab" href="#substation">Substation</a>
                     </li>
                     <li className="nav-item">
@@ -126,6 +130,9 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "meterInfo" ? " active" : "fade")} id="meterInfo">
                         <MeterInfoWindow Meter={this.state.Meter} StateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
+                    </div>
+                    <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
+                        <AdditionalFieldsWindow ID={this.props.meterId} Type='Meter' />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "substation" ? " active" : "fade")} id="substation">
                         <MeterLocationWindow Meter={this.state.Meter} StateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />

@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  AssetTypeField.cs - Gbtc
+//  AdditionalField.cs - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -21,16 +21,47 @@
 //
 //******************************************************************************************************
 
+using GSF.Data;
 using GSF.Data.Model;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.Http;
+using SystemCenter.Controllers;
+
 namespace SystemCenter.Model
 {
-    public class AssetTypeField
+    public class AdditionalField
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
-        public int AssetTypeID { get; set; }
-        public string Name { get; set; }
+        public string OpenXDAParentTable { get; set; }
+        public string FieldName { get; set; }
         public string Type { get; set; }
-        public string Description { get; set; }
+        public string ExternalDB { get; set; }
+        public string ExternalDBTable { get; set; }
+        public string ExternalDBTableKey{ get; set; }
+        public bool IsSecure { get; set; }
+
+    }
+
+    [RoutePrefix("api/SystemCenter/AdditionalField")]
+    public class AdditionalFieldController : ModelController<AdditionalField> {
+        
+        [HttpGet, Route("ParentTable/{openXDAParentTable}")]
+        public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                IEnumerable<AdditionalField> records = new TableOperations<AdditionalField>(connection).QueryRecordsWhere("OpenXDAParentTable = {0}", openXDAParentTable);
+                if (!User.IsInRole("Administrator"))
+                {
+                    records = records.Where(x => !x.IsSecure);
+                }
+
+                return Ok(records);
+            }
+        }
+
+
     }
 }

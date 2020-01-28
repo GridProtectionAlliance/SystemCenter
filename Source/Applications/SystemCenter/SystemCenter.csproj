@@ -256,13 +256,8 @@
     <Compile Include="DebugHost.Designer.cs">
       <DependentUpon>DebugHost.cs</DependentUpon>
     </Compile>
-    <Compile Include="Model\Asset.cs" />
-    <Compile Include="Model\Note.cs" />
-    <Compile Include="Model\AssetTypeFieldValue.cs" />
-    <Compile Include="Model\AssetTypeField.cs" />
-    <Compile Include="Model\AssetType.cs" />
-    <Compile Include="Model\ConfigurationLoader.cs" />
-    <Compile Include="Model\DataObjectWrapper.cs" />
+    <Compile Include="Model\AdditionalFieldValue.cs" />
+    <Compile Include="Model\AdditionalField.cs" />
     <Compile Include="Model\GlobalSettings.cs" />
     <Compile Include="Model\Setting.cs" />
     <Compile Include="Model\ValueList.cs" />
@@ -446,6 +441,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetConnection.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetInfo.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetMeter.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\NoteWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormCheckBox.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormInput.tsx" />

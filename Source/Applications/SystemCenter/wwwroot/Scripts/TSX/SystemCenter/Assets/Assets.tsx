@@ -25,12 +25,11 @@ import * as React from 'react';
 import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
 import AssetPreviewPane from './AssetPreviewPane';
-import { Asset } from '../global';
 
 declare var homePath: string;
 
 declare interface AssetsProps { assetTypeID: number, assetTypeName: string}
-declare interface AssetsState { searchText: string, data: Array<Asset>, newEditID: number, newEditName: string, ascending: boolean, addNew: boolean, assetID: number, assetName: string }
+declare interface AssetsState { searchText: string, data: Array<any>, newEditID: number, newEditName: string, ascending: boolean, addNew: boolean, assetID: number, assetName: string }
 
 export default class Assets extends React.Component<AssetsProps, AssetsState , {}>{
     jqueryHandle: JQuery.jqXHR;
@@ -56,7 +55,7 @@ export default class Assets extends React.Component<AssetsProps, AssetsState , {
             dataType: 'json',
             cache: false,
             async: true
-        }).done((data: Array<Asset>) => this.setState({ data: data, assetID: (data.length > 0 ? data[0].ID : 0), assetName: (data.length > 0 ? data[0].AssetKey : '') })).fail((msg) => console.log(msg.responseJSON));
+        }).done((data: Array<any>) => this.setState({ data: data, assetID: (data.length > 0 ? data[0].ID : 0), assetName: (data.length > 0 ? data[0].AssetKey : '') })).fail((msg) => console.log(msg.responseJSON));
     }
 
     

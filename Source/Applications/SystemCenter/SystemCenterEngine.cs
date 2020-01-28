@@ -165,43 +165,6 @@ namespace SystemCenter
             // If system settings is still null, give up
             if ((object)m_systemSettings == null)
                 return;
-
-            using (AdoDataConnection connection = CreateDbConnection(m_systemSettings))
-            {
-                TableOperations<ConfigurationLoader> configurationLoaderTable = new TableOperations<ConfigurationLoader>(connection);
-
-                List<ConfigurationLoader> configurationLoaderDefinitions = configurationLoaderTable
-                    .QueryRecords("LoadOrder")
-                    .ToList();
-
-                string connectionString = LoadSystemSettings(connection);
-
-                foreach (ConfigurationLoader configurationLoaderDefinition in configurationLoaderDefinitions)
-                {
-                    try
-                    {
-                        OnStatusMessage("[{0}] Loading configuration...", configurationLoaderDefinition.UnqualifiedTypeName);
-
-                        using (ConfigurationLoaderWrapper wrapper = Wrap(configurationLoaderDefinition))
-                        {
-                            IConfigurationLoader configurationLoader = wrapper.DataObject;
-
-                            // Use the connection string parser to load system settings into the configuration loader
-                            ConnectionStringParser.ParseConnectionString(connectionString, configurationLoader);
-
-                            // Update configuration by calling the configuration loader's UpdateConfiguration method
-                            configurationLoader.UpdateConfiguration(connection);
-                        }
-
-                        OnStatusMessage("[{0}] Done loading configuration.", configurationLoaderDefinition.UnqualifiedTypeName);
-                    }
-                    catch (Exception ex)
-                    {
-                        string message = string.Format("[{0}] Unable to update configuration due to exception: {1}", configurationLoaderDefinition.UnqualifiedTypeName, ex.Message);
-                        OnProcessException(new InvalidOperationException(message, ex));
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -219,7 +182,7 @@ namespace SystemCenter
 
             // Retrieve the connection string from the config file
             category = configurationFile.Settings["systemSettings"];
-            category.Add("ConnectionString", "Data Source=localhost; Initial Catalog=openXDA; Integrated Security=SSPI", "Defines the connection to the openXDA database.");
+            category.Add("ConnectionString", "Data Source=localhost; Initial Catalog=SystemCenter; Integrated Security=SSPI", "Defines the connection to the openXDA database.");
             m_dbConnectionString = category["ConnectionString"].Value;
             
             // Load system settings from the database
@@ -285,36 +248,6 @@ namespace SystemCenter
         private static readonly ConnectionStringParser<SettingAttribute, CategoryAttribute> ConnectionStringParser = new ConnectionStringParser<SettingAttribute, CategoryAttribute>();
         private static readonly ILog Log = LogManager.GetLogger(typeof(SystemCenterEngine));
 
-        // Static Methods
-
-        // Instantiates the given data writer and wraps it in a disposable wrapper object.
-        private static ConfigurationLoaderWrapper Wrap(ConfigurationLoader loader)
-        {
-            try
-            {
-                Assembly assembly = Assembly.LoadFrom(loader.AssemblyName);
-                Type type = assembly.GetType(loader.TypeName);
-                return new ConfigurationLoaderWrapper(loader.ID, type);
-            }
-            catch (Exception ex)
-            {
-                string message = $"Failed to create configuration loader of type {loader.TypeName}: {ex.Message}";
-                throw new TypeLoadException(message, ex);
-            }
-        }
-
-        // Creates a new database connection based on the given system configuration.
-        private static AdoDataConnection CreateDbConnection(SystemSettings systemSettings)
-        {
-            string connectionString = systemSettings.DbConnectionString;
-            Type connectionType = typeof(SqlConnection);
-            Type adapterType = typeof(SqlDataAdapter);
-
-            return new AdoDataConnection(connectionString, connectionType, adapterType)
-            {
-                DefaultTimeout = systemSettings.DbTimeout
-            };
-        }
 
         // Displays status message to the console - proxy method for service implementation
         [StringFormatMethod("format")]

@@ -21,14 +21,13 @@
 //
 //******************************************************************************************************
 
-import { AssetTypeFieldAndValue } from "../global";
 import * as React from 'react';
 import * as _ from 'lodash';
 import ValueListInput from "./ValueListInput";
 
 declare var homePath: string;
 
-export default class OpenXDADataWindow extends React.Component<{ assetKey: string, fields: Array<AssetTypeFieldAndValue>, getData(): void, class: '' | 'Meter' | 'MeterLocation' | 'Line' }, { fields: Array<AssetTypeFieldAndValue>, collapsed: boolean }, {}> {
+export default class OpenXDADataWindow extends React.Component<{ assetKey: string, fields: Array<any>, getData(): void, class: '' | 'Meter' | 'MeterLocation' | 'Line' }, { fields: Array<any>, collapsed: boolean }, {}> {
     constructor(props, context) {
         super(props, context);
 
@@ -68,7 +67,7 @@ export default class OpenXDADataWindow extends React.Component<{ assetKey: strin
                             {
                                 this.state.fields.map(field =>
                                     <ValueListInput key={field.FieldName} valueListGroupID={1} field={field} onChange={(evt, fieldName, result) => {
-                                        var obj: Array<AssetTypeFieldAndValue> = _.clone(this.state.fields);
+                                        var obj: Array<any> = _.clone(this.state.fields);
                                         obj[obj.findIndex(x => x.FieldName == fieldName)].AssetTypeFieldValue = result;
                                         this.setState({ fields: obj })
                                     }} disabled={true}/>
