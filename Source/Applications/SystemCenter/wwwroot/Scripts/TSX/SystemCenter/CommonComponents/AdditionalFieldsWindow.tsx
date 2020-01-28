@@ -149,7 +149,7 @@ function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
                 </div>
 
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={addOrUpdateValues} disabled={!changed}>Update</button>
+                    <button className="btn btn-primary" onClick={addOrUpdateValues} disabled={!changed}>Save Changes</button>
                 </div>
                 <div className="btn-group mr-2">
                     <button className="btn btn-default" onClick={getFieldValues} disabled={!changed}>Reset</button>

@@ -181,7 +181,7 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                                                     channel.Name = event.target.value;
                                                     this.setState({ Channels: array });
                                                 }} /></td>
-                                                <td style={{ width: '40%' }}><input className='form-control' value={channel.Description} onChange={(event) => {
+                                                <td style={{ width: '40%' }}><input className='form-control' value={channel.Description == null ? '' : channel.Description} onChange={(event) => {
                                                     channel.Description = event.target.value;
                                                     this.setState({ Channels: array });
                                                 }} /></td>

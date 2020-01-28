@@ -30,6 +30,7 @@ import MeterChannelWindow from '../Meter/MeterChannel';
 import MeterAssetWindow from '../Meter/MeterAsset';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
+import MeterConfigurationHistoryWindow from './MeterConfigurationHistory';
 
 declare var homePath: string;
 
@@ -121,7 +122,9 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
                     <li className="nav-item">
                         <a className={"nav-link" + (this.state.Tab == "channels" ? " active" : "")} onClick={() => this.setTab('channels')} data-toggle="tab" href="#channels">Channels</a>
                     </li>
-
+                    <li className="nav-item">
+                        <a className={"nav-link" + (this.state.Tab == "configurationHistory" ? " active" : "")} onClick={() => this.setTab('configurationHistory')} data-toggle="tab" href="#configurationHistory">Configuration History</a>
+                    </li>
                 </ul>
              
                 <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
@@ -142,6 +145,9 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "assets" ? " active" : "fade")} id="assets">
                         <MeterAssetWindow Meter={this.state.Meter} />
+                    </div>
+                    <div className={"tab-pane " + (this.state.Tab == "configurationHistory" ? " active" : "fade")} id="configurationHistory">
+                        <MeterConfigurationHistoryWindow Meter={this.state.Meter} />
                     </div>
 
                 </div>                

@@ -242,10 +242,11 @@
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDABusController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDABreakerController.cs" />
+    <Compile Include="Controllers\OpenXDA\Meters\OpenXDAMeterConfigurationController.cs" />
     <Compile Include="Controllers\OpenXDA\OpenXDALocationController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDAAssetController.cs" />
     <Compile Include="Controllers\OpenXDA\OpenXDAControllers.cs" />
-    <Compile Include="Controllers\OpenXDA\OpenXDAMeterController.cs" />
+    <Compile Include="Controllers\OpenXDA\Meters\OpenXDAMeterController.cs" />
     <Compile Include="Controllers\SystemCenter\PingController.cs" />
     <Compile Include="DataHub.cs" />
     <Compile Include="Model\AppModel.cs" />
@@ -452,6 +453,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationAsset.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationMeter.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Meter.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterConfigurationHistory.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterChannel.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterAsset.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\NewMeterWizard.tsx" />
