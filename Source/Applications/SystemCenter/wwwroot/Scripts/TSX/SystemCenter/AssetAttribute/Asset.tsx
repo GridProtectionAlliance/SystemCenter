@@ -116,11 +116,11 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
     }
 
     static isInteger(value: any) {
-        var regex = /^[0-9]+$/;
+        var regex = /^-?[0-9]+$/;
         return value.toString().match(regex) != null;
     }
     static isRealNumber(value: any) {
-        var regex = /^[0-9]+(\.[0-9]+)?$/;
+        var regex = /^-?[0-9]+(\.[0-9]+)?$/;
         return value.toString().match(regex) != null;
     }
 

@@ -24,6 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
+import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
 declare interface MeterConfiguration {
@@ -33,7 +34,9 @@ declare interface MeterConfiguration {
     LastProcessedTime: string
 }
 function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Meter }) {
+    const history = useHistory();
     const [meterConfigurations, setMeterConfigurations] = React.useState<Array<MeterConfiguration>>([]);
+
     React.useEffect(() => {
         getData();
     }, [props.Meter]);
@@ -53,6 +56,10 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Meter }) {
         }).done((data: Array<MeterConfiguration>) => setMeterConfigurations(data));
     }
 
+    function handleSelect(item: MeterConfiguration) {
+        history.push({ pathname: `${homePath}index.cshtml`, search: `?name=ConfigurationHistory&MeterKey=${props.Meter.AssetKey}&MeterConfigurationID=${item.ID}`, state: {} })
+    }
+
     return (
             <div className="card" style={{ marginBottom: 10 }}>
                 <div className="card-header">
@@ -69,7 +76,7 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Meter }) {
                                 <tr><td>Revision</td><td>Files Processed</td><td>Last Processed Time</td></tr>
                             </thead>
                             <tbody>
-                                {meterConfigurations.map((a, i) => <tr key={i}><td>{a.Revision}</td><td>{a.FilesProcessed}</td><td>{a.LastProcessedTime}</td></tr>)}
+                            {meterConfigurations.map((a, i) => <tr key={i} style={{cursor: 'pointer' }} onClick={(e) => handleSelect(a)}><td>{a.Revision}</td><td>{a.FilesProcessed}</td><td>{a.LastProcessedTime}</td></tr>)}
                             </tbody>
                         </table>
 

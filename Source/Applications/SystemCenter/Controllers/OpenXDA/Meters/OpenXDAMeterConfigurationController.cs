@@ -49,19 +49,76 @@ namespace SystemCenter.Controllers.OpenXDA
             {
                 DataTable records = connection.RetrieveData(@"
                     SELECT
-	                    MeterConfiguration.Revision,
+                        MeterConfiguration.ID,
+	                    CAST(MeterConfiguration.RevisionMajor as varchar(max)) + '.'+  CAST(MeterConfiguration.RevisionMinor as varchar(max)) as Revision,
 	                    COUNT(FileGroup.ID) as FilesProcessed,
 	                    MAX(FileGroup.ProcessingEndTime) as LastProcessedTime
                     FROM
-	                    MeterConfiguration JOIN
-	                    FileGroupMeterConfiguration ON MeterConfiguration.ID = FileGroupMeterConfiguration.MeterConfigurationID JOIN
+	                    MeterConfiguration LEFT JOIN
+	                    FileGroupMeterConfiguration ON MeterConfiguration.ID = FileGroupMeterConfiguration.MeterConfigurationID LEFT JOIN
 	                    FileGroup ON FileGroupMeterConfiguration.FileGroupID = FileGroup.ID
                     WHERE
 	                    MeterConfiguration.MeterID = {0}
                     GROUP BY 
-	                    Revision
+                        MeterConfiguration.ID,
+	                    MeterConfiguration.RevisionMajor,
+	                    MeterConfiguration.RevisionMinor
+                    ORDER BY
+                        MeterConfiguration.RevisionMajor DESC, MeterConfiguration.RevisionMinor DESC
                 ", meterID);
                 return Ok(records);
+            }
+        }
+
+        [HttpGet, Route("{meterConfigurationID:int}/FilesProcessed")]
+        public IHttpActionResult GetFilesProcessedForMeterConfigurations(int meterConfigurationID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                IEnumerable<DataFile> records = new TableOperations<DataFile>(connection).QueryRecordsWhere(@"FileGroupID IN (SELECT FileGroupID FROM FileGroupMeterConfiguration WHERE MeterConfigurationID = {0})", meterConfigurationID);
+                return Ok(records);
+            }
+        }
+
+        public override IHttpActionResult GetOne(int id)
+        {
+            IHttpActionResult result =  base.GetOne(id);
+            MeterConfiguration meterConfiguration = result.ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<MeterConfiguration>().Result;
+            if (meterConfiguration.DiffID != null)
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    meterConfiguration.ConfigText = new TableOperations<MeterConfiguration>(connection).Unpatch(meterConfiguration);
+                }
+            }
+            return Ok(meterConfiguration);
+
+        }
+
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                if (User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        MeterConfiguration newRecord = record.ToObject<MeterConfiguration>();
+                        newRecord.RevisionMinor = 1 + connection.ExecuteScalar<int>("SELECT top 1 RevisionMinor FROM MeterConfiguration where meterid={0} and RevisionMajor = {1} order by RevisionMinor desc", newRecord.MeterID, newRecord.RevisionMajor);
+                        int result = new TableOperations<MeterConfiguration>(connection).AddNewRecord(newRecord);
+                        newRecord = new TableOperations<MeterConfiguration>(connection).QueryRecordWhere("MeterID = {0} AND RevisionMajor = {1} AND RevisionMinor = {2}", newRecord.MeterID, newRecord.RevisionMajor, newRecord.RevisionMinor);
+                        return Ok(newRecord);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
             }
         }
 

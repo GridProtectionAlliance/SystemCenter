@@ -46,7 +46,8 @@ module.exports = env => {
             jquery: 'jQuery',
             react: 'React',
             'react-dom': 'ReactDOM',
-            moment: 'moment'
+            moment: 'moment',
+            Ace: 'ace'
 
         },
         optimization: {

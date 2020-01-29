@@ -21,8 +21,6 @@
 //
 //******************************************************************************************************
 
-/// <reference path="SystemCenter.d.ts">
-
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Router, Route, NavLink } from 'react-router-dom';
@@ -38,6 +36,7 @@ import ByAsset from './OpenXDA/ByAsset';
 import ByMeter from './OpenXDA/ByMeter';
 import NewMeterWizard from './NewMeterWizard/NewMeterWizard';
 import Asset from './Asset/Asset';
+import ConfigurationHistory from './ConfigurationHistory/ConfigurationHistory';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -187,9 +186,12 @@ class SystemCenter extends React.Component<{}, {}, {}>{
                                 else
                                     return null;
                             }} />
-
-
-
+                            <Route children={({ match, ...rest }) => {
+                                if (queryString.parse(rest.location.search).name == "ConfigurationHistory")
+                                    return <ConfigurationHistory MeterConfigurationID={queryString.parse(rest.location.search).MeterConfigurationID} MeterKey={queryString.parse(rest.location.search).MeterKey}/>
+                                else
+                                    return null;
+                            }} />
                         </div>
 
                     </div>

@@ -84,9 +84,6 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
 
 
     getAssets(): void {
-        if (sessionStorage.hasOwnProperty('SystemCenter.Assets'))
-            this.setState({ AllAssets: JSON.parse(sessionStorage.getItem('SystemCenter.Assets')) });
-        else
             $.ajax({
                 type: "GET",
                 url: `${homePath}api/OpenXDA/Meter/${this.props.Meter.ID}/Asset`,
@@ -96,7 +93,6 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                 async: true
             }).done((assets: Array<OpenXDA.Asset>) => {
                 this.setState({ AllAssets: assets })
-                sessionStorage.setItem('SystemCenter.Assets', JSON.stringify(assets));
             });
     }
 
@@ -121,8 +117,8 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
     }
 
     getMeasurementTypes(): void {
-        if (sessionStorage.hasOwnProperty('SystemCenter.MeasurementTypes'))
-            this.setState({ MeasurementTypes: JSON.parse(sessionStorage.getItem('SystemCenter.MeasurementTypes')) });
+        if (sessionStorage.hasOwnProperty('OpenXDA.MeasurementTypes'))
+            this.setState({ MeasurementTypes: JSON.parse(sessionStorage.getItem('OpenXDA.MeasurementTypes')) });
         else
             $.ajax({
                 type: "GET",
@@ -133,7 +129,7 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                 async: true
             }).done((measurementTypes: Array<OpenXDA.MeasurementType>) => {
                 this.setState({ MeasurementTypes: measurementTypes })
-                sessionStorage.setItem('NewMeterWizard.MeasurementTypes', JSON.stringify(measurementTypes));
+                sessionStorage.setItem('OpenXDA.MeasurementTypes', JSON.stringify(measurementTypes));
 
             });
     }

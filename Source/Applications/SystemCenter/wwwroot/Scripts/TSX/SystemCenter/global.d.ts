@@ -61,7 +61,6 @@ export namespace OpenXDA {
     interface AssetConnectionType { ID: number, Name: string, Description: string, BiDirectional: boolean, JumpConnection: string, PassThrough: string }
     interface NoteType { ID: number, Name: string, ReferenceTableName: string }
 
-
-    // System Center - OpenXDA Link models
-    interface SCMeterLine extends OldLine { LineName: string, LineImpedanceID: number, R0: number, X0: number, R1: number, X1: number }
+    interface MeterConfiguration { ID: number, MeterID: number, DiffID: number, ConfigKey: string, ConfigText: string, RevisionMajor: number, RevisionMinor: number }
+    interface DataFile { ID: number, FileGroupID: number, FilePath: string, FilePathHash: number, FileSize: number, CreationTime: string, LastWriteTime: string, LastAccessTime: string, }
 }

@@ -397,6 +397,8 @@
     <None Include="wwwroot\Scripts\Site.js">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <Content Include="wwwroot\Scripts\ace\ace.js" />
+    <Content Include="wwwroot\Scripts\ace\mode-xml.js" />
     <Content Include="wwwroot\Scripts\default.polyfill.min.js" />
     <Content Include="wwwroot\Scripts\SystemCenter.js" />
     <None Include="AppDebug.config">
@@ -448,6 +450,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormCheckBox.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormInput.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormTextArea.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ConfigurationHistory\ConfigurationHistory.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Location\Location.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationInfo.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationAsset.tsx" />
