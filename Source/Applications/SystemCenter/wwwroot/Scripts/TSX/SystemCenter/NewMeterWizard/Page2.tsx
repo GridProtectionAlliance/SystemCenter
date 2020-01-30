@@ -25,6 +25,9 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, ValueListItem } from '../global';
 import { object } from 'prop-types';
+import FormInput from '../CommonComponents/FormInput';
+import AssetAttributes from '../AssetAttribute/Asset';
+import FormTextArea from '../CommonComponents/FormTextArea';
 declare var homePath: string;
 
 export default class Page2 extends React.Component<{ LocationInfo: OpenXDA.Location, UpdateState: (record) => void }, { Locations: Array<OpenXDA.Location> }, {}>{
@@ -33,6 +36,8 @@ export default class Page2 extends React.Component<{ LocationInfo: OpenXDA.Locat
         this.state = {
             Locations: []
         }
+
+        this.valid = this.valid.bind(this);
     }
     componentDidMount() {
         this.getAllLocations();
@@ -40,8 +45,8 @@ export default class Page2 extends React.Component<{ LocationInfo: OpenXDA.Locat
 
 
     getAllLocations(): void {
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.Locations'))
-            this.setState({ Locations: JSON.parse(sessionStorage.getItem('NewMeterWizard.Locations')) });
+        if (sessionStorage.hasOwnProperty('OpenXDA.Locations'))
+            this.setState({ Locations: JSON.parse(sessionStorage.getItem('OpenXDA.Locations')) });
         else
             $.ajax({
             type: "GET",
@@ -52,13 +57,38 @@ export default class Page2 extends React.Component<{ LocationInfo: OpenXDA.Locat
             async: true
             }).done((mls: Array<OpenXDA.Location>) => {
                 this.setState({ Locations: mls })
-                sessionStorage.setItem('NewMeterWizard.Locations', JSON.stringify(mls));
+                sessionStorage.setItem('OpenXDA.Locations', JSON.stringify(mls));
             });
     }
 
     getDifferentMeterLocation(meterLocationID: number): void {
         this.props.UpdateState({ LocationInfo: this.state.Locations.find((value, index, object) => value.ID == meterLocationID) })
     }
+
+    valid(field: keyof (OpenXDA.Location)): boolean {
+        if (field == 'LocationKey') {
+            if (this.props.LocationInfo.LocationKey == null || this.props.LocationInfo.LocationKey.length == 0 || this.props.LocationInfo.LocationKey.length > 50) return false;
+            else if (this.props.LocationInfo.ID == 0)
+                return this.state.Locations.find(locs => locs.LocationKey.toLowerCase() == this.props.LocationInfo.LocationKey.toLowerCase()) == null;
+            else
+                return true;
+        }
+        else if (field == 'Name')
+            return this.props.LocationInfo.Name != null && this.props.LocationInfo.Name.length > 0 && this.props.LocationInfo.Name.length <= 200;
+        else if (field == 'Alias')
+            return this.props.LocationInfo.Alias == null || this.props.LocationInfo.Alias.length <= 200;
+        else if (field == 'ShortName')
+            return this.props.LocationInfo.ShortName == null || this.props.LocationInfo.ShortName.length <= 50;
+        else if (field == 'Latitude')
+            return this.props.LocationInfo.Latitude != null && AssetAttributes.isRealNumber(this.props.LocationInfo.Latitude);
+        else if (field == 'Longitude')
+            return this.props.LocationInfo.Longitude != null && AssetAttributes.isRealNumber(this.props.LocationInfo.Longitude);
+        else if (field == 'Description')
+            return true;
+        return false;
+    }
+
+
 
     render() {
         return (
@@ -91,109 +121,15 @@ export default class Page2 extends React.Component<{ LocationInfo: OpenXDA.Locat
 
                         </select>
                     </div>
-                    <div className="form-group">
-
-                        <label>Location Key</label>
-                        <input className={(this.props.LocationInfo.LocationKey != null && this.props.LocationInfo.LocationKey.length > 0 && (this.state.Locations.map(a => a.LocationKey.toLowerCase()).indexOf(this.props.LocationInfo.LocationKey.toLowerCase()) < 0 || this.props.LocationInfo.ID != 0) ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                            var meterLocation: OpenXDA.Location = _.clone(this.props.LocationInfo, true);
-                            if (evt.target.value != "")
-                                meterLocation.LocationKey = evt.target.value;
-                            else
-                                meterLocation.LocationKey = null;
-
-                            this.props.UpdateState({ LocationInfo: meterLocation });
-                        }} value={this.props.LocationInfo.LocationKey == null ? '' : this.props.LocationInfo.LocationKey} disabled={this.props.LocationInfo.ID != 0} />
-                        <div className='invalid-feedback'>{(this.state.Locations.map(a => a.LocationKey).indexOf(this.props.LocationInfo.LocationKey) < 0 ? 'A unique key is required.' : 'The key provided is not unique.')}</div>
-
-                    </div>
-                    <div className="form-group">
-
-                        <label>Name</label>
-                        <input className={(this.props.LocationInfo.Name != null && this.props.LocationInfo.Name.length > 0 ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                            var meterLocation: OpenXDA.Location = _.clone(this.props.LocationInfo, true);
-                            if (evt.target.value != "")
-                                meterLocation.Name = evt.target.value;
-                            else
-                                meterLocation.Name = null;
-
-                            this.props.UpdateState({ LocationInfo: meterLocation });
-                        }} value={this.props.LocationInfo.Name == null ? '' : this.props.LocationInfo.Name} disabled={this.props.LocationInfo.ID != 0}/>
-                        <div className='invalid-feedback'>Name is a required field.</div>
-
-                    </div>
-                    <div className="form-group">
-
-                        <label>Short Name</label>
-                        <input className="form-control" onChange={(evt) => {
-                            var meterLocation: OpenXDA.Location = _.clone(this.props.LocationInfo, true);
-                            if (evt.target.value != "")
-                                meterLocation.ShortName = evt.target.value;
-                            else
-                                meterLocation.ShortName = null;
-
-                            this.props.UpdateState({ LocationInfo: meterLocation });
-                        }} value={this.props.LocationInfo.ShortName == null ? '' : this.props.LocationInfo.ShortName} disabled={this.props.LocationInfo.ID != 0} />
-
-                    </div>
+                    <FormInput<OpenXDA.Location> Record={this.props.LocationInfo} Field='LocationKey' Label='Key' Setter={(record) => this.props.UpdateState({ LocationInfo: record })} Valid={this.valid} Feedback='A unique Key is required and must be less than 50 characters.' Disabled={this.props.LocationInfo.ID != 0}/>
+                    <FormInput<OpenXDA.Location> Record={this.props.LocationInfo} Field='Name' Setter={(record) => this.props.UpdateState({ LocationInfo: record })} Valid={this.valid} Feedback='Name is required and must be less than 200 characters.' Disabled={this.props.LocationInfo.ID != 0}/>
+                    <FormInput<OpenXDA.Location> Record={this.props.LocationInfo} Field='ShortName' Label='Short Name' Setter={(record) => this.props.UpdateState({ LocationInfo: record })} Valid={this.valid} Feedback='Short Name must be less than 50 characters.' Disabled={this.props.LocationInfo.ID != 0}/>
                 </div>
                 <div className="col">
-                    <div className="form-group">
-                        <label>Alias</label>
-                        <input className="form-control" onChange={(evt) => {
-                            var meterLocation: OpenXDA.Location = _.clone(this.props.LocationInfo, true);
-                            if (evt.target.value != "")
-                                meterLocation.Alias = evt.target.value;
-                            else
-                                meterLocation.Alias = null;
-
-                            this.props.UpdateState({ LocationInfo: meterLocation });
-                        }} value={this.props.LocationInfo.Alias == null ? '' : this.props.LocationInfo.Alias} disabled={this.props.LocationInfo.ID != 0}/>
-                    </div>
-                    <div className="form-group">
-
-
-                        <label>Latitude</label>
-                        <input className={(this.props.LocationInfo.Latitude != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                            var meterLocation: OpenXDA.Location = _.clone(this.props.LocationInfo, true);
-                            if (evt.target.value != "")
-                                meterLocation.Latitude = parseFloat(evt.target.value);
-                            else
-                                meterLocation.Latitude = null;
-
-                            this.props.UpdateState({ LocationInfo: meterLocation });
-                        }} value={this.props.LocationInfo.Latitude == null ? '' : this.props.LocationInfo.Latitude} type="number" step={3} disabled={this.props.LocationInfo.ID != 0}/>
-                        <div className='invalid-feedback'>Latitude is a required field.</div>
-
-                    </div>
-                    <div className="form-group">
-
-                        <label>Longitude</label>
-                        <input className={(this.props.LocationInfo.Longitude != null ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                            var meterLocation: OpenXDA.Location = _.clone(this.props.LocationInfo, true);
-                            if (evt.target.value != "")
-                                meterLocation.Longitude = parseFloat(evt.target.value);
-                            else
-                                meterLocation.Longitude = null;
-
-                            this.props.UpdateState({ LocationInfo: meterLocation });
-                        }} value={this.props.LocationInfo.Longitude == null ? '' : this.props.LocationInfo.Longitude} type="number" step={3} disabled={this.props.LocationInfo.ID != 0} />
-                        <div className='invalid-feedback'>Longitude is a required field.</div>
-
-                    </div>
-                    <div className="form-group">
-                        <label>Description</label>
-                        <textarea rows={2} className="form-control" onChange={(evt) => {
-                            var meterLocation: OpenXDA.Location = _.clone(this.props.LocationInfo, true);
-                            if (evt.target.value != "")
-                                meterLocation.Description = evt.target.value;
-                            else
-                                meterLocation.Description = null;
-
-                            this.props.UpdateState({ LocationInfo: meterLocation });
-                        }} value={this.props.LocationInfo.Description == null ? '' : this.props.LocationInfo.Description} disabled={this.props.LocationInfo.ID != 0}/>
-
-
-                    </div>
+                    <FormInput<OpenXDA.Location> Record={this.props.LocationInfo} Field='Alias' Setter={(record) => this.props.UpdateState({ LocationInfo: record })} Valid={this.valid} Feedback='Alias must be less than 200 characters.' Disabled={this.props.LocationInfo.ID != 0}/>
+                    <FormInput<OpenXDA.Location> Record={this.props.LocationInfo} Field='Latitude' Setter={(record) => this.props.UpdateState({ LocationInfo: record })} Valid={this.valid} Feedback='Latitude is a required numeric field.' Disabled={this.props.LocationInfo.ID != 0}/>
+                    <FormInput<OpenXDA.Location> Record={this.props.LocationInfo} Field='Longitude' Setter={(record) => this.props.UpdateState({ LocationInfo: record })} Valid={this.valid} Feedback='Longitude is a required numeric field.' Disabled={this.props.LocationInfo.ID != 0}/>
+                    <FormTextArea<OpenXDA.Location> Rows={3} Record={this.props.LocationInfo} Field='Description' Setter={(record) => this.props.UpdateState({ LocationInfo: record })} Valid={this.valid} Feedback='' Disabled={this.props.LocationInfo.ID != 0}/>
                 </div>
             </div>
         );

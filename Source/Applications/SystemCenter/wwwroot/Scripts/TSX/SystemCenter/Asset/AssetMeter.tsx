@@ -51,7 +51,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&meterId=' + item.row.ID, state: {} })
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID, state: {} })
     }
 
     return (

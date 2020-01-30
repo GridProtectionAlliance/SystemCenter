@@ -34,7 +34,7 @@ import MeterConfigurationHistoryWindow from './MeterConfigurationHistory';
 
 declare var homePath: string;
 
-export default class Meter extends React.Component<{ meterId: number}, { Meter: OpenXDA.Meter, Tab: string}, {}>{
+export default class Meter extends React.Component<{ MeterID: number}, { Meter: OpenXDA.Meter, Tab: string}, {}>{
     constructor(props, context) {
         super(props, context);
 
@@ -52,10 +52,10 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
     }
 
     getMeter(): void {
-       if (this.props.meterId == undefined) return;
+        if (this.props.MeterID == undefined) return;
        $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Meter/One/${this.props.meterId}`,
+           url: `${homePath}api/OpenXDA/Meter/One/${this.props.MeterID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -129,13 +129,13 @@ export default class Meter extends React.Component<{ meterId: number}, { Meter: 
              
                 <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                     <div className={"tab-pane " + (this.state.Tab == "notes" ? " active" : "fade")} id="notes">
-                        <NoteWindow ID={this.props.meterId} Type='Meter'/>
+                        <NoteWindow ID={this.props.MeterID} Type='Meter'/>
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "meterInfo" ? " active" : "fade")} id="meterInfo">
                         <MeterInfoWindow Meter={this.state.Meter} StateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
-                        <AdditionalFieldsWindow ID={this.props.meterId} Type='Meter' />
+                        <AdditionalFieldsWindow ID={this.props.MeterID} Type='Meter' />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "substation" ? " active" : "fade")} id="substation">
                         <MeterLocationWindow Meter={this.state.Meter} StateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />

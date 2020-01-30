@@ -98,14 +98,14 @@ export default class NewMeterWizard extends React.Component<{}, WizardState, {}>
         else
             return {
                 ID: 0,
-                AssetKey: '',
-                Name: '',
-                ShortName: '',
-                Alias: '',
-                Make: '',
-                Model: '',
-                TimeZone: '',
-                Description: '',
+                AssetKey: null,
+                Name: null,
+                ShortName: null,
+                Alias: null,
+                Make: null,
+                Model: null,
+                TimeZone: null,
+                Description: null,
                 LocationID: 0
             }
     }
@@ -116,13 +116,13 @@ export default class NewMeterWizard extends React.Component<{}, WizardState, {}>
         else
             return {
                 ID: 0,
-                LocationKey: '',
-                Name: '',
-                Alias: '',
-                ShortName: '',
-                Latitude: 0,
-                Longitude: 0,
-                Description: '',
+                LocationKey: null,
+                Name: null,
+                Alias: null,
+                ShortName: null,
+                Latitude: null,
+                Longitude: null,
+                Description: null,
             }
     }
 

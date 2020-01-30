@@ -132,7 +132,7 @@ function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <table className='table'>
                         <thead>
-                            <tr><td>Field</td><td>Value</td><td></td><td></td></tr>
+                            <tr><th>Field</th><th style={{ width: 150 }}>Ext DB</th><th style={{ width: 100}}>Type</th><th style={{ width: 300 }}>Value</th><th style={{ width: 30 }}></th><th style={{width: 30}}></th></tr>
                         </thead>
                         <tbody>
                             {additionalFields.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} Field={a} Values={additionalFieldValues} Setter={(values) => {
@@ -211,6 +211,8 @@ function TableRowInput(props: { ParentTableID: number, Field: AdditionalField, V
     return(
         <tr>
             <td>{props.Field.FieldName}</td>
+            <td>{props.Field.ExternalDB}</td>
+            <td>{props.Field.Type}</td>
             <td>
                 <input className={(Valid(props.Field.Type) ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
                     if (evt.target.value != "")

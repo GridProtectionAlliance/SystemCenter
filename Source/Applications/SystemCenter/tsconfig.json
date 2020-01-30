@@ -4,7 +4,7 @@
     "paths": { "*": [ "types/*" ] },
     "downlevelIteration": true,
     "jsx": "react",
-    "lib": [ "dom", "es5", "scripthost", "es2015" ],
+    "lib": [ "dom", "es5", "scripthost", "es2015", "es6" ],
     "noEmitOnError": true,
     "noImplicitAny": false,
     "removeComments": true,

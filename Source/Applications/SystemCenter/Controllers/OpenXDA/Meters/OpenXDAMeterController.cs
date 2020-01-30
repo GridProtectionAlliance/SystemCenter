@@ -155,15 +155,26 @@ namespace SystemCenter.Controllers.OpenXDA
                     {
                         if (assetType == "Line")
                         {
-                            sqlString += $"INSERT INTO Line (VoltageKV, AssetKey, Description, AssetName, AssetTypeID, MaxFaultDistance, MinFaultDistance) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Line'),{asset["MaxFaultDistance"].ToString()},{asset["MinFaultDistance"].ToString()}) \n";
+                            string maxFaultDistance = asset["MaxFaultDistance"].ToString() == string.Empty ? "NULL" : asset["MaxFaultDistance"].ToString();
+                            string minFaultDistance = asset["MinFaultDistance"].ToString() == string.Empty ? "NULL" : asset["MinFaultDistance"].ToString();
+
+                            sqlString += $"INSERT INTO Line (VoltageKV, AssetKey, Description, AssetName, AssetTypeID, MaxFaultDistance, MinFaultDistance) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Line'),{maxFaultDistance},{minFaultDistance}) \n";
                             sqlString += $"INSERT INTO LineSegment (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,R0, X0, R1, X1, ThermalRating, Length) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}LineSegment','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'LineSegment'),{asset["Segment"]["R0"].ToString()},{asset["Segment"]["X0"].ToString()},{asset["Segment"]["R1"].ToString()},{asset["Segment"]["X1"].ToString()},{asset["Segment"]["ThermalRating"].ToString()},{asset["Segment"]["Length"].ToString()} ) \n";
                             sqlString += $"INSERT INTO AssetRelationship (AssetRelationshipTypeID, ParentID, ChildID) VALUES ((SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}LineSegment')) \n";
+                            sqlString += $"INSERT INTO MeterAsset (MeterID, AssetID) VALUES ((SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}LineSegment')) \n";
+                            sqlString += $"INSERT INTO AssetLocation (LocationID, AssetID) VALUES ((SELECT ID FROM Location WHERE LocationKey = '{location.LocationKey}'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}LineSegment')) \n";
+
                         }
                         else if (assetType == "LineSegment")
                             sqlString += $"INSERT INTO LineSegment (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,R0, X0, R1, X1, ThermalRating, Length) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'LineSegment'),{asset["R0"].ToString()},{asset["X0"].ToString()},{asset["R1"].ToString()},{asset["X1"].ToString()},{asset["ThermalRating"].ToString()},{asset["Length"].ToString()} ) \n";
                         else if (assetType == "Breaker")
                         {
-                            sqlString += $"INSERT INTO Breaker (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,ThermalRating, Speed, TripTime, PickupTime, TripCoilCondition, Spare) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Breaker'),{asset["ThermalRating"].ToString()},{asset["Speed"].ToString()},{asset["TripTime"].ToString()},{asset["PickupTime"].ToString()},{asset["TripCoilCondition"].ToString()}, {(asset["Spare"].ToString() == "true" ? "1" : "0")} ) \n";
+                            string tripTime = asset["TripTime"].ToString() == string.Empty ? "NULL" : asset["TripTime"].ToString();
+                            string pickupTime = asset["PickupTime"].ToString() == string.Empty ? "NULL" : asset["PickupTime"].ToString();
+                            string tripCoilCondition = asset["TripCoilCondition"].ToString() == string.Empty ? "NULL" : asset["TripCoilCondition"].ToString();
+
+
+                            sqlString += $"INSERT INTO Breaker (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,ThermalRating, Speed, TripTime, PickupTime, TripCoilCondition, Spare) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Breaker'),{asset["ThermalRating"].ToString()},{asset["Speed"].ToString()},{tripTime},{pickupTime},{tripCoilCondition}, {(asset["Spare"].ToString() == "true" ? "1" : "0")} ) \n";
                             if (asset["EDNAPoint"] != null)
                                 sqlString += $"INSERT INTO EDNAPoint (BreakerID, Point) VALUES ((SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'),'{asset["EDNAPoint"].ToString()}') \n";
                         }
@@ -172,7 +183,13 @@ namespace SystemCenter.Controllers.OpenXDA
                         else if (assetType == "CapacitorBank")
                             sqlString += $"INSERT INTO CapBank (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,NumberOfBanks, CansPerBank, CapacitancePerBank) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'CapacitorBank'),{asset["NumberOfBanks"].ToString()},{asset["CansPerBank"].ToString()},{asset["CapacitancePerBank"].ToString()} ) \n";
                         else if (assetType == "Transformer")
-                            sqlString += $"INSERT INTO Transformer (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,R0, X0, R1, X1, ThermalRating, PrimaryVoltageKV, SecondaryVoltageKV, Tap) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Transformer'),{asset["R0"].ToString()},{asset["X0"].ToString()},{asset["R1"].ToString()},{asset["X1"].ToString()},{asset["ThermalRating"].ToString()},{asset["PrimaryVoltageKV"].ToString()},{asset["SecondaryVoltageKV"].ToString()},{asset["Tap"].ToString()} ) \n";
+                        {
+                            string primaryVoltageKV = asset["PrimaryVoltageKV"].ToString() == string.Empty ? "NULL" : asset["PrimaryVoltageKV"].ToString();
+                            string secondaryVoltageKV = asset["SecondaryVoltageKV"].ToString() == string.Empty ? "NULL" : asset["SecondaryVoltageKV"].ToString();
+                            string tap = asset["Tap"].ToString() == string.Empty ? "NULL" : asset["Tap"].ToString();
+
+                            sqlString += $"INSERT INTO Transformer (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,R0, X0, R1, X1, ThermalRating, PrimaryVoltageKV, SecondaryVoltageKV, Tap) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Transformer'),{asset["R0"].ToString()},{asset["X0"].ToString()},{asset["R1"].ToString()},{asset["X1"].ToString()},{asset["ThermalRating"].ToString()},{primaryVoltageKV},{secondaryVoltageKV},{tap} ) \n";
+                        }
                         else
                             sqlString += $"INSERT INTO Asset (VoltageKV, AssetKey, Description, AssetName, AssetTypeID) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Bus')) \n";
                     }

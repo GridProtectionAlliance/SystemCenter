@@ -13,11 +13,19 @@ module.exports = env => {
         context: path.resolve(__dirname, 'wwwroot', 'Scripts'),
         cache: true,
         entry: {
-            SystemCenter: "./TSX/SystemCenter/SystemCenter.tsx"
+            SystemCenter: "./TSX/SystemCenter/SystemCenter.tsx",
+            //ByMeter: "./TSX/SystemCenter/OpenXDA/ByMeter.tsx",
+            //ByLocation: "./TSX/SystemCenter/OpenXDA/ByLocation.tsx",
+            //ByAsset: "./TSX/SystemCenter/OpenXDA/ByAsset.tsx",
+            //Asset: "./TSX/SystemCenter/Asset/Asset.tsx",
+            //NewMeterWizard: "./TSX/SystemCenter/NewMeterWizard/NewMeterWizard.tsx",
+            //ConfigurationHistory: "./TSX/SystemCenter/ConfigurationHistory/ConfigurationHistory.tsx",
         },
         output: {
             path: path.resolve(__dirname, 'wwwroot', 'Scripts'),
-            filename: "[name].js"
+            publicPath: path.resolve(__dirname, 'wwwroot', 'Scripts'),
+            filename: "[name].js",
+            chunkFilename: '[name].bundle.js'
         },
         // Enable sourcemaps for debugging webpack's output.
         devtool: "inline-source-map",
