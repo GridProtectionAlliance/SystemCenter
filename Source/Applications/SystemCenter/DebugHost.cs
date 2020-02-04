@@ -80,7 +80,6 @@ namespace SystemCenter
 
         // Fields
         private string m_productName;
-        private Process m_remoteConsole;
         private ServiceHost m_serviceHost;
 
         #endregion
@@ -104,7 +103,6 @@ namespace SystemCenter
             if (!DesignMode)
             {
                 Environment.CurrentDirectory = FilePath.GetAbsolutePath("");
-                m_remoteConsole = Process.Start("SystemCenterConsole.exe");
 
                 // Initialize text.
                 m_productName = AssemblyInfo.EntryAssembly.Title;
@@ -130,9 +128,6 @@ namespace SystemCenter
                 {
                     // Stop the windows service.
                     m_serviceHost.StopDebugging();
-
-                    if ((object)m_remoteConsole != null && !m_remoteConsole.HasExited)
-                        m_remoteConsole.Kill();
                 }
                 else
                 {

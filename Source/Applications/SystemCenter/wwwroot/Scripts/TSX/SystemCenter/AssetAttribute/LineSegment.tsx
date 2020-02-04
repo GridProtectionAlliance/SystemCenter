@@ -23,11 +23,11 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, NewEdit } from '../global';
+import { OpenXDA, SystemCenter } from '../global';
 import AssetAttributes from './Asset';
 import FormInput from '../CommonComponents/FormInput';
 
-function LineSegmentAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.LineSegment, UpdateState: (newEditAsset: OpenXDA.LineSegment) => void }): JSX.Element {
+function LineSegmentAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.LineSegment, UpdateState: (newEditAsset: OpenXDA.LineSegment) => void }): JSX.Element {
     function valid(field: keyof(OpenXDA.LineSegment)): boolean {
         if (field == 'Length')
             return props.Asset.Length != null && AssetAttributes.isRealNumber(props.Asset.Length);

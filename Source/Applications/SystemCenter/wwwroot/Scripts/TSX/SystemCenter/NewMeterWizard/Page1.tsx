@@ -23,13 +23,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, ValueListItem } from '../global';
+import { OpenXDA, SystemCenter } from '../global';
 import FormInput from '../CommonComponents/FormInput';
 import FormTextArea from '../CommonComponents/FormTextArea';
 
 declare var homePath: string;
 
-export default class Page1 extends React.Component<{ MeterInfo: OpenXDA.Meter, UpdateState: (record: OpenXDA.Meter) => void }, { TimeZones: Array<ValueListItem>, MeterKeys: Array<string> }, {}>{
+export default class Page1 extends React.Component<{ MeterInfo: OpenXDA.Meter, UpdateState: (record: OpenXDA.Meter) => void }, { TimeZones: Array<SystemCenter.ValueListItem>, MeterKeys: Array<string> }, {}>{
     constructor(props, context) {
         super(props, context);
         this.state = {
@@ -58,7 +58,7 @@ export default class Page1 extends React.Component<{ MeterInfo: OpenXDA.Meter, U
                 dataType: 'json',
                 cache: true,
                 async: true
-            }).done((tzs: Array<ValueListItem>) => {
+            }).done((tzs: Array<SystemCenter.ValueListItem>) => {
                 this.setState({ TimeZones: tzs });
                 sessionStorage.setItem('SystemCenter.TimeZones', JSON.stringify(tzs));
 

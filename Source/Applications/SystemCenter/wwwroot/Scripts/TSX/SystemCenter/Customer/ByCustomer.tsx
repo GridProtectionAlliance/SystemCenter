@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
-//  ByMeter.tsx - Gbtc
+//  ByCustomer.tsx - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,7 +16,7 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/22/2019 - Billy Ernest
+//  02/04/2020 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
@@ -25,46 +25,94 @@ import * as React from 'react';
 import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
+import { SystemCenter } from '../global';
+import FormInput from '../CommonComponents/FormInput';
+import FormTextArea from '../CommonComponents/FormTextArea';
 
-type FieldName = 'Meter.AssetKey' | 'Meter.Name' | 'Meter.Location' | 'Meter.Make' | 'Meter.Model' | 'Asset.AssetKey' | 'Note.Note';
+type FieldName = 'Customer.AccountName' | 'Customer.Name' | 'Customer.Phone' | 'Customer.Description' | 'PQViewSite.name' /*'Note.Note'*/;
 interface Search {
     Field: FieldName,
     SearchText: string
 }   
-interface Meter {
-    ID: number, AssetKey: string, Name: string, Location: string, MappedAssets: number, Make: string, Model: string 
+interface Customer extends SystemCenter.Customer {
+    Meters: number
 }
+
 declare var homePath: string;
 
-function ByMeter(): JSX.Element {
+function ByCustomer(props: { Roles: Array<SystemCenter.Role>}): JSX.Element {
     let history = useHistory();
 
-    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Meter.AssetKey', SearchText: '' }]);
-    const [data, setData] = React.useState<Array<Meter>>([]);
+    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Customer.AccountName', SearchText: '' }]);
+    const [data, setData] = React.useState<Array<Customer>>([]);
     const [sortField, setSortField] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [newCustomer, setNewCustomer] = React.useState<SystemCenter.Customer>(getNewCustomer());
 
     React.useEffect(() => {
-        getMeters();
+        return getData();
     }, []);
 
-    function getMeters(): void{
-        $.ajax({
+    function getData() {
+        let handle = getCustomers();
+        handle.done((data: Array<Customer>) => setData(data));
+        return function cleanup() {
+            if (handle.abort != null)
+                handle.abort();
+        }
+
+    }
+
+    function getCustomers(): JQuery.jqXHR<Array<Customer>>{
+        return $.ajax({
             type: "Post",
-            url: `${homePath}api/OpenXDA/Meter/SearchableList`,
+            url: `${homePath}api/SystemCenter/Customer/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify(search),
             cache: false,
             async: true
-        }).done((data: Array<Meter>) => setData( data));
+        });
     }
 
-    function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID, state: {} })
+    function getNewCustomer(): SystemCenter.Customer {
+        return {
+            ID: 0,
+            AccountName: null,
+            Name: null,
+            Phone: null,
+            Description: null
+        }
     }
-    function goNewMeterWizard() {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard', state: {} })
+
+    function addNewCustomer() {
+        $.ajax({
+            type: "POST",
+            url: `${homePath}api/SystemCenter/Customer/Add`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify(newCustomer),
+            cache: false,
+            async: true
+        }).done((data) => getData());
+
+    }
+
+
+    function handleSelect(item) {
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Customer&CustomerID=' + item.row.ID, state: {} })
+    }
+
+    function valid(field: keyof (SystemCenter.Customer)): boolean {
+        if (field == 'AccountName')
+            return newCustomer.AccountName != null && newCustomer.AccountName.length > 0 && newCustomer.AccountName.length <= 25;
+        else if (field == 'Name')
+            return newCustomer.Name == null || newCustomer.Name.length <= 100;
+        else if (field == 'Phone')
+            return newCustomer.Phone == null || newCustomer.Phone.length <= 20;
+        else if (field == 'Description')
+            return newCustomer.Description == null || newCustomer.Description.length <= 200;
+        return false;
     }
 
 
@@ -88,13 +136,11 @@ function ByMeter(): JSX.Element {
                                                             let array = _.clone(a, true);
                                                             setSearch(array);
                                                         }}>
-                                                            <option value='Meter.AssetKey'>Key</option>
-                                                            <option value='Meter.Name'>Name</option>
-                                                            <option value='Meter.Location'>Location</option>
-                                                            <option value='Meter.Make'>Make</option>
-                                                            <option value='Meter.Model'>Model</option>
-                                                            <option value='Asset.AssetKey'>Asset</option>
-                                                            <option value='Note.Note'>Note</option>
+                                                            <option value='Customer.AccountName'>Account Name</option>
+                                                            <option value='Customer.Name'>Name</option>
+                                                            <option value='Customer.Phone'>Phone</option>
+                                                            <option value='Customer.Description'>Description</option>
+                                                            <option value='PQViewSite.name'>PQView Site Name</option>
                                                         </select>
                                                     </div>
                                                     <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
@@ -132,7 +178,7 @@ function ByMeter(): JSX.Element {
                                     <div className="form-group">
                                         <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                                             event.preventDefault();
-                                            getMeters();
+                                            getCustomers().done(cs => setData(cs));
                                         }}>Update Search</button>
                                     </div>
                                 </form>
@@ -140,9 +186,9 @@ function ByMeter(): JSX.Element {
                         </li>
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
-                                    <button className="btn btn-primary" onClick={goNewMeterWizard}>New Meter</button>
+                                    <button className="btn btn-primary" data-toggle='modal' data-target="#customerModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Add Customer</button>
                                 </form>
                             </fieldset>
                         </li>
@@ -153,14 +199,13 @@ function ByMeter(): JSX.Element {
             </nav>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table
+                <Table<Customer>
                     cols={[
-                        { key: 'AssetKey', label: 'AssetKey', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Location', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'MappedAssets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'AccountName', label: 'Account Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Meters', label: 'Assigned Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                     ]}
@@ -188,9 +233,35 @@ function ByMeter(): JSX.Element {
                     selected={(item) => false}
                 />
             </div>
+
+            <div className="modal" id="customerModal">
+                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h4 className="modal-title">Add Customer</h4>
+                            <button type="button" className="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div className="modal-body">
+                            <div className="row">
+                                <FormInput<SystemCenter.Customer> Record={newCustomer} Field={'AccountName'} Feedback={'AccountName of less than 25 characters is required.'} Valid={valid} Setter={setNewCustomer} />
+                                <FormInput<SystemCenter.Customer> Record={newCustomer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={setNewCustomer} />
+                                <FormInput<SystemCenter.Customer> Record={newCustomer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={setNewCustomer} />
+                                <FormTextArea<SystemCenter.Customer> Rows={3} Record={newCustomer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={setNewCustomer} />
+                            </div>
+
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewCustomer}>Save</button>
+                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </div>
     )
 }
 
-export default ByMeter;
+export default ByCustomer;
 

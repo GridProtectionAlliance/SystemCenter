@@ -148,6 +148,11 @@ GO
 
 INSERT INTO ApplicationRole(Name, Description) VALUES('Administrator', 'Admin Role')
 GO
+INSERT INTO ApplicationRole(Name, Description) VALUES('Transmission SME', 'Transmission SME')
+GO
+INSERT INTO ApplicationRole(Name, Description) VALUES('PQ Data Viewer', 'PQ Data Viewer')
+GO
+
 
 INSERT INTO SecurityGroup(Name, Description) VALUES('BUILTIN\Users', 'All Windows authenticated users')
 GO
@@ -177,6 +182,25 @@ CREATE TABLE AdditionalFieldValue(
 )
 GO
 
+CREATE TABLE Customer(
+	ID INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	AccountName VARCHAR(25) NOT NULL UNIQUE,
+	Name VARCHAR(100) NULL,
+	Phone VARCHAR(20) NULL,
+	Description VARCHAR(200) NULL
+)
+
+GO
+
+CREATE TABLE CustomerAccess(
+	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	CustomerID int NOT NULL FOREIGN KEY REFERENCES Customer(ID),
+	PQViewSiteID int NOT NULL
+)
+GO
+
+CREATE VIEW PQViewSite AS SELECT * FROM PQView3.dbo.Site
+GO
 
 -- Author: Kevin Conner
 -- Source: http://stackoverflow.com/questions/116968/in-sql-server-2005-can-i-do-a-cascade-delete-without-setting-the-property-on-my

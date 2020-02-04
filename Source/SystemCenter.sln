@@ -48,12 +48,10 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{B554F6A4-C3DF-4D8B-B3EF-7819B44BCE09}"
 	ProjectSection(SolutionItems) = preProject
 		Data\SystemCenter.sql = Data\SystemCenter.sql
-		TVADefaults.sql = TVADefaults.sql
+		Data\TVADefaults.sql = Data\TVADefaults.sql
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemCenter", "Applications\SystemCenter\SystemCenter.csproj", "{0C461E89-2430-4E47-B5C4-97FCA86E0E21}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SystemCenterConsole", "Applications\SystemCenterConsole\SystemCenterConsole.csproj", "{72F417E9-F592-4417-B87C-B681AE707294}"
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "SystemCenterSetup", "Applications\SystemCenterSetup\SystemCenterSetup.wixproj", "{36380070-81B6-4D71-A80A-C5AE76B0E357}"
 EndProject
@@ -81,18 +79,6 @@ Global
 		{0C461E89-2430-4E47-B5C4-97FCA86E0E21}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0C461E89-2430-4E47-B5C4-97FCA86E0E21}.Release|x86.ActiveCfg = Release|x86
 		{0C461E89-2430-4E47-B5C4-97FCA86E0E21}.Release|x86.Build.0 = Release|x86
-		{72F417E9-F592-4417-B87C-B681AE707294}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{72F417E9-F592-4417-B87C-B681AE707294}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{72F417E9-F592-4417-B87C-B681AE707294}.Debug|x86.ActiveCfg = Debug|x86
-		{72F417E9-F592-4417-B87C-B681AE707294}.Debug|x86.Build.0 = Debug|x86
-		{72F417E9-F592-4417-B87C-B681AE707294}.Mono|Any CPU.ActiveCfg = Release|Any CPU
-		{72F417E9-F592-4417-B87C-B681AE707294}.Mono|Any CPU.Build.0 = Release|Any CPU
-		{72F417E9-F592-4417-B87C-B681AE707294}.Mono|x86.ActiveCfg = Release|x86
-		{72F417E9-F592-4417-B87C-B681AE707294}.Mono|x86.Build.0 = Release|x86
-		{72F417E9-F592-4417-B87C-B681AE707294}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{72F417E9-F592-4417-B87C-B681AE707294}.Release|Any CPU.Build.0 = Release|Any CPU
-		{72F417E9-F592-4417-B87C-B681AE707294}.Release|x86.ActiveCfg = Release|x86
-		{72F417E9-F592-4417-B87C-B681AE707294}.Release|x86.Build.0 = Release|x86
 		{36380070-81B6-4D71-A80A-C5AE76B0E357}.Debug|Any CPU.ActiveCfg = Debug|x64
 		{36380070-81B6-4D71-A80A-C5AE76B0E357}.Debug|x86.ActiveCfg = Debug|x86
 		{36380070-81B6-4D71-A80A-C5AE76B0E357}.Mono|Any CPU.ActiveCfg = Release|x86

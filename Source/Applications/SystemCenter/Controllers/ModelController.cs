@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Reflection;
 using System.Web.Http;
 using GSF.Data;
@@ -35,9 +36,16 @@ using Newtonsoft.Json.Linq;
 
 namespace SystemCenter.Controllers
 {
-    [AuthorizeControllerRole]
     public class ModelController<T> : ApiController where T : class, new()
     {
+        #region [Members ]
+        public class Search
+        {
+            public string Field { get; set; }
+            public string SearchText { get; set; }
+        }
+        #endregion
+
         #region [ Constructor ]
         public ModelController() {
         }
@@ -72,7 +80,7 @@ namespace SystemCenter.Controllers
         protected virtual string DeleteRoles { get; } = "Administrator";
         #endregion
 
-        #region [ Methods ]
+        #region [ Http Methods ]
         [HttpGet, Route("{parentID:int?}")]
         public virtual IHttpActionResult Get(int parentID = 0)
         {
@@ -234,5 +242,24 @@ namespace SystemCenter.Controllers
 
         #endregion
 
+        #region [Helper Methods]
+
+        protected string BuildWhereClause(IEnumerable<Search> searches) {
+
+            string whereClause = string.Join(" AND ", searches.Select(search => {
+                string text = "";
+                if (search.SearchText == string.Empty) search.SearchText = "%";
+                else search.SearchText = search.SearchText.Replace("*", "%");
+                bool negate = search.SearchText[0] == '!' || search.SearchText[0] == '-';
+
+                return $"{search.Field}{(negate ? " NOT" : "")} LIKE '{search.SearchText}'";
+            }));
+
+            if (searches.Any())
+                whereClause = "WHERE \n" + whereClause;
+
+            return whereClause;
+        }
+        #endregion
     }
 }

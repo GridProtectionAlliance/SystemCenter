@@ -247,8 +247,12 @@
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDAAssetController.cs" />
     <Compile Include="Controllers\OpenXDA\OpenXDAControllers.cs" />
     <Compile Include="Controllers\OpenXDA\Meters\OpenXDAMeterController.cs" />
+    <Compile Include="Controllers\SystemCenter\RoleController.cs" />
     <Compile Include="Controllers\SystemCenter\PingController.cs" />
     <Compile Include="DataHub.cs" />
+    <Compile Include="Model\PQView\Site.cs" />
+    <Compile Include="Model\CustomerAccess.cs" />
+    <Compile Include="Model\Customer.cs" />
     <Compile Include="Model\AppModel.cs" />
     <Compile Include="Configuration\CategorizedSetting.cs" />
     <Compile Include="DebugHost.cs">
@@ -427,59 +431,63 @@
     <Service Include="{4A0DDDB5-7A95-4FBF-97CC-616D07737A77}" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Breaker.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Asset.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\LineSegment.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Transformer.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Line.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\CapBank.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Bus.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\AssetPreviewPane.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\Assets.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDAEDNADataWindow.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDAPQViewDataWindow.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\ValueListInput.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Asset\Asset.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetLocation.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetConnection.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetInfo.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetMeter.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsWindow.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormSelect.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\NoteWindow.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormCheckBox.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormInput.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormTextArea.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ConfigurationHistory\ConfigurationHistory.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Location\Location.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationInfo.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationAsset.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationMeter.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Meter.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterConfigurationHistory.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterChannel.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterAsset.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\NewMeterWizard.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page5.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page4.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page3.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page2.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page1.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\OpenXDA\ByLocation.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterLocation.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\OpenXDA\ByAsset.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\OpenXDA\ByMeter.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterInfo.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\AssetNote.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\global.d.ts" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Assets\OpenXDADataWindow.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\SystemCenter.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Table.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TS\Services\Asset.ts" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TS\PARParser.ts" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TS\CFGParser.ts" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Breaker.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Asset.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\LineSegment.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Transformer.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Line.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\CapBank.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Bus.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\Asset.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetLocation.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetConnection.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetInfo.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetMeter.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsWindow.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormSelect.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\NoteWindow.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormCheckBox.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormInput.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormTextArea.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\ConfigurationHistory\ConfigurationHistory.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\Location.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationInfo.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationAsset.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationMeter.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Meter.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterConfigurationHistory.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterChannel.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterAsset.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\NewMeterWizard.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page5.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page4.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page3.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page2.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page1.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\ByLocation.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterLocation.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\ByAsset.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ByMeter.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterInfo.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\global.d.ts" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\SystemCenter.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Table.tsx" />
+    <None Include="wwwroot\Scripts\TS\Services\Asset.ts" />
+    <None Include="wwwroot\Scripts\TS\PARParser.ts" />
+    <None Include="wwwroot\Scripts\TS\CFGParser.ts" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\ByCustomer.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\Customer.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\CustomerInfo.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\CustomerMeter.tsx" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <Target Name="AfterBuild">
@@ -518,12 +526,17 @@
     </VisualStudio>
   </ProjectExtensions>
   <PropertyGroup>
-    <PostBuildEvent>"$(SolutionDir)Dependencies\GSF\ValidateAssemblyBindings.exe" "$(TargetPath).config"
+    <PostBuildEvent>
 CALL "$(ProjectDir)PostBuildSetup.bat" "$(ProjectDir)bin" "$(SolutionDir)Dependencies\GSF\*.*"
+
 CALL "$(ProjectDir)PostBuildSetup.bat" "$(ProjectDir)bin" "$(TargetDir)*.dll"
+
 CALL "$(ProjectDir)PostBuildSetup.bat" "$(ProjectDir)bin" "%25SystemRoot%25\Microsoft.NET\assembly\GAC_MSIL\System.Core\v4.0_4.0.0.0__b77a5c561934e089\System.Core.dll"
+
 CALL "$(ProjectDir)PostBuildSetup.bat" "$(ProjectDir)bin" "%25SystemRoot%25\Microsoft.NET\assembly\GAC_MSIL\System.Data.DataSetExtensions\v4.0_4.0.0.0__b77a5c561934e089\System.Data.DataSetExtensions.dll"
+
 CALL "$(ProjectDir)PostBuildSetup.bat" "$(ProjectDir)bin" "%25SystemRoot%25\Microsoft.NET\assembly\GAC_MSIL\System.Net.Http\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Net.Http.dll"
+
 CALL "$(ProjectDir)PostBuildSetup.bat" "$(ProjectDir)bin" "%25SystemRoot%25\Microsoft.NET\assembly\GAC_MSIL\System.Data.Linq\v4.0_4.0.0.0__b77a5c561934e089\System.Data.Linq.dll"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -37,31 +37,14 @@ namespace SystemCenter.Model
     public class ValueListGroup
     {
         [PrimaryKey(true)]
-        public int ID
-        {
-            get; set;
-        }
+        public int ID { get; set; }
 
         [StringLength(200)]
-        public string Name
-        {
-            get; set;
-        }
-
-        public string Description
-        {
-            get; set;
-        }
+        public string Name { get; set; }
+        public string Description { get; set; }
 
         [InitialValueScript("true")]
-        public bool Enabled
-        {
-            get; set;
-        }
-
-        public DateTime CreatedOn
-        {
-            get; set;
-        }
+        public bool Enabled { get; set; }
+        public DateTime CreatedOn { get; set; }
     }
 }

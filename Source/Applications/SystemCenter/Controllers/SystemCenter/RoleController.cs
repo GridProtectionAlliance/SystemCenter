@@ -24,26 +24,24 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
-using System.Net.Http;
-using System.Transactions;
 using System.Web.Http;
 using GSF.Data;
-using GSF.Data.Model;
-using Newtonsoft.Json.Linq;
-using openXDA.Model;
 
-namespace SystemCenter.Controllers.OpenXDA
+namespace SystemCenter.Controllers
 {
-    [RoutePrefix("api/OpenXDA/Bus")]
-    public class OpenXDABusController : ModelController<Bus>
+    [RoutePrefix("api/SystemCenter/Roles")]
+    public class RoleController : ApiController
     {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+        [Route(), HttpGet]
+        public IHttpActionResult Get()
+        {
+            List<string> roles = new List<string>();
 
-        public OpenXDABusController() : base(false, "", true, "AssetKey") { }
+            if (User.IsInRole("Administrator")) roles.Add("Administrator");
+            if (User.IsInRole("Transmission SME")) roles.Add("Transmission SME");
+            if (User.IsInRole("PQ Data Viewer")) roles.Add("PQ Data Viewer");
 
-        protected override string Connection { get; } = "dbOpenXDA";
+            return Ok(roles);
+        }
     }
 }

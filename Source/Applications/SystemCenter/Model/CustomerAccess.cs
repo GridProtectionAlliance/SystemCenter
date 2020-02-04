@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Meters.cs - Gbtc
+//  CustomerAccess.cs - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,34 +16,39 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/26/2019 - Billy Ernest
+//  09/20/2019 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net.Http;
-using System.Transactions;
-using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
-using Newtonsoft.Json.Linq;
-using openXDA.Model;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using System.Web.Http;
+using SystemCenter.Controllers;
 
-namespace SystemCenter.Controllers.OpenXDA
+namespace SystemCenter.Model
 {
-    [RoutePrefix("api/OpenXDA/Bus")]
-    public class OpenXDABusController : ModelController<Bus>
+    public class CustomerAccess
     {
+        [PrimaryKey(true)]
+        public int ID { get; set; }
+        public int CustomerID { get; set; }
+        public int PQViewSiteID { get; set; }
+    }
+
+    [RoutePrefix("api/SystemCenter/CustomerAccess")]
+    public class CustomerAccessController : ModelController<CustomerAccess> {
         protected override string PostRoles { get; } = "Administrator, Transmission SME";
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
 
-        public OpenXDABusController() : base(false, "", true, "AssetKey") { }
+        public CustomerAccessController() : base(true, "CustomerID")
+        {
 
-        protected override string Connection { get; } = "dbOpenXDA";
+        }
+
     }
 }

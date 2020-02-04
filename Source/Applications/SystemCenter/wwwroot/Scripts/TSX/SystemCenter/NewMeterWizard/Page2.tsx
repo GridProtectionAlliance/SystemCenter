@@ -23,8 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, ValueListItem } from '../global';
-import { object } from 'prop-types';
+import { OpenXDA } from '../global';
 import FormInput from '../CommonComponents/FormInput';
 import AssetAttributes from '../AssetAttribute/Asset';
 import FormTextArea from '../CommonComponents/FormTextArea';

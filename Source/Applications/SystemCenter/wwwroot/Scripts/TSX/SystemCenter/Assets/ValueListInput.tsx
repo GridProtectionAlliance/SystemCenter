@@ -21,12 +21,12 @@
 //
 //******************************************************************************************************
 
-import { ValueListItem } from "../global";
+import { SystemCenter } from "../global";
 import * as React from "react";
 
 declare var homePath: string;
 
-export default class ValueListInput extends React.Component<{ valueListGroupID: number, field: any, onChange(evt: React.ChangeEvent, fieldName: string, result: any): any, disabled: boolean }, { options: Array<ValueListItem> }, {}> {
+export default class ValueListInput extends React.Component<{ valueListGroupID: number, field: any, onChange(evt: React.ChangeEvent, fieldName: string, result: any): any, disabled: boolean }, { options: Array<SystemCenter.ValueListItem> }, {}> {
 
     constructor(props, context) {
         super(props, context)

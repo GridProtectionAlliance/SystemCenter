@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Meters.cs - Gbtc
+//  AdditionalField.cs - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,34 +16,36 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/26/2019 - Billy Ernest
+//  09/20/2019 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Net.Http;
-using System.Transactions;
-using System.Web.Http;
-using GSF.Data;
 using GSF.Data.Model;
-using Newtonsoft.Json.Linq;
-using openXDA.Model;
+using System;
+using System.Web.Http;
+using SystemCenter.Controllers;
 
-namespace SystemCenter.Controllers.OpenXDA
+namespace SystemCenter.Model.PQView
 {
-    [RoutePrefix("api/OpenXDA/Bus")]
-    public class OpenXDABusController : ModelController<Bus>
+    [TableName("PQViewSite")]
+    public class Site
     {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+        [PrimaryKey(true)]
+        public int id { get; set; }
+        public string name { get; set; }
+        public string description { get; set; }
+        public int rank { get; set; }
+        public int parentID { get; set; }
+        public int uctOffset { get; set; }
+        public int dst { get; set; }
+        public int connectionTypeID { get; set; }
+        public double nominalBaseV { get; set; }
+        public int nominalFundFreq { get; set; }
+        public DateTime upsize_ts { get; set; }
 
-        public OpenXDABusController() : base(false, "", true, "AssetKey") { }
-
-        protected override string Connection { get; } = "dbOpenXDA";
     }
+
+    [RoutePrefix("api/PQView/Site")]
+    public class PQViewSiteController : ModelController<Site> {}
 }

@@ -50,7 +50,7 @@ export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.As
     }
 
     componentDidMount() {
-        getAssetTypes().then((assetTypes: Array<OpenXDA.AssetType>) => {
+        getAssetTypes().done((assetTypes: Array<OpenXDA.AssetType>) => {
             this.setState({ AssetTypes: assetTypes });
             let assetType = assetTypes.find(at => at.ID == this.state.Asset['AssetTypeID'])
 

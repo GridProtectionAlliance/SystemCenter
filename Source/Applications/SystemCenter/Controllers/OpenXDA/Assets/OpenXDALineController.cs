@@ -38,6 +38,10 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/Line")]
     public class OpenXDALineController : ModelController<Line>
     {
+        protected override string PostRoles { get; } = "Administrator, Transmission SME";
+        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+
         public OpenXDALineController() : base(false, "", true, "AssetKey") { }
 
         protected override string Connection { get; } = "dbOpenXDA";

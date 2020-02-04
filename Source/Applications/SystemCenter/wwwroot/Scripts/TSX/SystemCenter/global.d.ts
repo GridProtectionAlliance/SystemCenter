@@ -1,4 +1,6 @@
-﻿//******************************************************************************************************
+﻿import { Moment } from "moment";
+
+//******************************************************************************************************
 //  global.d.ts - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
@@ -22,12 +24,19 @@
 //******************************************************************************************************
 
 // System Center Models
-export interface AdditionalField { ID: number, OpenXDAParentTable: string, FieldName: string, Type: AdditionalFieldType, ExternalDB: string, ExternalDBTable: string, ExternalDBTableKey: string, IsSecure: boolean  }
-export interface AdditionalFieldValue { ID: number, OpenXDAParentTableID: number, AdditionalFieldID: number, Value: string }
 
-export interface ValueListItem { ID: number, GroupID: number, Text: string, Value: number, Key: number, Hidden: boolean, IsDefault: boolean, SortOrder: number, AltText1: string, Enabled: boolean }
-export type NewEdit = 'New' | 'Edit'
-export type AdditionalFieldType = 'integer' | 'number' | 'string' | 'boolean';
+export namespace SystemCenter {
+    interface Customer { ID: number, AccountName: string, Name: string, Phone: string, Description: string }
+    interface CustomerAccess { ID: number, CustomerID: number, PQViewSiteID: number }
+    interface AdditionalField { ID: number, OpenXDAParentTable: string, FieldName: string, Type: AdditionalFieldType, ExternalDB: string, ExternalDBTable: string, ExternalDBTableKey: string, IsSecure: boolean }
+    interface AdditionalFieldValue { ID: number, OpenXDAParentTableID: number, AdditionalFieldID: number, Value: string }
+
+    interface ValueListItem { ID: number, GroupID: number, Text: string, Value: number, Key: number, Hidden: boolean, IsDefault: boolean, SortOrder: number, AltText1: string, Enabled: boolean }
+    type NewEdit = 'New' | 'Edit'
+    type AdditionalFieldType = 'integer' | 'number' | 'string' | 'boolean';
+    type Role = 'Administrator' | 'Transmission SME' | 'PQ Data Viewer';
+
+}
 
 // OpenXDA Models
 export namespace OpenXDA {
@@ -63,4 +72,8 @@ export namespace OpenXDA {
 
     interface MeterConfiguration { ID: number, MeterID: number, DiffID: number, ConfigKey: string, ConfigText: string, RevisionMajor: number, RevisionMinor: number }
     interface DataFile { ID: number, FileGroupID: number, FilePath: string, FilePathHash: number, FileSize: number, CreationTime: string, LastWriteTime: string, LastAccessTime: string, }
+}
+
+export namespace PQView {
+    interface Site { id: number, name: string, description: string, rank: number, parentID: number, utcOffset: number, dst: number, connectionTypeID: number, nominalBaseV: number, nominalFundFreq: number, upsize_ts: Date}
 }

@@ -41,6 +41,10 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/AssetConnectionType")]
     public class AssetConnectionTypeController : ModelController<AssetConnectionType>
     {
+        protected override string PostRoles { get; } = "Administrator, Transmission SME";
+        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+
         protected override string Connection { get; } = "dbOpenXDA";
     }
 }

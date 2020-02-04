@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, NewEdit } from '../global';
+import { OpenXDA, SystemCenter } from '../global';
 import Table from '../CommonComponents/Table';
 import { useHistory } from "react-router-dom";
 import AssetAttributes from '../AssetAttribute/Asset';
@@ -41,7 +41,7 @@ interface LocationAssetState {
     NewEditAsset: OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer,
     AllAssets: Array<OpenXDA.Asset>,
     AssetTypes: Array<OpenXDA.AssetType>,
-    NewEdit: NewEdit,
+    NewEdit: SystemCenter.NewEdit,
     Sortfield: keyof (OpenXDA.Meter), Ascending: boolean
 
 }
@@ -52,7 +52,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
     const [sortField, setSortField] = React.useState<keyof(OpenXDA.Asset)>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newEditAsset, setNewEditAsset] = React.useState<OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer>(AssetAttributes.getNewAsset('Line'));
-    const [newEdit, setNewEdit] = React.useState<NewEdit>('New');
+    const [newEdit, setNewEdit] = React.useState<SystemCenter.NewEdit>('New');
     const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.AssetType>>([]);
     const [allAssets, setAllAssets] = React.useState<Array<OpenXDA.Asset>>([]);
 
@@ -62,10 +62,10 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
 
     function getDatas(): void {
         getAssets();
-        getAllAssets().then((assets: Array<OpenXDA.Asset>) => {
+        getAllAssets().done((assets: Array<OpenXDA.Asset>) => {
             setAllAssets(assets);
         });
-        getAssetTypes().then((assetTypes: Array<OpenXDA.AssetType>) => {
+        getAssetTypes().done((assetTypes: Array<OpenXDA.AssetType>) => {
             setAssetTypes( assetTypes);
         });
     }

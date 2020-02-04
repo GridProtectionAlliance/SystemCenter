@@ -37,19 +37,17 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/Location")]
     public class OpenXDALocationController : ModelController<Location>
     {
+        protected override string PostRoles { get; } = "Administrator, Transmission SME";
+        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+
         protected override string Connection { get; } = "dbOpenXDA";
 
-        public class LocationSearch
-        {
-            public string Field { get; set; }
-            public string SearchText { get; set; }
-        }
         [HttpPost, Route("SearchableList")]
-        public IHttpActionResult GetMetersUsingSearchableList([FromBody] IEnumerable<LocationSearch> searches)
+        public IHttpActionResult GetMetersUsingSearchableList([FromBody] IEnumerable<Search> searches)
         {
-            string whereClause = string.Join(" AND ", searches.Select(search => search.Field + " LIKE '%" + search.SearchText + "%'"));
-            if (searches.Any())
-                whereClause = "WHERE \n" + whereClause;
+            string whereClause = BuildWhereClause(searches);
+
             using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
             {
                 DataTable table = connection.RetrieveData(@"

@@ -26,7 +26,7 @@ import * as moment from 'moment';
 import { OpenXDA } from '../global';
 declare var homePath: string;
 
-function NoteWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 'Location'}): JSX.Element {
+function NoteWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 'Location' | 'Customer'}): JSX.Element {
     const [noteTypeID, setNoteTypeID] = React.useState<number>(0);
     const [tableRows, setTableRows] = React.useState<Array<JSX.Element>>([]);
     const [note, setNote] = React.useState<string>('');

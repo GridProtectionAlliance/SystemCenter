@@ -34,6 +34,10 @@ using SystemCenter.Controllers;
 [RoutePrefix("api/OpenXDA/Breaker")]
 public class OpenXDABreakerController : ModelController<Breaker>
 {
+    protected override string PostRoles { get; } = "Administrator, Transmission SME";
+    protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+    protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+
     public OpenXDABreakerController() : base(false, "", true, "AssetKey") { }
 
     protected override string Connection { get; } = "dbOpenXDA";

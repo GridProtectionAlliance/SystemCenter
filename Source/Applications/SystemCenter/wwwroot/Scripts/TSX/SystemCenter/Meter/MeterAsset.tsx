@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, NewEdit } from '../global';
+import { OpenXDA, SystemCenter } from '../global';
 
 import BusAttributes from '../AssetAttribute/Bus';
 import BreakerAttributes from '../AssetAttribute/Breaker';
@@ -40,7 +40,7 @@ interface MeterAssetState {
     NewEditAsset: OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer,
     AllAssets: Array<OpenXDA.Asset>,
     AssetTypes: Array<OpenXDA.AssetType>,
-    NewEdit: NewEdit
+    NewEdit: SystemCenter.NewEdit
 
 }
 export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.Meter }, MeterAssetState, {}>{
@@ -62,10 +62,10 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
 
     componentDidMount() {
         this.getMeterAssets();
-        getAllAssets().then((assets: Array<OpenXDA.Asset>) => {
+        getAllAssets().done((assets: Array<OpenXDA.Asset>) => {
             this.setState({ AllAssets: assets });
         });
-        getAssetTypes().then((assetTypes: Array<OpenXDA.AssetType>) => {
+        getAssetTypes().done((assetTypes: Array<OpenXDA.AssetType>) => {
             this.setState({ AssetTypes: assetTypes });
         });
     }

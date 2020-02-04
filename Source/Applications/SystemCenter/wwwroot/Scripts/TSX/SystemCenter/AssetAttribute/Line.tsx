@@ -23,11 +23,11 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, NewEdit } from '../global';
+import { OpenXDA, SystemCenter } from '../global';
 import AssetAttributes from './Asset';
 import FormInput from '../CommonComponents/FormInput';
 
-function LineAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Line, UpdateState: (newEditAsset: OpenXDA.Line) => void }): JSX.Element {
+function LineAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.Line, UpdateState: (newEditAsset: OpenXDA.Line) => void }): JSX.Element {
     function valid(field: keyof (OpenXDA.Line) | keyof(OpenXDA.LineSegment)): boolean {
         if (field == 'MaxFaultDistance')
             return props.Asset.MaxFaultDistance == null || AssetAttributes.isRealNumber(props.Asset.MaxFaultDistance);

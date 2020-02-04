@@ -50,22 +50,37 @@ namespace SystemCenter.Controllers.OpenXDA
     public class AssetTypeController : ModelController<AssetTypes>
     {
         protected override string Connection { get; } = "dbOpenXDA";
+        protected override string PostRoles { get; } = "Administrator, Transmission SME";
+        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+
     }
 
     [RoutePrefix("api/OpenXDA/Phase")]
     public class PhaseController:ModelController<Phase> {
         protected override string Connection { get; } = "dbOpenXDA";
+        protected override string PostRoles { get; } = "Administrator, Transmission SME";
+        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+
     }
 
     [RoutePrefix("api/OpenXDA/MeasurementType")]
     public class MeasurementTypeController:ModelController<MeasurementType> {
         protected override string Connection { get; } = "dbOpenXDA";
+        protected override string PostRoles { get; } = "Administrator, Transmission SME";
+        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+
     }
 
     [RoutePrefix("api/OpenXDA/Note")]
     public class NoteController : ModelController<Notes>
     {
         protected override string Connection { get; } = "dbOpenXDA";
+        protected override string PostRoles { get; } = "Administrator, Transmission SME, PQ Data Viewer";
+        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
 
         [HttpGet, Route("ForObject/{noteType}/{referenceTableID:int}")]
         public IHttpActionResult GetNotes(string noteType, int referenceTableID)

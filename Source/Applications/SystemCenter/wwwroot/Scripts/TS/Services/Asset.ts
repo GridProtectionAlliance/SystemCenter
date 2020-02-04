@@ -70,39 +70,26 @@ export async function getSpareBreakersForSubstation(breaker: OpenXDA.Breaker): P
 }
 
 
-export function getAssetTypes(): Promise<Array<OpenXDA.AssetType>> {
-    if (sessionStorage.hasOwnProperty('OpenXDA.AssetTypes'))
-        return new Promise((resolve) => resolve(JSON.parse(sessionStorage.getItem('OpenXDA.AssetTypes'))))
-    else
-       return $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/AssetType`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).promise().then((assetTypes: Array<OpenXDA.AssetType>) =>new Promise((resolve, response) => {
-            sessionStorage.setItem('OpenXDA.AssetTypes', JSON.stringify(assetTypes));
-            resolve(assetTypes);
-        }));
+export function getAssetTypes(): JQueryXHR {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/OpenXDA/AssetType`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: true,
+        async: true
+    });
 }
 
-export function getAllAssets(): Promise < Array < OpenXDA.Asset >> {
-    if(sessionStorage.hasOwnProperty('OpenXDA.AllAssets'))
-        return new Promise((resolve) => resolve(JSON.parse(sessionStorage.getItem('OpenXDA.AllAssets'))))
-    else
+export function getAllAssets(): JQueryXHR{
         return $.ajax({
         type: "GET",
         url: `${homePath}api/OpenXDA/Asset`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
-        cache: true,
+        cache: false,
         async: true
-        }).promise().then((assets: Array<OpenXDA.Asset>) => new Promise((resolve, response) => {
-        let records = _.orderBy(assets, ['AssetKey'], ['asc']);
-        sessionStorage.setItem('OpenXDA.AllAssets', JSON.stringify(records));
-        resolve(records);
-    }));
+        })
 }
 
 export function getAsset(assetID: number, assetType: OpenXDA.AssetTypeName): Promise<OpenXDA.Asset> {

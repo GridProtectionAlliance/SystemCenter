@@ -23,10 +23,10 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, NewEdit } from '../global';
+import { OpenXDA, SystemCenter } from '../global';
 import AssetAttributes from './Asset';
 import FormInput from '../CommonComponents/FormInput';
-function CapBankAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.CapBank, UpdateState: (newEditAsset: OpenXDA.CapBank) => void }): JSX.Element {
+function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.CapBank, UpdateState: (newEditAsset: OpenXDA.CapBank) => void }): JSX.Element {
     function valid(field: keyof (OpenXDA.CapBank)): boolean {
         if (field == 'NumberOfBanks')
             return props.Asset.NumberOfBanks != null && AssetAttributes.isInteger(props.Asset.NumberOfBanks);

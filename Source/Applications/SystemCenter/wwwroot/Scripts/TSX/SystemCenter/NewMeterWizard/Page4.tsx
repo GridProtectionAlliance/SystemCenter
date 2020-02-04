@@ -23,13 +23,14 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, NewEdit } from '../global';
+import { OpenXDA, SystemCenter } from '../global';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import AssetAttributes from '../AssetAttribute/Asset';
+import { getAssetTypes, getAllAssets } from '../../../TS/Services/Asset';
 declare var homePath: string;
 
 interface Page4Props {
@@ -42,7 +43,7 @@ interface Page4State {
     NewEditAsset: OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer,
     AllAssets: Array<OpenXDA.Asset>,
     AssetTypes: Array<OpenXDA.AssetType>,
-    NewEdit: NewEdit
+    NewEdit: SystemCenter.NewEdit
 }
 
 export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
@@ -59,8 +60,8 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
     }
 
     componentDidMount() {
-        this.getAllAssets();
-        this.getAssetTypes();
+        getAllAssets().done(aas => this.setState({ AllAssets: aas }));
+        getAssetTypes().done(ats => this.setState({AssetTypes: ats}));
     }
 
     editAsset(index: number) {
@@ -107,40 +108,6 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
 
         asset = AssetAttributes.getNewAssetAttributes(asset, type);
         this.setState({NewEditAsset: asset});
-    }
-
-    getAllAssets(): void {
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.AllAssets'))
-            this.setState({ AllAssets: JSON.parse(sessionStorage.getItem('NewMeterWizard.AllAssets')) });
-        else
-            $.ajax({
-                type: "GET",
-                url: `${homePath}api/OpenXDA/Asset`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            }).done((assets: Array<OpenXDA.Asset>) => {
-                this.setState({ AllAssets: _.orderBy(assets,['AssetKey'], ['asc']) });
-                sessionStorage.setItem('NewMeterWizard.AllAssets', JSON.stringify(assets));
-            });
-    }
-
-    getAssetTypes(): void {
-        if (sessionStorage.hasOwnProperty('NewMeterWizard.AssetTypes'))
-            this.setState({ AssetTypes: JSON.parse(sessionStorage.getItem('NewMeterWizard.AssetTypes')) });
-        else
-            $.ajax({
-                type: "GET",
-                url: `${homePath}api/OpenXDA/AssetType`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            }).done((assetTypes: Array<OpenXDA.AssetType>) => {
-                this.setState({ AssetTypes: assetTypes });
-                sessionStorage.setItem('NewMeterWizard.AssetTypes', JSON.stringify(assetTypes));
-            });
     }
 
     getDifferentAsset(assetID: number): void {

@@ -46,6 +46,10 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/Asset")]
     public class OpenXDAAssetController : ModelController<Asset>
     {
+        protected override string PostRoles { get; } = "Administrator, Transmission SME";
+        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+
         public OpenXDAAssetController() : base(false, "", true, "AssetKey") { }
 
         protected override string Connection { get; } = "dbOpenXDA";
@@ -160,17 +164,10 @@ namespace SystemCenter.Controllers.OpenXDA
         }
 
 
-        public class MeterSearch
-        {
-            public string Field { get; set; }
-            public string SearchText { get; set; }
-        }
         [HttpPost, Route("SearchableList")]
-        public IHttpActionResult GetAssetsUsingSearchableList([FromBody] IEnumerable<MeterSearch> searches)
+        public IHttpActionResult GetAssetsUsingSearchableList([FromBody] IEnumerable<Search> searches)
         {
-            string whereClause = string.Join(" AND ", searches.Select(search => search.Field + " LIKE '%" + search.SearchText + "%'"));
-            if (searches.Any())
-                whereClause = "WHERE \n" + whereClause;
+            string whereClause = BuildWhereClause(searches);
 
             using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
             {

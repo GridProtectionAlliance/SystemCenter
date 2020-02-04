@@ -25,12 +25,12 @@
 import * as React from 'react';
 import * as moment from 'moment';
 import * as _ from 'lodash';
-import { OpenXDA, ValueListItem } from '../global';
+import { OpenXDA, SystemCenter } from '../global';
 import FormInput from '../CommonComponents/FormInput';
 import FormTextArea from '../CommonComponents/FormTextArea';
 declare var homePath: string;
 
-export default class MeterInfoWindow extends React.Component<{ Meter: OpenXDA.Meter, StateSetter: (meter: OpenXDA.Meter) => void }, { Meter: OpenXDA.Meter,  TimeZones: Array<ValueListItem> }, {}> {
+export default class MeterInfoWindow extends React.Component<{ Meter: OpenXDA.Meter, StateSetter: (meter: OpenXDA.Meter) => void }, { Meter: OpenXDA.Meter, TimeZones: Array<SystemCenter.ValueListItem> }, {}> {
     jqueryHandle: JQuery.jqXHR;
     constructor(props, context) {
         super(props, context);
@@ -62,7 +62,7 @@ export default class MeterInfoWindow extends React.Component<{ Meter: OpenXDA.Me
                 dataType: 'json',
                 cache: true,
                 async: true
-            }).done((tzs: Array<ValueListItem>) => {
+            }).done((tzs: Array<SystemCenter.ValueListItem>) => {
                 this.setState({ TimeZones: tzs });
                 sessionStorage.setItem('SystemCenter.TimeZones', JSON.stringify(tzs));
 

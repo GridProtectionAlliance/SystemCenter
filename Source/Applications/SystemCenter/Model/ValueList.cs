@@ -40,93 +40,46 @@ namespace SystemCenter.Model
     {
 
         [PrimaryKey(true)]
-        public int ID
-        {
-            get; set;
-        }
+        public int ID { get; set; }
 
-        public int GroupID
-        {
-            get; set;
-        }
+        public int GroupID { get; set; }
 
         [Label("Key (Option Value)")]
         [UseEscapedName]
-        public int Key
-        {
-            get; set;
-        }
+        public int Key { get; set; }
 
         [Label("Text (Option Label)")]
         [StringLength(200)]
-        public string Text
-        {
-            get; set;
-        }
-
+        public string Text { get; set; }
 
         [Label("Alternate Text 1")]
         [StringLength(200)]
-        public string AltText1
-        {
-            get; set;
-        }
+        public string AltText1 { get; set; }
 
         [Label("Alternate Text 2")]
         [StringLength(200)]
-        public string AltText2
-        {
-            get; set;
-        }
+        public string AltText2 { get; set; }
 
         [StringLength(12)]
-        public string Abbreviation
-        {
-            get; set;
-        }
+        public string Abbreviation { get; set; }
 
         [Label("Numeric Value")]
-        public int Value
-        {
-            get; set;
-        }
+        public int Value { get; set; }
 
-        public bool Flag
-        {
-            get; set;
-        }
+        public bool Flag { get; set; }
 
-        public string Description
-        {
-            get; set;
-        }
+        public string Description { get; set; }
 
         [Label("Sort Order")]
-        public int SortOrder
-        {
-            get; set;
-        }
+        public int SortOrder { get; set; }
 
-        public bool Hidden
-        {
-            get; set;
-        }
-
-        public bool IsDefault
-        {
-            get; set;
-        }
+        public bool Hidden { get; set; }
+        public bool IsDefault { get; set; }
 
         [InitialValueScript("true")]
-        public bool Enabled
-        {
-            get; set;
-        }
+        public bool Enabled { get; set; }
 
-        public DateTime CreatedOn
-        {
-            get; set;
-        }
+        public DateTime CreatedOn { get; set; }
     }
 
     [RoutePrefix("api/ValueList")]

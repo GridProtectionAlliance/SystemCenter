@@ -24,13 +24,13 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
-import { NewEdit } from '../global';
+import { SystemCenter } from '../global';
 import FormInput from '../CommonComponents/FormInput';
 import FormTextArea from '../CommonComponents/FormTextArea';
 
 interface AssetAttributesProps {
     Asset: OpenXDA.Asset,
-    NewEdit: NewEdit,
+    NewEdit: SystemCenter.NewEdit,
     UpdateState: (Asset: OpenXDA.Asset) => void,
     AssetTypes: Array<OpenXDA.AssetType>,
     AllAssets: Array<OpenXDA.Asset>,

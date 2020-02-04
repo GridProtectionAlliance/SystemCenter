@@ -46,8 +46,7 @@ namespace WixFolderGen
         {
             List<Solution> solutions = new List<Solution>()
             {
-                new Solution("SystemCenter", "wwwroot", "Applications\\SystemCenter", "")
-                //new Solution("XDAAlarmCreationApp", "wwwrootXDAAlarm", "Tools", "XDAAlarm")
+                new Solution("", "wwwroot", "Applications\\SystemCenter", "")
             };
 
             foreach(Solution solution in solutions)
@@ -176,8 +175,11 @@ namespace WixFolderGen
             foreach (string folder in Directory.EnumerateDirectories(path))
             {
                 name = FilePath.AddPathSuffix(rootPath + FilePath.GetLastDirectoryName(FilePath.AddPathSuffix(folder)));
-                folderList.Add(name);
-                BuildFolderList(folderList, folder, name);
+                if(!name.Contains("Scripts\\TS\\") && !name.Contains("Scripts\\TSX\\"))
+                {
+                    folderList.Add(name);
+                    BuildFolderList(folderList, folder, name);
+                }
             }
         }
 

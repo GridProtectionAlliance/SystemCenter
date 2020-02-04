@@ -24,18 +24,18 @@
 import * as React from 'react';
 import * as moment from 'moment';
 import * as _ from 'lodash';
-import { AdditionalField, AdditionalFieldValue, AdditionalFieldType } from '../global';
+import {SystemCenter } from '../global';
 import AssetAttributes from '../AssetAttribute/Asset';
 import FormInput from './FormInput';
 import FormCheckBox from './FormCheckBox';
 import FormSelect from './FormSelect';
 declare var homePath: string;
 
-function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 'Location'}): JSX.Element {
-    const [additionalFields, setAdditionalFields] = React.useState<Array<AdditionalField>>([]);
-    const [additionalFieldValues, setAdditionalFieldVaules] = React.useState<Array<AdditionalFieldValue>>([]);
+function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 'Location' | 'Customer'}): JSX.Element {
+    const [additionalFields, setAdditionalFields] = React.useState<Array<SystemCenter.AdditionalField>>([]);
+    const [additionalFieldValues, setAdditionalFieldVaules] = React.useState<Array<SystemCenter.AdditionalFieldValue>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
-    const [newField, setNewField] = React.useState<AdditionalField>({ID: 0, FieldName: '', Type: 'string', OpenXDAParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
+    const [newField, setNewField] = React.useState<SystemCenter.AdditionalField>({ID: 0, FieldName: '', Type: 'string', OpenXDAParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
     React.useEffect(() => {
         getData();
     }, [props.ID]);
@@ -55,7 +55,7 @@ function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
             dataType: 'json',
             cache: true,
             async: true
-       }).done((data: Array<AdditionalField>) => {
+       }).done((data: Array<SystemCenter.AdditionalField>) => {
            setAdditionalFields(data);
        });
     }
@@ -68,7 +68,7 @@ function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
             dataType: 'json',
             cache: true,
             async: true
-        }).done((data: Array<AdditionalFieldValue>) => {
+        }).done((data: Array<SystemCenter.AdditionalFieldValue>) => {
             setAdditionalFieldVaules(data);
         });
     }
@@ -101,7 +101,7 @@ function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
         });
     }
 
-    function deleteField(field: AdditionalField): void {
+    function deleteField(field: SystemCenter.AdditionalField): void {
         let response = confirm("This will delete the field '" + field.FieldName + "' from all " + props.Type + "s and will also delete all information assigned to these fields");
 
         if (!response) return;
@@ -119,7 +119,7 @@ function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
 
     }
 
-    function editField(field: AdditionalField): void {
+    function editField(field: SystemCenter.AdditionalField): void {
         setNewField(field);
     }
 
@@ -164,12 +164,12 @@ function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
                             <button type="button" className="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div className="modal-body">
-                            <FormInput<AdditionalField> Record={newField} Field='FieldName' Valid={(field) => true} Label="Field Name" Setter={setNewField} /> 
-                            <FormSelect<AdditionalField> Record={newField} Field='Type' Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }]} Label="External Database" Setter={setNewField} /> 
-                            <FormInput<AdditionalField> Record={newField} Field='ExternalDB' Valid={(field) => true} Label="External Database" Setter={setNewField} /> 
-                            <FormInput<AdditionalField> Record={newField} Field='ExternalDBTable' Valid={(field) => true} Label="External Database Table" Setter={setNewField} /> 
-                            <FormInput<AdditionalField> Record={newField} Field='ExternalDBTableKey' Valid={(field) => true} Label="External Database Table Key" Setter={setNewField} /> 
-                            <FormCheckBox<AdditionalField> Record={newField} Field='IsSecure' Label="Secure Data" Setter={setNewField} /> 
+                            <FormInput<SystemCenter.AdditionalField> Record={newField} Field='FieldName' Valid={(field) => true} Label="Field Name" Setter={setNewField} /> 
+                            <FormSelect<SystemCenter.AdditionalField> Record={newField} Field='Type' Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }]} Label="External Database" Setter={setNewField} /> 
+                            <FormInput<SystemCenter.AdditionalField> Record={newField} Field='ExternalDB' Valid={(field) => true} Label="External Database" Setter={setNewField} /> 
+                            <FormInput<SystemCenter.AdditionalField> Record={newField} Field='ExternalDBTable' Valid={(field) => true} Label="External Database Table" Setter={setNewField} /> 
+                            <FormInput<SystemCenter.AdditionalField> Record={newField} Field='ExternalDBTableKey' Valid={(field) => true} Label="External Database Table Key" Setter={setNewField} /> 
+                            <FormCheckBox<SystemCenter.AdditionalField> Record={newField} Field='IsSecure' Label="Secure Data" Setter={setNewField} /> 
 
                         </div>
 
@@ -189,8 +189,8 @@ function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
 
 export default AdditionalFieldsWindow;
 
-function TableRowInput(props: { ParentTableID: number, Field: AdditionalField, Values: Array<AdditionalFieldValue>, Setter: (values: Array<AdditionalFieldValue>) => void, DeleteField: (field: AdditionalField) => void, EditField: (field: AdditionalField) => void }) {
-    function Valid(type: AdditionalFieldType): boolean {
+function TableRowInput(props: { ParentTableID: number, Field: SystemCenter.AdditionalField, Values: Array<SystemCenter.AdditionalFieldValue>, Setter: (values: Array<SystemCenter.AdditionalFieldValue>) => void, DeleteField: (field: SystemCenter.AdditionalField) => void, EditField: (field: SystemCenter.AdditionalField) => void }) {
+    function Valid(type: SystemCenter.AdditionalFieldType): boolean {
         if (type == "integer")
             return value.Value == null ||  AssetAttributes.isInteger(value.Value);
         else if (type == "number")
@@ -201,8 +201,8 @@ function TableRowInput(props: { ParentTableID: number, Field: AdditionalField, V
             return true;
     }
 
-    var values: Array<AdditionalFieldValue> = _.clone(props.Values, true);
-    var value: AdditionalFieldValue = values.find(value => value.AdditionalFieldID == props.Field.ID);
+    var values: Array<SystemCenter.AdditionalFieldValue> = _.clone(props.Values, true);
+    var value: SystemCenter.AdditionalFieldValue = values.find(value => value.AdditionalFieldID == props.Field.ID);
 
     if (value == null) {
         value = { ID: 0, AdditionalFieldID: props.Field.ID, OpenXDAParentTableID: props.ParentTableID, Value: null };

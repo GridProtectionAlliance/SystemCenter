@@ -23,13 +23,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, NewEdit } from '../global';
+import { OpenXDA, SystemCenter } from '../global';
 import AssetAttributes from './Asset';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 import { getSpareBreakersForSubstation } from '../../../TS/Services/Asset';
 
-function BreakerAttributes(props: { NewEdit: NewEdit, Asset: OpenXDA.Breaker, UpdateState: (newEditAsset: OpenXDA.Breaker) => void, ShowSpare?: boolean }): JSX.Element {
+function BreakerAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.Breaker, UpdateState: (newEditAsset: OpenXDA.Breaker) => void, ShowSpare?: boolean }): JSX.Element {
     function valid(field: keyof(OpenXDA.Breaker)): boolean {
         if (field == 'ThermalRating')
             return props.Asset.ThermalRating != null && AssetAttributes.isRealNumber(props.Asset.ThermalRating);

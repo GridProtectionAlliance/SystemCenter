@@ -38,6 +38,9 @@ namespace SystemCenter.Controllers.OpenXDA
     public class OpenXDAMeterController : ModelController<Meter>
     {
         protected override string Connection { get; } = "dbOpenXDA";
+        protected override string PostRoles { get; } = "Administrator, Transmission SME";
+        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
 
         [HttpGet, Route("Line/{lineID:int}")]
         public IHttpActionResult GetMetersForLine(int lineID)
@@ -59,16 +62,11 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        public class MeterSearch { 
-            public string Field { get; set; }
-            public string SearchText { get; set; }
-        }
         [HttpPost, Route("SearchableList")]
-        public IHttpActionResult GetMetersUsingSearchableList([FromBody] IEnumerable<MeterSearch> searches)
+        public IHttpActionResult GetMetersUsingSearchableList([FromBody] IEnumerable<Search> searches)
         {
-            string whereClause = string.Join(" AND ", searches.Select(search => search.Field + " LIKE '%" + search.SearchText + "%'"));
-            if (searches.Any())
-                whereClause = "WHERE \n" + whereClause;
+            string whereClause = BuildWhereClause(searches);
+
             using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
             {
                 DataTable table = connection.RetrieveData(@"
@@ -80,7 +78,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         Meter.Make,
                         Meter.Model,
                         Location.Name as Location,
-                        COUNT(MeterAsset.AssetID)  as MappedAssets
+                        COUNT(DISTINCT MeterAsset.AssetID)  as MappedAssets
                     FROM 
                         Meter LEFT JOIN
                         Location ON Meter.LocationID = Location.ID LEFT JOIN
@@ -94,8 +92,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         Meter.Name,
                         Meter.Make,
                         Meter.Model,
-                        Location.Name,
-	                    Note.Note
+                        Location.Name
                 ");
                 return Ok(table);
             }
