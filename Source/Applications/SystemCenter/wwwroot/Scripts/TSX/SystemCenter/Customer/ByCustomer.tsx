@@ -243,10 +243,12 @@ function ByCustomer(props: { Roles: Array<SystemCenter.Role>}): JSX.Element {
                         </div>
                         <div className="modal-body">
                             <div className="row">
-                                <FormInput<SystemCenter.Customer> Record={newCustomer} Field={'AccountName'} Feedback={'AccountName of less than 25 characters is required.'} Valid={valid} Setter={setNewCustomer} />
-                                <FormInput<SystemCenter.Customer> Record={newCustomer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={setNewCustomer} />
-                                <FormInput<SystemCenter.Customer> Record={newCustomer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={setNewCustomer} />
-                                <FormTextArea<SystemCenter.Customer> Rows={3} Record={newCustomer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={setNewCustomer} />
+                                <div className="col">
+                                    <FormInput<SystemCenter.Customer> Record={newCustomer} Field={'AccountName'} Feedback={'AccountName of less than 25 characters is required.'} Valid={valid} Setter={setNewCustomer} />
+                                    <FormInput<SystemCenter.Customer> Record={newCustomer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={setNewCustomer} />
+                                    <FormInput<SystemCenter.Customer> Record={newCustomer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={setNewCustomer} />
+                                    <FormTextArea<SystemCenter.Customer> Rows={3} Record={newCustomer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={setNewCustomer} />
+                                </div>
                             </div>
 
                         </div>

@@ -23,6 +23,7 @@
 
 using GSF.Data;
 using GSF.Data.Model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -50,5 +51,21 @@ namespace SystemCenter.Model
 
         }
 
+        [HttpPost, Route("AddMultiple")]
+        public IHttpActionResult AddMultipleCustomerAccess(IEnumerable<CustomerAccess> customerAccesses) {
+            try
+            {
+                using(AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    foreach (CustomerAccess customerAccess in customerAccesses)
+                        new TableOperations<CustomerAccess>(connection).AddNewRecord(customerAccess);
+
+                    return Ok("Added all records without error.");
+                }
+            }
+            catch (Exception ex) {
+                return InternalServerError(ex);
+            }
+        }
     }
 }

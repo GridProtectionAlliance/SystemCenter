@@ -93,7 +93,7 @@ export default class Customer extends React.Component<{ CustomerID: number }, { 
                         <h2>{this.state.Customer != null ? this.state.Customer.Name : ''}</h2>
                     </div>
                     <div className="col">
-                        <button className="btn btn-danger pull-right" hidden={this.state.Customer == null} onClick={() => this.deleteMeter().done(() => window.location.href = homePath + 'index.cshtml?name=Customers')}>Delete Customer (Permanent)</button>
+                        <button className="btn btn-danger pull-right" hidden={this.state.Customer == null} onClick={() => this.deleteMeter().done(() => window.location.href = homePath + 'index.cshtml?name=PQViewCustomers')}>Delete Customer (Permanent)</button>
                     </div>
                 </div>
 
@@ -121,7 +121,7 @@ export default class Customer extends React.Component<{ CustomerID: number }, { 
                     <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
                         <AdditionalFieldsWindow ID={this.state.Customer.ID} Type='Customer'/>
                     </div>
-                    <div className={"tab-pane " + (this.state.Tab == "substation" ? " active" : "fade")} id="meters">
+                    <div className={"tab-pane " + (this.state.Tab == "meters" ? " active" : "fade")} id="meters">
                         <CustomerMeterWindow Customer={this.state.Customer} />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "notes" ? " active" : "fade")} id="notes" >

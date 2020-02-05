@@ -42,7 +42,7 @@ namespace SystemCenter.Model.PQView
         public int connectionTypeID { get; set; }
         public double nominalBaseV { get; set; }
         public int nominalFundFreq { get; set; }
-        public DateTime upsize_ts { get; set; }
+        //public DateTime upsize_ts { get; set; }
 
     }
 
