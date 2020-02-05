@@ -24,14 +24,24 @@
 //******************************************************************************************************
 
 // System Center Models
+declare global {
+    interface String {
+        countOccurrences: (chars: string) => number
+    }
+}
 
 export namespace SystemCenter {
     interface Customer { ID: number, AccountName: string, Name: string, Phone: string, Description: string }
     interface CustomerAccess { ID: number, CustomerID: number, PQViewSiteID: number }
     interface AdditionalField { ID: number, OpenXDAParentTable: string, FieldName: string, Type: AdditionalFieldType, ExternalDB: string, ExternalDBTable: string, ExternalDBTableKey: string, IsSecure: boolean }
     interface AdditionalFieldValue { ID: number, OpenXDAParentTableID: number, AdditionalFieldID: number, Value: string }
-
     interface ValueListItem { ID: number, GroupID: number, Text: string, Value: number, Key: number, Hidden: boolean, IsDefault: boolean, SortOrder: number, AltText1: string, Enabled: boolean }
+    interface UserAccount { ID: string, Name: string, Password: string, FirstName: string, LastName: string, DefaultNodeID?: string, Phone: string, PhoneConfirmed: boolean, Email: string, EmailConfirmed: boolean, LockedOut: boolean, Approved: boolean, UseADAuthentication: boolean, ChangePasswordOn: Date, CreatedOn?: Date, CreatedBy?: string, UpdatedOn?: Date, AccountName?: string}
+    interface ApplicationRole { ID: string, Name: Role, Description: string, NodeID: string, CreatedOn: Date, CreatedBy: string, UpdatedOn: Date, UpdatedBy: string }
+    interface ApplicationRoleUserAccount { ID: number, ApplicationRoleID: string, UserAccountID: string }
+    interface SecurityGroup { ID: string, Name: string, Description: string, CreatedOn: Date, CreatedBy: string, UpdatedOn: Date }
+    interface ApplicationRoleSecurityGroup { ID: number, ApplicationRoleID: string, SecurityGroupID: string }
+
     type NewEdit = 'New' | 'Edit'
     type AdditionalFieldType = 'integer' | 'number' | 'string' | 'boolean';
     type Role = 'Administrator' | 'Transmission SME' | 'PQ Data Viewer';
@@ -62,16 +72,17 @@ export namespace OpenXDA {
     // Links
     interface AssetConnection { ID: number, AssetRelationshipTypeID: number, Parent: string, Child: string }
 
-    // Types
-    type AssetTypeName = 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer'
     interface Phase { ID: number, Name: string, Description: string }
     interface MeasurementType { ID: number, Name: string, Description: string }
-    interface AssetType { ID: number, Name: AssetTypeName , Description: string }
+    interface AssetType { ID: number, Name: AssetTypeName, Description: string }
     interface AssetConnectionType { ID: number, Name: string, Description: string, BiDirectional: boolean, JumpConnection: string, PassThrough: string }
     interface NoteType { ID: number, Name: string, ReferenceTableName: string }
 
     interface MeterConfiguration { ID: number, MeterID: number, DiffID: number, ConfigKey: string, ConfigText: string, RevisionMajor: number, RevisionMinor: number }
     interface DataFile { ID: number, FileGroupID: number, FilePath: string, FilePathHash: number, FileSize: number, CreationTime: string, LastWriteTime: string, LastAccessTime: string, }
+
+    // Types
+    type AssetTypeName = 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer'
 }
 
 export namespace PQView {

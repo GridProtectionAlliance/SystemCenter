@@ -73,6 +73,10 @@
     <script>
         var homePath = '@Html.Raw(Url.Content("~/"))';
         var controllerViewPath = homePath + 'index.cshtml';
+        //String.prototype.countOccurrences = function(searchString) {
+        //    return this.split(searchString).length - 1;
+        //};
+
         setInterval(function () {
              $.ajax({
                 type: "GET",
@@ -89,11 +93,11 @@
     @if (Model.DetectIE(ViewBag.Request.Headers.UserAgent.ToString())) {
         <script src="~/Scripts/default.polyfill.min.js"></script>
     }
-
     <script src="@Url.Content("~/@GSF/Web/Shared/Scripts/jquery.js")"></script>
     <script src="@Url.Content("~/@GSF/Web/Shared/Scripts/jquery-ui.js")"></script>
     <script src="@Url.Content("~/@GSF/Web/Shared/Scripts/bootstrap4.js")"></script>
     <script src="@Url.Content("~/@GSF/Web/Shared/Scripts/moment.js")"></script>
+    <script src="@Url.Content("~/@GSF/Web/Shared/Scripts/gsf.web.client.js")"></script>
 
     @if (debug)
     {

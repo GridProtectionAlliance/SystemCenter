@@ -75,38 +75,75 @@ namespace SystemCenter.Controllers
         protected bool HasUniqueKey { get; set; } = false;
         protected string UniqueKeyField { get; set; } = "";
         protected virtual string Connection { get; } = "systemSettings";
+        protected virtual string GetRoles { get; } = "";
         protected virtual string PostRoles { get; } = "Administrator";
         protected virtual string PatchRoles { get; } = "Administrator";
         protected virtual string DeleteRoles { get; } = "Administrator";
         #endregion
 
         #region [ Http Methods ]
+        [HttpGet, Route("New")]
+        public virtual IHttpActionResult GetNew()
+        {
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+
+                    try
+                    {
+                        return Ok(new TableOperations<T>(connection).NewRecord());
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
+                }
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
+        }
+
         [HttpGet, Route("{parentID:int?}")]
         public virtual IHttpActionResult Get(int parentID = 0)
         {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    IEnumerable<T> result;
-                    if (HasParent)
-                        result = new TableOperations<T>(connection).QueryRecordsWhere(ParentKey + " = {0}", parentID);
-                    else
-                        result = new TableOperations<T>(connection).QueryRecords();
 
-                    return Ok(result);
-                }
-                catch(Exception ex)
-                {
-                    return InternalServerError(ex);
+                    try
+                    {
+                        IEnumerable<T> result;
+                        if (HasParent)
+                            result = new TableOperations<T>(connection).QueryRecordsWhere(ParentKey + " = {0}", parentID);
+                        else
+                            result = new TableOperations<T>(connection).QueryRecords();
+
+                        return Ok(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            else
+            {
+                return Unauthorized();
+            }
+
         }
         [HttpGet, Route("One/{id:int}")]
         public virtual IHttpActionResult GetOne(int id)
         {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
                 try
                 {
                     T result = new TableOperations<T>(connection).QueryRecordWhere("ID = {0}", id);
@@ -129,6 +166,12 @@ namespace SystemCenter.Controllers
                     return InternalServerError(ex);
                 }
             }
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
         }
 
 
@@ -137,11 +180,17 @@ namespace SystemCenter.Controllers
         {
             try
             {
-                if (User.IsInRole(PostRoles))
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
                 {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
+
                         T newRecord = record.ToObject<T>();
+
+                        //PropertyInfo id = typeof(T).GetProperty("ID");
+                        //if (id != null && id.PropertyType == typeof(Guid))
+                        //    id.SetValue(newRecord, Guid.Empty);
+
                         int result = new TableOperations<T>(connection).AddNewRecord(newRecord);
                         if (HasUniqueKey)
                         {
@@ -174,7 +223,7 @@ namespace SystemCenter.Controllers
         {
             try
             {
-                if (User.IsInRole(PatchRoles))
+                if (PatchRoles == string.Empty || User.IsInRole(PatchRoles))
                 {
 
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -201,7 +250,7 @@ namespace SystemCenter.Controllers
         {
             try
             {
-                if (User.IsInRole(DeleteRoles))
+                if (DeleteRoles == string.Empty || User.IsInRole(DeleteRoles))
                 {
 
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))

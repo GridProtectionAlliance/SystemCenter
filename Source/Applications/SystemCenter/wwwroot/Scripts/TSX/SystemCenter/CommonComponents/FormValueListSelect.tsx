@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
-//  ValueListInput.tsx - Gbtc
+//  FormValueListSelect.tsx - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,7 +16,7 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  10/14/2019 - Billy Ernest
+//  02/05/2020 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
@@ -26,7 +26,7 @@ import * as React from "react";
 
 declare var homePath: string;
 
-export default class ValueListInput extends React.Component<{ valueListGroupID: number, field: any, onChange(evt: React.ChangeEvent, fieldName: string, result: any): any, disabled: boolean }, { options: Array<SystemCenter.ValueListItem> }, {}> {
+export default class FormValueListSelect extends React.Component<{ valueListGroupID: number, field: any, onChange(evt: React.ChangeEvent, fieldName: string, result: any): any, disabled: boolean }, { options: Array<SystemCenter.ValueListItem> }, {}> {
 
     constructor(props, context) {
         super(props, context)

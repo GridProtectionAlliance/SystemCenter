@@ -33,6 +33,8 @@ import { SystemCenter } from './global';
 import ByMeter from './Meter/ByMeter';
 import ByLocation from './Location/ByLocation';
 import ByAsset from './Asset/ByAsset';
+import ByUser from './User/ByUser';
+
 import Asset from './Asset/Asset';
 import ByCustomer from './Customer/ByCustomer';
 import Customer from './Customer/Customer';
@@ -127,7 +129,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>User Settings</h6>
                             <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
                                 <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Users"} to={controllerViewPath + "?name=Users"}>Security Users</NavLink>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Users"} to={controllerViewPath + "?name=Users"}>Users</NavLink>
 
                                 </li>
                                 <li className="nav-item">
@@ -163,6 +165,12 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else
                                     return null;
                             }} />
+                            <Route children={({ match, ...rest }) => {
+                                if (queryString.parse(rest.location.search).name == "Users")
+                                    return <ByUser Roles={roles} />
+                                else
+                                    return null;
+                            }} />
 
                             <Route children={({ match, ...rest }) => {
                                 if (queryString.parse(rest.location.search).name == "Meter")
@@ -184,11 +192,11 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 }} />
 
                             <Route children={({ match, ...rest }) => {
-                                if (roles.indexOf('Administrator') < 0) return null;
+                                /*if (roles.indexOf('Administrator') < 0) return null;
                                 else if (queryString.parse(rest.location.search).name == "Users")
                                         return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'Users.cshtml'}></iframe>
-                                    else
-                                        return null;
+                                    else*/
+                                        //return null;
                             }} />
                             <Route children={({ match, ...rest }) => {
                                 if (roles.indexOf('Administrator') < 0) return null;

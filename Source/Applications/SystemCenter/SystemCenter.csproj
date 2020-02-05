@@ -110,6 +110,7 @@
     <Reference Include="Antlr3.Runtime">
       <HintPath>..\..\Dependencies\GSF\Antlr3.Runtime.dll</HintPath>
     </Reference>
+    <Reference Include="ExpressionEvaluator, Version=2.0.4.0, Culture=neutral, PublicKeyToken=90d9f15d622e2348" />
     <Reference Include="GSF.Communication">
       <HintPath>..\..\Dependencies\GSF\GSF.Communication.dll</HintPath>
     </Reference>
@@ -264,6 +265,7 @@
     <Compile Include="Model\AdditionalFieldValue.cs" />
     <Compile Include="Model\AdditionalField.cs" />
     <Compile Include="Model\GlobalSettings.cs" />
+    <Compile Include="Model\Security\UserAccount.cs" />
     <Compile Include="Model\Setting.cs" />
     <Compile Include="Model\ValueList.cs" />
     <Compile Include="Model\ValueListGroup.cs" />
@@ -438,6 +440,7 @@
     <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Line.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\CapBank.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Bus.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormValueListSelect.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\Asset.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetLocation.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetConnection.tsx" />
@@ -487,6 +490,12 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\CustomerMeter.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\ByUser.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormDatePicker.tsx" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
