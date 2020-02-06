@@ -45,6 +45,11 @@ namespace SystemCenter.Model.Security
         public bool PhoneConfirmed { get; set; }
         public bool EmailConfirmed { get; set; }
         public bool Approved { get; set; }
+        public int? TSCID { get; set; }
+        public int? RoleID { get; set; }
+        public string Title { get; set; }
+        public string Department { get; set; }
+        public string DepartmentNumber { get; set; }
     }
 
     [RoutePrefix("api/SystemCenter/UserAccount")]
@@ -64,6 +69,37 @@ namespace SystemCenter.Model.Security
             }
 
         }
+
+        [HttpPost, Route("FilledUserAccount")]
+        public IHttpActionResult GetUserInfo([FromBody] UserAccount userAccount)
+        {
+            if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
+            using(AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                try
+                {
+                    UserInfo userInfo = new UserInfo(UserInfo.SIDToAccountName(userAccount.Name));
+                    userAccount.Phone = userInfo.Telephone;
+                    userAccount.Title = userInfo.Title;
+                    userAccount.FirstName = userInfo.FirstName;
+                    userAccount.LastName = userInfo.LastName;
+                    userAccount.Email = userInfo.Email;
+                    userAccount.EmailConfirmed = true;
+                    userAccount.PhoneConfirmed = true;
+                    userAccount.Department = userInfo.Department;
+                    userAccount.DepartmentNumber = userInfo.GetUserPropertyValue("departmentnumber");
+                    userAccount.RoleID = connection.ExecuteScalar<int>($"SELECT TOP 1 ID FROM Role WHERE Description LIKE '%{userInfo.Title}%' ");
+                    userAccount.TSCID = connection.ExecuteScalar<int>($"SELECT TOP 1 ID FROM TSC WHERE DepartmentNumber LIKE '%{userAccount.DepartmentNumber}%' ");
+                    return Ok(userAccount);
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+
+        }
+
 
         [HttpPost, Route("IsUser")]
         public IHttpActionResult GetIsUser([FromBody] string sid)

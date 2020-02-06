@@ -40,6 +40,7 @@ import ByCustomer from './Customer/ByCustomer';
 import Customer from './Customer/Customer';
 import NewMeterWizard from './NewMeterWizard/NewMeterWizard';
 import ConfigurationHistory from './ConfigurationHistory/ConfigurationHistory';
+import User from './User/User';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -64,7 +65,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     function getRoles(): void {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/Roles`,
+            url: `${homePath}api/SystemCenter/SecurityRoles`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -171,7 +172,12 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else
                                     return null;
                             }} />
-
+                            <Route children={({ match, ...rest }) => {
+                                if (queryString.parse(rest.location.search).name == "User")
+                                    return <User UserID={queryString.parse(rest.location.search).UserAccountID} />
+                                else
+                                    return null;
+                            }} />
                             <Route children={({ match, ...rest }) => {
                                 if (queryString.parse(rest.location.search).name == "Meter")
                                     return <Meter MeterID={queryString.parse(rest.location.search).MeterID} />
@@ -191,13 +197,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                         return null;
                                 }} />
 
-                            <Route children={({ match, ...rest }) => {
-                                /*if (roles.indexOf('Administrator') < 0) return null;
-                                else if (queryString.parse(rest.location.search).name == "Users")
-                                        return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'Users.cshtml'}></iframe>
-                                    else*/
-                                        //return null;
-                            }} />
                             <Route children={({ match, ...rest }) => {
                                 if (roles.indexOf('Administrator') < 0) return null;
                                 else if (queryString.parse(rest.location.search).name == "Groups")

@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
-//  Meters.cs - Gbtc
+//  TSC.cs - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,32 +16,35 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  08/26/2019 - Billy Ernest
+//  02/06/2020 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Web.Http;
 using GSF.Data;
+using GSF.Data.Model;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.Linq;
+using System.Web.Http;
+using SystemCenter.Controllers;
 
-namespace SystemCenter.Controllers
+namespace SystemCenter.Model
 {
-    [RoutePrefix("api/SystemCenter/SecurityRoles")]
-    public class SecurityRoleController : ApiController
+    public class TSC
     {
-        [Route(), HttpGet]
-        public IHttpActionResult Get()
-        {
-            List<string> roles = new List<string>();
+        [PrimaryKey(true)]
+        public int ID { get; set; }
+        public string Name { get; set; }
+        public string DepartmentNumber { get; set; }
+        public string Description { get; set; }
+    }
 
-            if (User.IsInRole("Administrator")) roles.Add("Administrator");
-            if (User.IsInRole("Transmission SME")) roles.Add("Transmission SME");
-            if (User.IsInRole("PQ Data Viewer")) roles.Add("PQ Data Viewer");
-
-            return Ok(roles);
-        }
+    [RoutePrefix("api/SystemCenter/TSC")]
+    public class TSCController : ModelController<TSC> {
+        protected override string PostRoles { get; } = "Administrator, Transmission SME";
+        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
     }
 }

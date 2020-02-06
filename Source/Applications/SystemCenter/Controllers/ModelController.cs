@@ -30,6 +30,7 @@ using System.Reflection;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.Identity;
 using GSF.Reflection;
 using GSF.Web.Security;
 using Newtonsoft.Json.Linq;
@@ -50,12 +51,13 @@ namespace SystemCenter.Controllers
         public ModelController() {
         }
 
-        public ModelController(bool hasParent, string parentKey)
+        public ModelController(bool hasParent, string parentKey, string primaryKeyField = "ID")
         {
             HasParent = hasParent;
             ParentKey = parentKey;
             HasUniqueKey = false;
             UniqueKeyField = "";
+            PrimaryKeyField = "ID";
 
         }
 
@@ -72,6 +74,7 @@ namespace SystemCenter.Controllers
         #region [ Properties ]
         protected bool HasParent { get; set; } = false;
         protected string ParentKey { get; set; } = "";
+        protected string PrimaryKeyField { get; set; } = "ID";
         protected bool HasUniqueKey { get; set; } = false;
         protected string UniqueKeyField { get; set; } = "";
         protected virtual string Connection { get; } = "systemSettings";
@@ -85,6 +88,7 @@ namespace SystemCenter.Controllers
         [HttpGet, Route("New")]
         public virtual IHttpActionResult GetNew()
         {
+            UserInfo ui = new UserInfo(User.Identity.Name);
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -137,35 +141,42 @@ namespace SystemCenter.Controllers
             }
 
         }
-        [HttpGet, Route("One/{id:int}")]
-        public virtual IHttpActionResult GetOne(int id)
+        [HttpGet, Route("One/{id}")]
+        public virtual IHttpActionResult GetOne(string id)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                try
-                {
-                    T result = new TableOperations<T>(connection).QueryRecordWhere("ID = {0}", id);
-
-                    if (result == null)
+                    try
                     {
-                        TableNameAttribute tableNameAttribute;
-                        string tableName;
-                        if (typeof(T).TryGetAttribute(out tableNameAttribute))
-                            tableName = tableNameAttribute.TableName;
+                        T result = null;
+                        PropertyInfo primaryKey = typeof(T).GetProperty(PrimaryKeyField);
+                        if(primaryKey.PropertyType == typeof(int))
+                            result = new TableOperations<T>(connection).QueryRecordWhere(PrimaryKeyField + " = {0}", int.Parse(id));
+                        else if (primaryKey.PropertyType == typeof(Guid))
+                            result = new TableOperations<T>(connection).QueryRecordWhere(PrimaryKeyField + " = {0}", Guid.Parse(id));
                         else
-                            tableName = typeof(T).Name;
-                        return BadRequest(string.Format("ID provided does not exist in '{0}'.", tableName));
+                            result = new TableOperations<T>(connection).QueryRecordWhere(PrimaryKeyField + " = {0}", id);
+
+                        if (result == null)
+                        {
+                            TableNameAttribute tableNameAttribute;
+                            string tableName;
+                            if (typeof(T).TryGetAttribute(out tableNameAttribute))
+                                tableName = tableNameAttribute.TableName;
+                            else
+                                tableName = typeof(T).Name;
+                            return BadRequest(string.Format(PrimaryKeyField + " provided does not exist in '{0}'.", tableName));
+                        }
+                        else
+                            return Ok(result);
                     }
-                    else
-                        return Ok(result);
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
-                }
-            }
             }
             else
             {
@@ -186,11 +197,6 @@ namespace SystemCenter.Controllers
                     {
 
                         T newRecord = record.ToObject<T>();
-
-                        //PropertyInfo id = typeof(T).GetProperty("ID");
-                        //if (id != null && id.PropertyType == typeof(Guid))
-                        //    id.SetValue(newRecord, Guid.Empty);
-
                         int result = new TableOperations<T>(connection).AddNewRecord(newRecord);
                         if (HasUniqueKey)
                         {
@@ -262,16 +268,30 @@ namespace SystemCenter.Controllers
                         else
                             tableName = typeof(T).Name;
 
-                        PropertyInfo idProp = typeof(T).GetProperty("ID");
-                        if (idProp == null)
-                        {
-                            int result = new TableOperations<T>(connection).DeleteRecord(record);
+                        PropertyInfo idProp = typeof(T).GetProperty(PrimaryKeyField);
+                        if (idProp.PropertyType == typeof(int)) {
+                            int id = (int)idProp.GetValue(record);
+                            int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete '{tableName}', '{PrimaryKeyField} = {id}'");
                             return Ok(result);
+
+                        }
+                        else if (idProp.PropertyType == typeof(Guid))
+                        {
+                            Guid id = (Guid)idProp.GetValue(record);
+                            int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete '{tableName}', '{PrimaryKeyField} = ''{id}'''");
+                            return Ok(result);
+
+                        }
+                        else if (idProp.PropertyType == typeof(string))
+                        {
+                            string id = (string)idProp.GetValue(record);
+                            int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete '{tableName}', '{PrimaryKeyField} = ''{id}'''");
+                            return Ok(result);
+
                         }
                         else
                         {
-                            int id = (int)idProp.GetValue(record);
-                            int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete '{tableName}', 'ID = {id}'");
+                            int result = new TableOperations<T>(connection).DeleteRecord(record);
                             return Ok(result);
                         }
                     }

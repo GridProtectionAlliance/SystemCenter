@@ -27,11 +27,10 @@ import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import FormInput from '../CommonComponents/FormInput';
 import FormTextArea from '../CommonComponents/FormTextArea';
-import { OpenXDA, SystemCenter } from '../global';
-import AssetAttributes from '../AssetAttribute/Asset';
+import { SystemCenter } from '../global';
 import FormDatePicker from '../CommonComponents/FormDatePicker';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
-
+import { getSIDFromUserName, getIsUser, getFilledUser} from './../../../TS/Services/User';
 declare var homePath: string;
 
 type UserValidation = 'Resolving' | 'Valid' | 'Invalid' | 'Unknown';
@@ -89,32 +88,6 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
         });
     }
 
-    function getSIDFromUserName(accountName: string): JQuery.jqXHR<string> {
-        return $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/UserAccount/SID`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify(accountName),
-            cache: false,
-            async: true
-        });
-
-    }
-
-    function getIsUser(sid: string): JQuery.jqXHR<boolean> {
-        return $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/UserAccount/IsUser`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify(sid),
-            cache: false,
-            async: true
-        });
-
-    }
-
     async function validateUser(accountName: string) {
         if (accountName == null || accountName.length == 0) {
             setUserValidation('Invalid');
@@ -125,7 +98,14 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
         let sid = await getSIDFromUserName(accountName);
         if (accountName !== sid && accountName.countOccurrences("\\") < 2) {
             let result = await getIsUser(sid);
-            setUserValidation(result ? 'Valid' : 'Unknown')
+            setUserValidation(result ? 'Valid' : 'Unknown');
+            if (result) {
+                let ua = newUserAccount;
+                ua.Name = sid;
+                let user = await getFilledUser(ua);
+                user.Name = accountName;
+                setNewUserAccount(user);
+            }
         }
         else
             setUserValidation('Invalid')

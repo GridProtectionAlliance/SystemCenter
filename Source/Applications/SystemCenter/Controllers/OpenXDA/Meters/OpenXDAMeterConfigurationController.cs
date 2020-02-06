@@ -84,7 +84,7 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        public override IHttpActionResult GetOne(int id)
+        public override IHttpActionResult GetOne(string id)
         {
             IHttpActionResult result =  base.GetOne(id);
             MeterConfiguration meterConfiguration = result.ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<MeterConfiguration>().Result;

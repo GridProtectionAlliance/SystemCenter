@@ -83,6 +83,11 @@ CREATE TABLE UserAccount
     EmailConfirmed BIT NOT NULL DEFAULT 0,
     LockedOut BIT NOT NULL DEFAULT 0,
     Approved BIT NOT NULL DEFAULT 0,
+    TSCID INT NULL,
+    RoleID INT NULL,
+    Title varchar(200) NULL,
+    Department varchar(200) NULL,
+    DepartmentNumber varchar(200) NULL,
     UseADAuthentication BIT NOT NULL DEFAULT 1,
     ChangePasswordOn DATETIME NULL DEFAULT DATEADD(DAY, 90, GETUTCDATE()),
     CreatedOn DATETIME NOT NULL DEFAULT GETUTCDATE(),
@@ -196,6 +201,21 @@ CREATE TABLE CustomerAccess(
 	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
 	CustomerID int NOT NULL FOREIGN KEY REFERENCES Customer(ID),
 	PQViewSiteID int NOT NULL
+)
+GO
+
+CREATE TABLE TSC (
+	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	Name varchar(200) NOT NULL,
+	Description varchar(max) NULL,
+	DepartmentNumber varchar(6) NOT NULL
+)
+GO
+
+CREATE TABLE Role (
+	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	Name varchar(200) NOT NULL,
+	Description varchar(max) NULL,
 )
 GO
 
