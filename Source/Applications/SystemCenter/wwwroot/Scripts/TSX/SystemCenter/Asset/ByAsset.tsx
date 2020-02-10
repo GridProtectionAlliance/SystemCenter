@@ -47,7 +47,7 @@ interface Asset {
 }
 declare var homePath: string;
 
-function ByAsset(props: { Roles: Array<SystemCenter.Role> }): JSX.Element {
+const ByAsset: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
 
     const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Asset.AssetKey', SearchText: '' }]);

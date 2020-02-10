@@ -30,26 +30,32 @@ import FormTextArea from '../CommonComponents/FormTextArea';
 import { SystemCenter } from '../global';
 import FormDatePicker from '../CommonComponents/FormDatePicker';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
-import { getSIDFromUserName, getIsUser, getFilledUser} from './../../../TS/Services/User';
+import { getSIDFromUserName, getIsUser, getFilledUser, getRoles, getTSCs, validUserAccountField} from './../../../TS/Services/User';
+import FormSelect from '../CommonComponents/FormSelect';
 declare var homePath: string;
 
 type UserValidation = 'Resolving' | 'Valid' | 'Invalid' | 'Unknown';
-type FieldName = 'UserAccount.Name' | 'UserAccount.FirstName' | 'UserAccount.LastName' | 'UserAccount.Email' | 'UserAccount.Phone' | 'ApplicationRole.Name';
+type FieldName = 'UserAccount.Name' | 'UserAccount.FirstName' | 'UserAccount.LastName' | 'UserAccount.Email' | 'UserAccount.Phone' | 'UserAccount.MobilePhone' |'ApplicationRole.Name' | 'TSC.Name' | 'Role.Name';
 interface Search {
     Field: FieldName,
     SearchText: string
 }   
+interface UserAccount extends SystemCenter.UserAccount {
+    Role: string, TSC: string
+}
 
 
-function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
+const ByUser: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
     const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'UserAccount.Name', SearchText: '' }]);
-    const [data, setData] = React.useState<Array<SystemCenter.UserAccount>>([]);
+    const [data, setData] = React.useState<Array<UserAccount>>([]);
     const [sortField, setSortField] = React.useState<string>('UserAccountKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newUserAccount, setNewUserAccount] = React.useState<SystemCenter.UserAccount>(null);
     const [allUserAccounts, setAllUserAccounts] = React.useState<Array<string>>([]);
     const [userValidation, setUserValidation] = React.useState<UserValidation>('Invalid');
+    const [roles, setRoles] = React.useState<Array<SystemCenter.Role>>([]);
+    const [tscs, setTscs] = React.useState<Array<SystemCenter.TSC>>([]);
 
     React.useEffect(() => {
         return getData();
@@ -57,11 +63,26 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
 
     function getData() {
         getNewUserAccount().done(ua => setNewUserAccount(ua));
+
         let handle1 = getUserAccounts();
-        handle1.done((data: Array<SystemCenter.UserAccount>) => setData(data));
+        handle1.done((data: Array<UserAccount>) => setData(data));
+
+        let handle2 = getRoles();
+        handle2.done(rs => setRoles(rs));
+
+        let handle3 = getTSCs();
+        handle3.done(ts => setTscs(ts));
+
         return function cleanup() {
             if (handle1.abort != null)
                 handle1.abort();
+
+            if (handle2.abort != null)
+                handle2.abort();
+
+            if (handle3.abort != null)
+                handle3.abort();
+
         }
     }
 
@@ -91,6 +112,10 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
     async function validateUser(accountName: string) {
         if (accountName == null || accountName.length == 0) {
             setUserValidation('Invalid');
+            getNewUserAccount().done(ua => {
+                ua.Name = accountName
+                setNewUserAccount(ua)
+            });
             return;
         }
 
@@ -106,9 +131,20 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
                 user.Name = accountName;
                 setNewUserAccount(user);
             }
+            else {
+                getNewUserAccount().done(ua => {
+                    ua.Name = accountName
+                    setNewUserAccount(ua)
+                });
+            }
         }
-        else
+        else {
             setUserValidation('Invalid')
+            getNewUserAccount().done(ua => {
+                ua.Name = accountName
+                setNewUserAccount(ua)
+            });
+        }
 
     }
 
@@ -127,22 +163,6 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=User&UserAccountID=' + item.row.ID, state: {} })
-    }
-
-    function valid(field: keyof(SystemCenter.UserAccount)): boolean {
-        if (field == 'Name')
-            return newUserAccount.Name != null && newUserAccount.Name.length > 0 && newUserAccount.Name.length <= 200;
-        else if (field == 'Password')
-            return newUserAccount.Password == null || newUserAccount.Password.length <= 200;
-        else if (field == 'FirstName')
-            return newUserAccount.FirstName == null || newUserAccount.FirstName.length <= 200;
-        else if (field == 'LastName')
-            return newUserAccount.LastName == null || newUserAccount.LastName.length <= 200;
-        else if (field == 'Phone')
-            return newUserAccount.Phone == null || newUserAccount.Phone.length <= 200;
-        else if (field == 'Email')
-            return newUserAccount.Email == null || newUserAccount.Email.length <= 200;
-        return false;
     }
 
     if (props.Roles.indexOf('Administrator') < 0) return null;
@@ -171,8 +191,11 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
                                                             <option value='UserAccount.FirstName'>First Name</option>
                                                             <option value='UserAccount.LastName'>Last Name</option>
                                                             <option value='UserAccount.Phone'>Phone</option>
+                                                            <option value='UserAccount.MobilePhone'>Mobile Phone</option>
                                                             <option value='UserAccount.Email'>Email</option>
-                                                            <option value='ApplicationRole.Name'>Role</option>
+                                                            <option value='UserAccount.TSC'>TSC</option>
+                                                            <option value='Role.Name'>Role</option>
+                                                            <option value='ApplicationRole.Name'>Security Role</option>
                                                         </select>
                                                     </div>
                                                     <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
@@ -210,7 +233,7 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
                                     <div className="form-group">
                                         <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                                             event.preventDefault();
-                                            getUserAccounts().done((data: Array<SystemCenter.UserAccount>) => setData(data));
+                                            getUserAccounts().done((data: Array<UserAccount>) => setData(data));
                                         }}>Update Search</button>
                                     </div>
                                 </form>
@@ -231,12 +254,14 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
 
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<SystemCenter.UserAccount>
+                <Table<UserAccount>
                     cols={[
-                        { key: 'AccountName', label: 'Name', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
-                        { key: 'FirstName', label: 'First Name', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
-                        { key: 'LastName', label: 'Last Name', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
-                        { key: 'Phone', label: 'Phone', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
+                        { key: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Role', label: 'Role', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
+                        { key: 'TSC', label: 'TSC', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'MobilePhone', label: 'Mobile', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Email', label: 'Email', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
@@ -276,7 +301,7 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
 
                                 <div className="row">
                                     <div className="col">
-                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={(record) => {
+                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={(record) => {
                                             if (newUserAccount.UseADAuthentication)
                                                 validateUser(record.Name);
 
@@ -316,25 +341,33 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
                                             <div className="card-body" hidden={!newUserAccount.UseADAuthentication}>
                                                 <div className="row">
                                                     <div className="col">
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={valid} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={valid} Setter={setNewUserAccount} />
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Title'} Feedback={'Title must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'RoleID'} Label='Role' Options={roles.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={setNewUserAccount} EmptyOption={true}/>
                                                     </div>
                                                     <div className="col">
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Phone'} Feedback={'Password must be less than 200 characters.'} Valid={valid} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Email'} Feedback={'Password must be less than 200 characters.'} Valid={valid} Setter={setNewUserAccount} />
+                                                        <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'TSCID'} Label='TSC' Options={tscs.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={setNewUserAccount} EmptyOption={true}/>
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Phone'} Feedback={'Phone must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'MobilePhone'} Label='Mobile Phone' Feedback={'Mobile Phone must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Email'} Feedback={'Email must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="card-body" hidden={newUserAccount.UseADAuthentication}>
                                                 <div className="row">
                                                     <div className="col">
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Password'} Feedback={'Password must be less than 200 characters.'} Valid={valid} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={valid} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={valid} Setter={setNewUserAccount} />
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Password'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Title'} Feedback={'Title must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'RoleID'} Label='Role' Options={roles.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={setNewUserAccount} EmptyOption={true} />
                                                     </div>
                                                     <div className="col">
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Phone'} Feedback={'Password must be less than 200 characters.'} Valid={valid} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Email'} Feedback={'Password must be less than 200 characters.'} Valid={valid} Setter={setNewUserAccount} />
+                                                        <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'TSCID'} Label='TSC' Options={tscs.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={setNewUserAccount} EmptyOption={true} />
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Phone'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'MobilePhone'} Label='Mobile Phone' Feedback={'Mobile Phone must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Email'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
                                                         <FormDatePicker<SystemCenter.UserAccount> Record={newUserAccount} Field={'ChangePasswordOn'} Label='Change Password On' Setter={setNewUserAccount} />
                                                     </div>
                                                 </div>
@@ -346,6 +379,8 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
                                                     <FormCheckBox<SystemCenter.UserAccount> Record={newUserAccount} Label='Phone Confirmed' Field='PhoneConfirmed' Setter={setNewUserAccount} />
                                                     <FormCheckBox<SystemCenter.UserAccount> Record={newUserAccount} Label='Email Confirmed' Field='EmailConfirmed' Setter={setNewUserAccount} />
                                                     <FormCheckBox<SystemCenter.UserAccount> Record={newUserAccount} Field='Approved' Setter={setNewUserAccount} />
+                                                    <FormCheckBox<SystemCenter.UserAccount> Record={newUserAccount} Field='ReceiveNotifications' Label='Receive Notifications' Setter={setNewUserAccount} />
+
                                                 </div>
                                             </div>
                                         </div>
@@ -356,7 +391,7 @@ function ByUser(props: { Roles: Array<SystemCenter.Role> })  {
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewUserAccount}>Save</button>
-                                <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={() => getNewUserAccount().done(nua => setNewUserAccount(nua))}>Close</button>
                             </div>
 
                         </div>

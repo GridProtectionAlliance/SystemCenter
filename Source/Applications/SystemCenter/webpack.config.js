@@ -1,10 +1,7 @@
 ﻿"use strict";
-const webpack = require("webpack");
 const path = require("path");
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 
 module.exports = env => {
-    //console.log(process.env.NODE_ENV);
     if (process.env.NODE_ENV == undefined) process.env.NODE_ENV = 'development';
 
 
@@ -55,14 +52,15 @@ module.exports = env => {
             react: 'React',
             'react-dom': 'ReactDOM',
             moment: 'moment',
-            Ace: 'ace'
-
+            ace: 'ace',
+            d3: 'd3',
+            'react-router-dom': 'ReactRouterDOM',
         },
         optimization: {
-            minimizer: [new UglifyJsPlugin({
-                test: /\.js(\?.*)?$/i,
-                sourceMap: true
-            })],
+            //minimizer: [new UglifyJsPlugin({
+            //    test: /\.js(\?.*)?$/i,
+            //    sourceMap: true
+            //})],
         },
     }
 };

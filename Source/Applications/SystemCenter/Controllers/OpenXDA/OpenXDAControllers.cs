@@ -136,6 +136,64 @@ namespace SystemCenter.Controllers.OpenXDA
 
     }
 
+    [RoutePrefix("api/OpenXDA/ApplicationRole")]
+    public class OpenXDAApplicationRoleController : ModelController<ApplicationRole>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
+        protected override string GetRoles { get; } = "Administrator";
+    }
+
+    [RoutePrefix("api/OpenXDA/ApplicationRoleUserAccount")]
+    public class OpenXDAApplicationRoleUserAccountController : ModelController<ApplicationRoleUserAccount>
+    {
+        public OpenXDAApplicationRoleUserAccountController() : base(true, "UserAccountID")
+        {
+
+        }
+        protected override string Connection { get; } = "dbOpenXDA";
+        protected override string GetRoles { get; } = "Administrator";
+
+        [HttpPatch, Route("UpdateArray")]
+        public IHttpActionResult PatchArray([FromBody] IEnumerable<ApplicationRoleUserAccount> records)
+        {
+            try
+            {
+                if (PatchRoles == string.Empty || User.IsInRole(PatchRoles))
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        IEnumerable<ApplicationRoleUserAccount> applicationRoles = new TableOperations<ApplicationRoleUserAccount>(connection).QueryRecordsWhere("UserAccountID = {0}", records.First().UserAccountID);
+
+                        foreach (ApplicationRoleUserAccount applicationRole in applicationRoles)
+                        {
+                            if (records.FirstOrDefault(r => r.ApplicationRoleID == applicationRole.ApplicationRoleID) == null)
+                                new TableOperations<ApplicationRoleUserAccount>(connection).DeleteRecord(applicationRole);
+                        }
+
+                        foreach (ApplicationRoleUserAccount record in records)
+                        {
+                            if (applicationRoles.FirstOrDefault(r => r.ApplicationRoleID == record.ApplicationRoleID) == null)
+                                new TableOperations<ApplicationRoleUserAccount>(connection).AddNewRecord(record);
+                        }
+
+                        return Ok("Updated Roles without error.");
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+    }
 
 
 }

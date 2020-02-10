@@ -37,7 +37,7 @@ interface Meter {
 }
 declare var homePath: string;
 
-function ByMeter(props: { Roles: Array<SystemCenter.Role>}): JSX.Element {
+const ByMeter: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
 
     const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Meter.AssetKey', SearchText: '' }]);

@@ -64,3 +64,107 @@ export function getFilledUser(userAccount: SystemCenter.UserAccount): JQuery.jqX
 
 }
 
+export function getRoles(): JQuery.jqXHR<Array<SystemCenter.Role>> {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/SystemCenter/Role`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: true,
+        async: true
+    });
+}
+
+export function getSecurityRoles<T>(applicationName: 'SystemCenter' | 'OpenXDA'): JQuery.jqXHR<Array<SystemCenter.ApplicationRole<T>>> {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/${applicationName}/ApplicationRole`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: true,
+        async: true
+    });
+}
+
+export function updateSecurityRolesForUser(applicationName: 'SystemCenter' | 'OpenXDA', data: Array<SystemCenter.ApplicationRoleUserAccount>): JQuery.jqXHR<string> {
+    return $.ajax({
+        type: "PATCH",
+        url: `${homePath}api/${applicationName}/ApplicationRoleUserAccount/UpdateArray`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        data: JSON.stringify(data),
+        cache: true,
+        async: true
+    });
+}
+
+
+export function getSecurityRolesForUser(id: string, applicationName: 'SystemCenter' | 'OpenXDA'): JQuery.jqXHR<Array<SystemCenter.ApplicationRoleUserAccount>> {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/${applicationName}/ApplicationRoleUserAccount/${id}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: true,
+        async: true
+    });
+}
+
+export function getTSCs(): JQuery.jqXHR<Array<SystemCenter.TSC>> {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/SystemCenter/TSC`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: true,
+        async: true
+    });
+}
+
+export function validUserAccountField(user: SystemCenter.UserAccount,field: keyof (SystemCenter.UserAccount)): boolean {
+    if (field == 'AccountName')
+        return user.Name != null && user.Name.length > 0 && user.Name.length <= 200;
+    if (field == 'Name')
+        return user.Name != null && user.Name.length > 0 && user.Name.length <= 200;
+    else if (field == 'Password')
+        return user.Password == null || user.Password.length <= 200;
+    else if (field == 'FirstName')
+        return user.FirstName == null || user.FirstName.length <= 200;
+    else if (field == 'LastName')
+        return user.LastName == null || user.LastName.length <= 200;
+    else if (field == 'Phone')
+        return user.Phone == null || user.Phone.length <= 200;
+    else if (field == 'Email')
+        return user.Email == null || user.Email.length <= 200;
+    else if (field == 'Title')
+        return user.Title == null || user.Title.length <= 200;
+    else if (field == 'MobilePhone')
+        return user.MobilePhone == null || user.MobilePhone.length <= 200;
+
+    return false;
+
+}
+
+export function GetAccessLogAggregates(database: SystemCenter.AttachedDatabases, days: number) {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/${database}/AccessLog/Aggregates/${days}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    });
+
+}
+
+export function GetAccessLogTable(database: SystemCenter.AttachedDatabases, days: number) {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/${database}/AccessLog/Table/${days}`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    });
+
+}

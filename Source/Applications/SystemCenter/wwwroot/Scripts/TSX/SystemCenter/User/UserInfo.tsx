@@ -28,24 +28,32 @@ import FormTextArea from '../CommonComponents/FormTextArea';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 import FormDatePicker from '../CommonComponents/FormDatePicker';
-import { getSIDFromUserName, getIsUser } from './../../../TS/Services/User';
+import { getSIDFromUserName, getIsUser, validUserAccountField, getRoles, getTSCs } from './../../../TS/Services/User';
+import FormSelect from '../CommonComponents/FormSelect';
 
 declare var homePath: string;
 type UserValidation = 'Resolving' | 'Valid' | 'Invalid' | 'Unknown';
 
-export default class UserInfoWindow extends React.Component<{ User: SystemCenter.UserAccount, stateSetter: (user: SystemCenter.UserAccount) => void }, { User: SystemCenter.UserAccount, UserValidation: UserValidation}, {}> {
+export default class UserInfoWindow extends React.Component<{ User: SystemCenter.UserAccount, stateSetter: (user: SystemCenter.UserAccount) => void }, { User: SystemCenter.UserAccount, UserValidation: UserValidation, Roles: Array<SystemCenter.Role>, TSCs: Array<SystemCenter.TSC>}, {}> {
     jqueryHandle: JQuery.jqXHR;
     constructor(props, context) {
         super(props, context);
         this.state = {
             User: this.props.User,
-            UserValidation: 'Invalid'
+            UserValidation: 'Invalid',
+            Roles: [],
+            TSCs: []
         }
-        this.valid = this.valid.bind(this);
     }
 
 
     componentDidMount() {
+        let handle2 = getRoles();
+        handle2.done(rs => this.setState({ Roles: rs }));
+
+        let handle3 = getTSCs();
+        handle3.done(ts => this.setState({ TSCs: ts }));
+
         if(this.state.User.UseADAuthentication)
             this.validateUser(this.state.User.AccountName);
     }
@@ -68,22 +76,6 @@ export default class UserInfoWindow extends React.Component<{ User: SystemCenter
        }).done((LocationID: number) => {
            this.props.stateSetter(user);
        });
-    }
-
-    valid(field: keyof (SystemCenter.UserAccount)): boolean {
-        if (field == 'AccountName')
-            return this.state.User.Name != null && this.state.User.Name.length > 0 && this.state.User.Name.length <= 200;
-        else if (field == 'Password')
-            return this.state.User.Password == null || this.state.User.Password.length <= 200;
-        else if (field == 'FirstName')
-            return this.state.User.FirstName == null || this.state.User.FirstName.length <= 200;
-        else if (field == 'LastName')
-            return this.state.User.LastName == null || this.state.User.LastName.length <= 200;
-        else if (field == 'Phone')
-            return this.state.User.Phone == null || this.state.User.Phone.length <= 200;
-        else if (field == 'Email')
-            return this.state.User.Email == null || this.state.User.Email.length <= 200;
-        return false;
     }
 
     async validateUser(accountName: string) {
@@ -117,7 +109,7 @@ export default class UserInfoWindow extends React.Component<{ User: SystemCenter
                 <div className="card-body">
                     <div className="row">
                         <div className="col">
-                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'AccountName'} Label='Name' Feedback={'A Name of less than 200 characters is required.'} Valid={this.valid} Setter={(record) => {
+                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'AccountName'} Label='Name' Feedback={'A Name of less than 200 characters is required.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={(record) => {
                                 if (this.state.User.UseADAuthentication)
                                     this.validateUser(record.Name);
 
@@ -158,25 +150,33 @@ export default class UserInfoWindow extends React.Component<{ User: SystemCenter
                                 <div className="card-body" hidden={!this.state.User.UseADAuthentication}>
                                     <div className="row">
                                         <div className="col">
-                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={this.valid} Setter={record => this.setState({User: record})} />
-                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={this.valid} Setter={record => this.setState({User: record})} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({User: record})} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({User: record})} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Title'} Feedback={'Title must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({ User: record })} />
+                                            <FormSelect<SystemCenter.UserAccount> Record={this.state.User} Field={'RoleID'} Label='Role' Options={this.state.Roles.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={record => this.setState({ User: record })} EmptyOption={true} />
                                         </div>
                                         <div className="col">
-                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Phone'} Feedback={'Password must be less than 200 characters.'} Valid={this.valid} Setter={record => this.setState({User: record})} />
-                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Email'} Feedback={'Password must be less than 200 characters.'} Valid={this.valid} Setter={record => this.setState({User: record})} />
+                                            <FormSelect<SystemCenter.UserAccount> Record={this.state.User} Field={'TSCID'} Label='TSC' Options={this.state.TSCs.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={record => this.setState({ User: record })} EmptyOption={true} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Phone'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({User: record})} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'MobilePhone'} Label='Mobile Phone' Feedback={'Mobile Phone must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({ User: record })} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Email'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({ User: record })} />
                                         </div>
                                     </div>
                                 </div>
                                 <div className="card-body" hidden={this.state.User.UseADAuthentication}>
                                     <div className="row">
                                         <div className="col">
-                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Password'} Feedback={'Password must be less than 200 characters.'} Valid={this.valid} Setter={record => this.setState({User: record})} />
-                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={this.valid} Setter={record => this.setState({User: record})} />
-                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={this.valid} Setter={record => this.setState({User: record})} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Password'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({User: record})} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({User: record})} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({User: record})} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Title'} Feedback={'Title must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({ User: record })} />
+                                            <FormSelect<SystemCenter.UserAccount> Record={this.state.User} Field={'RoleID'} Label='Role' Options={this.state.Roles.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={record => this.setState({ User: record })} EmptyOption={true} />
                                         </div>
                                         <div className="col">
-                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Phone'} Feedback={'Password must be less than 200 characters.'} Valid={this.valid} Setter={record => this.setState({User: record})} />
-                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Email'} Feedback={'Password must be less than 200 characters.'} Valid={this.valid} Setter={record => this.setState({User: record})} />
+                                            <FormSelect<SystemCenter.UserAccount> Record={this.state.User} Field={'TSCID'} Label='TSC' Options={this.state.TSCs.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={record => this.setState({ User: record })} EmptyOption={true} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Phone'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({User: record})} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'MobilePhone'} Label='Mobile Phone' Feedback={'Mobile Phone must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({ User: record })} />
+                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Email'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({ User: record })} />
                                             <FormDatePicker<SystemCenter.UserAccount> Record={this.state.User} Field={'ChangePasswordOn'} Label='Change Password On' Setter={record => this.setState({User: record})} />
                                         </div>
                                     </div>
@@ -187,7 +187,8 @@ export default class UserInfoWindow extends React.Component<{ User: SystemCenter
                                         <FormCheckBox<SystemCenter.UserAccount> Record={this.state.User} Label='Locked Out' Field='LockedOut' Setter={record => this.setState({User: record})} />
                                         <FormCheckBox<SystemCenter.UserAccount> Record={this.state.User} Label='Phone Confirmed' Field='PhoneConfirmed' Setter={record => this.setState({User: record})} />
                                         <FormCheckBox<SystemCenter.UserAccount> Record={this.state.User} Label='Email Confirmed' Field='EmailConfirmed' Setter={record => this.setState({User: record})} />
-                                        <FormCheckBox<SystemCenter.UserAccount> Record={this.state.User} Field='Approved' Setter={record => this.setState({User: record})} />
+                                        <FormCheckBox<SystemCenter.UserAccount> Record={this.state.User} Field='Approved' Setter={record => this.setState({ User: record })} />
+                                        <FormCheckBox<SystemCenter.UserAccount> Record={this.state.User} Field='ReceiveNotifications' Label='Receive Notifications' Setter={record => this.setState({ User: record })} />
                                     </div>
                                 </div>
                             </div>

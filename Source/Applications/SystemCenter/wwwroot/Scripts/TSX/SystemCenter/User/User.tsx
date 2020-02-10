@@ -24,9 +24,8 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '../global';
-import NoteWindow from '../CommonComponents/NoteWindow';
-import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import UserInfoWindow from './UserInfo';
+import UserPermissionsWindow from './UserPermissions';
 
 declare var homePath: string;
 
@@ -103,7 +102,7 @@ export default class User extends React.Component<{ UserID: string }, { User: Sy
                         <a className={"nav-link" + (this.state.Tab == "userInfo" ? " active" : "")} onClick={() => this.setTab('userInfo')} data-toggle="tab" href="#userInfo">User Info</a>
                     </li>
                     <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "additionalFields" ? " active" : "")} onClick={() => this.setTab('additionalFields')} data-toggle="tab">Additional Fields</a>
+                        <a className={"nav-link" + (this.state.Tab == "permissions" ? " active" : "")} onClick={() => this.setTab('permissions')} data-toggle="tab">Permissions</a>
                     </li>
                 </ul>
              
@@ -111,7 +110,8 @@ export default class User extends React.Component<{ UserID: string }, { User: Sy
                     <div className={"tab-pane " + (this.state.Tab == "userInfo" ? " active" : "fade")} id="userInfo">
                         <UserInfoWindow User={this.state.User} stateSetter={(record) => this.setState({User: record})}/>
                     </div>
-                    <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
+                    <div className={"tab-pane " + (this.state.Tab == "permissions" ? " active" : "fade")} id="permissions">
+                        <UserPermissionsWindow User={this.state.User} />
                     </div>
 
                 </div>                

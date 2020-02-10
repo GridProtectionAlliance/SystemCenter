@@ -88,7 +88,6 @@ namespace SystemCenter.Controllers
         [HttpGet, Route("New")]
         public virtual IHttpActionResult GetNew()
         {
-            UserInfo ui = new UserInfo(User.Identity.Name);
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -111,8 +110,8 @@ namespace SystemCenter.Controllers
 
         }
 
-        [HttpGet, Route("{parentID:int?}")]
-        public virtual IHttpActionResult Get(int parentID = 0)
+        [HttpGet, Route("{parentID?}")]
+        public virtual IHttpActionResult Get(string parentID = null)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
@@ -122,8 +121,15 @@ namespace SystemCenter.Controllers
                     try
                     {
                         IEnumerable<T> result;
-                        if (HasParent)
-                            result = new TableOperations<T>(connection).QueryRecordsWhere(ParentKey + " = {0}", parentID);
+                        if (HasParent && parentID != null) {
+                            PropertyInfo parentKey = typeof(T).GetProperty(ParentKey);
+                            if (parentKey.PropertyType == typeof(int))
+                                result = new TableOperations<T>(connection).QueryRecordsWhere(ParentKey + " = {0}", int.Parse(parentID));
+                            else if (parentKey.PropertyType == typeof(Guid))
+                                result = new TableOperations<T>(connection).QueryRecordsWhere(ParentKey + " = {0}", Guid.Parse(parentID));
+                            else
+                                result = new TableOperations<T>(connection).QueryRecordsWhere(ParentKey + " = {0}", parentID);
+                        }
                         else
                             result = new TableOperations<T>(connection).QueryRecords();
 

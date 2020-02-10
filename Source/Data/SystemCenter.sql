@@ -41,6 +41,14 @@ CREATE TABLE Setting
 )
 GO
 
+CREATE TABLE AccessLog(
+    ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+    UserName varchar(200) NOT NULL,
+    AccessGranted bit NOT NULL,
+    CreatedOn datetime NOT NULL CONSTRAINT [DF_AccessLog_Timestamp]  DEFAULT (getutcdate())
+)
+GO
+
 -- -------- --
 -- Security --
 -- -------- --
@@ -88,6 +96,8 @@ CREATE TABLE UserAccount
     Title varchar(200) NULL,
     Department varchar(200) NULL,
     DepartmentNumber varchar(200) NULL,
+    MobilePhone VARCHAR(200) NULL,
+    ReceiveNotifications BIT NOT NULL DEFAULT 1,
     UseADAuthentication BIT NOT NULL DEFAULT 1,
     ChangePasswordOn DATETIME NULL DEFAULT DATEADD(DAY, 90, GETUTCDATE()),
     CreatedOn DATETIME NOT NULL DEFAULT GETUTCDATE(),

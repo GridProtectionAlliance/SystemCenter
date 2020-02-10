@@ -42,7 +42,7 @@ interface Location {
 }
 
 
-function ByLocation(props: { Roles: Array<SystemCenter.Role> })  {
+const ByLocation: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
     const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Location.LocationKey', SearchText: '' }]);
     const [data, setData] = React.useState<Array<Location>>([]);

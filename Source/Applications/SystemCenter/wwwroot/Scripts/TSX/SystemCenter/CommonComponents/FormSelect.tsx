@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 
-export default class FormSelect<T> extends React.Component<{ Record: T, Field: keyof (T), Options: Array<{Value: string, Label: string }>, Setter: (record: T) => void, Label?: string, Disabled?: boolean }, {}, {}>{
+export default class FormSelect<T> extends React.Component<{ Record: T, Field: keyof (T), Options: Array<{Value: string, Label: string }>, Setter: (record: T) => void, Label?: string, Disabled?: boolean, EmptyOption?: boolean }, {}, {}>{
     render() {
         return <div className="form-group">
             <label>{this.props.Label == null ? this.props.Field : this.props.Label}</label>
@@ -36,7 +36,8 @@ export default class FormSelect<T> extends React.Component<{ Record: T, Field: k
                     record[this.props.Field] = null;
 
                 this.props.Setter(record);
-            }} value={this.props.Record[this.props.Field] == null ? '' : this.props.Record[this.props.Field].toString()} disabled={this.props.Disabled == null ? false : this.props.Disabled }>
+            }} value={this.props.Record[this.props.Field] == null ? '' : this.props.Record[this.props.Field].toString()} disabled={this.props.Disabled == null ? false : this.props.Disabled}>
+                {(this.props.EmptyOption ? <option value=''></option> : null)}
                 {this.props.Options.map((a, i) => <option key={i} value={a.Value}>{a.Label}</option>)}
             </select>
         </div>;

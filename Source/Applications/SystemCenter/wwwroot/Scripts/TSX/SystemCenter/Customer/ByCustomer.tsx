@@ -40,9 +40,9 @@ interface Customer extends SystemCenter.Customer {
 
 declare var homePath: string;
 
-function ByCustomer(props: { Roles: Array<SystemCenter.Role>}): JSX.Element {
+const ByCustomer: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
-
+    
     const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Customer.AccountName', SearchText: '' }]);
     const [data, setData] = React.useState<Array<Customer>>([]);
     const [sortField, setSortField] = React.useState<string>('AssetKey');

@@ -34,6 +34,7 @@ import ByMeter from './Meter/ByMeter';
 import ByLocation from './Location/ByLocation';
 import ByAsset from './Asset/ByAsset';
 import ByUser from './User/ByUser';
+import UserStatistics from './UserStatistics/UserStatistics';
 
 import Asset from './Asset/Asset';
 import ByCustomer from './Customer/ByCustomer';
@@ -56,7 +57,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     //const Asset = React.lazy(() => import('./Asset/Asset'));
     //const NewMeterWizard = React.lazy(() => import('./NewMeterWizard/NewMeterWizard'));
     //const ConfigurationHistory = React.lazy(() => import('./ConfigurationHistory/ConfigurationHistory'));
-    const [roles, setRoles] = React.useState<Array<SystemCenter.Role>>([]);
+    const [roles, setRoles] = React.useState<Array<SystemCenter.SystemCeneterSecurityRoleName>>([]);
 
     React.useEffect(() => {
         getRoles();
@@ -70,7 +71,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
             dataType: 'json',
             cache: false,
             async: true
-        }).done((rs: Array<SystemCenter.Role>) => setRoles(rs));
+        }).done((rs: Array<SystemCenter.SystemCeneterSecurityRoleName>) => setRoles(rs));
     }
 
     if (Object.keys(queryString.parse(history.location.search)).length == 0)
@@ -89,7 +90,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
             </nav>
             <div className="container-fluid" style={{ top: 75,  position: 'absolute', width: '100%', height: 'calc(100% - 75px)', overflow: 'hidden' }}>
                 <div className="row" style={{height: '100%'}}>
-                    <nav className="col-md-2 d-none d-md-block bg-light sidebar">
+                    <nav className="col bg-light sidebar" style={{ maxWidth: 250 }}>
                         <div className="sidebar-sticky">
                             <div style={{ width: '100%', marginTop: 5, textAlign: 'center' }}><h3>System Center</h3></div>
                             <hr />
@@ -130,6 +131,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>User Settings</h6>
                             <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
                                 <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=UserStatistics"} to={controllerViewPath + "?name=UserStatistics"}>User Statistics</NavLink>
+
+                                </li>
+                                <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Users"} to={controllerViewPath + "?name=Users"}>Users</NavLink>
 
                                 </li>
@@ -146,7 +151,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
                         </div>
                     </nav>
-                    <div className="col-md-9 ml-sm-auto col-lg-10" style={{ width: '100%', height: 'inherit', padding: '0 0 0 0', overflowY: 'hidden' }}>
+                    <div className="col" style={{ width: '100%', height: 'inherit', padding: '0 0 0 0', overflow: 'hidden' }}>
                         <React.Suspense fallback={<div>Loading...</div>}>
                             <Route children={({ match, ...rest }) => {
                                 if (queryString.parse(rest.location.search).name == undefined || rest.location.pathname + rest.location.search == controllerViewPath + "?name=Meters") 
@@ -178,6 +183,14 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else
                                     return null;
                             }} />
+                            <Route children={({ match, ...rest }) => {
+                                if (queryString.parse(rest.location.search).name == "UserStatistics")
+                                    return <UserStatistics Roles={roles} />
+                                else
+                                    return null;
+                            }} />
+
+
                             <Route children={({ match, ...rest }) => {
                                 if (queryString.parse(rest.location.search).name == "Meter")
                                     return <Meter MeterID={queryString.parse(rest.location.search).MeterID} />
