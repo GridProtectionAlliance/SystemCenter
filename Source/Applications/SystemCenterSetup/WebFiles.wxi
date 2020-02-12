@@ -134,4 +134,17 @@
     <File Id="wwwroot_Scripts_ace_mode_xml.js" Name="mode-xml.js" Source="$(var.SolutionDir)Applications\SystemCenter\\wwwroot\Scripts\ace\mode-xml.js" />
   </Component>
 </ComponentGroup>
+<ComponentGroup Id="wwwroot_Scripts_d3_Components" Directory="wwwroot_SCRIPTSD3FOLDER">
+  <Component Id="wwwroot_Scripts_d3_d3_v4_min_js">
+    <File Id="wwwroot_Scripts_d3_d3.v4.min.js" Name="d3.v4.min.js" Source="$(var.SolutionDir)Applications\SystemCenter\\wwwroot\Scripts\d3\d3.v4.min.js" />
+  </Component>
+</ComponentGroup>
+<ComponentGroup Id="wwwroot_Scripts_react_router_Components" Directory="wwwroot_SCRIPTSREACTROUTERFOLDER">
+  <Component Id="wwwroot_Scripts_react_router_react_router_dom_min_js">
+    <File Id="wwwroot_Scripts_react_router_react_router_dom.min.js" Name="react-router-dom.min.js" Source="$(var.SolutionDir)Applications\SystemCenter\\wwwroot\Scripts\react-router\react-router-dom.min.js" />
+  </Component>
+  <Component Id="wwwroot_Scripts_react_router_react_router_dom_min_js_map">
+    <File Id="wwwroot_Scripts_react_router_react_router_dom.min.js.map" Name="react-router-dom.min.js.map" Source="$(var.SolutionDir)Applications\SystemCenter\\wwwroot\Scripts\react-router\react-router-dom.min.js.map" />
+  </Component>
+</ComponentGroup>
 </Include>

@@ -6,6 +6,8 @@
   </Directory>
   <Directory Id="wwwroot_SCRIPTSFOLDER" Name="Scripts">
     <Directory Id="wwwroot_SCRIPTSACEFOLDER" Name="ace" />
+    <Directory Id="wwwroot_SCRIPTSD3FOLDER" Name="d3" />
+    <Directory Id="wwwroot_SCRIPTSREACTROUTERFOLDER" Name="react-router" />
   </Directory>
 </Directory>
 </Include>

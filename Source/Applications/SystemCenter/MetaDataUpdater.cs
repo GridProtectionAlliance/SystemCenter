@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  ActiveDirectoryUserAccountMetadataUpdater.cs - Gbtc
+//  MetadataUpdater.cs - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -27,6 +27,7 @@ using GSF.Identity;
 using log4net;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
@@ -35,7 +36,7 @@ using SystemCenter.Model.Security;
 
 namespace SystemCenter
 {
-    public class ActiveDirectoryUserAccountMetadataUpdater
+    public class MetaDataUpdater
     {
         #region [ Member ]
         public class ChangedUser { 
@@ -53,20 +54,50 @@ namespace SystemCenter
         #endregion
 
         #region [ Constructor ]
-        public ActiveDirectoryUserAccountMetadataUpdater() {
-            string connectionString = "Data Source=localhost; Initial Catalog=SystemCenter; Integrated Security=SSPI";
-            string dbString = "AssemblyName={System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089}; ConnectionType=System.Data.SqlClient.SqlConnection; AdapterType=System.Data.SqlClient.SqlDataAdapter";
-            using (AdoDataConnection connection = new AdoDataConnection(connectionString, dbString)) {
-                ChangedUserAccounts = new List<ChangedUser>();
-                FromAddress = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.FromAddress'");
-                EnableSSL = connection.ExecuteScalar<bool>("SELECT Value FROM Setting WHERE Name = 'Email.EnableSSL'");
-                SMTPServer = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.SMTPServer'");
-                AdminAddress = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.AdminAddress'");
-                Username = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.Username'");
-                SecurePassword = connection.ExecuteScalar<SecureString>("SELECT Value FROM Setting WHERE Name = 'Email.Password'");
-                Url = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'SystemCenter.Url'");
+        public MetaDataUpdater() {
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                {
+                    ConnectionString = connection.Connection.ConnectionString;
+                    ChangedUserAccounts = new List<ChangedUser>();
+                    FromAddress = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.FromAddress'");
+                    EnableSSL = connection.ExecuteScalar<bool>("SELECT Value FROM Setting WHERE Name = 'Email.EnableSSL'");
+                    SMTPServer = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.SMTPServer'");
+                    AdminAddress = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.AdminAddress'");
+                    Username = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.Username'");
+                    SecurePassword = connection.ExecuteScalar<SecureString>("SELECT Value FROM Setting WHERE Name = 'Email.Password'");
+                    Url = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'SystemCenter.Url'");
+                }
+            }
+            catch (Exception ex) {
+                Log.Error(ex.Message, ex);
             }
         }
+
+        public MetaDataUpdater(string connectionString)
+        {
+            try
+            {
+                ConnectionString = connectionString;
+                using (AdoDataConnection connection = new AdoDataConnection(connectionString, DBString))
+                {
+                    ChangedUserAccounts = new List<ChangedUser>();
+                    FromAddress = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.FromAddress'");
+                    EnableSSL = connection.ExecuteScalar<bool>("SELECT Value FROM Setting WHERE Name = 'Email.EnableSSL'");
+                    SMTPServer = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.SMTPServer'");
+                    AdminAddress = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.AdminAddress'");
+                    Username = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.Username'");
+                    SecurePassword = connection.ExecuteScalar<SecureString>("SELECT Value FROM Setting WHERE Name = 'Email.Password'");
+                    Url = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'SystemCenter.Url'");
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message, ex);
+            }
+        }
+
         #endregion
 
         #region [ Properties ]
@@ -78,14 +109,15 @@ namespace SystemCenter
         private SecureString SecurePassword { get; set; }
         private string AdminAddress { get; set; }
         private string Url { get; set; }
+        private string ConnectionString { get; set; }
+        private const string DBString = "AssemblyName={System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089}; ConnectionType=System.Data.SqlClient.SqlConnection; AdapterType=System.Data.SqlClient.SqlDataAdapter";
+        private string ErrorPath { get; set; }
         #endregion
 
         #region [ Methods ]
-        public void UpdateActiveDirectoryUserAccountData()
+        public void Update()
         {
-            string connectionString = "Data Source=localhost; Initial Catalog=SystemCenter; Integrated Security=SSPI";
-            string dbString = "AssemblyName={System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089}; ConnectionType=System.Data.SqlClient.SqlConnection; AdapterType=System.Data.SqlClient.SqlDataAdapter";
-            using (AdoDataConnection connection = new AdoDataConnection(connectionString, dbString))
+            using (AdoDataConnection connection = new AdoDataConnection(ConnectionString, DBString))
             {
                 IEnumerable<UserAccount> userAccounts = new TableOperations<UserAccount>(connection).QueryRecordsWhere("UseADAuthentication = 1");
 
@@ -154,6 +186,7 @@ namespace SystemCenter
                     }
                     catch (Exception ex) {
                         Log.Error(ex.Message, ex);
+
                     }
                 }
 
@@ -228,7 +261,7 @@ namespace SystemCenter
         #endregion
 
         #region [ Static ]
-        private static readonly ILog Log = LogManager.GetLogger(typeof(ActiveDirectoryUserAccountMetadataUpdater));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(MetaDataUpdater));
 
 
         #endregion

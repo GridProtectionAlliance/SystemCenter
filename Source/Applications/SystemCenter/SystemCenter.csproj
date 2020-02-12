@@ -234,7 +234,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActiveDirectoryUserAccountMetadataUpdater.cs" />
+    <Compile Include="MetaDataUpdater.cs" />
     <Compile Include="Controllers\ModelController.cs" />
     <Compile Include="Controllers\OpenXDA\AssetConnections\OpenXDAAssetConnectionTypeController.cs" />
     <Compile Include="Controllers\OpenXDA\AssetConnections\OpenXDAAssetConnectionController.cs" />

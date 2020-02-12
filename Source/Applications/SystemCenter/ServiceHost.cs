@@ -237,6 +237,7 @@ namespace SystemCenter
             // Set up heartbeat and client request handlers
             m_serviceHelper.AddScheduledProcess(ServiceHeartbeatHandler, "ServiceHeartbeat", "* * * * *");
             m_serviceHelper.AddScheduledProcess(ReloadConfigurationHandler, "ReloadConfiguration", "0 0 * * *");
+            m_serviceHelper.AddScheduledProcess(MetaDataUpdaterHandler, "MetaDataUpdater", "0 0 * * *");
             m_serviceHelper.ClientRequestHandlers.Add(new ClientRequestHandler("ReloadSystemSettings", "Reloads system settings from the database", ReloadSystemSettingsRequestHandler));
             m_serviceHelper.ClientRequestHandlers.Add(new ClientRequestHandler("EngineStatus", "Displays status information about the XDA engine", EngineStatusHandler));
             m_serviceHelper.ClientRequestHandlers.Add(new ClientRequestHandler("MsgServiceMonitors", "Sends a message to all service monitors", MsgServiceMonitorsRequestHandler));
@@ -516,6 +517,10 @@ namespace SystemCenter
             }
         }
 
+        private void MetaDataUpdaterHandler(string s, object[] args) {
+            MetaDataUpdater metaDataUpdater = new MetaDataUpdater();
+            metaDataUpdater.Update();
+        }
 
         // Reloads system settings from the database.
         private void ReloadSystemSettingsRequestHandler(ClientRequestInfo requestInfo)
