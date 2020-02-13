@@ -59,9 +59,27 @@ namespace SystemCenter.Model.Security
     public class UserAccountController : ModelController<UserAccount> {
         protected override string GetRoles { get; } = "Administrator";
 
+        [HttpGet, Route("UpdateMetaData")]
+        public IHttpActionResult GetUdateMetaData()
+        {
+            if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
+            try
+            {
+                MetaDataUpdater metaData = new MetaDataUpdater();
+                metaData.Update();
+                return Ok("Metadata updated");
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
+
+
         [HttpPost, Route("SID")]
         public IHttpActionResult GetSIDFromUserName([FromBody] string userName) {
-            if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
+            if (PostRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
             try
             {
                 return Ok(UserInfo.UserNameToSID(userName));

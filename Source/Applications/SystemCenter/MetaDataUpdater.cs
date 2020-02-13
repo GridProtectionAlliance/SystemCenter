@@ -175,7 +175,7 @@ namespace SystemCenter
                             changedUser.NewDepartmentNumber = userAccount.DepartmentNumber;
 
                             if (userAccount.DepartmentNumber != string.Empty)
-                                userAccount.TSCID = connection.ExecuteScalar<int>($"SELECT TOP 1 ID FROM TSC WHERE DepartmentNumber LIKE '%{userAccount.DepartmentNumber}%' ");
+                                userAccount.TSCID = connection.ExecuteScalar<int>($"SELECT TOP 1 ID FROM TSC WHERE DepartmentNumber LIKE '{departmentNumber.Substring(0,6)}%' ");
                             changed = true;
                         }
 
@@ -252,7 +252,13 @@ namespace SystemCenter
                 emailMessage.IsBodyHtml = true;
 
                 // Add the specified To recipients for the email message
-                emailMessage.To.Add(AdminAddress);
+                if (AdminAddress.Contains(","))
+                {
+                    foreach (string address in AdminAddress.Split(','))
+                        emailMessage.To.Add(address);
+                }
+                else
+                    emailMessage.To.Add(AdminAddress);
 
                 // Send the email
                 smtpClient.Send(emailMessage);

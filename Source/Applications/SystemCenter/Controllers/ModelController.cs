@@ -322,7 +322,6 @@ namespace SystemCenter.Controllers
         protected string BuildWhereClause(IEnumerable<Search> searches) {
 
             string whereClause = string.Join(" AND ", searches.Select(search => {
-                string text = "";
                 if (search.SearchText == string.Empty) search.SearchText = "%";
                 else search.SearchText = search.SearchText.Replace("*", "%");
                 bool negate = search.SearchText[0] == '!' || search.SearchText[0] == '-';
