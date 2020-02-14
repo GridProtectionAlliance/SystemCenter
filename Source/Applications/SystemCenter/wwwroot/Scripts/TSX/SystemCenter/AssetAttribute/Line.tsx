@@ -50,7 +50,7 @@ function LineAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.L
     }
 
     function updateLineSegment(record: OpenXDA.LineSegment): void {
-        var asset: OpenXDA.Line = _.clone(props.Asset, true);
+        var asset: OpenXDA.Line = _.clone(props.Asset);
         asset.Segment = record;
         props.UpdateState(asset);
 

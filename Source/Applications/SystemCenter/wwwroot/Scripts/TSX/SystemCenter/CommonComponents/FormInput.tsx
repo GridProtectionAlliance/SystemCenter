@@ -29,7 +29,7 @@ export default class FormInput<T> extends React.Component<{ Record: T, Field: ke
         return <div className="form-group">
             <label>{this.props.Label == null ? this.props.Field : this.props.Label}</label>
             <input className={(this.props.Valid(this.props.Field) ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                var record: T = _.clone(this.props.Record, true);
+                var record: T = _.clone(this.props.Record);
                 if (evt.target.value != "")
                     record[this.props.Field] = evt.target.value as any;
                 else

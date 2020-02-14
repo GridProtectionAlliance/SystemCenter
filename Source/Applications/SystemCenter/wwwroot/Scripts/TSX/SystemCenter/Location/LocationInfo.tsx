@@ -21,7 +21,6 @@
 //
 //******************************************************************************************************
 import * as React from 'react';
-import * as moment from 'moment';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import AssetAttributes from '../AssetAttribute/Asset';
@@ -48,7 +47,7 @@ export default class LocationInfoWindow extends React.Component<{ Location: Open
     }
 
     updateLocation(): JQuery.jqXHR {
-        var location: OpenXDA.Location = _.clone(this.state.Location, true);
+        var location: OpenXDA.Location = _.clone(this.state.Location);
 
        return $.ajax({
             type: "PATCH",

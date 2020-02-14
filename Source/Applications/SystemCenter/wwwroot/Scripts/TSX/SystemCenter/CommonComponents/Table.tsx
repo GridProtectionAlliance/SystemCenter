@@ -66,7 +66,7 @@ export default class Table<T> extends React.Component<TableProps<T>, {}> {
         if (this.props.cols.length == 0) return null;
 
         var cells = this.props.cols.map((colData, index) => {
-            var style: React.CSSProperties;
+            var style;
             if (colData.headerStyle != undefined) {
                 style = colData.headerStyle;
             }
@@ -97,7 +97,7 @@ export default class Table<T> extends React.Component<TableProps<T>, {}> {
                 </td>
             });
 
-            var style: React.CSSProperties;
+            var style;
 
             if (this.props.rowStyle != undefined) {
                 style = _.clone(this.props.rowStyle);

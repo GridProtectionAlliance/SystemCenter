@@ -69,10 +69,10 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
     }
 
     deleteAsset(index: number) {
-        let list = _.clone(this.props.Assets, true);
+        let list = _.clone(this.props.Assets);
         let record: Array<OpenXDA.Asset> = list.splice(index, 1);
-        let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(this.props.AssetConnections, true);
-        let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels, true);
+        let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(this.props.AssetConnections);
+        let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels);
 
         $.each(channels, (index, channel) => {
             if (channel.Asset == record[0].AssetKey)
@@ -143,7 +143,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
             cache: true,
             async: true
         }).done((lineSegment: OpenXDA.LineSegment) => {
-            let record: OpenXDA.Line = _.clone(this.state.NewEditAsset, true);
+            let record = _.clone(this.state.NewEditAsset as OpenXDA.Line) ;
             if (lineSegment != undefined) {
                 record.Segment = lineSegment
             }
@@ -165,7 +165,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
             cache: true,
             async: true
         }).done((ednaPoint: OpenXDA.EDNAPoint) => {
-            let record: OpenXDA.Breaker = _.clone(this.state.NewEditAsset, true);
+            let record  = _.clone(this.state.NewEditAsset as OpenXDA.Breaker);
             if (ednaPoint != undefined) {
                 record.EDNAPoint = ednaPoint.Point
                 this.setState({ NewEditAsset: record });
@@ -246,7 +246,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                                     </div>
                                     <div className="col">
                                         <select multiple style={{ height: '100%', width: '100%' }} onChange={(evt) => {
-                                            let asset: OpenXDA.Asset = _.clone(this.state.NewEditAsset, true);
+                                            let asset  = _.clone(this.state.NewEditAsset as OpenXDA.Asset);
                                             asset.Channels = ($(evt.target).val() as Array<string>).map(a => this.props.Channels[parseInt(a)])
                                             this.setState({ NewEditAsset: asset });
                                         }} value={this.state.NewEditAsset.Channels.map(a => a.ID.toString())}>
@@ -259,9 +259,9 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={(evt) => {
-                                    let record: OpenXDA.Asset = _.clone(this.state.NewEditAsset, true);
-                                    let list = _.clone(this.props.Assets, true);
-                                    let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels, true);
+                                    let record: OpenXDA.Asset = _.clone(this.state.NewEditAsset);
+                                    let list = _.clone(this.props.Assets);
+                                    let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels);
 
                                     $.each(channels, (index, channel) => {
                                         if (channel.Asset == record.AssetKey)
@@ -278,9 +278,9 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                                 }} hidden={this.state.NewEdit != 'New'}>Save</button>
 
                                 <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={(evt) => {
-                                    let record: OpenXDA.Asset = _.clone(this.state.NewEditAsset, true);
-                                    let list = _.clone(this.props.Assets, true);
-                                    let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels, true);
+                                    let record: OpenXDA.Asset = _.clone(this.state.NewEditAsset);
+                                    let list = _.clone(this.props.Assets);
+                                    let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels);
                                     let i = list.findIndex(r => r.AssetKey == record.AssetKey);
                                     list[i] = record;
                                     $.each(channels, (index, channel) => {

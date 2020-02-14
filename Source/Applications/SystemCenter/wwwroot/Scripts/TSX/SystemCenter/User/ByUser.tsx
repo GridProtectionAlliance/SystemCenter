@@ -26,7 +26,6 @@ import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import FormInput from '../CommonComponents/FormInput';
-import FormTextArea from '../CommonComponents/FormTextArea';
 import { SystemCenter } from '../global';
 import FormDatePicker from '../CommonComponents/FormDatePicker';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
@@ -35,7 +34,7 @@ import FormSelect from '../CommonComponents/FormSelect';
 declare var homePath: string;
 
 type UserValidation = 'Resolving' | 'Valid' | 'Invalid' | 'Unknown';
-type FieldName = 'UserAccount.Name' | 'UserAccount.FirstName' | 'UserAccount.LastName' | 'UserAccount.Email' | 'UserAccount.Phone' | 'UserAccount.MobilePhone' |'ApplicationRole.Name' | 'TSC.Name' | 'Role.Name';
+type FieldName = 'UserAccount.FirstName' | 'UserAccount.LastName' | 'UserAccount.Email' | 'UserAccount.Phone' | 'UserAccount.MobilePhone' |'ApplicationRole.Name' | 'TSC.Name' | 'Role.Name';
 interface Search {
     Field: FieldName,
     SearchText: string
@@ -47,7 +46,7 @@ interface UserAccount extends SystemCenter.UserAccount {
 
 const ByUser: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
-    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'UserAccount.Name', SearchText: '' }]);
+    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'UserAccount.FirstName', SearchText: '' }]);
     const [data, setData] = React.useState<Array<UserAccount>>([]);
     const [sortField, setSortField] = React.useState<string>('UserAccountKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -184,10 +183,9 @@ const ByUser: SystemCenter.ByComponent = (props) => {
                                                     <div className="input-group-prepend">
                                                         <select className='form-control' style={{ height: '100%' }} value={s.Field} onChange={(evt) => {
                                                             s.Field = evt.target.value as FieldName;
-                                                            let array = _.clone(a, true);
+                                                            let array = _.clone(a);
                                                             setSearch(array);
                                                         }}>
-                                                            <option value='UserAccount.Name'>Name</option>
                                                             <option value='UserAccount.FirstName'>First Name</option>
                                                             <option value='UserAccount.LastName'>Last Name</option>
                                                             <option value='UserAccount.Phone'>Phone</option>
@@ -200,12 +198,17 @@ const ByUser: SystemCenter.ByComponent = (props) => {
                                                     </div>
                                                     <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
                                                         s.SearchText = evt.target.value;
-                                                        let array = _.clone(a, true);
+                                                        let array = _.clone(a);
                                                         setSearch(array);
-                                                    }} />
+                                                    }} onKeyDown={evt => {
+                                                        if (evt.keyCode == 13) {
+                                                            evt.preventDefault();
+                                                            getUserAccounts().done((data: Array<UserAccount>) => setData(data));
+                                                        }
+                                                    }}/>
                                                     <div className="input-group-append">
                                                         <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                            let array = _.clone(a, true);
+                                                            let array = _.clone(a);
                                                             array.splice(index, 1);
                                                             setSearch(array);
                                                         }}><span><i className="fa fa-times"></i></span></button>
@@ -225,8 +228,8 @@ const ByUser: SystemCenter.ByComponent = (props) => {
                                     <div className="form-group">
                                         <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                                             event.preventDefault();
-                                            let array = _.clone(search, true);
-                                            array.push({ Field: 'UserAccountKey', SearchText: '' });
+                                            let array = _.clone(search);
+                                            array.push({ Field: 'UserAccount.FirstName', SearchText: '' });
                                             setSearch(array);
                                         }}>Add Parameter</button>
                                     </div>
@@ -321,7 +324,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
                                                     <div className="col-xs-4">
                                                         <div className="form-check-inline">
                                                             <label className="form-check-label"><input className='form-check-input' type='radio' checked={newUserAccount.UseADAuthentication} onChange={(e) => {
-                                                                var record: SystemCenter.UserAccount = _.clone(newUserAccount, true);
+                                                                var record: SystemCenter.UserAccount = _.clone(newUserAccount);
                                                                 record.UseADAuthentication = e.target.checked;
                                                                 setNewUserAccount(record);
                                                             }} />Active Directory User</label>
@@ -330,7 +333,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
                                                     <div className="col-xs-4">
                                                         <div className="form-check-inline">
                                                             <label className="form-check-label"><input className='form-check-input' type='radio' checked={!newUserAccount.UseADAuthentication} onChange={(e) => {
-                                                                var record: SystemCenter.UserAccount = _.clone(newUserAccount, true);
+                                                                var record: SystemCenter.UserAccount = _.clone(newUserAccount);
                                                                 record.UseADAuthentication = !e.target.checked;
                                                                 setNewUserAccount(record);
                                                             }} />Database User</label>

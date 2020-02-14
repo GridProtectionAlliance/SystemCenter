@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import * as _ from 'lodash';
+import _ from 'lodash';
 import { OpenXDA } from '../global';
 import Table from '../CommonComponents/Table';
 import { useHistory } from "react-router-dom";
@@ -199,7 +199,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
                             <div className="form-group">
                                 <label>Asset:</label>
                                 <select className="form-control" value={newAssetConnection != null ? newAssetConnection.Child : '0'} onChange={(evt) => {
-                                    let r = _.clone(newAssetConnection,true);
+                                    let r = _.clone(newAssetConnection);
                                     r.Child = evt.target.value;
                                     setNewAssetConnection(r);
                                 }}>
@@ -208,7 +208,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
 
                                 <label>Asset Connection Type:</label>
                                 <select className="form-control" value={newAssetConnection != null ? newAssetConnection.AssetRelationshipTypeID : '0'} onChange={(evt) => {
-                                    let r = _.clone(newAssetConnection, true);
+                                    let r = _.clone(newAssetConnection);
                                     r.AssetRelationshipTypeID = assetConnectionTypes.find(l => l.ID.toString() == evt.target.value).ID
                                     setNewAssetConnection(r);
                                 }}>

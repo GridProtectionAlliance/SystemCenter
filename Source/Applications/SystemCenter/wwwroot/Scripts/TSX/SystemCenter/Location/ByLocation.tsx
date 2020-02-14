@@ -157,7 +157,7 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
                                                     <div className="input-group-prepend">
                                                         <select className='form-control' style={{ height: '100%' }} value={s.Field} onChange={(evt) => {
                                                             s.Field = evt.target.value as FieldName;
-                                                            let array = _.clone(a, true);
+                                                            let array = _.clone(a);
                                                             setSearch(array);
                                                         }}>
                                                             <option value='Location.LocationKey'>Key</option>
@@ -170,12 +170,17 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
                                                     </div>
                                                     <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
                                                         s.SearchText = evt.target.value;
-                                                        let array = _.clone(a, true);
+                                                        let array = _.clone(a);
                                                         setSearch(array);
-                                                    }} />
+                                                    }} onKeyDown={evt => {
+                                                        if (evt.keyCode == 13) {
+                                                            evt.preventDefault();
+                                                            getLocations().done(ms => setData(ms));
+                                                        }
+                                                    }}/>
                                                     <div className="input-group-append">
                                                         <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                            let array = _.clone(a, true);
+                                                            let array = _.clone(a);
                                                             array.splice(index, 1);
                                                             setSearch(array);
                                                         }}><span><i className="fa fa-times"></i></span></button>
@@ -195,8 +200,8 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
                                     <div className="form-group">
                                         <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                                             event.preventDefault();
-                                            let array = _.clone(search, true);
-                                            array.push({ Field: 'LocationKey', SearchText: '' });
+                                            let array = _.clone(search);
+                                            array.push({ Field: 'Location.LocationKey', SearchText: '' });
                                             setSearch(array);
                                         }}>Add Parameter</button>
                                     </div>

@@ -22,7 +22,6 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import * as moment from 'moment';
 import { OpenXDA } from '../global';
 declare var homePath: string;
 

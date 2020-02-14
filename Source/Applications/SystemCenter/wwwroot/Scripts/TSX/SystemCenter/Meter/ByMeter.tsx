@@ -91,12 +91,12 @@ const ByMeter: SystemCenter.ByComponent = (props) => {
                                                     <div className="input-group-prepend">
                                                         <select className='form-control' style={{height: '100%'}} value={s.Field} onChange={(evt) => {
                                                             s.Field = evt.target.value as FieldName;
-                                                            let array = _.clone(a, true);
+                                                            let array = _.clone(a);
                                                             setSearch(array);
                                                         }}>
                                                             <option value='Meter.AssetKey'>Key</option>
                                                             <option value='Meter.Name'>Name</option>
-                                                            <option value='Meter.Location'>Location</option>
+                                                            <option value='Location.LocationKey'>Location</option>
                                                             <option value='Meter.Make'>Make</option>
                                                             <option value='Meter.Model'>Model</option>
                                                             <option value='Asset.AssetKey'>Asset</option>
@@ -105,12 +105,17 @@ const ByMeter: SystemCenter.ByComponent = (props) => {
                                                     </div>
                                                     <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
                                                         s.SearchText = evt.target.value;
-                                                        let array = _.clone(a, true);
+                                                        let array = _.clone(a);
                                                         setSearch(array);
+                                                    }} onKeyDown={evt => {
+                                                        if (evt.keyCode == 13) {
+                                                            evt.preventDefault();
+                                                            getMeters().done(ms => setData(ms));
+                                                        }
                                                     }} />
                                                     <div className="input-group-append">
                                                         <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                            let array = _.clone(a, true);
+                                                            let array = _.clone(a);
                                                             array.splice(index, 1);
                                                             setSearch(array);
                                                         }}><span><i className="fa fa-times"></i></span></button>
@@ -130,8 +135,8 @@ const ByMeter: SystemCenter.ByComponent = (props) => {
                                     <div className="form-group">
                                         <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                                             event.preventDefault();
-                                            let array = _.clone(search, true);
-                                            array.push({ Field: 'AssetKey', SearchText: '' });
+                                            let array = _.clone(search);
+                                            array.push({ Field: 'Meter.AssetKey', SearchText: '' });
                                             setSearch(array);
                                         }}>Add Parameter</button>
                                     </div>

@@ -21,7 +21,6 @@
 //
 //******************************************************************************************************
 import * as React from 'react';
-import * as moment from 'moment';
 import * as _ from 'lodash';
 import { SystemCenter } from '../global';
 import AssetAttributes from '../AssetAttribute/Asset';
@@ -48,7 +47,7 @@ export default class CustomerInfoWindow extends React.Component<{ Customer: Syst
     }
 
     updateCustomer(): JQuery.jqXHR {
-        var customer = _.clone(this.state.Customer, true);
+        var customer = _.clone(this.state.Customer);
 
        return $.ajax({
             type: "PATCH",

@@ -67,7 +67,7 @@ function BreakerAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
             <div className="form-group" hidden={props.ShowSpare != true}>
                 <label>Spare Breaker</label>
                 <select className="form-control" value={props.Asset.SpareBreakerID == null ? 0 : props.Asset.SpareBreakerID} onChange={(evt) => {
-                    let record: OpenXDA.Breaker = _.clone(props.Asset, true);
+                    let record: OpenXDA.Breaker = _.clone(props.Asset);
                     if (evt.target.value == '0')
                         record.SpareBreakerID = null;
                     else

@@ -133,7 +133,7 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
                                                     <div className="input-group-prepend">
                                                         <select className='form-control' style={{height: '100%'}} value={s.Field} onChange={(evt) => {
                                                             s.Field = evt.target.value as FieldName;
-                                                            let array = _.clone(a, true);
+                                                            let array = _.clone(a);
                                                             setSearch(array);
                                                         }}>
                                                             <option value='Customer.AccountName'>Account Name</option>
@@ -145,12 +145,17 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
                                                     </div>
                                                     <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
                                                         s.SearchText = evt.target.value;
-                                                        let array = _.clone(a, true);
+                                                        let array = _.clone(a);
                                                         setSearch(array);
+                                                    }} onKeyDown={evt => {
+                                                        if (evt.keyCode == 13) {
+                                                            evt.preventDefault();
+                                                            getCustomers().done(ms => setData(ms));
+                                                        }
                                                     }} />
                                                     <div className="input-group-append">
                                                         <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                            let array = _.clone(a, true);
+                                                            let array = _.clone(a);
                                                             array.splice(index, 1);
                                                             setSearch(array);
                                                         }}><span><i className="fa fa-times"></i></span></button>
@@ -170,8 +175,8 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
                                     <div className="form-group">
                                         <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                                             event.preventDefault();
-                                            let array = _.clone(search, true);
-                                            array.push({ Field: 'AssetKey', SearchText: '' });
+                                            let array = _.clone(search);
+                                            array.push({ Field: 'Customer.AccountName', SearchText: '' });
                                             setSearch(array);
                                         }}>Add Parameter</button>
                                     </div>

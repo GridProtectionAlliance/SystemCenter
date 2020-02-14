@@ -117,7 +117,7 @@ export default class Page1 extends React.Component<{ MeterInfo: OpenXDA.Meter, U
                     <div className="form-group">
                         <label>Time Zone</label>
                         <select className="form-control" value={this.props.MeterInfo == null || this.props.MeterInfo.TimeZone == null ? '-1' : this.props.MeterInfo.TimeZone} onChange={(evt) => {
-                            var meter: OpenXDA.Meter = _.clone(this.props.MeterInfo, true);
+                            var meter: OpenXDA.Meter = _.clone(this.props.MeterInfo);
                             if (evt.target.value != "-1")
                                 meter.TimeZone = evt.target.value;
                             else

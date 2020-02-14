@@ -91,7 +91,7 @@ export default class Page5 extends React.Component<{ Assets: Array<OpenXDA.Asset
     }
 
     deleteAssetConnection(ac: OpenXDA.AssetConnection): void {
-        let list: Array<OpenXDA.AssetConnection> = _.clone(this.props.AssetConnections, true);
+        let list: Array<OpenXDA.AssetConnection> = _.clone(this.props.AssetConnections);
         let index = list.findIndex(a => a == ac);
         let record: Array<OpenXDA.AssetConnection> = list.splice(index, 1);
         this.props.UpdateState({ AssetConnections: list });
@@ -192,7 +192,7 @@ export default class Page5 extends React.Component<{ Assets: Array<OpenXDA.Asset
                                 <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={(evt) => {
                                     let childConnection = $(this.refs.assetConnection).val() as string;
                                     let connectionType = parseInt($(this.refs.assetConnectionType).val() as string);
-                                    let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(this.props.AssetConnections, true);
+                                    let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(this.props.AssetConnections);
                                     assetConnections.push({ ID: 0, AssetRelationshipTypeID: connectionType, Parent: currentAsset.AssetKey, Child: childConnection });
                                     this.props.UpdateState({ AssetConnections: assetConnections})
                                 }} >Save</button>

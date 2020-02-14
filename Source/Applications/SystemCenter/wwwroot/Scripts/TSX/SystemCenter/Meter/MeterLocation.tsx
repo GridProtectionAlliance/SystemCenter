@@ -21,7 +21,6 @@
 //
 //******************************************************************************************************
 import * as React from 'react';
-import * as moment from 'moment';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import AssetAttributes from '../AssetAttribute/Asset';
@@ -110,7 +109,7 @@ export default class LocationWindow extends React.Component<{ Meter: OpenXDA.Met
 
 
     addNewLocation(): JQuery.jqXHR {
-        var location: any = _.clone(this.state.Location, true);
+        var location: any = _.clone(this.state.Location);
         location.MeterID = this.props.Meter.ID;
 
         return $.ajax({
@@ -128,8 +127,8 @@ export default class LocationWindow extends React.Component<{ Meter: OpenXDA.Met
 
 
     updateLocation(): JQuery.jqXHR {
-        var location: OpenXDA.Location = _.clone(this.state.Location, true);
-        var meter: OpenXDA.Meter = _.clone(this.props.Meter, true);
+        var location: OpenXDA.Location = _.clone(this.state.Location);
+        var meter: OpenXDA.Meter = _.clone(this.props.Meter);
 
        return $.ajax({
             type: "PATCH",
@@ -200,7 +199,7 @@ export default class LocationWindow extends React.Component<{ Meter: OpenXDA.Met
 
                                 <label>Select Location</label>
                                 <select className="form-control" value={this.state.Location.ID == null ? '0' : this.state.Location.ID} onChange={(evt) => {
-                                    var location: OpenXDA.Location = _.clone(this.state.Location, true);
+                                    var location: OpenXDA.Location = _.clone(this.state.Location);
                                     if (evt.target.value != "0")
                                         this.getDifferentLocation(parseInt(evt.target.value));
                                     else

@@ -23,7 +23,6 @@
 
 
 import * as React from 'react';
-import * as moment from 'moment';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
 import FormInput from '../CommonComponents/FormInput';
@@ -132,7 +131,7 @@ export default class MeterInfoWindow extends React.Component<{ Meter: OpenXDA.Me
 
                                 <label>Time Zone</label>
                                 <select className="form-control" value={this.state.Meter == null || this.state.Meter.TimeZone == null ? '-1' : this.state.Meter.TimeZone} onChange={(evt) => {
-                                    var meter: OpenXDA.Meter = _.clone(this.state.Meter, true);
+                                    var meter: OpenXDA.Meter = _.clone(this.state.Meter);
                                     if (evt.target.value != "-1")
                                         meter.TimeZone = evt.target.value;
                                     else

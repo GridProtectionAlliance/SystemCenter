@@ -110,7 +110,7 @@ export default class Page3 extends React.Component<{ MeterKey: string, Channels:
     }
 
     deleteChannel(index: number): void {
-        let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels, true);
+        let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels);
         let record: OpenXDA.Channel = channels.splice(index, 1)[0];
         this.props.UpdateState({ Channels: channels });
 
@@ -173,7 +173,7 @@ export default class Page3 extends React.Component<{ MeterKey: string, Channels:
                     <div className="col">
                         <button className="btn btn-primary pull-right" onClick={() => {
                             let channel: OpenXDA.Channel = { ID: this.props.Channels.length, Meter: this.props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel
-                            let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels, true);
+                            let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels);
                             channels.push(channel);
                             this.props.UpdateState({ Channels: channels });
 

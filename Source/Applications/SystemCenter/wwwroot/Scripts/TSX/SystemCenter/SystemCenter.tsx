@@ -24,58 +24,61 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Route, NavLink } from 'react-router-dom';
-import Meter from './Meter/Meter';
-import Location from './Location/Location';
 
-import * as queryString from "query-string";
+import queryString from "querystring";
 import { createBrowserHistory } from "history"
 import { SystemCenter } from './global';
-import ByMeter from './Meter/ByMeter';
-import ByLocation from './Location/ByLocation';
-import ByAsset from './Asset/ByAsset';
-import ByUser from './User/ByUser';
-import UserStatistics from './UserStatistics/UserStatistics';
 
-import Asset from './Asset/Asset';
-import ByCustomer from './Customer/ByCustomer';
-import Customer from './Customer/Customer';
-import NewMeterWizard from './NewMeterWizard/NewMeterWizard';
-import ConfigurationHistory from './ConfigurationHistory/ConfigurationHistory';
-import User from './User/User';
+//import Asset from './Asset/Asset';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
 
 const SystemCenter: React.FunctionComponent = (props: {}) => {
     const history = createBrowserHistory();
-    //const ByMeter = React.lazy(() => import('./Meter/ByMeter'));
-    //const ByLocation = React.lazy(() => import('./Location/ByLocation'));
-    //const ByAsset = React.lazy(() => import('./Asset/ByAsset'));
-    //const ByCustomer = React.lazy(() => import('./Customer/ByCustomer'));
-    //const Customer = React.lazy(() => import('./Customer/Customer'));
+    const ByMeter = React.lazy(() => import(/*webpackChunkName: "ByMeter"*/'./Meter/ByMeter'));
+    const ByLocation = React.lazy(() => import(/* webpackChunkName: "ByLocation" */ './Location/ByLocation'));
+    const ByAsset = React.lazy(() => import(/* webpackChunkName: "ByAsset" */ './Asset/ByAsset'));
+    const ByCustomer = React.lazy(() => import(/* webpackChunkName: "ByCustomer" */ './Customer/ByCustomer'));
+    const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/ByUser'));
 
-    //const Asset = React.lazy(() => import('./Asset/Asset'));
-    //const NewMeterWizard = React.lazy(() => import('./NewMeterWizard/NewMeterWizard'));
-    //const ConfigurationHistory = React.lazy(() => import('./ConfigurationHistory/ConfigurationHistory'));
+    const UserStatistics = React.lazy(() => import(/* webpackChunkName: "UserStatistics" */ './UserStatistics/UserStatistics'));
+
+    const Customer = React.lazy(() => import(/* webpackChunkName: "Customer" */ './Customer/Customer'));
+    const User = React.lazy(() => import(/* webpackChunkName: "User" */ './User/User'));
+
+    const Asset = React.lazy(() => import(/* webpackChunkName: "Asset" */ './Asset/Asset'));
+    const NewMeterWizard = React.lazy(() => import( /* webpackChunkName: "NewMeterWizard" */ './NewMeterWizard/NewMeterWizard'));
+    const ConfigurationHistory = React.lazy(() => import(/* webpackChunkName: "ConfigurationHistory" */ './ConfigurationHistory/ConfigurationHistory'));
+    const Meter = React.lazy(() => import(/* webpackChunkName: "Meter" */ './Meter/Meter'));
+    const Location = React.lazy(() => import(/* webpackChunkName: "Location" */ './Location/Location'));
+
     const [roles, setRoles] = React.useState<Array<SystemCenter.SystemCeneterSecurityRoleName>>([]);
 
     React.useEffect(() => {
-        getRoles();
+        let handle = getRoles();
+        handle.done(rs => setRoles(rs));
+
+        return function cleanup() {
+            if (handle.abort != null)
+                handle.abort();
+        }
+
     }, []);
 
-    function getRoles(): void {
-        $.ajax({
+    function getRoles(): JQuery.jqXHR<Array<SystemCenter.SystemCeneterSecurityRoleName>> {
+       return $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/SecurityRoles`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-        }).done((rs: Array<SystemCenter.SystemCeneterSecurityRoleName>) => setRoles(rs));
+        });
     }
 
     if (Object.keys(queryString.parse(history.location.search)).length == 0)
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meters', state: {} })
+        history.push({ pathname: homePath + 'index.cshtml', search: 'name=Meters', state: {} })
 
     return (
         <Router>
@@ -138,9 +141,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Users"} to={controllerViewPath + "?name=Users"}>Users</NavLink>
 
                                 </li>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Groups"} to={controllerViewPath + "?name=Groups"}>Security Groups</NavLink>
-                                </li>
                             </ul>
                             <div style={{ width: '100%', textAlign: 'center', position:'absolute', bottom: 50 }}>
 
@@ -154,106 +154,51 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                     <div className="col" style={{ width: '100%', height: 'inherit', padding: '0 0 0 0', overflow: 'hidden' }}>
                         <React.Suspense fallback={<div>Loading...</div>}>
                             <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == undefined || rest.location.pathname + rest.location.search == controllerViewPath + "?name=Meters") 
-                                    return <ByMeter Roles={roles}/>
-                                else
-                                    return null;
-                            }} />
-                            <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "Locations")
-                                    return <ByLocation Roles={roles}/>
-                                else
-                                    return null;
-                            }} />
-                            <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "Assets")
-                                    return <ByAsset Roles={roles}/>
-                                else
-                                    return null;
-                            }} />
-                            <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "Users")
+                                let qs = queryString.parse(rest.location.search);
+                                if (qs['?name'] == undefined || qs['?name'] == "Meters") {
+                                    return <ByMeter Roles={roles} />
+                                }
+                                else if (qs['?name'] == "Locations") {
+                                    return <ByLocation Roles={roles} />
+                                }
+                                else if (qs['?name'] == "Assets")
+                                    return <ByAsset Roles={roles} />
+                                else if (qs['?name'] == "Users")
                                     return <ByUser Roles={roles} />
-                                else
-                                    return null;
-                            }} />
-                            <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "User")
-                                    return <User UserID={queryString.parse(rest.location.search).UserAccountID} />
-                                else
-                                    return null;
-                            }} />
-                            <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "UserStatistics")
+                                else if (qs['?name'] == "User")
+                                    return <User UserID={qs.UserAccountID as string} />
+                                else if (qs['?name'] == "UserStatistics")
                                     return <UserStatistics Roles={roles} />
-                                else
-                                    return null;
-                            }} />
-
-
-                            <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "Meter")
-                                    return <Meter MeterID={queryString.parse(rest.location.search).MeterID} />
-                                else
-                                    return null;
-                            }} />
-                            <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "Location")
-                                    return <Location LocationID={queryString.parse(rest.location.search).LocationID} />
-                                else
-                                    return null;
-                            }} />
-                                <Route children={({ match, ...rest }) => {
-                                    if (queryString.parse(rest.location.search).name == "Asset")
-                                        return <Asset AssetID={queryString.parse(rest.location.search).AssetID} />
-                                    else
-                                        return null;
-                                }} />
-
-                            <Route children={({ match, ...rest }) => {
-                                if (roles.indexOf('Administrator') < 0) return null;
-                                else if (queryString.parse(rest.location.search).name == "Groups")
-                                    return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'Groups.cshtml'}></iframe>
-                                else
-                                    return null;
-                            }} />
-                            <Route children={({ match, ...rest }) => {
-                                if (roles.indexOf('Administrator') < 0) return null;
-                                else if (queryString.parse(rest.location.search).name == "ValueLists")
-                                    return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'ValueListGroups.cshtml'}></iframe>
-                                else
-                                    return null;
-                            }} />
-                            <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "PQViewSites")
+                                else if (qs['?name'] == "Meter")
+                                    return <Meter MeterID={parseInt(qs.MeterID as string)} />
+                                else if (qs['?name'] == "Location")
+                                    return <Location LocationID={parseInt(qs.LocationID as string)} />
+                                else if (qs['?name'] == "Asset")
+                                    return <Asset AssetID={parseInt(qs.AssetID as string)} />
+                                else if (qs['?name'] == "Customer")
+                                    return <Customer CustomerID={parseInt(qs.CustomerID as string)} />
+                                else if (qs['?name'] == "PQViewSites")
                                     return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'PQViewDataLoader.cshtml'}></iframe>
-                                else
-                                    return null;
-                            }} />
-                            <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "PQViewCustomers")
-                                    return <ByCustomer Roles={roles}/>
-                                else
-                                    return null;
-                            }} />
-
-                            <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "Customer")
-                                    return <Customer CustomerID={queryString.parse(rest.location.search).CustomerID} />
-                                else
-                                    return null;
-                            }} />
-
-                            <Route children={({ match, ...rest }) => {
-                                if (queryString.parse(rest.location.search).name == "NewMeterWizard")
+                                else if (qs['?name'] == "PQViewCustomers")
+                                    return <ByCustomer Roles={roles} />
+                                else if (qs['?name'] == "NewMeterWizard")
                                     return <NewMeterWizard />
                                 else
                                     return null;
                             }} />
+
+                            <Route children={({ match, ...rest }) => {
+                                if (roles.indexOf('Administrator') < 0) return null;
+                                else if (queryString.parse(rest.location.search)['?name'] == "ValueLists")
+                                    return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'ValueListGroups.cshtml'}></iframe>
+                                else
+                                    return null;
+                            }} />
+
                             <Route children={({ match, ...rest }) => {
                                 if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
-                                else if (queryString.parse(rest.location.search).name == "ConfigurationHistory")
-                                    return <ConfigurationHistory MeterConfigurationID={queryString.parse(rest.location.search).MeterConfigurationID} MeterKey={queryString.parse(rest.location.search).MeterKey}/>
+                                else if (queryString.parse(rest.location.search)['?name'] == "ConfigurationHistory")
+                                    return <ConfigurationHistory MeterConfigurationID={parseInt(queryString.parse(rest.location.search).MeterConfigurationID as string)} MeterKey={queryString.parse(rest.location.search).MeterKey as string}/>
                                 else
                                     return null;
                             }} />

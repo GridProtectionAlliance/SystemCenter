@@ -26,7 +26,7 @@ import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import AssetAttributes from '../AssetAttribute/Asset';
-import { getAssetWithAdditionalFields, getAllAssets, getAssetTypes } from '../../../TS/Services/Asset';
+import { getAllAssets, getAssetTypes } from '../../../TS/Services/Asset';
 import { OpenXDA, SystemCenter } from '../global';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -155,7 +155,7 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
                                                 <div className="input-group" key={index} style={{ border: '1px solid lightgray' }}>
                                                     <div className="input-group-prepend">
                                                         <select className='form-control' style={{ height: '100%' }} value={s.Field} onChange={(evt) => {
-                                                            let array = _.clone(a, true);
+                                                            let array = _.clone(a);
                                                             s.Field = evt.target.value as FieldName;
                                                             setSearch(array);
                                                         }}>
@@ -171,12 +171,17 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
                                                     <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
                                                         
                                                         s.SearchText = evt.target.value;
-                                                        let array = _.clone(a, true);
+                                                        let array = _.clone(a);
                                                         setSearch(array);
-                                                    }} />
+                                                    }} onKeyDown={evt => {
+                                                        if (evt.keyCode == 13) {
+                                                            evt.preventDefault();
+                                                            getAssets().done(ms => setData(ms));
+                                                        }
+                                                    }}/>
                                                     <div className="input-group-append">
                                                         <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                            let array = _.clone(a, true);
+                                                            let array = _.clone(a);
                                                             array.splice(index, 1);
                                                             setSearch(array);
                                                         }}><span><i className="fa fa-times"></i></span></button>
@@ -196,7 +201,7 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
                                     <div className="form-group">
                                         <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
                                             event.preventDefault();
-                                            let array = _.clone(search, true);
+                                            let array = _.clone(search);
                                             array.push({ Field: 'Asset.AssetKey', SearchText: '' });
                                             setSearch(array);
                                         }}>Add Parameter</button>

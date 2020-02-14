@@ -22,7 +22,6 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import * as moment from 'moment';
 import * as _ from 'lodash';
 import {SystemCenter } from '../global';
 import AssetAttributes from '../AssetAttribute/Asset';
@@ -201,7 +200,7 @@ function TableRowInput(props: { ParentTableID: number, Field: SystemCenter.Addit
             return true;
     }
 
-    var values: Array<SystemCenter.AdditionalFieldValue> = _.clone(props.Values, true);
+    var values: Array<SystemCenter.AdditionalFieldValue> = _.clone(props.Values);
     var value: SystemCenter.AdditionalFieldValue = values.find(value => value.AdditionalFieldID == props.Field.ID);
 
     if (value == null) {

@@ -68,7 +68,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
     }
 
     function saveEdit(): void{
-        let newRecord: OpenXDA.MeterConfiguration = _.clone(meterConfiguration, true);
+        let newRecord: OpenXDA.MeterConfiguration = _.clone(meterConfiguration);
         newRecord.ID = 0;
         newRecord.ConfigText = ace.edit('template').getValue();
         newRecord.DiffID = null;

@@ -135,7 +135,7 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
     }
 
     deleteChannel(index: number): void {
-        let channels: Array<OpenXDA.Channel> = _.clone(this.state.Channels, true);
+        let channels: Array<OpenXDA.Channel> = _.clone(this.state.Channels);
         let record: OpenXDA.Channel = channels.splice(index, 1)[0];
         this.setState({ Channels: channels });
     }
@@ -211,7 +211,7 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                     <div className="btn-group mr-2">
                         <button className="btn btn-primary pull-right" onClick={() => {
                             let channel: OpenXDA.Channel = { ID: 0, Meter: this.props.Meter.AssetKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel
-                            let channels: Array<OpenXDA.Channel> = _.clone(this.state.Channels, true);
+                            let channels: Array<OpenXDA.Channel> = _.clone(this.state.Channels);
                             channels.push(channel);
                             this.setState({ Channels: channels });
                         }}>Add Channel</button>

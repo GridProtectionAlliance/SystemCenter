@@ -22,7 +22,6 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import * as moment from 'moment';
 import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
 import * as d3 from 'd3';

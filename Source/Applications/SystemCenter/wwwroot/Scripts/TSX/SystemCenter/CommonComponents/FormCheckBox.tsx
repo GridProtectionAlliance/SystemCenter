@@ -22,14 +22,14 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import * as _ from 'lodash';
+import _ from 'lodash';
 
 export default class FormCheckBox<T> extends React.Component<{ Record: T, Field: keyof (T), Setter: (record: T) => void, Label?: string, Disabled?: boolean }, {}, {}>{
     render() {
         return <div className="form-check">
 
             <input type="checkbox" className="form-check-input" style={{ zIndex: 1 }} onChange={(evt) => {
-                var record: T = _.clone(this.props.Record, true);
+                var record: T = _.clone(this.props.Record);
                 record[this.props.Field] = evt.target.checked as any;
 
                 this.props.Setter(record);

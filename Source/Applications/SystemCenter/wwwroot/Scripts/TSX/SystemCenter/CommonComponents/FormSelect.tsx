@@ -29,7 +29,7 @@ export default class FormSelect<T> extends React.Component<{ Record: T, Field: k
         return <div className="form-group">
             <label>{this.props.Label == null ? this.props.Field : this.props.Label}</label>
             <select className="form-control" onChange={(evt) => {
-                var record: T = _.clone(this.props.Record, true);
+                var record: T = _.clone(this.props.Record);
                 if (evt.target.value != "")
                     record[this.props.Field] = evt.target.value as any;
                 else

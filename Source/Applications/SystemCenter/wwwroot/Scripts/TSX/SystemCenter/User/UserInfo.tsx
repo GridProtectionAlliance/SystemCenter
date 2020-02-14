@@ -21,10 +21,8 @@
 //
 //******************************************************************************************************
 import * as React from 'react';
-import * as moment from 'moment';
 import * as _ from 'lodash';
 import { SystemCenter } from '../global';
-import FormTextArea from '../CommonComponents/FormTextArea';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 import FormDatePicker from '../CommonComponents/FormDatePicker';
@@ -63,7 +61,7 @@ export default class UserInfoWindow extends React.Component<{ User: SystemCenter
     }
 
     updateUser(): JQuery.jqXHR {
-        var user = _.clone(this.state.User, true);
+        var user = _.clone(this.state.User);
 
        return $.ajax({
             type: "PATCH",
@@ -130,7 +128,7 @@ export default class UserInfoWindow extends React.Component<{ User: SystemCenter
                                         <div className="col-xs-4">
                                             <div className="form-check-inline">
                                                 <label className="form-check-label"><input className='form-check-input' type='radio' checked={this.state.User.UseADAuthentication} onChange={(e) => {
-                                                    var record: SystemCenter.UserAccount = _.clone(this.state.User, true);
+                                                    var record: SystemCenter.UserAccount = _.clone(this.state.User);
                                                     record.UseADAuthentication = e.target.checked;
                                                     this.setState({ User: record });
                                                 }} />Active Directory User</label>
@@ -139,7 +137,7 @@ export default class UserInfoWindow extends React.Component<{ User: SystemCenter
                                         <div className="col-xs-4">
                                             <div className="form-check-inline">
                                                 <label className="form-check-label"><input className='form-check-input' type='radio' checked={!this.state.User.UseADAuthentication} onChange={(e) => {
-                                                    var record: SystemCenter.UserAccount = _.clone(this.state.User, true);
+                                                    var record: SystemCenter.UserAccount = _.clone(this.state.User);
                                                     record.UseADAuthentication = !e.target.checked;
                                                     this.setState({ User: record });
                                                 }} />Database User</label>

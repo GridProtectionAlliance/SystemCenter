@@ -81,7 +81,7 @@ export default function UserPermissionsWindow(props: { User: SystemCenter.UserAc
                                 {
                                     scRoles.map((scr, i, array) => <FormCheckBox<SystemCenter.ApplicationRole<SystemCenter.SystemCeneterSecurityRoleName>> key={scr.ID} Record={scr} Field='Assigned' Label={scr.Name} Setter={(record) => {
                                         scr.Assigned = record.Assigned;
-                                        let newArray = _.clone(array, true);
+                                        let newArray = _.clone(array);
                                         setScRoles(newArray);
                                         setChanged(true);
                                     }} />)
@@ -96,7 +96,7 @@ export default function UserPermissionsWindow(props: { User: SystemCenter.UserAc
                                 {
                                     xdaRoles.map((scr, i, array) => <FormCheckBox<SystemCenter.ApplicationRole<SystemCenter.OpenXDASecurityRoleName>> key={scr.ID} Record={scr} Field='Assigned' Label={scr.Name} Setter={(record) => {
                                         scr.Assigned = record.Assigned;
-                                        let newArray = _.clone(array, true);
+                                        let newArray = _.clone(array);
                                         setXdaRoles(newArray);
                                         setChanged(true);
                                     }} />)

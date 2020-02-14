@@ -1,6 +1,4 @@
-﻿import { Moment } from "moment";
-
-//******************************************************************************************************
+﻿//******************************************************************************************************
 //  global.d.ts - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
@@ -28,6 +26,13 @@ declare global {
     interface String {
         countOccurrences: (chars: string) => number
     }
+
+    namespace moment {
+        function utc(timestamp: string): any;
+    }
+    function moment(inp?: any, format?: any, strict?: boolean): any;
+    function moment(inp?: any, format?: any, language?: string, strict?: boolean): any;
+
 }
 
 export namespace SystemCenter {

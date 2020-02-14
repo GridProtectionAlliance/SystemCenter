@@ -1,6 +1,5 @@
 ﻿"use strict";
 const path = require("path");
-
 module.exports = env => {
     if (process.env.NODE_ENV == undefined) process.env.NODE_ENV = 'development';
 
@@ -11,13 +10,20 @@ module.exports = env => {
         cache: true,
         entry: {
             SystemCenter: "./TSX/SystemCenter/SystemCenter.tsx",
-            //ByMeter: "./TSX/SystemCenter/OpenXDA/ByMeter.tsx",
-            //ByLocation: "./TSX/SystemCenter/OpenXDA/ByLocation.tsx",
-            //ByAsset: "./TSX/SystemCenter/OpenXDA/ByAsset.tsx",
+            //ByMeter: "./TSX/SystemCenter/Meter/ByMeter.tsx",
+            //ByLocation: "./TSX/SystemCenter/Location/ByLocation.tsx",
+            //ByAsset: "./TSX/SystemCenter/Asset/ByAsset.tsx",
+            //ByUser: "./TSX/SystemCenter/User/ByUser.tsx",
+            //ByCustomer: "./TSX/SystemCenter/Customer/ByCustomer.tsx",
+
             //Asset: "./TSX/SystemCenter/Asset/Asset.tsx",
             //NewMeterWizard: "./TSX/SystemCenter/NewMeterWizard/NewMeterWizard.tsx",
             //ConfigurationHistory: "./TSX/SystemCenter/ConfigurationHistory/ConfigurationHistory.tsx",
+            //UserStatistics: "./TSX/SystemCenter/UserStatistics/UserStatistics.tsx",
+            //User: "./TSX/SystemCenter/User/User.tsx",
+
         },
+
         output: {
             path: path.resolve(__dirname, 'wwwroot', 'Scripts'),
             publicPath: path.resolve(__dirname, 'wwwroot', 'Scripts'),
@@ -28,7 +34,10 @@ module.exports = env => {
         devtool: "inline-source-map",
         resolve: {
             // Add '.ts' and '.tsx' as resolvable extensions.
-            extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".css"]
+            extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".css"],
+            alias: {
+                ByMeter: path.resolve(__dirname, 'wwwroot', 'Scripts'),
+            }
         },
         module: {
             rules: [
@@ -51,12 +60,15 @@ module.exports = env => {
             jquery: 'jQuery',
             react: 'React',
             'react-dom': 'ReactDOM',
-            moment: 'moment',
+            //moment: 'moment',
             ace: 'ace',
             d3: 'd3',
             'react-router-dom': 'ReactRouterDOM',
         },
         optimization: {
+            splitChunks: {
+                chunks: 'all',
+            }
             //minimizer: [new UglifyJsPlugin({
             //    test: /\.js(\?.*)?$/i,
             //    sourceMap: true
