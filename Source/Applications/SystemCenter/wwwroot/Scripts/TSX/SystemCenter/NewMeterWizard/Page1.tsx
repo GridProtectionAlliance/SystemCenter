@@ -94,9 +94,9 @@ export default class Page1 extends React.Component<{ MeterInfo: OpenXDA.Meter, U
         else if (field == 'ShortName')
             return this.props.MeterInfo.ShortName == null || this.props.MeterInfo.ShortName.length <= 50;
         else if (field == 'Make')
-            return this.props.MeterInfo.Name != null && this.props.MeterInfo.Make.length > 0 && this.props.MeterInfo.Make.length <= 200;
+            return this.props.MeterInfo.Make != null && this.props.MeterInfo.Make.length > 0 && this.props.MeterInfo.Make.length <= 200;
         else if (field == 'Model')
-            return this.props.MeterInfo.Name != null && this.props.MeterInfo.Model.length > 0 && this.props.MeterInfo.Model.length <= 200;
+            return this.props.MeterInfo.Model != null && this.props.MeterInfo.Model.length > 0 && this.props.MeterInfo.Model.length <= 200;
         else if (field == 'Description')
             return true;
         return false;

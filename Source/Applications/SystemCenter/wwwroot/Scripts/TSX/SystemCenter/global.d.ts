@@ -23,6 +23,8 @@
 
 // System Center Models
 declare global {
+    var homePath: string;
+
     interface String {
         countOccurrences: (chars: string) => number
     }
