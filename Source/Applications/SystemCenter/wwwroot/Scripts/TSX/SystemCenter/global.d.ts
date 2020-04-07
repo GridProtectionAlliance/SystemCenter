@@ -39,6 +39,7 @@ declare global {
 
 export namespace SystemCenter {
     interface ByComponent { (props: { Roles: Array<SystemCeneterSecurityRoleName> }): JSX.Element; }
+    interface ExternalDB { name: string, lastUpdate: Date }
 
     interface Customer { ID: number, AccountName: string, Name: string, Phone: string, Description: string }
     interface CustomerAccess { ID: number, CustomerID: number, PQViewSiteID: number }
