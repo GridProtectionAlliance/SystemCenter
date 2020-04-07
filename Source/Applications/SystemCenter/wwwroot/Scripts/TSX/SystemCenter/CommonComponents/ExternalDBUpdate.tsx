@@ -42,6 +42,7 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
     }, [props.ID]);
 
     function getData() {
+        setexternalDB([]);
         getExternalDBs();
         setChanged(false);
     }
@@ -49,13 +50,14 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
     function getExternalDBs(): void {
        $.ajax({
             type: "GET",
-           url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${props.Type}`,
+           url: `${homePath}api/OpenXDA/${props.Type}/extDataBases`, 
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            cache: true,
+            cache: false,
             async: true
        }).done((data: Array<SystemCenter.ExternalDB>) => {
-           setexternalDB(data);
+           console.log(data);
+           console.log("here");
        });
     }
 
@@ -69,7 +71,7 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <table className='table'>
                         <thead>
-                            <tr><th>Ext DB</th><th style={{ width: 250 }}>Last Updated</th><th style={{ width: 300 }}>Value</th></tr>
+                            <tr><th>Ext DB</th><th style={{ width: 250 }}>Last Updated</th><th style={{ width: 300 }}></th></tr>
                         </thead>
                         <tbody>
                             {externalDB.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} ExternalDB={a.name} updated={a.lastUpdate} Update={(values) => {
@@ -90,7 +92,7 @@ function TableRowInput(props: { ParentTableID: number, ExternalDB: string, updat
     return(
         <tr>
             <td>{props.ExternalDB}</td>
-            <td>{props.updated.toString()}</td>
+            <td>{props.updated.toUTCString()}</td>
             <td><button className="btn btn-primary" onClick={(e) => props.Update(props.ExternalDB)}>Update {props.ExternalDB}</button></td>
         </tr>
     );

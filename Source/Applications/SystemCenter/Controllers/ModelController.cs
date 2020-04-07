@@ -314,6 +314,51 @@ namespace SystemCenter.Controllers
             }
         }
 
+        private class ExtDB
+        {
+            public string name;
+            public DateTime lastupdate;
+        }
+
+        [HttpGet, Route("extDataBases")]
+        public IHttpActionResult GetExtendedDataBases()
+        {
+            
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                try
+                {
+                    TableNameAttribute tableNameAttribute;
+                    string tableName;
+                    if (typeof(T).TryGetAttribute(out tableNameAttribute))
+                        tableName = tableNameAttribute.TableName;
+                    else
+                        tableName = typeof(T).Name;
+
+                    string query = @"SELECT MIN(UpdatedOn) AS lastUpdate, AdditionalField.ExternalDB AS name  
+                                    FROM 
+                                    AdditionalField LEFT JOIN AdditionalFieldValue ON AdditionalField.ID = AdditionalFieldValue.AdditionalFieldID
+                                    WHERE AdditionalField.OpenXDAParentTable = {0} AND AdditionalField.ExternalDB IS NOT NULL AND AdditionalField.ExternalDB <> ''
+                                    GROUP BY AdditionalField.ExternalDB";
+
+                    DataTable table = connection.RetrieveData(query, tableName);
+
+                    List<ExtDB> result = new List<ExtDB>();
+                    foreach (DataRow row in table.Rows)
+                    {
+                        result.Add(new ExtDB() { name = row.ConvertField<string>("name"), lastupdate = row.ConvertField<DateTime>("lastUpdate") });
+                    }
+
+                    return Ok(result);
+
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
+
 
         #endregion
 

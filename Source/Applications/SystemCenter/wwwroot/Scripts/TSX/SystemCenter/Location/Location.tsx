@@ -29,6 +29,7 @@ import LocationMeterWindow from './LocationMeter';
 import LocationAssetWindow from './LocationAsset';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
+import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 
 declare var homePath: string;
 
@@ -117,6 +118,9 @@ export default class Location extends React.Component<{ LocationID: number }, { 
                     <li className="nav-item">
                         <a className={"nav-link" + (this.state.Tab == "assets" ? " active" : "")} onClick={() => this.setTab('assets')} data-toggle="tab" href="#assets">Assets</a>
                     </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (this.state.Tab == "extDB" ? " active" : "")} onClick={() => this.setTab('extDB')} data-toggle="tab" href="#extDB">External DB</a>
+                    </li>
                 </ul>
              
                 <div className="tab-content" style={{maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
@@ -134,6 +138,9 @@ export default class Location extends React.Component<{ LocationID: number }, { 
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "assets" ? " active" : "fade")} id="assets">
                         <LocationAssetWindow Location={this.state.Location} />
+                    </div>
+                    <div className={"tab-pane " + (this.state.Tab == "extDB" ? " active" : "fade")} id="extDB">
+                        <ExternalDBUpdate ID={this.props.LocationID} Type='Location'/>
                     </div>
 
                 </div>                
