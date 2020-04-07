@@ -197,6 +197,7 @@ CREATE TABLE AdditionalFieldValue(
 	OpenXDAParentTableID int NOT NULL,
 	AdditionalFieldID int NOT NULL FOREIGN KEY REFERENCES AdditionalField(ID),
 	Value varchar(max) NULL,
+    UpdatedOn DATE NOT NULL DEFAULT (SYSDATETIME()),
 	Constraint UC_AdditonaFieldValue UNIQUE(OpenXDAParentTableID, AdditionalFieldID)
 )
 GO
