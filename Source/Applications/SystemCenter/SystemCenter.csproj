@@ -535,6 +535,7 @@
   <ItemGroup>
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\UserPermissions.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\UserStatistics\UserStatistics.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ExternalDBUpdate.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TS\Services\User.ts" />
   </ItemGroup>
   <ItemGroup>
