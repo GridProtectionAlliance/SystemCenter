@@ -28,7 +28,7 @@ module.exports = env => {
             path: path.resolve(__dirname, 'wwwroot', 'Scripts'),
             publicPath: path.resolve(__dirname, 'wwwroot', 'Scripts'),
             filename: "[name].js",
-            chunkFilename: '[name].bundle.js'
+            //chunkFilename: '[name].bundle.js'
         },
         // Enable sourcemaps for debugging webpack's output.
         devtool: "inline-source-map",
@@ -66,9 +66,9 @@ module.exports = env => {
             'react-router-dom': 'ReactRouterDOM',
         },
         optimization: {
-            splitChunks: {
-                chunks: 'all',
-            }
+            //splitChunks: {
+            //    chunks: 'all',
+            //}
             //minimizer: [new UglifyJsPlugin({
             //    test: /\.js(\?.*)?$/i,
             //    sourceMap: true
