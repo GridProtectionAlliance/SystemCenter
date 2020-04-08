@@ -28,6 +28,8 @@ using System.Linq;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
+using Oracle;
+using Oracle.ManagedDataAccess.Client;
 
 namespace SystemCenter.Controllers
 {
@@ -82,10 +84,33 @@ namespace SystemCenter.Controllers
 
             string query = "SELECT A.LOCATION_KEY  FROM EAMDM.EAM_OD_LOCATION_MV A WHERE A.CLASSSTRUCTURE_ID = {0} AND A.LOCATION_NAME = '{1}'";
 
-            //Send Query To Oracle DataBase
-            
+            try
+            {
+                string constr = "Data Source=eamdmp; User Id=TVAPQPC; Password=pqr0cksB";
+                using (OracleConnection con = new OracleConnection(constr))
+                {
+                    con.Open();
+                    using(OracleCommand cmd = con.CreateCommand())
+                    {
+                        cmd.CommandText = string.Format(query, GetMAximoStructureID(type), assetKey);
 
-            return 0;
+                        using(OracleDataReader reader = cmd.ExecuteReader())
+                        {
+                            if (reader.Read())
+                            {
+                                return reader.GetInt32(0);
+                            }
+                            else return -1;
+                        }
+                    }
+                }
+
+            }
+        
+            catch
+            {
+                return -1;
+            }
         }
 
         private string GenerateRequest(string tableName, IEnumerable<string> collumns)
