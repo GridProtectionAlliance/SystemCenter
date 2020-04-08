@@ -116,6 +116,15 @@
   </Component>
 </ComponentGroup>
 <ComponentGroup Id="wwwroot_Scripts_Components" Directory="wwwroot_SCRIPTSFOLDER">
+  <Component Id="wwwroot_Scripts_Asset_ByAsset_ByLocation_Customer_Meter_NewMeterWizard_bundle_js">
+    <File Id="wwwroot_Scripts_Asset_ByAsset_ByLocation_Customer_Meter_NewMeterWizard.bundle.js" Name="Asset~ByAsset~ByLocation~Customer~Meter~NewMeterWizard.bundle.js" Source="$(var.SolutionDir)Applications\SystemCenter\\wwwroot\Scripts\Asset~ByAsset~ByLocation~Customer~Meter~NewMeterWizard.bundle.js" />
+  </Component>
+  <Component Id="wwwroot_Scripts_Asset_ByAsset_Meter_NewMeterWizard_bundle_js">
+    <File Id="wwwroot_Scripts_Asset_ByAsset_Meter_NewMeterWizard.bundle.js" Name="Asset~ByAsset~Meter~NewMeterWizard.bundle.js" Source="$(var.SolutionDir)Applications\SystemCenter\\wwwroot\Scripts\Asset~ByAsset~Meter~NewMeterWizard.bundle.js" />
+  </Component>
+  <Component Id="wwwroot_Scripts_Asset_Customer_Meter_bundle_js">
+    <File Id="wwwroot_Scripts_Asset_Customer_Meter.bundle.js" Name="Asset~Customer~Meter.bundle.js" Source="$(var.SolutionDir)Applications\SystemCenter\\wwwroot\Scripts\Asset~Customer~Meter.bundle.js" />
+  </Component>
   <Component Id="wwwroot_Scripts_default_polyfill_min_js">
     <File Id="wwwroot_Scripts_default.polyfill.min.js" Name="default.polyfill.min.js" Source="$(var.SolutionDir)Applications\SystemCenter\\wwwroot\Scripts\default.polyfill.min.js" />
   </Component>
@@ -124,6 +133,9 @@
   </Component>
   <Component Id="wwwroot_Scripts_SystemCenter_js">
     <File Id="wwwroot_Scripts_SystemCenter.js" Name="SystemCenter.js" Source="$(var.SolutionDir)Applications\SystemCenter\\wwwroot\Scripts\SystemCenter.js" />
+  </Component>
+  <Component Id="wwwroot_Scripts_vendors_Asset_ByAsset_ByCustomer_ByLocation_ByMeter_554440552_js">
+    <File Id="wwwroot_Scripts_vendors_Asset_ByAsset_ByCustomer_ByLocation_ByMeter1796459767.js" Name="vendors~Asset~ByAsset~ByCustomer~ByLocation~ByMeter~ByUser~ConfigurationHistory~Customer~Meter~NewMe~0b9c2ca5.bundle.js" Source="$(var.SolutionDir)Applications\SystemCenter\\wwwroot\Scripts\vendors~Asset~ByAsset~ByCustomer~ByLocation~ByMeter~ByUser~ConfigurationHistory~Customer~Meter~NewMe~0b9c2ca5.bundle.js" />
   </Component>
 </ComponentGroup>
 <ComponentGroup Id="wwwroot_Scripts_ace_Components" Directory="wwwroot_SCRIPTSACEFOLDER">
