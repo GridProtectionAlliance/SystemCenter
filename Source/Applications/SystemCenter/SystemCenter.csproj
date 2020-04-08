@@ -234,6 +234,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\ExternalDB\MaximoController.cs" />
     <Compile Include="MetaDataUpdater.cs" />
     <Compile Include="Controllers\ModelController.cs" />
     <Compile Include="Controllers\OpenXDA\AssetConnections\OpenXDAAssetConnectionTypeController.cs" />

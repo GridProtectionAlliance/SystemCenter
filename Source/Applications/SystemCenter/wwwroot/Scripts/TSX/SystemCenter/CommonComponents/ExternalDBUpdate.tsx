@@ -42,7 +42,6 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
     }, [props.ID]);
 
     function getData() {
-        setexternalDB([]);
         getExternalDBs();
         setChanged(false);
     }
@@ -56,11 +55,22 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
             cache: false,
             async: true
        }).done((data: Array<SystemCenter.ExternalDB>) => {
-           console.log(data);
-           console.log("here");
+           setexternalDB(data);
        });
     }
 
+    function updateExternalDB(type: string): void {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/ExternalDB/${type}/Update/${props.Type}/${props.ID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        }).done((data: number) => {
+            console.log(data)
+        });
+    }
 
     return (
         <div className="card" style={{ marginBottom: 10 }}>
@@ -69,16 +79,18 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                    <table className='table'>
-                        <thead>
-                            <tr><th>Ext DB</th><th style={{ width: 250 }}>Last Updated</th><th style={{ width: 300 }}></th></tr>
-                        </thead>
-                        <tbody>
-                            {externalDB.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} ExternalDB={a.name} updated={a.lastUpdate} Update={(values) => {
-                                console.log(values);
-                            }} />)}
-                        </tbody>
-                    </table>
+                    {(changed ? null :
+                        <table id="overview" className='table'>
+                            <thead>
+                                <tr><th>Ext DB</th><th style={{ width: 250 }}>Last Updated</th><th style={{ width: 300 }}></th></tr>
+                            </thead>
+                            <tbody>
+                                {externalDB.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} ExternalDB={a.name} updated={a.lastUpdate} Update={(dbType) => {
+                                    updateExternalDB(dbType);
+                                }} />)}
+                            </tbody>
+                        </table>
+                    )}
                 </div>
             </div>
         </div>
@@ -92,7 +104,7 @@ function TableRowInput(props: { ParentTableID: number, ExternalDB: string, updat
     return(
         <tr>
             <td>{props.ExternalDB}</td>
-            <td>{props.updated.toUTCString()}</td>
+            <td>{(props.updated == null ? "N/A" : props.updated.toLocaleString())}</td>
             <td><button className="btn btn-primary" onClick={(e) => props.Update(props.ExternalDB)}>Update {props.ExternalDB}</button></td>
         </tr>
     );
