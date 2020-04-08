@@ -407,22 +407,7 @@
     <None Include="wwwroot\Layout.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="wwwroot\Scripts\Asset.bundle.js" />
-    <Content Include="wwwroot\Scripts\Asset~ByAsset~ByLocation~Customer~Location~Meter~NewMeterWizard.bundle.js" />
-    <Content Include="wwwroot\Scripts\Asset~ByAsset~Location~Meter~NewMeterWizard.bundle.js" />
-    <Content Include="wwwroot\Scripts\Asset~Customer~Location~Meter.bundle.js" />
-    <Content Include="wwwroot\Scripts\ByAsset.bundle.js" />
-    <Content Include="wwwroot\Scripts\ByCustomer.bundle.js" />
-    <Content Include="wwwroot\Scripts\ByLocation.bundle.js" />
-    <Content Include="wwwroot\Scripts\ByMeter.bundle.js" />
-    <Content Include="wwwroot\Scripts\ByUser.bundle.js" />
-    <Content Include="wwwroot\Scripts\ByUser~User.bundle.js" />
-    <Content Include="wwwroot\Scripts\ConfigurationHistory.bundle.js" />
-    <Content Include="wwwroot\Scripts\Customer.bundle.js" />
     <Content Include="wwwroot\Scripts\d3\d3.v4.min.js" />
-    <Content Include="wwwroot\Scripts\Location.bundle.js" />
-    <Content Include="wwwroot\Scripts\Meter.bundle.js" />
-    <Content Include="wwwroot\Scripts\NewMeterWizard.bundle.js" />
     <Content Include="wwwroot\Scripts\react-router\react-router-dom.min.js" />
     <Content Include="wwwroot\Scripts\react-router\react-router-dom.min.js.map" />
     <None Include="wwwroot\Scripts\Site.js">
@@ -448,10 +433,6 @@
     <None Include="Web.config">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="wwwroot\Scripts\User.bundle.js" />
-    <Content Include="wwwroot\Scripts\UserStatistics.bundle.js" />
-    <Content Include="wwwroot\Scripts\vendors~Asset~ByAsset~ByCustomer~ByLocation~ByMeter~ByUser~ConfigurationHistory~Customer~Location~Me~e4468d61.bundle.js" />
-    <Content Include="wwwroot\Scripts\vendors~SystemCenter.bundle.js" />
     <Content Include="XDA.ico" />
     <Content Include="wwwroot\Users.cshtml" />
     <Content Include="wwwroot\ValueListGroups.cshtml" />

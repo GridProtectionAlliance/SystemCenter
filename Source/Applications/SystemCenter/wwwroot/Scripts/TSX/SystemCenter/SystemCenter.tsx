@@ -29,29 +29,39 @@ import queryString from "querystring";
 import { createBrowserHistory } from "history"
 import { SystemCenter } from './global';
 
-//import Asset from './Asset/Asset';
+import ByMeter from './Meter/ByMeter'
+import ByLocation from './Location/ByLocation'
+import ByAsset from './Asset/ByAsset'
+import ByCustomer from './Customer/ByCustomer'
+import ByUser from './User/ByUser'
+import UserStatistics from './UserStatistics/UserStatistics'
+import Customer from './Customer/Customer'
+import User from './User/User'
+import Asset from './Asset/Asset'
+import NewMeterWizard from './NewMeterWizard/NewMeterWizard'
+import ConfigurationHistory from './ConfigurationHistory/ConfigurationHistory'
+import Meter from './Meter/Meter'
+import Location from './Location/Location'
+
 
 declare var homePath: string;
 declare var controllerViewPath: string;
 
 const SystemCenter: React.FunctionComponent = (props: {}) => {
     const history = createBrowserHistory();
-    const ByMeter = React.lazy(() => import(/*webpackChunkName: "ByMeter"*/'./Meter/ByMeter'));
-    const ByLocation = React.lazy(() => import(/* webpackChunkName: "ByLocation" */ './Location/ByLocation'));
-    const ByAsset = React.lazy(() => import(/* webpackChunkName: "ByAsset" */ './Asset/ByAsset'));
-    const ByCustomer = React.lazy(() => import(/* webpackChunkName: "ByCustomer" */ './Customer/ByCustomer'));
-    const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/ByUser'));
-
-    const UserStatistics = React.lazy(() => import(/* webpackChunkName: "UserStatistics" */ './UserStatistics/UserStatistics'));
-
-    const Customer = React.lazy(() => import(/* webpackChunkName: "Customer" */ './Customer/Customer'));
-    const User = React.lazy(() => import(/* webpackChunkName: "User" */ './User/User'));
-
-    const Asset = React.lazy(() => import(/* webpackChunkName: "Asset" */ './Asset/Asset'));
-    const NewMeterWizard = React.lazy(() => import( /* webpackChunkName: "NewMeterWizard" */ './NewMeterWizard/NewMeterWizard'));
-    const ConfigurationHistory = React.lazy(() => import(/* webpackChunkName: "ConfigurationHistory" */ './ConfigurationHistory/ConfigurationHistory'));
-    const Meter = React.lazy(() => import(/* webpackChunkName: "Meter" */ './Meter/Meter'));
-    const Location = React.lazy(() => import(/* webpackChunkName: "Location" */ './Location/Location'));
+    //const ByMeter = React.lazy(() => import(/*webpackChunkName: "ByMeter"*/'./Meter/ByMeter'));
+    //const ByLocation = React.lazy(() => import(/* webpackChunkName: "ByLocation" */ './Location/ByLocation'));
+    //const ByAsset = React.lazy(() => import(/* webpackChunkName: "ByAsset" */ './Asset/ByAsset'));
+    //const ByCustomer = React.lazy(() => import(/* webpackChunkName: "ByCustomer" */ './Customer/ByCustomer'));
+    //const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/ByUser'));
+    //const UserStatistics = React.lazy(() => import(/* webpackChunkName: "UserStatistics" */ './UserStatistics/UserStatistics'));
+    //const Customer = React.lazy(() => import(/* webpackChunkName: "Customer" */ './Customer/Customer'));
+    //const User = React.lazy(() => import(/* webpackChunkName: "User" */ './User/User'));
+    //const Asset = React.lazy(() => import(/* webpackChunkName: "Asset" */ './Asset/Asset'));
+    //const NewMeterWizard = React.lazy(() => import( /* webpackChunkName: "NewMeterWizard" */ './NewMeterWizard/NewMeterWizard'));
+    //const ConfigurationHistory = React.lazy(() => import(/* webpackChunkName: "ConfigurationHistory" */ './ConfigurationHistory/ConfigurationHistory'));
+    //const Meter = React.lazy(() => import(/* webpackChunkName: "Meter" */ './Meter/Meter'));
+    //const Location = React.lazy(() => import(/* webpackChunkName: "Location" */ './Location/Location'));
 
     const [roles, setRoles] = React.useState<Array<SystemCenter.SystemCeneterSecurityRoleName>>([]);
 
