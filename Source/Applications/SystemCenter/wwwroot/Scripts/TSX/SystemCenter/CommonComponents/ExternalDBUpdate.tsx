@@ -98,7 +98,7 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
         });
         setFields([])
         setChanged(false)
-        
+        getExternalDBs()
     }
 
     return (
