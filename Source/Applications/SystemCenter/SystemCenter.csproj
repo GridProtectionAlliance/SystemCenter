@@ -258,6 +258,7 @@
     <Compile Include="Controllers\SystemCenter\PingController.cs" />
     <Compile Include="DataHub.cs" />
     <Compile Include="Model\AccessLog.cs" />
+    <Compile Include="Model\ExternalDBUpdate.cs" />
     <Compile Include="Model\TSC.cs" />
     <Compile Include="Model\Role.cs" />
     <Compile Include="Model\PQView\Site.cs" />
