@@ -35,7 +35,9 @@ declare var homePath: string;
 
 function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 'Location' | 'Customer'}): JSX.Element {
     const [externalDB, setexternalDB] = React.useState<Array<SystemCenter.ExternalDB>>([]);
+    const [externalDBFields, setFields] = React.useState<Array<SystemCenter.ExternalDBField>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
+    const [currentDB, setCurrentDB] = React.useState<string>("");
     
     React.useEffect(() => {
         getData();
@@ -44,6 +46,7 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
     function getData() {
         getExternalDBs();
         setChanged(false);
+        setFields([]);
     }
 
     function getExternalDBs(): void {
@@ -67,9 +70,35 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
             dataType: 'json',
             cache: false,
             async: true
-        }).done((data: number) => {
-            console.log(data)
+        }).done((data: Array<SystemCenter.ExternalDBField>) => {
+            data = data.map(item => { item.Changed = false; return item})
+            setFields(data)
+            setChanged(true)
+            setCurrentDB(type)
         });
+
+    }
+
+    function cancelUpdate(): void {
+        setFields([])
+        setChanged(false)
+    }
+
+    function submitUpdate(): void {
+        console.log(externalDBFields)
+        $.ajax({
+            type: "POST",
+            url: `${homePath}api/ExternalDB/${currentDB}/ConfirmUpdate`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify({ "data": externalDBFields }),
+            cache: false,
+            async: true
+        }).done(() => {
+        });
+        setFields([])
+        setChanged(false)
+        
     }
 
     return (
@@ -79,20 +108,38 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                    {(changed ? null :
-                        <table id="overview" className='table'>
+                    {(changed? (
+                        <table id="fields" className='table'>
                             <thead>
-                                <tr><th>Ext DB</th><th style={{ width: 250 }}>Last Updated</th><th style={{ width: 300 }}></th></tr>
+                                <tr><th>Field</th><th style={{ width: 300 }}>Previous Value</th><th style={{ width: 300 }}>Updated Value</th><th style={{ width: 30 }}></th><th style={{ width: 30 }}></th></tr>
                             </thead>
                             <tbody>
-                                {externalDB.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} ExternalDB={a.name} updated={a.lastUpdate} Update={(dbType) => {
+                                {externalDBFields.map((a, i) => <TableRowField key={i} ParentTableID={props.ID} Field={a} Values={externalDBFields} Setter={setFields} />)}
+                            </tbody>
+                        </table>):(
+                        <table id="overview" className='table'>
+                            <thead>
+                                <tr><th>External DB</th><th style={{ width: 250 }}>Last Updated</th><th style={{ width: 300 }}></th></tr>
+                            </thead>
+                            <tbody>
+                                {externalDB.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} ExternalDB={a.name} updated={a.lastupdate} Update={(dbType) => {
                                     updateExternalDB(dbType);
                                 }} />)}
                             </tbody>
-                        </table>
+                        </table>)
                     )}
                 </div>
             </div>
+            {(changed ?
+                <div className="card-footer">
+
+                    <div className="btn-group mr-2">
+                        <button className="btn btn-primary" onClick={submitUpdate}>Save Changes</button>
+                    </div>
+                    <div className="btn-group mr-2">
+                        <button className="btn btn-default" onClick={cancelUpdate}>Cancel</button>
+                    </div> 
+            </div> : null)}
         </div>
     );
 }
@@ -104,8 +151,39 @@ function TableRowInput(props: { ParentTableID: number, ExternalDB: string, updat
     return(
         <tr>
             <td>{props.ExternalDB}</td>
-            <td>{(props.updated == null ? "N/A" : props.updated.toLocaleString())}</td>
+            <td>{(props.updated == null ? "N/A" : moment(props.updated).format("MM/DD/YYYY"))}</td>
             <td><button className="btn btn-primary" onClick={(e) => props.Update(props.ExternalDB)}>Update {props.ExternalDB}</button></td>
+        </tr>
+    );
+}
+
+function TableRowField(props: { ParentTableID: number, Field: SystemCenter.ExternalDBField, Values: Array<SystemCenter.ExternalDBField>, Setter: (values: Array<SystemCenter.ExternalDBField>) => void}) {
+    var values: Array<SystemCenter.ExternalDBField> = _.clone(props.Values);
+    var value: SystemCenter.ExternalDBField = values.find(value => value.AdditionalFieldID == props.Field.AdditionalFieldID && value.OpenXDAParentTableID == props.Field.OpenXDAParentTableID);
+
+    function removeField() {
+        values = values.filter(fld => !(fld.AdditionalFieldID == props.Field.AdditionalFieldID && fld.OpenXDAParentTableID == props.Field.OpenXDAParentTableID))
+        props.Setter(values);
+    }
+    return (
+        <tr>
+            <td>{props.Field.FieldName}</td>
+            <td>{props.Field.PreviousValue == null? "": props.Field.PreviousValue}</td>
+            {(props.Field.Error ? <td>"N/A"</td> :
+                <td>
+                    <input className={(props.Field.Changed ? "form-control is-invalid" : "form-control")} onChange={(evt) => {
+                        if (evt.target.value != "")
+                            value.Value = evt.target.value as any;
+                        else
+                            value.Value = null;
+
+                        value.Changed = true;
+                        props.Setter(values);
+                    }} value={value.Value == null ? '' : value.Value.toString()} />
+                </td>
+                )}
+            <td>{props.Field.Error ? <span><i className="fa fa-exclamation-triangle"></i></span> : null}</td>
+            <td><button className="btn btn-sm" onClick={(e) => removeField()}><span><i className="fa fa-times"></i></span></button></td>
         </tr>
     );
 }
