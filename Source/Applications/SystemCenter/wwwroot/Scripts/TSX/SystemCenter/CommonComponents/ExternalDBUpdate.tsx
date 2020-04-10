@@ -41,7 +41,7 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
     
     React.useEffect(() => {
         getData();
-    }, [props.ID]);
+    }, [props.ID]); 
 
     function getData() {
         getExternalDBs();
@@ -65,13 +65,13 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
     function updateExternalDB(type: string): void {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/ExternalDB/${type}/Update/${props.Type}/${props.ID}`,
+            url: `${homePath}api/ExternalDB/${type}/${props.Type}/Update/${props.ID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
         }).done((data: Array<SystemCenter.ExternalDBField>) => {
-            data = data.map(item => { item.Changed = false; return item})
+            console.log(data);
             setFields(data)
             setChanged(true)
             setCurrentDB(type)
@@ -82,6 +82,15 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
     function cancelUpdate(): void {
         setFields([])
         setChanged(false)
+    }
+
+    function checkUpdate(data: Array<SystemCenter.ExternalDBField>): void {
+        if (data.length > 1) {
+            cancelUpdate();
+        }
+        else {
+            setFields(data);
+        }
     }
 
     function submitUpdate(): void {
@@ -111,10 +120,19 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
                     {(changed? (
                         <table id="fields" className='table'>
                             <thead>
-                                <tr><th>Field</th><th style={{ width: 300 }}>Previous Value</th><th style={{ width: 300 }}>Updated Value</th><th style={{ width: 30 }}></th><th style={{ width: 30 }}></th></tr>
+                                <tr>
+                                    {props.ID == -1 ?
+                                        <th> {props.Type} </th> :
+                                        null}
+                                    <th>Field</th>
+                                    <th style={{ width: 300 }}>Previous Value</th>
+                                    <th style={{ width: 300 }}>Updated Value</th>
+                                    <th style={{ width: 30 }}></th>
+                                    <th style={{ width: 30 }}></th>
+                                </tr>
                             </thead>
                             <tbody>
-                                {externalDBFields.map((a, i) => <TableRowField key={i} ParentTableID={props.ID} Field={a} Values={externalDBFields} Setter={setFields} />)}
+                                {externalDBFields.map((a, i) => <TableRowField key={i} ParentTableID={props.ID} Field={a} Values={externalDBFields} Setter={checkUpdate} />)}
                             </tbody>
                         </table>):(
                         <table id="overview" className='table'>
@@ -167,9 +185,12 @@ function TableRowField(props: { ParentTableID: number, Field: SystemCenter.Exter
     }
     return (
         <tr>
+            {props.ParentTableID == -1 ?
+                <td>{props.Field.OpenXDAParentTableID}</td>
+                : null}
             <td>{props.Field.FieldName}</td>
-            <td>{props.Field.PreviousValue == null? "": props.Field.PreviousValue}</td>
-            {(props.Field.Error ? <td>"N/A"</td> :
+            <td>{props.Field.PreviousValue == null ? "" : props.Field.PreviousValue}</td>
+            {(props.Field.Error ? <td>{props.Field.Message}</td> :
                 <td>
                     <input className={(props.Field.Changed ? "form-control is-invalid" : "form-control")} onChange={(evt) => {
                         if (evt.target.value != "")
