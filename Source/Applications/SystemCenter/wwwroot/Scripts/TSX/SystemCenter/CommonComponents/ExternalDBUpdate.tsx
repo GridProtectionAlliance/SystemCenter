@@ -71,7 +71,6 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
             cache: false,
             async: true
         }).done((data: Array<SystemCenter.ExternalDBField>) => {
-            console.log(data);
             setFields(data)
             setChanged(true)
             setCurrentDB(type)
@@ -186,7 +185,7 @@ function TableRowField(props: { ParentTableID: number, Field: SystemCenter.Exter
     return (
         <tr>
             {props.ParentTableID == -1 ?
-                <td>{props.Field.OpenXDAParentTableID}</td>
+                <td>{props.Field.DisplayName}</td>
                 : null}
             <td>{props.Field.FieldName}</td>
             <td>{props.Field.PreviousValue == null ? "" : props.Field.PreviousValue}</td>

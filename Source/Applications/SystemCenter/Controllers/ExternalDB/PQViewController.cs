@@ -44,6 +44,7 @@ namespace SystemCenter.Controllers
         protected override Model.ExternalDBField processExternalAdditionalField(Location location, Model.ExternalDBField field)
         {
             field.OpenXDAParentTableID = location.ID;
+            field.DisplayName = location.LocationKey;
             return field;
         }
 

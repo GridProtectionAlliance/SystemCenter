@@ -61,7 +61,7 @@ namespace SystemCenter.Model
         /// </summary>
         public bool Error { get; set; }
         /// <summary>
-        /// This is a potential Erro or Warning Message
+        /// This is a potential Error or Warning Message
         /// </summary>
         public string Message { get; set; }
         /// <summary>
@@ -72,6 +72,10 @@ namespace SystemCenter.Model
         /// This Flag indicates whether the user made a change before saving the information
         /// </summary>
         public bool Changed { get; set; }
+        /// <summary>
+        /// This the Name of the object to be displayed if multiple objects are present
+        /// </summary>
+        public string DisplayName { get; set; }
     }
 
     
