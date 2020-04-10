@@ -234,6 +234,14 @@ CREATE TABLE Role (
 )
 GO
 
+CREATE Table extDBTables (
+	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	TableName varchar(200) NOT NULL,
+    ExternalDB varchar(200) NOT NULL,
+	Query varchar(max) NULL,
+)
+GO
+
 CREATE VIEW PQViewSite AS SELECT * FROM PQView3.dbo.Site
 GO
 
