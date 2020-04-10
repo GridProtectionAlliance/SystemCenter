@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
-//  ExternalDBUpdate.cs - Gbtc
+//  extDBTables.cs - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,34 +16,27 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  04/08/2020 - Christoph Lackner
+//  04/10/2020 - Christoph Lackner
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
 using GSF.Data;
 using GSF.Data.Model;
-using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Web.Http;
 using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
-    public class ExternalDBUpdate
+    public class extDBTables
     {
-        public int? ID { get; set; }
-        public int OpenXDAParentTableID { get; set; }
-        public int AdditionalFieldID { get; set; }
-        public string Value { get; set; }
-        public string FieldName { get; set; }
-        public string PreviousValue { get; set; }
-        public bool Error { get; set; }
+        [PrimaryKey(true)]
+        public int ID { get; set; }
+        public string TableName { get; set; }
+        public string ExternalDB { get; set; }
+        public string Query { get; set; }
     }
-
-    
-
-
-    
 
 }
