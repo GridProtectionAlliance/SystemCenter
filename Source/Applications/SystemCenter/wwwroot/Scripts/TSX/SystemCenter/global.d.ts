@@ -40,7 +40,7 @@ declare global {
 export namespace SystemCenter {
     interface ByComponent { (props: { Roles: Array<SystemCeneterSecurityRoleName> }): JSX.Element; }
     interface ExternalDB { name: string, lastupdate: Date }
-    interface ExternalDBField { FieldName: string, Value: string, PreviousValue: string, OpenXDAParentTableID: number, AdditionalFieldID: number, ID: number, Error: boolean, Changed: boolean}
+    interface ExternalDBField { FieldValueID: number, OpenXDAParentTableID: number, AdditionalFieldID: number, Value: string, FieldName: string, PreviousValue: string, Error: boolean, Message: string, isXDAField: boolean, Changed: boolean}
 
     interface Customer { ID: number, AccountName: string, Name: string, Phone: string, Description: string }
     interface CustomerAccess { ID: number, CustomerID: number, PQViewSiteID: number }

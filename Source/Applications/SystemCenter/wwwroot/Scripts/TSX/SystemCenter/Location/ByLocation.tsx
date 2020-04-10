@@ -29,6 +29,7 @@ import FormInput from '../CommonComponents/FormInput';
 import FormTextArea from '../CommonComponents/FormTextArea';
 import { OpenXDA, SystemCenter } from '../global';
 import AssetAttributes from '../AssetAttribute/Asset';
+import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 
 declare var homePath: string;
 
@@ -214,11 +215,16 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
                                 </form>
                             </fieldset>
                         </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                        <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
-                                    <button className="btn btn-primary" data-toggle='modal' data-target="#locationModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault()}}>Add Substation</button>
+                                    <div className="form-group">
+                                        <button className="btn btn-primary" data-toggle='modal' data-target="#locationModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Add Substation</button>
+                                    </div>
+                                    <div className="form-group">
+                                         <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
+                                    </div>
                                 </form>
                             </fieldset>
                         </li>
@@ -288,6 +294,24 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewLocation}>Save</button>
+                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+            <div className="modal" id="extDBModal">
+                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h4 className="modal-title">Substation External Database Fields</h4>
+                            <button type="button" className="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div className="modal-body">
+                            <ExternalDBUpdate ID={-1} Type='Location' />
+                        </div>
+                        <div className="modal-footer">
                             <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
                         </div>
 
