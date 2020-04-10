@@ -97,7 +97,7 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
         console.log(externalDBFields)
         $.ajax({
             type: "POST",
-            url: `${homePath}api/ExternalDB/${currentDB}/ConfirmUpdate`,
+            url: `${homePath}api/ExternalDB/${currentDB}/${props.Type}/ConfirmUpdate`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({ "data": externalDBFields }),

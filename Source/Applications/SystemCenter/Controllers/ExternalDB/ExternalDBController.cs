@@ -109,6 +109,14 @@ namespace SystemCenter.Controllers
                         }
                     }
 
+
+                    fields.ForEach(item =>
+                        xdaObj.ForEach( asset => 
+                            connection.ExecuteNonQuery("UPDATE AdditionalFieldValue SET [UpdatedOn] = sysdatetime() WHERE OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}",
+                            asset.GetType().GetProperty("ID").GetValue(asset), item.ID)
+                            )
+                    );
+
                 }
             }
             catch (Exception ex)
@@ -117,10 +125,7 @@ namespace SystemCenter.Controllers
             }
 
            
-                //fields.ForEach(item =>             
-                //connection.ExecuteNonQuery("UPDATE AdditionalFieldValue SET [UpdatedOn] = sysdatetime() WHERE OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}",
-                    //int.Parse(id), item.ID)
-                //);
+               
             
             return Ok(result);
         }
@@ -128,7 +133,6 @@ namespace SystemCenter.Controllers
         [Route("ConfirmUpdate"), HttpPost]
         public IHttpActionResult ConfirmUpdate([FromBody] JObject record)
         {
-            /*
             try
             {
                 JToken data = record.GetValue("data");
@@ -142,19 +146,21 @@ namespace SystemCenter.Controllers
                     {
                         if (fld.Error)
                             continue;
+                        if (fld.isXDAField)
+                            continue;
 
-                        if (fld.ID == null)
+                        if (fld.FieldValueID == null)
                         {
                             valueTable.AddNewRecord(new Model.AdditionalFieldValue()
                             {
                                 AdditionalFieldID = fld.AdditionalFieldID,
                                 OpenXDAParentTableID = fld.OpenXDAParentTableID,
-                                Value = fld.Value
+                                Value = fld.Value,
                             });
                         }
                         else
                         {
-                            Model.AdditionalFieldValue val = valueTable.QueryRecordWhere("ID={0}", fld.ID);
+                            Model.AdditionalFieldValue val = valueTable.QueryRecordWhere("ID={0}", fld.FieldValueID);
                             val.Value = fld.Value;
                             valueTable.UpdateRecord(val);
 
@@ -167,8 +173,6 @@ namespace SystemCenter.Controllers
             {
                 return InternalServerError(ex);
             }
-            */
-            return Ok();
         }
         #endregion
 
@@ -344,6 +348,7 @@ namespace SystemCenter.Controllers
         }
 
         private string constr = "Data Source=\"(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = sl3dbp3.main.tva.gov)(PORT = 1601))(CONNECT_DATA = (SID = eamdmp)))\"; User Id=TVAPQPC; Password=pqr0cksB";
+        
         #endregion
     }
 }
