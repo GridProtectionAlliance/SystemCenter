@@ -51,7 +51,7 @@ namespace SystemCenter.Controllers
 
         protected override string getDataQuery(Location location)
         {
-            string result = "CLASSSTRUCTURE_ID = 1058 AND LOCATION_NAME = '{1}'";
+            string result = "LOCATION_NAME = '{0}'";
             return String.Format(result, location.LocationKey);
         }
     }
