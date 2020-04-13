@@ -256,7 +256,7 @@ namespace SystemCenter.Controllers
             if (extDBType == DatabaseType.Oracle)
             {
                 CategorizedSettingsElementCollection reportSettings = ConfigurationFile.Current.Settings[extDBConnectionSetting];
-                string conString = reportSettings["connectionstring"].ValueAs("string");
+                string conString = reportSettings["ConnectionString"].Value;
 
                 using (OracleConnection con = new OracleConnection(conString))
                 {
@@ -286,7 +286,7 @@ namespace SystemCenter.Controllers
                 }
 
             }
-            else if (extDBType == DatabaseType.SQLServer)
+            else
             {
                 using (AdoDataConnection connection = new AdoDataConnection(extDBConnectionSetting))
                 {
@@ -299,8 +299,7 @@ namespace SystemCenter.Controllers
                     }
                 }
             }
-            else
-                throw new Exception("Database Type not supported");
+            
 
             //Sort Through Data to get any Data that has changed or does not exist only
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
@@ -347,7 +346,7 @@ namespace SystemCenter.Controllers
             return field;
         }
 
-        private string constr = "Data Source=\"(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = sl3dbp3.main.tva.gov)(PORT = 1601))(CONNECT_DATA = (SID = eamdmp)))\"; User Id=TVAPQPC; Password=pqr0cksB";
+        private string constr = "Data Source=(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = sl3dbp3.main.tva.gov)(PORT = 1601))(CONNECT_DATA = (SID = eamdmp)))\"; User Id=TVAPQPC; Password=pqr0cksB";
         
         #endregion
     }
