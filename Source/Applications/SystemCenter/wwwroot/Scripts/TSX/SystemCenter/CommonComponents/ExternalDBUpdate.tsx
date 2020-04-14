@@ -74,6 +74,8 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
             setFields(data)
             setChanged(true)
             setCurrentDB(type)
+            if (data.length < 1)
+                cancelUpdate()
         });
 
     }
@@ -84,7 +86,7 @@ function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
     }
 
     function checkUpdate(data: Array<SystemCenter.ExternalDBField>): void {
-        if (data.length > 1) {
+        if (data.length < 1) {
             cancelUpdate();
         }
         else {
@@ -176,10 +178,14 @@ function TableRowInput(props: { ParentTableID: number, ExternalDB: string, updat
 
 function TableRowField(props: { ParentTableID: number, Field: SystemCenter.ExternalDBField, Values: Array<SystemCenter.ExternalDBField>, Setter: (values: Array<SystemCenter.ExternalDBField>) => void}) {
     var values: Array<SystemCenter.ExternalDBField> = _.clone(props.Values);
-    var value: SystemCenter.ExternalDBField = values.find(value => value.AdditionalFieldID == props.Field.AdditionalFieldID && value.OpenXDAParentTableID == props.Field.OpenXDAParentTableID);
+    var value: SystemCenter.ExternalDBField = values.find(value => value.AdditionalFieldID == props.Field.AdditionalFieldID && value.OpenXDAParentTableID == props.Field.OpenXDAParentTableID && value.isXDAField == props.Field.isXDAField);
 
     function removeField() {
-        values = values.filter(fld => !(fld.AdditionalFieldID == props.Field.AdditionalFieldID && fld.OpenXDAParentTableID == props.Field.OpenXDAParentTableID))
+        console.log("remove fld")
+        console.log(values.length)
+        console.log(props.Field)
+        values = values.filter(fld => !(fld.AdditionalFieldID == props.Field.AdditionalFieldID && fld.OpenXDAParentTableID == props.Field.OpenXDAParentTableID && fld.isXDAField == props.Field.isXDAField))
+        console.log(values.length)
         props.Setter(values);
     }
     return (
