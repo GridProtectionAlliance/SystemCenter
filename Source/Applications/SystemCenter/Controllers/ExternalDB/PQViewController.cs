@@ -48,6 +48,13 @@ namespace SystemCenter.Controllers
             return field;
         }
 
+        protected override Model.ExternalDBField processExternalopenXDAField(Location location, Model.ExternalDBField field)
+        {
+            field.OpenXDAParentTableID = location.ID;
+            field.DisplayName = location.LocationKey;
+            return field;
+        }
+
         protected override string getDataQuery(Location location)
         {
             return String.Format("Id = {0}", location.ID);

@@ -25,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Web.Http;
 using GSF.Configuration;
 using GSF.Data;
@@ -85,7 +86,9 @@ namespace SystemCenter.Controllers
             }
 
             List<Model.ExternalDBField> result = new List<Model.ExternalDBField>();
+
             List<Model.AdditionalField> fields = new List<Model.AdditionalField>();
+            List<Model.ExternalOpenXDAField> xdaFields = new List<Model.ExternalOpenXDAField>();
 
             TableNameAttribute tableNameAttribute;
             string tableName;
@@ -99,13 +102,24 @@ namespace SystemCenter.Controllers
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
                     fields = new TableOperations<Model.AdditionalField>(connection).QueryRecordsWhere("OpenXDAParentTable = {0} AND ExternalDB = {1}", tableName, extDBName).ToList();
-                    IEnumerable<IGrouping<string, Model.AdditionalField>> fieldGroups = fields.GroupBy(item => item.ExternalDBTable);
+                    xdaFields = new TableOperations<Model.ExternalOpenXDAField>(connection).QueryRecordsWhere("OpenXDAParentTable = {0} AND ExternalDB = {1}", tableName, extDBName).ToList();
 
-                    foreach (IGrouping<string, Model.AdditionalField> group in fieldGroups)
+                    IEnumerable<IGrouping<string, Model.AdditionalField>> fieldGroups = fields.GroupBy(item => item.ExternalDBTable);
+                    IEnumerable<IGrouping<string, Model.ExternalOpenXDAField>> xdafieldGroups = xdaFields.GroupBy(item => item.ExternalDBTable);
+
+                    foreach (string tbl in fieldGroups.Select(item => item.Key).Union(xdafieldGroups.Select(item => item.Key)))
                     {
+                        IGrouping<string, Model.AdditionalField> fieldgroup = fieldGroups.Where(item => item.Key == tbl)?.First();
+                        IGrouping<string, Model.ExternalOpenXDAField> xDAgroup = xdafieldGroups.Where(item => item.Key == tbl)?.First();
+                        
+
                         foreach (T asset in xdaObj)
                         {
-                            result = result.Concat(GetTable(group.Key, group.ToList(), asset)).ToList();
+                            result = result.Concat(GetTable(tbl, 
+                                new Tuple<IEnumerable<Model.AdditionalField>, IEnumerable<Model.ExternalOpenXDAField>>(
+                                    (fieldgroup == null? new List<Model.AdditionalField>(): fieldgroup.ToList()),
+                                    (xDAgroup == null ? new List<Model.ExternalOpenXDAField>() : xDAgroup.ToList())),
+                                asset)).ToList();
                         }
                     }
 
@@ -138,6 +152,7 @@ namespace SystemCenter.Controllers
                 JToken data = record.GetValue("data");
                 List<Model.ExternalDBField> fields = data.ToObject<List<Model.ExternalDBField>>();
 
+                using (AdoDataConnection xdaConnection = new AdoDataConnection("dbOpenXDA"))
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
                     TableOperations<Model.AdditionalFieldValue> valueTable = new TableOperations<Model.AdditionalFieldValue>(connection);
@@ -146,8 +161,29 @@ namespace SystemCenter.Controllers
                     {
                         if (fld.Error)
                             continue;
+
                         if (fld.isXDAField)
+                        {
+                            T xdaObj = (new TableOperations<T>(xdaConnection)).QueryRecordWhere("ID = {0}", fld.OpenXDAParentTableID);
+                            
+                            // Convert to int, string or other 
+                            MethodInfo m = xdaObj.GetType().GetProperty(fld.FieldName).GetType().GetMethod("Parse", new Type[] { typeof(string) });
+                            if (m != null)
+                            {
+                                xdaObj.GetType().GetProperty(fld.FieldName).SetValue(xdaObj, m.Invoke(null, new object[] { fld.Value }));
+                            }
+                            else
+                            {
+                                try
+                                {
+                                    xdaObj.GetType().GetProperty(fld.FieldName).SetValue(xdaObj, fld.Value);
+                                }
+                                catch { }
+                            }
+
+                            (new TableOperations<T>(xdaConnection)).UpdateRecord(xdaObj);
                             continue;
+                        }
 
                         if (fld.FieldValueID == null)
                         {
@@ -199,56 +235,82 @@ namespace SystemCenter.Controllers
             return result;
         }
 
-        private List<Model.ExternalDBField> GetTable(string tableName, IEnumerable<Model.AdditionalField> collumns, T xdaObj)
+        private List<Model.ExternalDBField> GetTable(string tableName, Tuple<IEnumerable<Model.AdditionalField>, IEnumerable<Model.ExternalOpenXDAField>> collumns, T xdaObj)
         {
             List<Model.ExternalDBField> result = new List<Model.ExternalDBField>();
-            if (collumns.Count() < 1)
+            if (collumns.Item1.Count() < 1 && collumns.Item2.Count() < 1)
                 return result;
 
-            result = GetFields(GetTableQuery(tableName), collumns, xdaObj);
-
-            /*
             try
             {
-                result = GetFields(tableName, collumns, MaximoID, XDAID);
+                result = GetFields(GetTableQuery(tableName), collumns, xdaObj);
             }
+           
             catch
             {
-                foreach (Model.AdditionalField fld in collumns)
+                foreach (Model.AdditionalField fld in collumns.Item1)
                 {
                     try
                     {
-                        result = result.Concat(GetFields(tableName, new List<Model.AdditionalField>() { fld }, MaximoID, XDAID)).ToList();
+                        result = result.Concat(GetFields(
+                            GetTableQuery(tableName),
+                            new Tuple<IEnumerable<Model.AdditionalField>, IEnumerable<Model.ExternalOpenXDAField>>(new List<Model.AdditionalField>() { fld }, new List<Model.ExternalOpenXDAField>()),
+                            xdaObj)
+                            ).ToList();
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        result.Add(new Model.ExternalDBUpdate()
+                        result.Add(processExternalAdditionalField(xdaObj, new Model.ExternalDBField()
                         {
                             FieldName = fld.FieldName,
                             Value = null,
                             Error = true,
                             PreviousValue = null,
                             AdditionalFieldID = fld.ID,
-                            OpenXDAParentTableID = XDAID,
-                        });
-                        // Error Caught
-                        // Needs to be dealt with seperately
+                            Message = ex.Message
+                        }));
+                    }
+                }
+
+                foreach (Model.ExternalOpenXDAField fld in collumns.Item2)
+                {
+                    try
+                    {
+                        result = result.Concat(GetFields(
+                            GetTableQuery(tableName),
+                            new Tuple<IEnumerable<Model.AdditionalField>, IEnumerable<Model.ExternalOpenXDAField>>(new List<Model.AdditionalField>(), new List<Model.ExternalOpenXDAField>() { fld }),
+                            xdaObj)
+                            ).ToList();
+                    }
+                    catch (Exception ex)
+                    {
+                        result.Add(processExternalopenXDAField(xdaObj, new Model.ExternalDBField()
+                        {
+                            FieldName = fld.FieldName,
+                            Value = null,
+                            Error = true,
+                            PreviousValue = null,
+                            AdditionalFieldID = fld.ID,
+                            Message = ex.Message
+                        }));
                     }
                 }
             }
-            */
+           
             return result;
 
         }
 
-        private List<Model.ExternalDBField> GetFields(string tableName, IEnumerable<Model.AdditionalField> collumns, T xdaObj)
+        private List<Model.ExternalDBField> GetFields(string tableName, Tuple<IEnumerable<Model.AdditionalField>, IEnumerable<Model.ExternalOpenXDAField>> collumns, T xdaObj)
         {
             List<Model.ExternalDBField> result = new List<Model.ExternalDBField>();
 
-            if (collumns.Count() < 1)
+            if (collumns.Item1.Count() < 1 && collumns.Item2.Count() < 1)
                 return result;
 
-            string query = "SELECT " + String.Join(", ", collumns.Select(item => item.ExternalDBTableKey));
+            IEnumerable<string> querycol = collumns.Item1.Select(item => item.ExternalDBTableKey).Union(collumns.Item2.Select(item => item.ExternalDBTableKey));
+
+            string query = "SELECT " + String.Join(", ", querycol);
             query = query + " FROM " + tableName + " WHERE " + getDataQuery(xdaObj);
 
             Dictionary<string, string> extData = new Dictionary<string, string>();
@@ -306,7 +368,7 @@ namespace SystemCenter.Controllers
             {
                 TableOperations<Model.AdditionalFieldValue> valueTable = new TableOperations<Model.AdditionalFieldValue>(connection);
 
-                result = collumns.Select(item =>
+                result = collumns.Item1.Select(item =>
                 {
                     string value = item.ExternalDBTableKey;
                     extData.TryGetValue(item.ExternalDBTableKey, out value);
@@ -334,7 +396,29 @@ namespace SystemCenter.Controllers
 
                     return res;
                     }).ToList();
-            
+
+                result = result.Concat(collumns.Item2.Select(item =>
+                {
+                    string value = item.ExternalDBTableKey;
+                    extData.TryGetValue(item.ExternalDBTableKey, out value);
+
+                    Model.ExternalDBField res = new Model.ExternalDBField()
+                    {
+                        AdditionalFieldID = item.ID,
+                        FieldName = item.FieldName,
+                        Value = value,
+                        Error = false,
+                        PreviousValue = Convert.ToString(xdaObj.GetType().GetProperty(item.FieldName).GetValue(xdaObj)),
+                        isXDAField = true,
+                        Changed = false,
+                    };
+
+                    res = processExternalopenXDAField(xdaObj, res);
+
+                    return res;
+                })).ToList();
+
+
             }
                 
             return result.Where(item => item.PreviousValue != item.Value).ToList();
@@ -346,8 +430,11 @@ namespace SystemCenter.Controllers
             return field;
         }
 
-        private string constr = "Data Source=(DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = sl3dbp3.main.tva.gov)(PORT = 1601))(CONNECT_DATA = (SID = eamdmp)))\"; User Id=TVAPQPC; Password=pqr0cksB";
-        
+        protected virtual Model.ExternalDBField processExternalopenXDAField(T xdaObj, Model.ExternalDBField field)
+        {
+            return field;
+        }
+
         #endregion
     }
 }
