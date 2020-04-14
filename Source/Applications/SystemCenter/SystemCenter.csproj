@@ -260,6 +260,7 @@
     <Compile Include="Controllers\SystemCenter\PingController.cs" />
     <Compile Include="DataHub.cs" />
     <Compile Include="Model\AccessLog.cs" />
+    <Compile Include="Model\ExternalOpenXDAField.cs" />
     <Compile Include="Model\extDBTables.cs" />
     <Compile Include="Model\ExternalDBField.cs" />
     <Compile Include="Model\TSC.cs" />

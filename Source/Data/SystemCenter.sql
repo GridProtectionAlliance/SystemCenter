@@ -202,6 +202,17 @@ CREATE TABLE AdditionalFieldValue(
 )
 GO
 
+CREATE TABLE ExternalOpenXDAField(
+	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
+	OpenXDAParentTable varchar(100) NOT NULL,
+	FieldName varchar(100) NOT NULL,
+	ExternalDB varchar(max) NULL,
+	ExternalDBTable varchar(max) NULL,
+	ExternalDBTableKey varchar(max) NULL,
+	Constraint UC_ExternalOpenXDAField UNIQUE(OpenXDAParentTable, FieldName)
+)
+GO
+
 CREATE TABLE Customer(
 	ID INT IDENTITY(1,1) NOT NULL PRIMARY KEY,
 	AccountName VARCHAR(25) NOT NULL UNIQUE,
