@@ -60,4 +60,31 @@ namespace SystemCenter.Controllers
             return String.Format("Id = {0}", location.ID);
         }
     }
+
+    [RoutePrefix("api/ExternalDB/PQView/Meter")]
+    public class PQViewMeterController : ExternalDBController<Meter>
+    {
+        protected override string extDBConnectionSetting { get { return "dbPQView"; } }
+        protected override GSF.Data.DatabaseType extDBType { get { return DatabaseType.SQLServer; } }
+        protected override string extDBName { get { return "PQView"; } }
+
+        protected override Model.ExternalDBField processExternalAdditionalField(Meter meter, Model.ExternalDBField field)
+        {
+            field.OpenXDAParentTableID = meter.ID;
+            field.DisplayName = meter.AssetKey;
+            return field;
+        }
+
+        protected override Model.ExternalDBField processExternalopenXDAField(Meter meter, Model.ExternalDBField field)
+        {
+            field.OpenXDAParentTableID = meter.ID;
+            field.DisplayName = meter.AssetKey;
+            return field;
+        }
+
+        protected override string getDataQuery(Meter meter)
+        {
+            return String.Format("Id = {0}", meter.ID);
+        }
+    }
 }

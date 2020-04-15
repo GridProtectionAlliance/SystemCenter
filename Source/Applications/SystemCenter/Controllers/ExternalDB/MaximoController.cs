@@ -62,4 +62,32 @@ namespace SystemCenter.Controllers
             return String.Format(result, location.LocationKey);
         }
     }
+
+    [RoutePrefix("api/ExternalDB/Maximo/Meter")]
+    public class MaximoMeterController : ExternalDBController<Meter>
+    {
+        protected override string extDBConnectionSetting { get { return "dbMaximo"; } }
+        protected override GSF.Data.DatabaseType extDBType { get { return DatabaseType.Oracle; } }
+        protected override string extDBName { get { return "Maximo"; } }
+
+        protected override Model.ExternalDBField processExternalAdditionalField(Meter meter, Model.ExternalDBField field)
+        {
+            field.OpenXDAParentTableID = meter.ID;
+            field.DisplayName = meter.AssetKey;
+            return field;
+        }
+
+        protected override Model.ExternalDBField processExternalopenXDAField(Meter meter, Model.ExternalDBField field)
+        {
+            field.OpenXDAParentTableID = meter.ID;
+            field.DisplayName = meter.AssetKey;
+            return field;
+        }
+
+        protected override string getDataQuery(Meter meter)
+        {
+            string result = "LOCATION_NAME = '{0}'";
+            return String.Format(result, meter.AssetKey);
+        }
+    }
 }
