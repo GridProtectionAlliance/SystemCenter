@@ -18,6 +18,8 @@
 //  ----------------------------------------------------------------------------------------------------
 //  08/27/2019 - Billy Ernest
 //       Generated original version of source code.
+//  04/15/2020 - Christoph Lackner
+//       Added Tab for external Database Fields
 //
 //******************************************************************************************************
 
@@ -31,6 +33,7 @@ import MeterAssetWindow from '../Meter/MeterAsset';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import MeterConfigurationHistoryWindow from './MeterConfigurationHistory';
+import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 
 declare var homePath: string;
 
@@ -125,6 +128,9 @@ export default class Meter extends React.Component<{ MeterID: number}, { Meter: 
                     <li className="nav-item">
                         <a className={"nav-link" + (this.state.Tab == "configurationHistory" ? " active" : "")} onClick={() => this.setTab('configurationHistory')} data-toggle="tab" href="#configurationHistory">Configuration History</a>
                     </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (this.state.Tab == "extDB" ? " active" : "")} onClick={() => this.setTab('extDB')} data-toggle="tab" href="#extDB">External DB</a>
+                    </li>
                 </ul>
              
                 <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
@@ -149,7 +155,9 @@ export default class Meter extends React.Component<{ MeterID: number}, { Meter: 
                     <div className={"tab-pane " + (this.state.Tab == "configurationHistory" ? " active" : "fade")} id="configurationHistory">
                         <MeterConfigurationHistoryWindow Meter={this.state.Meter} />
                     </div>
-
+                    <div className={"tab-pane " + (this.state.Tab == "extDB" ? " active" : "fade")} id="extDB">
+                        <ExternalDBUpdate ID={this.props.MeterID} Type='Meter' />
+                    </div>
                 </div>                
             </div>
         )
