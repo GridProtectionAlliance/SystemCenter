@@ -28,23 +28,23 @@ import AssetAttributes from './Asset';
 import FormInput from '../CommonComponents/FormInput';
 
 function LineAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.Line, UpdateState: (newEditAsset: OpenXDA.Line) => void }): JSX.Element {
-    function valid(field: keyof (OpenXDA.Line) | keyof(OpenXDA.LineSegment)): boolean {
+    function valid(field: keyof (OpenXDA.Line) | keyof(OpenXDA.LineDetail)): boolean {
         if (field == 'MaxFaultDistance')
             return props.Asset.MaxFaultDistance == null || AssetAttributes.isRealNumber(props.Asset.MaxFaultDistance);
         else if (field == 'MinFaultDistance')
             return props.Asset.MinFaultDistance == null || AssetAttributes.isRealNumber(props.Asset.MinFaultDistance);
         else if (field == 'Length')
-            return props.Asset.Detail.Length != null && AssetAttributes.isRealNumber(props.Asset.Detail.Length);
+            return props.Asset.Detail.Length == null || AssetAttributes.isRealNumber(props.Asset.Detail.Length);
         else if (field == 'R0')
-            return props.Asset.Detail.R0 != null && AssetAttributes.isRealNumber(props.Asset.Detail.R0);
+            return props.Asset.Detail.R0 == null || AssetAttributes.isRealNumber(props.Asset.Detail.R0);
         else if (field == 'X0')
-            return props.Asset.Detail.X0 != null && AssetAttributes.isRealNumber(props.Asset.Detail.X0);
+            return props.Asset.Detail.X0 == null || AssetAttributes.isRealNumber(props.Asset.Detail.X0);
         else if (field == 'R1')
-            return props.Asset.Detail.R1 != null && AssetAttributes.isRealNumber(props.Asset.Detail.R1);
+            return props.Asset.Detail.R1 == null || AssetAttributes.isRealNumber(props.Asset.Detail.R1);
         else if (field == 'X1')
-            return props.Asset.Detail.X1 != null && AssetAttributes.isRealNumber(props.Asset.Detail.X1);
+            return props.Asset.Detail.X1 == null || AssetAttributes.isRealNumber(props.Asset.Detail.X1);
        else if (field == 'ThermalRating')
-            return props.Asset.Detail.ThermalRating != null && AssetAttributes.isRealNumber(props.Asset.Detail.ThermalRating);
+            return props.Asset.Detail.ThermalRating == null || AssetAttributes.isRealNumber(props.Asset.Detail.ThermalRating);
 
         return false;
     }
