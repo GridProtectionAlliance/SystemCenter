@@ -122,7 +122,7 @@ export async function getAssetWithAdditionalFields(assetID: number, assetType: O
             asset['SpareBreakerID'] = null;
     }   
     else if (assetType == 'Line')
-        asset['Segment'] = await getLineSegment(asset as OpenXDA.Line);
+        asset['Detail'] = await getLineDetails(asset as OpenXDA.Line);
 
     return asset;
 }
@@ -138,7 +138,7 @@ function getEDNAPoint(breaker: OpenXDA.Breaker): Promise<OpenXDA.EDNAPoint> {
     }).promise();
 }
 
-function getLineSegment(line: OpenXDA.Line): Promise<OpenXDA.LineSegment> {
+function getLineDetails(line: OpenXDA.Line): Promise<OpenXDA.LineDetail> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/OpenXDA/Line/${line.ID}/LineSegment`,

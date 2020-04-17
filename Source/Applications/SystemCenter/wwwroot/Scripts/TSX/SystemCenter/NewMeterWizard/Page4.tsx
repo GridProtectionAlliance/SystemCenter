@@ -142,13 +142,13 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
             dataType: 'json',
             cache: true,
             async: true
-        }).done((lineSegment: OpenXDA.LineSegment) => {
+        }).done((lineSegment: OpenXDA.LineDetail) => {
             let record = _.clone(this.state.NewEditAsset as OpenXDA.Line) ;
             if (lineSegment != undefined) {
-                record.Segment = lineSegment
+                record.Detail = lineSegment
             }
             else {
-                record.Segment = AssetAttributes.getNewAsset('LineSegment') as OpenXDA.LineSegment;
+                record.Detail = AssetAttributes.getNewLineDetails();
             }
 
             this.setState({ NewEditAsset: record });

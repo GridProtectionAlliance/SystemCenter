@@ -38,6 +38,16 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/Line")]
     public class OpenXDALineController : ModelController<Line>
     {
+        private class LineDetails
+        {
+            public double Length;
+            public double R0;
+            public double R1;
+            public double X0;
+            public double X1;
+            public double ThermalRating;
+        }
+
         protected override string PostRoles { get; } = "Administrator, Transmission SME";
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
@@ -51,8 +61,19 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
             {
-                LineSegment record = new TableOperations<LineSegment>(connection).QueryRecordWhere("ID = (select ChildID from AssetRelationship where AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment') AND ParentID = {0})", lineID);
-                return Ok(record);
+                LineDetails result = new LineDetails();
+
+                List<LineSegment> record = new TableOperations<LineSegment>(connection).QueryRecordsWhere("ID in (select ChildID from AssetRelationship where AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment') AND ParentID = {0})", lineID).ToList();
+                record = record.Concat(new TableOperations<LineSegment>(connection).QueryRecordsWhere("ID in (select ParentID from AssetRelationship where AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment') AND ChildID = {0})", lineID)).ToList();
+
+                result.Length = record.Select(item => item.Length).Sum();
+                result.X0 = record.Select(item => item.X0).Sum();
+                result.R0 = record.Select(item => item.R0).Sum();
+                result.X1 = record.Select(item => item.X1).Sum();
+                result.R1 = record.Select(item => item.R1).Sum();
+                result.ThermalRating = record.Select(item => item.ThermalRating).Min();
+
+                return Ok(result);
             }
 
         }

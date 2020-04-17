@@ -34,24 +34,24 @@ function LineAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.L
         else if (field == 'MinFaultDistance')
             return props.Asset.MinFaultDistance == null || AssetAttributes.isRealNumber(props.Asset.MinFaultDistance);
         else if (field == 'Length')
-            return props.Asset.Segment.Length != null && AssetAttributes.isRealNumber(props.Asset.Segment.Length);
+            return props.Asset.Detail.Length != null && AssetAttributes.isRealNumber(props.Asset.Detail.Length);
         else if (field == 'R0')
-            return props.Asset.Segment.R0 != null && AssetAttributes.isRealNumber(props.Asset.Segment.R0);
+            return props.Asset.Detail.R0 != null && AssetAttributes.isRealNumber(props.Asset.Detail.R0);
         else if (field == 'X0')
-            return props.Asset.Segment.X0 != null && AssetAttributes.isRealNumber(props.Asset.Segment.X0);
+            return props.Asset.Detail.X0 != null && AssetAttributes.isRealNumber(props.Asset.Detail.X0);
         else if (field == 'R1')
-            return props.Asset.Segment.R1 != null && AssetAttributes.isRealNumber(props.Asset.Segment.R1);
+            return props.Asset.Detail.R1 != null && AssetAttributes.isRealNumber(props.Asset.Detail.R1);
         else if (field == 'X1')
-            return props.Asset.Segment.X1 != null && AssetAttributes.isRealNumber(props.Asset.Segment.X1);
+            return props.Asset.Detail.X1 != null && AssetAttributes.isRealNumber(props.Asset.Detail.X1);
        else if (field == 'ThermalRating')
-            return props.Asset.Segment.ThermalRating != null && AssetAttributes.isRealNumber(props.Asset.Segment.ThermalRating);
+            return props.Asset.Detail.ThermalRating != null && AssetAttributes.isRealNumber(props.Asset.Detail.ThermalRating);
 
         return false;
     }
 
-    function updateLineSegment(record: OpenXDA.LineSegment): void {
+    function updateLineDetail(record: OpenXDA.LineDetail): void {
         var asset: OpenXDA.Line = _.clone(props.Asset);
-        asset.Segment = record;
+        asset.Detail = record;
         props.UpdateState(asset);
 
     }
@@ -59,17 +59,17 @@ function LineAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.L
     React.useEffect(() => {
     }, [props.Asset]);
 
-    if (props.Asset == null || props.Asset.Segment == null) return null;
+    if (props.Asset == null || props.Asset.Detail == null) return null;
     return (
         <>
             <FormInput<OpenXDA.Line> Record={props.Asset} Field={'MaxFaultDistance'} Label={'Max Fault Distance'} Feedback={'Max Fault Distance is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.Line> Record={props.Asset} Field={'MinFaultDistance'} Label={'Min Fault Distance'} Feedback={'Min Fault Distance is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.LineSegment> Record={props.Asset.Segment} Field={'Length'} Feedback={'Length is a required numeric field.'} Valid={valid} Setter={updateLineSegment} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.LineSegment> Record={props.Asset.Segment} Field={'R0'} Feedback={'R0 is a required numeric field.'} Valid={valid} Setter={updateLineSegment} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.LineSegment> Record={props.Asset.Segment} Field={'X0'} Feedback={'X0 is a required numeric field.'} Valid={valid} Setter={updateLineSegment} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.LineSegment> Record={props.Asset.Segment} Field={'R1'} Feedback={'R1 is a required numeric field.'} Valid={valid} Setter={updateLineSegment} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.LineSegment> Record={props.Asset.Segment} Field={'X1'} Feedback={'X1 is a required numeric field.'} Valid={valid} Setter={updateLineSegment} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.LineSegment> Record={props.Asset.Segment} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'Thermal Rating is a required numeric field.'} Valid={valid} Setter={updateLineSegment} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'Length'} Feedback={'Length is a required numeric field.'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <FormInput<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'R0'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <FormInput<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'X0'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <FormInput<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'R1'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <FormInput<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'X1'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <FormInput<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'ThermalRating'} Label={'Thermal Rating'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
         </>
     );
 }

@@ -59,12 +59,25 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
         return asset;
     }
 
+    static getNewLineDetails(): OpenXDA.LineDetail{
+        let asset: OpenXDA.LineDetail = {
+            Length: 0,
+            X0: 0,
+            R0: 0,
+            X1: 0,
+            R1: 0,
+            ThermalRating: 0,
+        }
+
+        return asset;
+    }
+
     static getNewAssetAttributes(asset: OpenXDA.Asset, type: OpenXDA.AssetTypeName): OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.LineSegment | OpenXDA.Transformer {
         if (type == 'Line') {
             let record = asset as OpenXDA.Line;
             record.MaxFaultDistance = null;
             record.MinFaultDistance = null;
-            record.Segment = this.getNewAsset('LineSegment') as OpenXDA.LineSegment;
+            record.Detail = this.getNewAsset('LineSegment') as OpenXDA.LineSegment;
 
             return record;
         }

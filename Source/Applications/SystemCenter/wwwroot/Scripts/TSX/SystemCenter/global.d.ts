@@ -76,10 +76,10 @@ export namespace OpenXDA {
     interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number, EDNAPoint?: string, SpareBreakerID?: number }
     interface Bus extends Asset { }
     interface CapBank extends Asset { NumberOfBanks: number, CansPerBank: number, CapacitancePerBank: number }
-    interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Segment: LineSegment }
+    interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Detail: LineDetail }
     interface LineSegment extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number }
     interface Transformer extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, PrimaryVoltageKV: number, SecondaryVoltageKV: number, Tap: number }
-
+    interface LineDetail { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number }
     // Links
     interface AssetConnection { ID: number, AssetRelationshipTypeID: number, Parent: string, Child: string }
 
