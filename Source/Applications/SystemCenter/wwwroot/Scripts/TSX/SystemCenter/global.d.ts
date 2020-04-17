@@ -65,9 +65,6 @@ export namespace SystemCenter {
 // OpenXDA Models
 export namespace OpenXDA {
     interface Location { ID: number, LocationKey: string, Name: string, Alias: string, Latitude: number, Longitude: number, Description: string, ShortName: string }
-    interface OldLine { ID: number, AssetKey: string, VoltageKV: number, ThermalRating: number, Length: number, MaxFaultDistance: number, MinFaultDistance: number, Description: string }
-    interface MeterLine { ID: number, MeterID: number, LineID: number, LineName: string }
-    interface LineImpedance { ID: number, LineID: number, R0: number, X0: number, R1: number, X1: number }
     interface EDNAPoint { ID: number, BreakerID: number, Point: string }
     interface Meter { ID: number, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, LocationID: number, Description: string }
     interface Channel { ID: number, Meter: string, Asset: string, MeasurementType: string, MeasurementCharacteristic: string, Phase: string, Name: string, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, Series: OpenXDA.Series }

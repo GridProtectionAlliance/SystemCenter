@@ -34,12 +34,15 @@ import { useHistory } from 'react-router-dom';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AssetConnectionWindow from './AssetConnection';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
+import { getAssetTypes } from '../../../TS/Services/Asset';
+import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
 declare var homePath: string;
-declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' |'extDB'
+declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' |'extDB' | 'Segments'
 function Asset(props: { AssetID: number }) {
     let history = useHistory();
     const [asset, setAsset] = React.useState<OpenXDA.Asset>(null);
     const [tab, setTabState] = React.useState<string>(getTab());
+    const [assetType, setAssetType] = React.useState<OpenXDA.AssetTypeName>(null);
 
     function getTab(): Tab {
         if (sessionStorage.hasOwnProperty('Asset.Tab'))
@@ -62,7 +65,17 @@ function Asset(props: { AssetID: number }) {
             dataType: 'json',
             cache: false,
             async: true
-       }).done((data: OpenXDA.Asset) => setAsset(data));
+       }).done((data: OpenXDA.Asset) => {
+           setAsset(data)
+           getAssetType(data)
+       });
+    }
+
+    function getAssetType(asset: OpenXDA.Asset): void {
+        getAssetTypes().done((assetTypes: Array<OpenXDA.AssetType>) => {
+            let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
+            setAssetType(assetType.Name);
+        });
     }
 
     function deleteAsset(): JQuery.jqXHR {
@@ -82,6 +95,7 @@ function Asset(props: { AssetID: number }) {
 
     React.useEffect(() => {
         getAsset();
+        
     }, [props.AssetID]);
 
     if (asset == null) return null;
@@ -117,6 +131,11 @@ function Asset(props: { AssetID: number }) {
                 <li className="nav-item">
                     <a className={"nav-link" + (tab == "connections" ? " active" : "")} onClick={() => setTab('connections')} data-toggle="tab" href="#connections">Connections</a>
                 </li>
+                {(assetType == 'Line')?
+                    <li className="nav-item">
+                        <a className={"nav-link" + (tab == "Segments" ? " active" : "")} onClick={() => setTab('Segments')} data-toggle="tab" href="#Segments">Line Segments</a>
+                    </li> : null
+                }
                 <li className="nav-item">
                     <a className={"nav-link" + (tab == "extDB" ? " active" : "")} onClick={() => setTab('extDB')} data-toggle="tab" href="#extDB">External DB</a>
                 </li>
@@ -143,6 +162,9 @@ function Asset(props: { AssetID: number }) {
                 </div>
                 <div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
                     <ExternalDBUpdate ID={asset.ID} Type={asset.AssetType} />
+                </div>
+                <div className={"tab-pane " + (tab == "Segments" ? " active" : "fade")} id="Segments">
+                    <LineSegmentWindow ID={asset.ID}/>
                 </div>
             </div>                
         </div>

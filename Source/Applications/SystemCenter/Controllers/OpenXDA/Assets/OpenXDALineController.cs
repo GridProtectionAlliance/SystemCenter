@@ -57,6 +57,18 @@ namespace SystemCenter.Controllers.OpenXDA
 
         }
 
+        [HttpGet, Route("{lineID:int}/LineSegments")]
+        public IHttpActionResult GetLineSegmentsForLine(int lineID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                List<LineSegment> record = new TableOperations<LineSegment>(connection).QueryRecordsWhere("ID in (select ChildID from AssetRelationship where AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment') AND ParentID = {0})", lineID).ToList();
+                record = record.Concat(new TableOperations<LineSegment>(connection).QueryRecordsWhere("ID in (select ParentID from AssetRelationship where AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment') AND ChildID = {0})", lineID)).ToList();                
+                return Ok(record);
+            }
+
+        }
+
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             Line lineRecord = base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<Line>().Result;
