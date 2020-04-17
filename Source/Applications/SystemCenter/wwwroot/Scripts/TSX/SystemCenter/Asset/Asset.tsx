@@ -27,13 +27,15 @@ import { OpenXDA } from '../global';
 import AssetInfoWindow from './AssetInfo';
 import AssetLocationWindow from './AssetLocation';
 import AssetMeterWindow from './AssetMeter';
+import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
+
 
 import { useHistory } from 'react-router-dom';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AssetConnectionWindow from './AssetConnection';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 declare var homePath: string;
-declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields'
+declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' |'extDB'
 function Asset(props: { AssetID: number }) {
     let history = useHistory();
     const [asset, setAsset] = React.useState<OpenXDA.Asset>(null);
@@ -115,7 +117,9 @@ function Asset(props: { AssetID: number }) {
                 <li className="nav-item">
                     <a className={"nav-link" + (tab == "connections" ? " active" : "")} onClick={() => setTab('connections')} data-toggle="tab" href="#connections">Connections</a>
                 </li>
-
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "extDB" ? " active" : "")} onClick={() => setTab('extDB')} data-toggle="tab" href="#extDB">External DB</a>
+                </li>
             </ul>
              
             <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
@@ -137,7 +141,9 @@ function Asset(props: { AssetID: number }) {
                 <div className={"tab-pane " + (tab == "connections" ? " active" : "fade")} id="connections">
                     <AssetConnectionWindow Asset={asset} />
                 </div>
-
+                <div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
+                    <ExternalDBUpdate ID={asset.ID} Type={asset.AssetType} />
+                </div>
             </div>                
         </div>
     )

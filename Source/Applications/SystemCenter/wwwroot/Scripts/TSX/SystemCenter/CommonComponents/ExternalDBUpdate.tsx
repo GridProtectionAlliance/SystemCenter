@@ -33,7 +33,8 @@ declare var homePath: string;
 
 
 
-function ExternalDataBaseWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 'Location' | 'Customer'}): JSX.Element {
+function ExternalDataBaseWindow(props: {
+    ID: number, Type: 'Meter' | 'Location' | 'Customer' | 'Line' | 'Breaker' | 'Bus' | 'LineSegment' | 'CapacitorBank' | 'Transformer' }): JSX.Element {
     const [externalDB, setexternalDB] = React.useState<Array<SystemCenter.ExternalDB>>([]);
     const [externalDBFields, setFields] = React.useState<Array<SystemCenter.ExternalDBField>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
