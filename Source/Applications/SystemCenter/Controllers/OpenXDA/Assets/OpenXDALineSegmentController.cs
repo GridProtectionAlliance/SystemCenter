@@ -45,5 +45,86 @@ namespace SystemCenter.Controllers.OpenXDA
         public OpenXDALineSegmentController() : base(false, "", true, "AssetKey") { }
 
         protected override string Connection { get; } = "dbOpenXDA";
+
+        [HttpGet, Route("{segmentID:int}/AddToLine/{lineID:int}")]
+        public IHttpActionResult AddLineSegmentToLine(int segmentID, int lineID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                AssetConnection assetConnection = new AssetConnection()
+                {
+                    AssetRelationshipTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationShipType WHERE Name = 'Line-LineSegment'"),
+                    ChildID = lineID,
+                    ParentID = segmentID
+                };
+
+                (new TableOperations<AssetConnection>(connection)).AddNewRecord(assetConnection);
+                return Ok();
+            }
+
+        }
+        
+        [HttpPost, Route("New/Line/{lineID:int}")]
+        public IHttpActionResult PostNewAssetForLocation([FromBody] JObject record, int lineID)
+        {
+            try
+            {
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                    {
+                        JToken asset = record["Asset"];
+                        int assetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'LineSegment'");
+
+                        LineSegment lineSegment = new LineSegment();
+
+                        lineSegment.VoltageKV = asset["VoltageKV"].ToObject<double>();
+                        lineSegment.AssetKey = asset["AssetKey"].ToString();
+                        lineSegment.Description = asset["Description"].ToString();
+                        lineSegment.AssetName = asset["AssetName"].ToString();
+                        lineSegment.R0 = asset["R0"].ToObject<double>();
+                        lineSegment.X0 = asset["X0"].ToObject<double>();
+                        lineSegment.R1 = asset["R1"].ToObject<double>();
+                        lineSegment.X1 = asset["X1"].ToObject<double>();
+                        lineSegment.Length = asset["Length"].ToObject<double>();
+                        lineSegment.ThermalRating = asset["ThermalRating"].ToObject<double>();
+                        
+
+                        new TableOperations<LineSegment>(connection).AddNewRecord(lineSegment);
+                        
+                        int assetID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", asset["AssetKey"].ToString());
+                        AssetConnection assetConnection = new AssetConnection()
+                        {
+                            AssetRelationshipTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationShipType WHERE Name = 'Line-LineSegment'"),
+                            ChildID = lineID,
+                            ParentID = assetID
+                        };
+
+                        (new TableOperations<AssetConnection>(connection)).AddNewRecord(assetConnection);
+                    }
+
+                    scope.Complete();
+                    return Ok("Completed without errors");
+
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpGet, Route("{segmentID:int}/Disconnect/{lineID:int}")]
+        public IHttpActionResult DisconnectLineSegmentFromLine(int segmentID, int lineID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                int typeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationShipType WHERE Name = 'Line-LineSegment'");
+                connection.ExecuteNonQuery("DELETE FROM AssetRelationship WHERE AssetRelationshipTypeID = {0} AND ((ChildID = {1} AND ParentID = {2}) OR (ChildID = {2} AND ParentID = {1}))",typeID, lineID, segmentID);
+              
+                return Ok();
+            }
+
+        }
     }
 }

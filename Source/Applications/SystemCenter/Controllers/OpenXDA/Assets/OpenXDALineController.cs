@@ -71,7 +71,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 result.R0 = record.Select(item => item.R0).Sum();
                 result.X1 = record.Select(item => item.X1).Sum();
                 result.R1 = record.Select(item => item.R1).Sum();
-                result.ThermalRating = record.Select(item => item.ThermalRating).Min();
+                result.ThermalRating = record.Select(item => item.ThermalRating).Count() > 0? record.Select(item => item.ThermalRating).Min() : 0;
 
                 return Ok(result);
             }
