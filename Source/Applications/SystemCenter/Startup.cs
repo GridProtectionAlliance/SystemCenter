@@ -120,8 +120,7 @@ namespace SystemCenter
         protected override IReadOnlyList<IDirectRouteFactory>
         GetActionRouteFactories(HttpActionDescriptor actionDescriptor)
         {
-            return actionDescriptor.GetCustomAttributes<IDirectRouteFactory>
-            (inherit: true);
+            return actionDescriptor.GetCustomAttributes<IDirectRouteFactory>(inherit: true);
         }
     }
 }
