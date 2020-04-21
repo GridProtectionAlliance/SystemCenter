@@ -41,6 +41,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
     const [newEdit, setNewEdit] = React.useState<SystemCenter.NewEdit>('New');
     const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.AssetType>>([]);
     const [allAssets, setAllAssets] = React.useState<Array<OpenXDA.Asset>>([]);
+    const [segmentConnections, setConnections] = React.useState<Array<any>>([]);
 
     React.useEffect(() => {
         getData();
@@ -112,7 +113,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
     }
 
     function deleteSegment(id: number): void {
-        let response = confirm("This will delete the Segment '" + newEditSegment.AssetKey + "' from the Line");
+        let response = confirm("This will delete the Segment from the Line");
 
         if (!response) return;
         $.ajax({
@@ -128,8 +129,47 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
 
     }
 
-    function editField(field: SystemCenter.AdditionalField): void {
-        //setNewField(field);
+    function fawgUpdate(): void {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/ExternalDB/FAWG/LineSegment/UpdateSegments/${props.ID}`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(''),
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done((data: any) => {
+            setUpdated(true)
+            console.log(data);
+            setSegments(data["segments"]);
+            setConnections(data["connections"])
+        }).fail((msg) => {
+            if (msg.status == 500)
+                alert(msg.responseJSON.ExceptionMessage)
+        });
+
+        
+
+    }
+
+    function cancelUpdate(): void {
+        setUpdated(false)
+        getSegments()
+    }
+
+    function submitUpdate(): void {
+        $.ajax({
+            type: "POST",
+            url: `${homePath}api/ExternalDB/FAWG/LineSegment/ConfirmSegments/${props.ID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify({ "data": { "segments": segments, "connections": segmentConnections } }),
+            cache: false,
+            async: true
+        }).done(() => {
+            cancelUpdate()
+        });
+        
     }
 
     return (
@@ -163,14 +203,14 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                     <button className="btn btn-primary" data-toggle='modal' data-target="#assetModal" hidden={updated} >Add Segement</button>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" data-toggle='modal' data-target="#assetModal" hidden={updated}>Update from FAWG</button>
+                    <button className="btn btn-primary" onClick={(evt) => fawgUpdate()} hidden={updated}>Update from FAWG</button>
                 </div>
 
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary"  hidden={!updated}>Save Changes</button>
+                    <button className="btn btn-primary" onClick={(evt) => submitUpdate()} hidden={!updated} >Save Changes</button>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-default"  hidden={!updated}>Reset</button>
+                    <button className="btn btn-default" onClick={(evt) => cancelUpdate()} hidden={!updated} >Reset</button>
                 </div>
             </div>
 
@@ -185,7 +225,6 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                             <div className="row">
                                 <div className="col">
                                     <AssetAttributes Asset={newEditSegment} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewEditSegment} GetDifferentAsset={(assetID) => {
-                                        console.log("here")
                                         let asset = allAssets.find(a => a.ID == assetID);
                                         console.log(asset);
                                         console.log(assetID);

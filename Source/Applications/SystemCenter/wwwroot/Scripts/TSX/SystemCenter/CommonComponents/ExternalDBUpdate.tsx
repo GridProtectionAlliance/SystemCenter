@@ -96,7 +96,6 @@ function ExternalDataBaseWindow(props: {
     }
 
     function submitUpdate(): void {
-        console.log(externalDBFields)
         $.ajax({
             type: "POST",
             url: `${homePath}api/ExternalDB/${currentDB}/${props.Type}/ConfirmUpdate`,

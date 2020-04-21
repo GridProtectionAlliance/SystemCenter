@@ -221,7 +221,7 @@ namespace SystemCenter.Controllers
             return String.Format(result, "something");
         }
 
-        private string GetTableQuery(string tableName)
+        protected string GetTableQuery(string tableName)
         {
             string result = tableName;
 
