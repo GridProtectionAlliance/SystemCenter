@@ -26,6 +26,7 @@ import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter } from '../global';
+import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 
 type FieldName = 'Meter.AssetKey' | 'Meter.Name' | 'Meter.Location' | 'Meter.Make' | 'Meter.Model' | 'Asset.AssetKey' | 'Note.Note';
 interface Search {
@@ -157,7 +158,16 @@ const ByMeter: SystemCenter.ByComponent = (props) => {
                                 </form>
                             </fieldset>
                         </li>
-
+                        <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                                <form>
+                                    <div className="form-group">
+                                        <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
+                                    </div>
+                                </form>
+                            </fieldset>
+                        </li>
 
                     </ul>
                 </div>
@@ -199,6 +209,25 @@ const ByMeter: SystemCenter.ByComponent = (props) => {
                     selected={(item) => false}
                 />
             </div>
+
+            <div className="modal" id="extDBModal">
+                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h4 className="modal-title">Meter External Database Fields</h4>
+                            <button type="button" className="close" data-dismiss="modal">&times;</button>
+                        </div>
+                        <div className="modal-body">
+                            <ExternalDBUpdate ID={-1} Type='Meter' />
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
         </div>
     )
 }
