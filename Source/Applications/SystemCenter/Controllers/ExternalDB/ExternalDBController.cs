@@ -61,6 +61,7 @@ namespace SystemCenter.Controllers
         public IHttpActionResult Update(string id)
         {
             int xdaID = int.Parse(id);
+            //return InternalServerError(new Exception($"ID is {xdaID} and String is " + id));
 
             List<T> xdaObj = new List<T>();
 
@@ -97,6 +98,8 @@ namespace SystemCenter.Controllers
             else
                 tableName = typeof(T).Name;
 
+            
+
             try
             {
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
@@ -109,9 +112,8 @@ namespace SystemCenter.Controllers
 
                     foreach (string tbl in fieldGroups.Select(item => item.Key).Union(xdafieldGroups.Select(item => item.Key)))
                     {
-                        IGrouping<string, Model.AdditionalField> fieldgroup = fieldGroups.Where(item => item.Key == tbl)?.First();
-                        IGrouping<string, Model.ExternalOpenXDAField> xDAgroup = xdafieldGroups.Where(item => item.Key == tbl)?.First();
-                        
+                        IGrouping<string, Model.AdditionalField> fieldgroup = fieldGroups.Where(item => item.Key == tbl).FirstOrDefault();
+                        IGrouping<string, Model.ExternalOpenXDAField> xDAgroup = xdafieldGroups.Where(item => item.Key == tbl).FirstOrDefault();
 
                         foreach (T asset in xdaObj)
                         {
