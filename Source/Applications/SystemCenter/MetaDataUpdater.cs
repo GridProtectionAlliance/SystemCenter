@@ -142,44 +142,55 @@ namespace SystemCenter
                             NewDepartmentNumber = userAccount.DepartmentNumber
                         };
 
-                        // update metadata that does not invoke change flag
-                        userAccount.Phone = userInfo.Telephone;
-                        userAccount.MobilePhone = userInfo.GetUserPropertyValue("mobile");
-                        userAccount.FirstName = userInfo.FirstName;
-                        userAccount.LastName = userInfo.LastName;
-                        userAccount.Email = userInfo.Email;
-
-                        // update metadata that does invoke change flag
-                        if (userAccount.Title != userInfo.Title)
+                        if (userInfo != null)
                         {
-                            userAccount.Title = userInfo.Title;
-                            if (userInfo.Title != string.Empty)
-                                userAccount.RoleID = connection.ExecuteScalar<int>($"SELECT TOP 1 ID FROM Role WHERE Description LIKE '%{userInfo.Title}%' ");
+                            // update metadata that does not invoke change flag
+                            userAccount.Phone = userInfo.Telephone;
+                            userAccount.MobilePhone = userInfo.GetUserPropertyValue("mobile");
+                            userAccount.FirstName = userInfo.FirstName;
+                            userAccount.LastName = userInfo.LastName;
+                            userAccount.Email = userInfo.Email;
 
-                            changedUser.NewTitle = userAccount.Title;
-                            changed = true;
+
+                            // update metadata that does invoke change flag
+                            if (userAccount.Title != userInfo.Title)
+                            {
+                                userAccount.Title = userInfo.Title;
+                                if (userInfo.Title != string.Empty)
+                                    userAccount.RoleID = connection.ExecuteScalar<int>($"SELECT TOP 1 ID FROM Role WHERE Description LIKE '%{userInfo.Title}%' ");
+
+                                changedUser.NewTitle = userAccount.Title;
+                                changed = true;
+                            }
+
+                            if (userAccount.Department != userInfo.Department)
+                            {
+                                userAccount.Department = userInfo.Department;
+                                changedUser.NewDepartment = userAccount.Department;
+                                changed = true;
+                            }
+
+                            string departmentNumber = userInfo.GetUserPropertyValue("departmentnumber");
+                            departmentNumber = departmentNumber == string.Empty ? null : departmentNumber;
+                            if (userAccount.DepartmentNumber != departmentNumber)
+                            {
+                                userAccount.DepartmentNumber = departmentNumber;
+                                changedUser.NewDepartmentNumber = userAccount.DepartmentNumber;
+
+                                if (userAccount.DepartmentNumber != string.Empty)
+                                    userAccount.TSCID = connection.ExecuteScalar<int>($"SELECT TOP 1 ID FROM TSC WHERE DepartmentNumber LIKE '{departmentNumber.Substring(0, 6)}%' ");
+                                changed = true;
+                            }
+
+                            new TableOperations<UserAccount>(connection).UpdateRecord(userAccount);
+                        }
+                        else {
+                            changedUser.NewTitle = "User no longer in active directory.";
+                            changedUser.NewDepartment = "User no longer in active directory.";
+                            changedUser.NewDepartmentNumber = "User no longer in active directory.";
+
                         }
 
-                        if (userAccount.Department != userInfo.Department)
-                        {
-                            userAccount.Department = userInfo.Department;
-                            changedUser.NewDepartment = userAccount.Department;
-                            changed = true;
-                        }
-
-                        string departmentNumber = userInfo.GetUserPropertyValue("departmentnumber");
-                        departmentNumber = departmentNumber == string.Empty ? null : departmentNumber;
-                        if (userAccount.DepartmentNumber != departmentNumber)
-                        {
-                            userAccount.DepartmentNumber = departmentNumber;
-                            changedUser.NewDepartmentNumber = userAccount.DepartmentNumber;
-
-                            if (userAccount.DepartmentNumber != string.Empty)
-                                userAccount.TSCID = connection.ExecuteScalar<int>($"SELECT TOP 1 ID FROM TSC WHERE DepartmentNumber LIKE '{departmentNumber.Substring(0,6)}%' ");
-                            changed = true;
-                        }
-
-                        new TableOperations<UserAccount>(connection).UpdateRecord(userAccount);
 
                         if (changed)
                             ChangedUserAccounts.Add(changedUser);
