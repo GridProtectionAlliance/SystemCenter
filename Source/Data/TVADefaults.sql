@@ -1,70 +1,38 @@
-﻿INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Site Name') 
+﻿INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Maximo Asset Number')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Maximo Asset Number (this should allow us to display other linked fields in Maximo)')
+/* Alias will hold the Name Field Matching PQView*/
+
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+('Meter', 'Serial Number','PQView','SerialNumber','Value'),
+('Meter', 'Connection Type','PQView','ConnectionType','connectiontype'),
+('Meter', 'PQView Site ID','PQView','site','id'),
+('Meter', 'Nominal Voltage','PQView','site','nominalBaseV'),
+('Meter', 'Nominal Frequency','PQView','site','nominalFundFreq'),
+('Meter', 'Firmware Version','PQView','Version','Value'),
+('Meter', 'Instrument Location','PQView','InstrumentLocation','Value'),
+('Meter', 'Web ALias','PQView','WebAlias','Value'),
+('Meter', 'UTC Offset','PQView','site','utcoffset'),
+('Meter', 'Use DST Correction','PQView','site','dst')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'TVA Meter #')
+
+/* XDA Fields */
+INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+('Meter','Make','PQView','Vendor','Value'),
+('Meter','Model','PQView','Equipment','Value')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'PBA ID #')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Serial Number')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Model Number')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Firmware Version')
-GO
 
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Template Version')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'OpenXDA ID')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'PQView Site ID')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'File Path of Data File Location')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Substation Number')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'TSC')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Meter Sector')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Connection Type')
-GO
 
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Download Host')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Time Source (NTP, IRIG, Internal, etc)')
-GO
 
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Unit ID')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'In-Service Date')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Location Type (LSC, Solar, Wind, Intertie, Hydro, Nuclear, Fossil, Gas, Delivery Point, System)')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Nominal Voltage')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'PT ratio')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'CT ratio')
 GO
 
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Aux CT')
@@ -91,8 +59,6 @@ GO
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Pictures')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'General Notes')
-GO
 
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName,IsSecure) VALUES ('Meter', 'GPS Location (link to eGIS and Google Maps)', 1)
 GO
@@ -123,6 +89,143 @@ GO
 
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName,IsSecure) VALUES ('Meter', 'NTP Host IP', 1)
 GO
+
+
+/* PQView Query for Meter */
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('ConnectionType','PQView','
+            (
+             SELECT
+                    Site.name As name,
+	               ConnectionType.name AS connectiontype
+                FROM
+                    SITE JOIN
+                    ConnectionType ON ConnectionType.ID = Site.ConnectionTypeID
+            ) T1')
+GO
+
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('Vendor','PQView','
+            (
+             SELECT 
+                site.name as name,
+                SitePropertyValue.valueText AS Value 
+                FROM 
+                    Site JOIN 
+                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
+                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
+                WHERE 
+                    SiteProperty.name = ''Vendor''
+
+            ) T1')
+GO
+
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('Equipment','PQView','
+            (
+             SELECT 
+                site.name as name,
+                SitePropertyValue.valueText AS Value 
+                FROM 
+                    Site JOIN 
+                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
+                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
+                WHERE 
+                    SiteProperty.name = ''Equipment''
+
+            ) T1')
+GO
+
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('SerialNumber','PQView','
+            (
+             SELECT 
+                site.name as name,
+                SitePropertyValue.valueText AS Value 
+                FROM 
+                    Site JOIN 
+                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
+                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
+                WHERE 
+                    SiteProperty.name = ''Serial Number''
+
+            ) T1')
+GO
+
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('Version','PQView','
+            (
+             SELECT 
+                site.name as name,
+                SitePropertyValue.valueText AS Value 
+                FROM 
+                    Site JOIN 
+                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
+                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
+                WHERE 
+                    SiteProperty.name = ''Version''
+
+            ) T1')
+GO
+
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('WebAlias','PQView','
+            (
+             SELECT 
+                site.name as name,
+                SitePropertyValue.valueText AS Value 
+                FROM 
+                    Site JOIN 
+                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
+                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
+                WHERE 
+                    SiteProperty.name = ''Web Alias''
+
+            ) T1')
+GO
+
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('InstrumentLocation','PQView','
+            (
+             SELECT 
+                site.name as name,
+                SitePropertyValue.valueText AS Value 
+                FROM 
+                    Site JOIN 
+                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
+                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
+                WHERE 
+                    SiteProperty.name = ''Instrument Location''
+
+            ) T1')
+GO
+/* FAWG Query for LineSegments */
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('LineSegment','Fawg','
+            (
+             SELECT
+                    Lines.Lines_Id,
+	                Lines.fromBusNumber,
+	                Lines.ToBusNumber,
+	                Buses.VoltageValue,
+	                Lines.LengthMiles,
+	                Lines.PosSeqResistance,
+	                Lines.PosSeqReactance,
+	                Lines.ZeroSeqResistance,
+	                Lines.ZeroSeqReactance,
+	                Lines.ConductorSummerContRating,
+	                Lines.ConductorWinterContRating
+                    (SELECT CONCAT(''L'', Lines.TransLineNumber)) AS LNumber
+                FROM
+                    Lines JOIN
+                    Buses ON Lines.fromBuses_Id = Buses.Buses_Id JOIN
+                    Branches ON Lines.Branches_Id = Branches.Branches_Id
+                WHERE
+                    Branches.Description = ''Fawg One''
+            ) T1')
+GO
+
+
 
 INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Columbia', 'Also covers Nashville', 'D17311')
 GO

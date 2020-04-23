@@ -34,33 +34,7 @@ using openXDA.Model;
 
 namespace SystemCenter.Controllers
 {
-    [RoutePrefix("api/ExternalDB/PQView/Location")]
-    public class PQViewLocationController : ExternalDBController<Location>
-    {
-        protected override string extDBConnectionSetting { get { return "dbPQView"; } }
-        protected override GSF.Data.DatabaseType extDBType { get { return DatabaseType.SQLServer; } }
-        protected override string extDBName { get { return "PQView"; } }
-
-        protected override Model.ExternalDBField processExternalAdditionalField(Location location, Model.ExternalDBField field)
-        {
-            field.OpenXDAParentTableID = location.ID;
-            field.DisplayName = location.LocationKey;
-            return field;
-        }
-
-        protected override Model.ExternalDBField processExternalopenXDAField(Location location, Model.ExternalDBField field)
-        {
-            field.OpenXDAParentTableID = location.ID;
-            field.DisplayName = location.LocationKey;
-            return field;
-        }
-
-        protected override string getDataQuery(Location location)
-        {
-            return String.Format("Id = {0}", location.ID);
-        }
-    }
-
+   
     [RoutePrefix("api/ExternalDB/PQView/Meter")]
     public class PQViewMeterController : ExternalDBController<Meter>
     {
@@ -84,7 +58,7 @@ namespace SystemCenter.Controllers
 
         protected override string getDataQuery(Meter meter)
         {
-            return String.Format("Id = {0}", meter.ID);
+            return String.Format("name = {0}", meter.Alias);
         }
     }
 }
