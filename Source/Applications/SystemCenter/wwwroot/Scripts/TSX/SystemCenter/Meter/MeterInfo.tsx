@@ -100,9 +100,6 @@ export default class MeterInfoWindow extends React.Component<{ Meter: OpenXDA.Me
         return false;
     }
 
-    updateState(meter: OpenXDA.Meter) {
-        this.setState({ Meter: meter });
-    }
 
     render() {
         if (this.props.Meter == null) return null;
@@ -118,15 +115,15 @@ export default class MeterInfoWindow extends React.Component<{ Meter: OpenXDA.Me
                 <div className="card-body">
                     <div className="row">
                         <div className="col">
-                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'AssetKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={this.valid} Setter={this.updateState} />
-                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={this.valid} Setter={this.updateState} />
-                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={this.valid} Setter={this.updateState} />
-                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={this.valid} Setter={this.updateState} />
+                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'AssetKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
+                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
+                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
+                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
                         </div>
                         <div className="col">
 
-                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'Make'} Feedback={'Make must be less than 200 characters.'} Valid={this.valid} Setter={this.updateState} />
-                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'Model'} Feedback={'Model must be less than 200 characters.'} Valid={this.valid} Setter={this.updateState} />
+                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'Make'} Feedback={'Make must be less than 200 characters.'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
+                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'Model'} Feedback={'Model must be less than 200 characters.'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
                             <div className="form-group">
 
                                 <label>Time Zone</label>
@@ -144,7 +141,7 @@ export default class MeterInfoWindow extends React.Component<{ Meter: OpenXDA.Me
                                     }
                                 </select>
 
-                                <FormTextArea<OpenXDA.Meter> Rows={3} Record={this.state.Meter} Field={'Description'} Valid={this.valid} Setter={this.updateState} />
+                                <FormTextArea<OpenXDA.Meter> Rows={3} Record={this.state.Meter} Field={'Description'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
 
 
                             </div>
