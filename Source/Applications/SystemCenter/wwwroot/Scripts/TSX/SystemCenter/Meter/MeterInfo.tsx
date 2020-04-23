@@ -69,6 +69,7 @@ export default class MeterInfoWindow extends React.Component<{ Meter: OpenXDA.Me
     }
 
     updateMeter(): void {
+        var meter: OpenXDA.Meter = _.clone(this.state.Meter);
        $.ajax({
             type: "PATCH",
             url: `${homePath}api/OpenXDA/Meter/Update`,
@@ -77,7 +78,7 @@ export default class MeterInfoWindow extends React.Component<{ Meter: OpenXDA.Me
             dataType: 'json',
             cache: true,
             async: true
-       }).done((meter: OpenXDA.Meter) => {
+       }).done((meterID: Number) => {
            this.props.StateSetter(meter);
        });
     }
