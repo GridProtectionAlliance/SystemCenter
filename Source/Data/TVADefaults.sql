@@ -214,7 +214,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	                Lines.ZeroSeqResistance,
 	                Lines.ZeroSeqReactance,
 	                Lines.ConductorSummerContRating,
-	                Lines.ConductorWinterContRating
+	                Lines.ConductorWinterContRating,
                     (SELECT CONCAT(''L'', Lines.TransLineNumber)) AS LNumber
                 FROM
                     Lines JOIN
