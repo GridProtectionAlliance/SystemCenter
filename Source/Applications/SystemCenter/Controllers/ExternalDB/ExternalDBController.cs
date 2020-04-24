@@ -117,11 +117,16 @@ namespace SystemCenter.Controllers
 
                         foreach (T asset in xdaObj)
                         {
-                            result = result.Concat(GetTable(tbl, 
-                                new Tuple<IEnumerable<Model.AdditionalField>, IEnumerable<Model.ExternalOpenXDAField>>(
-                                    (fieldgroup == null? new List<Model.AdditionalField>(): fieldgroup.ToList()),
-                                    (xDAgroup == null ? new List<Model.ExternalOpenXDAField>() : xDAgroup.ToList())),
-                                asset)).ToList();
+                            try { 
+                                result = result.Concat(GetTable(tbl,
+                                    new Tuple<IEnumerable<Model.AdditionalField>, IEnumerable<Model.ExternalOpenXDAField>>(
+                                        (fieldgroup == null ? new List<Model.AdditionalField>() : fieldgroup.ToList()),
+                                        (xDAgroup == null ? new List<Model.ExternalOpenXDAField>() : xDAgroup.ToList())),
+                                    asset)).ToList();
+                            }
+                            catch
+                            {
+                            }
                         }
                     }
 
