@@ -142,7 +142,7 @@ namespace SystemCenter
                             NewDepartmentNumber = userAccount.DepartmentNumber
                         };
 
-                        if (userInfo != null)
+                        if (userInfo.UserName != userAccount.Name)
                         {
                             // update metadata that does not invoke change flag
                             userAccount.Phone = userInfo.Telephone;
