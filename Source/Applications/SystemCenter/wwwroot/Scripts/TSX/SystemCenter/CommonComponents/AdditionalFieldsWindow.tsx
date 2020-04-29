@@ -164,7 +164,7 @@ function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
                         </div>
                         <div className="modal-body">
                             <FormInput<SystemCenter.AdditionalField> Record={newField} Field='FieldName' Valid={(field) => true} Label="Field Name" Setter={setNewField} /> 
-                            <FormSelect<SystemCenter.AdditionalField> Record={newField} Field='Type' Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }]} Label="External Database" Setter={setNewField} /> 
+                            <FormSelect<SystemCenter.AdditionalField> Record={newField} Field='Type' Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }]} Label="Field Type" Setter={setNewField} /> 
                             <FormInput<SystemCenter.AdditionalField> Record={newField} Field='ExternalDB' Valid={(field) => true} Label="External Database" Setter={setNewField} /> 
                             <FormInput<SystemCenter.AdditionalField> Record={newField} Field='ExternalDBTable' Valid={(field) => true} Label="External Database Table" Setter={setNewField} /> 
                             <FormInput<SystemCenter.AdditionalField> Record={newField} Field='ExternalDBTableKey' Valid={(field) => true} Label="External Database Table Key" Setter={setNewField} /> 
