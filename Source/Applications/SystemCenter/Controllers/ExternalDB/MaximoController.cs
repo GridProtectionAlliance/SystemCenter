@@ -58,8 +58,21 @@ namespace SystemCenter.Controllers
 
         protected override string getDataQuery(Location location)
         {
-            string result = "LOCATION_NAME = '{0}'";
-            return String.Format(result, location.LocationKey);
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                {
+                    Model.AdditionalField uidField = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Location' AND FieldName = 'Maximo Asset Number (UID)'");
+                    if (uidField == null)
+                        throw (new Exception("Unable to Find Maximo Asset Number Field"));
+
+                    Model.AdditionalFieldValue uiValue = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", location.ID, uidField.ID);
+
+                    if (uiValue == null)
+                        throw (new Exception("No valid Maximo Asset Number Defined"));
+
+                    string result = "UNID = '{0}'";
+                    return String.Format(result, uiValue.Value);
+                }
+            
         }
     }
 
@@ -86,8 +99,19 @@ namespace SystemCenter.Controllers
 
         protected override string getDataQuery(Meter meter)
         {
-            string result = "LOCATION_NAME = '{0}'";
-            return String.Format(result, meter.AssetKey);
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                Model.AdditionalField uidField = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Meter' AND FieldName = 'Maximo Asset Number (UID)'");
+                if (uidField == null)
+                    throw (new Exception("Unable to Find Maximo Asset Number Field"));
+
+                Model.AdditionalFieldValue uiValue = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", meter.ID, uidField.ID);               
+                if (uiValue == null)
+                    throw (new Exception("No valid Maximo Asset Number Defined"));
+
+                string result = "UNID = '{0}'";
+                return String.Format(result, uiValue.Value);
+            }
         }
     }
 }

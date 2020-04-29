@@ -1,4 +1,7 @@
-﻿INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Maximo Asset Number')
+﻿INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Maximo Asset Number (UID)')
+GO
+
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Location', 'Maximo Asset Number (UID)')
 GO
 
 /* Alias will hold the Name Field Matching PQView*/
@@ -23,72 +26,49 @@ INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, Ext
 ('Meter','Model','PQView','Equipment','Value')
 GO
 
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Template Version')
+/* Fields From Maximo for Meter */
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+('Meter', 'Function','Maximo','Meter','Function'),
+('Meter', 'Location Name','Maximo','Meter','Location_Name'),
+('Meter', 'Meter Sector','Maximo','Meter','METERSECTOR'),
+('Meter', 'TVA Model No','Maximo','Meter','TVA_MODEL_NO'),
+('Meter', 'Unit','Maximo','Meter','Unit'),
+('Meter', 'Asset Desc','Maximo','Meter','Asset_Desc'),
+('Meter', 'Serial No (Maximo)','Maximo','Meter','SERIAL_NO'),
+('Meter', 'Station/Line','Maximo','Meter','STATIONLINE'),
+('Meter', 'MSCO','Maximo','Meter','MSCO'),
+('Meter', 'Supplier','Maximo','Meter','Supplier'),
+('Meter', 'Manufacturer','Maximo','Meter','MANUFACTURER'),
+('Meter', 'Status','Maximo','Meter','Status'),
+('Meter', 'TVA Alias','Maximo','Meter','TVA_Alias')
 GO
 
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Download Host')
+/* XDA Fields */
+INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+('Meter','Description','Maximo','Meter','DESCRIPTION')
 GO
 
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Unit ID')
+/* Fields From Maximo for Substations */
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+('Location', 'City','Maximo','Location','City'),
+('Location', 'County','Maximo','Location','County'),
+('Location', 'State','Maximo','Location','State'),
+('Location', 'Street Address','Maximo','Location','StreetAddress'),
+('Location', 'ZIP Code','Maximo','Location','ZipCode'),
+('Location', 'Customer 1','Maximo','Location','Customer1'),
+('Location', 'Customer 2','Maximo','Location','Customer2'),
+('Location', 'Customer 3','Maximo','Location','Customer3'),
+('Location', 'Meter Sector','Maximo','Location','METERSECTOR'),
+('Location', 'Unit','Maximo','Location','Unit'),
+('Location', 'Station/Line','Maximo','Location','STATIONLINE'),
+('Location', 'ADCC','Maximo','Location','Adcc')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Aux CT')
+/* XDA Fields */
+INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+('Location','Description','Maximo','Location','DESCRIPTION')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Total Effective CT Ratio')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Status (Active, In-Progress, Retired, etc)')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'MSCO (link to ECM)')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'MSS (link to ECM)')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'RSS (link to ECM)')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Drawings (DSL, Elementary, Wiring, etc) (link to ECM)')
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Pictures')
-GO
-
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName,IsSecure) VALUES ('Meter', 'GPS Location (link to eGIS and Google Maps)', 1)
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName,IsSecure) VALUES ('Meter', 'Physical 911 Address (link to eGIS and Google Maps)', 1)
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName,IsSecure) VALUES ('Meter', 'Login User Name', 1)
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName,IsSecure) VALUES ('Meter', 'Login Password', 1)
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName,IsSecure) VALUES ('Meter', 'Download Connection IP & Port', 1)
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName,IsSecure) VALUES ('Meter', 'Webpage IP & Port', 1)
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName,IsSecure) VALUES ('Meter', 'Internal IP (links to IPAM)', 1)
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName,IsSecure) VALUES ('Meter', 'Gateway IP', 1)
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName,IsSecure) VALUES ('Meter', 'Subnet Mask IP', 1)
-GO
-
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName,IsSecure) VALUES ('Meter', 'NTP Host IP', 1)
-GO
 
 
 /* PQView Query for Meter */
@@ -223,6 +203,61 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
                 WHERE
                     Branches.Description = ''Fawg One''
             ) T1')
+GO
+
+/* MAximo Queries for Substation and Meters */
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('Meter','Maximo','
+            (
+             SELECT 
+	            A.UNID AS UNID,
+	            A.UNIT_CD AS UNIT,
+	            A.Function_CD AS Function,
+	            A.Location_Name AS Location_Name,
+	            A.TVA_ALIS AS TVA_ALIAS,
+	            B.Description AS Description,
+	            B.MeterSector AS MeterSector,
+	            B.MSCO AS MSCO,
+	            B.StationLine AS StationLine,
+	            C.Asset_Desc AS Asset_Desc,
+	            C.Serial_No AS Serial_No,
+	            C.TVA_Model_No AS TVA_Model_No,
+	            C.ASSET_STATUS_CD AS Status,
+	            D.Company_Name AS Manufacturer,
+	            E.Company_Name AS Supplier
+            FROM 
+	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD LEFT JOIN
+	            EAMDM.EAM_OD_COMPANY_MV E ON C.SUPPLIER_CD = E.COMPANY_CD
+            )')
+GO
+
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('Location','Maximo','
+            (
+            SELECT 
+	            A.UNID AS UNID,
+	            B.City AS City,
+	            B.County AS County,
+	            B.Customer1 AS Customer1,
+	            B.Customer2 AS Customer2,
+	            B.Customer3 AS Customer3,
+	            B.Description AS Description,
+	            B.MeterSector AS MeterSector,
+	            B.State AS State,
+	            B.StationLine AS StationLine,
+	            B.Stationowner AS Stationowner,
+	            B.StreetAddress AS StreetAddress,
+	            B.TomArea AS TomArea,
+	            B.Unit AS Unit,
+	            B.ZipCode AS ZipCode,
+	            B.ADCC AS Adcc
+            FROM 
+	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key	
+            )')
 GO
 
 
