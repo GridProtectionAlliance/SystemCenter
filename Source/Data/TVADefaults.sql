@@ -4,6 +4,25 @@ GO
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Location', 'Maximo Asset Number (UID)')
 GO
 
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES 
+('Breaker', 'Maximo Breaker Asset Number (UID)'),
+('Breaker', 'Maximo TripCoil Asset Number (UID)')
+GO
+
+
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Line', 'Maximo Asset Number (UID)')
+GO
+
+
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('CapBank', 'Maximo Asset Number (UID)')
+GO
+
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES
+('Transformer', 'Maximo Phase A Asset Number (UID)'),
+('Transformer', 'Maximo Phase B Asset Number (UID)'),
+('Transformer', 'Maximo Phase C Asset Number (UID)')
+GO
+
 /* Alias will hold the Name Field Matching PQView*/
 
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
@@ -69,6 +88,105 @@ INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, Ext
 ('Location','Description','Maximo','Location','DESCRIPTION')
 GO
 
+/* Fields From Maximo for Breakers */
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+('Breaker', 'Function','Maximo','Breaker','Function'),
+('Breaker', 'Location Name','Maximo','Breaker','Location_Name'),
+('Breaker', 'TVA Model No','Maximo','Breaker','TVA_MODEL_NO'),
+('Breaker', 'Unit','Maximo','Breaker','Unit'),
+('Breaker', 'Asset Desc','Maximo','Breaker','Asset_Desc'),
+('Breaker', 'Station/Line','Maximo','Breaker','STATIONLINE'),
+('Breaker', 'Manufacturer','Maximo','Breaker','MANUFACTURER'),
+('Breaker', 'Status','Maximo','Breaker','Status'),
+
+('Breaker', 'Function TripCoil','Maximo','TripCoil','Function'),
+('Breaker', 'Location Name TripCoil','Maximo','TripCoil','Location_Name'),
+('Breaker', 'Unit TripCoil','Maximo','TripCoil','Unit'),
+('Breaker', 'Station/Line TripCoil','Maximo','TripCoil','STATIONLINE'),
+('Breaker', 'Asset Desc TripCoil','Maximo','TripCoil','Asset_Desc'),
+('Breaker', 'Desc TripCoil','Maximo','TripCoil','Description')
+
+GO
+
+INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+('Breaker','Description','Maximo','Breaker','DESCRIPTION'),
+('Breaker','VoltageKV','Maximo','Breaker','OperatingKV')
+GO
+
+/* Fields From Maximo for CapBank */
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+('CapBank', 'Function','Maximo','CapBank','Function'),
+('CapBank', 'Location Name','Maximo','CapBank','Location_Name'),
+('CapBank', 'TVA Model No','Maximo','CapBank','TVA_MODEL_NO'),
+('CapBank', 'Unit','Maximo','CapBank','Unit'),
+('CapBank', 'Asset Desc','Maximo','CapBank','Asset_Desc'),
+('CapBank', 'Station/Line','Maximo','CapBank','STATIONLINE'),
+('CapBank', 'Manufacturer','Maximo','CapBank','MANUFACTURER'),
+('CapBank', 'Status','Maximo','CapBank','Status'),
+('CapBank', 'Capacitor KV','Maximo','CapBank','CapKV'),
+('CapBank', 'Bank KVAR','Maximo','CapBank','BankVAR')
+GO
+
+INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+('CapBank','Description','Maximo','CapBank','DESCRIPTION'),
+('CapBank','VoltageKV','Maximo','CapBank','OperatingKV'),
+('CapBank','CapacitancePerBank','Maximo','CapBank','CapKVAR'),
+('CapBank','NumberOfBanks','Maximo','CapBank','CapCount')
+GO
+
+/* Fields From Maximo for Lines */
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+('Line', 'Function','Maximo','Line','Function'),
+('Line', 'Unit','Maximo','Line','Unit'),
+('Line', 'Address','Maximo','Line','Address'),
+('Line', 'TVA Area','Maximo','Line','TVA_Area'),
+('Line', 'Drawing No','Maximo','Line','DrawingNo'),
+('Line', 'Station/Line','Maximo','Line','StationLine'),
+('Line', 'Phasing Drawing','Maximo','Line','PhasingDWG'),
+('Line', 'Structure List Drawing','Maximo','Line','StructureListDWG')
+GO
+INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+('Line','Description','Maximo','Line','DESCRIPTION'),
+('Line','VoltageKV','Maximo','Line','OperatingKV')
+GO
+
+/* Fields from Maximo for Transformer */
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+('Transformer', 'Function Phase A','Maximo','Transformer_A','Function'),
+('Transformer', 'Location Name Phase A','Maximo','Transformer_A','Location_Name'),
+('Transformer', 'Unit Phase A','Maximo','Transformer_A','Unit'),
+('Transformer', 'Station/Line Phase A','Maximo','Transformer_A','STATIONLINE'),
+('Transformer', 'Asset Desc Phase A','Maximo','Transformer_A','Asset_Desc'),
+('Transformer', 'TVA Model No Phase A','Maximo','Transformer_A','TVA_MODEL_NO'),
+('Transformer', 'Serial No Phase A','Maximo','Transformer_A','Serial_No'),
+('Transformer', 'Manufacturer Phase A','Maximo','Transformer_A','MANUFACTURER'),
+('Transformer', 'Long Description Phase A','Maximo','Transformer_A','Long_Desc'),
+
+('Transformer', 'Function Phase B','Maximo','Transformer_B','Function'),
+('Transformer', 'Location Name Phase B','Maximo','Transformer_B','Location_Name'),
+('Transformer', 'Unit Phase B','Maximo','Transformer_B','Unit'),
+('Transformer', 'Station/Line Phase B','Maximo','Transformer_B','STATIONLINE'),
+('Transformer', 'Asset Desc Phase B','Maximo','Transformer_B','Asset_Desc'),
+('Transformer', 'TVA Model No Phase B','Maximo','Transformer_B','TVA_MODEL_NO'),
+('Transformer', 'Serial No Phase B','Maximo','Transformer_B','Serial_No'),
+('Transformer', 'Manufacturer Phase B','Maximo','Transformer_B','MANUFACTURER'),
+('Transformer', 'Long Description Phase B','Maximo','Transformer_B','Long_Desc'),
+
+('Transformer', 'Function Phase C','Maximo','Transformer_C','Function'),
+('Transformer', 'Location Name Phase C','Maximo','Transformer_C','Location_Name'),
+('Transformer', 'Unit Phase C','Maximo','Transformer_C','Unit'),
+('Transformer', 'Station/Line Phase C','Maximo','Transformer_C','STATIONLINE'),
+('Transformer', 'Asset Desc Phase C','Maximo','Transformer_C','Asset_Desc'),
+('Transformer', 'TVA Model No Phase C','Maximo','Transformer_C','TVA_MODEL_NO'),
+('Transformer', 'Serial No Phase C','Maximo','Transformer_C','Serial_No'),
+('Transformer', 'Manufacturer Phase C','Maximo','Transformer_C','MANUFACTURER'),
+('Transformer', 'Long Description Phase C','Maximo','Transformer_C','Long_Desc')
+GO
+
+INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+('Transformer','Description','Maximo','Transformer_A','DESCRIPTION'),
+('Transformer','VoltageKV','Maximo','Transformer_A','OperatingKV')
+GO
 
 
 /* PQView Query for Meter */
@@ -260,6 +378,180 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
             )')
 GO
 
+/* MAximo Queries for Breakers, Lines, CapBanks */
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('Breaker','Maximo','
+            (
+            SELECT 
+	            A.UNID AS UNID,
+	            A.UNIT_CD AS UNIT,
+	            A.Function_CD AS Function,
+	            A.Location_Name AS Location_Name,
+	            B.Description AS Description,
+				B.OperatingKVTrans AS OperatingKV,
+	            B.StationLine AS StationLine,
+	            C.Asset_Desc AS Asset_Desc,
+	            C.TVA_Model_No AS TVA_Model_No,
+	            C.ASSET_STATUS_CD AS Status,
+	            D.Company_Name AS Manufacturer,
+            FROM 
+	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+			WHERE A.CLASSSTRUCTURE_ID = ''1009''
+            )')
+GO
+
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('CapBank','Maximo','
+            (
+            SELECT 
+	            A.UNID AS UNID,
+	            A.UNIT_CD AS UNIT,
+	            A.Function_CD AS Function,
+	            A.Location_Name AS Location_Name,
+	            B.Description AS Description,
+				B.OperatingKVTrans AS OperatingKV,
+	            B.StationLine AS StationLine,
+				B.BankVAR AS BankVAR,
+				B.CapacitorCount AS CapCount,
+				B.CapacitorKV AS CapKV,
+				B.CapacitorKVAR AS CapKVAR,
+	            C.Asset_Desc AS Asset_Desc,
+	            C.TVA_Model_No AS TVA_Model_No,
+	            C.ASSET_STATUS_CD AS Status,
+	            D.Company_Name AS Manufacturer,
+            FROM 
+	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD
+            )')
+GO
+
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('Line','Maximo','
+            (
+           SELECT 
+	            A.UNID AS UNID,
+	            A.UNIT_CD AS UNIT,
+	            A.Function_CD AS Function,
+	            A.ADRESS_CD AS ADDRESS,
+				A.TVA_AREA AS TVA_Area,
+				A.TVA_DRAWING_NO AS DrawingNo
+				B.Description AS Description,
+				B.OperatingKVTrans AS OperatingKV,
+	            B.StationLine AS StationLine,
+				B.PhasingDWG AS PhasingDWG,
+				B.Remarks AS Remarks,
+				B.StructureListDWG AS StructureListDWG,
+            FROM 
+	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key
+            )')
+GO
+
+/* Maximo Tables For Transformers */
+
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('Transformer_A','Maximo','
+            (
+           SELECT 
+	            A.UNID AS UNID,
+	            A.Location_Name AS Location_Name,
+	            A.UNIT_CD AS UNIT,
+	            A.Function_CD AS Function,
+	            B.Description AS Description,
+	            B.OperatingKVTrans AS OperatingKV,
+	            B.StationLine AS StationLine,
+	            B.PhasePosition AS Phase,
+	            C.Asset_Desc AS Asset_Desc,
+	            C.TVA_Model_No AS TVA_Model_No,
+	            C.Serial_No AS Serial_No,
+	            C.ASSET_LONG_DESC AS Long_Desc,
+	            D.Company_Name AS Manufacturer,
+            FROM 
+	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+            WHERE
+                B.PhasePosition = ''A''
+            )')
+GO
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('Transformer_B','Maximo','
+            (
+           SELECT 
+	            A.UNID AS UNID,
+	            A.Location_Name AS Location_Name,
+	            A.UNIT_CD AS UNIT,
+	            A.Function_CD AS Function,
+	            B.Description AS Description,
+	            B.OperatingKVTrans AS OperatingKV,
+	            B.StationLine AS StationLine,
+	            B.PhasePosition AS Phase,
+	            C.Asset_Desc AS Asset_Desc,
+	            C.TVA_Model_No AS TVA_Model_No,
+	            C.Serial_No AS Serial_No,
+	            C.ASSET_LONG_DESC AS Long_Desc,
+	            D.Company_Name AS Manufacturer,
+            FROM 
+	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+            WHERE
+                B.PhasePosition = ''B''
+            )')
+GO
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('Transformer_C','Maximo','
+            (
+           SELECT 
+	            A.UNID AS UNID,
+	            A.Location_Name AS Location_Name,
+	            A.UNIT_CD AS UNIT,
+	            A.Function_CD AS Function,
+	            B.Description AS Description,
+	            B.OperatingKVTrans AS OperatingKV,
+	            B.StationLine AS StationLine,
+	            B.PhasePosition AS Phase,
+	            C.Asset_Desc AS Asset_Desc,
+	            C.TVA_Model_No AS TVA_Model_No,
+	            C.Serial_No AS Serial_No,
+	            C.ASSET_LONG_DESC AS Long_Desc,
+	            D.Company_Name AS Manufacturer,
+            FROM 
+	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+            WHERE
+                B.PhasePosition = ''C''
+            )')
+GO
+
+/* Maximo Table for Trip Coils */
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('TripCoil','Maximo','
+            (
+            SELECT 
+	            A.UNID AS UNID,
+	            A.UNIT_CD AS UNIT,
+	            A.Function_CD AS Function,
+	            A.Location_Name AS Location_Name,
+	            B.Description AS Description,
+	            B.StationLine AS StationLine,
+	            C.Asset_Desc AS Asset_Desc,
+            FROM 
+	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key 
+			WHERE A.CLASSSTRUCTURE_ID <> ''1009''
+            )')
+GO
 
 
 INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Columbia', 'Also covers Nashville', 'D17311')
