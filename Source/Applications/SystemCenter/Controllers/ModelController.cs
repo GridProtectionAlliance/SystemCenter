@@ -314,14 +314,14 @@ namespace SystemCenter.Controllers
             }
         }
 
-        private class ExtDB
+        protected class ExtDB
         {
             public string name;
             public DateTime lastupdate;
         }
 
         [HttpGet, Route("extDataBases")]
-        public IHttpActionResult GetExtendedDataBases()
+        public virtual IHttpActionResult GetExtendedDataBases()
         {
             
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))

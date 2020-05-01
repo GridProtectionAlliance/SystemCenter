@@ -758,6 +758,42 @@ namespace SystemCenter.Controllers.OpenXDA
             transformer.SecondaryVoltageKV = record["SecondaryVoltageKV"].ToObject<double>();
             transformer.Tap = record["Tap"].ToObject<double>();
         }
+
+        //Need to Override the external DB Function to return the list for all Assets
+        public override IHttpActionResult GetExtendedDataBases()
+        {
+
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                try
+                {
+                    string query = @"SELECT MIN(UpdatedOn) AS lastUpdate, AdditionalField.ExternalDB AS name  
+                                    FROM 
+                                    AdditionalField LEFT JOIN AdditionalFieldValue ON AdditionalField.ID = AdditionalFieldValue.AdditionalFieldID
+                                    WHERE 
+                                        (AdditionalField.OpenXDAParentTable = 'LineSegment' OR  AdditionalField.OpenXDAParentTable = 'Line' OR
+                                        AdditionalField.OpenXDAParentTable = 'Bus' OR  AdditionalField.OpenXDAParentTable = 'Transformer' OR
+                                        AdditionalField.OpenXDAParentTable = 'Breaker' OR  AdditionalField.OpenXDAParentTable = 'CapBank')
+                                        AND AdditionalField.ExternalDB IS NOT NULL AND AdditionalField.ExternalDB <> ''
+                                    GROUP BY AdditionalField.ExternalDB";
+
+                    DataTable table = connection.RetrieveData(query);
+
+                    List<ExtDB> result = new List<ExtDB>();
+                    foreach (DataRow row in table.Rows)
+                    {
+                        result.Add(new ExtDB() { name = row.ConvertField<string>("name"), lastupdate = row.ConvertField<DateTime>("lastUpdate") });
+                    }
+
+                    return Ok(result);
+
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
         #endregion
     }
 

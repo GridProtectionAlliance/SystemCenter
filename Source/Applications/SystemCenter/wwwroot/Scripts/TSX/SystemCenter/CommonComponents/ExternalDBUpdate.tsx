@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import {SystemCenter } from '../global';
+import {SystemCenter, OpenXDA } from '../global';
 import AssetAttributes from '../AssetAttribute/Asset';
 import FormInput from './FormInput';
 import FormCheckBox from './FormCheckBox';
@@ -39,6 +39,7 @@ function ExternalDataBaseWindow(props: {
     const [externalDBFields, setFields] = React.useState<Array<SystemCenter.ExternalDBField>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
     const [currentDB, setCurrentDB] = React.useState<string>("");
+    const [currentSubtype, setcurrentSubtype] = React.useState<OpenXDA.AssetTypeName>('Bus');
     
     React.useEffect(() => {
         getData();
@@ -67,7 +68,13 @@ function ExternalDataBaseWindow(props: {
        });
     }
 
-    function updateExternalDB(type: string): void {
+    function updateExternalDB(type: string, subType: string): void {
+
+        if (props.Type == 'Asset') {
+            updateExternalDBAsset(type, subType)
+            return;
+        }
+
         $.ajax({
             type: "GET",
             url: `${homePath}api/ExternalDB/${type}/${props.Type}/Update/${props.ID}`,
@@ -85,14 +92,84 @@ function ExternalDataBaseWindow(props: {
 
     }
 
+    function nextSubType() {
+        if (currentSubtype == 'Bus') {
+            setcurrentSubtype('Line')
+            updateExternalDBAsset(currentDB,'Line')
+        }
+        if (currentSubtype == 'Line') {
+            setcurrentSubtype('Breaker')
+            updateExternalDBAsset(currentDB, 'Breaker')
+        }
+        if (currentSubtype == 'Breaker') {
+            setcurrentSubtype('Transformer')
+            updateExternalDBAsset(currentDB, 'Transformer')
+        }
+        if (currentSubtype == 'Transformer') {
+            setcurrentSubtype('LineSegment')
+            updateExternalDBAsset(currentDB, 'LineSegment')
+        }
+        if (currentSubtype == 'LineSegment') {
+            setcurrentSubtype('CapacitorBank')
+            updateExternalDBAsset(currentDB, 'CapacitorBank')
+        }
+            
+        if (currentSubtype == 'CapacitorBank') {
+            cancelUpdate()
+            return
+        }
+
+
+    }
+
+    function updateExternalDBAsset(type: string, subType: string) {
+            $.ajax({
+                type: "GET",
+                url: `${homePath}api/ExternalDB/${type}/${subType}/Update/${props.ID}`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                cache: false,
+                async: true
+            }).then((data: Array<SystemCenter.ExternalDBField>) => {
+                setFields(data)
+                setChanged(true)
+                setCurrentDB(type)
+                
+            }, () => {
+                setFields([])
+                setChanged(true)
+                setCurrentDB(type)
+            }
+            );
+
+        
+    }
+
+    function submitUpdateAsset() {
+            $.ajax({
+                type: "POST",
+                url: `${homePath}api/ExternalDB/${currentDB}/${currentSubtype}/ConfirmUpdate`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify({ "data": externalDBFields }),
+                cache: false,
+                async: true
+            })
+            nextSubType()
+    }
+    
     function cancelUpdate(): void {
         setFields([])
         setChanged(false)
+        setcurrentSubtype("Bus")
     }
 
     function checkUpdate(data: Array<SystemCenter.ExternalDBField>): void {
         if (data.length < 1) {
-            cancelUpdate();
+            if (props.Type == "Asset")
+                setFields(data);
+            else
+                cancelUpdate();
         }
         else {
             setFields(data);
@@ -100,6 +177,12 @@ function ExternalDataBaseWindow(props: {
     }
 
     function submitUpdate(): void {
+
+        if (props.Type == 'Asset') {
+            submitUpdateAsset()
+            return
+        }
+
         $.ajax({
             type: "POST",
             url: `${homePath}api/ExternalDB/${currentDB}/${props.Type}/ConfirmUpdate`,
@@ -108,8 +191,8 @@ function ExternalDataBaseWindow(props: {
             data: JSON.stringify({ "data": externalDBFields }),
             cache: false,
             async: true
-        }).done(() => {
-        });
+        })
+
         setFields([])
         setChanged(false)
         getExternalDBs()
@@ -118,7 +201,10 @@ function ExternalDataBaseWindow(props: {
     return (
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
-                <h4>External Data Base Connections:</h4>
+                {(changed && props.Type == 'Asset') ?
+                    <h4> External Data Base Updates for {currentSubtype}:</h4> :
+                    <h4> External Data Base Connections:</h4>
+                }
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
@@ -145,8 +231,8 @@ function ExternalDataBaseWindow(props: {
                                 <tr><th>External DB</th><th style={{ width: 250 }}>Last Updated</th><th style={{ width: 300 }}></th></tr>
                             </thead>
                             <tbody>
-                                {externalDB.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} ExternalDB={a.name} updated={a.lastupdate} Update={(dbType) => {
-                                    updateExternalDB(dbType);
+                                    {externalDB.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} ExternalDB={a.name} updated={a.lastupdate} Update={(dbType) => {
+                                        updateExternalDB(dbType, currentSubtype);
                                 }} />)}
                             </tbody>
                         </table>)
@@ -185,11 +271,7 @@ function TableRowField(props: { ParentTableID: number, Field: SystemCenter.Exter
     var value: SystemCenter.ExternalDBField = values.find(value => value.AdditionalFieldID == props.Field.AdditionalFieldID && value.OpenXDAParentTableID == props.Field.OpenXDAParentTableID && value.isXDAField == props.Field.isXDAField);
 
     function removeField() {
-        console.log("remove fld")
-        console.log(values.length)
-        console.log(props.Field)
         values = values.filter(fld => !(fld.AdditionalFieldID == props.Field.AdditionalFieldID && fld.OpenXDAParentTableID == props.Field.OpenXDAParentTableID && fld.isXDAField == props.Field.isXDAField))
-        console.log(values.length)
         props.Setter(values);
     }
     return (

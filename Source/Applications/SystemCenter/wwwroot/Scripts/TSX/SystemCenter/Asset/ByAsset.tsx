@@ -220,26 +220,17 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
-                                    <button className="btn btn-primary" data-toggle='modal' data-target="#assetModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Add Asset</button>
+                                    <div className="form-group">
+                                        <button className="btn btn-primary" data-toggle='modal' data-target="#assetModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Add Asset</button>
+                                    </div>
+                                    <div className="form-group">
+                                        <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
+                                    </div>
+                                    
                                 </form>
                             </fieldset>
                         </li>
-                        <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                                <form>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModalBreaker" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Breaker Ext DB </button>
-                                    </div>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModalCapBank" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Cap Bank Ext DB </button>
-                                    </div>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModalLine" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Line Ext DB </button>
-                                    </div>
-                                </form>
-                            </fieldset>
-                        </li>
+                        
                     </ul>
                 </div>
             </nav>
@@ -314,15 +305,15 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
                 </div>
             </div>
 
-            <div className="modal" id="extDBModalBreaker">
+            <div className="modal" id="extDBModal">
                 <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h4 className="modal-title">Meter External Database Fields</h4>
+                            <h4 className="modal-title">Assets External Database Fields</h4>
                             <button type="button" className="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div className="modal-body">
-                            <ExternalDBUpdate ID={-1} Type='Breaker' />
+                            <ExternalDBUpdate ID={-1} Type='Asset' />
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
@@ -331,42 +322,7 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
                     </div>
                 </div>
             </div>
-
-            <div className="modal" id="extDBModalCapBank">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Meter External Database Fields</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <ExternalDBUpdate ID={-1} Type='CapacitorBank' />
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-            <div className="modal" id="extDBModalLine">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Meter External Database Fields</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <ExternalDBUpdate ID={-1} Type='Line' />
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
+         
 
         </div>
     )
