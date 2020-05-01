@@ -266,6 +266,34 @@ namespace SystemCenter.Controllers
             return field;
         }
 
+        private string AddLTC(string input, AdoDataConnection connection, int id)
+        {
+            List<string> tlc = new List<string>();
+
+            Model.AdditionalField uidFieldA = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'Maximo Phase A LTC Asset Number (UID)'");
+            Model.AdditionalField uidFieldB = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'Maximo Phase B LTC Asset Number (UID)'");
+            Model.AdditionalField uidFieldC = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'Maximo Phase C LTC Asset Number (UID)'");
+
+            if (uidFieldA == null || uidFieldB == null || uidFieldC == null)
+                return input;
+
+
+            Model.AdditionalFieldValue uiValueA = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", id, uidFieldA.ID);
+            Model.AdditionalFieldValue uiValueB = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", id, uidFieldB.ID);
+            Model.AdditionalFieldValue uiValueC = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", id, uidFieldC.ID);
+
+            if (uiValueA != null)
+                tlc.Add(String.Format("UNID = '{0}'", uiValueA.Value));
+            if (uiValueB != null)
+                tlc.Add(String.Format("UNID = '{0}'", uiValueB.Value));
+            if (uiValueC != null)
+                tlc.Add(String.Format("UNID = '{0}'", uiValueC.Value));
+
+            if (tlc.Count > 0)
+                return (input + " OR " + String.Join(" OR ", tlc));
+
+            return input;
+        }
         protected override string getDataQuery(Transformer xfr)
         {
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
@@ -290,28 +318,28 @@ namespace SystemCenter.Controllers
                     throw (new Exception("No Maximo Asset Number specified"));
 
                 if (uiValueA == null && uiValueB == null)
-                    return String.Format(result, uiValueC.Value);
+                    return AddLTC(String.Format(result, uiValueC.Value),connection,xfr.ID);
 
                 if (uiValueB == null && uiValueC == null)
-                    return String.Format(result, uiValueA.Value);
+                    return AddLTC(String.Format(result, uiValueA.Value), connection, xfr.ID);
 
                 if (uiValueA == null && uiValueC == null)
-                    return String.Format(result, uiValueB.Value);
+                    return AddLTC(String.Format(result, uiValueB.Value), connection, xfr.ID);
 
                 result = result + " OR UNID = '{1}'";
 
                 if (uiValueA == null )
-                    return String.Format(result, uiValueB.Value, uiValueC.Value);
+                    return AddLTC(String.Format(result, uiValueB.Value, uiValueC.Value),connection,xfr.ID);
 
                 if (uiValueB == null)
-                    return String.Format(result, uiValueA.Value, uiValueC.Value);
+                    return AddLTC(String.Format(result, uiValueA.Value, uiValueC.Value),connection,xfr.ID);
 
                 if (uiValueC == null)
-                    return String.Format(result, uiValueA.Value, uiValueB.Value);
+                    return AddLTC(String.Format(result, uiValueA.Value, uiValueB.Value),connection,xfr.ID);
 
                 result = result + " OR UNID = '{2}'";
                 
-                return String.Format(result, uiValueA.Value, uiValueB.Value, uiValueC.Value);
+                return AddLTC(String.Format(result, uiValueA.Value, uiValueB.Value, uiValueC.Value),connection,xfr.ID);
             }
         }
     }
