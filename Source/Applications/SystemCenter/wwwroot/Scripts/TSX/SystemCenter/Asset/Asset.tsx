@@ -37,7 +37,8 @@ import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import { getAssetTypes } from '../../../TS/Services/Asset';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
 declare var homePath: string;
-declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' |'extDB' | 'Segments'
+declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'Segments'
+
 function Asset(props: { AssetID: number }) {
     let history = useHistory();
     const [asset, setAsset] = React.useState<OpenXDA.Asset>(null);
@@ -151,7 +152,7 @@ function Asset(props: { AssetID: number }) {
                     <AssetInfoWindow Asset={asset} StateSetter={setAsset} />
                 </div>
                 <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
-                    <AdditionalFieldsWindow ID={asset.ID} Type={asset.AssetType} />
+                    <AdditionalFieldsWindow ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} />
                 </div>
                 <div className={"tab-pane " + (tab == "substations" ? " active" : "fade")} id="substations">
                     <AssetLocationWindow Asset={asset} />
@@ -163,7 +164,7 @@ function Asset(props: { AssetID: number }) {
                     <AssetConnectionWindow Asset={asset} />
                 </div>
                 <div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
-                    <ExternalDBUpdate ID={asset.ID} Type={asset.AssetType} />
+                    <ExternalDBUpdate ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType}  />
                 </div>
                 <div className={"tab-pane " + (tab == "Segments" ? " active" : "fade")} id="Segments">
                     <LineSegmentWindow ID={asset.ID}/>

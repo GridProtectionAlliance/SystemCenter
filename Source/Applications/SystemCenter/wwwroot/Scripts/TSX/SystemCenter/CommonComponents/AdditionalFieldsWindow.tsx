@@ -23,13 +23,16 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import {SystemCenter } from '../global';
+import {SystemCenter, OpenXDA } from '../global';
 import AssetAttributes from '../AssetAttribute/Asset';
 import FormInput from './FormInput';
 import FormCheckBox from './FormCheckBox';
 import FormSelect from './FormSelect';
+import { getAssetTypes } from '../../../TS/Services/Asset';
+
 declare var homePath: string;
-function AdditionalFieldsWindow(props: { ID: number, Type: 'Meter' | 'Location' | 'Customer' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' }): JSX.Element {
+
+function AdditionalFieldsWindow(props: { ID: number, Type: 'Meter' | 'Location' | 'Customer' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' | 'Asset' }): JSX.Element {
     const [additionalFields, setAdditionalFields] = React.useState<Array<SystemCenter.AdditionalField>>([]);
     const [additionalFieldValues, setAdditionalFieldVaules] = React.useState<Array<SystemCenter.AdditionalFieldValue>>([]);
     const [edit, setEdit] = React.useState<boolean>(false);
@@ -39,6 +42,10 @@ function AdditionalFieldsWindow(props: { ID: number, Type: 'Meter' | 'Location' 
         getData();
     }, [props.ID]);
 
+    React.useLayoutEffect(() => {
+        getData()
+    }, [props.Type]);
+
     function getData() {
         getFields();
         getFieldValues()
@@ -47,19 +54,20 @@ function AdditionalFieldsWindow(props: { ID: number, Type: 'Meter' | 'Location' 
     }
 
     function getFields(): void {
-       $.ajax({ 
-            type: "GET",
-           url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${props.Type}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-       }).done((data: Array<SystemCenter.AdditionalField>) => {
-           setAdditionalFields(data);
-       });
+            $.ajax({
+                type: "GET",
+                url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${props.Type}`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                cache: true,
+                async: true
+            }).done((data: Array<SystemCenter.AdditionalField>) => {
+                setAdditionalFields(data);
+            });
     }
 
     function getFieldValues(): void {
+
         $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalFieldValue/${props.ID}`,
