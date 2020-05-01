@@ -29,8 +29,7 @@ import FormInput from './FormInput';
 import FormCheckBox from './FormCheckBox';
 import FormSelect from './FormSelect';
 declare var homePath: string;
-
-function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 'Location' | 'Customer'}): JSX.Element {
+function AdditionalFieldsWindow(props: { ID: number, Type: 'Meter' | 'Location' | 'Customer' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' }): JSX.Element {
     const [additionalFields, setAdditionalFields] = React.useState<Array<SystemCenter.AdditionalField>>([]);
     const [additionalFieldValues, setAdditionalFieldVaules] = React.useState<Array<SystemCenter.AdditionalFieldValue>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
@@ -47,7 +46,7 @@ function AdditionalFieldsWindow(props: { ID: number , Type: 'Asset' | 'Meter' | 
     }
 
     function getFields(): void {
-       $.ajax({
+       $.ajax({ 
             type: "GET",
            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${props.Type}`,
             contentType: "application/json; charset=utf-8",

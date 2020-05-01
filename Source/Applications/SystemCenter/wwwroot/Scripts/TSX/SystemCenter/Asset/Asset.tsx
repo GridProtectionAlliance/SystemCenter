@@ -151,7 +151,7 @@ function Asset(props: { AssetID: number }) {
                     <AssetInfoWindow Asset={asset} StateSetter={setAsset} />
                 </div>
                 <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
-                    <AdditionalFieldsWindow ID={asset.ID} Type='Location' />
+                    <AdditionalFieldsWindow ID={asset.ID} Type={asset.AssetType} />
                 </div>
                 <div className={"tab-pane " + (tab == "substations" ? " active" : "fade")} id="substations">
                     <AssetLocationWindow Asset={asset} />
