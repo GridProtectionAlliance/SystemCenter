@@ -50,6 +50,10 @@ namespace SystemCenter.Model
         [HttpGet, Route("ParentTable/{openXDAParentTable}")]
         public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable)
         {
+            //Fix added Fro Capacitor Bank due to naming Missmatch
+            if (openXDAParentTable == "CapacitorBank")
+                openXDAParentTable = "CapBank";
+
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
                 IEnumerable<AdditionalField> records = new TableOperations<AdditionalField>(connection).QueryRecordsWhere("OpenXDAParentTable = {0}", openXDAParentTable);
