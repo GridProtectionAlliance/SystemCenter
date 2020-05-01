@@ -32,6 +32,7 @@ declare var homePath: string;
 function AdditionalFieldsWindow(props: { ID: number, Type: 'Meter' | 'Location' | 'Customer' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' }): JSX.Element {
     const [additionalFields, setAdditionalFields] = React.useState<Array<SystemCenter.AdditionalField>>([]);
     const [additionalFieldValues, setAdditionalFieldVaules] = React.useState<Array<SystemCenter.AdditionalFieldValue>>([]);
+    const [edit, setEdit] = React.useState<boolean>(false);
     const [changed, setChanged] = React.useState<boolean>(false);
     const [newField, setNewField] = React.useState<SystemCenter.AdditionalField>({ID: 0, FieldName: '', Type: 'string', OpenXDAParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
     React.useEffect(() => {
@@ -124,7 +125,17 @@ function AdditionalFieldsWindow(props: { ID: number, Type: 'Meter' | 'Location' 
     return (
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
-                <h4>Additional Fields:</h4>
+                <div className="row">
+                    <div className="col">
+                        <h4>Additional Fields:</h4>
+                    </div>
+                    <div className="col">
+                        {(edit) ?
+                            <button className="btn btn-default pull-right" onClick={() => setEdit(false)}>View</button> :
+                            <button className="btn btn-primary pull-right" onClick={() => setEdit(true)}>Edit</button>}
+                    </div>
+                </div>
+                
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
@@ -132,25 +143,30 @@ function AdditionalFieldsWindow(props: { ID: number, Type: 'Meter' | 'Location' 
                         <thead>
                             <tr><th>Field</th><th style={{ width: 150 }}>Ext DB</th><th style={{ width: 100}}>Type</th><th style={{ width: 300 }}>Value</th><th style={{ width: 30 }}></th><th style={{width: 30}}></th></tr>
                         </thead>
-                        <tbody>
-                            {additionalFields.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} Field={a} Values={additionalFieldValues} Setter={(values) => {
-                                setAdditionalFieldVaules(values);
-                                setChanged(true);
-                            }} DeleteField={deleteField} EditField={editField}/>)}
-                        </tbody>
+                        {(edit) ?
+                            <tbody>
+                                {additionalFields.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} Field={a} Values={additionalFieldValues} Setter={(values) => {
+                                    setAdditionalFieldVaules(values);
+                                    setChanged(true);
+                                }} DeleteField={deleteField} EditField={editField} />)}
+                            </tbody> :
+                            <tbody>
+                                {additionalFields.map((a, i) => <ViewTableRowInput key={i} ParentTableID={props.ID} Field={a} Values={additionalFieldValues} />)}
+                            </tbody>
+                        }
                     </table>
                 </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" data-toggle='modal' data-target="#newField">Add Field</button>
+                    <button className="btn btn-primary" data-toggle='modal' data-target="#newField" disabled={!edit}>Add Field</button>
                 </div>
 
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={addOrUpdateValues} disabled={!changed}>Save Changes</button>
+                    <button className="btn btn-primary" onClick={addOrUpdateValues} disabled={!changed || !edit}>Save Changes</button>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={getFieldValues} disabled={!changed}>Reset</button>
+                    <button className="btn btn-default" onClick={getFieldValues} disabled={!changed || !edit}>Reset</button>
                 </div>
             </div>
 
@@ -223,6 +239,29 @@ function TableRowInput(props: { ParentTableID: number, Field: SystemCenter.Addit
             </td>
             <td><button className="btn btn-sm" data-toggle='modal' data-target="#newField"  onClick={(e) => props.EditField(props.Field)}><span><i className="fa fa-pencil"></i></span></button></td>
             <td><button className="btn btn-sm" onClick={(e) => props.DeleteField(props.Field)}><span><i className="fa fa-times"></i></span></button></td>
+        </tr>
+    );
+}
+
+function ViewTableRowInput(props: { ParentTableID: number, Field: SystemCenter.AdditionalField, Values: Array<SystemCenter.AdditionalFieldValue> }) {
+    
+
+    var values: Array<SystemCenter.AdditionalFieldValue> = _.clone(props.Values);
+    var value: SystemCenter.AdditionalFieldValue = values.find(value => value.AdditionalFieldID == props.Field.ID);
+
+    if (value == null) {
+        return (null)
+    }
+    return (
+        <tr>
+            <td>{props.Field.FieldName}</td>
+            <td>{props.Field.ExternalDB}</td>
+            <td>{props.Field.Type}</td>
+            <td>
+                <input className="form-control" value={value.Value.toString()} disabled={true} />
+            </td>
+            <td></td>
+            <td></td>
         </tr>
     );
 }
