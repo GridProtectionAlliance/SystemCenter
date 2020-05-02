@@ -56,7 +56,7 @@ namespace SystemCenter.Controllers
             return field;
         }
 
-        protected override string getDataQuery(Meter meter)
+        protected override string getDataQuery(Meter meter, string tablename)
         {
             return String.Format("name = '{0}'", meter.Alias);
         }

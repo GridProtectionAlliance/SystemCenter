@@ -56,7 +56,7 @@ namespace SystemCenter.Controllers
             return field;
         }
 
-        protected override string getDataQuery(LineSegment segment)
+        protected override string getDataQuery(LineSegment segment, string tablename)
         {
             return String.Format("Id = {0}", segment.ID);
         }

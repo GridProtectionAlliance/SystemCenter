@@ -124,8 +124,9 @@ namespace SystemCenter.Controllers
                                         (xDAgroup == null ? new List<Model.ExternalOpenXDAField>() : xDAgroup.ToList())),
                                     asset)).ToList();
                             }
-                            catch
+                            catch (Exception ex)
                             {
+                                return InternalServerError(ex);
                             }
                         }
                     }
@@ -221,7 +222,7 @@ namespace SystemCenter.Controllers
 
         #region [ Helper Methods ]
 
-        protected virtual string getDataQuery(T xdaObj)
+        protected virtual string getDataQuery(T xdaObj, string tableName)
         {
             string result = "LOCATION_KEY = {0}";
 
@@ -250,7 +251,7 @@ namespace SystemCenter.Controllers
 
             try
             {
-                result = GetFields(GetTableQuery(tableName), collumns, xdaObj);
+                result = GetFields(tableName, collumns, xdaObj);
             }
            
             catch
@@ -260,7 +261,7 @@ namespace SystemCenter.Controllers
                     try
                     {
                         result = result.Concat(GetFields(
-                            GetTableQuery(tableName),
+                            tableName,
                             new Tuple<IEnumerable<Model.AdditionalField>, IEnumerable<Model.ExternalOpenXDAField>>(new List<Model.AdditionalField>() { fld }, new List<Model.ExternalOpenXDAField>()),
                             xdaObj)
                             ).ToList();
@@ -284,7 +285,7 @@ namespace SystemCenter.Controllers
                     try
                     {
                         result = result.Concat(GetFields(
-                            GetTableQuery(tableName),
+                            tableName,
                             new Tuple<IEnumerable<Model.AdditionalField>, IEnumerable<Model.ExternalOpenXDAField>>(new List<Model.AdditionalField>(), new List<Model.ExternalOpenXDAField>() { fld }),
                             xdaObj)
                             ).ToList();
@@ -318,7 +319,7 @@ namespace SystemCenter.Controllers
             IEnumerable<string> querycol = collumns.Item1.Select(item => item.ExternalDBTableKey).Union(collumns.Item2.Select(item => item.ExternalDBTableKey));
 
             string query = "SELECT " + String.Join(", ", querycol);
-            query = query + " FROM " + tableName + " WHERE " + getDataQuery(xdaObj);
+            query = query + " FROM " + GetTableQuery(tableName) + " WHERE " + getDataQuery(xdaObj, tableName);
 
             Dictionary<string, string> extData = new Dictionary<string, string>();
 
