@@ -343,19 +343,19 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
 
                             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                                 <div className={"tab-pane " + (extDBtab == "Bus" ? " active" : "fade")} id="extDBBus">
-                                    <ExternalDBUpdate ID={-1} Type='Bus' />
+                                    <ExternalDBUpdate ID={-1} Type='Bus' Tab={extDBtab} />
                                 </div>
                                 <div className={"tab-pane " + (extDBtab == "Line" ? " active" : "fade")} id="extDBLine">
-                                    <ExternalDBUpdate ID={-1} Type='Line' />
+                                    <ExternalDBUpdate ID={-1} Type='Line' Tab={extDBtab} />
                                 </div>
                                 <div className={"tab-pane " + (extDBtab == "Breaker" ? " active" : "fade")} id="extDBBreaker">
-                                    <ExternalDBUpdate ID={-1} Type='Breaker' />
+                                    <ExternalDBUpdate ID={-1} Type='Breaker' Tab={extDBtab} />
                                 </div>
                                 <div className={"tab-pane " + (extDBtab == "Transformer" ? " active" : "fade")} id="extDBXFR">
-                                    <ExternalDBUpdate ID={-1} Type='Transformer' />
+                                    <ExternalDBUpdate ID={-1} Type='Transformer' Tab={extDBtab} />
                                 </div>
                                 <div className={"tab-pane " + (extDBtab == "CapacitorBank" ? " active" : "fade")} id="extDBCapacitorBank">
-                                    <ExternalDBUpdate ID={-1} Type='CapacitorBank' />
+                                    <ExternalDBUpdate ID={-1} Type={'CapacitorBank'} Tab={extDBtab} />
                                 </div>
                                 
                             </div>                

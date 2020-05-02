@@ -156,7 +156,7 @@ export default class Meter extends React.Component<{ MeterID: number}, { Meter: 
                         <MeterConfigurationHistoryWindow Meter={this.state.Meter} />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "extDB" ? " active" : "fade")} id="extDB">
-                        <ExternalDBUpdate ID={this.props.MeterID} Type='Meter' />
+                        <ExternalDBUpdate ID={this.props.MeterID} Type='Meter' Tab={this.state.Tab} />
                     </div>
                 </div>                
             </div>

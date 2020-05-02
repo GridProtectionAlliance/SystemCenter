@@ -218,7 +218,7 @@ const ByMeter: SystemCenter.ByComponent = (props) => {
                             <button type="button" className="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div className="modal-body">
-                            <ExternalDBUpdate ID={-1} Type='Meter' />
+                            <ExternalDBUpdate ID={-1} Type='Meter' Tab = ""/>
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>

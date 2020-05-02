@@ -140,7 +140,7 @@ export default class Location extends React.Component<{ LocationID: number }, { 
                         <LocationAssetWindow Location={this.state.Location} />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "extDB" ? " active" : "fade")} id="extDB">
-                        <ExternalDBUpdate ID={this.props.LocationID} Type='Location'/>
+                        <ExternalDBUpdate ID={this.props.LocationID} Type='Location' Tab={this.state.Tab} />
                     </div>
 
                 </div>                

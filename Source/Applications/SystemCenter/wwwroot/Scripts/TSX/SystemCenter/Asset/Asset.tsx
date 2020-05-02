@@ -164,7 +164,7 @@ function Asset(props: { AssetID: number }) {
                     <AssetConnectionWindow Asset={asset} />
                 </div>
                 <div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
-                    <ExternalDBUpdate ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType}  />
+                    <ExternalDBUpdate ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab} />
                 </div>
                 <div className={"tab-pane " + (tab == "Segments" ? " active" : "fade")} id="Segments">
                     <LineSegmentWindow ID={asset.ID}/>
