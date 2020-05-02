@@ -32,7 +32,11 @@ import { getAssetTypes } from '../../../TS/Services/Asset';
 
 declare var homePath: string;
 
-function AdditionalFieldsWindow(props: { ID: number, Type: 'Meter' | 'Location' | 'Customer' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' | 'Asset' }): JSX.Element {
+function AdditionalFieldsWindow(props: {
+    ID: number,
+    Type: 'Meter' | 'Location' | 'Customer' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' | 'Asset',
+    Tab: string
+}): JSX.Element {
     const [additionalFields, setAdditionalFields] = React.useState<Array<SystemCenter.AdditionalField>>([]);
     const [additionalFieldValues, setAdditionalFieldVaules] = React.useState<Array<SystemCenter.AdditionalFieldValue>>([]);
     const [edit, setEdit] = React.useState<boolean>(false);
@@ -40,11 +44,7 @@ function AdditionalFieldsWindow(props: { ID: number, Type: 'Meter' | 'Location' 
     const [newField, setNewField] = React.useState<SystemCenter.AdditionalField>({ID: 0, FieldName: '', Type: 'string', OpenXDAParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
     React.useEffect(() => {
         getData();
-    }, [props.ID]);
-
-    React.useLayoutEffect(() => {
-        getData()
-    }, [props.Type]);
+    }, [props.ID, props.Type, props.Tab]);
 
     function getData() {
         getFields();

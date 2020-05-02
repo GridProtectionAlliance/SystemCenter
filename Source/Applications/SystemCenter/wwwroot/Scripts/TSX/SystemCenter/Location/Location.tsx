@@ -131,7 +131,7 @@ export default class Location extends React.Component<{ LocationID: number }, { 
                         <LocationInfoWindow Location={this.state.Location} stateSetter={(Location: OpenXDA.Location) => this.setState({ Location: Location })} />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
-                        <AdditionalFieldsWindow ID={this.props.LocationID} Type='Location' />
+                        <AdditionalFieldsWindow ID={this.props.LocationID} Type='Location' Tab={this.state.Tab} />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "meters" ? " active" : "fade")} id="meters">
                         <LocationMeterWindow Location={this.state.Location} />

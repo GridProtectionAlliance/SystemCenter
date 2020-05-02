@@ -119,7 +119,7 @@ export default class Customer extends React.Component<{ CustomerID: number }, { 
                         <CustomerInfoWindow Customer={this.state.Customer} stateSetter={(record) => this.setState({ Customer: record })}/>
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
-                        <AdditionalFieldsWindow ID={this.state.Customer.ID} Type='Customer'/>
+                        <AdditionalFieldsWindow ID={this.state.Customer.ID} Type='Customer' Tab={this.state.Tab}/>
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "meters" ? " active" : "fade")} id="meters">
                         <CustomerMeterWindow Customer={this.state.Customer} />

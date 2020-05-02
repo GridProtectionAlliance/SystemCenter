@@ -141,7 +141,7 @@ export default class Meter extends React.Component<{ MeterID: number}, { Meter: 
                         <MeterInfoWindow Meter={this.state.Meter} StateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
-                        <AdditionalFieldsWindow ID={this.props.MeterID} Type='Meter' />
+                        <AdditionalFieldsWindow ID={this.props.MeterID} Type='Meter' Tab={this.state.Tab}/>
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "substation" ? " active" : "fade")} id="substation">
                         <MeterLocationWindow Meter={this.state.Meter} StateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
