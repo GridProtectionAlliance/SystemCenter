@@ -137,7 +137,7 @@ function Asset(props: { AssetID: number }) {
                         <a className={"nav-link" + (tab == "Segments" ? " active" : "")} onClick={() => setTab('Segments')} data-toggle="tab" href="#Segments">Line Segments</a>
                     </li> : null
                 }
-                {(assetType == 'Breaker' || assetType == 'CapacitorBank' || assetType == 'Line' || assetType == 'Transformer') ?
+                {(assetType == 'Breaker' || assetType == 'CapacitorBank' || assetType == 'Line' || assetType == 'Transformer' || assetType == 'Bus') ?
                     <li className="nav-item">
                         <a className={"nav-link" + (tab == "extDB" ? " active" : "")} onClick={() => setTab('extDB')} data-toggle="tab" href="#extDB">External DB</a>
                     </li> : null
