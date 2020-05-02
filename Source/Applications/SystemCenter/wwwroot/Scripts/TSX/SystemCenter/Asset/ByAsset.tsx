@@ -37,6 +37,7 @@ import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 
 declare var homePath: string;
+declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Breaker'
 
 type FieldName = 'Asset.AssetKey' | 'Asset.AssetName' | 'AssetType.Name' | 'Asset.VoltageKV' | 'Meter.AssetKey' | 'Location.LocationKey' | 'Note.Note';
 interface Search {
@@ -58,10 +59,19 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
     const [newAsset, setNewAsset] = React.useState<OpenXDA.Asset>(AssetAttributes.getNewAsset('Line'));
     const [allAssets, setAllAssets] = React.useState<Array<OpenXDA.Asset>>([]);
     const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.AssetType>>([]);
+    const [extDBtab, setextDBTab] = React.useState<string>(getextDBTab());
 
     React.useEffect(() => {
         return getData();
     }, []);
+
+    function getextDBTab(): AssetTab {
+        if (sessionStorage.hasOwnProperty('AssetTab.AssetTab'))
+            return JSON.parse(sessionStorage.getItem('Asset.AssetTab'));
+        else
+            return 'Bus';
+    }
+
 
     function getData() {
 
@@ -313,7 +323,42 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
                             <button type="button" className="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div className="modal-body">
-                            <ExternalDBUpdate ID={-1} Type='Asset' />
+                            <ul className="nav nav-tabs">
+                                <li className="nav-item">
+                                    <a className={"nav-link" + (extDBtab == "Bus" ? " active" : "")} onClick={() => setextDBTab('Bus')} data-toggle="tab" href="#extDBBus">Buses</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className={"nav-link" + (extDBtab == "Line" ? " active" : "")} onClick={() => setextDBTab('Line')} data-toggle="tab" href="#extDBLine">Buses</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className={"nav-link" + (extDBtab == "Breaker" ? " active" : "")} onClick={() => setextDBTab('Breaker')} data-toggle="tab" href="#extDBBreaker">Breakers</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className={"nav-link" + (extDBtab == "Transformer" ? " active" : "")} onClick={() => setextDBTab('Transformer')} data-toggle="tab" href="#extDBXFR">Transformers</a>
+                                </li>
+                                <li className="nav-item">
+                                    <a className={"nav-link" + (extDBtab == "CapacitorBank" ? " active" : "")} onClick={() => setextDBTab('CapacitorBank')} data-toggle="tab" href="#extDBCapacitorBank">CapBanks</a>
+                                </li>
+                            </ul>
+
+                            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
+                                <div className={"tab-pane " + (extDBtab == "Bus" ? " active" : "fade")} id="extDBBus">
+                                    <ExternalDBUpdate ID={-1} Type='Bus' />
+                                </div>
+                                <div className={"tab-pane " + (extDBtab == "Line" ? " active" : "fade")} id="extDBLine">
+                                    <ExternalDBUpdate ID={-1} Type='Line' />
+                                </div>
+                                <div className={"tab-pane " + (extDBtab == "Breaker" ? " active" : "fade")} id="extDBBreaker">
+                                    <ExternalDBUpdate ID={-1} Type='Breaker' />
+                                </div>
+                                <div className={"tab-pane " + (extDBtab == "Transformer" ? " active" : "fade")} id="extDBXFR">
+                                    <ExternalDBUpdate ID={-1} Type='Transformer' />
+                                </div>
+                                <div className={"tab-pane " + (extDBtab == "CapacitorBank" ? " active" : "fade")} id="extDBCapacitorBank">
+                                    <ExternalDBUpdate ID={-1} Type='CapacitorBank' />
+                                </div>
+                                
+                            </div>                
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>

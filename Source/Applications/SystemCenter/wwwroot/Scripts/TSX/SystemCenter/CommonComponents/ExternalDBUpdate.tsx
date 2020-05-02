@@ -39,7 +39,7 @@ function ExternalDataBaseWindow(props: {
     const [externalDBFields, setFields] = React.useState<Array<SystemCenter.ExternalDBField>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
     const [currentDB, setCurrentDB] = React.useState<string>("");
-    const [currentSubtype, setcurrentSubtype] = React.useState<OpenXDA.AssetTypeName>('Bus');
+   
     
     React.useEffect(() => {
         getData();
@@ -68,12 +68,7 @@ function ExternalDataBaseWindow(props: {
        });
     }
 
-    function updateExternalDB(type: string, subType: string): void {
-
-        if (props.Type == 'Asset') {
-            updateExternalDBAsset(type, subType)
-            return;
-        }
+    function updateExternalDB(type: string): void {
 
         $.ajax({
             type: "GET",
@@ -92,83 +87,17 @@ function ExternalDataBaseWindow(props: {
 
     }
 
-    function nextSubType() {
-        if (currentSubtype == 'Bus') {
-            setcurrentSubtype('Line')
-            updateExternalDBAsset(currentDB,'Line')
-        }
-        if (currentSubtype == 'Line') {
-            setcurrentSubtype('Breaker')
-            updateExternalDBAsset(currentDB, 'Breaker')
-        }
-        if (currentSubtype == 'Breaker') {
-            setcurrentSubtype('Transformer')
-            updateExternalDBAsset(currentDB, 'Transformer')
-        }
-        if (currentSubtype == 'Transformer') {
-            setcurrentSubtype('LineSegment')
-            updateExternalDBAsset(currentDB, 'LineSegment')
-        }
-        if (currentSubtype == 'LineSegment') {
-            setcurrentSubtype('CapacitorBank')
-            updateExternalDBAsset(currentDB, 'CapacitorBank')
-        }
-            
-        if (currentSubtype == 'CapacitorBank') {
-            cancelUpdate()
-            return
-        }
+    
 
-
-    }
-
-    function updateExternalDBAsset(type: string, subType: string) {
-            $.ajax({
-                type: "GET",
-                url: `${homePath}api/ExternalDB/${type}/${subType}/Update/${props.ID}`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: false,
-                async: true
-            }).then((data: Array<SystemCenter.ExternalDBField>) => {
-                setFields(data)
-                setChanged(true)
-                setCurrentDB(type)
-                
-            }, () => {
-                setFields([])
-                setChanged(true)
-                setCurrentDB(type)
-            }
-            );
-
-        
-    }
-
-    function submitUpdateAsset() {
-            $.ajax({
-                type: "POST",
-                url: `${homePath}api/ExternalDB/${currentDB}/${currentSubtype}/ConfirmUpdate`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                data: JSON.stringify({ "data": externalDBFields }),
-                cache: false,
-                async: true
-            })
-            nextSubType()
-    }
+   
     
     function cancelUpdate(): void {
         setFields([])
         setChanged(false)
-        setcurrentSubtype("Bus")
     }
 
     function checkUpdate(data: Array<SystemCenter.ExternalDBField>): void {
         if (data.length < 1) {
-            if (props.Type == "Asset")
-                setFields(data);
-            else
                 cancelUpdate();
         }
         else {
@@ -177,11 +106,6 @@ function ExternalDataBaseWindow(props: {
     }
 
     function submitUpdate(): void {
-
-        if (props.Type == 'Asset') {
-            submitUpdateAsset()
-            return
-        }
 
         $.ajax({
             type: "POST",
@@ -201,10 +125,7 @@ function ExternalDataBaseWindow(props: {
     return (
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
-                {(changed && props.Type == 'Asset') ?
-                    <h4> External Data Base Updates for {currentSubtype}:</h4> :
-                    <h4> External Data Base Connections:</h4>
-                }
+                <h4> External Data Base Connections:</h4>
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
@@ -232,7 +153,7 @@ function ExternalDataBaseWindow(props: {
                             </thead>
                             <tbody>
                                     {externalDB.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} ExternalDB={a.name} updated={a.lastupdate} Update={(dbType) => {
-                                        updateExternalDB(dbType, currentSubtype);
+                                        updateExternalDB(dbType);
                                 }} />)}
                             </tbody>
                         </table>)
