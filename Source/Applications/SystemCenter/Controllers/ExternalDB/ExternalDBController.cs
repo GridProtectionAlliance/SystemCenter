@@ -340,12 +340,14 @@ namespace SystemCenter.Controllers
                         {
                             if (reader.Read())
                             {
-                                for (int i = 0; i < reader.FieldCount; i++)
+                                for (int i = 0; i < (reader.FieldCount); i++)
                                 {
                                     if (reader.GetValue(i) == null)
-                                        extData.Add(reader.GetName(i), "");
+                                    {
+                                        extData.Add(reader.GetName(i).ToLower(), "");
+                                    }
                                     else
-                                        extData.Add(reader.GetName(i), reader.GetString(i));
+                                        extData.Add(reader.GetName(i).ToLower(), reader.GetValue(i).ToString());
                                 }
 
                             }
@@ -369,7 +371,6 @@ namespace SystemCenter.Controllers
                     }
                 }
             }
-            
 
             //Sort Through Data to get any Data that has changed or does not exist only
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
@@ -379,7 +380,7 @@ namespace SystemCenter.Controllers
                 result = collumns.Item1.Select(item =>
                 {
                     string value = item.ExternalDBTableKey;
-                    extData.TryGetValue(item.ExternalDBTableKey, out value);
+                    extData.TryGetValue(item.ExternalDBTableKey.ToLower(), out value);
 
                     Model.ExternalDBField res = new Model.ExternalDBField()
                     {
@@ -408,7 +409,7 @@ namespace SystemCenter.Controllers
                 result = result.Concat(collumns.Item2.Select(item =>
                 {
                     string value = item.ExternalDBTableKey;
-                    extData.TryGetValue(item.ExternalDBTableKey, out value);
+                    extData.TryGetValue(item.ExternalDBTableKey.ToLower(), out value);
 
                     Model.ExternalDBField res = new Model.ExternalDBField()
                     {
@@ -428,7 +429,7 @@ namespace SystemCenter.Controllers
 
 
             }
-                
+
             return result.Where(item => item.PreviousValue != item.Value).ToList();
             
         }

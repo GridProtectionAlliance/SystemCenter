@@ -693,7 +693,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
 	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
             WHERE
-                B.PhasePosition = ''A'' AND A.CLASSSTRUCTURE_ID  = ''1069''
+                A.CLASSSTRUCTURE_ID  = ''1069''
             )')
 GO
 
@@ -720,7 +720,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
 	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
             WHERE
-                B.PhasePosition = ''B'' AND A.CLASSSTRUCTURE_ID  = ''1069''
+                A.CLASSSTRUCTURE_ID  = ''1069''
             )')
 GO
 
@@ -747,7 +747,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
 	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
             WHERE
-                B.PhasePosition = ''C'' AND  A.CLASSSTRUCTURE_ID  = ''1069''
+                A.CLASSSTRUCTURE_ID  = ''1069''
             )')
 GO
 
@@ -770,7 +770,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
 	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
             WHERE
-                B.PhasePosition = ''A'' AND A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
+               A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
             )')
 GO
 
@@ -793,7 +793,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
 	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
             WHERE
-                B.PhasePosition = ''B'' AND A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
+                A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
             )')
 GO
 
@@ -816,7 +816,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
 	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
             WHERE
-                B.PhasePosition = ''C'' AND A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
+                A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
             )')
 GO
 
@@ -866,8 +866,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
 	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
 	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
-			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'') AND
-			B.PhasePosition = ''A''
+			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'') 
             )')
 GO
 
@@ -893,8 +892,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
 	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
 	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
-			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'') AND
-			B.PhasePosition = ''B''
+			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'')
             )')
 GO
 
@@ -920,8 +918,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
 	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
 	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
-			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'') AND
-			B.PhasePosition = ''C''
+			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'')
             )')
 GO
 
