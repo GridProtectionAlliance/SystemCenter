@@ -21,9 +21,9 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES
 ('Transformer', 'Maximo Phase A Asset Number (UID)'),
 ('Transformer', 'Maximo Phase B Asset Number (UID)'),
 ('Transformer', 'Maximo Phase C Asset Number (UID)'),
-('Transformer', 'Maximo Phase A LTC Asset Number (UID)'),
-('Transformer', 'Maximo Phase B LTC Asset Number (UID)'),
-('Transformer', 'Maximo Phase C LTC Asset Number (UID)')
+('Transformer', 'Phase A LTC Asset Number (UID)'),
+('Transformer', 'Phase B LTC Asset Number (UID)'),
+('Transformer', 'Phase C LTC Asset Number (UID)')
 GO
 
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES
@@ -36,6 +36,9 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES
 ('Breaker', 'Phase A Inst. XFR Asset Number (UID)'),
 ('Breaker', 'Phase B Inst. XFR Asset Number (UID)'),
 ('Breaker', 'Phase C Inst. XFR Asset Number (UID)'),
+('CapBank', 'Phase A Inst. XFR Asset Number (UID)'),
+('CapBank', 'Phase B Inst. XFR Asset Number (UID)'),
+('CapBank', 'Phase C Inst. XFR Asset Number (UID)'),
 ('Bus', 'Phase A Inst. XFR Asset Number (UID)'),
 ('Bus', 'Phase B Inst. XFR Asset Number (UID)'),
 ('Bus', 'Phase C Inst. XFR Asset Number (UID)')
@@ -354,6 +357,48 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 ('Bus', 'INST. XFR C Phase','Maximo','INSTXFR_C','Phase'),
 ('Bus', 'INST. XFR C Serial No.','Maximo','INSTXFR_C','Serial_No')
 GO
+
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+('CapBank', 'INST. XFR A Function','Maximo','INSTXFR_A','Function'),
+('CapBank', 'INST. XFR A Location Name','Maximo','INSTXFR_A','Location_Name'),
+('CapBank', 'INST. XFR A  Model No','Maximo','INSTXFR_A','TVA_MODEL_NO'),
+('CapBank', 'INST. XFR A Unit','Maximo','INSTXFR_A','Unit'),
+('CapBank', 'INST. XFR A Asset Desc','Maximo','INSTXFR_A','Asset_Desc'),
+('CapBank', 'INST. XFR A Station/Line','Maximo','INSTXFR_A','STATIONLINE'),
+('CapBank', 'INST. XFR A Manufacturer','Maximo','INSTXFR_A','MANUFACTURER'),
+('CapBank', 'INST. XFR A Class','Maximo','INSTXFR_A','LocationSubClass'),
+('CapBank', 'INST. XFR A Desc','Maximo','INSTXFR_A','Description'),
+('CapBank', 'INST. XFR A KV','Maximo','INSTXFR_A','OperatingKV'),
+('CapBank', 'INST. XFR A Phase','Maximo','INSTXFR_A','Phase'),
+('CapBank', 'INST. XFR A Serial No.','Maximo','INSTXFR_A','Serial_No'),
+
+('CapBank', 'INST. XFR B Function','Maximo','INSTXFR_B','Function'),
+('CapBank', 'INST. XFR B Location Name','Maximo','INSTXFR_B','Location_Name'),
+('CapBank', 'INST. XFR B  Model No','Maximo','INSTXFR_B','TVA_MODEL_NO'),
+('CapBank', 'INST. XFR B Unit','Maximo','INSTXFR_B','Unit'),
+('CapBank', 'INST. XFR B Asset Desc','Maximo','INSTXFR_B','Asset_Desc'),
+('CapBank', 'INST. XFR B Station/Line','Maximo','INSTXFR_B','STATIONLINE'),
+('CapBank', 'INST. XFR B Manufacturer','Maximo','INSTXFR_B','MANUFACTURER'),
+('CapBank', 'INST. XFR B Class','Maximo','INSTXFR_B','LocationSubClass'),
+('CapBank', 'INST. XFR B Desc','Maximo','INSTXFR_B','Description'),
+('CapBank', 'INST. XFR B KV','Maximo','INSTXFR_B','OperatingKV'),
+('CapBank', 'INST. XFR B Phase','Maximo','INSTXFR_B','Phase'),
+('CapBank', 'INST. XFR B Serial No.','Maximo','INSTXFR_B','Serial_No'),
+
+('CapBank', 'INST. XFR C Function','Maximo','INSTXFR_C','Function'),
+('CapBank', 'INST. XFR C Location Name','Maximo','INSTXFR_C','Location_Name'),
+('CapBank', 'INST. XFR C  Model No','Maximo','INSTXFR_C','TVA_MODEL_NO'),
+('CapBank', 'INST. XFR C Unit','Maximo','INSTXFR_C','Unit'),
+('CapBank', 'INST. XFR C Asset Desc','Maximo','INSTXFR_C','Asset_Desc'),
+('CapBank', 'INST. XFR C Station/Line','Maximo','INSTXFR_C','STATIONLINE'),
+('CapBank', 'INST. XFR C Manufacturer','Maximo','INSTXFR_C','MANUFACTURER'),
+('CapBank', 'INST. XFR C Class','Maximo','INSTXFR_C','LocationSubClass'),
+('CapBank', 'INST. XFR C Desc','Maximo','INSTXFR_C','Description'),
+('CapBank', 'INST. XFR C KV','Maximo','INSTXFR_C','OperatingKV'),
+('CapBank', 'INST. XFR C Phase','Maximo','INSTXFR_C','Phase'),
+('CapBank', 'INST. XFR C Serial No.','Maximo','INSTXFR_C','Serial_No')
+GO
+
 
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Transformer', 'INST. XFR A Function','Maximo','INSTXFR_A','Function'),
@@ -764,7 +809,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	            B.StationLine AS StationLine,
 	            B.PhasePosition AS Phase,
 	            C.Asset_Desc AS Asset_Desc,
-	            C.Serial_No AS Serial_No,
+	            C.Serial_No AS Serial_No
             FROM 
 	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
 	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
@@ -886,7 +931,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	            C.Asset_Desc AS Asset_Desc,
 	            C.TVA_Model_No AS TVA_Model_No,
 				C.Serial_No AS Serial_No,
-	            D.Company_Name AS Manufacturer,
+	            D.Company_Name AS Manufacturer
             FROM 
 	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
 	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
@@ -912,7 +957,7 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	            C.Asset_Desc AS Asset_Desc,
 	            C.TVA_Model_No AS TVA_Model_No,
 				C.Serial_No AS Serial_No,
-	            D.Company_Name AS Manufacturer,
+	            D.Company_Name AS Manufacturer
             FROM 
 	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
 	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
