@@ -175,7 +175,7 @@ namespace SystemCenter.Controllers
                             T xdaObj = (new TableOperations<T>(xdaConnection)).QueryRecordWhere("ID = {0}", fld.OpenXDAParentTableID);
                             
                             // Convert to int, string or other 
-                            MethodInfo m = xdaObj.GetType().GetProperty(fld.FieldName).GetType().GetMethod("Parse", new Type[] { typeof(string) });
+                            MethodInfo m = xdaObj.GetType().GetProperty(fld.FieldName).GetValue(xdaObj).GetType().GetMethod("Parse", new Type[] { typeof(string) });
                             if (m != null)
                             {
                                 xdaObj.GetType().GetProperty(fld.FieldName).SetValue(xdaObj, m.Invoke(null, new object[] { fld.Value }));
