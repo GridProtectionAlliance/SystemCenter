@@ -366,7 +366,7 @@ namespace SystemCenter.Controllers
 
                     foreach (DataRow row in dataTable.AsEnumerable())
                     {
-                        extData = row.Table.Columns.Cast<DataColumn>().ToDictionary(c => c.ColumnName, c => row[c].ToString());
+                        extData = row.Table.Columns.Cast<DataColumn>().ToDictionary(c => c.ColumnName.ToLower(), c => row[c].ToString());
 
                     }
                 }

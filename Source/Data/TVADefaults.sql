@@ -80,6 +80,10 @@ INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, Ext
 ('Transformer','SecondaryVoltageKV','Fawg','Transformer','Vlow')
 GO
 
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+('Transformer', 'XFR Type','Fawg','Transformer','Type')
+GO
+
 /* Fields From Maximo for Meter */
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Meter', 'Function','Maximo','Meter','Function'),
@@ -613,7 +617,8 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 				((XFR.ZeroSeqResistanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.ZeroSeqResistanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS ZeroSeqResistance,
 				((XFR.ZeroSeqReactanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.ZeroSeqReactanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS ZeroSeqReactance,
 				Bh.VoltageValue AS Vhigh,
-				Bl.VoltageValue AS Vlow
+				Bl.VoltageValue AS Vlow,
+				TransformerGroupTypeName AS Type
 			FROM
 				Transformers XFR JOIN
 				Buses Bh ON XFR.HighSideBus = Bh.Buses_Id JOIN
