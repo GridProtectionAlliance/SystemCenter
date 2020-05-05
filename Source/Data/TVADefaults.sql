@@ -18,6 +18,8 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('CapBank', '
 GO
 
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES
+('Transformer', 'FAWG High Side Bus'),
+('Transformer', 'FAWG Low Side Bus'),
 ('Transformer', 'Maximo Phase A Asset Number (UID)'),
 ('Transformer', 'Maximo Phase B Asset Number (UID)'),
 ('Transformer', 'Maximo Phase C Asset Number (UID)'),
@@ -66,6 +68,16 @@ GO
 INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
 ('Meter','Make','PQView','Vendor','Value'),
 ('Meter','Model','PQView','Equipment','Value')
+GO
+
+/* Transformer Fawg Fields */
+INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+('Transformer','R1','Fawg','Transformer','PosSeqResistance'),
+('Transformer','X1','Fawg','Transformer','PosSeqReactance'),
+('Transformer','R0','Fawg','Transformer','ZeroSeqResistance'),
+('Transformer','X0','Fawg','Transformer','ZeroSeqReactance'),
+('Transformer','PrimaryVoltageKV','Fawg','Transformer','Vhigh'),
+('Transformer','SecondaryVoltageKV','Fawg','Transformer','Vlow')
 GO
 
 /* Fields From Maximo for Meter */
@@ -565,10 +577,10 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 	                Lines.ToBusNumber,
 	                Buses.VoltageValue,
 	                Lines.LengthMiles,
-	                Lines.PosSeqResistance,
-	                Lines.PosSeqReactance,
-	                Lines.ZeroSeqResistance,
-	                Lines.ZeroSeqReactance,
+	                (Lines.PosSeqResistance * Buses.VoltageValue * Buses.VoltageValue / 100.0) AS PosSeqResistance,
+					(Lines.PosSeqReactance * Buses.VoltageValue * Buses.VoltageValue / 100.0) AS PosSeqReactance,
+					(Lines.ZeroSeqResistance * Buses.VoltageValue * Buses.VoltageValue / 100.0) AS ZeroSeqResistance,
+					(Lines.ZeroSeqReactance * Buses.VoltageValue * Buses.VoltageValue / 100.0) AS ZeroSeqReactance,	               
 	                Lines.ConductorSummerContRating,
 	                Lines.ConductorWinterContRating,
                     (SELECT CONCAT(''L'', Lines.TransLineNumber)) AS LNumber
@@ -580,6 +592,40 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
                     Branches.Description = ''Fawg One''
             ) T1')
 GO
+
+/* FAWG Query for Transformers */
+INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+           ('Transformer','Fawg','
+            (
+            SELECT
+				XFR.PosSeqResistanceHigh,
+				XFR.PosSeqReactanceHigh,
+				XFR.ZeroSeqResistanceHigh,
+				XFR.ZeroSeqReactanceHigh,
+				XFR.PosSeqResistanceLow,
+				XFR.PosSeqReactanceLow,
+				XFR.ZeroSeqResistanceLow,
+				XFR.ZeroSeqReactanceLow,
+				Bh.ShortName AS BusHigh,
+				Bl.SHortName AS BusLow,
+				((XFR.PosSeqResistanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.PosSeqResistanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS PosSeqResistance,
+                ((XFR.PosSeqReactanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.PosSeqReactanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS PosSeqReactance,
+				((XFR.ZeroSeqResistanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.ZeroSeqResistanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS ZeroSeqResistance,
+				((XFR.ZeroSeqReactanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.ZeroSeqReactanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS ZeroSeqReactance,
+				Bh.VoltageValue AS Vhigh,
+				Bl.VoltageValue AS Vlow
+			FROM
+				Transformers XFR JOIN
+				Buses Bh ON XFR.HighSideBus = Bh.Buses_Id JOIN
+				Buses Bl ON XFR.LowSideBus = Bl.Buses_Id JOIN
+				Branches ON XFR.Branches_Id = Branches.Branches_Id
+			WHERE
+				Branches.Description = ''Fawg One'' AND XFR.isInService = 1
+            ) T1')
+GO
+
+
+
 
 /* MAximo Queries for Substation and Meters */
 INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES

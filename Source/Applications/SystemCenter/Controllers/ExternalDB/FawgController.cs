@@ -227,4 +227,52 @@ namespace SystemCenter.Controllers
 
     }
 
+    [RoutePrefix("api/ExternalDB/FAWG/Transformer")]
+    public class FawgXFRController : ExternalDBController<Transformer>
+    {
+        protected override string extDBConnectionSetting { get { return "dbFawg"; } }
+        protected override GSF.Data.DatabaseType extDBType { get { return DatabaseType.SQLServer; } }
+        protected override string extDBName { get { return "Fawg"; } }
+
+        protected override Model.ExternalDBField processExternalAdditionalField(Transformer xfr, Model.ExternalDBField field)
+        {
+            field.OpenXDAParentTableID = xfr.ID;
+            field.DisplayName = xfr.AssetKey;
+            return field;
+        }
+
+        protected override Model.ExternalDBField processExternalopenXDAField(Transformer xfr, Model.ExternalDBField field)
+        {
+            field.OpenXDAParentTableID = xfr.ID;
+            field.DisplayName = xfr.AssetKey;
+            return field;
+        }
+
+        protected override string getDataQuery(Transformer xfr, string tablename)
+        {
+
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                Model.AdditionalField uidFieldhigh = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'FAWG High Side Bus'");
+                if (uidFieldhigh == null)
+                    throw (new Exception("Unable to Find High Side Bus Field"));
+
+                Model.AdditionalFieldValue uiValueHigh = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldhigh.ID);
+                if (uiValueHigh == null)
+                    throw (new Exception("No valid High Side Bus Defined"));
+
+                Model.AdditionalField uidFieldlow = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'FAWG Low Side Bus'");
+                if (uidFieldlow == null)
+                    throw (new Exception("Unable to Find Low Side Bus Field"));
+
+                Model.AdditionalFieldValue uiValueLow = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldlow.ID);
+                if (uiValueLow == null)
+                    throw (new Exception("No valid Low Side Bus Defined"));
+
+                return String.Format("BusHigh = '{0}' AND BusLow = '{1}'", uiValueHigh.Value, uiValueLow.Value);
+
+            }
+        }
+    }
+
 }
