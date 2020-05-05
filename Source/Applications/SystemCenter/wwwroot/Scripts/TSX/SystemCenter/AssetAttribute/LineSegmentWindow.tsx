@@ -182,13 +182,34 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                     <table className='table'>
                         <thead>
                             <tr>
-                                <th style={{ width: 300 }}>Segment</th>
-                                <th style={{ width: 100 }}>Length</th>
-                                <th style={{ width: 50 }}>R0</th>
-                                <th style={{ width: 50 }}>X0</th>
-                                <th style={{ width: 50 }}>R1</th>
-                                <th style={{ width: 50 }}>X1</th>
-                                <th style={{ width: 150 }}>Thermal Rating</th>
+                                <th style={{ width: 150 }}>Segment</th>
+                                <th style={{ width: 50 }}>Length</th>
+
+                                <th colSpan={4} style={{ width: 160, border: 1 }}>Positive Seq (Ohm/deg)</th>
+                                <th colSpan={4} style={{ width: 160 }}>Zero Seq (Ohm/deg)</th>
+                                <th colSpan={4} style={{ width: 160 }}>Loop (LG) (Ohm/deg)</th>
+                                <th style={{ width: 75 }}>Thermal Rating</th>
+                                <th style={{ width: 30 }}></th>
+                            </tr>
+                            <tr>
+                                <th style={{ width: 100}}></th>
+                                <th style={{ width: 50 }}></th>
+                                <th style={{ width: 40 }}>Z1</th>
+                                <th style={{ width: 40 }}>&lt;</th>
+                                <th style={{ width: 40 }}>R1</th>
+                                <th style={{ width: 40 }}>X1</th>
+
+                                <th style={{ width: 40 }}>Z0</th>
+                                <th style={{ width: 40 }}>&lt;</th>
+                                <th style={{ width: 40 }}>R0</th>
+                                <th style={{ width: 40 }}>X0</th>
+
+                                <th style={{ width: 40 }}>Zs</th>
+                                <th style={{ width: 40 }}>&lt;</th>
+                                <th style={{ width: 40 }}>Rs</th>
+                                <th style={{ width: 40 }}>Xs</th>
+
+                                <th style={{ width: 75 }}></th>
                                 <th style={{ width: 30 }}></th>
                             </tr>
                         </thead>
@@ -254,15 +275,32 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
 
 export default LineSegmentWindow;
 
-function TableRowInput(props: { ParentLineID: number, Segment: OpenXDA.LineSegment, remove: (id: number) => void}) {
+function TableRowInput(props: { ParentLineID: number, Segment: OpenXDA.LineSegment, remove: (id: number) => void }) {
+    let Z1 = Math.sqrt(props.Segment.R1 * props.Segment.R1 + props.Segment.X1 * props.Segment.X1);
+    let Z0 = Math.sqrt(props.Segment.R0 * props.Segment.R0 + props.Segment.X0 * props.Segment.X0);
+    let a0 = Math.acos(props.Segment.R0/ Z0) * 180.0 / Math.PI;
+    let a1 = Math.acos(props.Segment.R1 / Z1) * 180.0 / Math.PI;
+    let Xs = (2 * props.Segment.X1 + props.Segment.X0) / 3.0;
+    let Rs = (2 * props.Segment.R1 + props.Segment.R0) / 3.0;
+    let Zs = Math.sqrt(Rs*Rs + Xs*Xs);
+    let as = Math.acos(Rs / Zs) * 180.0 / Math.PI;
+
     return(
         <tr>
             <td>{props.Segment.AssetName} ({props.Segment.AssetKey})</td>
             <td>{props.Segment.Length}</td>
-            <td>{props.Segment.R0}</td>
-            <td>{props.Segment.X0}</td>
-            <td>{props.Segment.R1}</td>
-            <td>{props.Segment.X1}</td>
+            <td>{Z0.toFixed(2)}</td>
+            <td>{a0.toFixed(2)}</td>
+            <td>{props.Segment.R0.toFixed(2)}</td>
+            <td>{props.Segment.X0.toFixed(2)}</td>
+            <td>{Z1.toFixed(2)}</td>
+            <td>{a1.toFixed(2)}</td>
+            <td>{props.Segment.R1.toFixed(2)}</td>
+            <td>{props.Segment.X1.toFixed(2)}</td>
+            <td>{Zs.toFixed(2)}</td>
+            <td>{as.toFixed(2)}</td>
+            <td>{Rs.toFixed(2)}</td>
+            <td>{Xs.toFixed(2)}</td>
             <td>{props.Segment.ThermalRating}</td>
             <td><button className="btn btn-sm" onClick={(e) => props.remove(props.Segment.ID)}><span><i className="fa fa-times"></i></span></button></td>
         </tr>
