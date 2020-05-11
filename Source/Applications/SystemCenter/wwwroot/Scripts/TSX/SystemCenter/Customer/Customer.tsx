@@ -61,6 +61,12 @@ export default class Customer extends React.Component<{ CustomerID: number }, { 
     }
 
     deleteMeter(): JQuery.jqXHR {
+
+
+        let response = confirm("This will delete the Customer Permanently");
+        if (!response)
+            return;
+
         return $.ajax({
             type: "DELETE",
             url: `${homePath}api/SystemCenter/Customer/Delete`,

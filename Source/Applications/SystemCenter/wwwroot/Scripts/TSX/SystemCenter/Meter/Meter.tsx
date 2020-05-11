@@ -67,6 +67,11 @@ export default class Meter extends React.Component<{ MeterID: number}, { Meter: 
     }
 
     deleteMeter(): JQuery.jqXHR {
+
+        let response = confirm("This will delete the Meter Permanently");
+        if (!response)
+            return;
+
         return $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Meter/Delete`,

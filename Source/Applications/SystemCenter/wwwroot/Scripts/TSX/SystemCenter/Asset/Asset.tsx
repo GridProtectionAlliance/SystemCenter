@@ -80,6 +80,11 @@ function Asset(props: { AssetID: number }) {
     }
 
     function deleteAsset(): JQuery.jqXHR {
+
+        let response = confirm("This will delete the Asset Permanently");
+        if (!response)
+            return;
+
         return $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Asset/Delete`,

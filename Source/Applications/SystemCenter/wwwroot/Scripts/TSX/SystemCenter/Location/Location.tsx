@@ -63,6 +63,12 @@ export default class Location extends React.Component<{ LocationID: number }, { 
     }
 
     deleteLocation(): JQuery.jqXHR {
+
+
+        let response = confirm("This will delete the Substation Permanently");
+        if (!response)
+            return;
+
         return $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Location/Delete`,
