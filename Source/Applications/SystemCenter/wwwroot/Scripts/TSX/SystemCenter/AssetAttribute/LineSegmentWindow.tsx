@@ -185,8 +185,9 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                                 <th style={{ width: 150 }}>Segment</th>
                                 <th style={{ width: 50 }}>Length</th>
 
-                                <th colSpan={4} style={{ width: 160, border: 1 }}>Positive Seq (Ohm/deg)</th>
+                                
                                 <th colSpan={4} style={{ width: 160 }}>Zero Seq (Ohm/deg)</th>
+                                <th colSpan={4} style={{ width: 160 }}>Positive Seq (Ohm/deg)</th>
                                 <th colSpan={4} style={{ width: 160 }}>Loop (LG) (Ohm/deg)</th>
                                 <th style={{ width: 75 }}>Thermal Rating</th>
                                 <th style={{ width: 30 }}></th>
@@ -194,15 +195,16 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                             <tr>
                                 <th style={{ width: 100}}></th>
                                 <th style={{ width: 50 }}></th>
-                                <th style={{ width: 40 }}>Z1</th>
-                                <th style={{ width: 40 }}>&lt;</th>
-                                <th style={{ width: 40 }}>R1</th>
-                                <th style={{ width: 40 }}>X1</th>
 
                                 <th style={{ width: 40 }}>Z0</th>
                                 <th style={{ width: 40 }}>&lt;</th>
                                 <th style={{ width: 40 }}>R0</th>
                                 <th style={{ width: 40 }}>X0</th>
+
+                                <th style={{ width: 40 }}>Z1</th>
+                                <th style={{ width: 40 }}>&lt;</th>
+                                <th style={{ width: 40 }}>R1</th>
+                                <th style={{ width: 40 }}>X1</th>
 
                                 <th style={{ width: 40 }}>Zs</th>
                                 <th style={{ width: 40 }}>&lt;</th>
