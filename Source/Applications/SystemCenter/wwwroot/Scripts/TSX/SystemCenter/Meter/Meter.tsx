@@ -37,7 +37,8 @@ import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 
 declare var homePath: string;
 
-export default class Meter extends React.Component<{ MeterID: number}, { Meter: OpenXDA.Meter, Tab: string}, {}>{
+export default class Meter extends React.Component<{ MeterID: number }, { Meter: OpenXDA.Meter, Tab: string }, {}>{
+    getMeterHandle: JQuery.jqXHR;
     constructor(props, context) {
         super(props, context);
 
@@ -56,14 +57,16 @@ export default class Meter extends React.Component<{ MeterID: number}, { Meter: 
 
     getMeter(): void {
         if (this.props.MeterID == undefined) return;
-       $.ajax({
+       this.getMeterHandle = $.ajax({
             type: "GET",
            url: `${homePath}api/OpenXDA/Meter/One/${this.props.MeterID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-        }).done((data: OpenXDA.Meter) => this.setState({ Meter: data }));
+       })
+
+       this.getMeterHandle.done((data: OpenXDA.Meter) => this.setState({ Meter: data }));
     }
 
     deleteMeter(): JQuery.jqXHR {
@@ -94,6 +97,7 @@ export default class Meter extends React.Component<{ MeterID: number}, { Meter: 
 
     componentWillUnmount() {
         sessionStorage.clear();
+        if (this.getMeterHandle.abort != undefined) this.getMeterHandle.abort();
     }
 
     render() {

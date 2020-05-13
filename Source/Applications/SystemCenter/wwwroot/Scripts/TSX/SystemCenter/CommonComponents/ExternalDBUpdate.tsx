@@ -49,22 +49,29 @@ function ExternalDataBaseWindow(props: {
     }, [props.ID, props.Type, props.Tab]); 
 
     function getData() {
-        getExternalDBs();
         setChanged(false);
         setFields([]);
+        return getExternalDBs();
+
     }
 
-    function getExternalDBs(): void {
-       $.ajax({
+    function getExternalDBs() {
+       let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/${props.Type}/extDataBases`, 
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-       }).done((data: Array<SystemCenter.ExternalDB>) => {
+       })
+
+       handle.done((data: Array<SystemCenter.ExternalDB>) => {
            setexternalDB(data);
        });
+
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+        }
     }
 
     function updateExternalDB(type: string): void {
