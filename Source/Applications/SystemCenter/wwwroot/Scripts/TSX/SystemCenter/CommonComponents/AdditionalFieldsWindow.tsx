@@ -28,57 +28,92 @@ import AssetAttributes from '../AssetAttribute/Asset';
 import FormInput from './FormInput';
 import FormCheckBox from './FormCheckBox';
 import FormSelect from './FormSelect';
-import { getAssetTypes } from '../../../TS/Services/Asset';
 
 declare var homePath: string;
+declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' | 'Asset'
 
-function AdditionalFieldsWindow(props: {
-    ID: number,
-    Type: 'Meter' | 'Location' | 'Customer' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' | 'Asset',
-    Tab: string
-}): JSX.Element {
+function AdditionalFieldsWindow(props: { ID: number, Type: AdditionalFieldType, Tab: string }): JSX.Element {
+
+    const [valueListGroups, setValueListGroups] = React.useState<Array<SystemCenter.ValueListGroup>>([]);
     const [additionalFields, setAdditionalFields] = React.useState<Array<SystemCenter.AdditionalField>>([]);
     const [additionalFieldValues, setAdditionalFieldVaules] = React.useState<Array<SystemCenter.AdditionalFieldValue>>([]);
     const [edit, setEdit] = React.useState<boolean>(false);
     const [changed, setChanged] = React.useState<boolean>(false);
     const [newField, setNewField] = React.useState<SystemCenter.AdditionalField>({ID: 0, FieldName: '', Type: 'string', OpenXDAParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
+
     React.useEffect(() => {
-        getData();
+        return getData();
     }, [props.ID, props.Type, props.Tab]);
 
     function getData() {
-        getFields();
-        getFieldValues()
+        let handle1 = getFields();
+        let handle2 = getFieldValues();
+        let handle3 = getValueLists();
+
         setChanged(false);
         setNewField({ ID: 0, FieldName: '', Type: 'string', OpenXDAParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
+
+        return () => {
+            if (handle1.abort != undefined) handle1.abort();
+            if (handle2.abort != undefined) handle2.abort();
+            if (handle3.abort != undefined) handle3.abort();
+
+        }
     }
 
-    function getFields(): void {
-            $.ajax({
-                type: "GET",
-                url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${props.Type}`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            }).done((data: Array<SystemCenter.AdditionalField>) => {
-                setAdditionalFields(data);
-            });
+    function getFields(): JQuery.jqXHR {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${props.Type}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+
+        handle.done((data: Array<SystemCenter.AdditionalField>) => {
+            setAdditionalFields(data);
+        });
+
+        return handle;
     }
 
-    function getFieldValues(): void {
+    function getFieldValues(): JQuery.jqXHR {
 
-        $.ajax({
+        let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalFieldValue/${props.ID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        }).done((data: Array<SystemCenter.AdditionalFieldValue>) => {
+        })
+
+        handle.done((data: Array<SystemCenter.AdditionalFieldValue>) => {
             setAdditionalFieldVaules(data);
         });
+
+        return handle;
     }
+
+    function getValueLists(): JQuery.jqXHR {
+
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueListGroup`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+
+        handle.done((data: Array<SystemCenter.ValueListGroup>) => {
+            setValueListGroups(data);
+        });
+
+        return handle;
+    }
+
 
     function addOrUpdateValues(): void {
         $.ajax({
@@ -187,7 +222,7 @@ function AdditionalFieldsWindow(props: {
                         </div>
                         <div className="modal-body">
                             <FormInput<SystemCenter.AdditionalField> Record={newField} Field='FieldName' Valid={(field) => true} Label="Field Name" Setter={setNewField} /> 
-                            <FormSelect<SystemCenter.AdditionalField> Record={newField} Field='Type' Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }]} Label="Field Type" Setter={setNewField} /> 
+                            <FormSelect<SystemCenter.AdditionalField> Record={newField} Field='Type' Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }].concat(valueListGroups.filter(x => x.Enabled).map(x => { return { Value: x.Name, Label: x.Name } }))} Label="Field Type" Setter={setNewField} /> 
                             <FormInput<SystemCenter.AdditionalField> Record={newField} Field='ExternalDB' Valid={(field) => true} Label="External Database" Setter={setNewField} /> 
                             <FormInput<SystemCenter.AdditionalField> Record={newField} Field='ExternalDBTable' Valid={(field) => true} Label="External Database Table" Setter={setNewField} /> 
                             <FormInput<SystemCenter.AdditionalField> Record={newField} Field='ExternalDBTableKey' Valid={(field) => true} Label="External Database Table Key" Setter={setNewField} /> 
@@ -212,9 +247,33 @@ function AdditionalFieldsWindow(props: {
 export default AdditionalFieldsWindow;
 
 function TableRowInput(props: { ParentTableID: number, Field: SystemCenter.AdditionalField, Values: Array<SystemCenter.AdditionalFieldValue>, Setter: (values: Array<SystemCenter.AdditionalFieldValue>) => void, DeleteField: (field: SystemCenter.AdditionalField) => void, EditField: (field: SystemCenter.AdditionalField) => void }) {
+    const [valueListItems, setValueListItems] = React.useState<Array<SystemCenter.ValueListItem>>([]);
+
+    React.useEffect(() => {
+        if ((["integer", "number", "boolean", "string"]).indexOf(props.Field.Type) < 0) {
+            let handle = $.ajax({
+                type: "GET",
+                url: `${homePath}api/ValueList/Group/${props.Field.Type}`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                cache: true,
+                async: true
+            })
+
+            handle.done((vl: Array<SystemCenter.ValueListItem>) => {
+                setValueListItems(vl);
+            });
+
+            return () => {
+                if(handle.abort != undefined) handle.abort()
+            }
+        }
+
+    }, [props.Field.Type]);
+
     function Valid(type: SystemCenter.AdditionalFieldType): boolean {
         if (type == "integer")
-            return value.Value == null ||  AssetAttributes.isInteger(value.Value);
+            return value.Value == null || AssetAttributes.isInteger(value.Value);
         else if (type == "number")
             return value.Value == null || AssetAttributes.isRealNumber(value.Value);
         else if (type == "boolean")
@@ -230,20 +289,40 @@ function TableRowInput(props: { ParentTableID: number, Field: SystemCenter.Addit
         value = { ID: 0, AdditionalFieldID: props.Field.ID, OpenXDAParentTableID: props.ParentTableID, Value: null };
         values.push(value);
     }
+
+    if ((["integer", "number", "boolean", "string" ]).indexOf(props.Field.Type) < 0) {
+    }
+
     return(
         <tr>
             <td>{props.Field.FieldName}</td>
             <td>{props.Field.ExternalDB}</td>
             <td>{props.Field.Type}</td>
             <td>
-                <input className={(Valid(props.Field.Type) ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    if (evt.target.value != "")
-                        value.Value = evt.target.value as any;
-                    else
-                        value.Value = null;
+                {((["integer", "number", "boolean", "string"]).indexOf(props.Field.Type) >= 0 ?                   
+                    <input className={(Valid(props.Field.Type) ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
+                        if (evt.target.value != "")
+                            value.Value = evt.target.value as any;
+                        else
+                            value.Value = null;
 
-                    props.Setter(values);
-                }} value={value.Value == null ? '' : value.Value.toString()}/>
+                        props.Setter(values);
+                    }} value={value.Value == null ? '' : value.Value.toString()} />
+                    :
+                    <select className='form-control' value={(value.Value != null ? value.Value : '')} onChange={(evt) => {
+                        if (evt.target.value != "")
+                            value.Value = evt.target.value as any;
+                        else
+                            value.Value = null;
+
+                        props.Setter(values);
+                    }} >
+                        <option value=''></option>
+                        {
+                            valueListItems.map(x => <option key={x.ID} value={x.Text}>{x.Text}</option>)
+                        }
+                    </select>
+                )}
             </td>
             <td><button className="btn btn-sm" data-toggle='modal' data-target="#newField"  onClick={(e) => props.EditField(props.Field)}><span><i className="fa fa-pencil"></i></span></button></td>
             <td><button className="btn btn-sm" onClick={(e) => props.DeleteField(props.Field)}><span><i className="fa fa-times"></i></span></button></td>
@@ -265,9 +344,7 @@ function ViewTableRowInput(props: { ParentTableID: number, Field: SystemCenter.A
             <td>{props.Field.FieldName}</td>
             <td>{props.Field.ExternalDB}</td>
             <td>{props.Field.Type}</td>
-            <td>
-                <input className="form-control" value={value.Value.toString()} disabled={true} />
-            </td>
+            <td>{value.Value != null ? value.Value.toString() : ''}</td>
             <td></td>
             <td></td>
         </tr>
