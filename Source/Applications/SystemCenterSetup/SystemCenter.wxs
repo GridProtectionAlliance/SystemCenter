@@ -22,7 +22,12 @@
           <ComponentGroupRef Id="ServiceComponents" />
 
           <!-- Web Files -->
-          <?include WebFeatures.wxi ?>
+          <!--<?include WebFeatures.wxi ?>-->
+          <!-- Web Files -->
+          <Feature Id="WebFiles" Level="1" Title="Web Files">
+            <ComponentGroupRef Id="SystemCenterWebFiles"/>
+          </Feature>
+
         </Feature>
       </Feature>
     </Feature>
@@ -207,7 +212,9 @@
             <Directory Id="DEBUGFOLDER" Name="Debug" />
             <Directory Id="RESULTSFOLDER" Name="Results" />
             <Directory Id="WATCHFOLDER" Name="Watch" />
-            <?include WebFolders.wxi ?>
+            <Directory Id="WWWROOTFOLDER" Name="wwwroot">
+              <Directory Id="SystemCenterWebFiles" />
+            </Directory>
           </Directory>
         </Directory>
       <?else ?>
@@ -228,7 +235,9 @@
             <Directory Id="DEBUGFOLDER" Name="Debug" />
             <Directory Id="RESULTSFOLDER" Name="Results" />
             <Directory Id="WATCHFOLDER" Name="Watch" />
-            <?include WebFolders.wxi ?>
+            <Directory Id="WWWROOTFOLDER" Name="wwwroot">
+              <Directory Id="SystemCenterWebFiles" />
+            </Directory>
           </Directory>
         </Directory>
       <?endif ?>
@@ -324,8 +333,10 @@
       <Component Id="Cleanup" Guid="{C8EBB158-C708-4C94-87C1-F5DBC77D7BDE}">
         <CreateFolder />
         <RemoveFolder Id="RemoveDebugFolder" Directory="DEBUGFOLDER" On="uninstall" />
+        <RemoveFolder Id="RemoveWwwrootFolder" Directory="WWWROOTFOLDER" On="uninstall" />
         <RemoveFolder Id="RemoveApplicationProgramsFolder" Directory="ApplicationProgramsFolder" On="uninstall" />
         <RemoveFolder Id="RemoveInstallFolder" Directory="INSTALLFOLDER" On="uninstall" />
+        
       </Component>
     </ComponentGroup>
     
