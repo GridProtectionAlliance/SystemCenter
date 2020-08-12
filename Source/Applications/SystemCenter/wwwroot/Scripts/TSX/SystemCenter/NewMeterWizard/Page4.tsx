@@ -34,13 +34,13 @@ import { getAssetTypes, getAllAssets } from '../../../TS/Services/Asset';
 declare var homePath: string;
 
 interface Page4Props {
-    Assets: Array<OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer>,
+    Assets: Array<OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer | OpenXDA.CapBankRelay>,
     Channels: Array<OpenXDA.Channel>,
     AssetConnections: Array<OpenXDA.AssetConnection>,
     UpdateState: (record) => void 
 }
 interface Page4State {
-    NewEditAsset: OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer,
+    NewEditAsset: OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer | OpenXDA.CapBankRelay,
     AllAssets: Array<OpenXDA.Asset>,
     AssetTypes: Array<OpenXDA.AssetType>,
     NewEdit: SystemCenter.NewEdit
@@ -94,7 +94,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
     addAsset() {
     }
 
-    changeAssetType(type: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer'): void {
+    changeAssetType(type: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay'): void {
         let asset = {
             ID: this.state.NewEditAsset.ID,
             AssetKey: this.state.NewEditAsset.AssetKey,

@@ -30,7 +30,7 @@ import FormCheckBox from './FormCheckBox';
 import FormSelect from './FormSelect';
 
 declare var homePath: string;
-declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' | 'Asset'
+declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' | 'Asset' | 'CapacitorBankRelay'
 
 function AdditionalFieldsWindow(props: { ID: number, Type: AdditionalFieldType, Tab: string }): JSX.Element {
 

@@ -33,6 +33,7 @@ import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import LineSegmentAttributes from '../AssetAttribute/LineSegment';
+import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 
 declare var homePath: string;
 
@@ -72,6 +73,8 @@ export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.As
             return <BusAttributes NewEdit={'Edit'} Asset={this.state.Asset} UpdateState={this.updateState} />;
         else if (this.state.Asset.AssetType == 'CapacitorBank')
             return <CapBankAttributes NewEdit={'Edit'} Asset={this.state.Asset as OpenXDA.CapBank} UpdateState={this.updateState} />;
+        else if (this.state.Asset.AssetType == 'CapacitorBankRelay')
+            return <CapBankRelayAttributes NewEdit={'Edit'} Asset={this.state.Asset as OpenXDA.CapBankRelay} UpdateState={this.updateState} />;
         else if (this.state.Asset.AssetType == 'Line')
             return <LineAttributes NewEdit={'Edit'} Asset={this.state.Asset as OpenXDA.Line} UpdateState={this.updateState} />;
         else if (this.state.Asset.AssetType == 'Transformer')

@@ -30,8 +30,7 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
     function valid(field: keyof (OpenXDA.CapBank)): boolean {
         if (field == 'NumberOfBanks')
             return props.Asset.NumberOfBanks != null && AssetAttributes.isInteger(props.Asset.NumberOfBanks);
-        else if (field == 'CansPerBank')
-            return props.Asset.CansPerBank != null && AssetAttributes.isInteger(props.Asset.CansPerBank);
+       
         else if (field == 'CapacitancePerBank')
             return props.Asset.CapacitancePerBank != null && AssetAttributes.isInteger(props.Asset.CapacitancePerBank);
     
@@ -41,7 +40,7 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
     return (
         <>
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NumberOfBanks'} Label={'Number Of Banks'} Feedback={'Number Of Banks is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'CansPerBank'} Label={'Cans Per Bank'} Feedback={'Cans Per Bank is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NumberOfBanks'} Label={'Cans Per Bank'} Feedback={'Cans Per Bank is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'CapacitancePerBank'} Label={'Capacitance Per Bank'} Feedback={'Capacitance per Bank is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
         </>
     );

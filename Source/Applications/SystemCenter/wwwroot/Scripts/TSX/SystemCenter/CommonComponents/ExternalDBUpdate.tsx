@@ -35,7 +35,7 @@ declare var homePath: string;
 
 function ExternalDataBaseWindow(props: {
     ID: number,
-    Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | 'Line' | 'Breaker' | 'Bus' | 'LineSegment' | 'CapacitorBank' | 'Transformer',
+    Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | 'Line' | 'Breaker' | 'Bus' | 'LineSegment' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay',
     Tab: string
 }): JSX.Element {
     const [externalDB, setexternalDB] = React.useState<Array<SystemCenter.ExternalDB>>([]);

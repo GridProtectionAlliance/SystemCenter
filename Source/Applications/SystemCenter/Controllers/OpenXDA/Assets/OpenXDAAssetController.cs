@@ -299,6 +299,12 @@ namespace SystemCenter.Controllers.OpenXDA
                             CreateCapBankFromJToken(capBank, asset);
                             new TableOperations<CapBank>(connection).AddNewRecord(capBank);
                         }
+                        else if (assetType == "CapacitorBankRelay")
+                        {
+                            CapBankRelay capBankRelay = new CapBankRelay();
+                            CreateCapBankFromJToken(capBankRelay, asset);
+                            new TableOperations<CapBankRelay>(connection).AddNewRecord(capBankRelay);
+                        }
                         else if (assetType == "Transformer")
                         {
                             Transformer transformer = new Transformer();
@@ -425,6 +431,12 @@ namespace SystemCenter.Controllers.OpenXDA
                             CapBank capBank = new CapBank();
                             CreateCapBankFromJToken(capBank, asset);
                             new TableOperations<CapBank>(connection).AddNewRecord(capBank);
+                        }
+                        else if (assetType == "CapacitorBankRelay")
+                        {
+                            CapBankRelay capBankRelay = new CapBankRelay();
+                            CreateCapBankFromJToken(capBankRelay, asset);
+                            new TableOperations<CapBankRelay>(connection).AddNewRecord(capBankRelay);
                         }
                         else if (assetType == "Transformer")
                         {
@@ -619,6 +631,12 @@ namespace SystemCenter.Controllers.OpenXDA
                         CreateCapBankFromJToken(capBank, asset);
                         new TableOperations<CapBank>(connection).UpdateRecord(capBank);
                     }
+                    else if (assetType == "CapacitorBankRelay")
+                    {
+                        CapBankRelay capBankRelay = new TableOperations<CapBankRelay>(connection).QueryRecordWhere("ID = {0}", asset["ID"].ToObject<int>());
+                        CreateCapBankFromJToken(capBankRelay, asset);
+                        new TableOperations<CapBankRelay>(connection).UpdateRecord(capBankRelay);
+                    }
                     else if (assetType == "Transformer")
                     {
                         Transformer transformer = new TableOperations<Transformer>(connection).QueryRecordWhere("ID = {0}", asset["ID"].ToObject<int>());
@@ -740,8 +758,15 @@ namespace SystemCenter.Controllers.OpenXDA
             capBank.Description = record["Description"].ToString();
             capBank.AssetName = record["AssetName"].ToString();
             capBank.NumberOfBanks = record["NumberOfBanks"].ToObject<int>();
-            capBank.CansPerBank = record["CansPerBank"].ToObject<int>();
             capBank.CapacitancePerBank = record["CapacitancePerBank"].ToObject<double>();
+        }
+
+        private void CreateCapBankFromJToken(CapBankRelay capBankRelay, JToken record)
+        {
+            capBankRelay.VoltageKV = record["VoltageKV"].ToObject<double>();
+            capBankRelay.AssetKey = record["AssetKey"].ToString();
+            capBankRelay.Description = record["Description"].ToString();
+            capBankRelay.AssetName = record["AssetName"].ToString();
         }
 
         private void CreateTransformerFromJToken(Transformer transformer, JToken record) {

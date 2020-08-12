@@ -72,7 +72,7 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
         return asset;
     }
 
-    static getNewAssetAttributes(asset: OpenXDA.Asset, type: OpenXDA.AssetTypeName): OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.LineSegment | OpenXDA.Transformer {
+    static getNewAssetAttributes(asset: OpenXDA.Asset, type: OpenXDA.AssetTypeName): OpenXDA.CapBankRelay | OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.LineSegment | OpenXDA.Transformer {
         if (type == 'Line') {
             let record = asset as OpenXDA.Line;
             record.MaxFaultDistance = null;
@@ -94,10 +94,13 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
             let record = asset as OpenXDA.Bus;
             return record
         }
+        else if (type == 'CapacitorBankRelay') {
+            let record = asset as OpenXDA.CapBankRelay;
+            return record
+        }
         else if (type == 'CapacitorBank') {
             let record = asset as OpenXDA.CapBank;
             record.NumberOfBanks = null;
-            record.CansPerBank = null;
             record.CapacitancePerBank = null;
             return record;
 
