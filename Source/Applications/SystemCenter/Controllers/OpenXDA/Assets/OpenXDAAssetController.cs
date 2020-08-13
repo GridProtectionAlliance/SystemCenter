@@ -759,6 +759,36 @@ namespace SystemCenter.Controllers.OpenXDA
             capBank.AssetName = record["AssetName"].ToString();
             capBank.NumberOfBanks = record["NumberOfBanks"].ToObject<int>();
             capBank.CapacitancePerBank = record["CapacitancePerBank"].ToObject<double>();
+
+            capBank.CktSwitcher = record["CktSwitcher"].ToObject<bool>();
+            capBank.MaxKV = record["MaxKV"].ToObject<double>();
+            capBank.UnitKV = record["UnitKV"].ToObject<double>();
+            capBank.UnitKVAr = record["UnitKVAr"].ToObject<double>();
+            capBank.NegReactanceTol = record["NegReactanceTol"].ToObject<double>();
+            capBank.PosReactanceTol = record["PosReactanceTol"].ToObject<double>();
+            capBank.Nparalell = record["Nparalell"].ToObject<int>();
+            capBank.Nseries = record["Nseries"].ToObject<int>();
+            capBank.NSeriesGroup = record["NSeriesGroup"].ToObject<int>();
+            capBank.NParalellGroup = record["NParalellGroup"].ToObject<int>();
+            capBank.Fused = record["Fused"].ToObject<bool>();
+            capBank.VTratioBus = record["VTratioBus"].ToObject<double>();
+            capBank.NumberLVCaps = record["NumberLVCaps"].ToObject<int>();
+            capBank.NumberLVUnits = record["NumberLVUnits"].ToObject<int>();
+            capBank.LVKVAr = record["LVKVAr"].ToObject<double>(); 
+            capBank.LVKV = record["LVKV"].ToObject<double>();
+            capBank.LVNegReactanceTol = record["LVNegReactanceTol"].ToObject<double>();
+            capBank.LVPosReactanceTol = record["LVPosReactanceTol"].ToObject<double>();
+            capBank.UpperXFRRatio = record["UpperXFRRatio"].ToObject<double>();
+            capBank.LowerXFRRatio = record["LowerXFRRatio"].ToObject<double>();
+            capBank.Nshorted = record["Nshorted"].ToObject<double>();
+            capBank.BlownFuses = record["BlownFuses"].ToObject<int>();
+            capBank.BlownGroups = record["BlownGroups"].ToObject<int>();
+            capBank.OnVoltageThreshhold = record["OnVoltageThreshhold"].ToObject<double>();
+            capBank.RelayPTRatio = record["RelayPTRatio"].ToString();
+            capBank.Rv = record["Rv"].ToObject<double>();
+            capBank.Rh = record["Rh"].ToObject<double>();
+            capBank.Compensated = record["Compensated"].ToObject<bool>();
+
         }
 
         private void CreateCapBankFromJToken(CapBankRelay capBankRelay, JToken record)
