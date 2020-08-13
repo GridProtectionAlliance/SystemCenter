@@ -185,8 +185,16 @@ class PTRatioInput extends React.Component<{ Record: OpenXDA.CapBank, Setter: (r
     constructor(props, context) {
         super(props, context);
 
-        this.state = { low: "", high: "" };
-        this.updateValues(this.props.Record.RelayPTRatio);
+        let regex = /^\[([0-9]+) ([0-9]+)\]$/;
+        if (this.props.Record.RelayPTRatio.match(regex) != null) {
+            this.state = { low: this.props.Record.RelayPTRatio.match(regex)[1], high: this.props.Record.RelayPTRatio.match(regex)[2] };
+        }
+        else {
+            this.state = { low: "", high: "" };
+        }
+
+        
+        
     }
 
     updateValues(input: string) {
