@@ -45,15 +45,10 @@ function ExternalDataBaseWindow(props: {
    
     
     React.useEffect(() => {
-        getData();
-    }, [props.ID, props.Type, props.Tab]); 
-
-    function getData() {
         setChanged(false);
         setFields([]);
         return getExternalDBs();
-
-    }
+    }, [props.ID, props.Type, props.Tab]); 
 
     function getExternalDBs() {
        let handle = $.ajax({
@@ -74,16 +69,18 @@ function ExternalDataBaseWindow(props: {
         }
     }
 
-    function updateExternalDB(type: string): void {
+    function updateExternalDB(type: string) {
 
-        $.ajax({
+        let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/ExternalDB/${type}/${props.Type}/Update/${props.ID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-        }).done((data: Array<SystemCenter.ExternalDBField>) => {
+        })
+
+        handle.done((data: Array<SystemCenter.ExternalDBField>) => {
             setFields(data)
             setChanged(true)
             setCurrentDB(type)
@@ -91,6 +88,9 @@ function ExternalDataBaseWindow(props: {
                 cancelUpdate()
         });
 
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+        }
     }
 
     
@@ -111,9 +111,9 @@ function ExternalDataBaseWindow(props: {
         }
     }
 
-    function submitUpdate(): void {
+    function submitUpdate() {
 
-        $.ajax({
+        let handle = $.ajax({
             type: "POST",
             url: `${homePath}api/ExternalDB/${currentDB}/${props.Type}/ConfirmUpdate`,
             contentType: "application/json; charset=utf-8",
@@ -125,7 +125,12 @@ function ExternalDataBaseWindow(props: {
 
         setFields([])
         setChanged(false)
-        getExternalDBs()
+
+        getExternalDBs();
+
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+        } 
     }
 
     return (
