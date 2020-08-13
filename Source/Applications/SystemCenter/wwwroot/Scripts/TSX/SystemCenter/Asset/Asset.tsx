@@ -57,19 +57,25 @@ function Asset(props: { AssetID: number }) {
         setTabState(tab);
     }
 
-    function getAsset(): void {
-        if (props.AssetID == undefined) return;
-       $.ajax({
+    function getAsset() {
+        if (props.AssetID == undefined) return () => { };
+       let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Asset/One/${props.AssetID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-       }).done((data: OpenXDA.Asset) => {
+       })
+
+        handle.done((data: OpenXDA.Asset) => {
            setAsset(data)
            getAssetType(data)
-       });
+        });
+
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+        }
     }
 
     function getAssetType(asset: OpenXDA.Asset): void {
@@ -100,7 +106,7 @@ function Asset(props: { AssetID: number }) {
     }
 
     React.useEffect(() => {
-        getAsset();
+        return getAsset();
         
     }, [props.AssetID]);
 
