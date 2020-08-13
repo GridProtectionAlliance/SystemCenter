@@ -36,7 +36,7 @@ using openXDA.Model;
 namespace SystemCenter.Controllers.OpenXDA
 {
     [RoutePrefix("api/OpenXDA/CapacitorBankRelay")]
-    public class OpenXDACapBankRelayController : ModelController<CapBank>
+    public class OpenXDACapBankRelayController : ModelController<CapBankRelay>
     {
         protected override string PostRoles { get; } = "Administrator, Transmission SME";
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";

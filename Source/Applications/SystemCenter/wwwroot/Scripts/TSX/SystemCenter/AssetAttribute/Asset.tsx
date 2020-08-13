@@ -43,7 +43,7 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
         this.valid = this.valid.bind(this);
     }
 
-    static getNewAsset(type: OpenXDA.AssetTypeName): OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.LineSegment | OpenXDA.Transformer {
+    static getNewAsset(type: OpenXDA.AssetTypeName): OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.LineSegment | OpenXDA.Transformer | OpenXDA.CapBankRelay {
         let asset: OpenXDA.Asset = {
             ID: 0,
             AssetKey: null,
@@ -205,7 +205,7 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
                 <div className="form-group">
                     <label>Type</label>
                     <select className="form-control" value={this.props.Asset.AssetType} onChange={(evt) => {
-                        this.changeAssetType(evt.target.value as 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer')
+                        this.changeAssetType(evt.target.value as 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay')
                     }} disabled={this.props.NewEdit == 'Edit' || this.props.Asset.ID != 0}>
                         {
                             this.props.AssetTypes.map(assetType => <option value={assetType.Name} key={assetType.ID} hidden={assetType.Name == 'LineSegment'}>{assetType.Name}</option>)
