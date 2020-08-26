@@ -302,7 +302,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         else if (assetType == "CapacitorBankRelay")
                         {
                             CapBankRelay capBankRelay = new CapBankRelay();
-                            CreateCapBankFromJToken(capBankRelay, asset);
+                            CreateCapBankRelayFromJToken(capBankRelay, asset);
                             new TableOperations<CapBankRelay>(connection).AddNewRecord(capBankRelay);
                         }
                         else if (assetType == "Transformer")
@@ -435,7 +435,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         else if (assetType == "CapacitorBankRelay")
                         {
                             CapBankRelay capBankRelay = new CapBankRelay();
-                            CreateCapBankFromJToken(capBankRelay, asset);
+                            CreateCapBankRelayFromJToken(capBankRelay, asset);
                             new TableOperations<CapBankRelay>(connection).AddNewRecord(capBankRelay);
                         }
                         else if (assetType == "Transformer")
@@ -634,7 +634,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     else if (assetType == "CapacitorBankRelay")
                     {
                         CapBankRelay capBankRelay = new TableOperations<CapBankRelay>(connection).QueryRecordWhere("ID = {0}", asset["ID"].ToObject<int>());
-                        CreateCapBankFromJToken(capBankRelay, asset);
+                        CreateCapBankRelayFromJToken(capBankRelay, asset);
                         new TableOperations<CapBankRelay>(connection).UpdateRecord(capBankRelay);
                     }
                     else if (assetType == "Transformer")
@@ -750,6 +750,7 @@ namespace SystemCenter.Controllers.OpenXDA
             bus.Description = record["Description"].ToString();
             bus.AssetName = record["AssetName"].ToString();
         }
+        
 
         private void CreateCapBankFromJToken(CapBank capBank, JToken record)
         {
@@ -760,7 +761,7 @@ namespace SystemCenter.Controllers.OpenXDA
             capBank.NumberOfBanks = record["NumberOfBanks"].ToObject<int>();
             capBank.CapacitancePerBank = record["CapacitancePerBank"].ToObject<double>();
 
-            capBank.CktSwitcher = record["CktSwitcher"].ToObject<bool>();
+            capBank.CktSwitcher = record["CktSwitcher"].ToObject<string>();
             capBank.MaxKV = record["MaxKV"].ToObject<double>();
             capBank.UnitKV = record["UnitKV"].ToObject<double>();
             capBank.UnitKVAr = record["UnitKVAr"].ToObject<double>();
@@ -783,7 +784,9 @@ namespace SystemCenter.Controllers.OpenXDA
             capBank.Nshorted = record["Nshorted"].ToObject<double>();
             capBank.BlownFuses = record["BlownFuses"].ToObject<int>();
             capBank.BlownGroups = record["BlownGroups"].ToObject<int>();
-            capBank.OnVoltageThreshhold = record["OnVoltageThreshhold"].ToObject<double>();
+            capBank.ShortedGroups = record["ShortedGroups"].ToObject<int>();
+            capBank.NLowerGroups = record["NLowerGroups"].ToObject<int>();
+
             capBank.RelayPTRatio = record["RelayPTRatio"].ToString();
             capBank.Rv = record["Rv"].ToObject<double>();
             capBank.Rh = record["Rh"].ToObject<double>();
@@ -791,12 +794,13 @@ namespace SystemCenter.Controllers.OpenXDA
 
         }
 
-        private void CreateCapBankFromJToken(CapBankRelay capBankRelay, JToken record)
+        private void CreateCapBankRelayFromJToken(CapBankRelay capBankRelay, JToken record)
         {
             capBankRelay.VoltageKV = record["VoltageKV"].ToObject<double>();
             capBankRelay.AssetKey = record["AssetKey"].ToString();
             capBankRelay.Description = record["Description"].ToString();
             capBankRelay.AssetName = record["AssetName"].ToString();
+            capBankRelay.OnVoltageThreshhold = record["OnVoltageThreshhold"].ToObject<double>();
         }
 
         private void CreateTransformerFromJToken(Transformer transformer, JToken record) {

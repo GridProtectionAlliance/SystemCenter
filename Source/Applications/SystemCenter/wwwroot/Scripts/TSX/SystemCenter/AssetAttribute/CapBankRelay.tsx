@@ -24,9 +24,18 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
+import FormInput from '../CommonComponents/FormInput';
+import AssetAttributes from './Asset';
 
 function CapBankRelayAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.CapBankRelay, UpdateState: (newEditAsset: OpenXDA.CapBankRelay) => void }): JSX.Element {
-    return <span>No Additional Attributes</span>;
+    function valid(field: keyof (OpenXDA.CapBankRelay)): boolean {
+        if (field == 'OnVoltageThreshhold')
+            return props.Asset.OnVoltageThreshhold != null && AssetAttributes.isRealNumber(props.Asset.OnVoltageThreshhold);
+        return true;
+    }
+    return <>
+        <FormInput<OpenXDA.CapBankRelay> Record={props.Asset} Field={'OnVoltageThreshhold'} Label={'Relay On Voltage Threshhold (pu)'} Feedback={'Relay On Voltage Threshhold (pu) is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+    </>;
 
 }
 

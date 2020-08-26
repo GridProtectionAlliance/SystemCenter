@@ -75,20 +75,22 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
             return props.Asset.BlownFuses != null && AssetAttributes.isRealNumber(props.Asset.BlownFuses);
         else if (field == 'BlownGroups')
             return props.Asset.BlownGroups != null && AssetAttributes.isRealNumber(props.Asset.BlownGroups);
-        else if (field == 'OnVoltageThreshhold')
-            return props.Asset.OnVoltageThreshhold != null && AssetAttributes.isRealNumber(props.Asset.OnVoltageThreshhold);
         else if (field == 'Rv')
             return props.Asset.Rv != null && AssetAttributes.isRealNumber(props.Asset.Rv);
         else if (field == 'Rh')
             return props.Asset.Rh != null && AssetAttributes.isRealNumber(props.Asset.Rh);
+        else if (field == 'NLowerGroups')
+            return props.Asset.NLowerGroups != null && AssetAttributes.isInteger(props.Asset.NLowerGroups);
+        else if (field == 'ShortedGroups')
+            return props.Asset.ShortedGroups != null && AssetAttributes.isInteger(props.Asset.ShortedGroups);
         return false;
     }
     if (props.Asset == null) return null;
     return (
         <>
             <DesignSelect Record={props.Asset} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormCheckBox<OpenXDA.CapBank> Record={props.Asset} Field={'CktSwitcher'} Label={'Pre-Insertion Circuit Switcher'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-
+            <PreSwitchSelect Record={props.Asset} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NumberOfBanks'} Label={'Number Of Banks'} Feedback={'Number Of Banks is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'CapacitancePerBank'} Label={'Capacitor Step Size (kVAR)'} Feedback={'Capacitor Step Size is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
@@ -100,8 +102,7 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NegReactanceTol'} Label={'neg. Reactance Tolerance of a Unit (%)'} Feedback={'neg. Reactance Tolerance of a Unit (%) is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Nparalell'} Label={(props.Asset.Fused ? 'Num. of Units per group' : 'Num. of Parallel Strings')} Feedback={(props.Asset.Fused ? 'Num. of Caps. per group' : 'Num. of Parallel Strings') + ' is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Nseries'} Label={(props.Asset.Fused ? 'Num. of Series Groups per Phase' : 'Num. Units in each String')} Feedback={(props.Asset.Fused ? 'Num. of Series Groups per Phase' : 'Num. Units in each String') + ' is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'OnVoltageThreshhold'} Label={'Relay On Voltage Threshhold (pu)'} Feedback={'Relay On Voltage Threshhold (pu) is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-
+            
             {(!props.Asset.Fused ?
                 <>
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NSeriesGroup'} Label={'Num. of Series Groups in each Unit'} Feedback={'Num. of Series Groups in each Unit is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
@@ -240,6 +241,60 @@ class PTRatioInput extends React.Component<{ Record: OpenXDA.CapBank, Setter: (r
                     }} value={this.state.low} disabled={this.props.Disabled == null ? false : this.props.Disabled} />
             </div>
             <div className='invalid-feedback'> Relay PT Ratio is a required field.</div>
+        </div>;
+    }
+}
+
+class PreSwitchSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter: (record: OpenXDA.CapBank) => void, Disabled?: boolean }, { preSwitch: boolean[] }, {}>{
+
+    constructor(props, context) {
+        super(props, context);
+
+        let numbers = this.props.Record.CktSwitcher.trim().split(",");
+        if (numbers.length !== parseInt(this.props.Record.NumberOfBanks.toString()))
+            numbers = Array.from(Array(parseInt(this.props.Record.NumberOfBanks.toString())), (e, i) => '0')
+
+        this.state = { preSwitch: numbers.map(item => (item.trim() == '1'? true: false)) };
+    }
+
+    updateValues(input: string) {
+      
+        let numbers = input.trim().split(",");
+        if (numbers.length !== parseInt(this.props.Record.NumberOfBanks.toString()))
+            numbers = Array.from(Array(parseInt(this.props.Record.NumberOfBanks.toString())), (e, i) => '0')
+
+        this.setState({ preSwitch: numbers.map(item => (item.trim() == '1' ? true : false)) })
+     
+    }
+
+    componentDidUpdate(prevprop, prevstate) {
+        if (prevprop.Record.NumberOfBanks !== this.props.Record.NumberOfBanks || prevprop.Record.CktSwitcher !== this.props.Record.CktSwitcher) {
+            this.updateValues(this.props.Record.CktSwitcher)
+        }
+        if (!_.isEqual(prevstate,this.state)) {
+            var record: OpenXDA.CapBank = _.clone(this.props.Record);
+
+            record.CktSwitcher = this.state.preSwitch.map(item => (item ? "1" : "0")).join(",");
+           
+            this.props.Setter(record);
+        }
+    }
+
+    
+    render() {
+        return <div className="form-group">
+            <label>CapBank with Pre-insertion Switcher</label>
+            <div>
+            {this.state.preSwitch.map((v, i) =>
+                <div className="from-check form-check-inline" key={i}>
+                    <input className="form-check-input" type="checkbox" id={"inlineCheckbox-"+i} onChange={(evt) => {
+                        var lst = _.clone(this.state.preSwitch);
+                        lst[i] = !lst[i];
+                        this.setState({ preSwitch: lst })
+                    }} value={(v? 1 : 0)} disabled={this.props.Disabled == null ? false : this.props.Disabled} />
+                    <label className="form-check-label" htmlFor={"inlineCheckbox-" + i}>{i+1}</label>
+                </div>)}
+            </div>
         </div>;
     }
 }
