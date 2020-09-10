@@ -594,6 +594,43 @@
           <Condition Action="disable">WINDOWSAUTH</Condition>
         </Control>
         <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
+        <Control Id="Skip" Type="PushButton" X="124" Y="243" Width="56" Height="17" Text="&amp;Skip">
+          <!-- Set up the queries to create the database. -->
+          <Publish Property="GENPASSWORDLENGTH" Value="20">1</Publish>
+          <Publish Event="DoAction" Value="PasswordGenerationAction">NOT XDASERVICEPASSWORD</Publish>
+          <Publish Property="XDASERVICELOGIN" Value="XDAService">1</Publish>
+          <Publish Property="XDASERVICEPASSWORD" Value="[GENERATEDPASSWORD]">NOT XDASERVICEPASSWORD</Publish>
+          <Publish Property="CREATEDBQUERY" Value="CREATE DATABASE [\[][DATABASENAME][\]]">1</Publish>
+          <Publish Property="ALTERDBQUERY" Value="ALTER DATABASE [\[][DATABASENAME][\]] SET TRUSTWORTHY ON">1</Publish>
+          <Publish Property="CREATEDBLOGINQUERY" Value="IF NOT EXISTS (SELECT * FROM master.dbo.syslogins WHERE loginname = '[XDASERVICELOGIN]') CREATE LOGIN [\[][XDASERVICELOGIN][\]] WITH PASSWORD = '[XDASERVICEPASSWORD]', CHECK_EXPIRATION = OFF, CHECK_POLICY = OFF">1</Publish>
+          <Publish Property="ALTERDBLOGINQUERY" Value="ALTER LOGIN [\[][XDASERVICELOGIN][\]] WITH PASSWORD = '[XDASERVICEPASSWORD]'">1</Publish>
+          <Publish Property="CREATEDBUSERQUERY" Value="CREATE USER [\[][XDASERVICELOGIN][\]] FOR LOGIN [\[][XDASERVICELOGIN][\]]">1</Publish>
+          <Publish Property="DBPERMISSIONSQUERY" Value="EXEC sp_addrolemember N'db_owner', N'[XDASERVICELOGIN]'">1</Publish>
+
+          <!-- Set up the authentication part of the connection string based on user input. -->
+          <Publish Property="AUTHSTRING" Value="Integrated Security=SSPI">WINDOWSAUTH</Publish>
+          <Publish Property="AUTHSTRING" Value="User Id=[DBUSERNAME];;Password=[DBPASSWORD]">NOT WINDOWSAUTH</Publish>
+          <Publish Property="XDAAUTHSTRING" Value="Integrated Security=SSPI">NOT INSTALLDATABASEFEATURE AND WINDOWSAUTH</Publish>
+          <Publish Property="XDAAUTHSTRING" Value="User Id=[DBUSERNAME];;Password=[DBPASSWORD]">NOT INSTALLDATABASEFEATURE AND NOT WINDOWSAUTH</Publish>
+          <Publish Property="XDAAUTHSTRING" Value="User Id=[XDASERVICELOGIN];;Password=[XDASERVICEPASSWORD]">INSTALLDATABASEFEATURE</Publish>
+
+          <!-- Set up connection strings for connecting to server and database. -->
+          <Publish Property="SERVERCONNECTIONSTRING" Value="Data Source=[SERVERNAME];;[AUTHSTRING];;Pooling=false">1</Publish>
+          <Publish Property="DBCONNECTIONSTRING" Value="Data Source=[SERVERNAME];;Initial Catalog=[DATABASENAME];;[AUTHSTRING];;Pooling=false">1</Publish>
+          <Publish Property="XDACONNECTIONSTRING" Value="Data Source=[SERVERNAME];;Initial Catalog=[DATABASENAME];;[XDAAUTHSTRING]">1</Publish>
+
+          <!-- Determine whether we can connect to the database server. Skip This step -->
+          <Publish Property="CONNECTIONSTRING" Value="[SERVERCONNECTIONSTRING];;Connection Timeout=5">1</Publish>
+          <Publish Property="DBSERVERCONNECTS" Value="1">1</Publish>
+          
+          <!-- Determine whether the database already exists on the server. -->
+          <Publish Property="CONNECTIONSTRING" Value="[DBCONNECTIONSTRING];;Connection Timeout=5">1</Publish>
+          <Publish Property="DBEXISTS" Value="1">1</Publish>
+          
+          <!-- Move to the next dialog if the validation checks out. -->
+          <Publish Event="NewDialog" Value="VerifyReadyDlg">DBSERVERCONNECTS AND ((INSTALLDATABASEFEATURE AND NOT DBEXISTS) OR (NOT INSTALLDATABASEFEATURE AND DBEXISTS))</Publish>
+          
+        </Control>
         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="&amp;Back">
           <Publish Event="NewDialog" Value="CompanyInfoDialog">INSTALLSERVICEFEATURE</Publish>
           <Publish Event="NewDialog" Value="CustomizeDlg">NOT INSTALLSERVICEFEATURE</Publish>
