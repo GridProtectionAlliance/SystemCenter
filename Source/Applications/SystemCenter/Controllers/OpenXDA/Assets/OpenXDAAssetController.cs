@@ -784,7 +784,7 @@ namespace SystemCenter.Controllers.OpenXDA
             capBank.Nshorted = record["Nshorted"].ToObject<double>();
             capBank.BlownFuses = record["BlownFuses"].ToObject<int>();
             capBank.BlownGroups = record["BlownGroups"].ToObject<int>();
-            capBank.ShortedGroups = record["ShortedGroups"].ToObject<int>();
+            capBank.ShortedGroups = record["ShortedGroups"].ToObject<double>();
             capBank.NLowerGroups = record["NLowerGroups"].ToObject<int>();
 
             capBank.RelayPTRatio = record["RelayPTRatio"].ToString();

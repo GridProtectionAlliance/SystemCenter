@@ -82,7 +82,7 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
         else if (field == 'NLowerGroups')
             return props.Asset.NLowerGroups != null && AssetAttributes.isInteger(props.Asset.NLowerGroups);
         else if (field == 'ShortedGroups')
-            return props.Asset.ShortedGroups != null && AssetAttributes.isInteger(props.Asset.ShortedGroups);
+            return props.Asset.ShortedGroups != null && AssetAttributes.isRealNumber(props.Asset.ShortedGroups);
         return false;
     }
     if (props.Asset == null) return null;
@@ -117,8 +117,8 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Nshorted'} Label={'Initial guess of shorted groups'} Feedback={'Initial guess of shorted groups is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'BlownFuses'} Label={'Initial Guess of blown fuses per group'} Feedback={'Initial Guess of blown fuses per group is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'BlownGroups'} Label={'Initial guess of Groups with blown Fuse'} Feedback={'Initial guess of Groups with blown Fuse is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                </>:
-                <>
+                    <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'ShortedGroups'} Label={'Initial guess of Groups with blown Fuse'} Feedback={'Initial guess of shorted Groups required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                </> : <>
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NumberLVCaps'} Label={'Num.of Relay Caps'} Feedback={'Num. of Relay Caps is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NumberLVUnits'} Label={'Num. of Elements per Relay Cap'} Feedback={'Num. of Elements per Relay Cap is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LVKVAr'} Label={'Low Voltage Cap size (kVAR)'} Feedback={'Low Voltage Cap size is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
