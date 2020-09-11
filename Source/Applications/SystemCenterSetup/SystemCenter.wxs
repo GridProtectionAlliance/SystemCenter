@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi" xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
-  <Product Id="{4B1B20F1-D7CE-4CF2-AB75-A33CB6DD2C51}" Name="SystemCenter" Language="1033" Version="!(bind.FileVersion.SystemCenter.exe)" Manufacturer="Grid Protection Alliance" UpgradeCode="{91E350F2-D6A1-4BBC-A3D8-46FEE9E8F7F7}">
+  <Product Id="*" Name="SystemCenter" Language="1033" Version="!(bind.FileVersion.SystemCenter.exe)" Manufacturer="Grid Protection Alliance" UpgradeCode="{91E350F2-D6A1-4BBC-A3D8-46FEE9E8F7F7}">
     <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
