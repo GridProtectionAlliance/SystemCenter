@@ -100,6 +100,7 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'UnitKVAr'} Label={'Rating of a Unit (kVAR)'} Feedback={'Rating of a Unit is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'PosReactanceTol'} Label={'pos. Reactance Tolerance of a Unit (%)'} Feedback={'pos. Reactance Tolerance of a Unit is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NegReactanceTol'} Label={'neg. Reactance Tolerance of a Unit (%)'} Feedback={'neg. Reactance Tolerance of a Unit (%) is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Nparalell'} Label={(props.Asset.Fused ? 'Num. of Units per group' : 'Num. of Parallel Strings')} Feedback={(props.Asset.Fused ? 'Num. of Caps. per group' : 'Num. of Parallel Strings') + ' is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Nseries'} Label={(props.Asset.Fused ? 'Num. of Series Groups per Phase' : 'Num. Units in each String')} Feedback={(props.Asset.Fused ? 'Num. of Series Groups per Phase' : 'Num. Units in each String') + ' is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             
@@ -107,27 +108,31 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
                 <>
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NSeriesGroup'} Label={'Num. of Series Groups in each Unit'} Feedback={'Num. of Series Groups in each Unit is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NParalellGroup'} Label={'Num. of Elements in each Group'} Feedback={'Num. of Elements in each Group is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                </>: null)}
-            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'VTratioBus'} Label={'Bus VT Ratio'} Feedback={'Bus VT Ratio is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                </> : null)}
 
+           
             {(props.Asset.Fused ? 
                 <>
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'UpperXFRRatio'} Label={'Upper Group VT Ratio'} Feedback={'Upper Group VT Ratio is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LowerXFRRatio'} Label={'Lower Group VT Ratio'} Feedback={'Lower Group VT Ratio is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+
+
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Nshorted'} Label={'Initial guess of shorted groups'} Feedback={'Initial guess of shorted groups is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'BlownFuses'} Label={'Initial Guess of blown fuses per group'} Feedback={'Initial Guess of blown fuses per group is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'BlownGroups'} Label={'Initial guess of Groups with blown Fuse'} Feedback={'Initial guess of Groups with blown Fuse is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'ShortedGroups'} Label={'Initial guess of Groups with blown Fuse'} Feedback={'Initial guess of shorted Groups required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                 </> : <>
+                    <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'VTratioBus'} Label={'Bus VT Ratio'} Feedback={'Bus VT Ratio is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NumberLVCaps'} Label={'Num.of Relay Caps'} Feedback={'Num. of Relay Caps is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NumberLVUnits'} Label={'Num. of Elements per Relay Cap'} Feedback={'Num. of Elements per Relay Cap is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LVKVAr'} Label={'Low Voltage Cap size (kVAR)'} Feedback={'Low Voltage Cap size is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LVKV'} Label={'Low Volatage Cap rating (kV)'} Feedback={'Low Volatage Cap rating is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LVKV'} Label={'Low Volatage Cap rating (V)'} Feedback={'Low Volatage Cap rating is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LVNegReactanceTol'} Label={'neg. Reactance Tolerance of LV Unit (%)'} Feedback={'neg. Reactance Tolerance of LV Unitis a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LVPosReactanceTol'} Label={'pos. Reactance Tolerance of LV Unit (%)'} Feedback={'pos. Reactance Tolerance of LV Unit is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <PTRatioInput Record={props.Asset} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Rv'} Label={'Voltage Divider output R (Ohm)'} Feedback={'Voltage Divider output R is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Rh'} Label={'Voltage Divider input R'} Feedback={'Voltage Divider input R is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Nshorted'} Label={'Initial guess of shorted elements'} Feedback={'Initial guess of shorted elements is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
                 </>)}
@@ -173,9 +178,9 @@ class DesignSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter: (r
         return <div className="form-group">
             <label>Design</label>
             <select className="form-control" value={this.computeSelection(this.props.Record)} disabled={this.props.Disabled == null ? false : this.props.Disabled} onChange={(evt) => this.computBools(evt.target.value)}>
-                <option key={0} value="0">Compensated</option>
+                <option key={0} value="0">Fuseless Compensated</option>
                 <option key={1} value="1">Fuseless Uncompensated</option>
-                <option key={2} value="2">Fused Uncompensated</option>
+                <option key={2} value="2">Fused</option>
             </select>
         </div>;
     }
@@ -186,7 +191,7 @@ class PTRatioInput extends React.Component<{ Record: OpenXDA.CapBank, Setter: (r
     constructor(props, context) {
         super(props, context);
 
-        let regex = /^\[([0-9]+) ([0-9]+)\]$/;
+        let regex = /^([0-9]+) ([0-9]+)$/;
         if (this.props.Record.RelayPTRatio.match(regex) != null) {
             this.state = { low: this.props.Record.RelayPTRatio.match(regex)[1], high: this.props.Record.RelayPTRatio.match(regex)[2] };
         }
@@ -201,7 +206,7 @@ class PTRatioInput extends React.Component<{ Record: OpenXDA.CapBank, Setter: (r
     updateValues(input: string) {
         input = input.trim();
 
-        let regex = /^\[([0-9]+) ([0-9]+)\]$/;
+        let regex = /^([0-9]+) ([0-9]+)$/;
         if (input.match(regex) != null) {
             this.setState({ low: input.match(regex)[1], high: input.match(regex)[2] })
         }
@@ -217,9 +222,9 @@ class PTRatioInput extends React.Component<{ Record: OpenXDA.CapBank, Setter: (r
         if ((prevstate.low !== this.state.low || prevstate.high !== this.state.high) && this.isInteger(this.state.low) && this.isInteger(this.state.high)) {
             var record: OpenXDA.CapBank = _.clone(this.props.Record);
             if (parseInt(this.state.low) > parseInt(this.state.high))
-                record.RelayPTRatio = "[" + this.state.low.toString() + " " + this.state.high.toString() + "]";
+                record.RelayPTRatio = this.state.low.toString() + " " + this.state.high.toString();
             else
-                record.RelayPTRatio = "[" + this.state.high.toString() + " " + this.state.low.toString() + "]";
+                record.RelayPTRatio = this.state.high.toString() + " " + this.state.low.toString();
             this.props.Setter(record);
         }
     }
