@@ -42,6 +42,8 @@ import NewMeterWizard from './NewMeterWizard/NewMeterWizard'
 import ConfigurationHistory from './ConfigurationHistory/ConfigurationHistory'
 import Meter from './Meter/Meter'
 import Location from './Location/Location'
+import ByAssetGroup from './AssetGroups/ByAssetGroup';
+import AssetGroup from './AssetGroups/Assetgroup';
 
 
 declare var homePath: string;
@@ -119,6 +121,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Assets"} to={controllerViewPath + "?name=Assets"}>Transmission Assets</NavLink>
                                 </li>
+                                <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=AssetGroups"} to={controllerViewPath + "?name=AssetGroups"}>Asset Groups</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -173,6 +178,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 }
                                 else if (qs['?name'] == "Assets")
                                     return <ByAsset Roles={roles} />
+                                else if (qs['?name'] == "AssetGroups")
+                                    return <ByAssetGroup Roles={roles} />
                                 else if (qs['?name'] == "Users")
                                     return <ByUser Roles={roles} />
                                 else if (qs['?name'] == "User")
@@ -185,6 +192,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <Location LocationID={parseInt(qs.LocationID as string)} />
                                 else if (qs['?name'] == "Asset")
                                     return <Asset AssetID={parseInt(qs.AssetID as string)} />
+                                else if (qs['?name'] == "AssetGroup")
+                                    return <AssetGroup AssetGroupID={parseInt(qs.AssetGroupID as string)} />
                                 else if (qs['?name'] == "Customer")
                                     return <Customer CustomerID={parseInt(qs.CustomerID as string)} />
                                 else if (qs['?name'] == "PQViewSites")

@@ -102,6 +102,9 @@ export namespace OpenXDA {
 
     // Types
     type AssetTypeName = 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay'
+
+    // AssetGroups
+    interface AssetGroup { ID: number, Name: string, DisplayDashboard: boolean, AssetGroups: number, Meters: number, Assets: number, Users: number }
 }
 
 export namespace PQView {
