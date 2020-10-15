@@ -82,6 +82,7 @@ namespace SystemCenter.Controllers
         protected virtual string PostRoles { get; } = "Administrator";
         protected virtual string PatchRoles { get; } = "Administrator";
         protected virtual string DeleteRoles { get; } = "Administrator";
+        protected virtual string DefaultSort { get; } = null;
         #endregion
 
         #region [ Http Methods ]
@@ -133,7 +134,13 @@ namespace SystemCenter.Controllers
                         else
                             result = new TableOperations<T>(connection).QueryRecords();
 
-                        return Ok(result);
+                        if (DefaultSort != null)
+                        {
+                            PropertyInfo prop = typeof(T).GetProperty(DefaultSort);
+                            return Ok(result.OrderBy(x => prop.GetValue(x)));
+                        }
+                        else
+                            return Ok(result);
                     }
                     catch (Exception ex)
                     {
