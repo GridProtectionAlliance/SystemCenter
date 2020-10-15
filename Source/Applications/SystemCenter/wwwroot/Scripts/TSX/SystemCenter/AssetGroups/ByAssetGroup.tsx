@@ -34,6 +34,8 @@ import BusAttributes from '../AssetAttribute/Bus';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import LineSegmentAttributes from '../AssetAttribute/LineSegment';
+import FormInput from '../CommonComponents/FormInput';
+import FormCheckBox from '../CommonComponents/FormCheckBox';
 
 declare var homePath: string;
 
@@ -45,6 +47,11 @@ interface Search {
 interface AssetGroup {
     ID: number, Name: string, DisplayDashboard: boolean, AssetGroups: number, Meters: number, Assets: number, Users: number
 }
+
+interface extendedAssetGroup extends AssetGroup { MeterList: Array<number>, AssetList: Array<number>, UserList: Array<number>, AssetGroupList: Array<number> }
+
+const emptyAssetGroup: extendedAssetGroup = { ID: -1, Name: '', DisplayDashboard: true, AssetGroups: 0, Meters: 0, Assets: 0, Users: 0, MeterList: [], AssetList: [], UserList: [], AssetGroupList: [] };
+
 declare var homePath: string;
 
 const ByAssetGroup: SystemCenter.ByComponent = (props) => {
@@ -55,7 +62,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
-    const [newAsset, setNewAsset] = React.useState<OpenXDA.Asset>(AssetAttributes.getNewAsset('Line'));
+    const [newAssetGroup, setNewAssetGroup] = React.useState<extendedAssetGroup>(_.cloneDeep(emptyAssetGroup));
     const [allAssetGroups, setAllAssetGroups] = React.useState<Array<AssetGroup>>([]);
 
     React.useEffect(() => {
@@ -103,18 +110,18 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
         })
     }
 
-    function addNewAsset() {
+    function addNewAssetGroup() {
         $.ajax({
             type: "POST",
-            url: `${homePath}api/OpenXDA/${newAsset.AssetType}/Add`,
+            url: `${homePath}api/OpenXDA/Assetgroup/Add`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(newAsset),
+            data: JSON.stringify(newAssetGroup),
             cache: false,
             async: true
-        }).done((newAsset: OpenXDA.Asset) => {
+        }).done((newAssetGroup: OpenXDA.AssetGroup) => {
             sessionStorage.clear();
-            history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + newAsset.ID, state: {} })
+            history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + newAssetGroup.ID, state: {} })
         }).fail((msg) => {
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
@@ -124,6 +131,14 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + item.row.ID, state: {} })
+    }
+
+    function valid(field: keyof (OpenXDA.AssetGroup)): boolean {
+        if (field == 'Name') {
+            if (newAssetGroup.Name == null || newAssetGroup.Name.length == 0) return false;
+            return allAssetGroups.map(item => item.Name.toLowerCase()).indexOf(newAssetGroup.Name.toLowerCase()) < 0;
+        }
+        return true;
     }
 
     return (
@@ -251,23 +266,31 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
                     <div className="modal-content">
                         <div className="modal-header">
                             <h4 className="modal-title">Add a New Asset</h4>
-                            <button type="button" className="close" data-dismiss="modal" onClick={(evt) => {
-                                
-                            }}>&times;</button>
+                            <button type="button" className="close" data-dismiss="modal" onClick={(evt) => { setNewAssetGroup(_.cloneDeep(emptyAssetGroup)) }}>&times;</button>
                         </div>
                         <div className="modal-body">
                             <div className="row">
                                 <div className="col">
-                                    Attributes
+                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique name of less than 50 characters is required.'} Valid={valid}
+                                        Setter={setNewAssetGroup} Disabled={false} />
+                                    <FormCheckBox<extendedAssetGroup> Record={newAssetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in Dashboard'} Setter={setNewAssetGroup} Disabled={false} />
+
                                 </div>
                                 <div className="col">
-                                    Add Asset/ Meter/ User/ etc...
+                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
+                                    <button type="button" className="btn btn-primary btn-block" onClick={() => { }}> Add Transmission Asset </button>
+                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Meters'} Label={'Num. of Meters'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
+                                    <button type="button" className="btn btn-primary btn-block" onClick={() => { }}> Add Meter </button>
+                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Users'} Label={'Num. of Users'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
+                                    <button type="button" className="btn btn-primary btn-block" onClick={() => { }}> Add User Account </button>
+                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'AssetGroups'} Label={'Num. of Asset Groups'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
+                                    <button type="button" className="btn btn-primary btn-block" onClick={() => { }}> Add Asset Group </button>
                                 </div>
                             </div>
                         </div>
                         <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewAsset}>Save</button>
-                            <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => {}}>Close</button>
+                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewAssetGroup}>Save</button>
+                            <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => { setNewAssetGroup(_.cloneDeep(emptyAssetGroup))}}>Close</button>
                         </div>
 
                     </div>

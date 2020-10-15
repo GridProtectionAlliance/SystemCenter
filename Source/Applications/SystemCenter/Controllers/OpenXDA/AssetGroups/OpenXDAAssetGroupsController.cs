@@ -46,6 +46,15 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/AssetGroup")]
     public class OpenXDAAssetGroupController : ModelController<AssetGroupView>
     {
+        private class extendedAssetGroupView: AssetGroupView
+        {
+            public List<int> MeterList { get; set; }
+            public List<int> AssetList { get; set; }
+            public List<int> UserList { get; set; }
+            public List<int> AssetGroupList { get; set; }
+
+        }
+
         protected override string PostRoles { get; } = "Administrator, Transmission SME";
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
@@ -149,6 +158,66 @@ namespace SystemCenter.Controllers.OpenXDA
 	                    AssetGroupView
                    " + whereClause);
                 return Ok(table);
+            }
+        }
+
+        [HttpDelete, Route("Delete")]
+        public override IHttpActionResult Delete(AssetGroupView record)
+        {
+            try
+            {
+                if (DeleteRoles == string.Empty || User.IsInRole(DeleteRoles))
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                       
+                        int id = record.ID;
+                        int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'AssetGroup', 'ID' = {id}'");
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpPost, Route("Add")]
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        extendedAssetGroupView newRecord = record.ToObject<extendedAssetGroupView>();
+                        AssetGroup newGroup = new AssetGroup() { ID= newRecord.ID, DisplayDashboard = newRecord.DisplayDashboard, Name= newRecord.Name };
+
+                        int result = new TableOperations<AssetGroup>(connection).AddNewRecord(newRecord);
+
+                        return Ok(new TableOperations<AssetAssetGroupView>(connection).QueryRecordWhere("Name = {0}", newRecord.Name));
+                            
+
+                     }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
             }
         }
 
