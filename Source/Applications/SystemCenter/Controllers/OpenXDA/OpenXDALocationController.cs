@@ -42,6 +42,7 @@ namespace SystemCenter.Controllers.OpenXDA
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
 
         protected override string Connection { get; } = "dbOpenXDA";
+        protected override string DefaultSort { get; } = "LocationKey";
 
         [HttpPost, Route("SearchableList")]
         public IHttpActionResult GetMetersUsingSearchableList([FromBody] IEnumerable<Search> searches)

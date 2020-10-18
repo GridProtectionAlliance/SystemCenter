@@ -44,6 +44,7 @@ namespace SystemCenter.Controllers.OpenXDA
         protected override string PostRoles { get; } = "Administrator, Transmission SME";
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+        protected override string DefaultSort { get; } = "Name";
 
         protected override string Connection { get; } = "dbOpenXDA";
     }

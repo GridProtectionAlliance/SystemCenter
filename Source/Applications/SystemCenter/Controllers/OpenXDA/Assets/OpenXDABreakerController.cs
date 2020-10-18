@@ -37,6 +37,7 @@ public class OpenXDABreakerController : ModelController<Breaker>
     protected override string PostRoles { get; } = "Administrator, Transmission SME";
     protected override string PatchRoles { get; } = "Administrator, Transmission SME";
     protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+    protected override string DefaultSort { get; } = "AssetKey";
 
     public OpenXDABreakerController() : base(false, "", true, "AssetKey") { }
 
