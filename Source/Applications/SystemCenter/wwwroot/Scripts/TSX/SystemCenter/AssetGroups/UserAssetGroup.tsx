@@ -68,14 +68,9 @@ function UserAssetGroupWindow(props: { AssetGroupID: number}) {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Transmission Assets in Asset Group:</h4>
+                        <h4>User Accounts in Asset Group:</h4>
                     </div>
-                    <div className="col">
-                        {(false) ?
-                            <button className="btn btn-default pull-right" onClick={() => { }}>View</button> :
-                            <button className="btn btn-primary pull-right" onClick={() => { }}>Edit</button>
-                        }
-                    </div>
+                   
                 </div>
             </div>
             <div className="card-body">
@@ -111,12 +106,7 @@ function UserAssetGroupWindow(props: { AssetGroupID: number}) {
                 </div>
             </div>
             <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button className="btn btn-primary" type="submit" onClick={() => {}} disabled={true}>Save Changes</button>
-                </div>
-                <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={() => { }} disabled={true}>Clear Changes</button>
-                </div>
+               
             </div>
 
         </div>

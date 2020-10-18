@@ -36,6 +36,7 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
+import AddToGroupPopup from './AddToGroup';
 
 declare var homePath: string;
 
@@ -278,13 +279,43 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
                                 </div>
                                 <div className="col">
                                     <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                                    <button type="button" className="btn btn-primary btn-block" onClick={() => { }}> Add Transmission Asset </button>
+                                    <button type="button" className="btn btn-primary btn-block" data-toggle='modal' data-target="#AddAsset"> Add Transmission Asset </button>
+                                    <AddToGroupPopup type='Asset' onComplete={(list) => {
+                                        setNewAssetGroup((grp) => {
+                                            let updated = _.cloneDeep(grp);
+                                            updated.AssetList.push(...list);
+                                            updated.AssetList = _.uniq(updated.AssetList);
+                                            updated.Assets = updated.AssetList.length;
+                                            return updated;
+                                        });
+                                        return null;
+                                    }} />
                                     <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Meters'} Label={'Num. of Meters'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                                    <button type="button" className="btn btn-primary btn-block" onClick={() => { }}> Add Meter </button>
+                                    <button type="button" className="btn btn-primary btn-block" data-toggle='modal' data-target="#AddMeter"> Add Meter </button>
+                                    <AddToGroupPopup type='Meter' onComplete={(list) => {
+                                        setNewAssetGroup((grp) => {
+                                            let updated = _.cloneDeep(grp);
+                                            updated.MeterList.push(...list);
+                                            updated.MeterList = _.uniq(updated.MeterList);
+                                            updated.Meters = updated.MeterList.length;
+                                            return updated;
+                                        });
+                                        return null;
+                                    }} />
                                     <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Users'} Label={'Num. of Users'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                                    <button type="button" className="btn btn-primary btn-block" onClick={() => { }}> Add User Account </button>
+                                    <button type="button" className="btn btn-primary btn-block" disabled={true}> Add User Account </button>
                                     <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'AssetGroups'} Label={'Num. of Asset Groups'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                                    <button type="button" className="btn btn-primary btn-block" onClick={() => { }}> Add Asset Group </button>
+                                    <button type="button" className="btn btn-primary btn-block" data-toggle='modal' data-target="#AddGroup"> Add Asset Group </button>
+                                    <AddToGroupPopup type='Group' onComplete={(list) => {
+                                        setNewAssetGroup((grp) => {
+                                            let updated = _.cloneDeep(grp);
+                                            updated.AssetGroupList.push(...list);
+                                            updated.AssetGroupList = _.uniq(updated.AssetGroupList);
+                                            updated.AssetGroups = updated.AssetGroupList.length;
+                                            return updated;
+                                        });
+                                        return null;
+                                    }} />
                                 </div>
                             </div>
                         </div>

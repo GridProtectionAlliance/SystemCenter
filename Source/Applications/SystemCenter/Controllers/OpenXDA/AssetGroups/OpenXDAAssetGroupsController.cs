@@ -82,6 +82,37 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        [HttpPost, Route("{assetGroupID:int}/AddAssets")]
+        public IHttpActionResult AddAssets(int assetGroupID, [FromBody] IEnumerable<int> assets)
+        {
+            try
+            {
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        TableOperations<AssetAssetGroup> assetassetGroupTbl = new TableOperations<AssetAssetGroup>(connection);
+                        foreach (int assetID in assets)
+                        {
+                            int n = connection.ExecuteScalar<int>("Select Count(ID) FROM AssetAssetGroup WHERE AssetID = {0} AND AssetGroupID = {1}", assetID, assetGroupID);
+                            if (n == 0)
+                                assetassetGroupTbl.AddNewRecord( new AssetAssetGroup() { AssetGroupID = assetGroupID, AssetID = assetID});
+                        }
+                        return Ok();
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    
+
         [HttpGet, Route("{assetGroupID:int}/Meters")]
         public IHttpActionResult GetMeters(int assetGroupID)
         {
@@ -97,6 +128,36 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     return InternalServerError(ex);
                 }
+            }
+        }
+
+        [HttpPost, Route("{assetGroupID:int}/AddMeters")]
+        public IHttpActionResult AddMeters(int assetGroupID, [FromBody] IEnumerable<int> meters)
+        {
+            try
+            {
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        TableOperations<MeterAssetGroup> meterassetGroupTbl = new TableOperations<MeterAssetGroup>(connection);
+                        foreach (int meterID in meters)
+                        {
+                            int n = connection.ExecuteScalar<int>("Select Count(ID) FROM MeterAssetGroup WHERE MeterID = {0} AND AssetGroupID = {1}", meterID, assetGroupID);
+                            if (n == 0)
+                                meterassetGroupTbl.AddNewRecord(new MeterAssetGroup() { AssetGroupID = assetGroupID, MeterID = meterID });
+                        }
+                        return Ok();
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
             }
         }
 
@@ -136,6 +197,35 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        [HttpPost, Route("{assetGroupID:int}/AddAssetGroups")]
+        public IHttpActionResult AddSubgroups(int assetGroupID, [FromBody] IEnumerable<int> subGroups)
+        {
+            try
+            {
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        TableOperations<AssetGroupAssetGroup> assetassetGroupTbl = new TableOperations<AssetGroupAssetGroup>(connection);
+                        foreach (int childID in subGroups)
+                        {
+                            int n = connection.ExecuteScalar<int>("Select Count(ID) FROM AssetGroupAssetGroup WHERE ChildAssetGroupID = {0} AND ParentAssetGroupID = {1}", childID, assetGroupID);
+                            if (n == 0)
+                                assetassetGroupTbl.AddNewRecord(new AssetGroupAssetGroup() { ParentAssetGroupID = assetGroupID, ChildAssetGroupID = childID });
+                        }
+                        return Ok();
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
 
         [HttpPost, Route("SearchableList")]
         public IHttpActionResult GetAssetsUsingSearchableList([FromBody] IEnumerable<Search> searches)

@@ -28,14 +28,21 @@ import { OpenXDA } from '../global';
 import { useHistory } from 'react-router-dom';
 import { isEqual } from 'lodash';
 import Table from '../CommonComponents/Table';
+import AddToAssetGroup from './AddToGroup';
+import AddToGroupPopup from './AddToGroup';
 
 declare var homePath: string;
+
+interface IAssetGroup {
+    ID: number, Name: string, DisplayDashboard: boolean, AssetGroups: number, Meters: number, Assets: number, Users: number
+}
 
 function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
     let history = useHistory();
     const [groupList, setGroupList] = React.useState<Array<OpenXDA.AssetGroup>>([]);
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [edit, setEdit] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         return getData();
@@ -62,6 +69,23 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
         }
     }
 
+    function AddGroups(toAdd) {
+        let handle = $.ajax({
+            type: "Post",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddAssetGroups`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify(toAdd),
+            cache: false,
+            async: true
+        });
+
+        handle.done((d) => { history.go(0); })
+        return handle
+    }
+
+
+
     return (
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -70,9 +94,9 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                         <h4>Transmission Assets in Asset Group:</h4>
                     </div>
                     <div className="col">
-                        {(false) ?
-                            <button className="btn btn-default pull-right" onClick={() => { }}>View</button> :
-                            <button className="btn btn-primary pull-right" onClick={() => { }}>Edit</button>
+                        {(edit) ?
+                            <button className="btn btn-default pull-right" onClick={() => { setEdit(false) }}>View</button> :
+                            <button className="btn btn-primary pull-right" onClick={() => { setEdit(true) }}>Edit</button>
                         }
                     </div>
                 </div>
@@ -111,15 +135,11 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         selected={(item) => false}
                         />
-                    </div>
+                </div>
+                <AddToGroupPopup type='Group' onComplete={AddGroups} />
             </div>
             <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button className="btn btn-primary" type="submit" onClick={() => {}} disabled={true}>Save Changes</button>
-                </div>
-                <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={() => { }} disabled={true}>Clear Changes</button>
-                </div>
+                <button className="btn btn-primary" data-toggle='modal' data-target="#AddMeter" disabled={!edit}>Add Meter</button>
             </div>
 
         </div>
