@@ -10,23 +10,11 @@ module.exports = env => {
         cache: true,
         entry: {
             SystemCenter: "./TSX/SystemCenter/SystemCenter.tsx",
-            //ByMeter: "./TSX/SystemCenter/Meter/ByMeter.tsx",
-            //ByLocation: "./TSX/SystemCenter/Location/ByLocation.tsx",
-            //ByAsset: "./TSX/SystemCenter/Asset/ByAsset.tsx",
-            //ByUser: "./TSX/SystemCenter/User/ByUser.tsx",
-            //ByCustomer: "./TSX/SystemCenter/Customer/ByCustomer.tsx",
-
-            //Asset: "./TSX/SystemCenter/Asset/Asset.tsx",
-            //NewMeterWizard: "./TSX/SystemCenter/NewMeterWizard/NewMeterWizard.tsx",
-            //ConfigurationHistory: "./TSX/SystemCenter/ConfigurationHistory/ConfigurationHistory.tsx",
-            //UserStatistics: "./TSX/SystemCenter/UserStatistics/UserStatistics.tsx",
-            //User: "./TSX/SystemCenter/User/User.tsx",
-
         },
 
         output: {
             path: path.resolve(__dirname, 'wwwroot', 'Scripts'),
-            publicPath: path.resolve(__dirname, 'wwwroot', 'Scripts'),
+            publicPath: 'Scripts/',
             filename: "[name].js",
             //chunkFilename: '[name].bundle.js'
         },

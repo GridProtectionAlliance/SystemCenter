@@ -23,57 +23,68 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, NavLink } from 'react-router-dom';
+import { BrowserRouter as Router, Route, NavLink, Switch } from 'react-router-dom';
 
 import queryString from "querystring";
 import { createBrowserHistory } from "history"
 import { SystemCenter } from './global';
+import { Provider } from 'react-redux';
+import store from './Store/Store';
 
-import ByMeter from './Meter/ByMeter'
-import ByLocation from './Location/ByLocation'
-import ByAsset from './Asset/ByAsset'
-import ByCustomer from './Customer/ByCustomer'
-import ByUser from './User/ByUser'
-import UserStatistics from './UserStatistics/UserStatistics'
-import Customer from './Customer/Customer'
-import User from './User/User'
-import Asset from './Asset/Asset'
-import NewMeterWizard from './NewMeterWizard/NewMeterWizard'
-import ConfigurationHistory from './ConfigurationHistory/ConfigurationHistory'
-import Meter from './Meter/Meter'
-import Location from './Location/Location'
-import ByAssetGroup from './AssetGroups/ByAssetGroup';
-import AssetGroup from './AssetGroups/Assetgroup';
-
+//import ByMeter from './Meter/ByMeter'
+//import ByLocation from './Location/ByLocation'
+//import ByAsset from './Asset/ByAsset'
+//import ByCustomer from './Customer/ByCustomer'
+//import ByUser from './User/ByUser'
+//import UserStatistics from './UserStatistics/UserStatistics'
+//import Customer from './Customer/Customer'
+//import User from './User/User'
+//import Asset from './Asset/Asset'
+//import NewMeterWizard from './NewMeterWizard/NewMeterWizard'
+//import ConfigurationHistory from './ConfigurationHistory/ConfigurationHistory'
+//import Meter from './Meter/Meter'
+//import Location from './Location/Location'
+//import ByAssetGroup from './AssetGroups/ByAssetGroup';
+//import AssetGroup from './AssetGroups/Assetgroup';
+//import ByCompany from './Company/ByCompany';
+//import Company from './Company/Company';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
 
 const SystemCenter: React.FunctionComponent = (props: {}) => {
     const history = createBrowserHistory();
-    //const ByMeter = React.lazy(() => import(/*webpackChunkName: "ByMeter"*/'./Meter/ByMeter'));
-    //const ByLocation = React.lazy(() => import(/* webpackChunkName: "ByLocation" */ './Location/ByLocation'));
-    //const ByAsset = React.lazy(() => import(/* webpackChunkName: "ByAsset" */ './Asset/ByAsset'));
-    //const ByCustomer = React.lazy(() => import(/* webpackChunkName: "ByCustomer" */ './Customer/ByCustomer'));
-    //const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/ByUser'));
-    //const UserStatistics = React.lazy(() => import(/* webpackChunkName: "UserStatistics" */ './UserStatistics/UserStatistics'));
-    //const Customer = React.lazy(() => import(/* webpackChunkName: "Customer" */ './Customer/Customer'));
-    //const User = React.lazy(() => import(/* webpackChunkName: "User" */ './User/User'));
-    //const Asset = React.lazy(() => import(/* webpackChunkName: "Asset" */ './Asset/Asset'));
-    //const NewMeterWizard = React.lazy(() => import( /* webpackChunkName: "NewMeterWizard" */ './NewMeterWizard/NewMeterWizard'));
-    //const ConfigurationHistory = React.lazy(() => import(/* webpackChunkName: "ConfigurationHistory" */ './ConfigurationHistory/ConfigurationHistory'));
-    //const Meter = React.lazy(() => import(/* webpackChunkName: "Meter" */ './Meter/Meter'));
-    //const Location = React.lazy(() => import(/* webpackChunkName: "Location" */ './Location/Location'));
+    const ByMeter = React.lazy(() => import(/*webpackChunkName: "ByMeter"*/'./Meter/ByMeter'));
+    const ByLocation = React.lazy(() => import(/* webpackChunkName: "ByLocation" */ './Location/ByLocation'));
+    const ByAsset = React.lazy(() => import(/* webpackChunkName: "ByAsset" */ './Asset/ByAsset'));
+    const ByCustomer = React.lazy(() => import(/* webpackChunkName: "ByCustomer" */ './Customer/ByCustomer'));
+    const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/ByUser'));
+    const UserStatistics = React.lazy(() => import(/* webpackChunkName: "UserStatistics" */ './UserStatistics/UserStatistics'));
+    const Customer = React.lazy(() => import(/* webpackChunkName: "Customer" */ './Customer/Customer'));
+    const User = React.lazy(() => import(/* webpackChunkName: "User" */ './User/User'));
+    const Asset = React.lazy(() => import(/* webpackChunkName: "Asset" */ './Asset/Asset'));
+    const NewMeterWizard = React.lazy(() => import( /* webpackChunkName: "NewMeterWizard" */ './NewMeterWizard/NewMeterWizard'));
+    const ConfigurationHistory = React.lazy(() => import(/* webpackChunkName: "ConfigurationHistory" */ './ConfigurationHistory/ConfigurationHistory'));
+    const Meter = React.lazy(() => import(/* webpackChunkName: "Meter" */ './Meter/Meter'));
+    const Location = React.lazy(() => import(/* webpackChunkName: "Location" */ './Location/Location'));
+    const ByAssetGroup = React.lazy(() => import(/* webpackChunkName: "ByAssetGroup" */ './AssetGroups/ByAssetGroup'));
+    const AssetGroup = React.lazy(() => import(/* webpackChunkName: "AssetGroup" */ './AssetGroups/AssetGroup'));
+    const ByCompany = React.lazy(() => import(/* webpackChunkName: "ByCompany" */ './Company/ByCompany'));
+    const Company = React.lazy(() => import(/* webpackChunkName: "Company" */ './Company/Company'));
 
     const [roles, setRoles] = React.useState<Array<SystemCenter.SystemCeneterSecurityRoleName>>([]);
+    const [ignored, forceUpdate] = React.useReducer(x => x + 1, 0); // integer state for resize renders
 
     React.useEffect(() => {
         let handle = getRoles();
         handle.done(rs => setRoles(rs));
+        window.addEventListener('resize', (evt) => forceUpdate(1));
 
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
+
+            window.removeEventListener('resize', (evt) => { });
         }
 
     }, []);
@@ -130,6 +141,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading">External Links</h6>
                             <ul style={{ marginLeft: 10 }} className="nav flex-column">
                                 <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Companies"} to={controllerViewPath + "?name=Companies"}>Companies</NavLink>
+                                </li>
+                                <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=PQViewCustomers"} to={controllerViewPath + "?name=PQViewCustomers"}>PQView Customer Access</NavLink>
                                 </li>
                                 <li className="nav-item">
@@ -168,6 +182,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                     </nav>
                     <div className="col" style={{ width: '100%', height: 'inherit', padding: '0 0 0 0', overflow: 'hidden' }}>
                         <React.Suspense fallback={<div>Loading...</div>}>
+                            <Switch>
                             <Route children={({ match, ...rest }) => {
                                 let qs = queryString.parse(rest.location.search);
                                 if (qs['?name'] == undefined || qs['?name'] == "Meters") {
@@ -182,6 +197,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ByAssetGroup Roles={roles} />
                                 else if (qs['?name'] == "Users")
                                     return <ByUser Roles={roles} />
+                                else if (qs['?name'] == "Companies")
+                                    return <ByCompany Roles={roles} />
                                 else if (qs['?name'] == "User")
                                     return <User UserID={qs.UserAccountID as string} />
                                 else if (qs['?name'] == "UserStatistics")
@@ -196,6 +213,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <AssetGroup AssetGroupID={parseInt(qs.AssetGroupID as string)} />
                                 else if (qs['?name'] == "Customer")
                                     return <Customer CustomerID={parseInt(qs.CustomerID as string)} />
+                                else if (qs['?name'] == "Company")
+                                    return <Company CompanyID={parseInt(qs.CompanyID as string)} />
                                 else if (qs['?name'] == "PQViewSites")
                                     return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'PQViewDataLoader.cshtml'}></iframe>
                                 else if (qs['?name'] == "PQViewCustomers")
@@ -220,7 +239,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ConfigurationHistory MeterConfigurationID={parseInt(queryString.parse(rest.location.search).MeterConfigurationID as string)} MeterKey={queryString.parse(rest.location.search).MeterKey as string}/>
                                 else
                                     return null;
-                            }} />
+                                }} />
+                            </Switch>
+
                         </React.Suspense>
                     </div>
 
@@ -230,4 +251,4 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     )
 }
 
-ReactDOM.render(<SystemCenter />, document.getElementById('window'));
+ReactDOM.render(<Provider store={store}><SystemCenter /></Provider>, document.getElementById('window'));

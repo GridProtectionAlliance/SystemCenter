@@ -38,9 +38,15 @@ declare global {
 }
 
 export namespace SystemCenter {
+    type Status = 'loading' | 'idle' | 'error' | 'changed' | 'unitiated';
+
     interface ByComponent { (props: { Roles: Array<SystemCeneterSecurityRoleName> }): JSX.Element; }
     interface ExternalDB { name: string, lastupdate: Date }
     interface ExternalDBField { DisplayName: string, FieldValueID: number, OpenXDAParentTableID: number, AdditionalFieldID: number, Value: string, FieldName: string, PreviousValue: string, Error: boolean, Message: string, isXDAField: boolean, Changed: boolean}
+
+    interface Company { ID: number, CompanyTypeID: number, CompanyID: string, Name: string, Description: string }
+    interface CompanyMeter { ID: number, CompanyID: number, OpenXDAMeterID: number, MeterName: string }
+    interface CompanyType { ID: number, Name: string, Description: string }
 
     interface Customer { ID: number, AccountName: string, Name: string, Phone: string, Description: string }
     interface CustomerAccess { ID: number, CustomerID: number, PQViewSiteID: number }

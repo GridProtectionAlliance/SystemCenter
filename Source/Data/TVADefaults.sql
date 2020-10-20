@@ -1067,3 +1067,14 @@ GO
 INSERT INTO Role (Name, Description) VALUES ('TCT (Telecom Technician)', 'Technician, Telecom (PSO) A;Technician, Telecom (PSO) B')
 GO
 
+INSERT INTO CompanyType (Name,Description) VALUES ('Industrial (Directly Served)','C - Industrial (Directly Served)')
+GO
+INSERT INTO CompanyType (Name,Description) VALUES ('Distributors (Local Power Companies)','D - Distributors (Local Power Companies)')
+GO
+INSERT INTO CompanyType (Name,Description) VALUES ('Federal Government (Directly Served)','G - Federal Government (Directly Served)')
+GO
+INSERT INTO CompanyType (Name,Description) VALUES ('Distributor Served Customers (LPC Served)','V - Distributor Served Customers (LPC Served)')
+GO
+INSERT INTO CompanyType (Name,Description) VALUES ('Interchange and Transmission','X - Interchange and Transmission')
+GO
+
