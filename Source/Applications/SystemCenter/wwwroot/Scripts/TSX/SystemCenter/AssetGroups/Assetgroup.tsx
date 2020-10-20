@@ -31,6 +31,7 @@ import AssetAssetGroupWindow from './AssetAssetGroup';
 import MeterAssetGroupWindow from './MeterAssetGroup';
 import UserAssetGroupWindow from './UserAssetGroup';
 import AssetGroupAssetGroupWindow from './AssetgroupAssetGroup';
+import Warning from '../CommonComponents/WarningModal';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup' | 'user' 
@@ -104,24 +105,20 @@ function AssetGroup(props: { AssetGroupID: number }) {
         }
     }
 
-    function deleteAsset(): JQuery.jqXHR {
+    function deleteAssetGroup(): JQuery.jqXHR {
 
-        let response = confirm("This will delete the Asset Permanently");
-        if (!response)
-            return;
-
-        /*return $.ajax({
+        return $.ajax({
             type: "DELETE",
-            url: `${homePath}api/OpenXDA/Asset/Delete`,
+            url: `${homePath}api/OpenXDA/AssetGroup/Delete`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(asset),
+            data: JSON.stringify(assetGroup),
             dataType: 'json',
             cache: true,
             async: true
         }).done((msg) => {
             sessionStorage.clear();
-            history.push({ pathname: homePath + 'index.cshtml', search: '?name=Assets', state: {} });
-        });*/
+            history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroups', state: {} });
+        });
 
         return null;
 
@@ -136,10 +133,10 @@ function AssetGroup(props: { AssetGroupID: number }) {
                     <h2>{assetGroup.Name}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" disabled={true} onClick={() => deleteAsset()}>Delete Asset Group (Permanent)</button>
+                    <button className="btn btn-danger pull-right" onClick={() => $('#deleteModal').show()}>Delete Asset Group</button>
                 </div>
             </div>
-
+            <Warning Id={'deleteModal'} Title={'Warning'} Confirm={'Delete'} Deny={'Cancel'} Content={'This will permanently delete this Asset Group. Are you sure you want to continue?'} Action={(result) => { if (result) deleteAssetGroup(); }}/>
 
             <hr />
             <ul className="nav nav-tabs">
