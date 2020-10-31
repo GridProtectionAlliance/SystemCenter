@@ -35,6 +35,7 @@ import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
+import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 
 declare var homePath: string;
 declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Breaker'
@@ -137,6 +138,8 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
             return <BusAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Bus} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'CapacitorBank')
             return <CapBankAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.CapBank} UpdateState={setNewAsset} />;
+        else if (newAsset.AssetType == 'CapacitorBankRelay')
+            return <CapBankRelayAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.CapBankRelay} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'Line')
             return <LineAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Line} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'LineSegment')
