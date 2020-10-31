@@ -216,7 +216,7 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
 
                 <FormInput<OpenXDA.Asset> Record={this.props.Asset} Field={'AssetKey'} Label={'Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
                 <FormInput<OpenXDA.Asset> Record={this.props.Asset} Field={'AssetName'} Label={'Name'} Feedback={'Name must be less than 200 and is required.'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
-                <FormInput<OpenXDA.Asset> Record={this.props.Asset} Field={'VoltageKV'} Label={'Nominal Voltage (kV)'} Feedback={'Nominal Voltage requires a numerical value.'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
+                <FormInput<OpenXDA.Asset> Record={this.props.Asset} Field={'VoltageKV'} Label={'Nominal Voltage (L-L kV)'} Feedback={'Nominal Voltage requires a numerical value.'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
                 <FormTextArea<OpenXDA.Asset> Rows={3} Record={this.props.Asset} Field={'Description'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
             </>
         );
