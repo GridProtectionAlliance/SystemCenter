@@ -80,7 +80,7 @@ namespace SystemCenter.Controllers.OpenXDA
             {
                 try
                 {
-                    IEnumerable<Asset> records = new TableOperations<Asset>(connection).QueryRecordsWhere("ID IN (SELECT oal.AssetID FROM AssetLocation as oal WHERE oal.LocationID IN (SELECT ial.LocationID FROM AssetLocation as ial WHERE ial.AssetID = {0})) AND ID NOT IN (SELECT CASE WHEN ParentID = 4 THEN ChildID ELSE ParentID END as ID FROM AssetConnection WHERE ParentID = {0} OR ChildID = {0})", assetID).OrderBy(x => x.AssetKey);
+                    IEnumerable<Asset> records = new TableOperations<Asset>(connection).QueryRecordsWhere("ID IN (SELECT oal.AssetID FROM AssetLocation as oal WHERE oal.LocationID IN (SELECT ial.LocationID FROM AssetLocation as ial WHERE ial.AssetID = {0})) AND ID NOT IN (SELECT CASE WHEN ParentID = {0} THEN ChildID ELSE ParentID END as ID FROM AssetConnection WHERE ParentID = {0} OR ChildID = {0})", assetID).OrderBy(x => x.AssetKey);
 
                     return Ok(records);
                 }
