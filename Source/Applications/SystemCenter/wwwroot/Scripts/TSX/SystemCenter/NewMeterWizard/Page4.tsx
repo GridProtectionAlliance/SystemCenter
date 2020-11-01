@@ -31,6 +31,7 @@ import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import AssetAttributes from '../AssetAttribute/Asset';
 import { getAssetTypes, getAllAssets } from '../../../TS/Services/Asset';
+import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 declare var homePath: string;
 
 interface Page4Props {
@@ -245,6 +246,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                                         { this.showAttributes() }
                                     </div>
                                     <div className="col">
+                                        <label>Associated Channels</label>
                                         <select multiple style={{ height: '100%', width: '100%' }} onChange={(evt) => {
                                             let asset  = _.clone(this.state.NewEditAsset as OpenXDA.Asset);
                                             asset.Channels = ($(evt.target).val() as Array<string>).map(a => this.props.Channels[parseInt(a)])
@@ -321,6 +323,8 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
             return <BusAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset} UpdateState={(newEditAsset: OpenXDA.Bus) => this.setState({ NewEditAsset: newEditAsset })} />;
         else if (this.state.NewEditAsset.AssetType == 'CapacitorBank')
             return <CapBankAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.CapBank} UpdateState={(newEditAsset: OpenXDA.CapBank) => this.setState({ NewEditAsset: newEditAsset })} />;
+        else if (this.state.NewEditAsset.AssetType == 'CapacitorBankRelay')
+            return <CapBankRelayAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.CapBankRelay} UpdateState={(newEditAsset: OpenXDA.CapBankRelay) => this.setState({ NewEditAsset: newEditAsset })} />;
         else if (this.state.NewEditAsset.AssetType == 'Line')
             return <LineAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.Line} UpdateState={(newEditAsset: OpenXDA.Line) => this.setState({ NewEditAsset: newEditAsset })} />;
         else if (this.state.NewEditAsset.AssetType == 'Transformer')
