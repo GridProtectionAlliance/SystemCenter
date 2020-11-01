@@ -425,7 +425,6 @@
     <Content Include="wwwroot\Scripts\Asset.js" />
     <Content Include="wwwroot\Scripts\AssetGroup.js" />
     <Content Include="wwwroot\Scripts\Asset~ByAsset.js" />
-    <Content Include="wwwroot\Scripts\Asset~ByAsset~ByAssetGroup~ByLocation~Company~Customer~Location~Meter~NewMeterWizard.js" />
     <Content Include="wwwroot\Scripts\Asset~ByAsset~Location~Meter~NewMeterWizard.js" />
     <Content Include="wwwroot\Scripts\Asset~Company~Customer~Location~Meter.js" />
     <Content Include="wwwroot\Scripts\ByAsset.js" />
@@ -471,9 +470,7 @@
     <Content Include="wwwroot\Scripts\User.js" />
     <Content Include="wwwroot\Scripts\UserStatistics.js" />
     <Content Include="wwwroot\Scripts\vendors~Asset~AssetGroup~ByAsset~ByAssetGroup~ByCompany~ByCustomer~ByLocation~ByMeter~ByUser~Company~159a7171.js" />
-    <Content Include="wwwroot\Scripts\vendors~Asset~AssetGroup~ByAsset~ByAssetGroup~ByCustomer~ByLocation~ByMeter~ByUser~Company~Configura~f94ea631.js" />
     <Content Include="wwwroot\Scripts\vendors~ByCompany~Company.js" />
-    <Content Include="wwwroot\Scripts\vendors~Company.js" />
     <Content Include="XDA.ico" />
     <Content Include="wwwroot\Users.cshtml" />
     <Content Include="wwwroot\ValueListGroups.cshtml" />
