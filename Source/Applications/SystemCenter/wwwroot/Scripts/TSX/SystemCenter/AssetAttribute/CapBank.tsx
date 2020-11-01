@@ -192,7 +192,8 @@ class PTRatioInput extends React.Component<{ Record: OpenXDA.CapBank, Setter: (r
         super(props, context);
 
         let regex = /^([0-9]+) ([0-9]+)$/;
-        if (this.props.Record.RelayPTRatio.match(regex) != null) {
+       
+        if (this.props.Record.RelayPTRatio != undefined && this.props.Record.RelayPTRatio.match(regex) != null) {
             this.state = { low: this.props.Record.RelayPTRatio.match(regex)[1], high: this.props.Record.RelayPTRatio.match(regex)[2] };
         }
         else {
@@ -255,9 +256,17 @@ class PreSwitchSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter:
     constructor(props, context) {
         super(props, context);
 
-        let numbers = this.props.Record.CktSwitcher.trim().split(",");
-        if (numbers.length !== parseInt(this.props.Record.NumberOfBanks.toString()))
-            numbers = Array.from(Array(parseInt(this.props.Record.NumberOfBanks.toString())), (e, i) => '0')
+        let numbers = [];
+
+        if (this.props.Record.CktSwitcher != undefined)
+            numbers = this.props.Record.CktSwitcher.trim().split(",");
+
+        let nBanks = 1;
+        if (this.props.Record.NumberOfBanks != undefined)
+            nBanks = this.props.Record.NumberOfBanks;
+
+        if (numbers.length !== parseInt(nBanks.toString()))
+            numbers = Array.from(Array(parseInt(nBanks.toString())), (e, i) => '0')
 
         this.state = { preSwitch: numbers.map(item => (item.trim() == '1'? true: false)) };
     }
@@ -265,8 +274,13 @@ class PreSwitchSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter:
     updateValues(input: string) {
       
         let numbers = input.trim().split(",");
-        if (numbers.length !== parseInt(this.props.Record.NumberOfBanks.toString()))
-            numbers = Array.from(Array(parseInt(this.props.Record.NumberOfBanks.toString())), (e, i) => '0')
+
+        let nBanks = 1;
+        if (this.props.Record.NumberOfBanks != undefined)
+            nBanks = this.props.Record.NumberOfBanks;
+
+        if (numbers.length !== parseInt(nBanks.toString()))
+            numbers = Array.from(Array(parseInt(nBanks.toString())), (e, i) => '0')
 
         this.setState({ preSwitch: numbers.map(item => (item.trim() == '1' ? true : false)) })
      
