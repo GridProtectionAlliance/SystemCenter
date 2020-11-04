@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  CompanyTypeSlice.ts - Gbtc
+//  MeasurementTypeSlice.ts - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,62 +16,58 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  10/20/2020 - Billy Ernest
+//  11/04/2020 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { SystemCenter } from '../global';
+import { SystemCenter, OpenXDA } from '../global';
 
-export const FetchCompanyTypes = createAsyncThunk('Companys/FetchCompanyTypes', async (_, { dispatch }) => {
-    return await GetCompanyTypes()
+export const FetchMeasurementType = createAsyncThunk('MeasurementType/FetchMeasurementType', async (_, { dispatch }) => {
+    return await GetMeasurementType();
 });
 
-export const CompanyTypeSlice = createSlice({
-    name: 'CompanyType',
+export const MeasurementTypeSlice = createSlice({
+    name: 'MeasurementType',
     initialState: {
-        Status: 'unintiated' as SystemCenter.Status,
-        CompanyType: [] as SystemCenter.CompanyType[],
-        Error: null
+        Status: 'unintiated',
+        Error: null,
+        Data: []
     },
     reducers: {
     },
     extraReducers: (builder) => {
 
-        builder.addCase(FetchCompanyTypes.fulfilled, (state, action) => {
+        builder.addCase(FetchMeasurementType.fulfilled, (state, action) => {
             state.Status = 'idle';
             state.Error = null;
-            state.CompanyType.push(...action.payload);
-            FetchCompanyTypes();
+            state.Data = action.payload;//.sort((a, b) => a.Name - b.Name);
         });
-        builder.addCase(FetchCompanyTypes.pending, (state, action) => {
+        builder.addCase(FetchMeasurementType.pending, (state, action) => {
             state.Status = 'loading';
         });
-        builder.addCase(FetchCompanyTypes.rejected, (state, action) => {
+        builder.addCase(FetchMeasurementType.rejected, (state, action) => {
             state.Status = 'error';
             state.Error = action.error.message;
-
         });
 
     }
 
 });
 
-export const {} = CompanyTypeSlice.actions;
-export default CompanyTypeSlice.reducer;
-export const SelectCompanyTypes = state => state.CompanyType.CompanyType as SystemCenter.CompanyType[]
-export const SelectCompanyTypesStatus = state => state.CompanyType.Status as SystemCenter.Status
+export const { } = MeasurementTypeSlice.actions;
+export default MeasurementTypeSlice.reducer;
+export const SelectMeasurementTypes = (state) => state.MeasurementType.Data;
+export const SelectMeasurementTypeStatus = (state) => state.MeasurementType.Status;
 
-function GetCompanyTypes(): JQuery.jqXHR<SystemCenter.CompanyType[]> {
+function GetMeasurementType(): JQuery.jqXHR<OpenXDA.MeasurementType[]> {
     return $.ajax({
         type: "GET",
-        url: `${homePath}api/SystemCenter/CompanyType`,
+        url: `${homePath}api/OpenXDA/MeasurementType`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         cache: true,
         async: true
     });
 }
-
-

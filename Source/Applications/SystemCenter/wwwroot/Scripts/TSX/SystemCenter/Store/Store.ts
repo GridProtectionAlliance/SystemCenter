@@ -22,9 +22,15 @@
 //******************************************************************************************************
 
 import { configureStore } from '@reduxjs/toolkit';
-import CompanyTypeReducer from '../Company/CompanyTypeSlice'
+import CompanyTypeReducer from '../Company/CompanyTypeSlice';
+import ValueListReducer from './ValueListSlice';
+import MeasurementTypeReducer from './MeasurementTypeSlice';
+import PhaseReducer from './PhaseSlice';
 export default configureStore({
     reducer: {
         CompanyType: CompanyTypeReducer,
+        ValueList: ValueListReducer,
+        MeasurementType: MeasurementTypeReducer,
+        Phase: PhaseReducer
     }
 });

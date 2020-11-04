@@ -570,10 +570,13 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyMeter.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyTypeSlice.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeasurementTypeSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\Store.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\WarningModal.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ParameterSearch.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AddToGroup.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\PhaseSlice.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\ValueListSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TS\Services\User.ts" />
   </ItemGroup>
   <ItemGroup>

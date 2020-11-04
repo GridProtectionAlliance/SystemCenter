@@ -78,7 +78,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     React.useEffect(() => {
         let handle = getRoles();
         handle.done(rs => setRoles(rs));
-        window.addEventListener('resize', (evt) => forceUpdate());
+        window.addEventListener('resize', (evt) => forceUpdate(1));
 
         return function cleanup() {
             if (handle.abort != null)

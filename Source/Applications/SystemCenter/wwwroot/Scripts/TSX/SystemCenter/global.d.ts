@@ -38,7 +38,7 @@ declare global {
 }
 
 export namespace SystemCenter {
-    type Status = 'loading' | 'idle' | 'error' | 'changed' | 'unitiated';
+    type Status = 'loading' | 'idle' | 'error' | 'changed' | 'unintiated';
 
     interface ByComponent { (props: { Roles: Array<SystemCeneterSecurityRoleName> }): JSX.Element; }
     interface ExternalDB { name: string, lastupdate: Date }

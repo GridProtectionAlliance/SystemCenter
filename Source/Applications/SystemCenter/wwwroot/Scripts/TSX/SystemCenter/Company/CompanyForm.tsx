@@ -30,15 +30,14 @@ import { SelectCompanyTypes, SelectCompanyTypesStatus, FetchCompanyTypes } from 
 export default function CompanyForm(props: { Company: SystemCenter.Company, Setter: (company: SystemCenter.Company) => void }) {
     const dispatch = useDispatch();
     const companyTypes = useSelector(SelectCompanyTypes) as SystemCenter.CompanyType[];
-    const ctStatus = useSelector(SelectCompanyTypesStatus);
+    const ctStatus = useSelector(SelectCompanyTypesStatus) as SystemCenter.Status;
 
     React.useEffect(() => {
-        if (ctStatus != 'unitiated') return;
+        if (ctStatus != 'unintiated') return;
 
         let promise = dispatch(FetchCompanyTypes());
         return function () {
-            if (ctStatus === 'loading')
-                promise.abort();
+            if (promise.abort() !== undefined) promise.abort();
         }
     }, [dispatch, ctStatus]);
 
