@@ -26,7 +26,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import AssetAttributes from '../AssetAttribute/Asset';
-import { getAssetTypes, getAssetWithAdditionalFields, editExistingAsset} from '../../../TS/Services/Asset';
+import { getAllAssets, getAssetTypes, getAssetWithAdditionalFields, editExistingAsset} from '../../../TS/Services/Asset';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -37,13 +37,14 @@ import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 
 declare var homePath: string;
 
-export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.Asset, StateSetter: (asset: OpenXDA.Asset) => void }, { Asset: OpenXDA.Asset, AssetTypes: Array<OpenXDA.AssetType>, }, {}> {
+export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.Asset, StateSetter: (asset: OpenXDA.Asset) => void }, { Asset: OpenXDA.Asset, AssetTypes: Array<OpenXDA.AssetType>, AllAssets: OpenXDA.Asset[]}, {}> {
     constructor(props, context) {
         super(props, context);
 
         this.state = {
             Asset: this.props.Asset,
             AssetTypes: [],
+            AllAssets: []
         }
 
         this.updateState = this.updateState.bind(this);
@@ -56,6 +57,7 @@ export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.As
 
             getAssetWithAdditionalFields(this.props.Asset.ID, assetType.Name).then(asset => this.setState({Asset: asset}));
         });
+        getAllAssets().done(aas => this.setState({ AllAssets: aas }));
     }
 
     componentWillReceiveProps(nextProps): void {
@@ -103,7 +105,7 @@ export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.As
                 <div className="card-body">
                         <div className="row" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                         <div className="col">
-                            <AssetAttributes Asset={this.state.Asset} NewEdit='Edit' AssetTypes={this.state.AssetTypes} AllAssets={[]} UpdateState={this.updateState} GetDifferentAsset={() => { }} />
+                            <AssetAttributes Asset={this.state.Asset} NewEdit='Edit' AssetTypes={this.state.AssetTypes} AllAssets={this.state.AllAssets} UpdateState={this.updateState} GetDifferentAsset={() => { }} />
                         </div>
                         <div className="col">
                             {this.showAttributes()}

@@ -169,7 +169,11 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
                 }
             }
             else {
-                return true;
+                let oldKey = this.props.AllAssets.find(aa => aa.ID === this.props.Asset.ID) == undefined ? '' : this.props.AllAssets.find(aa => aa.ID === this.props.Asset.ID).AssetKey;
+                if (oldKey == this.props.Asset.AssetKey)
+                    return true;
+                else
+                    return this.props.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(this.props.Asset.AssetKey.toLowerCase()) < 0;
             }
         }
         else if (field == 'AssetName')

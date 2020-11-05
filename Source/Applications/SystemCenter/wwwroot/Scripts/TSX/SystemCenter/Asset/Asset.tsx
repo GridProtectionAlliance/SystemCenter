@@ -29,7 +29,6 @@ import AssetLocationWindow from './AssetLocation';
 import AssetMeterWindow from './AssetMeter';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 
-
 import { useHistory } from 'react-router-dom';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AssetConnectionWindow from './AssetConnection';
@@ -58,8 +57,7 @@ function Asset(props: { AssetID: number }) {
     }
 
     function getAsset() {
-        if (props.AssetID == undefined) return () => { };
-       let handle = $.ajax({
+        return    $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Asset/One/${props.AssetID}`,
             contentType: "application/json; charset=utf-8",
@@ -68,14 +66,6 @@ function Asset(props: { AssetID: number }) {
             async: true
        })
 
-        handle.done((data: OpenXDA.Asset) => {
-           setAsset(data)
-           getAssetType(data)
-        });
-
-        return () => {
-            if (handle.abort != undefined) handle.abort();
-        }
     }
 
     function getAssetType(asset: OpenXDA.Asset): void {
@@ -106,7 +96,19 @@ function Asset(props: { AssetID: number }) {
     }
 
     React.useEffect(() => {
-        return getAsset();
+        if (props.AssetID == undefined) return () => { };
+        let handle = getAsset();
+
+        handle.done((data: OpenXDA.Asset) => {
+            setAsset(data)
+            getAssetType(data)
+        });
+
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+
+        }
+
         
     }, [props.AssetID]);
 
