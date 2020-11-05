@@ -26,11 +26,18 @@ import CompanyTypeReducer from '../Company/CompanyTypeSlice';
 import ValueListReducer from './ValueListSlice';
 import MeasurementTypeReducer from './MeasurementTypeSlice';
 import PhaseReducer from './PhaseSlice';
+import AssetTypeReducer from './AssetTypeSlice';
+import AssetConnectionTypeReducer from './AssetConnectionTypeSlice';
+
+
 export default configureStore({
     reducer: {
         CompanyType: CompanyTypeReducer,
         ValueList: ValueListReducer,
         MeasurementType: MeasurementTypeReducer,
-        Phase: PhaseReducer
+        Phase: PhaseReducer,
+        AssetType: AssetTypeReducer,
+        AssetConnectionType: AssetConnectionTypeReducer
+
     }
 });

@@ -32,6 +32,9 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import AssetAttributes from '../AssetAttribute/Asset';
 import { getAssetTypes, getAllAssets } from '../../../TS/Services/Asset';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
+import { useDispatch, useSelector } from 'react-redux';
+import { SelectAssetTypes, SelectAssetTypeStatus, FetchAssetType } from '../Store/AssetTypeSlice';
+
 declare var homePath: string;
 
 interface Page4Props {
@@ -40,40 +43,86 @@ interface Page4Props {
     AssetConnections: Array<OpenXDA.AssetConnection>,
     UpdateState: (record) => void 
 }
-interface Page4State {
-    NewEditAsset: OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer | OpenXDA.CapBankRelay,
-    AllAssets: Array<OpenXDA.Asset>,
-    AssetTypes: Array<OpenXDA.AssetType>,
-    NewEdit: SystemCenter.NewEdit
-}
 
-export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
-    constructor(props, context) {
-        super(props, context);
-        this.state = {
-            NewEditAsset: AssetAttributes.getNewAsset('Line'),
-            AllAssets: [],
-            AssetTypes: [],
-            NewEdit: 'New'
+type AssetType = OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer | OpenXDA.CapBankRelay;
+
+export default function Page4(props: Page4Props) {
+    const dispatch = useDispatch();
+    const assetTypes = useSelector(SelectAssetTypes);
+    const atStatus = useSelector(SelectAssetTypeStatus);
+
+    const [newEditAsset, setNewEditAsset] = React.useState<AssetType>(AssetAttributes.getNewAsset('Line'));
+    const [allAssets, setAllAssets] = React.useState<OpenXDA.Asset[]>([]);
+    const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
+
+    React.useEffect(() => {
+        let handle1 = getAllAssets();
+
+        handle1.done(aas => setAllAssets(aas));
+
+        return () => {
+            if (handle1.abort != undefined) handle1.abort();
         }
+    }, []);
 
-        this.getDifferentAsset = this.getDifferentAsset.bind(this);
+    React.useEffect(() => {
+        if (atStatus === 'unintiated' || atStatus === 'changed') {
+            let promise = dispatch(FetchAssetType());
+            return function () {
+                //if (tzStatus == 'loading') promise.abort();
+            }
+        }
+    }, [dispatch, atStatus]);
+
+
+    React.useEffect(() => {
+        if (newEditAsset.AssetType == 'Breaker') {
+            let handle = getEDNAPoint(newEditAsset.ID);
+            handle.done((ednaPoint: OpenXDA.EDNAPoint) => {
+                let record = { ...newEditAsset as OpenXDA.Breaker };
+                if (ednaPoint != undefined) {
+                    record.EDNAPoint = ednaPoint.Point
+                    setNewEditAsset(record);
+                }
+            });
+            return () => {
+                if (handle.abort !== undefined) handle.abort();
+            }
+
+        }
+        else if (newEditAsset.AssetType == 'Line'){
+            let handle = getLineSegment(newEditAsset.ID);
+            handle.done((lineSegment: OpenXDA.LineDetail) => {
+                let record = _.clone(newEditAsset as OpenXDA.Line);
+                if (lineSegment != undefined) {
+                    record.Detail = lineSegment
+                }
+                else {
+                    record.Detail = AssetAttributes.getNewLineDetails();
+                }
+
+                setNewEditAsset(record);
+
+            });
+                return () => {
+                    if (handle.abort !== undefined) handle.abort();
+                }
+
+            }
+
+
+    }, [newEditAsset.AssetType]);
+
+    function editAsset(index: number) {
+        setNewEdit('Edit');
+        setNewEditAsset(props.Assets[index]);
     }
 
-    componentDidMount() {
-        getAllAssets().done(aas => this.setState({ AllAssets: aas }));
-        getAssetTypes().done(ats => this.setState({AssetTypes: ats}));
-    }
-
-    editAsset(index: number) {
-        this.setState({ NewEdit: 'Edit',NewEditAsset: this.props.Assets[index] });
-    }
-
-    deleteAsset(index: number) {
-        let list = _.clone(this.props.Assets);
+    function deleteAsset(index: number) {
+        let list = _.clone(props.Assets);
         let record: Array<OpenXDA.Asset> = list.splice(index, 1);
-        let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(this.props.AssetConnections);
-        let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels);
+        let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(props.AssetConnections);
+        let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
 
         $.each(channels, (index, channel) => {
             if (channel.Asset == record[0].AssetKey)
@@ -86,34 +135,32 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
             index = assetConnections.findIndex(assetConnection => assetConnection.Parent == record[0].AssetKey || assetConnection.Child == record[0].AssetKey);
         }
 
-        this.props.UpdateState({ Assets: list });
-        this.props.UpdateState({ Channels: channels });
-        this.props.UpdateState({ AssetConnections: assetConnections });
+        props.UpdateState({ Assets: list });
+        props.UpdateState({ Channels: channels });
+        props.UpdateState({ AssetConnections: assetConnections });
 
     }
 
-    addAsset() {
-    }
 
-    changeAssetType(type: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay'): void {
+    function changeAssetType(type: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay'): void {
         let asset = {
-            ID: this.state.NewEditAsset.ID,
-            AssetKey: this.state.NewEditAsset.AssetKey,
-            AssetName: this.state.NewEditAsset.AssetName,
+            ID: newEditAsset.ID,
+            AssetKey: newEditAsset.AssetKey,
+            AssetName: newEditAsset.AssetName,
             AssetType: type,
-            Description: this.state.NewEditAsset.Description,
-            VoltageKV: this.state.NewEditAsset.VoltageKV,
-            Channels: this.state.NewEditAsset.Channels,
-            Spare: this.state.NewEditAsset.Spare
+            Description: newEditAsset.Description,
+            VoltageKV: newEditAsset.VoltageKV,
+            Channels: newEditAsset.Channels,
+            Spare: newEditAsset.Spare
         }
 
         asset = AssetAttributes.getNewAssetAttributes(asset, type);
-        this.setState({NewEditAsset: asset});
+        setNewEditAsset( asset);
     }
 
-    getDifferentAsset(assetID: number): void {
-        let assetTypeID = this.state.AllAssets.find(a => a.ID == assetID)['AssetTypeID']; 
-        let assetType = this.state.AssetTypes.find(at => at.ID == assetTypeID)
+    function getDifferentAsset(assetID: number): void {
+        let assetTypeID = allAssets.find(a => a.ID == assetID)['AssetTypeID']; 
+        let assetType = assetTypes.find(at => at.ID == assetTypeID)
         $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/${assetType.Name}/One/${assetID}`,
@@ -124,72 +171,66 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
         }).done((asset: OpenXDA.Asset) => {
             asset.AssetType = assetType.Name;
             asset.Channels = [];
-
-            this.setState({ NewEditAsset: asset }, () => {
-                if (this.state.NewEditAsset.AssetType == 'Breaker')
-                    this.getEDNAPoint(this.state.NewEditAsset.ID);
-                else if (assetType.Name == 'Line')
-                    this.getLineSegment(this.state.NewEditAsset.ID);
-
-            });
+            setNewEditAsset(asset);
         });
     }
 
-    getLineSegment(lineID: number): void {
-        $.ajax({
+    function getLineSegment(lineID: number): JQuery.jqXHR<OpenXDA.LineSegment> {
+        return $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Line/${lineID}/LineSegment`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        }).done((lineSegment: OpenXDA.LineDetail) => {
-            let record = _.clone(this.state.NewEditAsset as OpenXDA.Line) ;
-            if (lineSegment != undefined) {
-                record.Detail = lineSegment
-            }
-            else {
-                record.Detail = AssetAttributes.getNewLineDetails();
-            }
-
-            this.setState({ NewEditAsset: record });
-
         });
     }
 
-    getEDNAPoint(breakerID: number): void {
-        $.ajax({
+    function getEDNAPoint(breakerID: number): JQuery.jqXHR<OpenXDA.EDNAPoint> {
+        return $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Breaker/${breakerID}/EDNAPoint`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        }).done((ednaPoint: OpenXDA.EDNAPoint) => {
-            let record  = _.clone(this.state.NewEditAsset as OpenXDA.Breaker);
-            if (ednaPoint != undefined) {
-                record.EDNAPoint = ednaPoint.Point
-                this.setState({ NewEditAsset: record });
-            }
-        });
+        })
+    }
+
+    function disableModalSave(): boolean {
+        return $('.is-invalid').length > 0;
+    }
+
+    function showAttributes(): JSX.Element {
+        if (newEditAsset.AssetType == 'Breaker')
+            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Breaker} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'Bus')
+            return <BusAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset}/>;
+        else if (newEditAsset.AssetType == 'CapacitorBank')
+            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.CapBank} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'CapacitorBankRelay')
+            return <CapBankRelayAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.CapBankRelay} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'Line')
+            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Line} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'Transformer')
+            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Transformer} UpdateState={setNewEditAsset} />;
     }
 
 
 
-    render() {
         return (
             <>
                 <div className="row" style={{margin: -20}}>
                     <div className="col-lg-4">
                         <ul style={{ width: '100%', height: window.innerHeight - 285, maxHeight: window.innerHeight - 285, overflowY: 'auto', padding: 0, margin: 0 }}>
                             {
-                                this.props.Channels.map((channel, index) => <li style={{textDecoration: (channel.Asset.length > 0 ? 'line-through' : null)}} key={index}>{channel.Name + ' - ' + channel.Description}</li>)
+                                props.Channels.map((channel, index) => <li style={{textDecoration: (channel.Asset.length > 0 ? 'line-through' : null)}} key={index}>{channel.Name + ' - ' + channel.Description}</li>)
                             }
                         </ul>
                     </div>
                     <div className="col" style={{padding: 20}}>
                         <div style={{ width: '100%', height: 38 }}>
-                            <button className="btn btn-primary pull-right" data-toggle='modal' data-target='#assetModal' onClick={() => this.setState({NewEdit: 'New'})}>Add Asset</button>
+                            <button className="btn btn-primary pull-right" data-toggle='modal' data-target='#assetModal' onClick={() => setNewEdit('New')}>Add Asset</button>
                         </div>
 
                         <div style={{ width: '100%', maxHeight: window.innerHeight - 350, padding: 30, overflowY: 'auto' }}>
@@ -207,7 +248,7 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                                 </thead>
                                 <tbody>
                                     {
-                                        this.props.Assets.map((asset: OpenXDA.Asset, index, array) => {
+                                        props.Assets.map((asset: OpenXDA.Asset, index, array) => {
                                             return (
                                                 <tr key={index}>
                                                     <td style={{ width: '10%' }}>{(asset.ID == 0 ? 'New' : 'Existing')}</td>
@@ -217,8 +258,8 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                                                     <td style={{ width: '10%' }}>{asset.VoltageKV}</td>
                                                     <td style={{ width: '10%' }}>{asset.Channels.length}</td>
                                                     <td style={{ width: '10%' }}>
-                                                        <button className="btn btn-sm" data-toggle='modal' data-target='#assetModal' onClick={(e) => this.editAsset(index)}><span><i className="fa fa-pencil"></i></span></button>
-                                                        <button className="btn btn-sm" onClick={(e) => this.deleteAsset(index)}><span><i className="fa fa-times"></i></span></button>
+                                                        <button className="btn btn-sm" data-toggle='modal' data-target='#assetModal' onClick={(e) => editAsset(index)}><span><i className="fa fa-pencil"></i></span></button>
+                                                        <button className="btn btn-sm" onClick={(e) => deleteAsset(index)}><span><i className="fa fa-times"></i></span></button>
                                                     </td>
                                                 </tr>
                                             )
@@ -234,26 +275,26 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                     <div className="modal-dialog" style={{maxWidth: '100%', width: '90%'}}>
                         <div className="modal-content">
                             <div className="modal-header">
-                                <h4 className="modal-title">{this.state.NewEdit == 'New' ? 'Add New Asset to Meter': 'Edit ' + this.state.NewEditAsset.AssetKey + ' for Meter' }</h4>
+                                <h4 className="modal-title">{newEdit == 'New' ? 'Add New Asset to Meter': 'Edit ' + newEditAsset.AssetKey + ' for Meter' }</h4>
                                 <button type="button" className="close" data-dismiss="modal">&times;</button>
                             </div>
                             <div className="modal-body">
                                 <div className="row">
                                     <div className="col">
-                                        <AssetAttributes Asset={this.state.NewEditAsset} NewEdit={this.state.NewEdit} AssetTypes={this.state.AssetTypes} AllAssets={this.state.AllAssets} UpdateState={(asset) => this.setState({ NewEditAsset: asset })} GetDifferentAsset={this.getDifferentAsset} />
+                                        <AssetAttributes Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewEditAsset} GetDifferentAsset={getDifferentAsset} />
                                     </div>
                                     <div className="col">
-                                        { this.showAttributes() }
+                                        { showAttributes() }
                                     </div>
                                     <div className="col">
                                         <label>Associated Channels</label>
                                         <select multiple style={{ height: '100%', width: '100%' }} onChange={(evt) => {
-                                            let asset  = _.clone(this.state.NewEditAsset as OpenXDA.Asset);
-                                            asset.Channels = ($(evt.target).val() as Array<string>).map(a => this.props.Channels[parseInt(a)])
-                                            this.setState({ NewEditAsset: asset });
-                                        }} value={this.state.NewEditAsset.Channels.map(a => a.ID.toString())}>
+                                            let asset  = _.clone(newEditAsset as OpenXDA.Asset);
+                                            asset.Channels = ($(evt.target).val() as Array<string>).map(a => props.Channels[parseInt(a)])
+                                            setNewEditAsset(asset);
+                                        }} value={newEditAsset.Channels.map(a => a.ID.toString())}>
                                             {
-                                                this.props.Channels.map((channel, index) => <option key={index} value={index} hidden={ channel.Asset != this.state.NewEditAsset.AssetKey && channel.Asset.length> 0}>{channel.Name + ' - ' + channel.Description}</option>)
+                                                props.Channels.map((channel, index) => <option key={index} value={index} hidden={ channel.Asset != newEditAsset.AssetKey && channel.Asset.length> 0}>{channel.Name + ' - ' + channel.Description}</option>)
                                             }
                                         </select>
                                     </div>
@@ -261,9 +302,9 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={(evt) => {
-                                    let record: OpenXDA.Asset = _.clone(this.state.NewEditAsset);
-                                    let list = _.clone(this.props.Assets);
-                                    let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels);
+                                    let record: OpenXDA.Asset = _.clone(newEditAsset);
+                                    let list = _.clone(props.Assets);
+                                    let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
 
                                     $.each(channels, (index, channel) => {
                                         if (channel.Asset == record.AssetKey)
@@ -273,16 +314,16 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                                             channel.Asset = record.AssetKey
                                     });
                                     list.push(record);
-                                    this.props.UpdateState({ Channels: channels });
-                                    this.props.UpdateState({ Assets: list });
-                                    this.setState({ NewEditAsset: AssetAttributes.getNewAsset('Line') });
+                                    props.UpdateState({ Channels: channels });
+                                    props.UpdateState({ Assets: list });
+                                    setNewEditAsset(AssetAttributes.getNewAsset('Line') );
 
-                                }} hidden={this.state.NewEdit != 'New'}>Save</button>
+                                }} hidden={newEdit != 'New'}>Save</button>
 
                                 <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={(evt) => {
-                                    let record: OpenXDA.Asset = _.clone(this.state.NewEditAsset);
-                                    let list = _.clone(this.props.Assets);
-                                    let channels: Array<OpenXDA.Channel> = _.clone(this.props.Channels);
+                                    let record: OpenXDA.Asset = _.clone(newEditAsset);
+                                    let list = _.clone(props.Assets);
+                                    let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
                                     let i = list.findIndex(r => r.AssetKey == record.AssetKey);
                                     list[i] = record;
                                     $.each(channels, (index, channel) => {
@@ -293,14 +334,14 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
                                             channel.Asset = record.AssetKey
                                     });
 
-                                    this.props.UpdateState({ Channels: channels });
-                                    this.props.UpdateState({ Assets: list });
-                                    this.setState({ NewEditAsset: AssetAttributes.getNewAsset('Line') })
-                                }} hidden={this.state.NewEdit != 'Edit'}>Save</button>
+                                    props.UpdateState({ Channels: channels });
+                                    props.UpdateState({ Assets: list });
+                                    setNewEditAsset(AssetAttributes.getNewAsset('Line'));
+                                }} hidden={newEdit != 'Edit'}>Save</button>
 
 
                                 <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => {
-                                    this.setState({ NewEditAsset: AssetAttributes.getNewAsset('Line') })
+                                    setNewEditAsset(AssetAttributes.getNewAsset('Line'));
                                 }}>Close</button>
                             </div>
 
@@ -310,25 +351,6 @@ export default class Page4 extends React.Component<Page4Props, Page4State, {}>{
 
         </>
         );
-    }
 
-    disableModalSave(): boolean {
-        return $('.is-invalid').length > 0;
-    }
-
-    showAttributes(): JSX.Element {
-        if (this.state.NewEditAsset.AssetType == 'Breaker')
-            return <BreakerAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.Breaker} UpdateState={(newEditAsset: OpenXDA.Breaker) => this.setState({ NewEditAsset: newEditAsset })} />;
-        else if (this.state.NewEditAsset.AssetType == 'Bus')
-            return <BusAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset} UpdateState={(newEditAsset: OpenXDA.Bus) => this.setState({ NewEditAsset: newEditAsset })} />;
-        else if (this.state.NewEditAsset.AssetType == 'CapacitorBank')
-            return <CapBankAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.CapBank} UpdateState={(newEditAsset: OpenXDA.CapBank) => this.setState({ NewEditAsset: newEditAsset })} />;
-        else if (this.state.NewEditAsset.AssetType == 'CapacitorBankRelay')
-            return <CapBankRelayAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.CapBankRelay} UpdateState={(newEditAsset: OpenXDA.CapBankRelay) => this.setState({ NewEditAsset: newEditAsset })} />;
-        else if (this.state.NewEditAsset.AssetType == 'Line')
-            return <LineAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.Line} UpdateState={(newEditAsset: OpenXDA.Line) => this.setState({ NewEditAsset: newEditAsset })} />;
-        else if (this.state.NewEditAsset.AssetType == 'Transformer')
-            return <TransformerAttributes NewEdit={this.state.NewEdit} Asset={this.state.NewEditAsset as OpenXDA.Transformer} UpdateState={(newEditAsset: OpenXDA.Transformer) => this.setState({ NewEditAsset: newEditAsset })} />;
-    }
 }
 
