@@ -31,7 +31,7 @@ import { SelectPhaseStatus, SelectPhases, FetchPhase } from '../Store/PhaseSlice
 
 declare var homePath: string;
 
-export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA.Channel>, UpdateState: (record) => void }) {
+export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA.Channel>, UpdateChannels: (record: OpenXDA.Channel[]) => void, UpdateAssets: (record: OpenXDA.Asset[]) => void  }) {
     const fileInput = React.useRef(null);
     const dispatch = useDispatch();
     const measurementTypes = useSelector(SelectMeasurementTypes);
@@ -54,18 +54,16 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
 
     React.useEffect(() => {
         if (mtStatus === 'unintiated' || mtStatus === 'changed') {
-            let promise = dispatch(FetchMeasurementType());
+            dispatch(FetchMeasurementType());
             return function () {
-                //if (promise.abort() !== undefined) promise.abort();
             }
         }
     }, [dispatch, mtStatus]);
 
     React.useEffect(() => {
         if (phStatus === 'unintiated' || phStatus === 'changed') {
-            let promise = dispatch(FetchPhase());
+            dispatch(FetchPhase());
             return function () {
-                //if (promise.abort() !== undefined) promise.abort();
             }
         }
     }, [dispatch, phStatus]);
@@ -82,7 +80,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
 
                 if (f.name.indexOf('.cfg') >= 0) {
                     parser = new CFGParser(contents, props.MeterKey);
-                    props.UpdateState({ Channels: parser.Channels });
+                    props.UpdateChannels(parser.Channels);
                     clearAssetsChannels();
 
                 }
@@ -96,7 +94,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
     function deleteChannel(index: number): void {
         let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
         let record: OpenXDA.Channel = channels.splice(index, 1)[0];
-        props.UpdateState({ Channels: channels });
+        props.UpdateChannels(channels);
 
         if (record.Asset == '') return;
 
@@ -110,7 +108,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
             if (channelIndex < 0) return;
 
             asset.Channels.splice(channelIndex,1)
-            props.UpdateState({ Assets: assets });
+            props.UpdateAssets(assets);
 
         }
     }
@@ -122,7 +120,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
             $.each(assets, (index, asset) => {
                 asset.Channels = []
             });
-            props.UpdateState({ Assets: assets });
+            props.UpdateAssets(assets);
         }
     }
 
@@ -141,7 +139,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                             { ID: 6, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'NG', Name: 'IN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current NG', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
 
                         ]
-                        props.UpdateState({ Channels: channels });
+                        props.UpdateChannels(channels);
                         clearAssetsChannels();
                     }}>Default Setup</button>
                 </div>
@@ -158,7 +156,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                         let channel: OpenXDA.Channel = { ID: props.Channels.length, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel
                         let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
                         channels.push(channel);
-                        props.UpdateState({ Channels: channels });
+                        props.UpdateChannels(channels);
 
                     }}>Add Channel</button>
                 </div>
@@ -183,23 +181,23 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                                     <tr key={index}>
                                         <td style={{ width: '5%' }}><input className='form-control'  value={channel.Series.SourceIndexes} onChange={(event) => {
                                             channel.Series.SourceIndexes = event.target.value;
-                                            props.UpdateState({Channels: array});
+                                            props.UpdateChannels(array);
                                         }} /></td>
                                         <td style={{ width: '20%' }}><input className='form-control' value={channel.Name} onChange={(event) => {
                                             channel.Name = event.target.value;
-                                            props.UpdateState({ Channels: array });
+                                            props.UpdateChannels(array);
                                         }}/></td>
                                         <td style={{ width: '45%' }}><input className='form-control' value={channel.Description} onChange={(event) => {
                                             channel.Description = event.target.value;
-                                            props.UpdateState({ Channels: array });
+                                            props.UpdateChannels(array);
                                         }}/></td>
                                         <td style={{ width: '10%' }}>{<select className= 'form-control'  value={channel.MeasurementType} onChange={(event) => {
                                             channel.MeasurementType = event.target.value;
-                                            props.UpdateState({ Channels: array });
+                                            props.UpdateChannels(array);
                                         }}>{measurementTypes.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
                                         <td style={{ width: '10%' }}>{<select className='form-control' value={channel.Phase} onChange={(event) => {
                                             channel.Phase = event.target.value;
-                                            props.UpdateState({ Channels: array });
+                                            props.UpdateChannels(array);
                                         }}>{phases.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
                                         <td style={{ width: '10%' }}>
                                             <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span><i className="fa fa-times"></i></span></button>

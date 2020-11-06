@@ -28,7 +28,9 @@ import MeasurementTypeReducer from './MeasurementTypeSlice';
 import PhaseReducer from './PhaseSlice';
 import AssetTypeReducer from './AssetTypeSlice';
 import AssetConnectionTypeReducer from './AssetConnectionTypeSlice';
-
+import MeterReducer from './MeterSlice';
+import LocationReducer from './LocationSlice';
+import AssetReducer from './AssetSlice';
 
 export default configureStore({
     reducer: {
@@ -37,7 +39,9 @@ export default configureStore({
         MeasurementType: MeasurementTypeReducer,
         Phase: PhaseReducer,
         AssetType: AssetTypeReducer,
-        AssetConnectionType: AssetConnectionTypeReducer
-
+        AssetConnectionType: AssetConnectionTypeReducer,
+        Meter: MeterReducer,
+        Asset: AssetReducer,
+        Location: LocationReducer,
     }
 });

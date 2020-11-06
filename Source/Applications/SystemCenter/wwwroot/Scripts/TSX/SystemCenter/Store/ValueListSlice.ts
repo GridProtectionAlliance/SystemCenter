@@ -81,7 +81,7 @@ export const ValueListSlice = createSlice({
 export const { } = ValueListSlice.actions;
 export default ValueListSlice.reducer;
 export const SelectValueList = (state, group: string) => state.ValueList[group] !== undefined ? state.ValueList[group].Data : [] as SystemCenter.ValueListItem[] ;
-export const SelectValueListStatus = (state, group: string) => state.ValueList[group] !== undefined ? state.ValueList[group].Status : 'unitiated' as SystemCenter.Status;
+export const SelectValueListStatus = (state, group: string) => state.ValueList[group] !== undefined ? state.ValueList[group].Status : 'unintiated' as SystemCenter.Status;
 
 function GetValueList(group: string): JQuery.jqXHR<SystemCenter.ValueListItem[]> {
     return $.ajax({

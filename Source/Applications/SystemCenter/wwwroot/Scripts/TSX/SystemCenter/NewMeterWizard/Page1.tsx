@@ -28,47 +28,32 @@ import FormInput from '../CommonComponents/FormInput';
 import FormTextArea from '../CommonComponents/FormTextArea';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectValueList, SelectValueListStatus, FetchValueList } from '../Store/ValueListSlice';
+import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
 
 declare var homePath: string;
 
-export default function Page1(props: { MeterInfo: OpenXDA.Meter, UpdateState: (record: OpenXDA.Meter) => void }) {
+export default function Page1(props: { MeterInfo: OpenXDA.Meter, UpdateMeterInfo: (record: OpenXDA.Meter) => void }) {
     const dispatch = useDispatch();
     const timeZones = useSelector(state => SelectValueList(state, 'TimeZones'));
     const tzStatus = useSelector(state => SelectValueListStatus(state, 'TimeZones')) as SystemCenter.Status;
-    const [meterKeys, setMeterKeys] = React.useState<string[]>([]);
-
+    const meterKeys = useSelector(SelectMeterKeysLowerCase);
+    const mStatus = useSelector(SelectMeterStatus);
 
     React.useEffect(() => {
-        let handle = getMeterKeys();
-        handle.done((meters: Array<OpenXDA.Meter>) => {
-        var keys = meters.map(a => a.AssetKey.toLowerCase());
-            setMeterKeys(keys);
-        });
-
-        return () => {
-            if (handle.abort !== undefined) handle.abort();
+        if (mStatus === 'unintiated' || mStatus === 'changed') {
+            dispatch(FetchMeter());
+            return function () {
+            }
         }
-    },[])
+    }, [dispatch, mStatus]);
+
     React.useEffect(() => {
         if (tzStatus === 'unintiated' || tzStatus === 'changed') {
-            let promise = dispatch(FetchValueList({ group: 'TimeZones' }));
+            dispatch(FetchValueList({ group: 'TimeZones' }));
             return function () {
-                //if (tzStatus == 'loading') promise.abort();
             }
         }
     }, [dispatch, tzStatus]);
-
-    function getMeterKeys(): JQuery.jqXHR<OpenXDA.Meter[]> {
-        return $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Meter`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        });
-    }
-
 
     function valid(field: keyof (OpenXDA.Meter)): boolean {
         if (field == 'AssetKey')
@@ -91,14 +76,14 @@ export default function Page1(props: { MeterInfo: OpenXDA.Meter, UpdateState: (r
      return (
             <div className="row">
                 <div className="col">
-                    <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'AssetKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={props.UpdateState} />
-                    <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={props.UpdateState} />
-                    <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={props.UpdateState} />
-                    <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={props.UpdateState} />
+                 <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'AssetKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={props.UpdateMeterInfo} />
+                 <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={props.UpdateMeterInfo} />
+                 <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={props.UpdateMeterInfo} />
+                 <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={props.UpdateMeterInfo} />
                 </div>
                 <div className="col">
-                    <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'Make'} Feedback={'Make must be less than 200 characters.'} Valid={valid} Setter={props.UpdateState} />
-                    <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'Model'} Feedback={'Model must be less than 200 characters.'} Valid={valid} Setter={props.UpdateState} />
+                 <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'Make'} Feedback={'Make must be less than 200 characters.'} Valid={valid} Setter={props.UpdateMeterInfo} />
+                 <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'Model'} Feedback={'Model must be less than 200 characters.'} Valid={valid} Setter={props.UpdateMeterInfo} />
                     <div className="form-group">
                         <label>Time Zone</label>
                         <select className="form-control" value={props.MeterInfo == null || props.MeterInfo.TimeZone == null ? '-1' : props.MeterInfo.TimeZone} onChange={(evt) => {
@@ -107,7 +92,7 @@ export default function Page1(props: { MeterInfo: OpenXDA.Meter, UpdateState: (r
                                 meter.TimeZone = evt.target.value;
                             else
                                 meter.TimeZone = null;
-                            props.UpdateState(meter);
+                         props.UpdateMeterInfo(meter);
                         }}>
                             <option value="-1">None Selected</option>
                             {
@@ -115,7 +100,7 @@ export default function Page1(props: { MeterInfo: OpenXDA.Meter, UpdateState: (r
                             }
                         </select>
                     </div>
-                    <FormTextArea<OpenXDA.Meter> Rows={3} Record={props.MeterInfo} Field={'Description'} Valid={valid} Setter={props.UpdateState} />
+                 <FormTextArea<OpenXDA.Meter> Rows={3} Record={props.MeterInfo} Field={'Description'} Valid={valid} Setter={props.UpdateMeterInfo} />
                 </div>
             </div>
         );

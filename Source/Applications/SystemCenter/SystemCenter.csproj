@@ -573,6 +573,9 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeasurementTypeSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetTypeSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetConnectionTypeSlice.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\LocationSlice.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetSlice.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeterSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\Store.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\WarningModal.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ParameterSearch.tsx" />

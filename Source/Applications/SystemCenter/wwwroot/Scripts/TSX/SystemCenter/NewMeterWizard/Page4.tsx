@@ -34,14 +34,18 @@ import { getAssetTypes, getAllAssets } from '../../../TS/Services/Asset';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectAssetTypes, SelectAssetTypeStatus, FetchAssetType } from '../Store/AssetTypeSlice';
+import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
 
 declare var homePath: string;
 
 interface Page4Props {
     Assets: Array<OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer | OpenXDA.CapBankRelay>,
-    Channels: Array<OpenXDA.Channel>,
+    Channels: OpenXDA.Channel[],
     AssetConnections: Array<OpenXDA.AssetConnection>,
-    UpdateState: (record) => void 
+    UpdateChannels: (record: OpenXDA.Channel[]) => void,
+    UpdateAssets: (record: OpenXDA.Asset[]) => void,
+    UpdateAssetConnections: (record: OpenXDA.AssetConnection[]) => void,
+
 }
 
 type AssetType = OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer | OpenXDA.CapBankRelay;
@@ -50,29 +54,27 @@ export default function Page4(props: Page4Props) {
     const dispatch = useDispatch();
     const assetTypes = useSelector(SelectAssetTypes);
     const atStatus = useSelector(SelectAssetTypeStatus);
+    const assets = useSelector(SelectAssets);
+    const aStatus = useSelector(SelectAssetStatus);
 
     const [newEditAsset, setNewEditAsset] = React.useState<AssetType>(AssetAttributes.getNewAsset('Line'));
-    const [allAssets, setAllAssets] = React.useState<OpenXDA.Asset[]>([]);
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
 
     React.useEffect(() => {
-        let handle1 = getAllAssets();
-
-        handle1.done(aas => setAllAssets(aas));
-
-        return () => {
-            if (handle1.abort != undefined) handle1.abort();
-        }
-    }, []);
-
-    React.useEffect(() => {
         if (atStatus === 'unintiated' || atStatus === 'changed') {
-            let promise = dispatch(FetchAssetType());
+            dispatch(FetchAssetType());
             return function () {
-                //if (tzStatus == 'loading') promise.abort();
             }
         }
     }, [dispatch, atStatus]);
+    React.useEffect(() => {
+        if (aStatus === 'unintiated' || aStatus === 'changed') {
+            dispatch(FetchAsset());
+            return function () {
+            }
+        }
+    }, [dispatch, aStatus]);
+
 
 
     React.useEffect(() => {
@@ -135,9 +137,9 @@ export default function Page4(props: Page4Props) {
             index = assetConnections.findIndex(assetConnection => assetConnection.Parent == record[0].AssetKey || assetConnection.Child == record[0].AssetKey);
         }
 
-        props.UpdateState({ Assets: list });
-        props.UpdateState({ Channels: channels });
-        props.UpdateState({ AssetConnections: assetConnections });
+        props.UpdateAssets(list);
+        props.UpdateChannels(channels);
+        props.UpdateAssetConnections(assetConnections);
 
     }
 
@@ -159,7 +161,7 @@ export default function Page4(props: Page4Props) {
     }
 
     function getDifferentAsset(assetID: number): void {
-        let assetTypeID = allAssets.find(a => a.ID == assetID)['AssetTypeID']; 
+        let assetTypeID = assets.find(a => a.ID == assetID)['AssetTypeID']; 
         let assetType = assetTypes.find(at => at.ID == assetTypeID)
         $.ajax({
             type: "GET",
@@ -281,7 +283,7 @@ export default function Page4(props: Page4Props) {
                             <div className="modal-body">
                                 <div className="row">
                                     <div className="col">
-                                        <AssetAttributes Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewEditAsset} GetDifferentAsset={getDifferentAsset} />
+                                        <AssetAttributes Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets} UpdateState={setNewEditAsset} GetDifferentAsset={getDifferentAsset} />
                                     </div>
                                     <div className="col">
                                         { showAttributes() }
@@ -314,8 +316,8 @@ export default function Page4(props: Page4Props) {
                                             channel.Asset = record.AssetKey
                                     });
                                     list.push(record);
-                                    props.UpdateState({ Channels: channels });
-                                    props.UpdateState({ Assets: list });
+                                    props.UpdateChannels(channels);
+                                    props.UpdateAssets(list);
                                     setNewEditAsset(AssetAttributes.getNewAsset('Line') );
 
                                 }} hidden={newEdit != 'New'}>Save</button>
@@ -334,8 +336,8 @@ export default function Page4(props: Page4Props) {
                                             channel.Asset = record.AssetKey
                                     });
 
-                                    props.UpdateState({ Channels: channels });
-                                    props.UpdateState({ Assets: list });
+                                    props.UpdateChannels(channels);
+                                    props.UpdateAssets(list);
                                     setNewEditAsset(AssetAttributes.getNewAsset('Line'));
                                 }} hidden={newEdit != 'Edit'}>Save</button>
 

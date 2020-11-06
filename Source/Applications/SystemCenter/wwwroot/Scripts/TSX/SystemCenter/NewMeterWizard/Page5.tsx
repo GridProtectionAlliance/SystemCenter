@@ -27,7 +27,7 @@ import { OpenXDA } from '../global';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectAssetConnectionTypes, SelectAssetConnectionTypeStatus, FetchAssetConnectionType } from '../Store/AssetConnectionTypeSlice';
 
-export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnections: Array<OpenXDA.AssetConnection>, UpdateState: (record) => void }) {
+export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnections: Array<OpenXDA.AssetConnection>, UpdateAssetConnections: (record: OpenXDA.AssetConnection[]) => void }) {
     const selectAsset = React.useRef(null);
     const selectType = React.useRef(null);
     const dispatch = useDispatch();
@@ -66,7 +66,7 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
         let list: Array<OpenXDA.AssetConnection> = _.clone(props.AssetConnections);
         let index = list.findIndex(a => a == ac);
         let record: Array<OpenXDA.AssetConnection> = list.splice(index, 1);
-        props.UpdateState({ AssetConnections: list });
+        props.UpdateAssetConnections(list);
     }
 
     let currentAsset = props.Assets[assetIndex]
@@ -165,7 +165,7 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
                                 let connectionType = parseInt($(selectType.current).val() as string);
                                 let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(props.AssetConnections);
                                 assetConnections.push({ ID: 0, AssetRelationshipTypeID: connectionType, Parent: currentAsset.AssetKey, Child: childConnection });
-                                props.UpdateState({ AssetConnections: assetConnections})
+                                props.UpdateAssetConnections(assetConnections);
                             }} >Save</button>
 
                             <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
