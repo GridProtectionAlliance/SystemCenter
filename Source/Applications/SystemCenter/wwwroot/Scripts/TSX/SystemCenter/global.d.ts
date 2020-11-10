@@ -86,8 +86,8 @@ export namespace OpenXDA {
     interface CapBank extends Asset {
         NumberOfBanks: number, CapacitancePerBank: number, CktSwitcher: string, MaxKV: number, UnitKV: number, UnitKVAr: number, NegReactanceTol: number, PosReactanceTol: number,
         Nparalell: number, Nseries: number, NSeriesGroup: number, NParalellGroup: number, Fused: boolean, VTratioBus: number, NumberLVCaps: number, NumberLVUnits: number, LVKVAr: number, LVKV: number,
-        LVNegReactanceTol: number, LVPosReactanceTol: number, UpperXFRRatio: number, LowerXFRRatio: number, Nshorted: number, BlownFuses: number, BlownGroups: number, RelayPTRatio: string, Rv: number,
-        Rh: number, Compensated: boolean, NLowerGroups: number, ShortedGroups: number
+        LVNegReactanceTol: number, LVPosReactanceTol: number, UpperXFRRatio: number, LowerXFRRatio: number, Nshorted: number, BlownFuses: number, BlownGroups: number, RelayPTRatioPrimary: number, Rv: number,
+        Rh: number, Compensated: boolean, NLowerGroups: number, ShortedGroups: number, Sh: number, RelayPTRatioSecondary: number
     }
     interface CapBankRelay extends Asset { OnVoltageThreshhold: number }
     interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Detail: LineDetail }

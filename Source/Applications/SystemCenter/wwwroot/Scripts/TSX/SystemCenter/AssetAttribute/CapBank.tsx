@@ -84,6 +84,12 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
             return props.Asset.NLowerGroups != null && AssetAttributes.isInteger(props.Asset.NLowerGroups);
         else if (field == 'ShortedGroups')
             return props.Asset.ShortedGroups != null && AssetAttributes.isRealNumber(props.Asset.ShortedGroups);
+        else if (field == 'RelayPTRatioPrimary')
+            return props.Asset.ShortedGroups != null && AssetAttributes.isInteger(props.Asset.RelayPTRatioPrimary);
+        else if (field == 'RelayPTRatioSecondary')
+            return props.Asset.ShortedGroups != null && AssetAttributes.isInteger(props.Asset.RelayPTRatioSecondary);
+        else if (field == 'Sh')
+            return props.Asset.ShortedGroups != null && AssetAttributes.isRealNumber(props.Asset.Sh);
         return false;
     }
     if (props.Asset == null) return null;
@@ -119,11 +125,17 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
                 </> : <>
                     {(props.Asset.Compensated ? 
                         <>
-                            <PTRatioInput Record={props.Asset} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'RelayPTRatioPrimary'} Label={'Relay PT Primary (V)'} Feedback={'Relay PT Primary a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'RelayPTRatioSecondary'} Label={'Relay PT Secondary (V)'} Feedback={'Relay PT Secondary  is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Rh'} Label={'Vt Input Resistor (Ohm)'} Feedback={'Vt input resistor is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Sh'} Label={'Vt Input Resistor Wattage (W)'} Feedback={'Vt input resistor wattage is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+
                         </>
                     : 
                         <>
-                            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Rh'} Label={'Voltage Divider input R'} Feedback={'Voltage Divider input R is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Rv'} Label={'Voltage Divider output R (Ohm)'} Feedback={'Voltage Divider output R is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Rh'} Label={'Voltage Divider input R (Ohm)'} Feedback={'Voltage Divider input R is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+
                         </>
                     )}
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NSeriesGroup'} Label={'Num. of Series Groups in each Unit'} Feedback={'Num. of Series Groups in each Unit is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
@@ -135,8 +147,7 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LVKV'} Label={'Low Voltage Cap rating (V)'} Feedback={'Low Volatage Cap rating is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LVNegReactanceTol'} Label={'neg. Reactance Tolerance of LV Unit (%)'} Feedback={'neg. Reactance Tolerance of LV Unitis a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LVPosReactanceTol'} Label={'pos. Reactance Tolerance of LV Unit (%)'} Feedback={'pos. Reactance Tolerance of LV Unit is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Rv'} Label={(props.Asset.Compensated ? 'Vt input Resistor (Ohm)' : 'Voltage Divider output R (Ohm)')} Feedback={(props.Asset.Compensated ? 'Vt input Resistor (Ohm)' : 'Voltage Divider output R (Ohm)')+' is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                   
+                  
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Nshorted'} Label={'Initial guess of shorted elements'} Feedback={'Initial guess of shorted elements is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
                 </>)}
@@ -186,71 +197,6 @@ class DesignSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter: (r
                 <option key={1} value="1">Fuseless Uncompensated</option>
                 <option key={2} value="2">Fused</option>
             </select>
-        </div>;
-    }
-}
-
-class PTRatioInput extends React.Component<{ Record: OpenXDA.CapBank, Setter: (record: OpenXDA.CapBank) => void, Disabled?: boolean }, {low: string, high: string}, {}>{
-
-    constructor(props, context) {
-        super(props, context);
-
-        let regex = /^([0-9]+) ([0-9]+)$/;
-       
-        if (this.props.Record.RelayPTRatio != undefined && this.props.Record.RelayPTRatio.match(regex) != null) {
-            this.state = { low: this.props.Record.RelayPTRatio.match(regex)[1], high: this.props.Record.RelayPTRatio.match(regex)[2] };
-        }
-        else {
-            this.state = { low: "", high: "" };
-        }
-
-        
-        
-    }
-
-    updateValues(input: string) {
-        input = input.trim();
-
-        let regex = /^([0-9]+) ([0-9]+)$/;
-        if (input.match(regex) != null) {
-            this.setState({ low: input.match(regex)[1], high: input.match(regex)[2] })
-        }
-        else {
-            this.setState({low: "0", high: "100"})
-        }         
-    }
-
-    componentDidUpdate(prevprop, prevstate) {
-        if (prevprop.Record.RelayPTRatio !== this.props.Record.RelayPTRatio) {
-            this.updateValues(this.props.Record.RelayPTRatio)
-        }
-        if ((prevstate.low !== this.state.low || prevstate.high !== this.state.high) && this.isInteger(this.state.low) && this.isInteger(this.state.high)) {
-            var record: OpenXDA.CapBank = _.clone(this.props.Record);
-            if (parseInt(this.state.low) > parseInt(this.state.high))
-                record.RelayPTRatio = this.state.low.toString() + " " + this.state.high.toString();
-            else
-                record.RelayPTRatio = this.state.high.toString() + " " + this.state.low.toString();
-            this.props.Setter(record);
-        }
-    }
-
-    isInteger(value: any) {
-        var regex = /^-?[0-9]+$/;
-        return value.toString().match(regex) != null;
-    }
-
-    render() {
-        return <div className="form-group">
-            <label>Relay PT Ratio (Primary/Secondary)</label>
-            <div className="input-group">
-                <input className={(this.isInteger(this.state.high) ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    this.setState({ high: evt.target.value as string})
-                }} value={this.state.high} disabled={this.props.Disabled == null ? false : this.props.Disabled} placeholder='Primary' />
-                <input className={(this.isInteger(this.state.low) ? "form-control" : "form-control is-invalid")} onChange={(evt) => {
-                    this.setState({ low: evt.target.value as string })
-                    }} value={this.state.low} disabled={this.props.Disabled == null ? false : this.props.Disabled} placeholder='Secondary'/>
-            </div>
-            <div className='invalid-feedback'> Relay PT Ratio is a required field.</div>
         </div>;
     }
 }
