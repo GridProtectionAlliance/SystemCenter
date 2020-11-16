@@ -113,7 +113,7 @@ function NoteWindow(props: { ID: number, Type: 'Asset' | 'Meter' | 'Location' | 
                 </div>
             </div>
             <div className="card-body">
-                <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
+                <div style={{ height: window.innerHeight - 420, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <table className="table" >
                         <thead>
                             <tr><th style={{ width: '50%' }}>Note</th><th>Time</th><th>User</th><th></th></tr>

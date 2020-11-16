@@ -168,7 +168,7 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
                 <div className="card-body">
                     <div className="row" style={{margin: -20}}>
                         <div className="col" style={{padding: 20}}>
-                            <div style={{ width: '100%', maxHeight: window.innerHeight - 350, padding: 30, overflowY: 'auto' }}>
+                            <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
                                 <table className="table table-hover">
                                     <thead>
                                         <tr>

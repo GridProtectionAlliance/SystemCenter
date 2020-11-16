@@ -70,7 +70,7 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Meter }) {
                     </div>
                 </div>
                 <div className="card-body">
-                    <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
+                <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
                         <table className='table'>
                             <thead>
                                 <tr><td>Revision</td><td>Files Processed</td><td>Last Processed Time</td></tr>

@@ -78,7 +78,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     React.useEffect(() => {
         let handle = getRoles();
         handle.done(rs => setRoles(rs));
-        window.addEventListener('resize', (evt) => forceUpdate());
+        window.addEventListener('resize', (evt) => forceUpdate(1));
 
         return function cleanup() {
             if (handle.abort != null)
@@ -173,7 +173,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             </ul>
                             <div style={{ width: '100%', textAlign: 'center', position:'absolute', bottom: 50 }}>
 
-                                <span>Version 0.1</span>
+                                <span>Version { version}</span>
                                 <br />
                                 <span></span>
                             </div>

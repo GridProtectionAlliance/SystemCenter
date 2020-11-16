@@ -151,7 +151,7 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                     </div>
                 </div>
                 <div className="card-body">
-                    <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
+                    <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
                         <table className="table table-hover">
                             <thead>
                                 <tr>
