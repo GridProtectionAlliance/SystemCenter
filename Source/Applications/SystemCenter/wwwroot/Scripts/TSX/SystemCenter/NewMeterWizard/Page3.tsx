@@ -28,6 +28,7 @@ import CFGParser from '../../../TS/CFGParser';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectMeasurementTypes, SelectMeasurementTypeStatus, FetchMeasurementType } from '../Store/MeasurementTypeSlice';
 import { SelectPhaseStatus, SelectPhases, FetchPhase } from '../Store/PhaseSlice';
+import { toNumber } from 'lodash';
 
 declare var homePath: string;
 
@@ -130,13 +131,13 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                 <div className="col">
                     <button className="btn btn-primary" onClick={() => {
                         let channels: Array<OpenXDA.Channel> = [
-                            { ID: 0, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
-                            { ID: 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'VBN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage BN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
-                            { ID: 2, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'VCN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage CN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
-                            { ID: 3, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'IA', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current A', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
-                            { ID: 4, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'IB', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current B', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
-                            { ID: 5, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'IC', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current C', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
-                            { ID: 6, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'NG', Name: 'IN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current NG', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                            { ID: 0, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                            { ID: 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'VBN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage BN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                            { ID: 2, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'VCN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage CN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                            { ID: 3, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'IA', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current A', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                            { ID: 4, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'IB', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current B', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                            { ID: 5, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'IC', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current C', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
+                            { ID: 6, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'NG', Name: 'IN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current NG', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel,
 
                         ]
                         props.UpdateChannels(channels);
@@ -153,7 +154,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                 </div>
                 <div className="col">
                     <button className="btn btn-primary pull-right" onClick={() => {
-                        let channel: OpenXDA.Channel = { ID: props.Channels.length, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel
+                        let channel: OpenXDA.Channel = { ID: props.Channels.length, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel
                         let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
                         channels.push(channel);
                         props.UpdateChannels(channels);
@@ -171,6 +172,8 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                             <th>Desc</th>
                             <th>Type</th>
                             <th>Phase</th>
+                            <th>Adder</th>
+                            <th>Multiplier</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -187,7 +190,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                                             channel.Name = event.target.value;
                                             props.UpdateChannels([...array]);
                                         }}/></td>
-                                        <td style={{ width: '45%' }}><input className='form-control' value={channel.Description} onChange={(event) => {
+                                        <td style={{ width: '35%' }}><input className='form-control' value={channel.Description} onChange={(event) => {
                                             channel.Description = event.target.value;
                                             props.UpdateChannels([...array]);
                                         }}/></td>
@@ -199,6 +202,14 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                                             channel.Phase = event.target.value;
                                             props.UpdateChannels([...array]);
                                         }}>{phases.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
+                                        <td style={{ width: '5%' }}><input className='form-control' value={channel.Adder} onChange={(event) => {
+                                            channel.Adder = toNumber(event.target.value);
+                                            props.UpdateChannels([...array]);
+                                        }} /></td>
+                                        <td style={{ width: '5%' }}><input className='form-control' value={channel.Multiplier} onChange={(event) => {
+                                            channel.Multiplier = toNumber(event.target.value);
+                                            props.UpdateChannels([...array]);
+                                        }} /></td>
                                         <td style={{ width: '10%' }}>
                                             <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span><i className="fa fa-times"></i></span></button>
                                         </td>

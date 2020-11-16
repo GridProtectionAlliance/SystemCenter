@@ -209,13 +209,15 @@ namespace SystemCenter.Controllers.OpenXDA
                     string measurementcharacteristic = channel["MeasurementCharacteristic"].ToString();
                     string phase = channel["Phase"].ToString();
                     string name = channel["Name"].ToString();
+                    double adder = channel["Adder"].ToObject<double>();
+                    double multiplier = channel["Multiplier"].ToObject<double>();
                     string description = channel["Description"].ToString() == string.Empty ? "NULL" : "'" + channel["Description"].ToString() + "'";
                     JToken Series = channel["Series"];
                     string sourceIndex = Series["SourceIndexes"].ToString();
                     if (assetName == string.Empty) continue;
 
-                    sqlString += $"INSERT INTO Channel (AssetID, MeasurementTypeID, MeterID, MeasurementCharacteristicID, PhaseID, Name, SamplesPerHour, HarmonicGroup, Description, Enabled) VALUES ";
-                    sqlString += $"((SELECT ID FROM Asset WHERE AssetKey = '{assetName}'),(SELECT ID FROM MeasurementType WHERE Name = '{measurementType}'),(SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'),(SELECT ID FROM MeasurementCharacteristic WHERE Name = '{measurementcharacteristic}'),(SELECT ID FROM Phase WHERE Name = '{phase}'), '{name}', 0,0,{description}, 1 ) \n";
+                    sqlString += $"INSERT INTO Channel (AssetID, MeasurementTypeID, MeterID, MeasurementCharacteristicID, PhaseID, Name, Adder, Multiplier, SamplesPerHour, HarmonicGroup, Description, Enabled) VALUES ";
+                    sqlString += $"((SELECT ID FROM Asset WHERE AssetKey = '{assetName}'),(SELECT ID FROM MeasurementType WHERE Name = '{measurementType}'),(SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'),(SELECT ID FROM MeasurementCharacteristic WHERE Name = '{measurementcharacteristic}'),(SELECT ID FROM Phase WHERE Name = '{phase}'), '{name}', {adder}, {multiplier}, 0,0,{description}, 1 ) \n";
                     sqlString += $"INSERT INTO Series (ChannelID, SeriesTypeID, SourceIndexes) VALUES ((SELECT @@Identity), (SELECT ID FROM SeriesType WHERE Name = 'Values'), '{sourceIndex}') \n";
                 }
 
@@ -269,6 +271,8 @@ namespace SystemCenter.Controllers.OpenXDA
                         record.PhaseID = phases.First(phase => phase.Name == channel["Phase"].ToString()).ID;
                         record.Name = channel["Name"].ToString();
                         record.Description = channel["Description"].ToString() == string.Empty ? null : channel["Description"].ToString();
+                        record.Adder = channel["Adder"].ToObject<double>();
+                        record.Multiplier = channel["Multiplier"].ToObject<double>();
                         record.SamplesPerHour = channel["SamplesPerHour"].ToObject<double>();
                         record.PerUnitValue = channel["PerUnitValue"].ToObject<double?>();
                         record.HarmonicGroup = channel["HarmonicGroup"].ToObject<int>();
@@ -328,6 +332,8 @@ namespace SystemCenter.Controllers.OpenXDA
 	                    MeasurementCharacteristic.Name as MeasurementCharacteristic,
 	                    Phase.Name as Phase,
 	                    Channel.Name,
+	                    Channel.Adder,
+	                    Channel.Multiplier,
 	                    Channel.SamplesPerHour,
 	                    Channel.PerUnitValue,
 	                    Channel.HarmonicGroup,
@@ -335,7 +341,6 @@ namespace SystemCenter.Controllers.OpenXDA
 	                    Channel.Enabled,
                         Series.ID as SeriesID,
 	                    Series.SourceIndexes as SeriesSourceIndexes
-
                     FROM
 	                    Channel JOIN
 	                    Series ON Channel.ID = Series.ChannelID JOIN

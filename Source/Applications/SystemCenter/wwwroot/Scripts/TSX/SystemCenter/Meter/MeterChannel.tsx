@@ -24,6 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
+import { toNumber } from 'lodash';
 
 declare var homePath: string;
 
@@ -57,7 +58,7 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
             cache: true,
             async: true
         }).done((channels: Array<any>) => {
-            let makeChannels = channels.map(channel => { return { ID: channel.ID, Meter: channel.Meter, Asset: channel.Asset, MeasurementType: channel.MeasurementType, MeasurementCharacteristic: channel.MeasurementCharacteristic, Phase: channel.Phase, Name: channel.Name, SamplesPerHour: channel.SamplesPerHour, PerUnitValue: channel.SamplesPerHour, HarmonicGroup: channel.HarmonicGroup, Description: channel.Description, Enabled: channel.Enabled, Series: { ID: channel['SeriesID'], ChannelID: channel.ID, SeriesType: 'Values', SourceIndexes: channel['SeriesSourceIndexes'] } as OpenXDA.Series } as OpenXDA.Channel })
+            let makeChannels = channels.map(channel => { return { ID: channel.ID, Meter: channel.Meter, Asset: channel.Asset, MeasurementType: channel.MeasurementType, MeasurementCharacteristic: channel.MeasurementCharacteristic, Phase: channel.Phase, Name: channel.Name, Adder: channel.Adder, Multiplier: channel.Multiplier, SamplesPerHour: channel.SamplesPerHour, PerUnitValue: channel.SamplesPerHour, HarmonicGroup: channel.HarmonicGroup, Description: channel.Description, Enabled: channel.Enabled, Series: { ID: channel['SeriesID'], ChannelID: channel.ID, SeriesType: 'Values', SourceIndexes: channel['SeriesSourceIndexes'] } as OpenXDA.Series } as OpenXDA.Channel })
             this.setState({ Channels:  makeChannels})
         });
     }
@@ -160,6 +161,8 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                                     <th>Desc</th>
                                     <th>Type</th>
                                     <th>Phase</th>
+                                    <th>Adder</th>
+                                    <th>Multiplier</th>
                                     <th>Asset</th>
                                     <th></th>
                                 </tr>
@@ -177,7 +180,7 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                                                     channel.Name = event.target.value;
                                                     this.setState({ Channels: array });
                                                 }} /></td>
-                                                <td style={{ width: '40%' }}><input className='form-control' value={channel.Description == null ? '' : channel.Description} onChange={(event) => {
+                                                <td style={{ width: '30%' }}><input className='form-control' value={channel.Description == null ? '' : channel.Description} onChange={(event) => {
                                                     channel.Description = event.target.value;
                                                     this.setState({ Channels: array });
                                                 }} /></td>
@@ -189,6 +192,14 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                                                     channel.Phase = event.target.value;
                                                     this.setState({ Channels: array });
                                                 }}>{this.state.Phases.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
+                                                <td style={{ width: '5%' }}><input className='form-control' value={channel.Adder} onChange={(event) => {
+                                                    channel.Adder = toNumber(event.target.value);
+                                                    this.setState({ Channels: array });
+                                                }} /></td>
+                                                <td style={{ width: '5%' }}><input className='form-control' value={channel.Multiplier} onChange={(event) => {
+                                                    channel.Multiplier = toNumber(event.target.value);
+                                                    this.setState({ Channels: array });
+                                                }} /></td>
                                                 <td style={{ width: '10%' }}>{<select className='form-control' value={channel.Asset} onChange={(event) => {
                                                     channel.Asset = event.target.value;
                                                     this.setState({ Channels: array });
