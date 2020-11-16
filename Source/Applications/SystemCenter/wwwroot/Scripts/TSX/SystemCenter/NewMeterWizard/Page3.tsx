@@ -181,23 +181,23 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                                     <tr key={index}>
                                         <td style={{ width: '5%' }}><input className='form-control'  value={channel.Series.SourceIndexes} onChange={(event) => {
                                             channel.Series.SourceIndexes = event.target.value;
-                                            props.UpdateChannels(array);
+                                            props.UpdateChannels([...array]);
                                         }} /></td>
                                         <td style={{ width: '20%' }}><input className='form-control' value={channel.Name} onChange={(event) => {
                                             channel.Name = event.target.value;
-                                            props.UpdateChannels(array);
+                                            props.UpdateChannels([...array]);
                                         }}/></td>
                                         <td style={{ width: '45%' }}><input className='form-control' value={channel.Description} onChange={(event) => {
                                             channel.Description = event.target.value;
-                                            props.UpdateChannels(array);
+                                            props.UpdateChannels([...array]);
                                         }}/></td>
                                         <td style={{ width: '10%' }}>{<select className= 'form-control'  value={channel.MeasurementType} onChange={(event) => {
                                             channel.MeasurementType = event.target.value;
-                                            props.UpdateChannels(array);
+                                            props.UpdateChannels([...array]);
                                         }}>{measurementTypes.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
                                         <td style={{ width: '10%' }}>{<select className='form-control' value={channel.Phase} onChange={(event) => {
                                             channel.Phase = event.target.value;
-                                            props.UpdateChannels(array);
+                                            props.UpdateChannels([...array]);
                                         }}>{phases.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
                                         <td style={{ width: '10%' }}>
                                             <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span><i className="fa fa-times"></i></span></button>
