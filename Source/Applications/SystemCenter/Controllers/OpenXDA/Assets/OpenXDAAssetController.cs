@@ -788,7 +788,9 @@ namespace SystemCenter.Controllers.OpenXDA
             capBank.ShortedGroups = record["ShortedGroups"].ToObject<double>();
             capBank.NLowerGroups = record["NLowerGroups"].ToObject<int>();
 
-            capBank.RelayPTRatio = record["RelayPTRatio"].ToString();
+            capBank.RelayPTRatioPrimary = record["RelayPTRatioPrimary"].ToObject<int>();
+            capBank.RelayPTRatioSecondary = record["RelayPTRatioSecondary"].ToObject<int>();
+            capBank.Sh = record["Sh"].ToObject<double>();
             capBank.Rv = record["Rv"].ToObject<double>();
             capBank.Rh = record["Rh"].ToObject<double>();
             capBank.Compensated = record["Compensated"].ToObject<bool>();
