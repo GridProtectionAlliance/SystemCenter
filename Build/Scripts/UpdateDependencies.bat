@@ -33,12 +33,13 @@ SET defaulttarget=%LOCALAPPDATA%\Temp\SystemCenter
 IF "%remote%" == "" SET remote=git@github.com:GridProtectionAlliance/SystemCenter.git
 IF "%gsf%" == "" SET gsf=\\GPAWEB\NightlyBuilds\GridSolutionsFramework\Beta
 IF "%historian%" == "" SET historian=\\GPAWEB\NightlyBuilds\openHistorian\Beta
-IF "%openXDA%" == "" SET historian=\\GPAWEB\NightlyBuilds\openXDA\Beta
+IF "%openXDA%" == "" SET openXDA=\\GPAWEB\NightlyBuilds\openXDA\Beta
 IF "%target%" == "" SET target=%defaulttarget%
 
 SET gsflibraries=%gsf%\Libraries\*.*
 SET gsfdependencies=%target%\Source\Dependencies\GSF
-SET openXDALibraries=%openXDA%\Library\*.*
+SET openXDALibraries=%openXDA%\Libraries\*.*
+SET historiants=%historian%\Library\openHistorian.TimeSeries\*.*
 SET historiansqlclr=%historian%\Library\openHistorian.SqlClr\*.*
 SET historiandependencies=%target%\Source\Dependencies\openHistorian
 SET sourcemasterbuild=%gsf%\Build Scripts\MasterBuild.buildproj
