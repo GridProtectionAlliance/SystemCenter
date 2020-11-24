@@ -77,6 +77,17 @@ namespace SystemCenter.Controllers.OpenXDA
 
     }
 
+    [RoutePrefix("api/OpenXDA/MeasurementCharacteristic")]
+    public class MeasurementCharacteristicController : ModelController<MeasurementCharacteristic>
+    {
+        protected override string Connection { get; } = "dbOpenXDA";
+        protected override string PostRoles { get; } = "Administrator, Transmission SME";
+        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+        protected override string DefaultSort { get; } = "Name";
+
+    }
+
     [RoutePrefix("api/OpenXDA/Note")]
     public class NoteController : ModelController<Notes>
     {

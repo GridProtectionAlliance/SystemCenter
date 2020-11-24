@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Page3.tsx - Gbtc
+//  MeterTrendChannel.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -28,13 +28,14 @@ import { toNumber } from 'lodash';
 
 declare var homePath: string;
 
-export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA.Meter }, { Channels: Array<OpenXDA.Channel>, Phases: Array<OpenXDA.Phase>, MeasurementTypes: Array<OpenXDA.MeasurementType>, AllAssets: Array<OpenXDA.Asset> }, {}>{
+export default class MeterTrendChannelWindow extends React.Component<{ Meter: OpenXDA.Meter }, { Channels: Array<OpenXDA.Channel>, Phases: Array<OpenXDA.Phase>, MeasurementTypes: Array<OpenXDA.MeasurementType>, MeasurementCharacteristics: Array<OpenXDA.MeasurementCharacteristic>, AllAssets: Array<OpenXDA.Asset> }, {}>{
     constructor(props, context) {
         super(props, context);
         this.state = {
             Channels: [],
             Phases: [],
             MeasurementTypes: [],
+            MeasurementCharacteristics: [],
             AllAssets: []
         }
 
@@ -46,19 +47,20 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
         this.getPhases();
         this.getAssets();
         this.getMeasurementTypes();
+        this.getMeasurementCharacteristics();
         this.getChannels();
     }
 
     getChannels(): void {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Meter/${this.props.Meter.ID}/Channels`,
+            url: `${homePath}api/OpenXDA/Meter/${this.props.Meter.ID}/Channels/Trend`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
         }).done((channels: Array<any>) => {
-            let makeChannels = channels.map(channel => { return { ID: channel.ID, Meter: channel.Meter, Asset: channel.Asset, MeasurementType: channel.MeasurementType, MeasurementCharacteristic: channel.MeasurementCharacteristic, Phase: channel.Phase, Name: channel.Name, Adder: channel.Adder, Multiplier: channel.Multiplier, SamplesPerHour: channel.SamplesPerHour, PerUnitValue: channel.SamplesPerHour, HarmonicGroup: channel.HarmonicGroup, Description: channel.Description, Enabled: channel.Enabled, Series: { ID: channel['SeriesID'], ChannelID: channel.ID, SeriesType: 'Values', SourceIndexes: channel['SeriesSourceIndexes'] } as OpenXDA.Series } as OpenXDA.Channel })
+            let makeChannels = channels.map(channel => channel as OpenXDA.Channel)
             this.setState({ Channels:  makeChannels})
         });
     }
@@ -66,7 +68,7 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
     updateChannels(): void {
         $.ajax({
             type: "POST",
-            url: `${homePath}api/OpenXDA/Meter/${this.props.Meter.ID}/Channel/Update`,
+            url: `${homePath}api/OpenXDA/Meter/${this.props.Meter.ID}/Channel/Update/Trend`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({Channels: this.state.Channels}),
@@ -113,7 +115,6 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
             }).done((phases: Array<OpenXDA.Phase>) => {
                 this.setState({ Phases: phases })
                 sessionStorage.setItem('NewMeterWizard.Phases', JSON.stringify(phases));
-
             });
     }
 
@@ -131,7 +132,23 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
             }).done((measurementTypes: Array<OpenXDA.MeasurementType>) => {
                 this.setState({ MeasurementTypes: measurementTypes })
                 sessionStorage.setItem('OpenXDA.MeasurementTypes', JSON.stringify(measurementTypes));
+            });
+    }
 
+    getMeasurementCharacteristics(): void {
+        if (sessionStorage.hasOwnProperty('OpenXDA.MeasurementCharacteristics'))
+            this.setState({ MeasurementTypes: JSON.parse(sessionStorage.getItem('OpenXDA.MeasurementCharacteristics')) });
+        else
+            $.ajax({
+                type: "GET",
+                url: `${homePath}api/OpenXDA/MeasurementCharacteristic`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                cache: true,
+                async: true
+            }).done((measurementCharacteristics: Array<OpenXDA.MeasurementCharacteristic>) => {
+                this.setState({ MeasurementCharacteristics: measurementCharacteristics })
+                sessionStorage.setItem('OpenXDA.MeasurementCharacteristics', JSON.stringify(measurementCharacteristics));
             });
     }
 
@@ -156,11 +173,12 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                         <table className="table table-hover">
                             <thead>
                                 <tr>
-                                    <th>Channel</th>
                                     <th>Name</th>
                                     <th>Desc</th>
                                     <th>Type</th>
+                                    <th>Characteristic</th>
                                     <th>Phase</th>
+                                    <th>Harmonic</th>
                                     <th>Adder</th>
                                     <th>Multiplier</th>
                                     <th>Asset</th>
@@ -172,15 +190,11 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                                     this.state.Channels.map((channel, index, array) => {
                                         return (
                                             <tr key={index}>
-                                                <td style={{ width: '5%' }}><input className='form-control' value={channel.Series.SourceIndexes} onChange={(event) => {
-                                                    channel.Series.SourceIndexes = event.target.value;
-                                                    this.setState({ Channels: array });
-                                                }} /></td>
                                                 <td style={{ width: '15%' }}><input className='form-control' value={channel.Name} onChange={(event) => {
                                                     channel.Name = event.target.value;
                                                     this.setState({ Channels: array });
                                                 }} /></td>
-                                                <td style={{ width: '30%' }}><input className='form-control' value={channel.Description == null ? '' : channel.Description} onChange={(event) => {
+                                                <td style={{ width: '20%' }}><input className='form-control' value={channel.Description == null ? '' : channel.Description} onChange={(event) => {
                                                     channel.Description = event.target.value;
                                                     this.setState({ Channels: array });
                                                 }} /></td>
@@ -188,10 +202,18 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                                                     channel.MeasurementType = event.target.value;
                                                     this.setState({ Channels: array });
                                                 }}>{this.state.MeasurementTypes.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
+                                                <td style={{ width: '10%' }}>{<select className='form-control' value={channel.MeasurementCharacteristic} onChange={(event) => {
+                                                    channel.MeasurementCharacteristic = event.target.value;
+                                                    this.setState({ Channels: array });
+                                                }}>{this.state.MeasurementCharacteristics.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
                                                 <td style={{ width: '10%' }}>{<select className='form-control' value={channel.Phase} onChange={(event) => {
                                                     channel.Phase = event.target.value;
                                                     this.setState({ Channels: array });
                                                 }}>{this.state.Phases.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
+                                                <td style={{ width: '5%' }}><input className='form-control' value={channel.HarmonicGroup} onChange={(event) => {
+                                                    channel.HarmonicGroup = toNumber(event.target.value);
+                                                    this.setState({ Channels: array });
+                                                }} /></td>
                                                 <td style={{ width: '5%' }}><input className='form-control' value={channel.Adder} onChange={(event) => {
                                                     channel.Adder = toNumber(event.target.value);
                                                     this.setState({ Channels: array });
@@ -209,7 +231,6 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                                                 <td style={{ width: '5%' }}>
                                                     <button className="btn btn-sm" onClick={(e) => this.deleteChannel(index)}><span><i className="fa fa-times"></i></span></button>
                                                 </td>
-
                                             </tr>
                                         )
                                     })
@@ -221,7 +242,7 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                 <div className="card-footer">
                     <div className="btn-group mr-2">
                         <button className="btn btn-primary pull-right" onClick={() => {
-                            let channel: OpenXDA.Channel = { ID: 0, Meter: this.props.Meter.AssetKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: { ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series } as OpenXDA.Channel
+                            let channel: OpenXDA.Channel = { ID: 0, Meter: this.props.Meter.AssetKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'RMS', Phase: 'AN', Name: 'VAN RMS', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN RMS', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Maximum', SourceIndexes: '' }, { ID: 0, ChannelID: 0, SeriesType: 'Minimum', SourceIndexes: '' }, { ID: 0, ChannelID: 0, SeriesType: 'Average', SourceIndexes: '' }] } as OpenXDA.Channel
                             let channels: Array<OpenXDA.Channel> = _.clone(this.state.Channels);
                             channels.push(channel);
                             this.setState({ Channels: channels });
@@ -235,9 +256,7 @@ export default class MeterChannelWindow extends React.Component<{ Meter: OpenXDA
                     </div>
                 </div>
             </div>
-                
         );
     }
-
 }
 

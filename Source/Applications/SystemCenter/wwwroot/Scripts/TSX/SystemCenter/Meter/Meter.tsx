@@ -28,7 +28,8 @@ import * as _ from 'lodash';
 import MeterLocationWindow from '../Meter/MeterLocation';
 import { OpenXDA } from '../global';
 import MeterInfoWindow from './MeterInfo';
-import MeterChannelWindow from '../Meter/MeterChannel';
+import MeterEventChannelWindow from '../Meter/MeterEventChannel';
+import MeterTrendChannelWindow from '../Meter/MeterTrendChannel';
 import MeterAssetWindow from '../Meter/MeterAsset';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
@@ -132,7 +133,10 @@ export default class Meter extends React.Component<{ MeterID: number }, { Meter:
                         <a className={"nav-link" + (this.state.Tab == "assets" ? " active" : "")} onClick={() => this.setTab('assets')} data-toggle="tab" href="#assets">Assets</a>
                     </li>
                     <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "channels" ? " active" : "")} onClick={() => this.setTab('channels')} data-toggle="tab" href="#channels">Channels</a>
+                        <a className={"nav-link" + (this.state.Tab == "eventChannels" ? " active" : "")} onClick={() => this.setTab('eventChannels')} data-toggle="tab" href="#eventChannels">Event Channels</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (this.state.Tab == "trendChannels" ? " active" : "")} onClick={() => this.setTab('trendChannels')} data-toggle="tab" href="#trendChannels">Trend Channels</a>
                     </li>
                     <li className="nav-item">
                         <a className={"nav-link" + (this.state.Tab == "configurationHistory" ? " active" : "")} onClick={() => this.setTab('configurationHistory')} data-toggle="tab" href="#configurationHistory">Configuration History</a>
@@ -155,8 +159,11 @@ export default class Meter extends React.Component<{ MeterID: number }, { Meter:
                     <div className={"tab-pane " + (this.state.Tab == "substation" ? " active" : "fade")} id="substation">
                         <MeterLocationWindow Meter={this.state.Meter} StateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
                     </div>
-                    <div className={"tab-pane " + (this.state.Tab == "channels" ? " active" : "fade")} id="channels">
-                        <MeterChannelWindow Meter={this.state.Meter} />
+                    <div className={"tab-pane " + (this.state.Tab == "eventChannels" ? " active" : "fade")} id="eventChannels">
+                        <MeterEventChannelWindow Meter={this.state.Meter} />
+                    </div>
+                    <div className={"tab-pane " + (this.state.Tab == "trendChannels" ? " active" : "fade")} id="trendChannels">
+                        <MeterTrendChannelWindow Meter={this.state.Meter} />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "assets" ? " active" : "fade")} id="assets">
                         <MeterAssetWindow Meter={this.state.Meter} />
