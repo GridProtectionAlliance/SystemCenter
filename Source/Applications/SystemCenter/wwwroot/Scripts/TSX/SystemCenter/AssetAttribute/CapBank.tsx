@@ -27,7 +27,7 @@ import { OpenXDA, SystemCenter } from '../global';
 import AssetAttributes from './Asset';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
-import { number } from 'prop-types';
+
 function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.CapBank, UpdateState: (newEditAsset: OpenXDA.CapBank) => void }): JSX.Element {
     function valid(field: keyof (OpenXDA.CapBank)): boolean {
         if (field == 'NumberOfBanks')
@@ -66,8 +66,6 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
             return props.Asset.LVNegReactanceTol != null && AssetAttributes.isRealNumber(props.Asset.LVNegReactanceTol);
         else if (field == 'LVPosReactanceTol')
             return props.Asset.LVPosReactanceTol != null && AssetAttributes.isRealNumber(props.Asset.LVPosReactanceTol);
-        else if (field == 'UpperXFRRatio')
-            return props.Asset.UpperXFRRatio != null && AssetAttributes.isRealNumber(props.Asset.UpperXFRRatio);
         else if (field == 'LowerXFRRatio')
             return props.Asset.LowerXFRRatio != null && AssetAttributes.isRealNumber(props.Asset.LowerXFRRatio);
         else if (field == 'Nshorted')
@@ -114,7 +112,6 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
           
             {(props.Asset.Fused ? 
                 <>
-                    <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'UpperXFRRatio'} Label={'Bus VT Ratio'} Feedback={'Bus VT Ratio is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LowerXFRRatio'} Label={'Midgroup VT Ratio'} Feedback={'Midgroup VT Ratio is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
 
@@ -269,3 +266,4 @@ class PreSwitchSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter:
         </div>;
     }
 }
+
