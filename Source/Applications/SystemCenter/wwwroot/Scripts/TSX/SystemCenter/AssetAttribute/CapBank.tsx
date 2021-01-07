@@ -124,6 +124,7 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
                         <>
                             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'RelayPTRatioPrimary'} Label={'Relay PT Primary (V)'} Feedback={'Relay PT Primary a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'RelayPTRatioSecondary'} Label={'Relay PT Secondary (V)'} Feedback={'Relay PT Secondary  is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                            <DoubleInput<OpenXDA.CapBank> Record={props.Asset} Field2={'RelayPTRatioSecondary'} Field1={'RelayPTRatioPrimary'} Label={'Relay PT Ratio (primary - secondary V)'} Feedback={'Relay PT ratio  is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0}/>
                             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Rh'} Label={'Vt Input Resistor (Ohm)'} Feedback={'Vt input resistor is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Sh'} Label={'Vt Input Resistor Wattage (W)'} Feedback={'Vt input resistor wattage is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
@@ -267,3 +268,43 @@ class PreSwitchSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter:
     }
 }
 
+function DoubleInput<T> (props: {
+    Record: T;
+    Field1: keyof T;
+    Field2: keyof T;
+    Setter: (record: T) => void;
+    Valid: (field: keyof T) => boolean;
+    Label?: string;
+    Feedback?: string;
+    Disabled?: boolean;
+    Type?: 'number' | 'text' | 'password' | 'email' | 'color';
+}) {
+    return (
+        <div className="form-group">
+            <label>{props.Label == null ? (props.Field1 + ' ' + props.Field2) : props.Label}</label>
+            <div className="input-group">
+            <input
+                type={props.Type === undefined ? 'text' : props.Type}
+                className={props.Valid(props.Field1) ? 'form-control' : 'form-control is-invalid'}
+                onChange={(evt) =>
+                    props.Setter({ ...props.Record, [props.Field1]: evt.target.value !== '' ? evt.target.value : null })
+                }
+                value={props.Record[props.Field1] == null ? '' : (props.Record[props.Field1] as any).toString()}
+                disabled={props.Disabled == null ? false : props.Disabled}
+                />
+                <input
+                    type={props.Type === undefined ? 'text' : props.Type}
+                    className={props.Valid(props.Field2) ? 'form-control' : 'form-control is-invalid'}
+                    onChange={(evt) =>
+                        props.Setter({ ...props.Record, [props.Field2]: evt.target.value !== '' ? evt.target.value : null })
+                    }
+                    value={props.Record[props.Field2] == null ? '' : (props.Record[props.Field2] as any).toString()}
+                    disabled={props.Disabled == null ? false : props.Disabled}
+                />
+            </div>
+            <div className="invalid-feedback">
+                {props.Feedback == null ? (props.Field1 + ' ' + props.Field2 + ' is a required field.') : props.Feedback}
+            </div>
+        </div>
+    );
+}
