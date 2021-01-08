@@ -246,6 +246,7 @@
     <Compile Include="Controllers\SystemCenter\PingController.cs" />
     <Compile Include="DataHub.cs" />
     <Compile Include="Model\AccessLog.cs" />
+    <Compile Include="Model\DetailedMeter.cs" />
     <Compile Include="Model\CompanyType.cs" />
     <Compile Include="Model\Company.cs" />
     <Compile Include="Model\CompanyMeter.cs" />
