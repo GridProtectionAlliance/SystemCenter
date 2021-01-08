@@ -19,7 +19,9 @@
     "webpack-cli": "3.3.0"
   },
   "dependencies": {
-    "@gpa-gemstone/react-forms": "1.1.1",
+    "@gpa-gemstone/react-forms": "^1.1.1",
+    "@gpa-gemstone/react-interactive": "0.0.1",
+    "@gpa-gemstone/react-table": "^1.0.5",
     "@reduxjs/toolkit": "1.4.0",
     "@types/ace": "0.0.42",
     "@types/d3": "4.13.2",
