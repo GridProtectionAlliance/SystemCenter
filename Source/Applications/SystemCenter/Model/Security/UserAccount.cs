@@ -158,7 +158,7 @@ namespace SystemCenter.Model.Security
             if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
             try
             {
-                string whereClause = BuildWhereClause(searches.Where(search => search.Field != "UserAccount.Name"));
+                string whereClause = BuildWhereClause(searches.Where(search => search.FieldName != "UserAccount.Name"));
 
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
@@ -178,9 +178,9 @@ namespace SystemCenter.Model.Security
                     ");
 
                     IEnumerable<UA> records = table.Select().Select(row => new TableOperations<UA>(connection).LoadRecord(row));
-                    if (searches.Where(search => search.Field == "UserAccount.Name").Any())
+                    if (searches.Where(search => search.FieldName == "UserAccount.Name").Any())
                     {
-                        string search = searches.First(s => s.Field == "UserAccount.Name").SearchText;
+                        string search = searches.First(s => s.FieldName == "UserAccount.Name").SearchText;
                         if (search == string.Empty)
                         {
                             Regex regex = new Regex("^.*$");
