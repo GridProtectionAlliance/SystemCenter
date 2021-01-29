@@ -433,7 +433,7 @@ namespace SystemCenter.Controllers
                     else
                         sql = $@"
                     DECLARE @SQLStatement NVARCHAR(MAX) = N'
-                        SELECT * FROM ({CustomView})
+                        SELECT * FROM ({CustomView.Replace("'", "''")}) T1
                         {whereClause.Replace("'", "''")}
                         ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
                     '
@@ -532,7 +532,7 @@ namespace SystemCenter.Controllers
                     return new TableOperations<T>(connection).QueryRecordsWhere(filterExpression, parameters);
 
                 string whereClause = " WHERE " + filterExpression;
-                string sql = "SELECT * FROM (" + CustomView + ")";
+                string sql = "SELECT * FROM (" + CustomView + ") T1";
                 DataTable dataTbl  = connection.RetrieveData(sql + whereClause, parameters);
 
                 List<T> result = new List<T>();
@@ -555,7 +555,7 @@ namespace SystemCenter.Controllers
                     return new TableOperations<T>(connection).QueryRecordWhere(filterExpression, parameters);
 
                 string whereClause = " WHERE " + filterExpression;
-                string sql = "SELECT * FROM (" + CustomView + ")";
+                string sql = "SELECT * FROM (" + CustomView + ") T1";
                 DataTable dataTbl = connection.RetrieveData(sql + whereClause, parameters);
 
                 TableOperations<T> tblOperations = new TableOperations<T>(connection);
@@ -573,7 +573,7 @@ namespace SystemCenter.Controllers
                 if (CustomView == String.Empty)
                     return new TableOperations<T>(connection).QueryRecords(orderBy);
 
-                string sql = "SELECT * FROM (" + CustomView + ")";
+                string sql = "SELECT * FROM (" + CustomView + ") T1";
 
                 DataTable dataTbl = connection.RetrieveData(sql + "ORDER BY " + orderBy);
 
@@ -596,7 +596,7 @@ namespace SystemCenter.Controllers
 
                 string restrictionString = "" + restriction.FilterExpression;
 
-                string sql = "SELECT * FROM (" + CustomView + ")";
+                string sql = "SELECT * FROM (" + CustomView + ") T1";
 
                 DataTable dataTbl = connection.RetrieveData(sql + " WHERE " + restrictionString + "ORDER BY " + orderBy, restriction.Parameters);
 
