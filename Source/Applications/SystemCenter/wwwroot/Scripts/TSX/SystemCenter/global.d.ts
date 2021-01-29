@@ -64,7 +64,7 @@ export namespace SystemCenter {
     interface Role { ID: number, Name: string, Description: string }
 
     type NewEdit = 'New' | 'Edit'
-    type AdditionalFieldType = 'integer' | 'number' | 'string' | 'boolean';
+    type AdditionalFieldType = 'integer' | 'number' | 'string' | 'boolean' | string;
     type SystemCeneterSecurityRoleName = 'Administrator' | 'Transmission SME' | 'PQ Data Viewer';
     type OpenXDASecurityRoleName = 'Administrator' | 'DataPusher' | 'Developer' | 'Viewer' | 'Engineer';
     type AttachedDatabases = 'SystemCenter' | 'OpenXDA'

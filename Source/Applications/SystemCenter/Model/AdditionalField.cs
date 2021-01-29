@@ -24,6 +24,7 @@
 using GSF.Data;
 using GSF.Data.Model;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Web.Http;
 using SystemCenter.Controllers;
@@ -46,26 +47,56 @@ namespace SystemCenter.Model
 
     [RoutePrefix("api/SystemCenter/AdditionalField")]
     public class AdditionalFieldController : ModelController<AdditionalField> {
-        
-        [HttpGet, Route("ParentTable/{openXDAParentTable}")]
-        public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable)
+
+        protected override bool AllowSearch => true;
+
+        [HttpGet, Route("ParentTable/{openXDAParentTable}/{sort}/{ascending:int}")]
+        public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable, string sort, int ascending)
         {
-            //Fix added Fro Capacitor Bank due to naming Missmatch
-            if (openXDAParentTable == "CapacitorBank")
-                openXDAParentTable = "CapBank";
-
-            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                IEnumerable<AdditionalField> records = new TableOperations<AdditionalField>(connection).QueryRecordsWhere("OpenXDAParentTable = {0}", openXDAParentTable);
-                if (!User.IsInRole("Administrator"))
-                {
-                    records = records.Where(x => !x.IsSecure);
-                }
+                //Fix added Fro Capacitor Bank due to naming Missmatch
+                if (openXDAParentTable == "CapacitorBank")
+                    openXDAParentTable = "CapBank";
 
-                return Ok(records);
+                string orderByExpression = DefaultSort;
+
+                if (sort != null && sort != string.Empty)
+                    orderByExpression = $"{sort} {(ascending == 1 ? "ASC" : "DESC")}";
+
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                {
+                    IEnumerable<AdditionalField> records = new TableOperations<AdditionalField>(connection).QueryRecords(orderByExpression, new RecordRestriction("OpenXDAParentTable = {0}", openXDAParentTable));
+                    if (!User.IsInRole("Administrator"))
+                    {
+                        records = records.Where(x => !x.IsSecure);
+                    }
+
+                    return Ok(records);
+                }
+            }
+            else
+            {
+                return Unauthorized();
             }
         }
 
+        [HttpGet, Route("ExternalDataBase")]
+        public IHttpActionResult GetExternalDB()
+        {
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+            {
 
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                {
+                    DataTable dataTbl = connection.RetrieveData("SELECT DISTINCT [ExternalDB] from extDBTables");
+                    return Ok(dataTbl);
+                }
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
     }
 }
