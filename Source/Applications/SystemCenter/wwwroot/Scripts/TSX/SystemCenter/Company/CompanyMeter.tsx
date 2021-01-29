@@ -69,12 +69,12 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
             cache: false,
             async: true
         }).done(() => {
-            Sync();
+            Sync(1);
         }).fail(msg => {
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
             else {
-                Sync();
+                Sync(1);
             }
         });
     }
@@ -100,12 +100,12 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
             cache: false,
             async: true
         }).done(() => {
-            Sync();
+            Sync(1);
         }).fail(msg => {
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
             else {
-                Sync();
+                Sync(1);
             }
         });
 
