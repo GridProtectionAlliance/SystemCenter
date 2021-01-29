@@ -21,57 +21,92 @@
 //
 //******************************************************************************************************
 
+import { TextArea } from '@gpa-gemstone/react-forms';
+import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
+import Table from '@gpa-gemstone/react-table';
+import _ from 'lodash';
 import * as React from 'react';
 import { OpenXDA } from '../global';
 declare var homePath: string;
 
 function NoteWindow(props: { ID: number, Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | 'Company' | 'User'}): JSX.Element {
     const [noteTypeID, setNoteTypeID] = React.useState<number>(0);
-    const [tableRows, setTableRows] = React.useState<Array<JSX.Element>>([]);
-    const [note, setNote] = React.useState<string>('');
-    const [count, setCount] = React.useState<number>(0);
+    const [note, setNote] = React.useState<OpenXDA.Note>({ ID: -1, UserAccount: '', Note: '', NoteTypeID: -1, ReferenceTableID: -1, Timestamp: '' });
+    const [showEdit, setEdit] = React.useState<boolean>(false);
+
+    const [noteList, setNoteList] = React.useState<Array<OpenXDA.Note>>([]);
+    const [sortField, setSortField] = React.useState<keyof OpenXDA.Note>('Timestamp');
+    const [ascending, setAscending] = React.useState<boolean>(false);
+
+    const [hoverAdd, setHoverAdd] = React.useState<boolean>(false);
+    const [hoverClear, setHoverClear] = React.useState<boolean>(false);
+    const [hoverSave, setHoverSave] = React.useState<boolean>(false);
+
 
     React.useEffect(() => {
-        getNoteTypeID();
+        let typeHandle = getNoteTypeID();
         getNotes();
-    }, [props.ID]);
+        return () => { if (typeHandle != null && typeHandle.abort != null) typeHandle.abort(); }
+    }, [props.Type]);
+
+    React.useEffect(() => {
+        let handle = getNotes();
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [props.ID, sortField, ascending]);
 
     function handleEdit(d: OpenXDA.Note) {
-        setNote(d.Note);
-        deleteNote(d);
+        setNote(d);
+        setEdit(true)
+        //deleteNote(d);
     }
 
-    function getNotes(): void {
-       $.ajax({
-            type: "GET",
-           url: `${homePath}api/OpenXDA/Note/ForObject/${props.Type}/${props.ID}`,
+    function closeEdit(confirm: boolean) {
+        if (note.Note.length == 0 && confirm)
+            return;
+
+        setEdit(false);
+        if (confirm) {
+            let n = _.cloneDeep(note)
+            deleteNote(n);
+            addNote(n);
+        }
+        setNote({ ID: -1, UserAccount: '', Note: '', NoteTypeID: -1, ReferenceTableID: -1, Timestamp: '' });
+    }
+
+    function getNotes(): JQuery.jqXHR<string> {
+        let h = $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/Note/ForObject/${props.Type}/${props.ID}/Search`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            cache: true,
+            data: JSON.stringify({ Searches: [], OrderBy: sortField, Ascending: ascending }),
+            cache: false,
             async: true
-       }).done((data: Array<OpenXDA.Note>) => {
-           var rows = data.map(d => <tr key={d.ID}><td>{d.Note}</td><td>{moment.utc(d.Timestamp).format("MM/DD/YYYY HH:mm")}</td><td>{d.UserAccount}</td><td>
-               <button className="btn btn-sm" onClick={(e) => handleEdit(d)}><span><i className="fa fa-pencil"></i></span></button>
-               <button className="btn btn-sm" onClick={(e) => deleteNote(d)}><span><i className="fa fa-times"></i></span></button>
-           </td></tr>)
-
-           setTableRows(rows);
-           setCount(rows.length);
+        });
+        h.done((data: string) => {
+            let d = JSON.parse(data);
+            setNoteList(d);
        });;
+
+        return h;
     }
 
-    function getNoteTypeID(): void {
-        $.ajax({
+    function getNoteTypeID(): JQuery.jqXHR<Array<OpenXDA.NoteType>> {
+        let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/NoteType`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        }).done((data: Array<OpenXDA.NoteType>) => {
-            var record = data.find(d => d.ReferenceTableName == props.Type)
+        });
+
+        handle.then((d: Array<OpenXDA.NoteType>) => {
+            let record = d.find(d => d.ReferenceTableName == props.Type)
             setNoteTypeID(record.ID);
-        });;
+        });
+
+        return handle;
     }
 
 
@@ -88,23 +123,23 @@ function NoteWindow(props: { ID: number, Type: 'Asset' | 'Meter' | 'Location' | 
     }
 
 
-    function addNote(): void {
+    function addNote(currentNote: OpenXDA.Note): void {
+        setNote({ ID: -1, UserAccount: '', Note: '', NoteTypeID: -1, ReferenceTableID: -1, Timestamp: '' });
         $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/Note/Add`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({ ID: 0, NoteTypeID: noteTypeID, ReferenceTableID: props.ID, Note: note, Timestamp: moment().format('MM/DD/YYYY HH:mm'), UserAccount: '' } as OpenXDA.Note),
+            data: JSON.stringify({ ID: 0, NoteTypeID: noteTypeID, ReferenceTableID: props.ID, Note: currentNote.Note, Timestamp: moment().format('MM/DD/YYYY HH:mm'), UserAccount: '' } as OpenXDA.Note),
             dataType: 'json',
             cache: true,
             async: true
         }).done(e => {
-            setNote('');
             getNotes();
         });
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215}}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -112,26 +147,70 @@ function NoteWindow(props: { ID: number, Type: 'Asset' | 'Meter' | 'Location' | 
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div style={{ height: window.innerHeight - 420, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                    <table className="table" >
-                        <thead>
-                            <tr><th style={{ width: '50%' }}>Note</th><th>Time</th><th>User</th><th></th></tr>
-                        </thead>
-                        <tbody>
-                            {tableRows}
-                        </tbody>
+            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+                <div>
+                    <Table<OpenXDA.Note>
+                        
+                        cols={[
+                            { key: 'Note', label: 'Note', headerStyle: { width: '50%' }, rowStyle: { width: '50%' } },
+                            { key: 'Timestamp', label: 'Time', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => moment.utc(item.Timestamp).format("MM/DD/YYYY HH:mm") },
+                            { key: 'UserAccount', label: 'User', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            {
+                                key: null, label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => <>
+                                    <button className="btn btn-sm" onClick={(e) => handleEdit(item)}><span><i className="fa fa-pencil"></i></span></button>
+                                    <button className="btn btn-sm" onClick={(e) => deleteNote(item)}><span><i className="fa fa-times"></i></span></button>
+                                </>
+                            },
 
-                    </table>
+                        ]}
+                        
+                        tableClass="table table-hover"
+                        data={noteList}
+                        sortField={sortField}
+                        ascending={ascending}
+                        onSort={(d) => {
+                            if (d.col == sortField)
+                                setAscending(!ascending);
+                            else {
+                                setAscending(true);
+                                setSortField(d.col);
+                            }
+
+                        }}
+                        onClick={() => { }}
+                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 615, width: '100%' }}
+                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        selected={(item) => item.ID == note.ID}
+                    />
+                    
                 </div>
-                <textarea className="form-control" rows={4} value={note} onChange={(e) => setNote((e.target as any).value)}></textarea>
+                <TextArea<OpenXDA.Note> Record={note} Rows={4} Field={'Note'} Setter={(n) => setNote(n)} Valid={() => note.Note.length > 0} Label={''} />
+                <Modal Show={showEdit} Title={'Edit Note'}
+                    ShowCancel={true}
+                    CallBack={closeEdit}
+                    ConfirmBtnClass={'btn-primary' + (note.Note.length == 0 ? ' disabled' : '')}
+                    ShowX={true} ConfirmToolTip={'Save'}
+                    OnHover={(hov) => setHoverSave(hov == 'Confirm')}>
+                    <TextArea<OpenXDA.Note> Record={note} Rows={4} Field={'Note'} Setter={(n) => { if (n.Note == null) setNote({...n, Note: ''}); else setNote(n); }} Valid={() => note.Note.length > 0} Label={''} />
+                </Modal>
+                <ToolTip Show={hoverSave && note.Note.length == 0} Position={'top'} Theme={'dark'} Target={"Save"} Zindex={9999}>
+                    <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
+                        An empty Note can not be saved. </p>
+                </ToolTip>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={addNote} style={{ cursor: note.length == 0 ? 'not-allowed' : 'pointer' }} disabled={note.length == 0}>Add Note</button>
+                    <button className={"btn btn-primary" + (note.Note.length == 0 ? ' disabled' : '')} onClick={() => { if (note.Note.length > 0) addNote(note); }} data-tooltip={"Add"} style={{ cursor: note.Note.length == 0 ? 'not-allowed' : 'pointer' }} onMouseOver={() => setHoverAdd(true)} onMouseOut={() => setHoverAdd(false)}>Add Note</button>
+                    <ToolTip Show={hoverAdd && note.Note.length == 0} Position={'top'} Theme={'dark'} Target={"Add"}>
+                        <p> A note needs to be entered. </p>
+                    </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={() => setNote('')} style={{ cursor: note.length == 0 ? 'not-allowed' : 'pointer' }} disabled={note.length == 0}>Clear</button>
+                    <button className={"btn btn-default" + (note.Note.length == 0 ? ' disabled' : '')} onClick={() => setNote((note) => ({...note, Note: ''}))} style={{ cursor: note.Note.length == 0 ? 'not-allowed' : 'pointer' }} data-tooltip={"Remove"} onMouseOver={() => setHoverClear(true)} onMouseOut={() => setHoverClear(false)} >Clear</button>
+                    <ToolTip Show={hoverClear && note.Note.length == 0} Position={'top'} Theme={'dark'} Target={"Remove"}>
+                        <p> The note field is already empty. </p>
+                    </ToolTip>
                 </div>
             </div>
         </div>
