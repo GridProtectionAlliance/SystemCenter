@@ -1078,3 +1078,29 @@ GO
 INSERT INTO CompanyType (Name,Description) VALUES ('Interchange and Transmission','X - Interchange and Transmission')
 GO
 
+INSERT INTO ValueListGroup ([Name],[Description],[Enabled]) VALUES
+	('TimeZones','TimeZones',1),
+	('TSC','TSC',1),
+	('Status','Status',1)
+GO
+
+INSERT INTO ValueList ([GroupID], [Key], [Value],[Text],[AltText1],[SortOrder],[IsDefault],[Enabled],[Flag],[Hidden]) VALUES
+(1,9,0,'Hawaiian Standard Time','(UTC-10:00) Hawaii', 9, 0, 1,0,0),
+(1,8,0,'UTC-08','(UTC-08:00) Coordinated Universal Time-08',8,0,1,0,0),
+(1,7,0,'Pacific Standard Time','(UTC-08:00) Pacific Time (US & Canada)',7,0,1,0,0),
+(1,6,0,'US Mountain Standard Time','(UTC-07:00) Arizona',6,0,1,0,0),
+(1,5,0,'Mountain Standard Time','(UTC-07:00) Mountain Time (US & Canada)',5,0,1,0,0),
+(1,4,0,'Central Standard Time','(UTC-06:00) Central Time (US & Canada)',4,0,1,0,0),
+(1,3,0,'Eastern Standard Time','(UTC-05:00) Eastern Time (US & Canada)',3,0,1,0,0),
+(1,2,0,'US Eastern Standard Time','(UTC-05:00) Indiana (East)',2,1,2,0,0),
+(1,1,0,'UTC','(UTC) Coordinated Universal Time',1,0,2,0,0),
+(2,0,1,'AL',NULL,1,0,1,0,0),
+(2,0,2,'TN',NULL,2,0,1,0,0),
+(2,0,3,'GA',NULL,3,0,1,0,0),
+(2,0,4,'MS',NULL,4,0,1,0,0),
+(2,0,5,'KY',NULL,5,0,1,0,0),
+(3,1,0,'Active',NULL,1,0,1,0,0),
+(3,2,0,'Retired',NULL,1,0,1,0,0),
+(3,3,0,'Planned',NULL,1,0,1,0,0),
+(3,4,0,'Repair',NULL,1,0,1,0,0)
+GO
