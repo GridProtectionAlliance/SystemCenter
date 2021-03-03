@@ -48,6 +48,7 @@ namespace SystemCenter.Controllers
             public string Operator { get; set; }
             public string Type { get; set; }
 
+            public bool isPivotColumn { get; set; } = false;
         }
 
         public class PostData
@@ -494,7 +495,79 @@ namespace SystemCenter.Controllers
             }
         }
 
+        [HttpPost, Route("ExtendedSearchableList")]
+        public virtual IHttpActionResult GetExtendedSearchableList([FromBody] PostData postData)
+        {
+            if (!AllowSearch || (GetRoles != string.Empty && !User.IsInRole(GetRoles)))
+                return Unauthorized();
 
+            try
+            {
+
+                string whereClause = BuildWhereClause(postData.Searches);
+
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    string tableName = new TableOperations<T>(connection).TableName;
+
+
+                    string sql = "";
+
+                    if (CustomView == string.Empty)
+                        sql = $@"
+                        DECLARE @PivotColumns NVARCHAR(MAX) = N''
+                        SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
+                            FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE ParentTable = '{tableName}') AS t
+
+                        DECLARE @SQLStatement NVARCHAR(MAX) = N'
+                            SELECT * FROM (
+                            SELECT 
+                                M.*,
+                                (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
+	                            afv.Value
+                            FROM ( {tableName}  M LEFT JOIN 
+                                [SystemCenter.AdditionalField] af on af.ParentTable = ''{tableName}'' LEFT JOIN
+	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
+                            ) as T PIVOT (
+                                Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT
+                            {whereClause.Replace("'", "''")}
+                            ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                        '
+                        exec sp_executesql @SQLStatement";
+
+                    else
+                        sql = $@"
+                        DECLARE @PivotColumns NVARCHAR(MAX) = N''
+                        SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
+                            FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE ParentTable = '{tableName}') AS t
+
+                        DECLARE @SQLStatement NVARCHAR(MAX) = N'
+                            SELECT * FROM (
+                            SELECT 
+                                M.*,
+                                (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
+	                            afv.Value
+                            FROM ({CustomView.Replace("'", "''")}) M LEFT JOIN 
+                                [SystemCenter.AdditionalField] af on af.ParentTable = ''{tableName}'' LEFT JOIN
+	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
+                            ) as T PIVOT (
+                                Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT
+                            {whereClause.Replace("'", "''")}
+                            ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                        '
+                        exec sp_executesql @SQLStatement";
+
+                    DataTable table = connection.RetrieveData(sql, "");
+
+                    return Ok(JsonConvert.SerializeObject(table));
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
         #endregion
 
         #region [Helper Methods]
@@ -515,7 +588,7 @@ namespace SystemCenter.Controllers
                     search.SearchText = $"({string.Join(",", things)})";
                 }
 
-                return $"{search.FieldName} {search.Operator} {search.SearchText}";
+                return $"[{(search.isPivotColumn ? "AFV_" : "") + search.FieldName}] {search.Operator} {search.SearchText}";
             }));
 
             if (searches.Any())

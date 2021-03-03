@@ -1104,3 +1104,27 @@ INSERT INTO ValueList ([GroupID], [Key], [Value],[Text],[AltText1],[SortOrder],[
 (3,3,0,'Planned',NULL,1,0,1,0,0),
 (3,4,0,'Repair',NULL,1,0,1,0,0)
 GO
+
+-- The Following Needs to be run on openXDA for now until integration into openXDA DB is complete --
+--CREATE VIEW [SystemCenter.AdditionalField] AS
+--	SELECT
+--	ID,
+--	OpenXDAParentTable AS ParentTable,
+--	FieldName,
+--	Type,
+--	ExternalDB,
+--	ExternalDBTable,
+--	ExternalDBTableKey,
+--	IsSecure
+--FROM SystemCenter.dbo.AdditionalField
+--GO
+
+--CREATE VIEW [SystemCenter.AdditionalFieldValue] AS
+--	SELECT
+--	ID,
+--	OpenXDaParentTableID AS ParentTableID,
+--	AdditionalFieldID,
+--	Value,
+ --   UpdatedOn
+--FROM SystemCenter.dbo.AdditionalFieldValue
+--GO

@@ -34,6 +34,15 @@ interface Meter {
 }
 declare var homePath: string;
 
+const defaultSearchcols: Array<Search.IField<Meter>> = [
+    { label: 'AssetKey', key: 'AssetKey', type: 'string' },
+    { label: 'Name', key: 'Name', type: 'string' },
+    { label: 'Location', key: 'Location', type: 'string' },
+    { label: 'Make', key: 'Make', type: 'string' },
+    { label: 'Model', key: 'Model', type: 'string' },
+    { label: 'Number of Assets', key: 'MappedAssets', type: 'number' },
+];
+
 const ByMeter: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
 
@@ -41,24 +50,43 @@ const ByMeter: SystemCenter.ByComponent = (props) => {
     const [data, setData] = React.useState<Array<Meter>>([]);
 
     const [sortField, setSortField] = React.useState<string>('AssetKey');
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Meter>>>(defaultSearchcols);
+    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
+
     const [ascending, setAscending] = React.useState<boolean>(true);
 
     React.useEffect(() => {
         let handle = getMeters();
-        handle.done((dt: string) => setData(JSON.parse(dt) as Array<Meter>));
+        handle.done((dt: string) => {
+            setSearchState('Idle');
+            setData(JSON.parse(dt) as Array<Meter>);
+        }).fail((d) => setSearchState('Error'));
+
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
         }
     }, [sortField, ascending, search]);
 
+    React.useEffect(() => {
+        let handle = getAdditionalFields();
+
+        return () => {
+            if (handle.abort != null) handle.abort();
+        }
+    }, []);
+
+
     function getMeters(): JQuery.jqXHR<string>{
+        setSearchState('Loading');
+        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
+
         return $.ajax({
             type: "Post",
-            url: `${homePath}api/OpenXDA/MeterList/SearchableList`,
+            url: `${homePath}api/OpenXDA/MeterList/ExtendedSearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: search, OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -71,20 +99,59 @@ const ByMeter: SystemCenter.ByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard', state: {} })
     }
 
-    const searchcols: Array<Search.IField<Meter>> = [
-        { label: 'AssetKey', key: 'AssetKey', type: 'string' },
-        { label: 'Name', key: 'Name', type: 'string' },
-        { label: 'Location', key: 'Location', type: 'string' },
-        { label: 'Make', key: 'Make', type: 'string' },
-        { label: 'Model', key: 'Model', type: 'string' },
-        { label: 'Number of Assets', key: 'MappedAssets', type: 'number' },
-    ];
+    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.AdditionalField>> {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Meter/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        });
+
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
+        }
+
+        handle.done((d: Array<SystemCenter.AdditionalField>) => {
+            let ordered = _.orderBy(defaultSearchcols.concat(d.map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Meter>
+            ))), ['label'], ["asc"]);
+            setFilterableList(ordered)
+        });
+
+        return handle;
+    }
+
 
     const standardSearch: Search.IField<Meter> = { label: 'Name', key: 'Name', type: 'string' };
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<Meter> CollumnList={searchcols} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'} >
+            <SearchBar<Meter> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
+                ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Meters'}
+                GetEnum={(setOptions, field) => {
+                    let handle = null;
+                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+                        return () => { };
+
+                    handle = $.ajax({
+                        type: "GET",
+                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        cache: true,
+                        async: true
+                    });
+
+                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
+                }}
+
+            >
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
