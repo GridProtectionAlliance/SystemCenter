@@ -40,7 +40,6 @@ function NoteWindow(props: { ID: number, Type: 'Asset' | 'Meter' | 'Location' | 
 
     const [hoverAdd, setHoverAdd] = React.useState<boolean>(false);
     const [hoverClear, setHoverClear] = React.useState<boolean>(false);
-    const [hoverSave, setHoverSave] = React.useState<boolean>(false);
 
 
     React.useEffect(() => {
@@ -189,15 +188,16 @@ function NoteWindow(props: { ID: number, Type: 'Asset' | 'Meter' | 'Location' | 
                 <Modal Show={showEdit} Title={'Edit Note'}
                     ShowCancel={true}
                     CallBack={closeEdit}
-                    ConfirmBtnClass={'btn-primary' + (note.Note.length == 0 ? ' disabled' : '')}
-                    ShowX={true} ConfirmToolTip={'Save'}
-                    OnHover={(hov) => setHoverSave(hov == 'Confirm')}>
+                    DisableConfirm={note.Note.length == 0}
+                    ShowX={true}
+                    ConfirmShowToolTip={note.Note.length == 0}
+                    ConfirmToolTipContent={
+                        <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
+                        An empty Note can not be saved. </p>
+                    }>                 
                     <TextArea<OpenXDA.Note> Record={note} Rows={4} Field={'Note'} Setter={(n) => { if (n.Note == null) setNote({...n, Note: ''}); else setNote(n); }} Valid={() => note.Note.length > 0} Label={''} />
                 </Modal>
-                <ToolTip Show={hoverSave && note.Note.length == 0} Position={'top'} Theme={'dark'} Target={"Save"} Zindex={9999}>
-                    <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
-                        An empty Note can not be saved. </p>
-                </ToolTip>
+                
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">

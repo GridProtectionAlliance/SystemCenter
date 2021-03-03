@@ -55,7 +55,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     const [showLoading, setShowLoading] = React.useState<boolean>(false)
     const [showEdit, setShowEdit] = React.useState<boolean>(false)
 
-    const [hover, setHover] = React.useState<('None' | 'Save' | 'New' | 'View' | 'Clear' | 'ExternalDB' | "Cancel" | "Confirm" )>('None');
+    const [hover, setHover] = React.useState<('None' | 'Save' | 'New' | 'View' | 'Clear' | 'ExternalDB' )>('None');
 
     const [newFieldNameValid, setNewFieldNameValid] = React.useState<boolean>(true);
 
@@ -423,9 +423,17 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 Title={'Additional Field'} ConfirmText={'Save'} CancelText={'Close'}
                 ConfirmBtnClass={'btn-primary' + (!ValidField() ? ' disabled' : '')}
                 Show={showEdit} Size={'lg'} ShowX={true}
-                CallBack={(confirmation: boolean) => { if (!ValidField() && confirmation) return; if (confirmation) addNewField(); setShowEdit(false); }}
-                OnHover={(hov) => setHover(hov)}
-                ConfirmToolTip={'ModalSave'}>
+                CallBack={(confirmation: boolean, btn: boolean) => { if (!ValidField() && confirmation) return; if (confirmation) addNewField(); setShowEdit(false); }}
+                ConfirmShowToolTip={!ValidField()}
+                ConfirmToolTipContent={
+                    <>
+                        {newField.FieldName == null || newField.FieldName.length == 0 || !newFieldNameValid ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Field Name is required and has to be unique.</p> : null}
+                        {newField.ExternalDB != null && newField.ExternalDBTable == null ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Field from an External Database requires an External Database Table.</p> : null}
+                        {newField.ExternalDB != null && newField.ExternalDBTableKey == null ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Field from an External Database requires an External Database Table Key.</p> : null}
+                    </>
+                }
+
+                >
                 <Input<SystemCenter.AdditionalField> Record={newField} Field='FieldName' Valid={(field) => newField.FieldName != null && newField.FieldName.length > 0 && newFieldNameValid} Label="Field Name" Setter={setNewField} Feedback={'The additional field needs to have a unique Field Name'} />
                 <Select<SystemCenter.AdditionalField> Record={newField} Field='Type' Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }].concat(valueListGroups.filter(x => x.Enabled).map(x => { return { Value: x.Name, Label: x.Name } }))} Label="Field Type" Setter={setNewField} />
                 <Select<SystemCenter.AdditionalField> Record={newField} Field='ExternalDB' Label="External Database"
@@ -443,11 +451,6 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 <Input<SystemCenter.AdditionalField> Disabled={newField.ExternalDB == null || newField.ExternalDB.length == 0} Record={newField} Field='ExternalDBTableKey' Valid={(field) => true} Label="External Database Table Key" Setter={setNewField} />
                 <CheckBox<SystemCenter.AdditionalField> Record={newField} Field='IsSecure' Label="Secure Data" Setter={setNewField} /> 
             </Modal>
-            <ToolTip Zindex={9999} Show={hover == 'Confirm' && !ValidField()} Position={'top'} Theme={'dark'} Target={"ModalSave"}>
-                {newField.FieldName == null || newField.FieldName.length == 0 || !newFieldNameValid? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Field Name is required and has to be unique.</p> : null}
-                {newField.ExternalDB != null && newField.ExternalDBTable == null ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Field from an External Database requires an External Database Table.</p> : null}
-                {newField.ExternalDB != null && newField.ExternalDBTableKey == null ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Field from an External Database requires an External Database Table Key.</p> : null}
-            </ToolTip>
             <ToolTip Zindex={9999} Show={hover == 'ExternalDB' && (newField.ExternalDB == null || newField.ExternalDB.length == 0)} Position={'bottom'} Theme={'dark'} Target={"ExternalDB"}>
                 <p> No External Database selected.</p>
             </ToolTip>

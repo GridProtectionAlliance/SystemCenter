@@ -161,7 +161,7 @@ function Meter(props: IProps) {
                 <div className={"tab-pane " + (Tab == "additionalFields" ? " active" : "fade")} id="additionalFields" style={{ maxHeight: window.innerHeight - 215 }}>
                     <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={Tab} />
                 </div>
-                <div className={"tab-pane " + (Tab == "substation" ? " active" : "fade")} id="substation">
+                <div className={"tab-pane " + (Tab == "substation" ? " active" : "fade")} id="substation" style={{ maxHeight: window.innerHeight - 215 }}>
                     <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Meter) => setMeter(meter)} />
                 </div>
                 <div className={"tab-pane " + (Tab == "eventChannels" ? " active" : "fade")} id="eventChannels">
