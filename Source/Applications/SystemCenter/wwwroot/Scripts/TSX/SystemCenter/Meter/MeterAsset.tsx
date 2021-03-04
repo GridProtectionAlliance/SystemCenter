@@ -161,7 +161,7 @@ const MeterAssetWindow = (props: IProps) => {
                                     { key: 'Channels', label: 'Channels', headerStyle: { width: 'calc(10%-16px)' }, rowStyle: { width: 'calc(10%-16px)' } },
                                     
                                     {
-                                        key: null, label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingTop: 36, paddingRight: 5 },
+                                        key: null, label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
                                         content: (item) => <> <button className="btn btn-sm"
                                             onClick={(e) => {
                                                 setActiveAssetType(item.AssetType);
@@ -207,6 +207,11 @@ const MeterAssetWindow = (props: IProps) => {
                                 ShowCancel={false}
                                 ConfirmText={'Save'}
                                 CallBack={(confirm) => { setShoweditNew(false); if (!confirm) return; }}
+                                ConfirmShowToolTip={AssetAttributes.AttributeError(newEditAsset).length > 0}
+                                DisableConfirm={AssetAttributes.AttributeError(newEditAsset).length > 0}
+                                ConfirmToolTipContent={
+                                    AssetAttributes.AttributeError(newEditAsset).map((e, i) => <p key={i}><ErrorSymbol /> {e}</p>)
+                                }
                             >
                                 <div className="row">
                                     <div className="col">
@@ -252,6 +257,9 @@ const MeterAssetWindow = (props: IProps) => {
 }
 
 export default MeterAssetWindow;
+
+const ErrorSymbol = () => <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
+
 /*
 export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.Meter }, MeterAssetState, {}>{
     constructor(props, context) {
