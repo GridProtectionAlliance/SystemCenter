@@ -393,12 +393,12 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpGet, Route("{meterID:int}/Asset")]
-        public IHttpActionResult GetMeterAssets(int meterID)
+        [HttpGet, Route("{meterID:int}/Asset/{sort=AssetKey}/{ascending:int=1}")]
+        public IHttpActionResult GetMeterAssets(int meterID, string sort, int ascending)
         {
             using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
             {
-                DataTable records = connection.RetrieveData(@"
+                DataTable records = connection.RetrieveData($@"
                     SELECT 
 	                    Asset.ID,
 	                    Asset.VoltageKV,
@@ -414,7 +414,7 @@ namespace SystemCenter.Controllers.OpenXDA
 	                    MeterAsset ON Asset.ID = MeterAsset.AssetID LEFT JOIN
 	                    Channel ON Asset.ID = Channel.AssetID AND Channel.MeterID = MeterAsset.MeterID
                     WHERE
-	                    MeterAsset.MeterID = {0}
+	                    MeterAsset.MeterID = {{0}}
                     GROUP BY
 	                    Asset.ID,
 	                    Asset.VoltageKV,
@@ -422,7 +422,8 @@ namespace SystemCenter.Controllers.OpenXDA
 	                    Asset.Description,
 	                    Asset.AssetName,
 	                    Asset.AssetTypeID,
-	                    AssetType.Name                
+	                    AssetType.Name   
+                    ORDER BY {sort} {(ascending == 0? "DESC" : "")}
                 ", meterID);
                 return Ok(records);
             }

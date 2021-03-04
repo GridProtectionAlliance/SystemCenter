@@ -30,19 +30,229 @@ import BreakerAttributes from '../AssetAttribute/Breaker';
 import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
-import AssetAttributes from '../AssetAttribute/Asset';
+import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes, getAllAssets, getAssetWithAdditionalFields, editExistingAsset } from '../../../TS/Services/Asset';
+import Table from '@gpa-gemstone/react-table';
+import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { Warning, Modal, LoadingScreen } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-interface MeterAssetState {
-    Assets: Array<OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer>,
-    NewEditAsset: OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer,
-    AllAssets: Array<OpenXDA.Asset>,
-    AssetTypes: Array<OpenXDA.AssetType>,
-    NewEdit: SystemCenter.NewEdit
+interface IProps { Meter: OpenXDA.Meter }
 
+const MeterAssetWindow = (props: IProps) => {
+
+    const [meterAssets, setMeterAssets] = React.useState < Array<OpenXDA.DetailedAsset>>([]);
+    const [newEditAsset, setNewEditAsset] = React.useState<OpenXDA.DetailedAsset>(AssetAttributes.getNewAsset('Line'));
+    const [allAssets, setAllAssets] = React.useState<OpenXDA.Asset[]>([]);
+    const [assetTypes, setAssetTypes] = React.useState<OpenXDA.AssetType[]>([]);
+    const [newEdit, setNewEdit] = React.useState<SystemCenter.NewEdit>('New');
+    const [activeAssetID, setActiveAssetID] = React.useState<number>(0);
+    const [activeAssetType, setActiveAssetType] = React.useState<OpenXDA.AssetTypeName>('Line');
+
+    const [showEditNew, setShoweditNew] = React.useState<boolean>(false);
+    const [showDeleteWarning, setShowDeleteWarning] = React.useState<boolean>(false);
+
+    const [sortField, setSortField] = React.useState<string>('AssetKey');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [showLoading, setShowLoading] = React.useState<boolean>(false);
+
+    const [assetReloadCounter, forceAssetReload] = React.useState<number>(0);
+
+    React.useEffect(() => {
+        let h = getAssetTypes()
+        h.done((data: Array<OpenXDA.AssetType>) => {
+            setAssetTypes(data);
+        });
+
+        return () => { if (h != null && h.abort != null) h.abort(); }
+    }, [])
+
+    React.useEffect(() => {
+        let h = getAllAssets()
+        h.done((data: Array<OpenXDA.Asset>) => {
+            setAllAssets(data);
+        });
+
+        return () => { if (h != null && h.abort != null) h.abort(); }
+    }, [assetReloadCounter])
+
+    React.useEffect(() => {
+        let h = getAllAssets()
+        h.done((data: Array<OpenXDA.Asset>) => {
+            setAllAssets(data);
+        });
+
+        return () => { if (h != null && h.abort != null) h.abort(); }
+    }, [])
+
+    React.useEffect(() => {
+        let h = getMeterAssets();
+        h.done((data: Array<OpenXDA.Asset>) => {
+            setMeterAssets(data);
+        });
+
+        return () => { if (h != null && h.abort != null) h.abort(); }
+    }, [props.Meter, ascending, sortField])
+
+    React.useEffect(() => {
+        if (activeAssetID == 0) {
+            setNewEditAsset(AssetAttributes.getNewAsset(activeAssetType));
+            setNewEdit('New');
+            return;
+        }
+
+        let h = getAssetWithAdditionalFields(activeAssetID, activeAssetType);
+        h.then(record => { setNewEditAsset(record); setNewEdit('Edit') });
+
+    }, [activeAssetID, activeAssetType]);
+
+    function getMeterAssets(): JQueryXHR {
+        return $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Asset/${sortField}/${ascending? 1: 0}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+    }
+
+    function deleteAsset() {
+        setShowLoading(true);
+        $.ajax({
+            type: "DELETE",
+            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Asset/${activeAssetID}/${props.Meter.LocationID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done((assets: Array<OpenXDA.Asset>) => {
+            setSortField('AssetKey');
+            forceAssetReload((x) => x + 1);
+            setShowLoading(false);
+        }).fail((msg) => {
+            setShowLoading(false);
+            if (msg.status == 500)
+                alert(msg.responseJSON.ExceptionMessage)
+            else 
+                sessionStorage.clear();            
+        });
+    }
+    return (
+        <div className="card" style={{ marginBottom: 10 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Assets:</h4>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body">
+                <div className="row" style={{ margin: -20 }}>
+                    <div className="col" style={{ padding: 20 }}>
+                        <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
+                            <Table<OpenXDA.Asset>
+                                cols={[
+                                    { key: 'AssetKey', label: 'Key', headerStyle: { width: 'calc(20%-16px)' }, rowStyle: { width: 'calc(20%-16px)' } },
+                                    { key: 'AssetName', label: 'Name', headerStyle: { width: 'calc(30%-16px)' }, rowStyle: { width: 'calc(30%-16px)' } },
+                                    { key: 'AssetType', label: 'Type', headerStyle: { width: 'calc(10%-16px)' }, rowStyle: { width: 'calc(10%-16px)' } },
+                                    { key: 'VoltageKV', label: 'Base kV', headerStyle: { width: 'calc(10%-16x)' }, rowStyle: { width: 'calc(10%-16px)' } },
+                                    { key: 'Channels', label: 'Channels', headerStyle: { width: 'calc(10%-16px)' }, rowStyle: { width: 'calc(10%-16px)' } },
+                                    
+                                    {
+                                        key: null, label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingTop: 36, paddingRight: 5 },
+                                        content: (item) => <> <button className="btn btn-sm"
+                                            onClick={(e) => {
+                                                setActiveAssetType(item.AssetType);
+                                                setActiveAssetID(item.ID);
+                                                setShoweditNew(true);
+                                            }}><span>{Pencil}</span></button>
+                                            <button className="btn btn-sm"
+                                                onClick={(e) => {
+                                                    setActiveAssetType(item.AssetType);
+                                                    setActiveAssetID(item.ID);
+                                                    setShowDeleteWarning(true)
+                                                }}><span>{TrashCan}</span></button>
+                                        </>
+                                    }
+                                ]}
+                                tableClass="table table-hover"
+                                data={meterAssets}
+                                sortField={sortField}
+                                ascending={ascending}
+                                onSort={(d) => {
+                                    if (d.col == null || d.col == 'ID')
+                                        return;
+                                    if (d.col == sortField)
+                                        setAscending(!ascending);
+                                    else {
+                                        setAscending(true);
+                                        setSortField(d.col);
+                                    }
+                                }}
+                                onClick={(fld) => { }}
+                                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
+                                rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                selected={(item) => false}
+                            />
+
+                            <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) deleteAsset(); setShowDeleteWarning(false); }} Title={'Remove this Asset'} Message={'This will permanently remove this Asset from the Meter.'} />
+                            <LoadingScreen Show={showLoading} />
+                            <Modal Show={showEditNew}
+                                Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + newEditAsset.AssetKey + ' for Meter'}
+                                Size={'lg'}
+                                ShowX={true}
+                                ShowCancel={false}
+                                ConfirmText={'Save'}
+                                CallBack={(confirm) => { setShoweditNew(false); if (!confirm) return; }}
+                            >
+                                <div className="row">
+                                    <div className="col">
+                                        <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets}
+                                            UpdateState={setNewEditAsset}
+                                            GetDifferentAsset={(assetID) => {
+                                                setActiveAssetID(assetID);
+                                                setActiveAssetType(allAssets.find(a => a.ID == assetID).AssetType)
+                                        }} />
+                                    </div>
+                                    <div className="col">
+                                        {showAttributes()}
+                                    </div>
+                                </div>
+                            </Modal>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="card-footer">
+                <div className="btn-group mr-2">
+                    <button className="btn btn-primary pull-right" data-toggle='modal' data-target='#assetModal' onClick={() => {
+                        setActiveAssetID(0); setActiveAssetType('Line'); setShoweditNew(true);
+                    }}>Add Asset</button>
+                </div>
+            </div>
+        </div>
+    );
+
+
+    function showAttributes(): JSX.Element {
+        if (newEditAsset.AssetType == 'Breaker')
+            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Breaker} UpdateState={setNewEditAsset} ShowSpare={true} />;
+        else if (newEditAsset.AssetType == 'Bus')
+            return <BusAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'CapacitorBank')
+            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.CapBank} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'Line')
+            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Line} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'Transformer')
+            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Transformer} UpdateState={setNewEditAsset} />;
+    }
 }
+
+export default MeterAssetWindow;
+/*
 export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.Meter }, MeterAssetState, {}>{
     constructor(props, context) {
         super(props, context);
@@ -274,3 +484,4 @@ export default class MeterAssetWindow extends React.Component<{ Meter: OpenXDA.M
     }
 }
 
+*/
