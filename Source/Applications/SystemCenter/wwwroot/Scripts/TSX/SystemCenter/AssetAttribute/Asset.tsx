@@ -25,8 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { SystemCenter } from '../global';
-import FormInput from '../CommonComponents/FormInput';
-import FormTextArea from '../CommonComponents/FormTextArea';
+import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 
 interface AssetAttributesProps {
     Asset: OpenXDA.Asset,
@@ -37,13 +36,88 @@ interface AssetAttributesProps {
     GetDifferentAsset: (assetID: number) => void,
     HideSelectAsset?: boolean
 }
-export default class AssetAttributes extends React.Component<AssetAttributesProps, {}, {}>{
-    constructor(props, context) {
-        super(props, context);
-        this.valid = this.valid.bind(this);
+
+
+export namespace AssetAttributes {
+
+    export function AssetAttributeFields(props: AssetAttributesProps): JSX.Element {
+
+        function changeAssetType(type: OpenXDA.AssetTypeName): void {
+            let asset = {
+                ID: props.Asset.ID,
+                AssetKey: props.Asset.AssetKey,
+                AssetName: props.Asset.AssetName,
+                AssetType: type,
+                Description: props.Asset.Description,
+                VoltageKV: props.Asset.VoltageKV,
+                Channels: props.Asset.Channels,
+                Spare: props.Asset.Spare
+            }
+
+            asset = AssetAttributes.getNewAssetAttributes(asset, type);
+            asset['AssetTypeID'] = props.AssetTypes.find(ats => ats.Name == type).ID;
+            props.UpdateState(asset);
+        }
+
+        function valid(field: keyof (OpenXDA.Asset)): boolean {
+            if (field == 'AssetKey') {
+                if (props.Asset.AssetKey == null || props.Asset.AssetKey.length == 0) return false;
+                else if (props.NewEdit == 'New') {
+                    if (props.Asset.ID == 0) {
+                        return props.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(props.Asset.AssetKey.toLowerCase()) < 0;
+                    }
+                    else {
+                        return true;
+                    }
+                }
+                else {
+                    let oldKey = props.AllAssets.find(aa => aa.ID === props.Asset.ID) == undefined ? '' : props.AllAssets.find(aa => aa.ID === props.Asset.ID).AssetKey;
+                    if (oldKey == props.Asset.AssetKey)
+                        return true;
+                    else
+                        return props.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(props.Asset.AssetKey.toLowerCase()) < 0;
+                }
+            }
+            else if (field == 'AssetName')
+                return props.Asset.AssetName != null && props.Asset.AssetName.length > 0;
+            else if (field == 'VoltageKV')
+                return props.Asset.VoltageKV != null && AssetAttributes.isRealNumber(props.Asset.VoltageKV);
+            else if (field == 'Description')
+                return true;
+            return false;
+        }
+
+
+        if (props.Asset == null)
+            return null;
+
+        return (<React.Fragment>
+            <Select<OpenXDA.Asset> Record={props.Asset} Label={'Select Asset'} Field={'ID'}
+                Options={[{ Value: '0', Label: 'Add New' }, ...props.AllAssets.map(a => ({ Value: a.ID.toString(), Label: a.AssetKey }))]}
+                Setter={(asset) => {
+                    if (parseInt(asset.ID.toString()) != 0)
+                        props.GetDifferentAsset(parseInt(asset.ID.toString()));
+                    else
+                        props.UpdateState(AssetAttributes.getNewAsset('Line'));
+                }}
+                Disabled={props.NewEdit == 'Edit'}
+            />
+            <Select<OpenXDA.Asset> Record={props.Asset} Label={'Type'} Field={'AssetType'}
+                Options={props.AssetTypes.filter(item => item.Name != 'LineSegment').map(type => ({ Value: type.Name, Label: type.Name }))}
+                Setter={(asset) => {
+                    changeAssetType(asset.AssetType)
+                }}
+                Disabled={props.NewEdit == 'Edit' || props.Asset.ID != 0}
+            />
+            <Input<OpenXDA.Asset> Record={props.Asset} Field={'AssetKey'} Label={'Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Asset> Record={props.Asset} Field={'AssetName'} Label={'Name'} Feedback={'Name must be less than 200 and is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && this.props.Asset.ID != 0} />
+            <Input<OpenXDA.Asset> Record={props.Asset} Field={'VoltageKV'} Label={'Nominal Voltage (L-L kV)'} Feedback={'Nominal Voltage requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <TextArea<OpenXDA.Asset> Rows={3} Record={props.Asset} Field={'Description'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+        </React.Fragment >
+        );
     }
 
-    static getNewAsset(type: OpenXDA.AssetTypeName): OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.LineSegment | OpenXDA.Transformer | OpenXDA.CapBankRelay {
+    export function getNewAsset(type: OpenXDA.AssetTypeName): OpenXDA.DetailedAsset {
         let asset: OpenXDA.Asset = {
             ID: 0,
             AssetKey: null,
@@ -59,7 +133,7 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
         return asset;
     }
 
-    static getNewLineDetails(): OpenXDA.LineDetail{
+    export function getNewLineDetails(): OpenXDA.LineDetail {
         let asset: OpenXDA.LineDetail = {
             Length: 0,
             X0: 0,
@@ -72,7 +146,7 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
         return asset;
     }
 
-    static getNewAssetAttributes(asset: OpenXDA.Asset, type: OpenXDA.AssetTypeName): OpenXDA.CapBankRelay | OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.LineSegment | OpenXDA.Transformer {
+    export function getNewAssetAttributes(asset: OpenXDA.Asset, type: OpenXDA.AssetTypeName): OpenXDA.DetailedAsset {
         if (type == 'Line') {
             let record = asset as OpenXDA.Line;
             record.MaxFaultDistance = null;
@@ -131,98 +205,19 @@ export default class AssetAttributes extends React.Component<AssetAttributesProp
 
     }
 
-    static isInteger(value: any) {
+    export function isInteger(value: any) {
         var regex = /^-?[0-9]+$/;
         return value.toString().match(regex) != null;
     }
-    static isRealNumber(value: any) {
+
+    export function isRealNumber(value: any) {
         var regex = /^-?[0-9]+(\.[0-9]+)?$/;
         return value.toString().match(regex) != null;
     }
 
-    changeAssetType(type: OpenXDA.AssetTypeName): void {
-        let asset = {
-            ID: this.props.Asset.ID,
-            AssetKey: this.props.Asset.AssetKey,
-            AssetName: this.props.Asset.AssetName,
-            AssetType: type,
-            Description: this.props.Asset.Description,
-            VoltageKV: this.props.Asset.VoltageKV,
-            Channels: this.props.Asset.Channels,
-            Spare: this.props.Asset.Spare
-        }
+    export function ValidAttributes(asset: OpenXDA.DetailedAsset) {
 
-        asset = AssetAttributes.getNewAssetAttributes(asset, type);
-        asset['AssetTypeID'] = this.props.AssetTypes.find(ats => ats.Name == type).ID;
-        this.props.UpdateState(asset);
-    }
 
-    valid(field: keyof (OpenXDA.Asset)): boolean {       
-        if (field == 'AssetKey') {
-            if (this.props.Asset.AssetKey == null || this.props.Asset.AssetKey.length == 0) return false;
-            else if (this.props.NewEdit == 'New') {
-                if (this.props.Asset.ID == 0) {
-                    return this.props.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(this.props.Asset.AssetKey.toLowerCase()) < 0;
-                }
-                else {
-                    return true;
-                }
-            }
-            else {
-                let oldKey = this.props.AllAssets.find(aa => aa.ID === this.props.Asset.ID) == undefined ? '' : this.props.AllAssets.find(aa => aa.ID === this.props.Asset.ID).AssetKey;
-                if (oldKey == this.props.Asset.AssetKey)
-                    return true;
-                else
-                    return this.props.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(this.props.Asset.AssetKey.toLowerCase()) < 0;
-            }
-        }
-        else if (field == 'AssetName')
-            return this.props.Asset.AssetName != null && this.props.Asset.AssetName.length > 0;
-        else if (field == 'VoltageKV')
-            return this.props.Asset.VoltageKV != null && AssetAttributes.isRealNumber(this.props.Asset.VoltageKV);
-        else if (field == 'Description')
-            return true;
-        return false;
-    }
-
-    render() {
-        if (this.props.Asset == null) return null;
-        return (
-            <>
-                <div className="form-group" hidden={this.props.NewEdit == 'Edit' || this.props.HideSelectAsset == true}>
-                    <label>Select Asset</label>
-                    <select className="form-control" value={this.props.Asset.ID.toString()} disabled={this.props.NewEdit == 'Edit'} onChange={(evt) => {
-                        if (evt.target.value != "0")
-                            this.props.GetDifferentAsset(parseInt(evt.target.value));
-                        else
-                            this.props.UpdateState(AssetAttributes.getNewAsset('Line'));
-                    }}>
-                        <option key={0} value="0">Add New</option>
-
-                        {
-                            this.props.AllAssets.map((asset, index) => <option key={index + 1} value={asset.ID} >{asset.AssetKey}</option>)
-                        }
-
-                    </select>
-                </div>
-
-                <div className="form-group">
-                    <label>Type</label>
-                    <select className="form-control" value={this.props.Asset.AssetType} onChange={(evt) => {
-                        this.changeAssetType(evt.target.value as 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay')
-                    }} disabled={this.props.NewEdit == 'Edit' || this.props.Asset.ID != 0}>
-                        {
-                            this.props.AssetTypes.map(assetType => <option value={assetType.Name} key={assetType.ID} hidden={assetType.Name == 'LineSegment'}>{assetType.Name}</option>)
-                        }
-
-                    </select>
-                </div>
-
-                <FormInput<OpenXDA.Asset> Record={this.props.Asset} Field={'AssetKey'} Label={'Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
-                <FormInput<OpenXDA.Asset> Record={this.props.Asset} Field={'AssetName'} Label={'Name'} Feedback={'Name must be less than 200 and is required.'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
-                <FormInput<OpenXDA.Asset> Record={this.props.Asset} Field={'VoltageKV'} Label={'Nominal Voltage (L-L kV)'} Feedback={'Nominal Voltage requires a numerical value.'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
-                <FormTextArea<OpenXDA.Asset> Rows={3} Record={this.props.Asset} Field={'Description'} Valid={this.valid} Setter={this.props.UpdateState} Disabled={this.props.NewEdit == 'New' && this.props.Asset.ID != 0} />
-            </>
-        );
     }
 }
+

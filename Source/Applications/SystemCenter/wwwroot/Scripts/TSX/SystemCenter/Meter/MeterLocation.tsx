@@ -23,7 +23,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
-import AssetAttributes from '../AssetAttribute/Asset';
+import { AssetAttributes } from '../AssetAttribute/Asset';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { cloneDeep } from 'lodash';
 import { ToolTip } from '@gpa-gemstone/react-interactive';

@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import {SystemCenter, OpenXDA } from '../global';
-import AssetAttributes from '../AssetAttribute/Asset';
+import { AssetAttributes } from '../AssetAttribute/Asset';
 import FormInput from './FormInput';
 import FormCheckBox from './FormCheckBox';
 import FormSelect from './FormSelect';

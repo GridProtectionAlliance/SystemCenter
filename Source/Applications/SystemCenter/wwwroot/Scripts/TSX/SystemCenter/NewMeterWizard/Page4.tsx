@@ -29,7 +29,7 @@ import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
-import AssetAttributes from '../AssetAttribute/Asset';
+import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes, getAllAssets } from '../../../TS/Services/Asset';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { useDispatch, useSelector } from 'react-redux';
@@ -283,7 +283,7 @@ export default function Page4(props: Page4Props) {
                             <div className="modal-body">
                                 <div className="row">
                                     <div className="col">
-                                        <AssetAttributes Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets} UpdateState={setNewEditAsset} GetDifferentAsset={getDifferentAsset} />
+                                        <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets} UpdateState={setNewEditAsset} GetDifferentAsset={getDifferentAsset} />
                                     </div>
                                     <div className="col">
                                         { showAttributes() }

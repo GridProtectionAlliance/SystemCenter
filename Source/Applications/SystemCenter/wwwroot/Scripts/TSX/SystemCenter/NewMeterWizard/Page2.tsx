@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import FormInput from '../CommonComponents/FormInput';
-import AssetAttributes from '../AssetAttribute/Asset';
+import { AssetAttributes } from '../AssetAttribute/Asset';
 import FormTextArea from '../CommonComponents/FormTextArea';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectLocations, SelectLocationStatus, FetchLocation } from '../Store/LocationSlice';

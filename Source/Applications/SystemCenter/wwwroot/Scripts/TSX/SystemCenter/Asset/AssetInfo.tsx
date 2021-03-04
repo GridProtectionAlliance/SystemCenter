@@ -25,7 +25,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
-import AssetAttributes from '../AssetAttribute/Asset';
+import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAllAssets, getAssetTypes, getAssetWithAdditionalFields, editExistingAsset} from '../../../TS/Services/Asset';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
@@ -105,7 +105,7 @@ export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.As
                 <div className="card-body">
                         <div className="row" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                         <div className="col">
-                            <AssetAttributes Asset={this.state.Asset} NewEdit='Edit' AssetTypes={this.state.AssetTypes} AllAssets={this.state.AllAssets} UpdateState={this.updateState} GetDifferentAsset={() => { }} />
+                            <AssetAttributes.AssetAttributeFields Asset={this.state.Asset} NewEdit='Edit' AssetTypes={this.state.AssetTypes} AllAssets={this.state.AllAssets} UpdateState={this.updateState} GetDifferentAsset={() => { }} />
                         </div>
                         <div className="col">
                             {this.showAttributes()}

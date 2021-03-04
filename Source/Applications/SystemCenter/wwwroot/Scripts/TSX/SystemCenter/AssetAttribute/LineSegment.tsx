@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
-import AssetAttributes from './Asset';
+import { AssetAttributes } from './Asset';
 import FormInput from '../CommonComponents/FormInput';
 
 function LineSegmentAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.LineSegment, UpdateState: (newEditAsset: OpenXDA.LineSegment) => void }): JSX.Element {

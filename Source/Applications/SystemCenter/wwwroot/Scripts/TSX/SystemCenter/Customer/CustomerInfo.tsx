@@ -23,7 +23,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '../global';
-import AssetAttributes from '../AssetAttribute/Asset';
+import { AssetAttributes } from '../AssetAttribute/Asset';
 import FormTextArea from '../CommonComponents/FormTextArea';
 import FormInput from '../CommonComponents/FormInput';
 declare var homePath: string;

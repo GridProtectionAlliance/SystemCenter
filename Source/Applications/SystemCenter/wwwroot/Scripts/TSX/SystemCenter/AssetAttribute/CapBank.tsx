@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
-import AssetAttributes from './Asset';
+import { AssetAttributes } from './Asset';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 
@@ -266,7 +266,7 @@ class PreSwitchSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter:
     }
 }
 
-function DoubleInput<T> (props: {
+function DoubleInput<T>(props: {
     Record: T;
     Field1: keyof T;
     Field2: keyof T;
@@ -281,14 +281,14 @@ function DoubleInput<T> (props: {
         <div className="form-group">
             <label>{props.Label == null ? (props.Field1 + ' ' + props.Field2) : props.Label}</label>
             <div className="input-group">
-            <input
-                type={props.Type === undefined ? 'text' : props.Type}
-                className={props.Valid(props.Field1) ? 'form-control' : 'form-control is-invalid'}
-                onChange={(evt) =>
-                    props.Setter({ ...props.Record, [props.Field1]: evt.target.value !== '' ? evt.target.value : null })
-                }
-                value={props.Record[props.Field1] == null ? '' : (props.Record[props.Field1] as any).toString()}
-                disabled={props.Disabled == null ? false : props.Disabled}
+                <input
+                    type={props.Type === undefined ? 'text' : props.Type}
+                    className={props.Valid(props.Field1) ? 'form-control' : 'form-control is-invalid'}
+                    onChange={(evt) =>
+                        props.Setter({ ...props.Record, [props.Field1]: evt.target.value !== '' ? evt.target.value : null })
+                    }
+                    value={props.Record[props.Field1] == null ? '' : (props.Record[props.Field1] as any).toString()}
+                    disabled={props.Disabled == null ? false : props.Disabled}
                 />
                 <input
                     type={props.Type === undefined ? 'text' : props.Type}

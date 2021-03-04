@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import {SystemCenter, OpenXDA } from '../global';
-import AssetAttributes from '../AssetAttribute/Asset';
+import { AssetAttributes } from '../AssetAttribute/Asset';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 import FormSelect from '../CommonComponents/FormSelect';
@@ -247,7 +247,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                         <div className="modal-body">
                             <div className="row">
                                 <div className="col">
-                                    <AssetAttributes Asset={newEditSegment} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewEditSegment} GetDifferentAsset={(assetID) => {
+                                    <AssetAttributes.AssetAttributeFields Asset={newEditSegment} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewEditSegment} GetDifferentAsset={(assetID) => {
                                         let asset = allAssets.find(a => a.ID == assetID);
                                         console.log(asset);
                                         console.log(assetID);

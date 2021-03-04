@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import {SystemCenter, OpenXDA } from '../global';
-import AssetAttributes from '../AssetAttribute/Asset';
+import { AssetAttributes } from '../AssetAttribute/Asset';
 
 import { LoadingScreen, Modal, Search, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';

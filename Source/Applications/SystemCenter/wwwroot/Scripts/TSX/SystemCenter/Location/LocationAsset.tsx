@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
 import Table from '../CommonComponents/Table';
 import { useHistory } from "react-router-dom";
-import AssetAttributes from '../AssetAttribute/Asset';
+import { AssetAttributes } from '../AssetAttribute/Asset';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -245,7 +245,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
                         <div className="modal-body">
                             <div className="row">
                                 <div className="col">
-                                    <AssetAttributes Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewEditAsset} GetDifferentAsset={(assetID) => {
+                                    <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewEditAsset} GetDifferentAsset={(assetID) => {
                                         let asset = allAssets.find(a => a.ID == assetID);
                                         let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
                                         getAssetWithAdditionalFields(assetID, assetType.Name).then(asset => setNewEditAsset(asset));
