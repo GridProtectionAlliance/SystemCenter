@@ -521,7 +521,7 @@ namespace SystemCenter.Controllers
                             FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE ParentTable = '{tableName}') AS t
 
                         DECLARE @SQLStatement NVARCHAR(MAX) = N'
-                            SELECT * FROM (
+                            SELECT * INTO #Tbl FROM (
                             SELECT 
                                 M.*,
                                 (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
@@ -532,7 +532,14 @@ namespace SystemCenter.Controllers
                             ) as T PIVOT (
                                 Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT
                             {whereClause.Replace("'", "''")}
-                            ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                            ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")};
+
+                            DECLARE @NoNPivotColumns NVARCHAR(MAX) = N''''
+                                SELECT @NoNPivotColumns = @NoNPivotColumns + ''[''+ name + ''],''
+                                    FROM tempdb.sys.columns WHERE  object_id = Object_id(''tempdb..#Tbl'') AND name NOT LIKE ''AFV%''; 
+		                    DECLARE @CleanSQL NVARCHAR(MAX) = N''SELECT '' + SUBSTRING(@NoNPivotColumns,0, LEN(@NoNPivotColumns)) + ''FROM #Tbl''
+
+		                    exec sp_executesql @CleanSQL
                         '
                         exec sp_executesql @SQLStatement";
 
@@ -543,7 +550,7 @@ namespace SystemCenter.Controllers
                             FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE ParentTable = '{tableName}') AS t
 
                         DECLARE @SQLStatement NVARCHAR(MAX) = N'
-                            SELECT * FROM (
+                            SELECT * INTO #Tbl FROM (
                             SELECT 
                                 M.*,
                                 (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
@@ -554,7 +561,14 @@ namespace SystemCenter.Controllers
                             ) as T PIVOT (
                                 Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT
                             {whereClause.Replace("'", "''")}
-                            ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                            ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")};
+
+                            DECLARE @NoNPivotColumns NVARCHAR(MAX) = N''''
+                                SELECT @NoNPivotColumns = @NoNPivotColumns + ''[''+ name + ''],''
+                                    FROM tempdb.sys.columns WHERE  object_id = Object_id(''tempdb..#Tbl'') AND name NOT LIKE ''AFV%''; 
+		                    DECLARE @CleanSQL NVARCHAR(MAX) = N''SELECT '' + SUBSTRING(@NoNPivotColumns,0, LEN(@NoNPivotColumns)) + ''FROM #Tbl''
+
+		                    exec sp_executesql @CleanSQL
                         '
                         exec sp_executesql @SQLStatement";
 
