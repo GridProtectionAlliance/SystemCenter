@@ -24,9 +24,9 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { cloneDeep } from 'lodash';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
+import MeterLocationProperties from './PropertyUI/MeterLocationProperties';
 
 declare var homePath: string;
 
@@ -223,24 +223,13 @@ const LocationWindow = (props: IProps) => {
                 </div>
             </div>
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-                <div className="row">
-                    <div className="col">
-                        <Select<OpenXDA.Meter> Record={meter} Field={'LocationID'} Label={'Select location'} Setter={(m) => { setHasChanged(props.Meter.LocationID != (m.LocationID != null ? parseInt(m.LocationID.toString()) : 0)); setMeter({ ...m, LocationID: (m.LocationID != null ? parseInt(m.LocationID.toString()) : 0) }) }}
-                            Options={locationList.map(item => ({ Label: item.LocationKey, Value: item.ID.toString() }))} EmptyOption={true} EmptyLabel={'Add New'} />
-
-                        <Input<OpenXDA.Location> Record={location} Field={'LocationKey'} Label={'Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={(loc) => { setLocation(loc); setHasChanged(true); }}  />
-                        <Input<OpenXDA.Location> Record={location} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={(loc) => { setLocation(loc); setHasChanged(true); }}  />
-                        <Input<OpenXDA.Location> Record={location} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={(loc) => { setLocation(loc); setHasChanged(true); }} />
-                    </div>
-                    <div className="col">
-                        <Input<OpenXDA.Location> Record={location} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(loc) => { setLocation(loc); setHasChanged(true); }} />
-                        <Input<OpenXDA.Location> Record={location} Field={'Latitude'} Feedback={'Latitude is a required numeric field.'} Valid={valid} Setter={(loc) => { setLocation(loc); setHasChanged(true); }}  />
-                        <Input<OpenXDA.Location> Record={location} Field={'Longitude'} Feedback={'Longitude is a required numeric field.'} Valid={valid} Setter={(loc) => { setLocation(loc); setHasChanged(true); }}  />
-                        <TextArea<OpenXDA.Location> Rows={3} Record={location} Field={'Description'} Valid={valid} Setter={(loc) => { setLocation(loc); setHasChanged(true); }} />
-                        </div>
-                    </div>
-                </div>
-                <div className="card-footer">
+                <MeterLocationProperties Meter={meter} Location={location} Locationlist={locationList}
+                    SetLocation={(loc) => { setLocation(loc); setHasChanged(true); }}
+                    UpdateMeter={(m) => { setHasChanged(props.Meter.LocationID != (m.LocationID != null ? parseInt(m.LocationID.toString()) : 0)); setMeter({ ...m, LocationID: (m.LocationID != null ? parseInt(m.LocationID.toString()) : 0) }) }}
+                    DisableLocation={false}
+                />
+             </div>
+            <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (!hasChanged || !isValidLocation ? ' disabled' : '')} onClick={() => { if (isValidLocation && hasChanged) addNewLocation() }} hidden={location.ID != 0}
                         onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')} data-tooltip={'NewLocation'}>Add New</button>

@@ -27,7 +27,7 @@ import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { LoadingScreen, Search, ToolTip } from '@gpa-gemstone/react-interactive';
-import MeterProperties from './MeterProperties';
+import MeterProperties from './PropertyUI/MeterProperties';
 
 declare var homePath: string;
 

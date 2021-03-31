@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
-import MeterProperties from '../Meter/MeterProperties';
+import MeterProperties from '../Meter/PropertyUI/MeterProperties';
 
 declare var homePath: string;
 
