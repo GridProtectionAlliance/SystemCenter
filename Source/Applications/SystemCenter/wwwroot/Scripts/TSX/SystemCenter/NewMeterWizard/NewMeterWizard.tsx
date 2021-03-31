@@ -33,6 +33,7 @@ import Page2 from './Page2';
 import Page3 from './Page3';
 import Page4 from './Page4';
 import Page5 from './Page5';
+import { ToolTip } from '@gpa-gemstone/react-interactive';
 
 export interface AssetLists {
     Breakers: Array<OpenXDA.Breaker>,
@@ -56,6 +57,10 @@ export default function NewMeterWizard(props: {}) {
     const [channels, setChannels] = React.useState<OpenXDA.Channel[]>(getChannels());
     const [assets, setAssets] = React.useState<OpenXDA.Asset[]>(getAssets());
     const [assetConnections, setAssetConnections] = React.useState<OpenXDA.AssetConnection[]>(getAssetConnections());
+
+    const [error, setError] = React.useState<string[]>([]);
+    const [hoverNext, setHoverNext] = React.useState<boolean>(false);
+    
 
     React.useEffect(() => {
         if (mStatus === 'unintiated' || mStatus === 'changed') {
@@ -81,7 +86,11 @@ export default function NewMeterWizard(props: {}) {
         return () => {
             sessionStorage.clear();
         }
-    },[]);
+    }, []);
+
+    React.useEffect(() => {
+        setError([]);
+    }, [currentStep])
 
     React.useEffect(() => {
         localStorage.setItem('NewMeterWizard.MeterInfo', JSON.stringify(meterInfo));
@@ -194,6 +203,8 @@ export default function NewMeterWizard(props: {}) {
     }
 
     function next() {
+        if (disableNext())
+            return;
         // Make sure currentStep is set to something reasonable
         if (currentStep >= 4) {
            setCurrentStep(5);
@@ -256,7 +267,7 @@ export default function NewMeterWizard(props: {}) {
 
     function getPage() {
         if (currentStep == 1)
-            return <Page1 MeterInfo={meterInfo} UpdateMeterInfo={setMeterInfo} />
+            return <Page1 MeterInfo={meterInfo} UpdateMeterInfo={setMeterInfo} SetError={setError} />
         else if (currentStep == 2)
             return <Page2 LocationInfo={locationInfo} UpdateLocationInfo={setLocationInfo} />
         else if (currentStep == 3)
@@ -307,12 +318,19 @@ export default function NewMeterWizard(props: {}) {
                     {getPage()}
                 </div>
                 <div className="card-footer">
-                    <button className="btn btn-primary pull-left" onClick={prev} hidden={currentStep <= 1}>Prev</button>
-                    <button className="btn btn-primary pull-right" onClick={next} hidden={currentStep >= 5} disabled={currentStep >= 5 || disableNext()}>Next</button>
+                    {currentStep > 1 ? <button className="btn btn-danger pull-left" onClick={prev}>Prev</button> : null}
+                    {currentStep < 5 ? <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
+                        data-tooltip='Next' onMouseEnter={() => setHoverNext(true)} onMouseLeave={() => setHoverNext(false)}
+                    >Next</button> : null}
                     <button className="btn btn-primary pull-right" onClick={addNewMeter} hidden={currentStep < 5}>Submit</button>
                 </div>
+                <ToolTip Show={hoverNext && error.length > 0} Position={'top'} Theme={'dark'} Target={"Next"}>
+                    {error.map((item, index) => <p key={index}> {ErrorSymbol()} {item} </p>)}
+                </ToolTip>
             </div>
 
         </div>
     );
 }
+
+const ErrorSymbol = () => <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>

@@ -23,19 +23,15 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '../global';
-import FormInput from '../CommonComponents/FormInput';
-import FormTextArea from '../CommonComponents/FormTextArea';
+import { OpenXDA } from '../global';
 import { useDispatch, useSelector } from 'react-redux';
-import { SelectValueList, SelectValueListStatus, FetchValueList } from '../Store/ValueListSlice';
 import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
+import MeterProperties from '../Meter/MeterProperties';
 
 declare var homePath: string;
 
-export default function Page1(props: { MeterInfo: OpenXDA.Meter, UpdateMeterInfo: (record: OpenXDA.Meter) => void }) {
+export default function Page1(props: { MeterInfo: OpenXDA.Meter, UpdateMeterInfo: (record: OpenXDA.Meter) => void , SetError: (e: string[]) => void}) {
     const dispatch = useDispatch();
-    const timeZones = useSelector(state => SelectValueList(state, 'TimeZones'));
-    const tzStatus = useSelector(state => SelectValueListStatus(state, 'TimeZones')) as SystemCenter.Status;
     const meterKeys = useSelector(SelectMeterKeysLowerCase);
     const mStatus = useSelector(SelectMeterStatus);
 
@@ -47,13 +43,28 @@ export default function Page1(props: { MeterInfo: OpenXDA.Meter, UpdateMeterInfo
         }
     }, [dispatch, mStatus]);
 
+    
+
     React.useEffect(() => {
-        if (tzStatus === 'unintiated' || tzStatus === 'changed') {
-            dispatch(FetchValueList({ group: 'TimeZones' }));
-            return function () {
-            }
-        }
-    }, [dispatch, tzStatus]);
+        const error = [];
+        if (!valid('AssetKey'))
+            error.push('A unique AssetKey of less than 50 characters is required.');
+    
+        if (!valid('Name'))
+            error.push('Name must be less than 200 characters and is required.');
+    
+        if (!valid('ShortName'))
+            error.push('ShortName must be less than 50 characters.');
+
+        if (!valid('Alias'))
+            error.push('Alias must be less than 200 characters.');
+        if (!valid('Make'))
+            error.push('Make must be less than 200 characters.');
+        if (!valid('Model'))
+            error.push('Model must be less than 200 characters.');
+
+        props.SetError(error);
+    }, [props.MeterInfo, meterKeys])
 
     function valid(field: keyof (OpenXDA.Meter)): boolean {
         if (field == 'AssetKey')
@@ -73,36 +84,9 @@ export default function Page1(props: { MeterInfo: OpenXDA.Meter, UpdateMeterInfo
         return false;
     }
 
-     return (
-            <div className="row">
-                <div className="col">
-                 <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'AssetKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={props.UpdateMeterInfo} />
-                 <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={props.UpdateMeterInfo} />
-                 <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={props.UpdateMeterInfo} />
-                 <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={props.UpdateMeterInfo} />
-                </div>
-                <div className="col">
-                 <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'Make'} Feedback={'Make must be less than 200 characters.'} Valid={valid} Setter={props.UpdateMeterInfo} />
-                 <FormInput<OpenXDA.Meter> Record={props.MeterInfo} Field={'Model'} Feedback={'Model must be less than 200 characters.'} Valid={valid} Setter={props.UpdateMeterInfo} />
-                    <div className="form-group">
-                        <label>Time Zone</label>
-                        <select className="form-control" value={props.MeterInfo == null || props.MeterInfo.TimeZone == null ? '-1' : props.MeterInfo.TimeZone} onChange={(evt) => {
-                            var meter: OpenXDA.Meter = _.clone(props.MeterInfo);
-                            if (evt.target.value != "-1")
-                                meter.TimeZone = evt.target.value;
-                            else
-                                meter.TimeZone = null;
-                         props.UpdateMeterInfo(meter);
-                        }}>
-                            <option value="-1">None Selected</option>
-                            {
-                                (timeZones != null ? timeZones.map(tz => <option value={tz.Text} key={tz.Text} disabled={!tz.Enabled} hidden={tz.Hidden}>{tz.AltText1}</option>) : null)
-                            }
-                        </select>
-                    </div>
-                 <FormTextArea<OpenXDA.Meter> Rows={3} Record={props.MeterInfo} Field={'Description'} Valid={valid} Setter={props.UpdateMeterInfo} />
-                </div>
-            </div>
+
+    return (
+        <MeterProperties Meter={props.MeterInfo} StateSetter={props.UpdateMeterInfo} />
         );
 
 }

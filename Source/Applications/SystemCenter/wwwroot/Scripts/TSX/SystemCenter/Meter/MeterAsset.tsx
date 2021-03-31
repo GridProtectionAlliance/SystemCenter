@@ -233,7 +233,7 @@ const MeterAssetWindow = (props: IProps) => {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right" data-toggle='modal' data-target='#assetModal' onClick={() => {
+                    <button className="btn btn-primary pull-right" onClick={() => {
                         setActiveAssetID(0); setActiveAssetType('Line'); setShoweditNew(true);
                     }}>Add Asset</button>
                 </div>

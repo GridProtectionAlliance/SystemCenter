@@ -27,6 +27,7 @@ import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { LoadingScreen, Search, ToolTip } from '@gpa-gemstone/react-interactive';
+import MeterProperties from './MeterProperties';
 
 declare var homePath: string;
 
@@ -34,20 +35,14 @@ interface IProps { Meter: OpenXDA.Meter, StateSetter: (meter: OpenXDA.Meter) => 
 
 const MeterInforWindow = (props: IProps) => {
     const [meter, setMeter] = React.useState<OpenXDA.Meter>(props.Meter);
-    const [timeZones, setTimeZones] = React.useState<Array<SystemCenter.ValueListItem>>([]);
     const [loading, setLoading] = React.useState<boolean>(false);
     const [assetKeyValid, setAssetKeyValid] = React.useState<boolean>(true);
     const [assetKey, setAssetKey] = React.useState<string>(props.Meter.AssetKey);
-
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
     React.useEffect(() => { setMeter(props.Meter) }, [props.Meter]);
 
-    React.useEffect(() => {
-        let handle = getTimeZones();
-
-        return () => { if (handle != null && handle.abort != null) handle.abort();}
-    }, [])
+   
 
     React.useEffect(() => {
         if (assetKey != meter.AssetKey)
@@ -60,28 +55,7 @@ const MeterInforWindow = (props: IProps) => {
 
     }, [assetKey]);
 
-    function getTimeZones(): JQuery.jqXHR<Array<SystemCenter.ValueListItem>> {
-        if (sessionStorage.hasOwnProperty('SystemCenter.TimeZones')) {
-            setTimeZones(JSON.parse(sessionStorage.getItem('SystemCenter.TimeZones')));
-            return null;
-        }
-
-        let h = $.ajax({
-            type: "GET",
-            url: `${homePath}api/ValueList/Group/TimeZones`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        });
-        h.done((tzs: Array<SystemCenter.ValueListItem>) => {
-            setTimeZones(tzs);
-            sessionStorage.setItem('SystemCenter.TimeZones', JSON.stringify(tzs));
-
-        });
-        return h;
-    }
-
+  
     function updateMeter(): void {
         setLoading(true);
         let updatedMeter: OpenXDA.Meter = _.clone(meter);
@@ -177,23 +151,7 @@ const MeterInforWindow = (props: IProps) => {
                 </div>
             </div>
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-                <div className="row">
-                    <div className="col">
-
-                        <Input<OpenXDA.Meter> Record={meter} Field={'AssetKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={(meter: OpenXDA.Meter) => setMeter(meter)} />
-                        <Input<OpenXDA.Meter> Record={meter} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={(meter: OpenXDA.Meter) => setMeter(meter)} />
-                        <Input<OpenXDA.Meter> Record={meter} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={(meter: OpenXDA.Meter) => setMeter(meter)} />
-                        <Input<OpenXDA.Meter> Record={meter} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(meter: OpenXDA.Meter) => setMeter(meter)} />
-                    </div>
-                    <div className="col">
-                        <Input<OpenXDA.Meter> Record={meter} Field={'Make'} Feedback={'Make must be less than 200 characters.'} Valid={valid} Setter={(meter: OpenXDA.Meter) => setMeter(meter)} />
-                        <Input<OpenXDA.Meter> Record={meter} Field={'Model'} Feedback={'Model must be less than 200 characters.'} Valid={valid} Setter={(meter: OpenXDA.Meter) => setMeter(meter)} />
-                        <Select<OpenXDA.Meter> Record={meter} Field={'TimeZone'} Options={timeZones.map(item => { return { Value: item.Text, Label: item.AltText1 } })}
-                            Label={'Time Zone'} Setter={(meter) => setMeter(meter)} EmptyOption={true} EmptyLabel={'None Selected'} />
-                            
-                        <TextArea<OpenXDA.Meter> Rows={3} Record={meter} Field={'Description'} Valid={valid} Setter={(meter: OpenXDA.Meter) => setMeter(meter)} />
-                    </div>
-                </div>
+                <MeterProperties Meter={meter} StateSetter={setMeter} />
                 <LoadingScreen Show={loading} />
             </div>
             <div className="card-footer">
