@@ -28,9 +28,9 @@ import CFGParser from '../../../TS/CFGParser';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectMeasurementTypes, SelectMeasurementTypeStatus, FetchMeasurementType } from '../Store/MeasurementTypeSlice';
 import { SelectPhaseStatus, SelectPhases, FetchPhase } from '../Store/PhaseSlice';
-import { toNumber } from 'lodash';
 import Table from '@gpa-gemstone/react-table'
 import { Input, Select } from '@gpa-gemstone/react-forms';
+import { Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
@@ -41,7 +41,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
     const mtStatus = useSelector(SelectMeasurementTypeStatus) as SystemCenter.Status;
     const phases = useSelector(SelectPhases);
     const phStatus = useSelector(SelectPhaseStatus) as SystemCenter.Status;
-
+    const [showCFGError, setShowCFGError] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         $(".custom-file-input").on("change", (evt: any) => {
@@ -94,7 +94,8 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
 
                 }
                 else
-                    alert('File is not of type cfg. Please only use comtrade standard cfg files.');
+                    setShowCFGError(true);
+                   
             }
             r.readAsText(f);
         }
@@ -217,11 +218,12 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                     onSort={(d) => {}}
                     onClick={(fld) => { }}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: 'calc(100% - 80px)', }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: innerHeight - 460, }}
                     rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                     selected={(item) => false}
                 />
             </div>
+            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={'File is not of type cfg. Please only use comtrade standard cfg files.'} CallBack={() => setShowCFGError(false)} />
                 
         </>
         );
