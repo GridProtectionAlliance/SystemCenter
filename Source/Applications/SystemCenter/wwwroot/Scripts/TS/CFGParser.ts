@@ -52,6 +52,8 @@ export default class CFGParser {
             return 'CN';
         else if (value.toLowerCase().indexOf('n') >= 0)
             return 'NG';
+        else if (value.toLowerCase().indexOf('r') >= 0)
+            return 'RES';
         else
             return 'None';
     }
