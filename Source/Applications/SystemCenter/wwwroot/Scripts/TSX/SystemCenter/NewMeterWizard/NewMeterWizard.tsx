@@ -322,7 +322,7 @@ export default function NewMeterWizard(props: {}) {
                     {currentStep < 5 ? <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
                         data-tooltip='Next' onMouseEnter={() => setHoverNext(true)} onMouseLeave={() => setHoverNext(false)}
                     >Next</button> : null}
-                    <button className="btn btn-primary pull-right" onClick={addNewMeter} hidden={currentStep < 5}>Submit</button>
+                    <button className="btn btn-success pull-right" onClick={addNewMeter} hidden={currentStep < 5}>Submit</button>
                 </div>
                 <ToolTip Show={hoverNext && error.length > 0} Position={'top'} Theme={'dark'} Target={"Next"}>
                     {error.map((item, index) => <p key={index}> {ErrorSymbol()} {item} </p>)}
