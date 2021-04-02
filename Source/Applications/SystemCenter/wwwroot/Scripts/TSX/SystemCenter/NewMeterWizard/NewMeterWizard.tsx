@@ -273,7 +273,7 @@ export default function NewMeterWizard(props: {}) {
         else if (currentStep == 3)
             return <Page3 MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError}/>
         else if (currentStep == 4)
-            return <Page4 AssetConnections={assetConnections} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} />
+            return <Page4 AssetConnections={assetConnections} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} SetError={setError}/>
         else if (currentStep == 5)
             return <Page5 Assets={assets} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />
 
