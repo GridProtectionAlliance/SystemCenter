@@ -88,15 +88,12 @@ function Meter(props: IProps) {
     function deleteMeter(): JQuery.jqXHR {
 
         setLoadDelete(true);
-        let response = confirm("This will delete the Meter Permanently");
-        if (!response)
-            return;
 
         let handle = $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Meter/Delete`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(this.state.Meter),
+            data: JSON.stringify(meter),
             dataType: 'json',
             cache: true,
             async: true
@@ -105,6 +102,10 @@ function Meter(props: IProps) {
         handle.done(() => {
             window.location.href = homePath + 'index.cshtml?name=Meters'
         })
+
+        handle.then((d) => setLoadDelete(false))
+
+        return handle;
     }
 
     if (meter == null) return null;
