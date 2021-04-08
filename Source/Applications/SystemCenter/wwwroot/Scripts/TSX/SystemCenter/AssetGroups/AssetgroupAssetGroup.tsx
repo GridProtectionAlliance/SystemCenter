@@ -91,7 +91,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Transmission Assets in Asset Group:</h4>
+                        <h4>Asset Groups in Asset Group:</h4>
                     </div>
                     <div className="col">
                         {(edit) ?
