@@ -34,8 +34,6 @@ import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-type FieldName = 'Location.LocationKey' | 'Location.Name' | 'Note.Note' | 'Meter.AssetKey' | 'Asset.AssetKey';
-
 const defaultSearchcols: Array<Search.IField<Location>> = [
     { label: 'Name', key: 'Name', type: 'string' },
 ];
