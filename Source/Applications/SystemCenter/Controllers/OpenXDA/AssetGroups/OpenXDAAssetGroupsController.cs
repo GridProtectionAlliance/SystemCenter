@@ -58,7 +58,7 @@ namespace SystemCenter.Controllers.OpenXDA
         protected override string PostRoles { get; } = "Administrator, Transmission SME";
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-
+        protected override bool AllowSearch => true;
         public OpenXDAAssetGroupController() : base(false, "", true, "Name") { }
 
 
@@ -227,7 +227,7 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpPost, Route("SearchableList")]
+       /*[HttpPost, Route("SearchableList")]
         public IHttpActionResult GetAssetsUsingSearchableList([FromBody] IEnumerable<Search> searches)
         {
             string whereClause = BuildWhereClause(searches);
@@ -250,7 +250,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 return Ok(table);
             }
         }
-
+       */
         [HttpDelete, Route("Delete")]
         public override IHttpActionResult Delete(AssetGroupView record)
         {

@@ -22,29 +22,27 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { AssetAttributes } from '../AssetAttribute/Asset';
-import { getAllAssets, getAssetTypes } from '../../../TS/Services/Asset';
 import { OpenXDA, SystemCenter } from '../global';
-import BreakerAttributes from '../AssetAttribute/Breaker';
-import CapBankAttributes from '../AssetAttribute/CapBank';
-import BusAttributes from '../AssetAttribute/Bus';
-import LineAttributes from '../AssetAttribute/Line';
-import TransformerAttributes from '../AssetAttribute/Transformer';
-import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 import AddToGroupPopup from './AddToGroup';
+import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-type FieldName = 'Name';
-interface Search {
-    Field: FieldName,
-    SearchText: string
-}
+
+const defaultSearchcols: Array<Search.IField<Location>> = [
+    { label: 'Name', key: 'Name', type: 'string' },
+    { label: 'Number of Meter', key: 'Meters', type: 'integer' },
+    { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer' },
+    { label: 'Number of Users', key: 'Users', type: 'integer' },
+    { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean' },
+        
+];
+
 interface AssetGroup {
     ID: number, Name: string, DisplayDashboard: boolean, AssetGroups: number, Meters: number, Assets: number, Users: number
 }
@@ -58,10 +56,13 @@ declare var homePath: string;
 const ByAssetGroup: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
 
-    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Name', SearchText: '' }]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<AssetGroup>>>([]);
     const [data, setData] = React.useState<Array<AssetGroup>>([]);
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Location>>>(defaultSearchcols);
+    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
+
 
     const [newAssetGroup, setNewAssetGroup] = React.useState<extendedAssetGroup>(_.cloneDeep(emptyAssetGroup));
     const [allAssetGroups, setAllAssetGroups] = React.useState<Array<AssetGroup>>([]);
@@ -76,7 +77,10 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
         let handle1 = getAssetGroups();
         let handle2 = getAllAssetGroups();
 
-        handle1.done((data: Array<AssetGroup>) => setData(data));
+        handle1.done((data: string) => {
+            setSearchState('Idle');
+            setData(JSON.parse(data) as AssetGroup[])
+        }).fail((d) => setSearchState('Error'));
         handle2.done(aas => setAllAssetGroups(aas));
         
 
@@ -89,12 +93,15 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
     }
 
     function getAssetGroups(): JQueryXHR {
+        setSearchState('Loading');
+        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
+
         return $.ajax({
             type: "Post",
             url: `${homePath}api/OpenXDA/AssetGroup/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(search),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -142,76 +149,30 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
         return true;
     }
 
+    const standardSearch: Search.IField<Location> = { label: 'Name', key: 'Name', type: 'string' };
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                <div className="collapse navbar-collapse" id="navbarSupportedContent" style={{ width: '100%' }}>
-                    <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
-                        <li className="nav-item" style={{ width: '50%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search: </legend>
-                                <form>
-                                    {
-                                        search.map((s, index, a) => {
+            <SearchBar<AssetGroup> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
+                ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Locations'}
+                GetEnum={(setOptions, field) => {
+                    let handle = null;
+                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+                        return () => { };
 
-                                            return (
-                                                <div className="input-group" key={index} style={{ border: '1px solid lightgray' }}>
-                                                    <div className="input-group-prepend">
-                                                        <select className='form-control' style={{ height: '100%' }} value={s.Field} onChange={(evt) => {
-                                                            let array = _.clone(a);
-                                                            s.Field = evt.target.value as FieldName;
-                                                            setSearch(array);
-                                                        }}>
-                                                            <option value='Name'>Name</option>
-                                                        </select>
-                                                    </div>
-                                                    <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
-                                                        
-                                                        s.SearchText = evt.target.value;
-                                                        let array = _.clone(a);
-                                                        setSearch(array);
-                                                    }} onKeyDown={evt => {
-                                                        if (evt.keyCode == 13) {
-                                                            evt.preventDefault();
-                                                            getAssetGroups().done(ms => setData(ms));
-                                                        }
-                                                    }}/>
-                                                    <div className="input-group-append">
-                                                        <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                            let array = _.clone(a);
-                                                            array.splice(index, 1);
-                                                            setSearch(array);
-                                                        }}><span><i className="fa fa-times"></i></span></button>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })
+                    handle = $.ajax({
+                        type: "GET",
+                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        cache: true,
+                        async: true
+                    });
 
-                                    }
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search Params:</legend>
-                                <form>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            let array = _.clone(search);
-                                            array.push({ Field: 'Name', SearchText: '' });
-                                            setSearch(array);
-                                        }}>Add Parameter</button>
-                                    </div>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            getAssetGroups().done((data: Array<AssetGroup>) => setData(data));
-                                        }}>Update Search</button>
-                                    </div>
-                                </form>
-                            </fieldset>
-                        </li>
+                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
+                }}
+
+            >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
@@ -222,10 +183,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
                                 </form>
                             </fieldset>
                         </li>
-                        
-                    </ul>
-                </div>
-            </nav>
+                </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
                 <Table
