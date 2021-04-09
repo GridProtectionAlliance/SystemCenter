@@ -30,6 +30,7 @@ import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 import AddToGroupPopup from './AddToGroup';
 import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
+import AssetGroup from './AssetGroup';
 
 declare var homePath: string;
 
@@ -68,30 +69,33 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
     const [allAssetGroups, setAllAssetGroups] = React.useState<Array<AssetGroup>>([]);
 
     React.useEffect(() => {
-        return getData();
-    }, []);
-
-
-    function getData() {
-
-        let handle1 = getAssetGroups();
         let handle2 = getAllAssetGroups();
-
-        handle1.done((data: string) => {
-            setSearchState('Idle');
-            setData(JSON.parse(data) as AssetGroup[])
-        }).fail((d) => setSearchState('Error'));
         handle2.done(aas => setAllAssetGroups(aas));
-        
+
 
         return function cleanup() {
-            if (handle1.abort != null)
-                handle1.abort();
+
             if (handle2.abort != null)
                 handle2.abort();
         }
-    }
+    }, []);
 
+    React.useEffect(() => {
+        let handle = getAssetGroups();
+
+        handle.done((data: string) => {
+            setSearchState('Idle');
+            setData(JSON.parse(data) as AssetGroup[])
+        }).fail((d) => setSearchState('Error'));
+        
+        return () => {
+            if (handle.abort != null)
+                handle.abort();
+        };
+
+    }, [search, ascending, sortField]);
+
+    
     function getAssetGroups(): JQueryXHR {
         setSearchState('Loading');
         let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
@@ -186,7 +190,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
                 </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
-                <Table
+                <Table<AssetGroup>
                     cols={[
                         { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Assets', label: 'Num. of Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -200,15 +204,10 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
                     sortField={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField) {
-                            let ordered = _.orderBy(data, [d.col], [(!ascending ? "asc" : "desc")]);
+                        if (d.col == sortField)
                             setAscending(!ascending);
-                            setData(ordered);
-                        }
                         else {
-                            let ordered = _.orderBy(data, [d.col], ["asc"]);
-                            setAscending(!ascending);
-                            setData(ordered);
+                            setAscending(true);
                             setSortField(d.col);
                         }
                     }}
