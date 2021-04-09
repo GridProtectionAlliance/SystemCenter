@@ -22,42 +22,49 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter } from '../global';
-import { SelectCompanyTypes, SelectCompanyTypesStatus, FetchCompanyTypes } from './CompanyTypeSlice';
-import { useSelector, useDispatch } from 'react-redux';
-
+import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
 import CompanyForm from './CompanyForm';
 
-type FieldName = 'Company.CompanyID' | 'Company.Name' | 'Company.Description';
-interface Search {
-    Field: FieldName,
-    SearchText: string
-}   
+
 interface Company extends SystemCenter.Company {
     Meters: number
 }
 
 declare var homePath: string;
 
+const defaultSearchcols: Array<Search.IField<Company>> = [
+    { label: 'Name', key: 'Name', type: 'string' },
+    { label: 'CompanyID', key: 'CompanyID', type: 'string' },
+    { label: 'Description', key: 'Description', type: 'string' },
+    { label: 'Description', key: 'Description', type: 'string' },
+                                                          
+];
+
 const ByCompany: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
     
-    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Company.Name', SearchText: '' }]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<Company>>>([]);
     const [data, setData] = React.useState<Array<Company>>([]);
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newCompany, setNewCompany] = React.useState<SystemCenter.Company>(getNewCompany());
+    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
 
     React.useEffect(() => {
         return getData();
-    }, []);
+    }, [search, ascending, sortField]);
 
     function getData() {
         let handle = getCompanys();
-        handle.done((data: Array<Company>) => setData(data));
+        handle.done((data: string) => {
+            setSearchState('Idle');
+            setData(JSON.parse(data) as Company[]);
+
+        }).fail((d) => setSearchState('Error'));
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
@@ -65,13 +72,16 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
 
     }
 
-    function getCompanys(): JQuery.jqXHR<Array<Company>>{
+    function getCompanys(): JQuery.jqXHR<string>{
+        setSearchState('Loading');
+
+
         return $.ajax({
             type: "Post",
             url: `${homePath}api/SystemCenter/Company/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(search),
+            data: JSON.stringify({ Searches: search, OrderBy: sortField, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -115,98 +125,51 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
         return false;
     }
 
-
+    const standardSearch: Search.IField<Location> = { label: 'Name', key: 'Name', type: 'string' };
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                <div className="collapse navbar-collapse" id="navbarSupportedContent" style={{ width: '100%' }}>
-                    <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
-                        <li className="nav-item" style={{ width: '50%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search: </legend>
-                                <form>
-                                    {
-                                        search.map((s, index, a) => {
+            <SearchBar<Location> CollumnList={defaultSearchcols} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
+                ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Companys'}
+                GetEnum={(setOptions, field) => {
+                    let handle = null;
+                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+                        return () => { };
 
-                                            return (
-                                                <div className="input-group" key={index} style={{ border: '1px solid lightgray'}}>
-                                                    <div className="input-group-prepend">
-                                                        <select className='form-control' style={{height: '100%'}} value={s.Field} onChange={(evt) => {
-                                                            s.Field = evt.target.value as FieldName;
-                                                            let array = _.clone(a);
-                                                            setSearch(array);
-                                                        }}>
-                                                            <option value='Company.Name'>Name</option>
+                    handle = $.ajax({
+                        type: "GET",
+                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        cache: true,
+                        async: true
+                    });
+
+                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
+                }}
+
+            >
+                {/*<option value='Company.Name'>Name</option>
                                                             <option value='Company.CompanyID'>CompanyID</option>
                                                             <option value='Company.Description'>Description</option>
                                                             <option value='CompanyMeter.AssetKey'>Meter</option>
-                                                            <option value='CompanyType.Name'>Type</option>
+                                                            <option value='CompanyType.Name'>Type</option>*/}
 
-                                                        </select>
-                                                    </div>
-                                                    <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
-                                                        s.SearchText = evt.target.value;
-                                                        let array = _.clone(a);
-                                                        setSearch(array);
-                                                    }} onKeyDown={evt => {
-                                                        if (evt.keyCode == 13) {
-                                                            evt.preventDefault();
-                                                            getCompanys().done(ms => setData(ms));
-                                                        }
-                                                    }} />
-                                                    <div className="input-group-append">
-                                                        <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                            let array = _.clone(a);
-                                                            array.splice(index, 1);
-                                                            setSearch(array);
-                                                        }}><span><i className="fa fa-times"></i></span></button>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })
-                                        
-                                }
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search Params:</legend>
-                                <form>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            let array = _.clone(search);
-                                            array.push({ Field: 'Company.Name', SearchText: '' });
-                                            setSearch(array);
-                                        }}>Add Parameter</button>
-                                    </div>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            getCompanys().done(cs => setData(cs));
-                                        }}>Update Search</button>
-                                    </div>
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                                <form>
-                                    <button className="btn btn-primary" data-toggle='modal' data-target="#companyModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => {
-                                        event.preventDefault()
-                                        setNewCompany(getNewCompany());
-                                    }}>Add Company</button>
-                                </form>
-                            </fieldset>
-                        </li>
-
-
-                    </ul>
-                </div>
-            </nav>
-
+                                                   
+                                    
+                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                        <form>
+                            <button className="btn btn-primary" data-toggle='modal' data-target="#companyModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => {
+                                event.preventDefault()
+                                setNewCompany(getNewCompany());
+                            }}>Add Company</button>
+                        </form>
+                    </fieldset>
+                </li>
+            </SearchBar>
+            
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<Company>
                     cols={[
@@ -223,15 +186,10 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
                     sortField={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField) {
-                            var ordered = _.orderBy(data, [d.col], [(!ascending ? "asc" : "desc")]);
+                        if (d.col == sortField)
                             setAscending(!ascending);
-                            setData(ordered);
-                        }
                         else {
-                            var ordered = _.orderBy(data, [d.col], ["asc"]);
-                            setAscending(!ascending);
-                            setData(ordered);
+                            setAscending(true);
                             setSortField(d.col);
                         }
                     }}
