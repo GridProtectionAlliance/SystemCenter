@@ -574,7 +574,7 @@ GO
 /* FAWG Query for LineSegments */
 INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
            ('LineSegment','Fawg','
-            (
+                        (
              SELECT
                     Lines.Lines_Id,
 	                Lines.fromBusNumber,
@@ -593,7 +593,9 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
                     Buses ON Lines.fromBuses_Id = Buses.Buses_Id JOIN
                     Branches ON Lines.Branches_Id = Branches.Branches_Id
                 WHERE
-                    Branches.Description = ''Fawg One''
+                    Branches.Description = ''Fawg One'' AND
+					Lines.ISD < (SELECT YEAR((SELECT GetDate()))*100 + Month((SELECT GetDate()))) AND
+					Lines.OSD > (SELECT YEAR((SELECT GetDate()))*100 + Month((SELECT GetDate())))
             ) T1')
 GO
 
