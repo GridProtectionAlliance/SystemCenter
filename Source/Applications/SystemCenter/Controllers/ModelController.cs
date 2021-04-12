@@ -529,8 +529,8 @@ namespace SystemCenter.Controllers
                             FROM ( {tableName}  M LEFT JOIN 
                                 [SystemCenter.AdditionalField] af on af.ParentTable = ''{tableName}'' LEFT JOIN
 	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
-                            ) as T PIVOT (
-                                Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT
+                            ) as T ' + (SELECT CASE WHEN Len(@PivotColumns) > 0 THEN 'PIVOT (
+                                Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT' ELSE '' END) + ' 
                             {whereClause.Replace("'", "''")}
                             ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")};
 
@@ -558,8 +558,8 @@ namespace SystemCenter.Controllers
                             FROM ({CustomView.Replace("'", "''")}) M LEFT JOIN 
                                 [SystemCenter.AdditionalField] af on af.ParentTable = ''{tableName}'' LEFT JOIN
 	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
-                            ) as T PIVOT (
-                                Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT
+                            ) as T ' + (SELECT CASE WHEN Len(@PivotColumns) > 0 THEN 'PIVOT (
+                                Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT' ELSE '' END) + '
                             {whereClause.Replace("'", "''")}
                             ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")};
 

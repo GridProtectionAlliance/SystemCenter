@@ -65,7 +65,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
             url: `${homePath}api/SystemCenter/CompanyMeter/AddMultiple`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(selectedSites.map(ss => ({ ID: 0, CompanyID: props.Company.ID, OpenXDAMeterID: parseInt(ss.ID.toString()), MeterName : ss.Name }) as SystemCenter.CompanyMeter)),
+            data: JSON.stringify(selectedSites.map(ss => ({ ID: 0, CompanyID: props.Company.ID, MeterID: parseInt(ss.ID.toString()), DisplayName : ss.Name }) as SystemCenter.CompanyMeter)),
             cache: false,
             async: true
         }).done(() => {
@@ -129,7 +129,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
                             <table className="table">
                                 <thead><tr><th>Assigned Sites:</th><th></th></tr></thead>
                                 <tbody>
-                                    {sites.length > 0 ? sites.filter(s => s.MeterName.toLowerCase().indexOf(searchTextAS.toLowerCase()) >= 0).map((site, i) => <tr key={i}><td>{site.MeterName}</td><td><button className="btn btn-sm" onClick={(e) => {
+                                    {sites.length > 0 ? sites.filter(s => s.DisplayName.toLowerCase().indexOf(searchTextAS.toLowerCase()) >= 0).map((site, i) => <tr key={i}><td>{site.DisplayName}</td><td><button className="btn btn-sm" onClick={(e) => {
                                         e.preventDefault();
                                         deleteCustommerAccess(site);
                                     }}><span><i className="fa fa-times"></i></span></button></td></tr>) : null}
@@ -142,7 +142,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
                         <select className="form-control" style={{ paddingTop: 5, height: 'calc(100% - 35px)' }} value={selectedSites.map(ss => ss.ID.toString())} multiple onChange={(e) => {
                             setSelectedSites(Array.from(e.target.selectedOptions).map(o => ({ ID: o.value, Name: o.text })) as any)
                         }}>
-                            {allSites.filter(allsite => allsite.AssetKey.toLowerCase().indexOf(searchText.toLowerCase()) >= 0).map(allsite => <option key={allsite.ID} value={allsite.ID} hidden={sites.find(s => s.OpenXDAMeterID == allsite.ID) != null} disabled={sites.find(s => s.OpenXDAMeterID == allsite.ID) != null}>{allsite.AssetKey}</option>)}
+                            {allSites.filter(allsite => allsite.AssetKey.toLowerCase().indexOf(searchText.toLowerCase()) >= 0).map(allsite => <option key={allsite.ID} value={allsite.ID} hidden={sites.find(s => s.MeterID == allsite.ID) != null} disabled={sites.find(s => s.MeterID == allsite.ID) != null}>{allsite.AssetKey}</option>)}
                         </select>
                     </div>
                 </div>

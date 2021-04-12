@@ -27,10 +27,24 @@ import { SystemCenter } from '../global';
 import { Input, TextArea,Select } from '@gpa-gemstone/react-forms';
 import { SelectCompanyTypes, SelectCompanyTypesStatus, FetchCompanyTypes } from './CompanyTypeSlice';
 
-export default function CompanyForm(props: { Company: SystemCenter.Company, Setter: (company: SystemCenter.Company) => void }) {
+export default function CompanyForm(props: { Company: SystemCenter.Company, Setter: (company: SystemCenter.Company) => void, setErrors?: (e: string[]) => void }) {
+
     const dispatch = useDispatch();
     const companyTypes = useSelector(SelectCompanyTypes) as SystemCenter.CompanyType[];
     const ctStatus = useSelector(SelectCompanyTypesStatus) as SystemCenter.Status;
+
+    React.useEffect(() => {
+        let e = [];
+        if (props.Company.CompanyID == null || props.Company.CompanyID.match(/[0-9]{8}/) == null)
+            e.push('CompanyID must be a 8 character alphanumeric Identifier.');
+        if (props.Company.Name == null || props.Company.Name.length == 0)
+            e.push('A name is required.');
+        if (props.Company.Name != null && props.Company.Name.length > 200)
+            e.push('Company Name must be less than 200 characters.');
+
+        if (props.setErrors != undefined)
+            props.setErrors(e);
+    }, [props.Company]);
 
     React.useEffect(() => {
         if (ctStatus != 'unintiated') return;
@@ -39,13 +53,13 @@ export default function CompanyForm(props: { Company: SystemCenter.Company, Sett
         return function () {
             if (promise.abort() !== undefined) promise.abort();
         }
-    }, [dispatch, ctStatus]);
+    }, []);
 
     function Valid(field: keyof(SystemCenter.Company)): boolean {
         if (field == 'CompanyID')
-            return props.Company.CompanyID != null && props.Company.CompanyID.match(/[0-9]{8}/) != null;
+            return props.Company.CompanyID != null && props.Company.CompanyID.match(/[0-9,a-z,A-Z]{8}/) != null;
         else if (field == 'Name')
-            return props.Company.Name == null || props.Company.Name.length <= 200;
+            return props.Company.Name != null && props.Company.Name.length > 0 && props.Company.Name.length <= 200;
         else if (field == 'Description')
             return true;
         return false;
@@ -53,7 +67,7 @@ export default function CompanyForm(props: { Company: SystemCenter.Company, Sett
 
     return (
         <form>
-            <Select<SystemCenter.Company> Record={props.Company} Field="CompanyTypeID" Options={companyTypes.map(ct => ({Value: ct.ID.toString(), Label: ct.Name}))} Setter={props.Setter} />
+            <Select<SystemCenter.Company> Record={props.Company} Label={'Company Type'} Field="CompanyTypeID" Options={companyTypes.map(ct => ({Value: ct.ID.toString(), Label: ct.Name}))} Setter={props.Setter} />
             <Input<SystemCenter.Company> Record={props.Company} Field={'Name'} Feedback={'Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
             <Input<SystemCenter.Company> Record={props.Company} Field={'CompanyID'} Feedback={'CompanyID must be 8 numeric characters.'} Valid={Valid} Setter={props.Setter} />
             <TextArea<SystemCenter.Company> Rows={3} Record={props.Company} Field={'Description'} Valid={Valid} Setter={props.Setter} />

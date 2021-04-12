@@ -26,7 +26,7 @@ import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter } from '../global';
-import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import CompanyForm from './CompanyForm';
 
 
@@ -40,8 +40,7 @@ const defaultSearchcols: Array<Search.IField<Company>> = [
     { label: 'Name', key: 'Name', type: 'string' },
     { label: 'CompanyID', key: 'CompanyID', type: 'string' },
     { label: 'Description', key: 'Description', type: 'string' },
-    { label: 'Description', key: 'Description', type: 'string' },
-                                                          
+    { label: 'Company Type', key: 'CompanyTypeID', type: 'enum' },                                
 ];
 
 const ByCompany: SystemCenter.ByComponent = (props) => {
@@ -53,6 +52,9 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newCompany, setNewCompany] = React.useState<SystemCenter.Company>(getNewCompany());
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Company>>>(defaultSearchcols);
+    const [showNew, setShowNew] = React.useState<boolean>(false);
+    const [newCompanyErrors, setNewCompanyErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         return getData();
@@ -71,17 +73,52 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
         }
 
     }
+    React.useEffect(() => {
+        let handle = getAdditionalFields();
+
+        return () => {
+            if (handle.abort != null) handle.abort();
+        }
+    }, []);
+
+    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.AdditionalField>> {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Company/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        });
+
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
+        }
+
+        handle.done((d: Array<SystemCenter.AdditionalField>) => {
+            let ordered = _.orderBy(defaultSearchcols.concat(d.map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Location>
+            ))), ['label'], ["asc"]);
+            setFilterableList(ordered)
+        });
+
+        return handle;
+    }
 
     function getCompanys(): JQuery.jqXHR<string>{
         setSearchState('Loading');
+        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
 
 
         return $.ajax({
             type: "Post",
-            url: `${homePath}api/SystemCenter/Company/SearchableList`,
+            url: `${homePath}api/SystemCenter/Company/ExtendedSearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: search, OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -115,23 +152,17 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Company&CompanyID=' + item.row.ID, state: {} })
     }
 
-    function valid(field: keyof (SystemCenter.Company)): boolean {
-        if (field == 'CompanyID')
-            return newCompany.CompanyID != null && newCompany.CompanyID.length > 0 && newCompany.CompanyID.length <= 8;
-        else if (field == 'Name')
-            return newCompany.Name == null || newCompany.Name.length <= 100;
-        else if (field == 'Description')
-            return newCompany.Description == null || newCompany.Description.length <= 200;
-        return false;
-    }
+    
 
-    const standardSearch: Search.IField<Location> = { label: 'Name', key: 'Name', type: 'string' };
+    const standardSearch: Search.IField<Company> = { label: 'Name', key: 'Name', type: 'string' };
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<Location> CollumnList={defaultSearchcols} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
+            <SearchBar<Company> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Companys'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
+                    if (field.key == "CompanyTypeID")
+                        return () => { }
                     if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
                         return () => { };
 
@@ -149,9 +180,7 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
                 }}
 
             >
-                {/*<option value='Company.Name'>Name</option>
-                                                            <option value='Company.CompanyID'>CompanyID</option>
-                                                            <option value='Company.Description'>Description</option>
+                {/*
                                                             <option value='CompanyMeter.AssetKey'>Meter</option>
                                                             <option value='CompanyType.Name'>Type</option>*/}
 
@@ -161,9 +190,10 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
-                            <button className="btn btn-primary" data-toggle='modal' data-target="#companyModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => {
+                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => {
                                 event.preventDefault()
                                 setNewCompany(getNewCompany());
+                                setShowNew(true);
                             }}>Add Company</button>
                         </form>
                     </fieldset>
@@ -201,25 +231,19 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
                 />
             </div>
 
-            <div className="modal" id="companyModal">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Add Company</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <CompanyForm Company={newCompany} Setter={setNewCompany} />
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewCompany}>Save</button>
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
+            <Modal Show={showNew} Title={'Edit Note'}
+                ShowCancel={true}
+                CallBack={(conf) => { if (conf) addNewCompany(); setShowNew(false); }}
+                DisableConfirm={newCompanyErrors.length > 0}
+                ShowX={true}
+                ConfirmShowToolTip={newCompanyErrors.length > 0}
+                ConfirmToolTipContent={
+                    newCompanyErrors.map((t, i) => <p key={i}> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
+                        {t} </p>)
+                }>
+                <CompanyForm Company={newCompany} Setter={setNewCompany} setErrors={setNewCompanyErrors} />
+                </Modal>
+            
         </div>
     )
 }
