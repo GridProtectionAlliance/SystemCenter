@@ -25,23 +25,27 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import {SystemCenter, OpenXDA } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import FormInput from '../CommonComponents/FormInput';
-import FormCheckBox from '../CommonComponents/FormCheckBox';
-import FormSelect from '../CommonComponents/FormSelect';
 import { getAllAssets, getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import LineSegmentAttributes from './LineSegment';
+import { LoadingScreen, Modal, Warning } from '@gpa-gemstone/react-interactive';
+import Table from '@gpa-gemstone/react-table';
+import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
 
 declare var homePath: string;
 
 function LineSegmentWindow(props: { ID: number }): JSX.Element {
     const [segments, setSegments] = React.useState<Array<OpenXDA.LineSegment>>([]);
-    const [updated, setUpdated] = React.useState<boolean>(false);
+
+    const [showAdd, setShowAdd] = React.useState<boolean>(false);
+    const [showFawg, setShowFawg] = React.useState<boolean>(false);
+    const [showWarning, setshowWarning] = React.useState<boolean>(false);
+    const [showLoading, setShowLoading] = React.useState<boolean>(false);
 
     const [newEditSegment, setNewEditSegment] = React.useState<OpenXDA.Asset>(AssetAttributes.getNewAsset('LineSegment') as OpenXDA.LineSegment);
     const [newEdit, setNewEdit] = React.useState<SystemCenter.NewEdit>('New');
     const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.AssetType>>([]);
     const [allAssets, setAllAssets] = React.useState<Array<OpenXDA.Asset>>([]);
-    const [segmentConnections, setConnections] = React.useState<Array<any>>([]);
 
     React.useEffect(() => {
         getData();
@@ -50,7 +54,6 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
 
     function getData(): void {
         getSegments();
-        setUpdated(false);
 
         getAllAssets().done((assets: Array<OpenXDA.Asset>) => {
             getAssetTypes().done((assetTypes: Array<OpenXDA.AssetType>) => {
@@ -67,7 +70,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
     function getSegments(): void {
        $.ajax({
             type: "GET",
-           url: `${homePath}api/OpenXDA/Line/${props.ID}/LineSegments`,
+           url: `${homePath}api/OpenXDA/Line/${props.ID}/LineSegments?_=${}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -112,199 +115,132 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
         });
     }
 
-    function deleteSegment(id: number): void {
-        let response = confirm("This will delete the Segment from the Line");
-
-        if (!response) return;
+    function deleteSegment(): void {
+        if (newEditSegment.ID == 0)
+            return;
+        setShowLoading(true);
+        
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/LineSegment/${id}/Disconnect/${props.ID}`,
+            url: `${homePath}api/OpenXDA/LineSegment/${newEditSegment.ID}/Disconnect/${props.ID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            cache: true,
+            cache: false,
             async: true
         }).done(e => {
+            setShowLoading(false);
             getData();
         });
 
     }
 
-    function fawgUpdate(): void {
+    function UpdateSegment(): void {
         $.ajax({
-            type: "GET",
-            url: `${homePath}api/ExternalDB/FAWG/LineSegment/UpdateSegments/${props.ID}`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(''),
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((data: any) => {
-            setUpdated(true)
-            console.log(data);
-            setSegments(data["segments"]);
-            setConnections(data["connections"])
-        }).fail((msg) => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
-        });
-
-        
-
-    }
-
-    function cancelUpdate(): void {
-        setUpdated(false)
-        getSegments()
-    }
-
-    function submitUpdate(): void {
-        $.ajax({
-            type: "POST",
-            url: `${homePath}api/ExternalDB/FAWG/LineSegment/ConfirmSegments/${props.ID}`,
+            type: "Patch",
+            url: `${homePath}api/OpenXDA/LineSegment/Update`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ "data": { "segments": segments, "connections": segmentConnections } }),
+            data: JSON.stringify(newEditSegment),
             cache: false,
             async: true
-        }).done(() => {
-            cancelUpdate()
-        });
-        
+        }).done((data) => getData());
     }
 
     return (
+        <>
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
-                <h4>Additional Fields:</h4>
+                <h4>Line Segments:</h4>
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                    <table className='table'>
-                        <thead>
-                            <tr>
-                                <th style={{ width: 150 }}>Segment</th>
-                                <th style={{ width: 50 }}>Length</th>
+                    <Table<OpenXDA.LineSegment>
+                        cols={[
+                            { key: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'Length', label: 'Length (miles)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'R1', label: 'R1', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'X1', label: 'X1', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'R0', label: 'R0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'X0', label: 'X0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            {
+                                key: null, label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
+                                content: (item) => <> <button className="btn btn-sm"
+                                    onClick={(e) => {
+                                        setShowAdd(true);
+                                        setNewEditSegment(item);
+                                        setNewEdit('Edit');
+                                    }}><span>{Pencil}</span></button>
+                                    <button className="btn btn-sm"
+                                        onClick={(e) => {
+                                            setNewEditSegment(item);
+                                            setshowWarning(true);
+                                            
+                                        }}><span>{TrashCan}</span></button>
+                                </>
+                            }
 
-                                
-                                <th colSpan={4} style={{ width: 160 }}>Zero Seq (Ohm/deg)</th>
-                                <th colSpan={4} style={{ width: 160 }}>Positive Seq (Ohm/deg)</th>
-                                <th colSpan={4} style={{ width: 160 }}>Loop (LG) (Ohm/deg)</th>
-                                <th style={{ width: 75 }}>Thermal Rating</th>
-                                <th style={{ width: 30 }}></th>
-                            </tr>
-                            <tr>
-                                <th style={{ width: 100}}></th>
-                                <th style={{ width: 50 }}></th>
-
-                                <th style={{ width: 40 }}>Z0</th>
-                                <th style={{ width: 40 }}>&lt;</th>
-                                <th style={{ width: 40 }}>R0</th>
-                                <th style={{ width: 40 }}>X0</th>
-
-                                <th style={{ width: 40 }}>Z1</th>
-                                <th style={{ width: 40 }}>&lt;</th>
-                                <th style={{ width: 40 }}>R1</th>
-                                <th style={{ width: 40 }}>X1</th>
-
-                                <th style={{ width: 40 }}>Zs</th>
-                                <th style={{ width: 40 }}>&lt;</th>
-                                <th style={{ width: 40 }}>Rs</th>
-                                <th style={{ width: 40 }}>Xs</th>
-
-                                <th style={{ width: 75 }}></th>
-                                <th style={{ width: 30 }}></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {segments.map((a, i) => <TableRowInput key={i} ParentLineID={props.ID} Segment={a} remove={deleteSegment} />)}
-                        </tbody>
-                    </table>
+                        ]}
+                        tableClass="table table-hover"
+                        data={segments}
+                        sortField={'AssetName'}
+                        ascending={true}
+                        onSort={(d) => { }}
+                        onClick={() => {}}
+                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        selected={(item) => false}
+                    />
                 </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" data-toggle='modal' data-target="#assetModal" hidden={updated} >Add Segement</button>
+                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Segement</button>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={(evt) => fawgUpdate()} hidden={updated}>Update from FAWG</button>
+                    <button className="btn btn-primary" onClick={(evt) => setShowFawg(true)}>Update from FAWG</button>
                 </div>
 
-                <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={(evt) => submitUpdate()} hidden={!updated} >Save Changes</button>
-                </div>
-                <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={(evt) => cancelUpdate()} hidden={!updated} >Reset</button>
-                </div>
             </div>
+        </div>
 
-            <div className="modal" id="assetModal">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">{newEdit == 'New' ? 'Add New LineSegment to Line' : 'Edit ' + newEditSegment.AssetKey + ' for Meter'}</h4>
-                            <button type="button" className="close" data-dismiss="modal" onClick={(evt) => setNewEditSegment(AssetAttributes.getNewAsset('LineSegment') as OpenXDA.LineSegment)}>&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="row">
-                                <div className="col">
-                                    <AssetAttributes.AssetAttributeFields Asset={newEditSegment} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewEditSegment} GetDifferentAsset={(assetID) => {
-                                        let asset = allAssets.find(a => a.ID == assetID);
-                                        console.log(asset);
-                                        console.log(assetID);
-                                        console.log(allAssets)
-                                        let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
-                                        getAssetWithAdditionalFields(assetID, assetType.Name).then(asset => setNewEditSegment(asset));
-                                    }} />
-                                </div>
-                                <div className="col">
-                                    <LineSegmentAttributes Asset={newEditSegment as OpenXDA.LineSegment} NewEdit={newEdit} UpdateState={setNewEditSegment} />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewSegment}  hidden={newEdit == 'Edit' || newEditSegment.ID != 0}>Save</button>
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addExistingSegment} hidden={newEdit == 'Edit' || newEditSegment.ID == 0}>Save</button>
-                            <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => setNewEditSegment(AssetAttributes.getNewAsset('LineSegment'))}>Close</button>
-                        </div>
-
+        <Warning Show={showWarning} Title={'Remove this Segment From the Line'} Message={'This will permanently remove the Segment.'} CallBack={(confirm) => { if (confirm) deleteSegment(); setshowWarning(false); }} />
+            <LoadingScreen Show={showLoading} />
+            <Modal Show={showAdd} Title={newEdit == 'New' ? 'Add New LineSegment to Line' : 'Edit ' + newEditSegment.AssetKey + ' for Meter'} Size={'lg'} ShowX={true}
+                CallBack={(confirm) => {
+                    if (confirm && newEdit == 'Edit')
+                        UpdateSegment();
+                    if (confirm && newEdit == 'New' && newEditSegment.ID == 0)
+                        addNewSegment();
+                    if (confirm && newEdit == 'New' && newEditSegment.ID != 0)
+                        addExistingSegment();
+                    setNewEditSegment(AssetAttributes.getNewAsset('LineSegment') as OpenXDA.LineSegment);
+                    setShowAdd(false);
+                }}
+                CancelText={'Close'}
+                ConfirmText={'Save'}
+                DisableConfirm={AssetAttributes.AssetError(newEditSegment, 'LineSegment').length > 0}
+                ConfirmShowToolTip={AssetAttributes.AssetError(newEditSegment, 'LineSegment').length > 0}
+                ConfirmToolTipContent={AssetAttributes.AssetError(newEditSegment, 'LineSegment').map((i, t) => <p key={i}> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> {t}</p>)}
+            >
+                <div className="row">
+                    <div className="col">
+                        <AssetAttributes.AssetAttributeFields Asset={newEditSegment} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewEditSegment} GetDifferentAsset={(assetID) => {
+                            if (newEdit == 'Edit')
+                                return;
+                            let asset = allAssets.find(a => a.ID == assetID);
+                            let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
+                            getAssetWithAdditionalFields(assetID, assetType.Name).then(asset => setNewEditSegment(asset));
+                        }} HideAssetType={true} />
+                    </div>
+                    <div className="col">
+                        <LineSegmentAttributes Asset={newEditSegment as OpenXDA.LineSegment} NewEdit={newEdit} UpdateState={setNewEditSegment} />
                     </div>
                 </div>
-            </div>
-
-        </div>
+            </Modal>
+            {showFawg ? < LineSegmentWizard LineID={props.ID} closeWizard={() => setShowFawg(false)} /> : null}
+        </>
     );
 }
 
 export default LineSegmentWindow;
-
-function TableRowInput(props: { ParentLineID: number, Segment: OpenXDA.LineSegment, remove: (id: number) => void }) {
-    let Z1 = Math.sqrt(props.Segment.R1 * props.Segment.R1 + props.Segment.X1 * props.Segment.X1);
-    let Z0 = Math.sqrt(props.Segment.R0 * props.Segment.R0 + props.Segment.X0 * props.Segment.X0);
-    let a0 = Math.acos(props.Segment.R0/ Z0) * 180.0 / Math.PI;
-    let a1 = Math.acos(props.Segment.R1 / Z1) * 180.0 / Math.PI;
-    let Xs = (2 * props.Segment.X1 + props.Segment.X0) / 3.0;
-    let Rs = (2 * props.Segment.R1 + props.Segment.R0) / 3.0;
-    let Zs = Math.sqrt(Rs*Rs + Xs*Xs);
-    let as = Math.acos(Rs / Zs) * 180.0 / Math.PI;
-
-    return(
-        <tr>
-            <td>{props.Segment.AssetName} ({props.Segment.AssetKey})</td>
-            <td>{props.Segment.Length}</td>
-            <td>{Z0.toFixed(2)}</td>
-            <td>{a0.toFixed(2)}</td>
-            <td>{props.Segment.R0.toFixed(2)}</td>
-            <td>{props.Segment.X0.toFixed(2)}</td>
-            <td>{Z1.toFixed(2)}</td>
-            <td>{a1.toFixed(2)}</td>
-            <td>{props.Segment.R1.toFixed(2)}</td>
-            <td>{props.Segment.X1.toFixed(2)}</td>
-            <td>{Zs.toFixed(2)}</td>
-            <td>{as.toFixed(2)}</td>
-            <td>{Rs.toFixed(2)}</td>
-            <td>{Xs.toFixed(2)}</td>
-            <td>{props.Segment.ThermalRating}</td>
-            <td><button className="btn btn-sm" onClick={(e) => props.remove(props.Segment.ID)}><span><i className="fa fa-times"></i></span></button></td>
-        </tr>
-    );
-}

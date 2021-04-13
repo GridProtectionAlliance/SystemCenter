@@ -34,7 +34,8 @@ interface AssetAttributesProps {
     AssetTypes: Array<OpenXDA.AssetType>,
     AllAssets: Array<OpenXDA.Asset>,
     GetDifferentAsset: (assetID: number) => void,
-    HideSelectAsset?: boolean
+    HideSelectAsset?: boolean,
+    HideAssetType?: boolean,
 }
 
 
@@ -102,13 +103,14 @@ export namespace AssetAttributes {
                 }}
                 Disabled={props.NewEdit == 'Edit'}
             />
-            <Select<OpenXDA.Asset> Record={props.Asset} Label={'Type'} Field={'AssetType'}
-                Options={props.AssetTypes.filter(item => item.Name != 'LineSegment').map(type => ({ Value: type.Name, Label: type.Name }))}
-                Setter={(asset) => {
-                    changeAssetType(asset.AssetType)
-                }}
-                Disabled={props.NewEdit == 'Edit' || props.Asset.ID != 0}
-            />
+            {props.HideAssetType != undefined && !props.HideAssetType ?
+                <Select<OpenXDA.Asset> Record={props.Asset} Label={'Type'} Field={'AssetType'}
+                    Options={props.AssetTypes.filter(item => item.Name != 'LineSegment').map(type => ({ Value: type.Name, Label: type.Name }))}
+                    Setter={(asset) => {
+                        changeAssetType(asset.AssetType)
+                    }}
+                    Disabled={props.NewEdit == 'Edit' || props.Asset.ID != 0}
+                /> : null}
             <Input<OpenXDA.Asset> Record={props.Asset} Field={'AssetKey'} Label={'Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <Input<OpenXDA.Asset> Record={props.Asset} Field={'AssetName'} Label={'Name'} Feedback={'Name must be less than 200 and is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <Input<OpenXDA.Asset> Record={props.Asset} Field={'VoltageKV'} Label={'Nominal Voltage (L-L kV)'} Feedback={'Nominal Voltage requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
@@ -225,9 +227,32 @@ export namespace AssetAttributes {
         if (asset.VoltageKV == null || !AssetAttributes.isRealNumber(asset.VoltageKV))
             errors.push('A valid nominal Voltage is required.')
 
-
         return errors;
 
+    }
+
+    export function AssetError(asset: OpenXDA.DetailedAsset, type: OpenXDA.AssetTypeName): string[] {
+        let errors = [];
+
+        errors = AttributeError(asset);
+
+        if (type == 'LineSegment') {
+            if ((asset as OpenXDA.LineSegment).Length == null || !AssetAttributes.isRealNumber((asset as OpenXDA.LineSegment).Length))
+                errors.push('A valid Length is required.')
+            if ((asset as OpenXDA.LineSegment).R0 == null || !AssetAttributes.isRealNumber((asset as OpenXDA.LineSegment).R0))
+                errors.push('A valid R0 is required.')
+            if ((asset as OpenXDA.LineSegment).X0 == null || !AssetAttributes.isRealNumber((asset as OpenXDA.LineSegment).X0))
+                errors.push('A valid X0 is required.')
+            if ((asset as OpenXDA.LineSegment).R1 == null || !AssetAttributes.isRealNumber((asset as OpenXDA.LineSegment).R1))
+                errors.push('A valid R1 is required.')
+            if ((asset as OpenXDA.LineSegment).X1 == null || !AssetAttributes.isRealNumber((asset as OpenXDA.LineSegment).X1))
+                errors.push('A X1 Length is required.')
+            if ((asset as OpenXDA.LineSegment).ThermalRating == null || !AssetAttributes.isRealNumber((asset as OpenXDA.LineSegment).ThermalRating))
+                errors.push('A valid ThermalRating is required.')
+        }
+
+
+        return errors;
     }
 }
 
