@@ -60,7 +60,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 };
 
                 (new TableOperations<AssetConnection>(connection)).AddNewRecord(assetConnection);
-                return Ok();
+                return Ok(1);
             }
 
         }
@@ -123,7 +123,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 int typeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationShipType WHERE Name = 'Line-LineSegment'");
                 connection.ExecuteNonQuery("DELETE FROM AssetRelationship WHERE AssetRelationshipTypeID = {0} AND ((ChildID = {1} AND ParentID = {2}) OR (ChildID = {2} AND ParentID = {1}))",typeID, lineID, segmentID);
               
-                return Ok();
+                return Ok(1);
             }
 
         }
