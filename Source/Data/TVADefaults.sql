@@ -1107,6 +1107,12 @@ INSERT INTO ValueList ([GroupID], [Key], [Value],[Text],[AltText1],[SortOrder],[
 (3,4,0,'Repair',NULL,1,0,1,0,0)
 GO
 
+/* Fields for Line segments */
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+('LineSegment', 'FromBus','','',''),
+('LineSegment', 'ToBus','','','')
+GO
+
 -- The Following Needs to be run on openXDA for now until integration into openXDA DB is complete --
 --CREATE VIEW [SystemCenter.AdditionalField] AS
 --	SELECT
