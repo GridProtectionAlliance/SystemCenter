@@ -69,8 +69,8 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
 
     function getSegments(): void {
        $.ajax({
-            type: "GET",
-           url: `${homePath}api/OpenXDA/Line/${props.ID}/LineSegments?_=${}`,
+           type: "GET",
+           url: `${homePath}api/OpenXDA/Line/${props.ID}/LineSegments?_=${moment()}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -238,7 +238,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                     </div>
                 </div>
             </Modal>
-            {showFawg ? < LineSegmentWizard LineID={props.ID} closeWizard={() => setShowFawg(false)} /> : null}
+            {showFawg ? <LineSegmentWizard LineID={props.ID} closeWizard={() => setShowFawg(false)} /> : null}
         </>
     );
 }

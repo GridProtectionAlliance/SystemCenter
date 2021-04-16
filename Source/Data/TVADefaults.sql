@@ -1107,7 +1107,7 @@ INSERT INTO ValueList ([GroupID], [Key], [Value],[Text],[AltText1],[SortOrder],[
 (3,4,0,'Repair',NULL,1,0,1,0,0)
 GO
 
-/* Fields for Line segments */
+/* Fields for Line segments to identify changes compared to FAWG - also needed for possible email Alerts against changes in FAWG */
 INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('LineSegment', 'FromBus','','',''),
 ('LineSegment', 'ToBus','','','')
