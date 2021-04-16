@@ -555,6 +555,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\Company.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyInfo.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyMeter.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\SearchFields.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyTypeSlice.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterTrendChannel.tsx" />

@@ -28,6 +28,7 @@ import { useHistory } from "react-router-dom";
 import { SystemCenter } from '../global';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import CompanyForm from './CompanyForm';
+import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 
 
 interface Company extends SystemCenter.Company {
@@ -36,12 +37,6 @@ interface Company extends SystemCenter.Company {
 
 declare var homePath: string;
 
-const defaultSearchcols: Array<Search.IField<Company>> = [
-    { label: 'Name', key: 'Name', type: 'string' },
-    { label: 'CompanyID', key: 'CompanyID', type: 'string' },
-    { label: 'Description', key: 'Description', type: 'string' },
-    { label: 'Company Type', key: 'CompanyTypeID', type: 'enum' },                                
-];
 
 const ByCompany: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
@@ -52,7 +47,7 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newCompany, setNewCompany] = React.useState<SystemCenter.Company>(getNewCompany());
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Company>>>(defaultSearchcols);
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Company>>>(SearchFields.Company as Search.IField<Company>[]);
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [newCompanyErrors, setNewCompanyErrors] = React.useState<string[]>([]);
 
@@ -99,7 +94,7 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
         }
 
         handle.done((d: Array<SystemCenter.AdditionalField>) => {
-            let ordered = _.orderBy(defaultSearchcols.concat(d.map(item => (
+            let ordered = _.orderBy((SearchFields.Company as Search.IField<Company>[]).concat(d.map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Location>
             ))), ['label'], ["asc"]);
             setFilterableList(ordered)
@@ -110,15 +105,13 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
 
     function getCompanys(): JQuery.jqXHR<string>{
         setSearchState('Loading');
-        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
-
 
         return $.ajax({
             type: "Post",
             url: `${homePath}api/SystemCenter/Company/ExtendedSearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: TransformSearchFields.Company(search), OrderBy: sortField, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -153,11 +146,9 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
     }
 
     
-
-    const standardSearch: Search.IField<Company> = { label: 'Name', key: 'Name', type: 'string' };
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<Company> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
+            <SearchBar<Company> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Company as Search.IField<Company>} Width={'50%'} Label={'Search'}
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Companys'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
