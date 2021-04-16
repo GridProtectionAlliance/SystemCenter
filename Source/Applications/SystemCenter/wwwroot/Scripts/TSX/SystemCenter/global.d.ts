@@ -45,7 +45,7 @@ export namespace SystemCenter {
     interface ExternalDBField { DisplayName: string, FieldValueID: number, OpenXDAParentTableID: number, AdditionalFieldID: number, Value: string, FieldName: string, PreviousValue: string, Error: boolean, Message: string, isXDAField: boolean, Changed: boolean}
 
     interface Company { ID: number, CompanyTypeID: number, CompanyID: string, Name: string, Description: string }
-    interface CompanyMeter { ID: number, CompanyID: number, MeterID: number, DisplayName: string }
+    interface CompanyMeter { ID: number, CompanyID: number, MeterID: number, DisplayName: string, Enabled: boolean }
     interface CompanyType { ID: number, Name: string, Description: string }
 
     interface Customer { ID: number, CustomerKey: string, Name: string, Phone: string, Description: string }

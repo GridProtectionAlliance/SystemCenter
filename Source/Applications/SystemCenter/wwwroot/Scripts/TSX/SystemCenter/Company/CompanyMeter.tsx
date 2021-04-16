@@ -65,7 +65,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
             url: `${homePath}api/SystemCenter/CompanyMeter/AddMultiple`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(selectedSites.map(ss => ({ ID: 0, CompanyID: props.Company.ID, MeterID: parseInt(ss.ID.toString()), DisplayName : ss.Name }) as SystemCenter.CompanyMeter)),
+            data: JSON.stringify(selectedSites.map(ss => ({ ID: 0, CompanyID: props.Company.ID, MeterID: parseInt(ss.ID.toString()), DisplayName : ss.Name, Enabled: true }) as SystemCenter.CompanyMeter)),
             cache: false,
             async: true
         }).done(() => {

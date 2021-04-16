@@ -41,6 +41,7 @@ namespace SystemCenter.Model
         public int CompanyID { get; set; }
         public int MeterID { get; set; }
         public string DisplayName { get; set; }
+        public bool Enabled { get; set; }
     }
 
     [RoutePrefix("api/SystemCenter/CompanyMeter")]
