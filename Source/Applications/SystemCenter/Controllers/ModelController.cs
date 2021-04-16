@@ -289,7 +289,7 @@ namespace SystemCenter.Controllers
         {
             try
             {
-                if (PostRoles == string.Empty || User.IsInRole(PostRoles) && !ViewOnly && CustomView == string.Empty)
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles) && !ViewOnly)
                 {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
