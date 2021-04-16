@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { getAllAssets, getAsset, getAssetTypes } from '../../../TS/Services/Asset';
+import { getAssetTypes } from '../../../TS/Services/Asset';
 import { OpenXDA, SystemCenter } from '../global';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -44,11 +44,6 @@ import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice
 declare var homePath: string;
 declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Breaker'
 
-type FieldName = 'Asset.AssetKey' | 'Asset.AssetName' | 'AssetType.Name' | 'Asset.VoltageKV' | 'Meter.AssetKey' | 'Location.LocationKey' | 'Note.Note';
-interface Search {
-    Field: FieldName,
-    SearchText: string
-}
 
 const defaultSearchcols: Array<Search.IField<Asset>> = [
     { label: 'Name', key: 'Name', type: 'string' },
@@ -155,7 +150,7 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
 
             setFilterableList(lst => {
                 let ordered = _.orderBy(lst.concat(d.map(item => (
-                    { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Location>
+                    { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Asset>
                 ))), ['label'], ["asc"]);
                 return ordered;
             }
@@ -229,7 +224,7 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID, state: {} })
     }
 
-    const standardSearch: Search.IField<Location> = { label: 'Name', key: 'Name', type: 'string' };
+    const standardSearch: Search.IField<Asset> = { label: 'Name', key: 'Name', type: 'string' };
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <SearchBar<Asset> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
