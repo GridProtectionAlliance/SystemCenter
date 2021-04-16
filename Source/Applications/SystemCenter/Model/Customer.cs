@@ -37,7 +37,7 @@ namespace SystemCenter.Model
         [PrimaryKey(true)]
         public int ID { get; set; }
         [Required]
-        public string AccountName { get; set; }
+        public string CustomerKey { get; set; }
         public string Name { get; set; }
         public string Phone { get; set; }
         public string Description { get; set; }
@@ -49,38 +49,26 @@ namespace SystemCenter.Model
         protected override string PostRoles { get; } = "Administrator, Transmission SME";
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-
-        [HttpPost, Route("SearchableList")]
-        public IHttpActionResult GetCustomersUsingSearchableList([FromBody] IEnumerable<Search> searches)
-        {
-            string whereClause = BuildWhereClause(searches);
-            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-            {
-                DataTable table = connection.RetrieveData(@"
-                SELECT
-	                DISTINCT
+        protected override bool AllowSearch => true;
+        protected override string Connection => "dbOpenXDA";
+        protected override string DefaultSort => "ID";
+        protected override string CustomView => @"SELECT
+                    DISTINCT
                     Customer.ID,
-	                Customer.AccountName,
+	                Customer.CustomerKey,
 	                Customer.Name,
 	                Customer.Phone,
 	                Customer.Description,
-	                COUNT(CustomerAccess.ID) as Meters
+	                COUNT([systemCenter.CustomerAccess].ID) as Meters
                 FROM
 	                Customer LEFT JOIN
-	                CustomerAccess ON Customer.ID = CustomerAccess.CustomerID LEFT JOIN
-	                PQViewSite ON CustomerAccess.PQViewSiteID = PQViewSite.ID 
-                " + whereClause + @"
-                GROUP BY
+	                [systemCenter.CustomerAccess] ON Customer.ID = [systemCenter.CustomerAccess].CustomerID LEFT JOIN
+	                PQViewSite ON [systemCenter.CustomerAccess].PQViewSiteID = PQViewSite.ID 
+               GROUP BY
                     Customer.ID,
-	                Customer.AccountName,
+	                Customer.CustomerKey,
 	                Customer.Name,
 	                Customer.Phone,
-	                Customer.Description
-                ");
-                return Ok(table);
-            }
-        }
-
-
+	                Customer.Description";
     }
 }

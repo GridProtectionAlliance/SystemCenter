@@ -48,7 +48,7 @@ export namespace SystemCenter {
     interface CompanyMeter { ID: number, CompanyID: number, MeterID: number, DisplayName: string }
     interface CompanyType { ID: number, Name: string, Description: string }
 
-    interface Customer { ID: number, AccountName: string, Name: string, Phone: string, Description: string }
+    interface Customer { ID: number, CustomerKey: string, Name: string, Phone: string, Description: string }
     interface CustomerAccess { ID: number, CustomerID: number, PQViewSiteID: number }
     interface AdditionalField { ID: number, OpenXDAParentTable: string, FieldName: string, Type: AdditionalFieldType, ExternalDB: string, ExternalDBTable: string, ExternalDBTableKey: string, IsSecure: boolean }
     interface AdditionalFieldValue { ID: number, OpenXDAParentTableID: number, AdditionalFieldID: number, Value: string }

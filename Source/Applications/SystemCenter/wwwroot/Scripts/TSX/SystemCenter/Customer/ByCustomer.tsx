@@ -22,18 +22,16 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter } from '../global';
-import FormInput from '../CommonComponents/FormInput';
-import FormTextArea from '../CommonComponents/FormTextArea';
 
-type FieldName = 'Customer.AccountName' | 'Customer.Name' | 'Customer.Phone' | 'Customer.Description' | 'PQViewSite.name' /*'Note.Note'*/;
-interface Search {
-    Field: FieldName,
-    SearchText: string
-}   
+import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
+import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
+import { Input, TextArea } from '@gpa-gemstone/react-forms';
+
+
 interface Customer extends SystemCenter.Customer {
     Meters: number
 }
@@ -43,19 +41,30 @@ declare var homePath: string;
 const ByCustomer: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
     
-    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Customer.AccountName', SearchText: '' }]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<Customer>>>([]);
+    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Customer>>>(SearchFields.Customer as Search.IField<Customer>[]);
+
     const [data, setData] = React.useState<Array<Customer>>([]);
-    const [sortField, setSortField] = React.useState<string>('AssetKey');
+    const [sortField, setSortField] = React.useState<string>('CustomerKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newCustomer, setNewCustomer] = React.useState<SystemCenter.Customer>(getNewCustomer());
 
     React.useEffect(() => {
         return getData();
+    }, [search, ascending, sortField]);
+
+    React.useEffect(() => {
+        let handle = getAdditionalFields();
+
+        return () => {
+            if (handle.abort != null) handle.abort();
+        }
     }, []);
 
     function getData() {
         let handle = getCustomers();
-        handle.done((data: Array<Customer>) => setData(data));
+        handle.done((data: string) => { setData(JSON.parse(data)); setSearchState('Idle'); }).fail((d) => setSearchState('Error'));;
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
@@ -63,13 +72,16 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
 
     }
 
-    function getCustomers(): JQuery.jqXHR<Array<Customer>>{
+    function getCustomers(): JQuery.jqXHR<string>{
+
+        setSearchState('Loading');
+
         return $.ajax({
             type: "Post",
             url: `${homePath}api/SystemCenter/Customer/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(search),
+            data: JSON.stringify({ Searches: TransformSearchFields.Customer(search), OrderBy: sortField, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -78,7 +90,7 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
     function getNewCustomer(): SystemCenter.Customer {
         return {
             ID: 0,
-            AccountName: null,
+            CustomerKey: null,
             Name: null,
             Phone: null,
             Description: null
@@ -98,14 +110,40 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
 
     }
 
+    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.AdditionalField>> {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Customer/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        });
+
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
+        }
+
+        handle.done((d: Array<SystemCenter.AdditionalField>) => {
+            let ordered = _.orderBy((SearchFields.Customer as Search.IField<Customer>[]).concat(d.map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Customer>
+            ))), ['label'], ["asc"]);
+            setFilterableList(ordered)
+        });
+
+        return handle;
+    }
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Customer&CustomerID=' + item.row.ID, state: {} })
     }
 
     function valid(field: keyof (SystemCenter.Customer)): boolean {
-        if (field == 'AccountName')
-            return newCustomer.AccountName != null && newCustomer.AccountName.length > 0 && newCustomer.AccountName.length <= 25;
+        if (field == 'CustomerKey')
+            return newCustomer.CustomerKey != null && newCustomer.CustomerKey.length > 0 && newCustomer.CustomerKey.length <= 25;
         else if (field == 'Name')
             return newCustomer.Name == null || newCustomer.Name.length <= 100;
         else if (field == 'Phone')
@@ -118,95 +156,41 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                <div className="collapse navbar-collapse" id="navbarSupportedContent" style={{ width: '100%' }}>
-                    <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
-                        <li className="nav-item" style={{ width: '50%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search: </legend>
-                                <form>
-                                    {
-                                        search.map((s, index, a) => {
+            <SearchBar<Customer> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Customer as Search.IField<Customer>} Width={'50%'} Label={'Search'}
+                ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Customers'}
+                GetEnum={(setOptions, field) => {
+                    let handle = null;
+                   
+                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+                        return () => { };
 
-                                            return (
-                                                <div className="input-group" key={index} style={{ border: '1px solid lightgray'}}>
-                                                    <div className="input-group-prepend">
-                                                        <select className='form-control' style={{height: '100%'}} value={s.Field} onChange={(evt) => {
-                                                            s.Field = evt.target.value as FieldName;
-                                                            let array = _.clone(a);
-                                                            setSearch(array);
-                                                        }}>
-                                                            <option value='Customer.AccountName'>Account Name</option>
-                                                            <option value='Customer.Name'>Name</option>
-                                                            <option value='Customer.Phone'>Phone</option>
-                                                            <option value='Customer.Description'>Description</option>
-                                                            <option value='PQViewSite.name'>PQView Site Name</option>
-                                                        </select>
-                                                    </div>
-                                                    <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
-                                                        s.SearchText = evt.target.value;
-                                                        let array = _.clone(a);
-                                                        setSearch(array);
-                                                    }} onKeyDown={evt => {
-                                                        if (evt.keyCode == 13) {
-                                                            evt.preventDefault();
-                                                            getCustomers().done(ms => setData(ms));
-                                                        }
-                                                    }} />
-                                                    <div className="input-group-append">
-                                                        <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                            let array = _.clone(a);
-                                                            array.splice(index, 1);
-                                                            setSearch(array);
-                                                        }}><span><i className="fa fa-times"></i></span></button>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })
-                                        
-                                }
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search Params:</legend>
-                                <form>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            let array = _.clone(search);
-                                            array.push({ Field: 'Customer.AccountName', SearchText: '' });
-                                            setSearch(array);
-                                        }}>Add Parameter</button>
-                                    </div>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            getCustomers().done(cs => setData(cs));
-                                        }}>Update Search</button>
-                                    </div>
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                                <form>
-                                    <button className="btn btn-primary" data-toggle='modal' data-target="#customerModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Add Customer</button>
-                                </form>
-                            </fieldset>
-                        </li>
+                    handle = $.ajax({
+                        type: "GET",
+                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        cache: true,
+                        async: true
+                    });
 
+                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
+                }}
 
-                    </ul>
-                </div>
-            </nav>
-
+            >
+                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                        <form>
+                            <button className="btn btn-primary" data-toggle='modal' data-target="#customerModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Add Customer</button>
+                        </form>
+                    </fieldset>
+                </li>
+            </SearchBar>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<Customer>
                     cols={[
-                        { key: 'AccountName', label: 'Account Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'CustomerKey', label: 'Account Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -219,15 +203,10 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
                     sortField={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField) {
-                            var ordered = _.orderBy(data, [d.col], [(!ascending ? "asc" : "desc")]);
+                        if (d.col == sortField)
                             setAscending(!ascending);
-                            setData(ordered);
-                        }
                         else {
-                            var ordered = _.orderBy(data, [d.col], ["asc"]);
-                            setAscending(!ascending);
-                            setData(ordered);
+                            setAscending(true);
                             setSortField(d.col);
                         }
                     }}
@@ -238,7 +217,7 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
                     selected={(item) => false}
                 />
             </div>
-
+            
             <div className="modal" id="customerModal">
                 <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
                     <div className="modal-content">
@@ -249,10 +228,10 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
                         <div className="modal-body">
                             <div className="row">
                                 <div className="col">
-                                    <FormInput<SystemCenter.Customer> Record={newCustomer} Field={'AccountName'} Feedback={'AccountName of less than 25 characters is required.'} Valid={valid} Setter={setNewCustomer} />
-                                    <FormInput<SystemCenter.Customer> Record={newCustomer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={setNewCustomer} />
-                                    <FormInput<SystemCenter.Customer> Record={newCustomer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={setNewCustomer} />
-                                    <FormTextArea<SystemCenter.Customer> Rows={3} Record={newCustomer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={setNewCustomer} />
+                                    <Input<SystemCenter.Customer> Record={newCustomer} Field={'CustomerKey'} Feedback={'AccountName of less than 25 characters is required.'} Valid={valid} Setter={setNewCustomer} />
+                                    <Input<SystemCenter.Customer> Record={newCustomer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={setNewCustomer} />
+                                    <Input<SystemCenter.Customer> Record={newCustomer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={setNewCustomer} />
+                                    <TextArea<SystemCenter.Customer> Rows={3} Record={newCustomer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={setNewCustomer} />
                                 </div>
                             </div>
 

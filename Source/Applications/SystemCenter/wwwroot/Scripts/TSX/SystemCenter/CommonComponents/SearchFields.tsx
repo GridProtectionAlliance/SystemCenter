@@ -23,7 +23,14 @@
 import {SystemCenter, OpenXDA } from '../global';
 
 export namespace SearchFields {
-    const Customer = [];
+    export const Customer = [
+        { label: 'Account Name', key: 'CustomerKey', type: 'string' },
+        { label: 'Name', key: 'Name', type: 'string' },
+        { label: 'Phone', key: 'Phone', type: 'string' },
+        { label: 'Description', key: 'Description', type: 'string' },
+        { label: 'PQView Site Name', key: 'PQViewSite', type: 'string' },
+        { label: 'Number of Assigned Meters', key: 'Meters', type: 'integer' },
+    ];
 
     export const Company = [
         { label: 'Name', key: 'Name', type: 'string' },
@@ -36,7 +43,7 @@ export namespace SearchFields {
 
 export namespace DefaultSearchField {
     export const Company = { label: 'Name', key: 'Name', type: 'string' };
-    const Customer = { label: 'Name', key: 'Name', type: 'string' };
+    export const Customer = { label: 'Account Name', key: 'CustomerKey', type: 'string' };
 }
 
 export namespace TransformSearchFields {
@@ -49,5 +56,28 @@ export namespace TransformSearchFields {
         })
     }
 
-    function Customer() {}
+    export function Customer(search) {
+        const pqViewQuery = '(SELECT Customer.ID FROM PQViewSite LEFT JOIN [systemCenter.CustomerAccess] ON' +
+            '[systemCenter.CustomerAccess].PQViewSiteID = PQViewSite.ID LEFT JOIN Customer C ON C.ID = [systemCenter.CustomerAccess].CustomerID WHERE ' + 
+        ' PQViewSite.Name '
+
+        let afv = search.map(s => {
+            if (s.key == 'PQViewSite') {
+                let text: string = s.SearchText;
+                if (text.length == 0)
+                    text = '%';
+                text.replace('*', '%');
+                text = "'" + text + "'";
+                return { FieldName: 'ID', SearchText: pqViewQuery + s.Operator + text + ' )', Operator: 'IN', Type: 'number', isPivotColumn: false }
+            }
+                
+            if (SearchFields.Company.findIndex(item => item.key == s.FieldName) == -1)
+                return { ...s, isPivotColumn: true };
+            else
+                return s;
+        });
+
+        return afv;
+
+    }
 }

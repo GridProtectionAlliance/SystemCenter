@@ -26,6 +26,7 @@ import { SystemCenter } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import FormTextArea from '../CommonComponents/FormTextArea';
 import FormInput from '../CommonComponents/FormInput';
+import { Input, TextArea } from '@gpa-gemstone/react-forms';
 declare var homePath: string;
 
 export default class CustomerInfoWindow extends React.Component<{ Customer: SystemCenter.Customer, stateSetter: (customer: SystemCenter.Customer) => void }, { Customer: SystemCenter.Customer}, {}> {
@@ -63,8 +64,8 @@ export default class CustomerInfoWindow extends React.Component<{ Customer: Syst
     }
 
     valid(field: keyof (SystemCenter.Customer)): boolean {
-        if (field == 'AccountName')
-            return this.state.Customer.AccountName != null && this.state.Customer.AccountName.length > 0 && this.state.Customer.AccountName.length <= 25;
+        if (field == 'CustomerKey')
+            return this.state.Customer.CustomerKey != null && this.state.Customer.CustomerKey.length > 0 && this.state.Customer.CustomerKey.length <= 25;
         else if (field == 'Name')
             return this.state.Customer.Name == null || this.state.Customer.Name.length <= 100;
         else if (field == 'Phone')
@@ -87,10 +88,10 @@ export default class CustomerInfoWindow extends React.Component<{ Customer: Syst
                 <div className="card-body">
                     <div className="row">
                         <div className="col">
-                            <FormInput<SystemCenter.Customer> Record={this.state.Customer} Field={'AccountName'} Feedback={'AccountName of less than 25 characters is required.'} Valid={this.valid} Setter={(record) => this.setState({Customer: record})} />
-                            <FormInput<SystemCenter.Customer> Record={this.state.Customer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={this.valid} Setter={(record) => this.setState({ Customer: record })} />
-                            <FormInput<SystemCenter.Customer> Record={this.state.Customer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={this.valid} Setter={(record) => this.setState({ Customer: record })} />
-                            <FormTextArea<SystemCenter.Customer> Rows={3} Record={this.state.Customer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={this.valid} Setter={(record) => this.setState({ Customer: record })} />
+                            <Input<SystemCenter.Customer> Record={this.state.Customer} Field={'CustomerKey'} Feedback={'AccountName of less than 25 characters is required.'} Valid={this.valid} Setter={(record) => this.setState({Customer: record})} />
+                            <Input<SystemCenter.Customer> Record={this.state.Customer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={this.valid} Setter={(record) => this.setState({ Customer: record })} />
+                            <Input<SystemCenter.Customer> Record={this.state.Customer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={this.valid} Setter={(record) => this.setState({ Customer: record })} />
+                            <TextArea<SystemCenter.Customer> Rows={3} Record={this.state.Customer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={this.valid} Setter={(record) => this.setState({ Customer: record })} />
                         </div>
 
                     </div>
