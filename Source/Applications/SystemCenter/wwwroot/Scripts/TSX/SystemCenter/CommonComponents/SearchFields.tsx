@@ -39,11 +39,23 @@ export namespace SearchFields {
         { label: 'Company Type', key: 'CompanyTypeID', type: 'enum' },
     ];
 
+    export const UserAccount = [
+        { label: 'First Name', key: 'UserAccount.FirstName', type: 'string' },
+        { label: 'Last Name', key: 'UserAccount.LastName', type: 'string' },
+        { label: 'Phone', key: 'UserAccount.Phone', type: 'string' },
+        { label: 'Mobile Phone', key: 'UserAccount.MobilePhone', type: 'string' },
+        { label: 'Email', key: 'UserAccount.Email', type: 'string' },
+        { label: 'TSC', key: 'UserAccount.TSC', type: 'string' },
+        { label: 'Role', key: 'Role.Name', type: 'string' },
+        { label: 'Security Role', key: 'ApplicationRole.Name', type: 'string' }
+    ];
+
 }
 
 export namespace DefaultSearchField {
     export const Company = { label: 'Name', key: 'Name', type: 'string' };
     export const Customer = { label: 'Account Name', key: 'CustomerKey', type: 'string' };
+    export const UserAccount = { label: 'First Name', key: 'UserAccount.FirstName', type: 'string' };
 }
 
 export namespace TransformSearchFields {

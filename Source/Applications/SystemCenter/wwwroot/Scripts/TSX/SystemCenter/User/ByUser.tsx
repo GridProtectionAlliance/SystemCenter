@@ -31,6 +31,9 @@ import FormDatePicker from '../CommonComponents/FormDatePicker';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 import { getSIDFromUserName, getIsUser, getFilledUser, getRoles, getTSCs, validUserAccountField} from './../../../TS/Services/User';
 import FormSelect from '../CommonComponents/FormSelect';
+import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
+import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
+
 declare var homePath: string;
 
 type UserValidation = 'Resolving' | 'Valid' | 'Invalid' | 'Unknown';
@@ -46,12 +49,14 @@ interface UserAccount extends SystemCenter.UserAccount {
 
 const ByUser: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
-    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'UserAccount.FirstName', SearchText: '' }]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<UserAccount>>>([]);
+    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
+
     const [data, setData] = React.useState<Array<UserAccount>>([]);
     const [sortField, setSortField] = React.useState<string>('UserAccountKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
+
     const [newUserAccount, setNewUserAccount] = React.useState<SystemCenter.UserAccount>(null);
-    const [allUserAccounts, setAllUserAccounts] = React.useState<Array<string>>([]);
     const [userValidation, setUserValidation] = React.useState<UserValidation>('Invalid');
     const [roles, setRoles] = React.useState<Array<SystemCenter.Role>>([]);
     const [tscs, setTscs] = React.useState<Array<SystemCenter.TSC>>([]);
@@ -60,11 +65,17 @@ const ByUser: SystemCenter.ByComponent = (props) => {
         return getData();
     }, []);
 
+    React.useEffect(() => {
+        setSearchState('Loading');
+        let handle = getUserAccounts();
+        handle.done((data: Array<UserAccount>) => { setData(data); setSearchState('Idle'); });
+        handle.fail(msg => setSearchState('Error'))
+
+        return () => { if (handle != null && handle.abort != null) handle.abort();}
+    }, [search, ascending, sortField]);
+
     function getData() {
         getNewUserAccount().done(ua => setNewUserAccount(ua));
-
-        let handle1 = getUserAccounts();
-        handle1.done((data: Array<UserAccount>) => setData(data));
 
         let handle2 = getRoles();
         handle2.done(rs => setRoles(rs));
@@ -73,8 +84,6 @@ const ByUser: SystemCenter.ByComponent = (props) => {
         handle3.done(ts => setTscs(ts));
 
         return function cleanup() {
-            if (handle1.abort != null)
-                handle1.abort();
 
             if (handle2.abort != null)
                 handle2.abort();
@@ -99,10 +108,10 @@ const ByUser: SystemCenter.ByComponent = (props) => {
     function getUserAccounts(): JQuery.jqXHR<Array<SystemCenter.UserAccount>> {
         return $.ajax({
             type: "Post",
-            url: `${homePath}api/SystemCenter/UserAccount/SearchableList`,
+            url: `${homePath}api/SystemCenter/UserAccount/SecureSearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(search),
+            data: JSON.stringify({ Searches: search, OrderBy: sortField, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -167,95 +176,23 @@ const ByUser: SystemCenter.ByComponent = (props) => {
     if (props.Roles.indexOf('Administrator') < 0) return null;
     return (
         <div style={{ width: '100%', height: '100%' }}>
+            <SearchBar<UserAccount> CollumnList={SearchFields.UserAccount as Search.IField<UserAccount>[]} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.UserAccount as Search.IField<UserAccount>} Width={'50%'} Label={'Search'}
+                ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' UserAccounts'}
+                GetEnum={(setOptions, field) => {
+                    return () => { }
+                }}
 
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                <div className="collapse navbar-collapse" id="navbarSupportedContent" style={{ width: '100%' }}>
-                    <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
-                        <li className="nav-item" style={{ width: '50%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search:</legend>
-                                <form>
-                                    {
-                                        search.map((s, index, a) => {
-
-                                            return (
-                                                <div className="input-group" key={index} style={{ border: '1px solid lightgray' }}>
-                                                    <div className="input-group-prepend">
-                                                        <select className='form-control' style={{ height: '100%' }} value={s.Field} onChange={(evt) => {
-                                                            s.Field = evt.target.value as FieldName;
-                                                            let array = _.clone(a);
-                                                            setSearch(array);
-                                                        }}>
-                                                            <option value='UserAccount.FirstName'>First Name</option>
-                                                            <option value='UserAccount.LastName'>Last Name</option>
-                                                            <option value='UserAccount.Phone'>Phone</option>
-                                                            <option value='UserAccount.MobilePhone'>Mobile Phone</option>
-                                                            <option value='UserAccount.Email'>Email</option>
-                                                            <option value='UserAccount.TSC'>TSC</option>
-                                                            <option value='Role.Name'>Role</option>
-                                                            <option value='ApplicationRole.Name'>Security Role</option>
-                                                        </select>
-                                                    </div>
-                                                    <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
-                                                        s.SearchText = evt.target.value;
-                                                        let array = _.clone(a);
-                                                        setSearch(array);
-                                                    }} onKeyDown={evt => {
-                                                        if (evt.keyCode == 13) {
-                                                            evt.preventDefault();
-                                                            getUserAccounts().done((data: Array<UserAccount>) => setData(data));
-                                                        }
-                                                    }}/>
-                                                    <div className="input-group-append">
-                                                        <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                            let array = _.clone(a);
-                                                            array.splice(index, 1);
-                                                            setSearch(array);
-                                                        }}><span><i className="fa fa-times"></i></span></button>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })
-
-                                    }
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search Params:</legend>
-                                <form>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            let array = _.clone(search);
-                                            array.push({ Field: 'UserAccount.FirstName', SearchText: '' });
-                                            setSearch(array);
-                                        }}>Add Parameter</button>
-                                    </div>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            getUserAccounts().done((data: Array<UserAccount>) => setData(data));
-                                        }}>Update Search</button>
-                                    </div>
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                                <form>
-                                    <button className="btn btn-primary" data-toggle='modal' data-target="#userAccountModal" hidden={props.Roles.indexOf('Administrator') < 0} onClick={(event) => { event.preventDefault()}}>Add User</button>
-                                </form>
-                            </fieldset>
-                        </li>
-
-                    </ul>
-                </div>
-            </nav>
-
-
+            >
+                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                        <form>
+                            <button className="btn btn-primary" data-toggle='modal' data-target="#userAccountModal" hidden={props.Roles.indexOf('Administrator') < 0} onClick={(event) => { event.preventDefault() }}>Add User</button>
+                        </form>
+                    </fieldset>
+                </li>
+            </SearchBar>
+          
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<UserAccount>
                     cols={[
@@ -273,16 +210,12 @@ const ByUser: SystemCenter.ByComponent = (props) => {
                     sortField={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField) {
-                            var ordered = _.orderBy(data, [d.col], [(!ascending ? "asc" : "desc")]);
-                            setData(ordered);
-                        }
+                        if (d.col == sortField)
+                            setAscending(!ascending);
                         else {
-                            var ordered = _.orderBy(data, [d.col], ["asc"]);
-                            setData(ordered);
+                            setAscending(true);
                             setSortField(d.col);
                         }
-                        setAscending(!ascending);
 
                     }}
                     onClick={handleSelect}
