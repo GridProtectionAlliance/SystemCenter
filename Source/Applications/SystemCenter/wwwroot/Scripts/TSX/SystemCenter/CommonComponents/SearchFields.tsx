@@ -50,12 +50,22 @@ export namespace SearchFields {
         { label: 'Security Role', key: 'ApplicationRole.Name', type: 'string' }
     ];
 
+    export const Location = [
+        { label: 'Name', key: 'Name', type: 'string' },
+        { label: 'Key', key: 'LocationKey', type: 'string' },
+        { label: 'Asset', key: 'Asset', type: 'string' },
+        { label: 'Meter', key: 'Meter', type: 'string' },
+        { label: 'Number of Assets', key: 'Assets', type: 'integer' },
+        { label: 'Number of Meters', key: 'Meters', type: 'integer' },
+    ];
+
 }
 
 export namespace DefaultSearchField {
     export const Company = { label: 'Name', key: 'Name', type: 'string' };
     export const Customer = { label: 'Account Name', key: 'CustomerKey', type: 'string' };
     export const UserAccount = { label: 'First Name', key: 'UserAccount.FirstName', type: 'string' };
+    export const Location = { label: 'Name', key: 'Name', type: 'string' };
 }
 
 export namespace TransformSearchFields {
@@ -74,7 +84,7 @@ export namespace TransformSearchFields {
         ' PQViewSite.Name '
 
         let afv = search.map(s => {
-            if (s.key == 'PQViewSite') {
+            if (s.FieldName == 'PQViewSite') {
                 let text: string = s.SearchText;
                 if (text.length == 0)
                     text = '%';
@@ -83,7 +93,7 @@ export namespace TransformSearchFields {
                 return { FieldName: 'ID', SearchText: pqViewQuery + s.Operator + text + ' )', Operator: 'IN', Type: 'number', isPivotColumn: false }
             }
                 
-            if (SearchFields.Company.findIndex(item => item.key == s.FieldName) == -1)
+            if (SearchFields.Customer.findIndex(item => item.key == s.FieldName) == -1)
                 return { ...s, isPivotColumn: true };
             else
                 return s;
@@ -91,5 +101,38 @@ export namespace TransformSearchFields {
 
         return afv;
 
+    }
+
+    export function Location(search) {
+
+        const assetQuery = '(SELECT AssetLocation.LocationID FROM Asset LEFT JOIN AssetLocation ON' +
+            'AssetLocation.AssetID = Asset.ID WHERE ' +
+            ' Asset.AssetName '
+
+        const meterQuery = '(SELECT Meter.LocationID FROM Meter WHERE ' +
+            ' Meter.AssetKey '
+
+        return search.map(s => {
+            if (s.FieldName == 'Meter') {
+                let text: string = s.SearchText;
+                if (text.length == 0)
+                    text = '%';
+                text.replace('*', '%');
+                text = " '" + text + "'";
+                return { FieldName: 'ID', SearchText: meterQuery + s.Operator + text + ' or Meter.Name ' + s.Operator + text + ' )', Operator: 'IN', Type: 'number', isPivotColumn: false }
+            }
+            if (s.FieldName == 'Asset') {
+                let text: string = s.SearchText;
+                if (text.length == 0)
+                    text = '%';
+                text.replace('*', '%');
+                text = " '" + text + "'";
+                return { FieldName: 'ID', SearchText: assetQuery + s.Operator + text + ' or Asset.AssetKey ' + s.Operator + text + ' )', Operator: 'IN', Type: 'number', isPivotColumn: false }
+            }
+            if (SearchFields.Location.findIndex(item => item.key == s.FieldName) == -1)
+                return { ...s, isPivotColumn: true };
+            else
+                return s;
+        })
     }
 }

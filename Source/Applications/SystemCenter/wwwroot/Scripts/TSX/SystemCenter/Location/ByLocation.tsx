@@ -31,12 +31,10 @@ import { OpenXDA, SystemCenter } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
+import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 
 declare var homePath: string;
 
-const defaultSearchcols: Array<Search.IField<Location>> = [
-    { label: 'Name', key: 'Name', type: 'string' },
-];
 
 interface Location {
     ID: number, LocationKey: string, Name: string, Assets: number, Meters: number
@@ -52,7 +50,7 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
 
 
     const [sortField, setSortField] = React.useState<string>('LocationKey');
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Location>>>(defaultSearchcols);
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Location>>>(SearchFields.Location as Search.IField<Location>[]);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
 
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -99,14 +97,13 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
 
     function getLocations(): JQuery.jqXHR<string> {
         setSearchState('Loading');
-        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
 
         return $.ajax({
             type: "Post",
             url: `${homePath}api/openXDA/Location/SearchableListIncludingMeter`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: TransformSearchFields.Location(search), OrderBy: sortField, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -130,7 +127,7 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
         }
 
         handle.done((d: Array<SystemCenter.AdditionalField>) => {
-            let ordered = _.orderBy(defaultSearchcols.concat(d.map(item => (
+            let ordered = _.orderBy((SearchFields.Location as Search.IField<Location>[]).concat(d.map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Location>
             ))), ['label'], ["asc"]);
             setFilterableList(ordered)
@@ -175,11 +172,11 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
         return false;
     }
 
-    const standardSearch: Search.IField<Location> = { label: 'Name', key: 'Name', type: 'string' };
+    
     return (
         <div style={{ width: '100%', height: '100%' }}>
 
-            <SearchBar<Location> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
+            <SearchBar<Location> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Location as Search.IField<Location>} Width={'50%'} Label={'Search'}
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Locations'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
@@ -200,15 +197,7 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
                 }}
 
             >
-
-                        
-                {/*<option value='Location.LocationKey'>Key</option>
-                <option value='Location.Name'>Name</option>
-                <option value='Note.Note'>Note</option>
-                <option value='Meter.AssetKey'>Meter</option>
-                <option value='Asset.AssetKey'>Asset</option>*/}
-
-                    
+   
             <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
