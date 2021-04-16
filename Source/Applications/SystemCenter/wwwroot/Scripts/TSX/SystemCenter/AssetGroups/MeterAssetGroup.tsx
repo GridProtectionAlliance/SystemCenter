@@ -26,7 +26,6 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { useHistory } from 'react-router-dom';
-import { isEqual } from 'lodash';
 import Table from '../CommonComponents/Table';
 import AddToGroupPopup from './AddToGroup';
 
@@ -38,7 +37,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
     const [meterList, setMeterList] = React.useState<Array<Meter>>([]);
     const [sortField, setSortField] = React.useState<string>('MeterName');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [edit, setEdit] = React.useState<boolean>(false);
+    const [showAdd, setShowAdd] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         return getData();
@@ -83,17 +82,12 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
     }
 
     return (
+        <>
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
                         <h4>Meters in Asset Group:</h4>
-                    </div>
-                    <div className="col">
-                        {(edit) ?
-                            <button className="btn btn-default pull-right" onClick={() => { setEdit(false) }}>View</button> :
-                            <button className="btn btn-primary pull-right" onClick={() => { setEdit(true) }}>Edit</button>
-                        }
                     </div>
                 </div>
             </div>
@@ -129,15 +123,17 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                         selected={(item) => false}
                         />
                 </div>
-                <AddToGroupPopup type='Meter' onComplete={AddMeter} />
+                
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" data-toggle='modal' data-target="#AddMeter" disabled={!edit}>Add Meter</button>
+                        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Meter</button>
                 </div>
             </div>
 
-        </div>
+            </div>
+            <AddToGroupPopup type='Meter' onComplete={AddMeter} Show={showAdd} Close={() => setShowAdd(false)} />
+        </>
     );
 }
 

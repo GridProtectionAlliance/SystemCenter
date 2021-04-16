@@ -29,13 +29,14 @@ import { OpenXDA, SystemCenter } from '../global';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 import AddToGroupPopup from './AddToGroup';
-import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import AssetGroup from './AssetGroup';
+import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 
 declare var homePath: string;
 
 
-const defaultSearchcols: Array<Search.IField<Location>> = [
+const defaultSearchcols: Array<Search.IField<AssetGroup>> = [
     { label: 'Name', key: 'Name', type: 'string' },
     { label: 'Number of Meter', key: 'Meters', type: 'integer' },
     { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer' },
@@ -61,12 +62,18 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
     const [data, setData] = React.useState<Array<AssetGroup>>([]);
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Location>>>(defaultSearchcols);
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<AssetGroup>>>(defaultSearchcols);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
 
 
     const [newAssetGroup, setNewAssetGroup] = React.useState<extendedAssetGroup>(_.cloneDeep(emptyAssetGroup));
     const [allAssetGroups, setAllAssetGroups] = React.useState<Array<AssetGroup>>([]);
+    const [showNewGroup, setShowNewGroup] = React.useState<boolean>(false);
+
+    const [showAddAsset, setShowAddAsset] = React.useState<boolean>(false);
+    const [showAddMeter, setShowAddMeter] = React.useState<boolean>(false);
+    const [showAddGroup, setShowAddGroup] = React.useState<boolean>(false);
+
 
     React.useEffect(() => {
         let handle2 = getAllAssetGroups();
@@ -153,8 +160,9 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
         return true;
     }
 
-    const standardSearch: Search.IField<Location> = { label: 'Name', key: 'Name', type: 'string' };
+    const standardSearch: Search.IField<AssetGroup> = { label: 'Name', key: 'Name', type: 'string' };
     return (
+        <>
         <div style={{ width: '100%', height: '100%' }}>
             <SearchBar<AssetGroup> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Locations'}
@@ -182,7 +190,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
                                     <div className="form-group">
-                                        <button className="btn btn-primary" data-toggle='modal' data-target="#assetGroupModal" disabled={true} hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Add New AssetGroup</button>
+                                    <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { setShowNewGroup(true) }}>Add New AssetGroup</button>
                                     </div>
                                 </form>
                             </fieldset>
@@ -218,73 +226,65 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
                     selected={(item) => false}
                 />
             </div>
-
-            <div className="modal" id="assetGroupModal">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Add a New Asset</h4>
-                            <button type="button" className="close" data-dismiss="modal" onClick={(evt) => { setNewAssetGroup(_.cloneDeep(emptyAssetGroup)) }}>&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="row">
-                                <div className="col">
-                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique name of less than 50 characters is required.'} Valid={valid}
-                                        Setter={setNewAssetGroup} Disabled={false} />
-                                    <FormCheckBox<extendedAssetGroup> Record={newAssetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in Dashboard'} Setter={setNewAssetGroup} Disabled={false} />
-
-                                </div>
-                                <div className="col">
-                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                                    <button type="button" className="btn btn-primary btn-block" data-toggle='modal' data-target="#AddAsset"> Add Transmission Asset </button>
-                                    <AddToGroupPopup type='Asset' onComplete={(list) => {
-                                        setNewAssetGroup((grp) => {
-                                            let updated = _.cloneDeep(grp);
-                                            updated.AssetList.push(...list);
-                                            updated.AssetList = _.uniq(updated.AssetList);
-                                            updated.Assets = updated.AssetList.length;
-                                            return updated;
-                                        });
-                                        return null;
-                                    }} />
-                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Meters'} Label={'Num. of Meters'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                                    <button type="button" className="btn btn-primary btn-block" data-toggle='modal' data-target="#AddMeter"> Add Meter </button>
-                                    <AddToGroupPopup type='Meter' onComplete={(list) => {
-                                        setNewAssetGroup((grp) => {
-                                            let updated = _.cloneDeep(grp);
-                                            updated.MeterList.push(...list);
-                                            updated.MeterList = _.uniq(updated.MeterList);
-                                            updated.Meters = updated.MeterList.length;
-                                            return updated;
-                                        });
-                                        return null;
-                                    }} />
-                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Users'} Label={'Num. of Users'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                                    <button type="button" className="btn btn-primary btn-block" disabled={true}> Add User Account </button>
-                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'AssetGroups'} Label={'Num. of Asset Groups'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                                    <button type="button" className="btn btn-primary btn-block" data-toggle='modal' data-target="#AddGroup"> Add Asset Group </button>
-                                    <AddToGroupPopup type='Group' onComplete={(list) => {
-                                        setNewAssetGroup((grp) => {
-                                            let updated = _.cloneDeep(grp);
-                                            updated.AssetGroupList.push(...list);
-                                            updated.AssetGroupList = _.uniq(updated.AssetGroupList);
-                                            updated.AssetGroups = updated.AssetGroupList.length;
-                                            return updated;
-                                        });
-                                        return null;
-                                    }} />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewAssetGroup}>Save</button>
-                            <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => { setNewAssetGroup(_.cloneDeep(emptyAssetGroup))}}>Close</button>
-                        </div>
-
+            </div>
+            <Modal Size='xlg' Show={showNewGroup} Title={'Create a New AssetGroup'} ShowX={true}
+                CancelText={'Close'} CancelBtnClass={'btn-danger'} ConfirmBtnClass={'btn-success'} ConfirmText={'Add'}
+                CallBack={(conf) => { if (conf) addNewAssetGroup(); else setNewAssetGroup(_.cloneDeep(emptyAssetGroup)); setShowNewGroup(false); }}
+            >
+                <div className="row">
+                    <div className="col">
+                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique name of less than 50 characters is required.'} Valid={valid}
+                            Setter={setNewAssetGroup} Disabled={false} />
+                        <CheckBox<extendedAssetGroup> Record={newAssetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in Dashboard'} Setter={setNewAssetGroup} Disabled={false} />
+                    </div>
+                    <div className="col">
+                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
+                        <button type="button" className="btn btn-primary btn-block" onClick={() => setShowAddAsset(true)}> Add Transmission Asset </button>
+                       
+                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Meters'} Label={'Num. of Meters'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
+                        <button type="button" className="btn btn-primary btn-block" onClick={() => setShowAddMeter(true)}> Add Meter </button>
+                        
+                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Users'} Label={'Num. of Users'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
+                        <button type="button" className="btn btn-primary btn-block" disabled={true}> Add User Account </button>
+                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'AssetGroups'} Label={'Num. of Asset Groups'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
+                        <button type="button" className="btn btn-primary btn-block" onClick={() => setShowAddGroup(true)}> Add Asset Group </button>
+                       
                     </div>
                 </div>
-            </div>
-        </div>
+            </Modal>
+            <AddToGroupPopup type='Asset' onComplete={(list) => {
+                setNewAssetGroup((grp) => {
+                    let updated = _.cloneDeep(grp);
+                    updated.AssetList.push(...list);
+                    updated.AssetList = _.uniq(updated.AssetList);
+                    updated.Assets = updated.AssetList.length;
+                    return updated;
+                });
+                return null;
+            }} Show={showAddAsset} Close={() => setShowAddAsset(false)} />
+
+            <AddToGroupPopup type='Meter' onComplete={(list) => {
+                setNewAssetGroup((grp) => {
+                    let updated = _.cloneDeep(grp);
+                    updated.MeterList.push(...list);
+                    updated.MeterList = _.uniq(updated.MeterList);
+                    updated.Meters = updated.MeterList.length;
+                    return updated;
+                });
+                return null;
+            }} Show={showAddMeter} Close={() => setShowAddMeter(false)} />
+            <AddToGroupPopup type='Group' onComplete={(list) => {
+                setNewAssetGroup((grp) => {
+                    let updated = _.cloneDeep(grp);
+                    updated.AssetGroupList.push(...list);
+                    updated.AssetGroupList = _.uniq(updated.AssetGroupList);
+                    updated.AssetGroups = updated.AssetGroupList.length;
+                    return updated;
+                });
+                return null;
+            }} Show={showAddGroup} Close={() => setShowAddGroup(false)} />
+
+            </>
     )
 }
 
