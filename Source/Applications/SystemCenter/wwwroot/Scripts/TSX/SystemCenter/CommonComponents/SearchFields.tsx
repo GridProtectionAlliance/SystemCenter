@@ -105,7 +105,7 @@ export namespace TransformSearchFields {
 
     export function Location(search) {
 
-        const assetQuery = '(SELECT AssetLocation.LocationID FROM Asset LEFT JOIN AssetLocation ON' +
+        const assetQuery = '(SELECT AssetLocation.LocationID FROM Asset LEFT JOIN AssetLocation ON ' +
             'AssetLocation.AssetID = Asset.ID WHERE ' +
             ' Asset.AssetName '
 
