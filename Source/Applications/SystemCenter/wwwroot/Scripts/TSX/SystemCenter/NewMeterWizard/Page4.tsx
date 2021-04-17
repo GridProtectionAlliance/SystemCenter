@@ -78,8 +78,10 @@ export default function Page4(props: Page4Props) {
     }, [dispatch, aStatus]);
 
     React.useEffect(() => {
+        let e = [];
         if (props.Assets.length == 0)
-            props.SetError(['At least 1 Assets needs to be set up.'])
+            e.push('At least 1 Assets needs to be set up.');
+        props.SetError(e)
     }, [props.Assets.length]);
 
     React.useEffect(() => {
@@ -306,7 +308,7 @@ export default function Page4(props: Page4Props) {
                         <div className="col">
                             <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
                                 UpdateState={setNewEditAsset}
-                                GetDifferentAsset={getDifferentAsset} />
+                                GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} />
                         </div>
                         <div className="col">
                             {showAttributes()}

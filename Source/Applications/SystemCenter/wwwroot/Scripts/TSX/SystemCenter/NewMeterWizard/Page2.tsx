@@ -56,14 +56,16 @@ export default function Page2(props: { LocationInfo: OpenXDA.Location, UpdateLoc
             error.push('ShortName needs to be less than 50 characters.');
         if (props.LocationInfo.Alias != null && props.LocationInfo.Alias.length >200)
             error.push('Alias needs to be less than 200 characters.');
-        if (props.LocationInfo.Latitude == null || AssetAttributes.isRealNumber(props.LocationInfo.Latitude))
+        if (props.LocationInfo.Latitude == null || !AssetAttributes.isRealNumber(props.LocationInfo.Latitude))
             error.push('Latitude is required.')
-        if (props.LocationInfo.Longitude == null || AssetAttributes.isRealNumber(props.LocationInfo.Longitude))
+        if (props.LocationInfo.Longitude == null || !AssetAttributes.isRealNumber(props.LocationInfo.Longitude))
             error.push('Longitude is required.')
 
         props.SetError(error);
 
-    }, []);
+    }, [props.LocationInfo, props.SetError]);
+
+
 
     function getDifferentMeterLocation(meterLocationID: number): void {
         props.UpdateLocationInfo(locations.find((value, index, object) => value.ID == meterLocationID));

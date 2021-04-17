@@ -88,9 +88,7 @@ export default function NewMeterWizard(props: {}) {
         }
     }, []);
 
-    React.useEffect(() => {
-        setError([]);
-    }, [currentStep])
+    
 
     React.useEffect(() => {
         localStorage.setItem('NewMeterWizard.MeterInfo', JSON.stringify(meterInfo));
@@ -205,6 +203,7 @@ export default function NewMeterWizard(props: {}) {
     function next() {
         if (disableNext())
             return;
+        setError([]);
         // Make sure currentStep is set to something reasonable
         if (currentStep >= 4) {
            setCurrentStep(5);
@@ -215,6 +214,7 @@ export default function NewMeterWizard(props: {}) {
     }
 
     function prev() {
+        setError([]);
         if (currentStep <= 1) {
             setCurrentStep(1);
         } else {
@@ -269,7 +269,7 @@ export default function NewMeterWizard(props: {}) {
         if (currentStep == 1)
             return <Page1 MeterInfo={meterInfo} UpdateMeterInfo={setMeterInfo} SetError={setError} />
         else if (currentStep == 2)
-            return <Page2 LocationInfo={locationInfo} UpdateLocationInfo={setLocationInfo} SetError={setError}/>
+            return <Page2 LocationInfo={locationInfo} UpdateLocationInfo={setLocationInfo} SetError={(e) => { setError(e) }}/>
         else if (currentStep == 3)
             return <Page3 MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError}/>
         else if (currentStep == 4)
@@ -281,20 +281,10 @@ export default function NewMeterWizard(props: {}) {
 
     function disableNext(): boolean {
         if (currentStep == 1) {
-            var assetKey: boolean = meterInfo.AssetKey == null || meterInfo.AssetKey.length == 0 || meterKeys.indexOf(meterInfo.AssetKey.toLowerCase()) >= 0;
-            var name: boolean = meterInfo.Name == null || meterInfo.Name.length == 0;
-            var make: boolean = meterInfo.Make == null || meterInfo.Make.length == 0;
-            var model: boolean = meterInfo.Model == null || meterInfo.Model.length == 0;
-
-            return assetKey || name || make || model;
+            return error.length > 0
         }
         else if (currentStep == 2) {
-            var key: boolean = locationInfo.LocationKey == null || locationInfo.LocationKey.length == 0 || (locationKeys.indexOf(locationInfo.LocationKey.toLowerCase()) >= 0 && locationInfo.ID == 0);
-            var name: boolean = locationInfo.Name == null || locationInfo.Name.length == 0;
-            var latitude: boolean = locationInfo.Latitude == null;
-            var longitude: boolean = locationInfo.Longitude == null;
-
-            return key || name || latitude || longitude;
+            return error.length > 0
         }
         else if (currentStep == 3)
             return channels.length == 0;

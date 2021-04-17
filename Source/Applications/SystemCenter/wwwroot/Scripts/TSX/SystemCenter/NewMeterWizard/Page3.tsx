@@ -72,9 +72,10 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
     }, [dispatch, phStatus]);
 
     React.useEffect(() => {
+        let e = [];
         if (props.Channels.length == 0)
-            props.SetError(['At Least 1 Channel has to be set up.']);
-
+            e.push('At Least 1 Channel has to be set up.');
+        props.SetError(e);
     }, [props.Channels]);
 
     function readSingleFile(evt: React.ChangeEvent<HTMLInputElement>) {
