@@ -105,7 +105,7 @@ export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.As
                 <div className="card-body">
                         <div className="row" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                         <div className="col">
-                            <AssetAttributes.AssetAttributeFields Asset={this.state.Asset} NewEdit='Edit' AssetTypes={this.state.AssetTypes} AllAssets={this.state.AllAssets} UpdateState={this.updateState} GetDifferentAsset={() => { }} />
+                            <AssetAttributes.AssetAttributeFields Asset={this.state.Asset} NewEdit='Edit' AssetTypes={this.state.AssetTypes} AllAssets={this.state.AllAssets} UpdateState={this.updateState} GetDifferentAsset={() => { }} HideAssetType={false} HideSelectAsset={true} />
                         </div>
                         <div className="col">
                             {this.showAttributes()}

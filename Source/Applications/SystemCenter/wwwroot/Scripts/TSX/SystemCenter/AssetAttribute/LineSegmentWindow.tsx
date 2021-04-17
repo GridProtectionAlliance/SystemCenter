@@ -231,7 +231,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                             let asset = allAssets.find(a => a.ID == assetID);
                             let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
                             getAssetWithAdditionalFields(assetID, assetType.Name).then(asset => setNewEditSegment(asset));
-                        }} HideAssetType={true} />
+                        }} HideAssetType={true} HideSelectAsset={false} />
                     </div>
                     <div className="col">
                         <LineSegmentAttributes Asset={newEditSegment as OpenXDA.LineSegment} NewEdit={newEdit} UpdateState={setNewEditSegment} />

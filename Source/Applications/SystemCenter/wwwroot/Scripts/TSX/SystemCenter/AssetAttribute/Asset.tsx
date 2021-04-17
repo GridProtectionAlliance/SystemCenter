@@ -34,8 +34,8 @@ interface AssetAttributesProps {
     AssetTypes: Array<OpenXDA.AssetType>,
     AllAssets: Array<OpenXDA.Asset>,
     GetDifferentAsset: (assetID: number) => void,
-    HideSelectAsset?: boolean,
-    HideAssetType?: boolean,
+    HideSelectAsset: boolean,
+    HideAssetType: boolean,
 }
 
 
@@ -93,17 +93,18 @@ export namespace AssetAttributes {
             return null;
 
         return (<React.Fragment>
-            <Select<OpenXDA.Asset> Record={props.Asset} Label={'Select Asset'} Field={'ID'}
-                Options={[{ Value: '0', Label: 'Add New' }, ...props.AllAssets.map(a => ({ Value: a.ID.toString(), Label: a.AssetKey }))]}
-                Setter={(asset) => {
-                    if (parseInt(asset.ID.toString()) != 0)
-                        props.GetDifferentAsset(parseInt(asset.ID.toString()));
-                    else
-                        props.UpdateState(AssetAttributes.getNewAsset('Line'));
-                }}
-                Disabled={props.NewEdit == 'Edit'}
-            />
-            {props.HideAssetType != undefined && !props.HideAssetType ?
+            { !props.HideSelectAsset ?
+                <Select<OpenXDA.Asset> Record={props.Asset} Label={'Select Asset'} Field={'ID'}
+                    Options={[{ Value: '0', Label: 'Add New' }, ...props.AllAssets.map(a => ({ Value: a.ID.toString(), Label: a.AssetKey }))]}
+                    Setter={(asset) => {
+                        if (parseInt(asset.ID.toString()) != 0)
+                            props.GetDifferentAsset(parseInt(asset.ID.toString()));
+                        else
+                            props.UpdateState(AssetAttributes.getNewAsset('Line'));
+                    }}
+                    Disabled={props.NewEdit == 'Edit'}
+                /> : null}
+            { !props.HideAssetType ?
                 <Select<OpenXDA.Asset> Record={props.Asset} Label={'Type'} Field={'AssetType'}
                     Options={props.AssetTypes.filter(item => item.Name != 'LineSegment').map(type => ({ Value: type.Name, Label: type.Name }))}
                     Setter={(asset) => {

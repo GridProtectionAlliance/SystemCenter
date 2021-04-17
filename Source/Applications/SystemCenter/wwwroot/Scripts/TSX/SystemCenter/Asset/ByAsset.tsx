@@ -320,7 +320,7 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
                         <div className="modal-body">
                             <div className="row">
                                 <div className="col">
-                                    <AssetAttributes.AssetAttributeFields Asset={newAsset} NewEdit={'New'} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} />
+                                    <AssetAttributes.AssetAttributeFields Asset={newAsset} NewEdit={'New'} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} HideAssetType={false} />
                                 </div>
                                 <div className="col">
                                     {showAttributes()}

@@ -249,7 +249,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
                                         let asset = allAssets.find(a => a.ID == assetID);
                                         let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
                                         getAssetWithAdditionalFields(assetID, assetType.Name).then(asset => setNewEditAsset(asset));
-                                    }} />
+                                    }} HideAssetType={false} HideSelectAsset={false} />
                                 </div>
                                 <div className="col">
                                     {showAttributes()}

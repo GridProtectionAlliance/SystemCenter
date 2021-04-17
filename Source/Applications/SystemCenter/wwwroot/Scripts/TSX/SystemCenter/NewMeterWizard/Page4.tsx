@@ -308,7 +308,7 @@ export default function Page4(props: Page4Props) {
                         <div className="col">
                             <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
                                 UpdateState={setNewEditAsset}
-                                GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} />
+                                GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={false} />
                         </div>
                         <div className="col">
                             {showAttributes()}
