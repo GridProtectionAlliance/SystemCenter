@@ -405,7 +405,7 @@
       </Component>
 
       <Component Id="openXDA.Model">
-        <File Id="openXDA.Model.dll" Name="openXDA.Model.dll" Source="$(var.SolutionDir)\Dependencies\GSF\openXDA.Model.dll" />
+        <File Id="openXDA.Model.dll" Name="openXDA.Model.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.Model.dll" />
       </Component>
       <Component Id="Oracle.ManagedDataAccess">
         <File Id="Oracle.ManagedDataAccess.dll" Name="Oracle.ManagedDataAccess.dll" Source="$(var.SystemCenter.TargetDir)Oracle.ManagedDataAccess.dll" />
