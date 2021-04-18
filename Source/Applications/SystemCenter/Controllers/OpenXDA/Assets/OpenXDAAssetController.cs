@@ -826,7 +826,6 @@ namespace SystemCenter.Controllers.OpenXDA
             capBank.LVKV = record["LVKV"].ToObject<double>();
             capBank.LVNegReactanceTol = record["LVNegReactanceTol"].ToObject<double>();
             capBank.LVPosReactanceTol = record["LVPosReactanceTol"].ToObject<double>();
-            capBank.UpperXFRRatio = record["UpperXFRRatio"].ToObject<double>();
             capBank.LowerXFRRatio = record["LowerXFRRatio"].ToObject<double>();
             capBank.Nshorted = record["Nshorted"].ToObject<double>();
             capBank.BlownFuses = record["BlownFuses"].ToObject<int>();
