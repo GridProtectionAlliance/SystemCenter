@@ -142,7 +142,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
                         <select className="form-control" style={{ paddingTop: 5, height: 'calc(100% - 35px)' }} value={selectedSites.map(ss => ss.ID.toString())} multiple onChange={(e) => {
                             setSelectedSites(Array.from(e.target.selectedOptions).map(o => ({ ID: o.value, Name: o.text })) as any)
                         }}>
-                            {allSites.filter(allsite => allsite.MeterName.toLowerCase().indexOf(searchText.toLowerCase()) >= 0).map(allsite => <option key={allsite.ID} value={allsite.ID} hidden={sites.find(s => s.OpenXDAMeterID == allsite.ID) != null} disabled={sites.find(s => s.OpenXDAMeterID == allsite.ID) != null}>{allsite.MeterName}</option>)}
+                            {allSites.filter(allsite => allsite.AssetKey.toLowerCase().indexOf(searchText.toLowerCase()) >= 0).map(allsite => <option key={allsite.ID} value={allsite.ID} hidden={sites.find(s => s.MeterID == allsite.ID) != null} disabled={sites.find(s => s.MeterID == allsite.ID) != null}>{allsite.AssetKey}</option>)}
                         </select>
                     </div>
                 </div>
