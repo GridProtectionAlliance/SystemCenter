@@ -65,7 +65,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
             url: `${homePath}api/SystemCenter/CompanyMeter/AddMultiple`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(selectedSites.map(ss => ({ ID: 0, CompanyID: props.Company.ID, OpenXDAMeterID: parseInt(ss.ID.toString()), MeterName : ss.Name }) as SystemCenter.CompanyMeter)),
+            data: JSON.stringify(selectedSites.map(ss => ({ ID: 0, CompanyID: props.Company.ID, MeterID: parseInt(ss.ID.toString()), DisplayName : ss.Name, Enabled: true }) as SystemCenter.CompanyMeter)),
             cache: false,
             async: true
         }).done(() => {
@@ -129,7 +129,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
                             <table className="table">
                                 <thead><tr><th>Assigned Sites:</th><th></th></tr></thead>
                                 <tbody>
-                                    {sites.length > 0 ? sites.filter(s => s.MeterName.toLowerCase().indexOf(searchTextAS.toLowerCase()) >= 0).map((site, i) => <tr key={i}><td>{site.MeterName}</td><td><button className="btn btn-sm" onClick={(e) => {
+                                    {sites.length > 0 ? sites.filter(s => s.DisplayName.toLowerCase().indexOf(searchTextAS.toLowerCase()) >= 0).map((site, i) => <tr key={i}><td>{site.DisplayName}</td><td><button className="btn btn-sm" onClick={(e) => {
                                         e.preventDefault();
                                         deleteCustommerAccess(site);
                                     }}><span><i className="fa fa-times"></i></span></button></td></tr>) : null}

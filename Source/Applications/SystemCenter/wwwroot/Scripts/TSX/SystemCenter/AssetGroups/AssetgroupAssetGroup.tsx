@@ -26,23 +26,18 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { useHistory } from 'react-router-dom';
-import { isEqual } from 'lodash';
 import Table from '../CommonComponents/Table';
-import AddToAssetGroup from './AddToGroup';
 import AddToGroupPopup from './AddToGroup';
 
 declare var homePath: string;
 
-interface IAssetGroup {
-    ID: number, Name: string, DisplayDashboard: boolean, AssetGroups: number, Meters: number, Assets: number, Users: number
-}
 
 function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
     let history = useHistory();
     const [groupList, setGroupList] = React.useState<Array<OpenXDA.AssetGroup>>([]);
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [edit, setEdit] = React.useState<boolean>(false);
+    const [showAdd, setShowAdd] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         return getData();
@@ -87,17 +82,12 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
 
 
     return (
+        <>
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Transmission Assets in Asset Group:</h4>
-                    </div>
-                    <div className="col">
-                        {(edit) ?
-                            <button className="btn btn-default pull-right" onClick={() => { setEdit(false) }}>View</button> :
-                            <button className="btn btn-primary pull-right" onClick={() => { setEdit(true) }}>Edit</button>
-                        }
+                        <h4>Asset Groups in Asset Group:</h4>
                     </div>
                 </div>
             </div>
@@ -136,13 +126,14 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                         selected={(item) => false}
                         />
                 </div>
-                <AddToGroupPopup type='Group' onComplete={AddGroups} />
+                
             </div>
             <div className="card-footer">
-                <button className="btn btn-primary" data-toggle='modal' data-target="#AddMeter" disabled={!edit}>Add Meter</button>
+                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Asset Group</button>
+                </div>
+                <AddToGroupPopup type='Group' onComplete={AddGroups} Show={showAdd} Close={() => setShowAdd(false)} />
             </div>
-
-        </div>
+            </>
     );
 }
 

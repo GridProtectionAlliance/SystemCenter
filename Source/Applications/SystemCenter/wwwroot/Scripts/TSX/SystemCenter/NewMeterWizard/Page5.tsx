@@ -26,6 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectAssetConnectionTypes, SelectAssetConnectionTypeStatus, FetchAssetConnectionType } from '../Store/AssetConnectionTypeSlice';
+import { Modal } from '@gpa-gemstone/react-interactive';
 
 export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnections: Array<OpenXDA.AssetConnection>, UpdateAssetConnections: (record: OpenXDA.AssetConnection[]) => void }) {
     const selectAsset = React.useRef(null);
@@ -33,6 +34,8 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
     const dispatch = useDispatch();
     const assetConnectionTypes = useSelector(SelectAssetConnectionTypes);
     const actStatus = useSelector(SelectAssetConnectionTypeStatus);
+
+    const [showAssetConnection, setShowAssetConnection] = React.useState<boolean>(false);
 
     const [assetIndex, setAssetIndex] = React.useState<number>(0);
 
@@ -72,18 +75,18 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
     let currentAsset = props.Assets[assetIndex]
     return (
         <>
-            <div className="row" style={{ margin: -20 }}>
-                <div className="col-lg-4">
-                    <ul style={{ width: '100%', height: window.innerHeight - 285, maxHeight: window.innerHeight - 285, overflowY: 'auto', padding: 0, margin: 0 }}>
+            <div className="row" style={{ margin: -20, height: '100%' }}>
+                <div className="col-lg-4" style={{height: '100%' }}>
+                    <ul style={{ width: '100%', height: '100%', maxHeight: window.innerHeight - 285, overflowY: 'auto', padding: 0, margin: 0 }}>
                         {
                             props.Assets.map((asset, index) => <li style={{ textDecoration: (index <= assetIndex ? 'line-through' : null) }} key={index}>{asset.AssetKey}</li>)
                         }
                     </ul>
                 </div>
-                <div className="col" style={{ padding: 0 }}>
+                <div className="col" style={{ padding: 0, height: '100%' }}>
                     <div className="card" style={{ height: '100%' }}>
                         <div className="card-header">
-                            <button className="btn btn-primary pull-right" data-toggle='modal' data-target='#newConnection' disabled={props.Assets.length <= 1}>Add Connection</button>
+                            <button className="btn btn-primary pull-right" onClick={() => setShowAssetConnection(true)} disabled={props.Assets.length <= 1}>Add Connection</button>
                             <h4 style={{ width: '100%' }}>{currentAsset.AssetKey}</h4>
                         </div>
                         <div className="card-body" style={{overflowY:'scroll', maxHeight: window.innerHeight - 415}}>
@@ -124,57 +127,46 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
 
                         </div>
                         <div className="card-footer">
-                            <button className="btn btn-primary pull-left" onClick={prev} hidden={false} disabled={assetIndex < 1}>Prev</button>
-                            <button className="btn btn-primary pull-right" onClick={next} disabled={assetIndex == props.Assets.length - 1}>Next</button>
+                            <button className="btn btn-primary pull-left" onClick={prev} hidden={false} disabled={assetIndex < 1}>Previous Asset</button>
+                            <button className="btn btn-primary pull-right" onClick={next} disabled={assetIndex == props.Assets.length - 1}>Next Asset</button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="modal" id="newConnection">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Add a Connection to {currentAsset.AssetKey}</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="form-group">
-                                <label>Select Connecting Asset</label>
-                                <select ref={ selectAsset} className="form-control" onChange={(evt) => {
-                                }}>
-                                    {
-                                        props.Assets.filter(asset => asset.AssetKey != currentAsset.AssetKey).map((asset, index) => <option key={index} value={asset.AssetKey} >{asset.AssetKey}</option>)
-                                    }
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label>Select Connection Type</label>
-                                <select ref={selectType} className="form-control" onChange={(evt) => {
-                                }}>
-                                    {
-                                        assetConnectionTypes.map((act, index) => <option key={index} value={act.ID} >{act.Name}</option>)
-                                    }
-                                </select>
-                            </div>
-                        </div>
+            <Modal Show={showAssetConnection} Size={'sm'} Title={'Add a Connection to ' + currentAsset.AssetKey}
+                CancelText={'Close'} ConfirmText={'Save'}
+                CallBack={(confirmed) => {
+                    setShowAssetConnection(false);
+                    if (!confirmed)
+                        return;
 
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={(evt) => {
-                                let childConnection = $(selectAsset.current).val() as string;
-                                let connectionType = parseInt($(selectType.current).val() as string);
-                                let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(props.AssetConnections);
-                                assetConnections.push({ ID: 0, AssetRelationshipTypeID: connectionType, Parent: currentAsset.AssetKey, Child: childConnection });
-                                props.UpdateAssetConnections(assetConnections);
-                            }} >Save</button>
+                    let childConnection = $(selectAsset.current).val() as string;
+                    let connectionType = parseInt($(selectType.current).val() as string);
+                    let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(props.AssetConnections);
+                    assetConnections.push({ ID: 0, AssetRelationshipTypeID: connectionType, Parent: currentAsset.AssetKey, Child: childConnection });
+                    props.UpdateAssetConnections(assetConnections);
 
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-
-                    </div>
+                }}
+            >
+                <div className="form-group">
+                    <label>Select Connecting Asset</label>
+                    <select ref={selectAsset} className="form-control" onChange={(evt) => {}}>
+                        {
+                            props.Assets.filter(asset => asset.AssetKey != currentAsset.AssetKey).map((asset, index) => <option key={index} value={asset.AssetKey} >{asset.AssetKey}</option>)
+                        }
+                    </select>
                 </div>
-
-            </div>
+                <div className="form-group">
+                    <label>Select Connection Type</label>
+                    <select ref={selectType} className="form-control" onChange={(evt) => {
+                    }}>
+                        {
+                            assetConnectionTypes.map((act, index) => <option key={index} value={act.ID} >{act.Name}</option>)
+                        }
+                    </select>
+                </div>
+            </Modal>
         </>
     );
 

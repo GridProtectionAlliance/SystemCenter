@@ -24,8 +24,8 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
-import AssetAttributes from './Asset';
-import FormInput from '../CommonComponents/FormInput';
+import { AssetAttributes } from './Asset';
+import { Input }from '@gpa-gemstone/react-forms';
 
 function LineSegmentAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.LineSegment, UpdateState: (newEditAsset: OpenXDA.LineSegment) => void }): JSX.Element {
     function valid(field: keyof(OpenXDA.LineSegment)): boolean {
@@ -52,12 +52,12 @@ function LineSegmentAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: Op
     if (props.Asset == null) return null;
     return (
         <>
-            <FormInput<OpenXDA.LineSegment> Record={props.Asset} Field={'Length'} Feedback={'Length is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.LineSegment> Record={props.Asset} Field={'R0'} Feedback={'R0 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.LineSegment> Record={props.Asset} Field={'X0'} Feedback={'X0 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.LineSegment> Record={props.Asset} Field={'R1'} Feedback={'R1 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.LineSegment> Record={props.Asset} Field={'X1'} Feedback={'X1 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.LineSegment> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'Thermal Rating is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.LineSegment> Record={props.Asset} Field={'Length'} Feedback={'Length is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.LineSegment> Record={props.Asset} Field={'R0'} Feedback={'R0 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.LineSegment> Record={props.Asset} Field={'X0'} Feedback={'X0 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.LineSegment> Record={props.Asset} Field={'R1'} Feedback={'R1 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.LineSegment> Record={props.Asset} Field={'X1'} Feedback={'X1 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.LineSegment> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'Thermal Rating is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
         </>
     );
 }

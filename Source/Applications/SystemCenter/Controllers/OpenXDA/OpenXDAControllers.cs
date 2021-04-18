@@ -95,6 +95,7 @@ namespace SystemCenter.Controllers.OpenXDA
         protected override string PostRoles { get; } = "Administrator, Transmission SME, PQ Data Viewer";
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+        protected override bool AllowSearch => true;
 
         [HttpGet, Route("ForObject/{noteType}/{referenceTableID:int}")]
         public IHttpActionResult GetNotes(string noteType, int referenceTableID)
@@ -105,6 +106,42 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     IEnumerable<Notes> result = new TableOperations<Notes>(connection).QueryRecordsWhere("NoteTypeID = (SELECT ID FROM NoteType WHERE ReferenceTableName = {0}) AND ReferenceTableID = {1} ", noteType, referenceTableID).OrderByDescending(x => x.Timestamp);
                     return Ok(result);
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
+
+        [HttpPost, Route("ForObject/{noteType}/{referenceTableID:int}/Search")]
+        public IHttpActionResult SearchNotes(string noteType, int referenceTableID, [FromBody] PostData postData)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                try
+                {
+                    int noteTypeID = connection.ExecuteScalar<int>("SELECT ID FROM NoteType WHERE ReferenceTableName = {0}", noteType);
+                    PostData extended = postData;
+                    List<Search> searches = postData.Searches.ToList();
+                    searches.Add(new Search()
+                    {
+                        FieldName = "NoteTypeID",
+                        SearchText = noteTypeID.ToString(),
+                        Type = "number",
+                        Operator = "="
+                    });
+
+                    searches.Add(new Search()
+                    {
+                        FieldName = "ReferenceTableID",
+                        SearchText = referenceTableID.ToString(),
+                        Type = "number",
+                        Operator = "="
+                    });
+                    extended.Searches = searches;
+                  
+                    return GetSearchableList(extended);
                 }
                 catch (Exception ex)
                 {

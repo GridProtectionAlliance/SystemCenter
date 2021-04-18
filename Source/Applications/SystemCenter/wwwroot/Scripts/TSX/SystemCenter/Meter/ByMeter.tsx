@@ -22,46 +22,71 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter } from '../global';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
+import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
 
-type FieldName = 'Meter.AssetKey' | 'Meter.Name' | 'Meter.Location' | 'Meter.Make' | 'Meter.Model' | 'Asset.AssetKey' | 'Note.Note';
-interface Search {
-    Field: FieldName,
-    SearchText: string
-}   
 interface Meter {
     ID: number, AssetKey: string, Name: string, Location: string, MappedAssets: number, Make: string, Model: string 
 }
 declare var homePath: string;
 
+const defaultSearchcols: Array<Search.IField<Meter>> = [
+    { label: 'AssetKey', key: 'AssetKey', type: 'string' },
+    { label: 'Name', key: 'Name', type: 'string' },
+    { label: 'Location', key: 'Location', type: 'string' },
+    { label: 'Make', key: 'Make', type: 'string' },
+    { label: 'Model', key: 'Model', type: 'string' },
+    { label: 'Number of Assets', key: 'MappedAssets', type: 'number' },
+];
+
 const ByMeter: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
 
-    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Meter.AssetKey', SearchText: '' }]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<Meter>>>([]);
     const [data, setData] = React.useState<Array<Meter>>([]);
+
     const [sortField, setSortField] = React.useState<string>('AssetKey');
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Meter>>>(defaultSearchcols);
+    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
+
     const [ascending, setAscending] = React.useState<boolean>(true);
 
     React.useEffect(() => {
         let handle = getMeters();
-        handle.done((data: Array<Meter>) => setData(data));
+        handle.done((dt: string) => {
+            setSearchState('Idle');
+            setData(JSON.parse(dt) as Array<Meter>);
+        }).fail((d) => setSearchState('Error'));
+
         return function cleanup() {
             if (handle.abort != null)
                 handle.abort();
         }
+    }, [sortField, ascending, search]);
+
+    React.useEffect(() => {
+        let handle = getAdditionalFields();
+
+        return () => {
+            if (handle.abort != null) handle.abort();
+        }
     }, []);
 
-    function getMeters(): JQuery.jqXHR<Array<Meter>>{
+
+    function getMeters(): JQuery.jqXHR<string>{
+        setSearchState('Loading');
+        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
+
         return $.ajax({
             type: "Post",
-            url: `${homePath}api/OpenXDA/Meter/SearchableList`,
+            url: `${homePath}api/OpenXDA/MeterList/ExtendedSearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(search),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -74,110 +99,83 @@ const ByMeter: SystemCenter.ByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard', state: {} })
     }
 
+    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.AdditionalField>> {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Meter/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        });
+
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
+        }
+
+        handle.done((d: Array<SystemCenter.AdditionalField>) => {
+            let ordered = _.orderBy(defaultSearchcols.concat(d.map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Meter>
+            ))), ['label'], ["asc"]);
+            setFilterableList(ordered)
+        });
+
+        return handle;
+    }
+
+
+    const standardSearch: Search.IField<Meter> = { label: 'Name', key: 'Name', type: 'string' };
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                <div className="collapse navbar-collapse" id="navbarSupportedContent" style={{ width: '100%' }}>
-                    <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
-                        <li className="nav-item" style={{ width: '50%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search: </legend>
-                                <form>
-                                    {
-                                        search.map((s, index, a) => {
+            <SearchBar<Meter> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
+                ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Meters'}
+                GetEnum={(setOptions, field) => {
+                    let handle = null;
+                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+                        return () => { };
 
-                                            return (
-                                                <div className="input-group" key={index} style={{ border: '1px solid lightgray'}}>
-                                                    <div className="input-group-prepend">
-                                                        <select className='form-control' style={{height: '100%'}} value={s.Field} onChange={(evt) => {
-                                                            s.Field = evt.target.value as FieldName;
-                                                            let array = _.clone(a);
-                                                            setSearch(array);
-                                                        }}>
-                                                            <option value='Meter.AssetKey'>Key</option>
-                                                            <option value='Meter.Name'>Name</option>
-                                                            <option value='Location.LocationKey'>Location</option>
-                                                            <option value='Meter.Make'>Make</option>
-                                                            <option value='Meter.Model'>Model</option>
-                                                            <option value='Asset.AssetKey'>Asset</option>
-                                                            <option value='Note.Note'>Note</option>
-                                                        </select>
-                                                    </div>
-                                                    <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
-                                                        s.SearchText = evt.target.value;
-                                                        let array = _.clone(a);
-                                                        setSearch(array);
-                                                    }} onKeyDown={evt => {
-                                                        if (evt.keyCode == 13) {
-                                                            evt.preventDefault();
-                                                            getMeters().done(ms => setData(ms));
-                                                        }
-                                                    }} />
-                                                    <div className="input-group-append">
-                                                        <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                            let array = _.clone(a);
-                                                            array.splice(index, 1);
-                                                            setSearch(array);
-                                                        }}><span><i className="fa fa-times"></i></span></button>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })
-                                        
-                                }
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search Params:</legend>
-                                <form>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            let array = _.clone(search);
-                                            array.push({ Field: 'Meter.AssetKey', SearchText: '' });
-                                            setSearch(array);
-                                        }}>Add Parameter</button>
-                                    </div>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            getMeters().done(ms => setData(ms));
-                                        }}>Update Search</button>
-                                    </div>
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
-                                <form>
-                                    <button className="btn btn-primary" onClick={goNewMeterWizard} hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}>New Meter</button>
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                                <form>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
-                                    </div>
-                                </form>
-                            </fieldset>
-                        </li>
+                    handle = $.ajax({
+                        type: "GET",
+                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        cache: true,
+                        async: true
+                    });
 
-                    </ul>
-                </div>
-            </nav>
+                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
+                }}
 
+            >
+                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
+                        <form>
+                            <button className="btn btn-primary" data-tooltip onClick={goNewMeterWizard} hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}>New Meter</button>
+                        </form>
+                    </fieldset>
+                </li>
+                <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                        <form>
+                            <div className="form-group">
+                                <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
+                            </div>
+                        </form>
+                    </fieldset>
+                </li>
+            </SearchBar>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table
                     cols={[
-                        { key: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Location', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'MappedAssets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
@@ -190,17 +188,13 @@ const ByMeter: SystemCenter.ByComponent = (props) => {
                     sortField={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField) {
-                            var ordered = _.orderBy(data, [d.col], [(!ascending ? "asc" : "desc")]);
+                        if (d.col == sortField)
                             setAscending(!ascending);
-                            setData(ordered);
-                        }
                         else {
-                            var ordered = _.orderBy(data, [d.col], ["asc"]);
-                            setAscending(!ascending);
-                            setData(ordered);
+                            setAscending(true);
                             setSortField(d.col);
                         }
+                        
                     }}
                     onClick={handleSelect}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

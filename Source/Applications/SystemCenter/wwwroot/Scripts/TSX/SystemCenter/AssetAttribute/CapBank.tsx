@@ -24,10 +24,10 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
-import AssetAttributes from './Asset';
+import { AssetAttributes } from './Asset';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
-import { number } from 'prop-types';
+
 function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.CapBank, UpdateState: (newEditAsset: OpenXDA.CapBank) => void }): JSX.Element {
     function valid(field: keyof (OpenXDA.CapBank)): boolean {
         if (field == 'NumberOfBanks')
@@ -66,8 +66,6 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
             return props.Asset.LVNegReactanceTol != null && AssetAttributes.isRealNumber(props.Asset.LVNegReactanceTol);
         else if (field == 'LVPosReactanceTol')
             return props.Asset.LVPosReactanceTol != null && AssetAttributes.isRealNumber(props.Asset.LVPosReactanceTol);
-        else if (field == 'UpperXFRRatio')
-            return props.Asset.UpperXFRRatio != null && AssetAttributes.isRealNumber(props.Asset.UpperXFRRatio);
         else if (field == 'LowerXFRRatio')
             return props.Asset.LowerXFRRatio != null && AssetAttributes.isRealNumber(props.Asset.LowerXFRRatio);
         else if (field == 'Nshorted')
@@ -114,19 +112,17 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
           
             {(props.Asset.Fused ? 
                 <>
-                    <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'UpperXFRRatio'} Label={'Bus VT Ratio'} Feedback={'Bus VT Ratio is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LowerXFRRatio'} Label={'Midgroup VT Ratio'} Feedback={'Midgroup VT Ratio is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
 
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Nshorted'} Label={'Initial guess of shorted elements'} Feedback={'Initial guess of shorted elements is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'BlownFuses'} Label={'Initial Guess of blown fuses per group'} Feedback={'Initial Guess of blown fuses per group is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'BlownGroups'} Label={'Initial guess of Groups with blown Fuse'} Feedback={'Initial guess of Groups with blown Fuse is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'ShortedGroups'} Label={'Initial guess of shorted Groups'} Feedback={'Initial guess of shorted Groups required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+
                 </> : <>
                     {(props.Asset.Compensated ? 
                         <>
-                            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'RelayPTRatioPrimary'} Label={'Relay PT Primary (V)'} Feedback={'Relay PT Primary a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'RelayPTRatioSecondary'} Label={'Relay PT Secondary (V)'} Feedback={'Relay PT Secondary  is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                            <DoubleInput<OpenXDA.CapBank> Record={props.Asset} Field2={'RelayPTRatioSecondary'} Field1={'RelayPTRatioPrimary'} Label={'Relay PT Ratio (primary - secondary V)'} Feedback={'Relay PT ratio  is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0}/>
                             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Rh'} Label={'Vt Input Resistor (Ohm)'} Feedback={'Vt input resistor is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Sh'} Label={'Vt Input Resistor Wattage (W)'} Feedback={'Vt input resistor wattage is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
@@ -147,9 +143,9 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LVKV'} Label={'Low Voltage Cap rating (V)'} Feedback={'Low Volatage Cap rating is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LVNegReactanceTol'} Label={'neg. Reactance Tolerance of LV Unit (%)'} Feedback={'neg. Reactance Tolerance of LV Unitis a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'LVPosReactanceTol'} Label={'pos. Reactance Tolerance of LV Unit (%)'} Feedback={'pos. Reactance Tolerance of LV Unit is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                  
-                    <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Nshorted'} Label={'Initial guess of shorted elements'} Feedback={'Initial guess of shorted elements is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
+                    <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'Nshorted'} Label={'Initial guess of shorted elements'} Feedback={'Initial guess of shorted elements is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    
                 </>)}
 
             
@@ -268,4 +264,45 @@ class PreSwitchSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter:
             </div>
         </div>;
     }
+}
+
+function DoubleInput<T>(props: {
+    Record: T;
+    Field1: keyof T;
+    Field2: keyof T;
+    Setter: (record: T) => void;
+    Valid: (field: keyof T) => boolean;
+    Label?: string;
+    Feedback?: string;
+    Disabled?: boolean;
+    Type?: 'number' | 'text' | 'password' | 'email' | 'color';
+}) {
+    return (
+        <div className="form-group">
+            <label>{props.Label == null ? (props.Field1 + ' ' + props.Field2) : props.Label}</label>
+            <div className="input-group">
+                <input
+                    type={props.Type === undefined ? 'text' : props.Type}
+                    className={props.Valid(props.Field1) ? 'form-control' : 'form-control is-invalid'}
+                    onChange={(evt) =>
+                        props.Setter({ ...props.Record, [props.Field1]: evt.target.value !== '' ? evt.target.value : null })
+                    }
+                    value={props.Record[props.Field1] == null ? '' : (props.Record[props.Field1] as any).toString()}
+                    disabled={props.Disabled == null ? false : props.Disabled}
+                />
+                <input
+                    type={props.Type === undefined ? 'text' : props.Type}
+                    className={props.Valid(props.Field2) ? 'form-control' : 'form-control is-invalid'}
+                    onChange={(evt) =>
+                        props.Setter({ ...props.Record, [props.Field2]: evt.target.value !== '' ? evt.target.value : null })
+                    }
+                    value={props.Record[props.Field2] == null ? '' : (props.Record[props.Field2] as any).toString()}
+                    disabled={props.Disabled == null ? false : props.Disabled}
+                />
+            </div>
+            <div className="invalid-feedback">
+                {props.Feedback == null ? (props.Field1 + ' ' + props.Field2 + ' is a required field.') : props.Feedback}
+            </div>
+        </div>
+    );
 }

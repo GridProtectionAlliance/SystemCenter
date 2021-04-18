@@ -52,38 +52,28 @@ namespace SystemCenter.Model
         protected override string PostRoles { get; } = "Administrator, Transmission SME";
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-
-        [HttpPost, Route("SearchableList")]
-        public IHttpActionResult GetCompanysUsingSearchableList([FromBody] IEnumerable<Search> searches)
-        {
-            string whereClause = BuildWhereClause(searches);
-            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-            {
-                DataTable table = connection.RetrieveData(@"
-                SELECT
-	                DISTINCT
+        protected override bool AllowSearch => true;
+        protected override string Connection => "dbOpenXDA";
+        protected override string DefaultSort => "CompanyID";
+        protected override string CustomView => @"SELECT
+                    DISTINCT
                     Company.ID,
-	                Company.CompanyID,
-	                Company.Name,
-	                Company.Description,
+                    Company.CompanyID,
+                    Company.Name,
+                    Company.Description,
                     CompanyType.Name as CompanyTypeID,
-	                COUNT(CompanyMeter.ID) as Meters
+                    COUNT(CompanyMeter.ID) as Meters
                 FROM
-	                Company JOIN
+
+                    Company JOIN
                     CompanyType ON Company.CompanyTypeID = CompanyType.ID LEFT JOIN
-	                CompanyMeter ON Company.ID = CompanyMeter.CompanyID
-                " + whereClause + @"
+                    CompanyMeter ON Company.ID = CompanyMeter.CompanyID
                 GROUP BY
                     Company.ID,
 	                Company.CompanyID,
 	                Company.Name,
 	                Company.Description,
-                    CompanyType.Name
-                ");
-                return Ok(table);
-            }
-        }
-
+                    CompanyType.Name";
 
     }
 }

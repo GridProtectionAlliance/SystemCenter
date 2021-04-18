@@ -38,6 +38,7 @@ using System.Transactions;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 
@@ -50,7 +51,7 @@ namespace SystemCenter.Controllers.OpenXDA
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
         protected override string DefaultSort { get; } = "AssetKey";
-
+        protected override bool AllowSearch => true;
         public OpenXDAAssetController() : base(false, "", true, "AssetKey") { }
 
         protected override string Connection { get; } = "dbOpenXDA";
@@ -163,47 +164,92 @@ namespace SystemCenter.Controllers.OpenXDA
                 }
             }
         }
-
-
-        [HttpPost, Route("SearchableList")]
-        public IHttpActionResult GetAssetsUsingSearchableList([FromBody] IEnumerable<Search> searches)
+        
+        [HttpPost, Route("SearchableListIncludingMeter")]
+        public IHttpActionResult GetMetersUsingSearchableList([FromBody] PostData searches)
         {
-            string whereClause = BuildWhereClause(searches);
 
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            if (!AllowSearch || (GetRoles != string.Empty && !User.IsInRole(GetRoles)))
+                return Unauthorized();
+
+            try
             {
-                DataTable table = connection.RetrieveData(@"
-                    SELECT
-	                DISTINCT
-                        Asset.ID,
-	                    Asset.AssetKey,
-	                    Asset.AssetName,
-	                    Asset.VoltageKV,
-	                    AssetType.Name as AssetType,
-	                    COUNT(DISTINCT Meter.ID) as Meters,
-	                    COUNT(DISTINCT Location.ID) as Locations
+
+                string whereClause = BuildWhereClause(searches.Searches);
+
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+
+                    string view = @"SELECT
+
+                        DISTINCT
+                            Asset.ID,
+	                        Asset.AssetKey,
+	                        Asset.AssetName,
+	                        Asset.VoltageKV,
+	                        AssetType.Name as AssetType,
+	                        COUNT(DISTINCT Meter.ID) as Meters,
+	                        COUNT(DISTINCT Location.ID) as Locations
                     FROM
-	                    Asset Join
+                        Asset Join
 	                    AssetType ON Asset.AssetTypeID = AssetType.ID LEFT JOIN
 	                    MeterAsset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
 	                    Meter ON MeterAsset.MeterID = Meter.ID LEFT JOIN
 	                    AssetLocation ON AssetLocation.AssetID = Asset.ID LEFT JOIN
-	                    Location ON AssetLocation.LocationID = Location.ID LEFT JOIN
-	                    Note ON Note.NoteTypeID = (SELECT ID FROM NoteType WHERE Name = 'Asset') AND Note.ReferenceTableID = Meter.ID
-                   " + whereClause + @"
+	                    Location ON AssetLocation.LocationID = Location.ID
                     GROUP BY
-                         Asset.ID,
+                        Asset.ID,
 	                    Asset.AssetKey,
 	                    Asset.AssetName,
 	                    Asset.VoltageKV,
-	                    AssetType.Name,
-                        Note.Note
-                ");
-                return Ok(table);
+	                    AssetType.Name
+                    ";
+
+                    string sql = "";
+
+                    sql = $@"
+                        DECLARE @PivotColumns NVARCHAR(MAX) = N''
+                        SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
+                            FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE 
+                                ParentTable = 'Line' OR  ParentTable = 'Transformer' OR  ParentTable = 'Breaker'  OR  ParentTable = 'CapBank'  OR  ParentTable = 'Bus'
+                            ) AS t
+
+                        DECLARE @SQLStatement NVARCHAR(MAX) = N'
+                            SELECT * INTO #Tbl FROM (
+                            SELECT 
+                                M.*,
+                                (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
+	                            afv.Value
+                            FROM ({view.Replace("'", "''")}) M LEFT JOIN 
+                                [SystemCenter.AdditionalField] af on af.ParentTable IN (''Line'',''Transformer'',''Breaker'',''CapBank'',''Bus'')
+                                    LEFT JOIN
+	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
+                            ) as T PIVOT (
+                                Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT
+                            {whereClause.Replace("'", "''")}
+                            ORDER BY { searches.OrderBy} {(searches.Ascending ? "ASC" : "DESC")};
+
+                            DECLARE @NoNPivotColumns NVARCHAR(MAX) = N''''
+                                SELECT @NoNPivotColumns = @NoNPivotColumns + ''[''+ name + ''],''
+                                    FROM tempdb.sys.columns WHERE  object_id = Object_id(''tempdb..#Tbl'') AND name NOT LIKE ''AFV%''; 
+		                    DECLARE @CleanSQL NVARCHAR(MAX) = N''SELECT '' + SUBSTRING(@NoNPivotColumns,0, LEN(@NoNPivotColumns)) + ''FROM #Tbl''
+
+		                    exec sp_executesql @CleanSQL
+                        '
+                        exec sp_executesql @SQLStatement";
+
+                    DataTable table = connection.RetrieveData(sql, "");
+
+                    return Ok(JsonConvert.SerializeObject(table));
+                }
             }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
         }
-
-
 
         [HttpPost, Route("New/Meter/{meterID:int}/{locationID:int}")]
         public IHttpActionResult PostNewAssetForMeter([FromBody] JObject record, int meterID, int locationID)

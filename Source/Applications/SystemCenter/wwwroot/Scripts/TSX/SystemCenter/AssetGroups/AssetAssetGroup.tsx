@@ -24,10 +24,8 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
 import { useHistory } from 'react-router-dom';
-import { isEqual } from 'lodash';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table';
 import AddToGroupPopup from './AddToGroup';
 
 declare var homePath: string;
@@ -39,7 +37,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     const [assetList, setAssetList] = React.useState<Array<Asset>>([]);
     const [sortField, setSortField] = React.useState<string>('Assetname');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [edit, setEdit] = React.useState<boolean>(false);
+    const [showAdd, setShowAdd] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         return getData();
@@ -82,18 +80,14 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     }
 
     return (
+        <>
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
                         <h4>Transmission Assets in Asset Group:</h4>
                     </div>
-                    <div className="col">
-                        {(edit) ?
-                            <button className="btn btn-default pull-right" onClick={() => { setEdit(false) }}>View</button> :
-                            <button className="btn btn-primary pull-right" onClick={() => { setEdit(true) }}>Edit</button>
-                        }
-                    </div>
+                    
                 </div>
             </div>
             <div className="card-body">
@@ -126,20 +120,23 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                         }}
                         onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.AssetID, state: {} }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 590, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         selected={(item) => false}
                         />
                     </div>
             </div>
-            <AddToGroupPopup type='Asset' onComplete={AddAsset} />
+            
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" data-toggle='modal' data-target="#AddAsset" disabled={!edit}>Add Transmission Asset</button>
+                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Transmission Asset</button>
                 </div>
             </div>
 
-        </div>
+            </div>
+            <AddToGroupPopup type='Asset' onComplete={AddAsset} Show={showAdd} Close={() => setShowAdd(false)} />
+        </>
+        
     );
 }
 

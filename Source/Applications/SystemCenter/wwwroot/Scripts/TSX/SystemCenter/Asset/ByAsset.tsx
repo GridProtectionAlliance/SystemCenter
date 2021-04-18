@@ -22,11 +22,10 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import AssetAttributes from '../AssetAttribute/Asset';
-import { getAllAssets, getAssetTypes } from '../../../TS/Services/Asset';
+import { AssetAttributes } from '../AssetAttribute/Asset';
+import { getAssetTypes } from '../../../TS/Services/Asset';
 import { OpenXDA, SystemCenter } from '../global';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -36,15 +35,21 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
+import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
+import Table from '@gpa-gemstone/react-table'
+import { useDispatch, useSelector } from 'react-redux';
+import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
+
 
 declare var homePath: string;
 declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Breaker'
 
-type FieldName = 'Asset.AssetKey' | 'Asset.AssetName' | 'AssetType.Name' | 'Asset.VoltageKV' | 'Meter.AssetKey' | 'Location.LocationKey' | 'Note.Note';
-interface Search {
-    Field: FieldName,
-    SearchText: string
-}
+
+const defaultSearchcols: Array<Search.IField<Asset>> = [
+    { label: 'Name', key: 'Name', type: 'string' },
+];
+
+
 interface Asset {
     ID: number, AssetKey: string, AssetName: string, AssetType: string, VoltageKV: number, Meters: number, Locations: string
 }
@@ -53,18 +58,107 @@ declare var homePath: string;
 const ByAsset: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
 
-    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Asset.AssetKey', SearchText: '' }]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<Asset>>>([]);
     const [data, setData] = React.useState<Array<Asset>>([]);
     const [sortField, setSortField] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newAsset, setNewAsset] = React.useState<OpenXDA.Asset>(AssetAttributes.getNewAsset('Line'));
-    const [allAssets, setAllAssets] = React.useState<Array<OpenXDA.Asset>>([]);
+
+
     const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.AssetType>>([]);
     const [extDBtab, setextDBTab] = React.useState<string>(getextDBTab());
 
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Asset>>>(defaultSearchcols);
+    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
+
+    const allAssets = useSelector(SelectAssets);
+    const aStatus = useSelector(SelectAssetStatus);
+    const dispatch = useDispatch();
+   
     React.useEffect(() => {
-        return getData();
+        let handle = getAssets();
+        handle.done((dt: string) => {
+            setSearchState('Idle');
+            setData(JSON.parse(dt) as Array<Asset>);
+        }).fail((d) => setSearchState('Error'));
+
+        return function cleanup() {
+            if (handle.abort != null)
+                handle.abort();
+        }
+    }, [sortField, ascending, search]);
+
+    React.useEffect(() => {
+        let handle = getAssetTypes();
+        handle.done(ats => {
+            setAssetTypes(ats)
+            let asset = AssetAttributes.getNewAsset('Line');
+            asset['AssetTypeID'] = ats.find(ats => ats.Name == 'Line').ID;
+            setNewAsset(asset);
+
+        });
+
+        return function cleanup() {
+            if (handle.abort != null)
+                handle.abort();
+        }
+    }, [])
+
+    React.useEffect(() => {
+        setFilterableList(defaultSearchcols);
+        let handleLine = getAdditionalFields('Line');
+        let handleBreaker = getAdditionalFields('Breaker');
+        let handleCapBank = getAdditionalFields('CapBank');
+        let handleTransformer = getAdditionalFields('Transformer');
+        let handleBus = getAdditionalFields('Bus');
+        
+        return () => {
+            if (handleLine.abort != null) handleLine.abort();
+            if (handleBreaker.abort != null) handleBreaker.abort();
+            if (handleCapBank.abort != null) handleCapBank.abort();
+            if (handleTransformer.abort != null) handleTransformer.abort();
+            if (handleBus.abort != null) handleBus.abort();
+        }
     }, []);
+
+    React.useEffect(() => {
+        if (aStatus === 'unintiated' || aStatus === 'changed') {
+            dispatch(FetchAsset());
+            return function () {
+            }
+        }
+    }, [dispatch, aStatus]);
+
+    function getAdditionalFields(Type: string): JQuery.jqXHR<Array<SystemCenter.AdditionalField>> {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${Type}/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        });
+
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
+        }
+
+        handle.done((d: Array<SystemCenter.AdditionalField>) => {
+
+            setFilterableList(lst => {
+                let ordered = _.orderBy(lst.concat(d.map(item => (
+                    { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Asset>
+                ))), ['label'], ["asc"]);
+                return ordered;
+            }
+            )
+        });
+
+        return handle;
+    }
 
     function getextDBTab(): AssetTab {
         if (sessionStorage.hasOwnProperty('AssetTab.AssetTab'))
@@ -74,39 +168,16 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
     }
 
 
-    function getData() {
-
-        let handle1 = getAssets();
-        let handle2 = getAllAssets();
-        let handle3 = getAssetTypes();
-
-        handle1.done((data: Array<Asset>) => setData(data));
-        handle2.done(aas => setAllAssets(aas));
-        handle3.done(ats => {
-            setAssetTypes(ats)
-            let asset = AssetAttributes.getNewAsset('Line');
-            asset['AssetTypeID'] = ats.find(ats => ats.Name == 'Line').ID;
-            setNewAsset(asset);
-
-        });
-
-        return function cleanup() {
-            if (handle1.abort != null)
-                handle1.abort();
-            if (handle2.abort != null)
-                handle2.abort();
-            if (handle3.abort != null)
-                handle3.abort();
-        }
-    }
-
     function getAssets(): JQueryXHR {
+        setSearchState('Loading');
+        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
+
         return $.ajax({
             type: "Post",
-            url: `${homePath}api/OpenXDA/Asset/SearchableList`,
+            url: `${homePath}api/OpenXDA/Asset/SearchableListIncludingMeter`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(search),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -153,100 +224,56 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID, state: {} })
     }
 
+    const standardSearch: Search.IField<Asset> = { label: 'Name', key: 'Name', type: 'string' };
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                <div className="collapse navbar-collapse" id="navbarSupportedContent" style={{ width: '100%' }}>
-                    <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
-                        <li className="nav-item" style={{ width: '50%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search: </legend>
-                                <form>
-                                    {
-                                        search.map((s, index, a) => {
+            <SearchBar<Asset> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
+                ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Transmission Assets'}
+                GetEnum={(setOptions, field) => {
+                    let handle = null;
+                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+                        return () => { };
 
-                                            return (
-                                                <div className="input-group" key={index} style={{ border: '1px solid lightgray' }}>
-                                                    <div className="input-group-prepend">
-                                                        <select className='form-control' style={{ height: '100%' }} value={s.Field} onChange={(evt) => {
-                                                            let array = _.clone(a);
-                                                            s.Field = evt.target.value as FieldName;
-                                                            setSearch(array);
-                                                        }}>
-                                                            <option value='Asset.AssetKey'>Key</option>
+                    handle = $.ajax({
+                        type: "GET",
+                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        cache: true,
+                        async: true
+                    });
+
+                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
+                }}
+
+            >
+           
+                                                            {/*<option value='Asset.AssetKey'>Key</option>
                                                             <option value='Asset.AssetName'>Name</option>
                                                             <option value='AssetType.Name'>AssetType</option>
                                                             <option value='Asset.VoltageKV'>VoltageKV</option>
                                                             <option value='Meter.AssetKey'>Meter</option>
                                                             <option value='Location.LocationKey'>Location</option>
-                                                            <option value='Note.Note'>Note</option>
-                                                        </select>
-                                                    </div>
-                                                    <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
-                                                        
-                                                        s.SearchText = evt.target.value;
-                                                        let array = _.clone(a);
-                                                        setSearch(array);
-                                                    }} onKeyDown={evt => {
-                                                        if (evt.keyCode == 13) {
-                                                            evt.preventDefault();
-                                                            getAssets().done(ms => setData(ms));
-                                                        }
-                                                    }}/>
-                                                    <div className="input-group-append">
-                                                        <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                            let array = _.clone(a);
-                                                            array.splice(index, 1);
-                                                            setSearch(array);
-                                                        }}><span><i className="fa fa-times"></i></span></button>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })
-
-                                    }
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search Params:</legend>
-                                <form>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            let array = _.clone(search);
-                                            array.push({ Field: 'Asset.AssetKey', SearchText: '' });
-                                            setSearch(array);
-                                        }}>Add Parameter</button>
-                                    </div>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            getAssets().done((data: Array<Asset>) => setData(data));
-                                        }}>Update Search</button>
-                                    </div>
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                                <form>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" data-toggle='modal' data-target="#assetModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Add Asset</button>
-                                    </div>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
-                                    </div>
-                                    
-                                </form>
-                            </fieldset>
-                        </li>
+                                                            <option value='Note.Note'>Note</option>*/}
+                                                       
                         
-                    </ul>
-                </div>
-            </nav>
+                    <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                            <form>
+                                <div className="form-group">
+                                    <button className="btn btn-primary" data-toggle='modal' data-target="#assetModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Add Asset</button>
+                                </div>
+                                <div className="form-group">
+                                    <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
+                                </div>
+                                    
+                            </form>
+                        </fieldset>
+                    </li>
+                </SearchBar>
+                   
 
             <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
                 <Table
@@ -264,15 +291,10 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
                     sortField={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField) {
-                            let ordered = _.orderBy(data, [d.col], [(!ascending ? "asc" : "desc")]);
+                        if (d.col == sortField)
                             setAscending(!ascending);
-                            setData(ordered);
-                        }
                         else {
-                            let ordered = _.orderBy(data, [d.col], ["asc"]);
-                            setAscending(!ascending);
-                            setData(ordered);
+                            setAscending(true);
                             setSortField(d.col);
                         }
                     }}
@@ -298,7 +320,7 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
                         <div className="modal-body">
                             <div className="row">
                                 <div className="col">
-                                    <AssetAttributes Asset={newAsset} NewEdit={'New'} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} />
+                                    <AssetAttributes.AssetAttributeFields Asset={newAsset} NewEdit={'New'} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} HideAssetType={false} />
                                 </div>
                                 <div className="col">
                                     {showAttributes()}

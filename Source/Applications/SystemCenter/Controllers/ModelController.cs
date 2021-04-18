@@ -33,6 +33,7 @@ using GSF.Data.Model;
 using GSF.Identity;
 using GSF.Reflection;
 using GSF.Web.Security;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace SystemCenter.Controllers
@@ -42,13 +43,25 @@ namespace SystemCenter.Controllers
         #region [Members ]
         public class Search
         {
-            public string Field { get; set; }
+            public string FieldName { get; set; }
             public string SearchText { get; set; }
+            public string Operator { get; set; }
+            public string Type { get; set; }
+
+            public bool isPivotColumn { get; set; } = false;
+        }
+
+        public class PostData
+        {
+            public IEnumerable<Search> Searches { get; set; }
+            public string OrderBy { get; set; }
+            public bool Ascending { get; set; }
         }
         #endregion
 
         #region [ Constructor ]
-        public ModelController() {
+        public ModelController() 
+        {
         }
 
         public ModelController(bool hasParent, string parentKey, string primaryKeyField = "ID")
@@ -57,7 +70,7 @@ namespace SystemCenter.Controllers
             ParentKey = parentKey;
             HasUniqueKey = false;
             UniqueKeyField = "";
-            PrimaryKeyField = "ID";
+            PrimaryKeyField = primaryKeyField;
 
         }
 
@@ -83,6 +96,9 @@ namespace SystemCenter.Controllers
         protected virtual string PatchRoles { get; } = "Administrator";
         protected virtual string DeleteRoles { get; } = "Administrator";
         protected virtual string DefaultSort { get; } = null;
+        protected virtual bool ViewOnly { get; } = false;
+        protected virtual bool AllowSearch { get; } = false;
+        protected virtual string CustomView { get; } = "";
         #endregion
 
         #region [ Http Methods ]
@@ -116,37 +132,35 @@ namespace SystemCenter.Controllers
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+              
+                try
                 {
-
-                    try
-                    {
-                        IEnumerable<T> result;
-                        if (HasParent && parentID != null) {
-                            PropertyInfo parentKey = typeof(T).GetProperty(ParentKey);
-                            if (parentKey.PropertyType == typeof(int))
-                                result = new TableOperations<T>(connection).QueryRecordsWhere(ParentKey + " = {0}", int.Parse(parentID));
-                            else if (parentKey.PropertyType == typeof(Guid))
-                                result = new TableOperations<T>(connection).QueryRecordsWhere(ParentKey + " = {0}", Guid.Parse(parentID));
-                            else
-                                result = new TableOperations<T>(connection).QueryRecordsWhere(ParentKey + " = {0}", parentID);
-                        }
+                    IEnumerable<T> result;
+                    if (HasParent && parentID != null) {
+                        PropertyInfo parentKey = typeof(T).GetProperty(ParentKey);
+                        if (parentKey.PropertyType == typeof(int))
+                            result = QueryRecordsWhere(ParentKey + " = {0}", int.Parse(parentID));
+                        else if (parentKey.PropertyType == typeof(Guid))
+                            result = QueryRecordsWhere(ParentKey + " = {0}", Guid.Parse(parentID));
                         else
-                            result = new TableOperations<T>(connection).QueryRecords();
+                            result = QueryRecordsWhere(ParentKey + " = {0}", parentID);
+                    }
+                    else
+                        result = QueryRecords();
 
-                        if (DefaultSort != null)
-                        {
-                            PropertyInfo prop = typeof(T).GetProperty(DefaultSort);
-                            return Ok(result.OrderBy(x => prop.GetValue(x)));
-                        }
-                        else
-                            return Ok(result);
-                    }
-                    catch (Exception ex)
+                    if (DefaultSort != null)
                     {
-                        return InternalServerError(ex);
+                        PropertyInfo prop = typeof(T).GetProperty(DefaultSort);
+                        return Ok(result.OrderBy(x => prop.GetValue(x)));
                     }
+                    else
+                        return Ok(result);
                 }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+                
             }
             else
             {
@@ -154,42 +168,42 @@ namespace SystemCenter.Controllers
             }
 
         }
+
         [HttpGet, Route("One/{id}")]
         public virtual IHttpActionResult GetOne(string id)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+               
+                try
                 {
-                    try
-                    {
-                        T result = null;
-                        PropertyInfo primaryKey = typeof(T).GetProperty(PrimaryKeyField);
-                        if(primaryKey.PropertyType == typeof(int))
-                            result = new TableOperations<T>(connection).QueryRecordWhere(PrimaryKeyField + " = {0}", int.Parse(id));
-                        else if (primaryKey.PropertyType == typeof(Guid))
-                            result = new TableOperations<T>(connection).QueryRecordWhere(PrimaryKeyField + " = {0}", Guid.Parse(id));
-                        else
-                            result = new TableOperations<T>(connection).QueryRecordWhere(PrimaryKeyField + " = {0}", id);
+                    T result = null;
+                    PropertyInfo primaryKey = typeof(T).GetProperty(PrimaryKeyField);
+                    if(primaryKey.PropertyType == typeof(int))
+                        result = QueryRecordWhere(PrimaryKeyField + " = {0}", int.Parse(id));
+                    else if (primaryKey.PropertyType == typeof(Guid))
+                        result = QueryRecordWhere(PrimaryKeyField + " = {0}", Guid.Parse(id));
+                    else
+                        result = QueryRecordWhere(PrimaryKeyField + " = {0}", id);
 
-                        if (result == null)
-                        {
-                            TableNameAttribute tableNameAttribute;
-                            string tableName;
-                            if (typeof(T).TryGetAttribute(out tableNameAttribute))
-                                tableName = tableNameAttribute.TableName;
-                            else
-                                tableName = typeof(T).Name;
-                            return BadRequest(string.Format(PrimaryKeyField + " provided does not exist in '{0}'.", tableName));
-                        }
-                        else
-                            return Ok(result);
-                    }
-                    catch (Exception ex)
+                    if (result == null)
                     {
-                        return InternalServerError(ex);
+                        TableNameAttribute tableNameAttribute;
+                        string tableName;
+                        if (typeof(T).TryGetAttribute(out tableNameAttribute))
+                            tableName = tableNameAttribute.TableName;
+                        else
+                            tableName = typeof(T).Name;
+                        return BadRequest(string.Format(PrimaryKeyField + " provided does not exist in '{0}'.", tableName));
                     }
+                    else
+                        return Ok(result);
                 }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+                
             }
             else
             {
@@ -198,13 +212,84 @@ namespace SystemCenter.Controllers
 
         }
 
+        [HttpGet, Route("{sort}/{ascending:int}")]
+        public virtual IHttpActionResult Get(string sort, int ascending)
+        {
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+            {
+               
+                string orderByExpression = DefaultSort;
+
+                if (sort != null && sort != string.Empty)
+                    orderByExpression = $"{sort} {(ascending == 1 ? "ASC" : "DESC")}";
+
+                try
+                {
+                    IEnumerable<T> result = QueryRecords(orderByExpression);
+
+                    return Ok(JsonConvert.SerializeObject(result));
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+                
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
+        }
+
+        [HttpGet, Route("{parentID}/{sort}/{ascending:int}")]
+        public virtual IHttpActionResult Get(string parentID, string sort, int ascending)
+        {
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+            {
+                
+                string orderByExpression = DefaultSort;
+
+                if (sort != null && sort != string.Empty)
+                    orderByExpression = $"{sort} {(ascending == 1 ? "ASC" : "DESC")}";
+
+                try
+                {
+                    IEnumerable<T> result;
+                    if (HasParent && parentID != null)
+                    {
+                        PropertyInfo parentKey = typeof(T).GetProperty(ParentKey);
+                        if (parentKey.PropertyType == typeof(int))
+                            result = QueryRecords(orderByExpression, new RecordRestriction(ParentKey + " = {0}", int.Parse(parentID)));
+                        else if (parentKey.PropertyType == typeof(Guid))
+                            result = QueryRecords(orderByExpression, new RecordRestriction(ParentKey + " = {0}", Guid.Parse(parentID)));
+                        else
+                            result = QueryRecords(orderByExpression, new RecordRestriction(ParentKey + " = {0}", parentID));
+                    }
+                    else
+                        result = QueryRecords(orderByExpression);
+
+                    return Ok(JsonConvert.SerializeObject(result));
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+                
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
+        }
 
         [HttpPost, Route("Add")]
         public virtual IHttpActionResult Post([FromBody] JObject record)
         {
             try
             {
-                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles) && !ViewOnly)
                 {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
@@ -242,7 +327,7 @@ namespace SystemCenter.Controllers
         {
             try
             {
-                if (PatchRoles == string.Empty || User.IsInRole(PatchRoles))
+                if (PatchRoles == string.Empty || User.IsInRole(PatchRoles) && ! ViewOnly && CustomView == string.Empty)
                 {
 
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -269,7 +354,7 @@ namespace SystemCenter.Controllers
         {
             try
             {
-                if (DeleteRoles == string.Empty || User.IsInRole(DeleteRoles))
+                if (DeleteRoles == string.Empty || User.IsInRole(DeleteRoles) && !ViewOnly && CustomView == string.Empty)
                 {
 
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -314,6 +399,50 @@ namespace SystemCenter.Controllers
                     return Unauthorized();
                 }             
 
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpPost, Route("SearchableList")]
+        public virtual IHttpActionResult GetSearchableList([FromBody] PostData postData)
+        {
+            if (!AllowSearch || (GetRoles != string.Empty && !User.IsInRole(GetRoles)))
+                return Unauthorized();
+
+            try
+            {
+
+                string whereClause = BuildWhereClause(postData.Searches);
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    string tableName = new TableOperations<T>(connection).TableName;
+
+                    string sql = "";
+                    if (CustomView == string.Empty)
+                    sql = $@"
+                    DECLARE @SQLStatement NVARCHAR(MAX) = N'
+                        SELECT * FROM {tableName}
+                        {whereClause.Replace("'", "''")}
+                        ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                    '
+                    exec sp_executesql @SQLStatement";
+
+                    else
+                        sql = $@"
+                    DECLARE @SQLStatement NVARCHAR(MAX) = N'
+                        SELECT * FROM ({CustomView.Replace("'", "''")}) T1
+                        {whereClause.Replace("'", "''")}
+                        ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
+                    '
+                    exec sp_executesql @SQLStatement";
+                    DataTable table = connection.RetrieveData(sql, "");
+
+                    return Ok(JsonConvert.SerializeObject(table));
+                }
             }
             catch (Exception ex)
             {
@@ -366,7 +495,93 @@ namespace SystemCenter.Controllers
             }
         }
 
+        [HttpPost, Route("ExtendedSearchableList")]
+        public virtual IHttpActionResult GetExtendedSearchableList([FromBody] PostData postData)
+        {
+            if (!AllowSearch || (GetRoles != string.Empty && !User.IsInRole(GetRoles)))
+                return Unauthorized();
 
+            try
+            {
+
+                string whereClause = BuildWhereClause(postData.Searches);
+
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    string tableName = new TableOperations<T>(connection).TableName;
+
+
+                    string sql = "";
+
+                    if (CustomView == string.Empty)
+                        sql = $@"
+                        DECLARE @PivotColumns NVARCHAR(MAX) = N''
+                        SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
+                            FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE ParentTable = '{tableName}') AS t
+
+                        DECLARE @SQLStatement NVARCHAR(MAX) = N'
+                            SELECT * INTO #Tbl FROM (
+                            SELECT 
+                                M.*,
+                                (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
+	                            afv.Value
+                            FROM ( {tableName}  M LEFT JOIN 
+                                [SystemCenter.AdditionalField] af on af.ParentTable = ''{tableName}'' LEFT JOIN
+	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
+                            ) as T ' + (SELECT CASE WHEN Len(@PivotColumns) > 0 THEN 'PIVOT (
+                                Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT' ELSE '' END) + ' 
+                            {whereClause.Replace("'", "''")}
+                            ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")};
+
+                            DECLARE @NoNPivotColumns NVARCHAR(MAX) = N''''
+                                SELECT @NoNPivotColumns = @NoNPivotColumns + ''[''+ name + ''],''
+                                    FROM tempdb.sys.columns WHERE  object_id = Object_id(''tempdb..#Tbl'') AND name NOT LIKE ''AFV%''; 
+		                    DECLARE @CleanSQL NVARCHAR(MAX) = N''SELECT '' + SUBSTRING(@NoNPivotColumns,0, LEN(@NoNPivotColumns)) + ''FROM #Tbl''
+
+		                    exec sp_executesql @CleanSQL
+                        '
+                        exec sp_executesql @SQLStatement";
+
+                    else
+                        sql = $@"
+                        DECLARE @PivotColumns NVARCHAR(MAX) = N''
+                        SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
+                            FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE ParentTable = '{tableName}') AS t
+
+                        DECLARE @SQLStatement NVARCHAR(MAX) = N'
+                            SELECT * INTO #Tbl FROM (
+                            SELECT 
+                                M.*,
+                                (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
+	                            afv.Value
+                            FROM ({CustomView.Replace("'", "''")}) M LEFT JOIN 
+                                [SystemCenter.AdditionalField] af on af.ParentTable = ''{tableName}'' LEFT JOIN
+	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
+                            ) as T ' + (SELECT CASE WHEN Len(@PivotColumns) > 0 THEN 'PIVOT (
+                                Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT' ELSE '' END) + '
+                            {whereClause.Replace("'", "''")}
+                            ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")};
+
+                            DECLARE @NoNPivotColumns NVARCHAR(MAX) = N''''
+                                SELECT @NoNPivotColumns = @NoNPivotColumns + ''[''+ name + ''],''
+                                    FROM tempdb.sys.columns WHERE  object_id = Object_id(''tempdb..#Tbl'') AND name NOT LIKE ''AFV%''; 
+		                    DECLARE @CleanSQL NVARCHAR(MAX) = N''SELECT '' + SUBSTRING(@NoNPivotColumns,0, LEN(@NoNPivotColumns)) + ''FROM #Tbl''
+
+		                    exec sp_executesql @CleanSQL
+                        '
+                        exec sp_executesql @SQLStatement";
+
+                    DataTable table = connection.RetrieveData(sql, "");
+
+                    return Ok(JsonConvert.SerializeObject(table));
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
         #endregion
 
         #region [Helper Methods]
@@ -376,15 +591,110 @@ namespace SystemCenter.Controllers
             string whereClause = string.Join(" AND ", searches.Select(search => {
                 if (search.SearchText == string.Empty) search.SearchText = "%";
                 else search.SearchText = search.SearchText.Replace("*", "%");
-                bool negate = search.SearchText[0] == '!' || search.SearchText[0] == '-';
 
-                return $"{search.Field}{(negate ? " NOT" : "")} LIKE '{search.SearchText}'";
+                if (search.Type == "string" || search.Type == "datetime")
+                    search.SearchText = $"'{search.SearchText}'";
+                else if (Array.IndexOf(new[] { "integer", "number", "boolean" }, search.Type) < 0)
+                {
+                    string text = search.SearchText.Replace("(", "").Replace(")", "");
+                    List<string> things = text.Split(',').ToList();
+                    things = things.Select(t => $"'{t}'").ToList();
+                    search.SearchText = $"({string.Join(",", things)})";
+                }
+
+                return $"[{(search.isPivotColumn ? "AFV_" : "") + search.FieldName}] {search.Operator} {search.SearchText}";
             }));
 
             if (searches.Any())
                 whereClause = "WHERE \n" + whereClause;
 
             return whereClause;
+        }
+
+        private IEnumerable<T> QueryRecordsWhere(string filterExpression, params object[] parameters)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                if (CustomView == String.Empty)
+                    return new TableOperations<T>(connection).QueryRecordsWhere(filterExpression, parameters);
+
+                string whereClause = " WHERE " + filterExpression;
+                string sql = "SELECT * FROM (" + CustomView + ") T1";
+                DataTable dataTbl  = connection.RetrieveData(sql + whereClause, parameters);
+
+                List<T> result = new List<T>();
+                TableOperations<T> tblOperations = new TableOperations<T>(connection);
+                foreach ( DataRow row in dataTbl.Rows)
+                {
+                    result.Add(tblOperations.LoadRecord(row));
+                }
+                return result;
+            }
+        }
+
+        private IEnumerable<T> QueryRecords() => QueryRecords(DefaultSort);
+
+        private T QueryRecordWhere(string filterExpression, params object[] parameters)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                if (CustomView == String.Empty)
+                    return new TableOperations<T>(connection).QueryRecordWhere(filterExpression, parameters);
+
+                string whereClause = " WHERE " + filterExpression;
+                string sql = "SELECT * FROM (" + CustomView + ") T1";
+                DataTable dataTbl = connection.RetrieveData(sql + whereClause, parameters);
+
+                TableOperations<T> tblOperations = new TableOperations<T>(connection);
+                if (dataTbl.Rows.Count > 0)
+                    return tblOperations.LoadRecord(dataTbl.Rows[0]);
+                return null;
+               
+            }
+        }
+
+        private IEnumerable<T> QueryRecords(string orderBy)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                if (CustomView == String.Empty)
+                    return new TableOperations<T>(connection).QueryRecords(orderBy);
+
+                string sql = "SELECT * FROM (" + CustomView + ") T1";
+
+                DataTable dataTbl = connection.RetrieveData(sql + "ORDER BY " + orderBy);
+
+                List<T> result = new List<T>();
+                TableOperations<T> tblOperations = new TableOperations<T>(connection);
+                foreach (DataRow row in dataTbl.Rows)
+                {
+                    result.Add(tblOperations.LoadRecord(row));
+                }
+                return result;
+            }
+        }
+
+        private IEnumerable<T> QueryRecords(string orderBy, RecordRestriction restriction)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                if (CustomView == String.Empty)
+                    return new TableOperations<T>(connection).QueryRecords(orderBy, restriction);
+
+                string restrictionString = "" + restriction.FilterExpression;
+
+                string sql = "SELECT * FROM (" + CustomView + ") T1";
+
+                DataTable dataTbl = connection.RetrieveData(sql + " WHERE " + restrictionString + "ORDER BY " + orderBy, restriction.Parameters);
+
+                List<T> result = new List<T>();
+                TableOperations<T> tblOperations = new TableOperations<T>(connection);
+                foreach (DataRow row in dataTbl.Rows)
+                {
+                    result.Add(tblOperations.LoadRecord(row));
+                }
+                return result;
+            }
         }
         #endregion
     }

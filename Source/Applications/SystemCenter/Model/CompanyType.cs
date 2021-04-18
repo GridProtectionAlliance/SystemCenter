@@ -47,5 +47,6 @@ namespace SystemCenter.Model
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
         protected override string DefaultSort => "Name";
+        protected override string Connection => "dbOpenXDA";
     }
 }

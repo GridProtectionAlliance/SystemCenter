@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
-import AssetAttributes from './Asset';
+import { AssetAttributes } from './Asset';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 import { getSpareBreakersForSubstation } from '../../../TS/Services/Asset';

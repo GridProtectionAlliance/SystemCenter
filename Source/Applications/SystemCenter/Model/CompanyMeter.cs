@@ -39,8 +39,9 @@ namespace SystemCenter.Model
         [PrimaryKey(true)]
         public int ID { get; set; }
         public int CompanyID { get; set; }
-        public int OpenXDAMeterID { get; set; }
-        public string MeterName { get; set; }
+        public int MeterID { get; set; }
+        public string DisplayName { get; set; }
+        public bool Enabled { get; set; }
     }
 
     [RoutePrefix("api/SystemCenter/CompanyMeter")]
@@ -48,7 +49,7 @@ namespace SystemCenter.Model
         protected override string PostRoles { get; } = "Administrator, Transmission SME";
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-
+        protected override string Connection => "dbOpenXDA";
         public CompanyMeterController() : base(true, "CompanyID")
         {
 

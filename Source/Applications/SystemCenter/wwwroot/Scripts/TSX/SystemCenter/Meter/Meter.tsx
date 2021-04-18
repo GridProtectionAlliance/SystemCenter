@@ -35,148 +35,158 @@ import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import MeterConfigurationHistoryWindow from './MeterConfigurationHistory';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
+import { Modal, Warning, LoadingIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-export default class Meter extends React.Component<{ MeterID: number }, { Meter: OpenXDA.Meter, Tab: string }, {}>{
-    getMeterHandle: JQuery.jqXHR;
-    constructor(props, context) {
-        super(props, context);
+interface IProps { MeterID: number }
 
-        this.state = {
-            Meter: null,
-            Tab: this.getTab()
-        }
-    }
+function Meter(props: IProps) {
+    const [meter, setMeter] = React.useState<OpenXDA.Meter>(null);
+    const [Tab, setTab] = React.useState<string>(null);
+    const [showDelete, setShowDelete] = React.useState<boolean>(false);
+    const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
 
-    getTab(): string {
+    React.useEffect(() => {
+        setTab(getTab());
+        return () => { sessionStorage.clear(); }
+    }, []);
+
+    React.useEffect(() => {
+        if (Tab == null)
+            return;
+        sessionStorage.setItem('Meter.Tab', JSON.stringify(Tab));
+    }, [Tab]);
+
+    React.useEffect(() => {
+        let handle = getMeter();
+        handle.then((data: OpenXDA.Meter) => setMeter(data));
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+
+    }, [props.MeterID]);
+
+    React.useEffect(() => { }, [])
+    function getTab(): string {
         if (sessionStorage.hasOwnProperty('Meter.Tab'))
             return JSON.parse(sessionStorage.getItem('Meter.Tab'));
         else
             return 'notes';
     }
 
-    getMeter(): void {
-        if (this.props.MeterID == undefined) return;
-       this.getMeterHandle = $.ajax({
+    function getMeter(): JQuery.jqXHR<OpenXDA.Meter> {
+        if (props.MeterID == undefined) return null;
+        return $.ajax({
             type: "GET",
-           url: `${homePath}api/OpenXDA/Meter/One/${this.props.MeterID}`,
+            url: `${homePath}api/OpenXDA/Meter/One/${props.MeterID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-       })
-
-       this.getMeterHandle.done((data: OpenXDA.Meter) => this.setState({ Meter: data }));
+        })
     }
 
-    deleteMeter(): JQuery.jqXHR {
+    function deleteMeter(): JQuery.jqXHR {
 
-        let response = confirm("This will delete the Meter Permanently");
-        if (!response)
-            return;
+        setLoadDelete(true);
 
-        return $.ajax({
+        let handle = $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Meter/Delete`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(this.state.Meter),
+            data: JSON.stringify(meter),
             dataType: 'json',
             cache: true,
             async: true
         });
+
+        handle.done(() => {
+            window.location.href = homePath + 'index.cshtml?name=Meters'
+        })
+
+        handle.then((d) => setLoadDelete(false))
+
+        return handle;
     }
 
-    setTab(tab:string): void {
-        sessionStorage.setItem('Meter.Tab', JSON.stringify(tab));
-        this.setState({Tab: tab});
-    }
-    
-    componentDidMount() {
-        this.getMeter();
-    }
+    if (meter == null) return null;
 
-    componentWillUnmount() {
-        sessionStorage.clear();
-        if (this.getMeterHandle.abort != undefined) this.getMeterHandle.abort();
-    }
-
-    render() {
-        if (this.state.Meter == null) return null;
-        return (
-            <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
-                <div className="row">
-                    <div className="col">
-                        <h2>{this.state.Meter != null ? this.state.Meter.AssetKey : ''}</h2>
-                    </div>
-                    <div className="col">
-                        <button className="btn btn-danger pull-right" hidden={this.state.Meter == null} onClick={() => this.deleteMeter().done(() => window.location.href = homePath + 'index.cshtml?name=Meters')}>Delete Meter (Permanent)</button>
-                    </div>
+    return (
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15 }}>
+            <div className="row">
+                <div className="col">
+                    <h2>{meter.AssetKey}</h2>
                 </div>
-
-
-                <hr />
-                <ul className="nav nav-tabs">
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "notes" ? " active" : "")} onClick={() => this.setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "meterInfo" ? " active" : "")} onClick={() => this.setTab('meterInfo')} data-toggle="tab" href="#meterInfo">Meter Info</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "additionalFields" ? " active" : "")} onClick={() => this.setTab('additionalFields')} data-toggle="tab" href="#additionalFields">Additional Fields</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "substation" ? " active" : "")} onClick={() => this.setTab('substation')} data-toggle="tab" href="#substation">Substation</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "assets" ? " active" : "")} onClick={() => this.setTab('assets')} data-toggle="tab" href="#assets">Assets</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "eventChannels" ? " active" : "")} onClick={() => this.setTab('eventChannels')} data-toggle="tab" href="#eventChannels">Event Channels</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "trendChannels" ? " active" : "")} onClick={() => this.setTab('trendChannels')} data-toggle="tab" href="#trendChannels">Trend Channels</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "configurationHistory" ? " active" : "")} onClick={() => this.setTab('configurationHistory')} data-toggle="tab" href="#configurationHistory">Configuration History</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "extDB" ? " active" : "")} onClick={() => this.setTab('extDB')} data-toggle="tab" href="#extDB">External DB</a>
-                    </li>
-                </ul>
-             
-                <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                    <div className={"tab-pane " + (this.state.Tab == "notes" ? " active" : "fade")} id="notes">
-                        <NoteWindow ID={this.props.MeterID} Type='Meter'/>
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "meterInfo" ? " active" : "fade")} id="meterInfo">
-                        <MeterInfoWindow Meter={this.state.Meter} StateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
-                        <AdditionalFieldsWindow ID={this.props.MeterID} Type='Meter' Tab={this.state.Tab}/>
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "substation" ? " active" : "fade")} id="substation">
-                        <MeterLocationWindow Meter={this.state.Meter} StateSetter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "eventChannels" ? " active" : "fade")} id="eventChannels">
-                        <MeterEventChannelWindow Meter={this.state.Meter} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "trendChannels" ? " active" : "fade")} id="trendChannels">
-                        <MeterTrendChannelWindow Meter={this.state.Meter} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "assets" ? " active" : "fade")} id="assets">
-                        <MeterAssetWindow Meter={this.state.Meter} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "configurationHistory" ? " active" : "fade")} id="configurationHistory">
-                        <MeterConfigurationHistoryWindow Meter={this.state.Meter} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "extDB" ? " active" : "fade")} id="extDB">
-                        <ExternalDBUpdate ID={this.props.MeterID} Type='Meter' Tab={this.state.Tab} />
-                    </div>
-                </div>                
+                <div className="col" style={{maxHeight: 50}}>
+                    <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete Meter (Permanent)</button>
+                </div>
             </div>
-        )
-    }
+
+            <hr />
+            <ul className="nav nav-tabs" style={{ maxHeight: 38 }}>
+                <li className="nav-item">
+                    <a className={"nav-link" + (Tab == "notes" ? " active" : "")} onClick={() => setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (Tab == "meterInfo" ? " active" : "")} onClick={() => setTab('meterInfo')} data-toggle="tab" href="#meterInfo">Meter Info</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (Tab == "additionalFields" ? " active" : "")} onClick={() => setTab('additionalFields')} data-toggle="tab" href="#additionalFields">Additional Fields</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (Tab == "substation" ? " active" : "")} onClick={() => setTab('substation')} data-toggle="tab" href="#substation">Substation</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (Tab == "assets" ? " active" : "")} onClick={() => setTab('assets')} data-toggle="tab" href="#assets">Assets</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (Tab == "eventChannels" ? " active" : "")} onClick={() => setTab('eventChannels')} data-toggle="tab" href="#eventChannels">Event Channels</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (Tab == "trendChannels" ? " active" : "")} onClick={() => setTab('trendChannels')} data-toggle="tab" href="#trendChannels">Trend Channels</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (Tab == "configurationHistory" ? " active" : "")} onClick={() => setTab('configurationHistory')} data-toggle="tab" href="#configurationHistory">Configuration History</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (Tab == "extDB" ? " active" : "")} onClick={() => setTab('extDB')} data-toggle="tab" href="#extDB">External DB</a>
+                </li>
+            </ul>
+
+            <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
+                <div className={"tab-pane " + (Tab == "notes" ? " active" : "fade")} id="notes" style={{ maxHeight: window.innerHeight - 215 }}>
+                    <NoteWindow ID={props.MeterID} Type='Meter' />
+                </div>
+                <div className={"tab-pane " + (Tab == "meterInfo" ? " active" : "fade")} id="meterInfo" style={{ maxHeight: window.innerHeight - 215 }}>
+                    <MeterInfoWindow Meter={meter} StateSetter={(meter: OpenXDA.Meter) => setMeter(meter)} />
+                </div>
+                <div className={"tab-pane " + (Tab == "additionalFields" ? " active" : "fade")} id="additionalFields" style={{ maxHeight: window.innerHeight - 215 }}>
+                    <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={Tab} />
+                </div>
+                <div className={"tab-pane " + (Tab == "substation" ? " active" : "fade")} id="substation" style={{ maxHeight: window.innerHeight - 215 }}>
+                    <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Meter) => setMeter(meter)} />
+                </div>
+                <div className={"tab-pane " + (Tab == "eventChannels" ? " active" : "fade")} id="eventChannels">
+                    <MeterEventChannelWindow Meter={meter} />
+                </div>
+                <div className={"tab-pane " + (Tab == "trendChannels" ? " active" : "fade")} id="trendChannels">
+                    <MeterTrendChannelWindow Meter={meter} />
+                </div>
+                <div className={"tab-pane " + (Tab == "assets" ? " active" : "fade")} id="assets">
+                    <MeterAssetWindow Meter={meter} />
+                </div>
+                <div className={"tab-pane " + (Tab == "configurationHistory" ? " active" : "fade")} id="configurationHistory">
+                    <MeterConfigurationHistoryWindow Meter={meter} />
+                </div>
+                <div className={"tab-pane " + (Tab == "extDB" ? " active" : "fade")} id="extDB">
+                    <ExternalDBUpdate ID={props.MeterID} Type='Meter' Tab={Tab} />
+                </div>
+            </div>
+            <Warning Message={'This will permanently Delete this meter and can not be undone.'} Show={showDelete} Title={'Delete Meter ' + meter.AssetKey} CallBack={(conf) => { if (conf) deleteMeter(); setShowDelete(false); }} />
+            <LoadingScreen Show={loadDelete} />
+        </div>
+       
+
+            )
 }
 
+export default Meter;

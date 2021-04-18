@@ -39,4 +39,13 @@ namespace SystemCenter.Model
         public string Query { get; set; }
     }
 
+    [RoutePrefix("api/SystemCenter/ExternalDBTables")]
+    public class ExtDBTablesController : ModelController<extDBTables>
+    {
+
+        protected override string PostRoles { get; } = "Administrator, Transmission SME";
+        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
+        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
+
+    }
 }

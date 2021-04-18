@@ -22,29 +22,29 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import AssetAttributes from '../AssetAttribute/Asset';
-import { getAllAssets, getAssetTypes } from '../../../TS/Services/Asset';
 import { OpenXDA, SystemCenter } from '../global';
-import BreakerAttributes from '../AssetAttribute/Breaker';
-import CapBankAttributes from '../AssetAttribute/CapBank';
-import BusAttributes from '../AssetAttribute/Bus';
-import LineAttributes from '../AssetAttribute/Line';
-import TransformerAttributes from '../AssetAttribute/Transformer';
-import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 import AddToGroupPopup from './AddToGroup';
+import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
+import AssetGroup from './AssetGroup';
+import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 
 declare var homePath: string;
 
-type FieldName = 'Name';
-interface Search {
-    Field: FieldName,
-    SearchText: string
-}
+
+const defaultSearchcols: Array<Search.IField<AssetGroup>> = [
+    { label: 'Name', key: 'Name', type: 'string' },
+    { label: 'Number of Meter', key: 'Meters', type: 'integer' },
+    { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer' },
+    { label: 'Number of Users', key: 'Users', type: 'integer' },
+    { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean' },
+        
+];
+
 interface AssetGroup {
     ID: number, Name: string, DisplayDashboard: boolean, AssetGroups: number, Meters: number, Assets: number, Users: number
 }
@@ -58,43 +58,61 @@ declare var homePath: string;
 const ByAssetGroup: SystemCenter.ByComponent = (props) => {
     let history = useHistory();
 
-    const [search, setSearch] = React.useState<Array<Search>>([{ Field: 'Name', SearchText: '' }]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<AssetGroup>>>([]);
     const [data, setData] = React.useState<Array<AssetGroup>>([]);
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<AssetGroup>>>(defaultSearchcols);
+    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
+
 
     const [newAssetGroup, setNewAssetGroup] = React.useState<extendedAssetGroup>(_.cloneDeep(emptyAssetGroup));
     const [allAssetGroups, setAllAssetGroups] = React.useState<Array<AssetGroup>>([]);
+    const [showNewGroup, setShowNewGroup] = React.useState<boolean>(false);
+
+    const [showAddAsset, setShowAddAsset] = React.useState<boolean>(false);
+    const [showAddMeter, setShowAddMeter] = React.useState<boolean>(false);
+    const [showAddGroup, setShowAddGroup] = React.useState<boolean>(false);
+
 
     React.useEffect(() => {
-        return getData();
-    }, []);
-
-
-    function getData() {
-
-        let handle1 = getAssetGroups();
         let handle2 = getAllAssetGroups();
-
-        handle1.done((data: Array<AssetGroup>) => setData(data));
         handle2.done(aas => setAllAssetGroups(aas));
-        
+
 
         return function cleanup() {
-            if (handle1.abort != null)
-                handle1.abort();
+
             if (handle2.abort != null)
                 handle2.abort();
         }
-    }
+    }, []);
 
+    React.useEffect(() => {
+        let handle = getAssetGroups();
+
+        handle.done((data: string) => {
+            setSearchState('Idle');
+            setData(JSON.parse(data) as AssetGroup[])
+        }).fail((d) => setSearchState('Error'));
+        
+        return () => {
+            if (handle.abort != null)
+                handle.abort();
+        };
+
+    }, [search, ascending, sortField]);
+
+    
     function getAssetGroups(): JQueryXHR {
+        setSearchState('Loading');
+        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
+
         return $.ajax({
             type: "Post",
             url: `${homePath}api/OpenXDA/AssetGroup/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(search),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -142,93 +160,45 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
         return true;
     }
 
+    const standardSearch: Search.IField<AssetGroup> = { label: 'Name', key: 'Name', type: 'string' };
     return (
+        <>
         <div style={{ width: '100%', height: '100%' }}>
-            <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                <div className="collapse navbar-collapse" id="navbarSupportedContent" style={{ width: '100%' }}>
-                    <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
-                        <li className="nav-item" style={{ width: '50%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search: </legend>
-                                <form>
-                                    {
-                                        search.map((s, index, a) => {
+            <SearchBar<AssetGroup> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
+                ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Locations'}
+                GetEnum={(setOptions, field) => {
+                    let handle = null;
+                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+                        return () => { };
 
-                                            return (
-                                                <div className="input-group" key={index} style={{ border: '1px solid lightgray' }}>
-                                                    <div className="input-group-prepend">
-                                                        <select className='form-control' style={{ height: '100%' }} value={s.Field} onChange={(evt) => {
-                                                            let array = _.clone(a);
-                                                            s.Field = evt.target.value as FieldName;
-                                                            setSearch(array);
-                                                        }}>
-                                                            <option value='Name'>Name</option>
-                                                        </select>
-                                                    </div>
-                                                    <input className='form-control' type='text' placeholder='Search...' value={s.SearchText} onChange={(evt) => {
-                                                        
-                                                        s.SearchText = evt.target.value;
-                                                        let array = _.clone(a);
-                                                        setSearch(array);
-                                                    }} onKeyDown={evt => {
-                                                        if (evt.keyCode == 13) {
-                                                            evt.preventDefault();
-                                                            getAssetGroups().done(ms => setData(ms));
-                                                        }
-                                                    }}/>
-                                                    <div className="input-group-append">
-                                                        <button className="btn btn-danger" type="button" onClick={(evt) => {
-                                                            let array = _.clone(a);
-                                                            array.splice(index, 1);
-                                                            setSearch(array);
-                                                        }}><span><i className="fa fa-times"></i></span></button>
-                                                    </div>
-                                                </div>
-                                            )
-                                        })
+                    handle = $.ajax({
+                        type: "GET",
+                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        cache: true,
+                        async: true
+                    });
 
-                                    }
-                                </form>
-                            </fieldset>
-                        </li>
-                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>Search Params:</legend>
-                                <form>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            let array = _.clone(search);
-                                            array.push({ Field: 'Name', SearchText: '' });
-                                            setSearch(array);
-                                        }}>Add Parameter</button>
-                                    </div>
-                                    <div className="form-group">
-                                        <button className="btn btn-primary" onClick={(event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-                                            event.preventDefault();
-                                            getAssetGroups().done((data: Array<AssetGroup>) => setData(data));
-                                        }}>Update Search</button>
-                                    </div>
-                                </form>
-                            </fieldset>
-                        </li>
+                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
+                }}
+
+            >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
                                     <div className="form-group">
-                                        <button className="btn btn-primary" data-toggle='modal' data-target="#assetGroupModal" disabled={true} hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Add New AssetGroup</button>
+                                    <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { setShowNewGroup(true) }}>Add New AssetGroup</button>
                                     </div>
                                 </form>
                             </fieldset>
                         </li>
-                        
-                    </ul>
-                </div>
-            </nav>
+                </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
-                <Table
+                <Table<AssetGroup>
                     cols={[
                         { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Assets', label: 'Num. of Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -242,15 +212,10 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
                     sortField={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField) {
-                            let ordered = _.orderBy(data, [d.col], [(!ascending ? "asc" : "desc")]);
+                        if (d.col == sortField)
                             setAscending(!ascending);
-                            setData(ordered);
-                        }
                         else {
-                            let ordered = _.orderBy(data, [d.col], ["asc"]);
-                            setAscending(!ascending);
-                            setData(ordered);
+                            setAscending(true);
                             setSortField(d.col);
                         }
                     }}
@@ -261,73 +226,65 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
                     selected={(item) => false}
                 />
             </div>
-
-            <div className="modal" id="assetGroupModal">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Add a New Asset</h4>
-                            <button type="button" className="close" data-dismiss="modal" onClick={(evt) => { setNewAssetGroup(_.cloneDeep(emptyAssetGroup)) }}>&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="row">
-                                <div className="col">
-                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique name of less than 50 characters is required.'} Valid={valid}
-                                        Setter={setNewAssetGroup} Disabled={false} />
-                                    <FormCheckBox<extendedAssetGroup> Record={newAssetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in Dashboard'} Setter={setNewAssetGroup} Disabled={false} />
-
-                                </div>
-                                <div className="col">
-                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                                    <button type="button" className="btn btn-primary btn-block" data-toggle='modal' data-target="#AddAsset"> Add Transmission Asset </button>
-                                    <AddToGroupPopup type='Asset' onComplete={(list) => {
-                                        setNewAssetGroup((grp) => {
-                                            let updated = _.cloneDeep(grp);
-                                            updated.AssetList.push(...list);
-                                            updated.AssetList = _.uniq(updated.AssetList);
-                                            updated.Assets = updated.AssetList.length;
-                                            return updated;
-                                        });
-                                        return null;
-                                    }} />
-                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Meters'} Label={'Num. of Meters'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                                    <button type="button" className="btn btn-primary btn-block" data-toggle='modal' data-target="#AddMeter"> Add Meter </button>
-                                    <AddToGroupPopup type='Meter' onComplete={(list) => {
-                                        setNewAssetGroup((grp) => {
-                                            let updated = _.cloneDeep(grp);
-                                            updated.MeterList.push(...list);
-                                            updated.MeterList = _.uniq(updated.MeterList);
-                                            updated.Meters = updated.MeterList.length;
-                                            return updated;
-                                        });
-                                        return null;
-                                    }} />
-                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'Users'} Label={'Num. of Users'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                                    <button type="button" className="btn btn-primary btn-block" disabled={true}> Add User Account </button>
-                                    <FormInput<extendedAssetGroup> Record={newAssetGroup} Field={'AssetGroups'} Label={'Num. of Asset Groups'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                                    <button type="button" className="btn btn-primary btn-block" data-toggle='modal' data-target="#AddGroup"> Add Asset Group </button>
-                                    <AddToGroupPopup type='Group' onComplete={(list) => {
-                                        setNewAssetGroup((grp) => {
-                                            let updated = _.cloneDeep(grp);
-                                            updated.AssetGroupList.push(...list);
-                                            updated.AssetGroupList = _.uniq(updated.AssetGroupList);
-                                            updated.AssetGroups = updated.AssetGroupList.length;
-                                            return updated;
-                                        });
-                                        return null;
-                                    }} />
-                                </div>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewAssetGroup}>Save</button>
-                            <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => { setNewAssetGroup(_.cloneDeep(emptyAssetGroup))}}>Close</button>
-                        </div>
-
+            </div>
+            <Modal Size='xlg' Show={showNewGroup} Title={'Create a New AssetGroup'} ShowX={true}
+                CancelText={'Close'} CancelBtnClass={'btn-danger'} ConfirmBtnClass={'btn-success'} ConfirmText={'Add'}
+                CallBack={(conf) => { if (conf) addNewAssetGroup(); else setNewAssetGroup(_.cloneDeep(emptyAssetGroup)); setShowNewGroup(false); }}
+            >
+                <div className="row">
+                    <div className="col">
+                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique name of less than 50 characters is required.'} Valid={valid}
+                            Setter={setNewAssetGroup} Disabled={false} />
+                        <CheckBox<extendedAssetGroup> Record={newAssetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in Dashboard'} Setter={setNewAssetGroup} Disabled={false} />
+                    </div>
+                    <div className="col">
+                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
+                        <button type="button" className="btn btn-primary btn-block" onClick={() => setShowAddAsset(true)}> Add Transmission Asset </button>
+                       
+                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Meters'} Label={'Num. of Meters'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
+                        <button type="button" className="btn btn-primary btn-block" onClick={() => setShowAddMeter(true)}> Add Meter </button>
+                        
+                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Users'} Label={'Num. of Users'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
+                        <button type="button" className="btn btn-primary btn-block" disabled={true}> Add User Account </button>
+                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'AssetGroups'} Label={'Num. of Asset Groups'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
+                        <button type="button" className="btn btn-primary btn-block" onClick={() => setShowAddGroup(true)}> Add Asset Group </button>
+                       
                     </div>
                 </div>
-            </div>
-        </div>
+            </Modal>
+            <AddToGroupPopup type='Asset' onComplete={(list) => {
+                setNewAssetGroup((grp) => {
+                    let updated = _.cloneDeep(grp);
+                    updated.AssetList.push(...list);
+                    updated.AssetList = _.uniq(updated.AssetList);
+                    updated.Assets = updated.AssetList.length;
+                    return updated;
+                });
+                return null;
+            }} Show={showAddAsset} Close={() => setShowAddAsset(false)} />
+
+            <AddToGroupPopup type='Meter' onComplete={(list) => {
+                setNewAssetGroup((grp) => {
+                    let updated = _.cloneDeep(grp);
+                    updated.MeterList.push(...list);
+                    updated.MeterList = _.uniq(updated.MeterList);
+                    updated.Meters = updated.MeterList.length;
+                    return updated;
+                });
+                return null;
+            }} Show={showAddMeter} Close={() => setShowAddMeter(false)} />
+            <AddToGroupPopup type='Group' onComplete={(list) => {
+                setNewAssetGroup((grp) => {
+                    let updated = _.cloneDeep(grp);
+                    updated.AssetGroupList.push(...list);
+                    updated.AssetGroupList = _.uniq(updated.AssetGroupList);
+                    updated.AssetGroups = updated.AssetGroupList.length;
+                    return updated;
+                });
+                return null;
+            }} Show={showAddGroup} Close={() => setShowAddGroup(false)} />
+
+            </>
     )
 }
 

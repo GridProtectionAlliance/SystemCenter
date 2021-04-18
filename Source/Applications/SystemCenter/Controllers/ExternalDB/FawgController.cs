@@ -64,14 +64,24 @@ namespace SystemCenter.Controllers
         // The call to get LineSegments from Fawg is seperate because this will override all previous Segment
         private class FawgSegmentData
         {
-            public IEnumerable<LineSegment> segments;
+            public IEnumerable<FawgLineSegment> segments;
             public IEnumerable<TempConnection> connections;
+        }
+
+        private class FawgLineSegment : LineSegment
+        {
+            public int FromBus { get; set; }
+            public int ToBus { get; set; }
+            public int LocationFromID { get; set; }
+            public int LocationToID { get; set; }
+            public bool Changed { get; set; }
         }
 
         private class TempConnection
         {
             public string ParentKey;
             public string ChildKey;
+            public int BusNumber;
         }
 
         [HttpGet, Route("UpdateSegments/{lineID:int}")]
@@ -84,9 +94,8 @@ namespace SystemCenter.Controllers
             }
 
             int segment = 1;
-            List<LineSegment> segments = new List<LineSegment>();
-            List<int> fromBus = new List<int>();
-            List<int> toBus = new List<int>();
+            List<FawgLineSegment> segments = new List<FawgLineSegment>();
+
 
             List<TempConnection> connections = new List<TempConnection>();
 
@@ -102,7 +111,9 @@ namespace SystemCenter.Controllers
 
                     foreach (DataRow row in dataTable.AsEnumerable())
                     {
-                        segments.Add(new LineSegment()
+                        segment++;
+
+                        segments.Add(new FawgLineSegment()
                         {
                             AssetKey = String.Format("{0}-Segment-{1}", line.AssetKey, segment),
                             Length = double.Parse((row["LengthMiles"].ToString()==""? "0" : row["LengthMiles"].ToString())),
@@ -112,41 +123,43 @@ namespace SystemCenter.Controllers
                             R1 = double.Parse((row["PosSeqResistance"].ToString() == "" ? "0" : row["PosSeqResistance"].ToString())),
                             VoltageKV = double.Parse((row["VoltageValue"].ToString() == "" ? "0" : row["VoltageValue"].ToString())),
                             AssetName = line.AssetName + String.Format(" Segment {0}", segment),
-                            ThermalRating = double.Parse((row["ConductorSummerContRating"].ToString() == "" ? "0" : row["ConductorSummerContRating"].ToString()))
+                            ThermalRating = double.Parse((row["ConductorSummerContRating"].ToString() == "" ? "0" : row["ConductorSummerContRating"].ToString())),
+                            FromBus = int.Parse(row["fromBusNumber"].ToString()),
+                            ToBus = int.Parse(row["ToBusNumber"].ToString())
+                    });
 
-                        });
-
-                        segment++;
-                        int bus1 = int.Parse(row["fromBusNumber"].ToString());
-                        int bus2 = int.Parse(row["ToBusNumber"].ToString());
-
-                        fromBus.Add(bus1);
-                        toBus.Add(bus2);
-
+                      
                     }
                 }
 
                 for (int i = 0; i < segments.Count; i++)
                 {
+                    int assetID = ExistingSegment(segments[i], lineID);
+                    if (assetID == -1)
+                        segments[i].Changed = true;
+                    else
+                        segments[i].Changed = SegmentChanged(segments[i], assetID);
+
                     //Set end of Line Segments correctly
-                    int nFromBus = fromBus.Count(item => item == fromBus[i]) + toBus.Count(item => item == fromBus[i]);
-                    int nToBus = fromBus.Count(item => item == toBus[i]) + toBus.Count(item => item == toBus[i]);
+                    int nFromBus = segments.Count(item => item.FromBus == segments[i].FromBus) + segments.Count(item => item.ToBus == segments[i].FromBus);
+                    int nToBus = segments.Count(item => item.FromBus == segments[i].ToBus) + segments.Count(item => item.ToBus == segments[i].ToBus);
                     if (nToBus == 1 || nFromBus == 1)
                         segments[i].IsEnd = true;
 
                     //Get all Connected Segments
-                    List<LineSegment> connectedSegments = segments.Where((item, index) =>
-                        (fromBus[index] == fromBus[i] || toBus[index] == fromBus[i] || fromBus[index] == toBus[i] || toBus[index] == toBus[i]) && (i != index)).ToList();
+                    List<FawgLineSegment> connectedSegments = segments.Where((item, index) =>
+                        (item.FromBus == segments[i].FromBus || item.ToBus == segments[i].FromBus || item.FromBus == segments[i].ToBus || item.ToBus == segments[i].ToBus) && (i != index)).ToList();
 
                     //Set Connections if they don't already exist
-                    foreach (LineSegment seg in connectedSegments)
+                    foreach (FawgLineSegment seg in connectedSegments)
                     {
                         int nConnections = connections.Count(item => (
                         (item.ParentKey == segments[i].AssetKey && item.ChildKey == seg.AssetKey) ||
                         (item.ChildKey == segments[i].AssetKey && item.ParentKey == seg.AssetKey)));
 
+                        int bus = (segments[i].FromBus == seg.FromBus || segments[i].ToBus == seg.FromBus) ? seg.FromBus : seg.ToBus;
                         if (nConnections == 0)
-                            connections.Add(new TempConnection() { ChildKey = segments[i].AssetKey, ParentKey = seg.AssetKey });
+                            connections.Add(new TempConnection() { ChildKey = segments[i].AssetKey, ParentKey = seg.AssetKey, BusNumber=bus });
                     }
 
                 }
@@ -162,6 +175,7 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
+
 
         [Route("ConfirmSegments/{lineID:int}"), HttpPost]
         public IHttpActionResult ConfirmSegments(int lineID, [FromBody] JObject record)
@@ -190,12 +204,31 @@ namespace SystemCenter.Controllers
 
                         int assetType = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'LineSegment'");
                         int assetConnectionType = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment'");
-                        foreach (LineSegment seg in updatedData.segments)
+                        int i = 1;
+                        foreach (FawgLineSegment seg in updatedData.segments)
                         {
-                            seg.AssetTypeID = assetType;
-                            segmentTable.AddNewRecord(seg);
 
-                            int segmentID = connection.ExecuteScalar<int>("SELECT ID FROM LineSegment WHERE AssetKey = {0}", seg.AssetKey);
+                            LineSegment lseg = new LineSegment()
+                            {
+                                AssetKey = line.AssetKey + " Segment" + i,
+                                R0 = seg.R0,
+                                R1 = seg.R1,
+                                X0 = seg.X0,
+                                X1 = seg.X1,
+                                ThermalRating = seg.ThermalRating,
+                                Length = seg.Length,
+                                IsEnd = seg.IsEnd,
+                                Spare = false,
+                                AssetTypeID = assetType,
+                                AssetName = line.AssetName + " Segment " + i,
+                                VoltageKV = line.VoltageKV
+                            };
+
+                            i++;
+
+                            segmentTable.AddNewRecord(lseg);
+
+                            int segmentID = connection.ExecuteScalar<int>("SELECT ID FROM LineSegment WHERE AssetKey = {0}", lseg.AssetKey);
 
                             connectionTable.AddNewRecord(
                                 new AssetConnection()
@@ -203,7 +236,12 @@ namespace SystemCenter.Controllers
                                     AssetRelationshipTypeID = assetConnectionType,
                                     ChildID = lineID,
                                     ParentID = segmentID
-                                });                            
+                                });
+                            if (seg.IsEnd && seg.LocationFromID > 0)
+                                connection.ExecuteNonQuery($"INSERT INTO AssetLocation (AssetID, LocationID) VALUES ({segmentID},{seg.LocationFromID})");
+                            if (seg.IsEnd && seg.LocationToID > 0)
+                                connection.ExecuteNonQuery($"INSERT INTO AssetLocation (AssetID, LocationID) VALUES ({segmentID},{seg.LocationToID})");
+                           
                         }
 
                         updatedData.connections
@@ -217,12 +255,53 @@ namespace SystemCenter.Controllers
 
                     scope.Complete();
                 }
-                return Ok();
+                return Ok(1);
             }
             catch (Exception ex)
             {
                 return InternalServerError(ex);
             }
+        }
+
+        private int ExistingSegment(FawgLineSegment Segment, int LineID)
+        {
+
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                return connection.ExecuteScalar<int?>($@"
+                    SELECT ID
+                    FROM LineSegment
+                    WHERE
+                    (
+	                    SELECT COUNT(AssetConnection.ID) 
+	                    FROM AssetConnection
+	                    WHERE
+		                    AssetConnection.AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment' ) AND 
+		                    ((AssetConnection.ParentID = LineSegment.ID AND AssetConnection.ChildID = {LineID}) OR (AssetConnection.ChildID = LineSegment.ID AND AssetConnection.ParentID = {LineID}))
+		
+                    ) > 0 AND
+                    (
+                        SELECT Value 
+                        FROM [SystemCenter.AdditionalFieldValue] AFV LEFT JOIN [SystemCenter.AdditionalField] AF ON AFV.AdditionalFieldID = AF.ID
+                        WHERE AF.ParentTable='LineSegment' and AF.FieldName = 'FromBus' AND AFV.ParentTableID = LineSegment.ID 
+                    ) = '{Segment.FromBus}' AND 
+                    (
+                        SELECT Value
+                        FROM [SystemCenter.AdditionalFieldValue] AFV LEFT JOIN [SystemCenter.AdditionalField] AF ON AFV.AdditionalFieldID = AF.ID
+                        WHERE AF.ParentTable='LineSegment' and AF.FieldName = 'ToBus' AND AFV.ParentTableID = LineSegment.ID 
+                    ) = '{Segment.ToBus}'") ?? -1;
+
+        }
+
+        private bool SegmentChanged(FawgLineSegment Segment, int SegmentID)
+        {
+            LineSegment original;
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                original = new TableOperations<LineSegment>(connection).QueryRecordWhere("ID = {0}", SegmentID);
+            if (original == null)
+                return true;
+
+            return original.Length != Segment.Length || original.R0 != Segment.R0 || original.R1 != Segment.R1 ||
+                original.X0 != Segment.X0 || original.X1 != Segment.X1 || original.ThermalRating != Segment.ThermalRating || original.VoltageKV != Segment.VoltageKV;
         }
 
     }
@@ -274,5 +353,6 @@ namespace SystemCenter.Controllers
             }
         }
     }
+
 
 }

@@ -23,7 +23,6 @@
 //******************************************************************************************************
 import { OpenXDA } from "../../TSX/SystemCenter/global";
 import * as _ from 'lodash';
-import AssetAttributes from "../../TSX/SystemCenter/AssetAttribute/Asset";
 
 declare var homePath: string;
 

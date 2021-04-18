@@ -574,7 +574,7 @@ GO
 /* FAWG Query for LineSegments */
 INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
            ('LineSegment','Fawg','
-            (
+                        (
              SELECT
                     Lines.Lines_Id,
 	                Lines.fromBusNumber,
@@ -593,7 +593,9 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
                     Buses ON Lines.fromBuses_Id = Buses.Buses_Id JOIN
                     Branches ON Lines.Branches_Id = Branches.Branches_Id
                 WHERE
-                    Branches.Description = ''Fawg One''
+                    Branches.Description = ''Fawg One'' AND
+					Lines.ISD < (SELECT YEAR((SELECT GetDate()))*100 + Month((SELECT GetDate()))) AND
+					Lines.OSD > (SELECT YEAR((SELECT GetDate()))*100 + Month((SELECT GetDate())))
             ) T1')
 GO
 
@@ -1078,3 +1080,59 @@ GO
 INSERT INTO CompanyType (Name,Description) VALUES ('Interchange and Transmission','X - Interchange and Transmission')
 GO
 
+INSERT INTO ValueListGroup ([Name],[Description],[Enabled]) VALUES
+	('TimeZones','TimeZones',1),
+	('TSC','TSC',1),
+	('Status','Status',1)
+GO
+
+INSERT INTO ValueList ([GroupID], [Key], [Value],[Text],[AltText1],[SortOrder],[IsDefault],[Enabled],[Flag],[Hidden]) VALUES
+(1,9,0,'Hawaiian Standard Time','(UTC-10:00) Hawaii', 9, 0, 1,0,0),
+(1,8,0,'UTC-08','(UTC-08:00) Coordinated Universal Time-08',8,0,1,0,0),
+(1,7,0,'Pacific Standard Time','(UTC-08:00) Pacific Time (US & Canada)',7,0,1,0,0),
+(1,6,0,'US Mountain Standard Time','(UTC-07:00) Arizona',6,0,1,0,0),
+(1,5,0,'Mountain Standard Time','(UTC-07:00) Mountain Time (US & Canada)',5,0,1,0,0),
+(1,4,0,'Central Standard Time','(UTC-06:00) Central Time (US & Canada)',4,0,1,0,0),
+(1,3,0,'Eastern Standard Time','(UTC-05:00) Eastern Time (US & Canada)',3,0,1,0,0),
+(1,2,0,'US Eastern Standard Time','(UTC-05:00) Indiana (East)',2,1,2,0,0),
+(1,1,0,'UTC','(UTC) Coordinated Universal Time',1,0,2,0,0),
+(2,0,1,'AL',NULL,1,0,1,0,0),
+(2,0,2,'TN',NULL,2,0,1,0,0),
+(2,0,3,'GA',NULL,3,0,1,0,0),
+(2,0,4,'MS',NULL,4,0,1,0,0),
+(2,0,5,'KY',NULL,5,0,1,0,0),
+(3,1,0,'Active',NULL,1,0,1,0,0),
+(3,2,0,'Retired',NULL,1,0,1,0,0),
+(3,3,0,'Planned',NULL,1,0,1,0,0),
+(3,4,0,'Repair',NULL,1,0,1,0,0)
+GO
+
+/* Fields for Line segments to identify changes compared to FAWG - also needed for possible email Alerts against changes in FAWG */
+INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+('LineSegment', 'FromBus','','',''),
+('LineSegment', 'ToBus','','','')
+GO
+
+-- The Following Needs to be run on openXDA for now until integration into openXDA DB is complete --
+--CREATE VIEW [SystemCenter.AdditionalField] AS
+--	SELECT
+--	ID,
+--	OpenXDAParentTable AS ParentTable,
+--	FieldName,
+--	Type,
+--	ExternalDB,
+--	ExternalDBTable,
+--	ExternalDBTableKey,
+--	IsSecure
+--FROM SystemCenter.dbo.AdditionalField
+--GO
+
+--CREATE VIEW [SystemCenter.AdditionalFieldValue] AS
+--	SELECT
+--	ID,
+--	OpenXDaParentTableID AS ParentTableID,
+--	AdditionalFieldID,
+--	Value,
+ --   UpdatedOn
+--FROM SystemCenter.dbo.AdditionalFieldValue
+--GO

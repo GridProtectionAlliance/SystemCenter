@@ -25,140 +25,170 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
-import FormInput from '../CommonComponents/FormInput';
-import FormTextArea from '../CommonComponents/FormTextArea';
+import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
+import { LoadingScreen, Search, ToolTip } from '@gpa-gemstone/react-interactive';
+import MeterProperties from './PropertyUI/MeterProperties';
+
 declare var homePath: string;
 
-export default class MeterInfoWindow extends React.Component<{ Meter: OpenXDA.Meter, StateSetter: (meter: OpenXDA.Meter) => void }, { Meter: OpenXDA.Meter, TimeZones: Array<SystemCenter.ValueListItem> }, {}> {
-    jqueryHandle: JQuery.jqXHR;
-    constructor(props, context) {
-        super(props, context);
+interface IProps { Meter: OpenXDA.Meter, StateSetter: (meter: OpenXDA.Meter) => void }
 
-        this.state = {
-            TimeZones: [],
-            Meter: this.props.Meter
-        }
+const MeterInforWindow = (props: IProps) => {
+    const [meter, setMeter] = React.useState<OpenXDA.Meter>(props.Meter);
+    const [loading, setLoading] = React.useState<boolean>(false);
+    const [assetKeyValid, setAssetKeyValid] = React.useState<boolean>(true);
+    const [assetKey, setAssetKey] = React.useState<string>(props.Meter.AssetKey);
+    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-        this.valid = this.valid.bind(this);
-    }
+    React.useEffect(() => { setMeter(props.Meter) }, [props.Meter]);
 
-    componentDidMount() {
-        this.getTimeZones();
-    }
+   
 
-    componentWillReceiveProps(nextProps): void {
-        this.setState({ Meter: nextProps.Meter });
-    }
+    React.useEffect(() => {
+        if (assetKey != meter.AssetKey)
+            setAssetKey(meter.AssetKey);
+    }, [meter]);
 
-    getTimeZones(): void {
-        if (sessionStorage.hasOwnProperty('SystemCenter.TimeZones'))
-            this.setState({ TimeZones: JSON.parse(sessionStorage.getItem('SystemCenter.TimeZones')) });
-        else
-            $.ajax({
-                type: "GET",
-                url: `${homePath}api/ValueList/Group/TimeZones`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            }).done((tzs: Array<SystemCenter.ValueListItem>) => {
-                this.setState({ TimeZones: tzs });
-                sessionStorage.setItem('SystemCenter.TimeZones', JSON.stringify(tzs));
+    React.useEffect(() => {
+        let handle = validateAssetKey();
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
 
-            });
-    }
+    }, [assetKey]);
 
-    updateMeter(): void {
-        var meter: OpenXDA.Meter = _.clone(this.state.Meter);
-       $.ajax({
+  
+    function updateMeter(): void {
+        setLoading(true);
+        let updatedMeter: OpenXDA.Meter = _.clone(meter);
+        $.ajax({
             type: "PATCH",
             url: `${homePath}api/OpenXDA/Meter/Update`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(this.state.Meter),
+            data: JSON.stringify(updatedMeter),
             dataType: 'json',
             cache: true,
             async: true
-       }).done((meterID: Number) => {
-           this.props.StateSetter(meter);
-       });
+        }).done((meterID: Number) => {
+            props.StateSetter(updatedMeter);
+            setLoading(false);
+        });
     }
 
-    valid(field: keyof (OpenXDA.Meter)): boolean {
+    function validateAssetKey(): JQuery.jqXHR<string> {
+        if (assetKey == null || assetKey.length == 0 || assetKey.length > 50)
+            return null;
+
+        let h = $.ajax({
+            type: "Post",
+            url: `${homePath}api/OpenXDA/MeterList/SearchableList`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify({ Searches: [{ FieldName: 'AssetKey', Operator: "=", SearchText: assetKey, Type: 'string' } as Search.IFilter<OpenXDA.Meter>], OrderBy: "AssetKey", Ascending: true }),
+            cache: false,
+            async: true
+        });
+        h.done((d: string) => {
+            let meters = JSON.parse(d);
+
+            if (meters.length == 0)
+                setAssetKeyValid(true);
+            else if (meters.length > 1)
+                setAssetKeyValid(false);
+            else if (meters[0].ID == meter.ID)
+                setAssetKeyValid(true);
+            else
+                setAssetKeyValid(false);
+
+        });
+
+        return h;
+    }
+
+    function valid(field: keyof(OpenXDA.Meter)): boolean {
         if (field == 'AssetKey')
-            return this.props.Meter.AssetKey != null && this.props.Meter.AssetKey.length > 0 && this.props.Meter.AssetKey.length <= 50;
+            return meter.AssetKey != null && meter.AssetKey.length > 0 && meter.AssetKey.length <= 50 && assetKeyValid;
         else if (field == 'Name')
-            return this.props.Meter.Name != null && this.props.Meter.Name.length > 0 && this.props.Meter.Name.length <= 200;
+            return meter.Name != null && meter.Name.length > 0 && meter.Name.length <= 200;
         else if (field == 'Alias')
-            return this.props.Meter.Alias == null || this.props.Meter.Alias.length <= 200;
+            return meter.Alias == null || meter.Alias.length <= 200;
         else if (field == 'ShortName')
-            return this.props.Meter.ShortName == null || this.props.Meter.ShortName.length <= 50;
+            return meter.ShortName == null || meter.ShortName.length <= 50;
         else if (field == 'Make')
-            return this.props.Meter.Name != null && this.props.Meter.Make.length > 0 && this.props.Meter.Make.length <= 200;
+            return meter.Make != null && meter.Make.length > 0 && meter.Make.length <= 200;
         else if (field == 'Model')
-            return this.props.Meter.Name != null && this.props.Meter.Model.length > 0 && this.props.Meter.Model.length <= 200;
+            return meter.Model != null && meter.Model.length > 0 && meter.Model.length <= 200;
         else if (field == 'Description')
             return true;
         return false;
     }
 
-
-    render() {
-        if (this.props.Meter == null) return null;
-        return (
-            <div className="card" style={{ marginBottom: 10 }}>
-                <div className="card-header">
-                    <div className="row">
-                        <div className="col">
-                            <h4>Meter Information:</h4>
-                        </div>
-                    </div>
-                </div>
-                <div className="card-body">
-                    <div className="row">
-                        <div className="col">
-                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'AssetKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
-                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
-                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
-                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
-                        </div>
-                        <div className="col">
-
-                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'Make'} Feedback={'Make must be less than 200 characters.'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
-                            <FormInput<OpenXDA.Meter> Record={this.state.Meter} Field={'Model'} Feedback={'Model must be less than 200 characters.'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
-                            <div className="form-group">
-
-                                <label>Time Zone</label>
-                                <select className="form-control" value={this.state.Meter == null || this.state.Meter.TimeZone == null ? '-1' : this.state.Meter.TimeZone} onChange={(evt) => {
-                                    var meter: OpenXDA.Meter = _.clone(this.state.Meter);
-                                    if (evt.target.value != "-1")
-                                        meter.TimeZone = evt.target.value;
-                                    else
-                                        meter.TimeZone = null;
-                                    this.setState({ Meter: meter });
-                                }}>
-                                    <option value="-1">None Selected</option>
-                                    {
-                                        (this.state.TimeZones != null ? this.state.TimeZones.sort((a, b) => a.SortOrder - b.SortOrder).map(tz => <option value={tz.Text} key={tz.Text} disabled={!tz.Enabled} hidden={tz.Hidden}>{tz.AltText1}</option>): null)
-                                    }
-                                </select>
-
-                                <FormTextArea<OpenXDA.Meter> Rows={3} Record={this.state.Meter} Field={'Description'} Valid={this.valid} Setter={(meter: OpenXDA.Meter) => this.setState({ Meter: meter })} />
-
-
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div className="card-footer">
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-primary" type="submit" onClick={() => this.updateMeter()} disabled={this.state.Meter == this.props.Meter}>Save Changes</button>
-                    </div>
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-default" onClick={() => this.setState({ Meter: this.props.Meter })} disabled={this.state.Meter == this.props.Meter}>Clear Changes</button>
-                    </div>
-                </div>
-
-            </div>
-        );
+    function validMeter() {
+        return (valid('AssetKey') && valid('Name') && valid('ShortName') && valid('Alias') && valid('Make') && valid('Model'));
     }
+    
+
+    function hasChanged(): boolean {
+        if (props.Meter == null)
+            return false;
+        return props.Meter.AssetKey != meter.AssetKey ||
+            props.Meter.Name != meter.Name ||
+            props.Meter.ShortName != meter.ShortName ||
+            props.Meter.Alias != meter.Alias ||
+            props.Meter.Make != meter.Make ||
+            props.Meter.Model != meter.Model ||
+            props.Meter.TimeZone != meter.TimeZone ||
+            props.Meter.Description != meter.Description 
+    }
+    if (meter == null)
+        return null;
+
+    return (
+        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Meter Information:</h4>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+                <MeterProperties Meter={meter} StateSetter={setMeter} />
+                <LoadingScreen Show={loading} />
+            </div>
+            <div className="card-footer">
+                <div className="btn-group mr-2">
+                    <button className={"btn btn-primary" + (validMeter() && hasChanged() ? '' : ' disabled')} type="submit" onClick={() => { if (validMeter() && hasChanged()) updateMeter() }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                </div>
+                <ToolTip Show={(!validMeter() || !hasChanged()) && hover == 'submit' } Position={'top'} Theme={'dark'} Target={"submit"}>
+                    {!hasChanged() ? <p> No changes made.</p> : null}
+                    {!valid('AssetKey') ? <p> <ErrorSymbol /> A unique AssetKey of less than 50 characters is required.</p> : null}
+                    {!valid('Name') ? <p> <ErrorSymbol /> Name must be less than 200 characters and is required.</p> : null}
+                    {!valid('ShortName') ? <p> <ErrorSymbol />ShortName must be less than 50 characters.</p> : null}
+                    {!valid('Alias') ? <p> <ErrorSymbol />Alias must be less than 200 characters.</p> : null}
+                    {!valid('Make') ? <p> <ErrorSymbol />Make must be less than 200 characters.</p> : null}
+                    {!valid('Model') ? <p> <ErrorSymbol /> Model must be less than 200 characters.</p> : null}
+                </ToolTip>
+                <div className="btn-group mr-2">
+                    <button className={"btn btn-default" + (hasChanged() ? '' : ' disabled')} data-tooltip="clear" onClick={() => setMeter(props.Meter)} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
+                </div>
+                <ToolTip Show={hasChanged() && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+                    {props.Meter.AssetKey != meter.AssetKey ? <p> <WarningSymbol /> Changes to assetKey will be discarded.</p> : null}
+                    {props.Meter.Name != meter.Name ? <p> <WarningSymbol /> Changes to Name will be discarded.</p> : null}
+                    {props.Meter.ShortName != meter.ShortName ? <p> <WarningSymbol /> Changes to ShortName will be discarded.</p> : null}
+                    {props.Meter.Alias != meter.Alias ? <p> <WarningSymbol /> Changes to Alias will be discarded.</p> : null}
+                    {props.Meter.Make != meter.Make ? <p> <WarningSymbol /> Changes to Make will be discarded.</p> : null}
+                    {props.Meter.Model != meter.Model ? <p> <WarningSymbol /> Changes to Model will be discarded.</p> : null}
+                    {props.Meter.TimeZone != meter.TimeZone ? <p> <WarningSymbol /> Changes to TimeZone will be discarded.</p> : null}
+                    {props.Meter.Description != meter.Description ? <p> <WarningSymbol /> Changes to Description will be discarded.</p> : null}
+                </ToolTip>
+            </div>
+
+        </div>
+    );
+
+
 }
+
+const ErrorSymbol = () => <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
+const WarningSymbol = () => <i style={{ marginRight: '10px', color: '#ffc107' }} className="fa fa-exclamation-triangle"></i>
+
+export default MeterInforWindow;

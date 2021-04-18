@@ -43,6 +43,7 @@ namespace SystemCenter.Controllers.OpenXDA
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
         protected override string DefaultSort { get; } = "AssetKey";
+        protected override bool AllowSearch { get; } = true;
 
         [HttpGet, Route("Line/{lineID:int}")]
         public IHttpActionResult GetMetersForLine(int lineID)
@@ -64,44 +65,7 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpPost, Route("SearchableList")]
-        public IHttpActionResult GetMetersUsingSearchableList([FromBody] IEnumerable<Search> searches)
-        {
-            string whereClause = BuildWhereClause(searches);
-
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
-            {
-                DataTable table = connection.RetrieveData(@"
-                    SELECT
-	                    DISTINCT
-                        Meter.ID,
-                        Meter.AssetKey,
-                        Meter.Name,
-                        Meter.Make,
-                        Meter.Model,
-                        Location.Name as Location,
-                        COUNT(DISTINCT MeterAsset.AssetID)  as MappedAssets
-                    FROM 
-                        Meter LEFT JOIN
-                        Location ON Meter.LocationID = Location.ID LEFT JOIN
-                        MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN 
-                        Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
-	                    Note ON Note.NoteTypeID = (SELECT ID FROM NoteType WHERE Name = 'Meter') AND Note.ReferenceTableID = Meter.ID
-                   " + whereClause + @"
-                    GROUP BY
-                        Meter.ID,
-	                    Meter.AssetKey,
-                        Meter.Name,
-                        Meter.Make,
-                        Meter.Model,
-                        Location.Name
-                ");
-                return Ok(table);
-            }
-        }
-
-
-
+       
         /*
          record fields
          MeterInfo: { ID: int, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, LocationID: int, Description: string }
@@ -429,12 +393,12 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpGet, Route("{meterID:int}/Asset")]
-        public IHttpActionResult GetMeterAssets(int meterID)
+        [HttpGet, Route("{meterID:int}/Asset/{sort=AssetKey}/{ascending:int=1}")]
+        public IHttpActionResult GetMeterAssets(int meterID, string sort, int ascending)
         {
             using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
             {
-                DataTable records = connection.RetrieveData(@"
+                DataTable records = connection.RetrieveData($@"
                     SELECT 
 	                    Asset.ID,
 	                    Asset.VoltageKV,
@@ -450,7 +414,7 @@ namespace SystemCenter.Controllers.OpenXDA
 	                    MeterAsset ON Asset.ID = MeterAsset.AssetID LEFT JOIN
 	                    Channel ON Asset.ID = Channel.AssetID AND Channel.MeterID = MeterAsset.MeterID
                     WHERE
-	                    MeterAsset.MeterID = {0}
+	                    MeterAsset.MeterID = {{0}}
                     GROUP BY
 	                    Asset.ID,
 	                    Asset.VoltageKV,
@@ -458,7 +422,8 @@ namespace SystemCenter.Controllers.OpenXDA
 	                    Asset.Description,
 	                    Asset.AssetName,
 	                    Asset.AssetTypeID,
-	                    AssetType.Name                
+	                    AssetType.Name   
+                    ORDER BY {sort} {(ascending == 0? "DESC" : "")}
                 ", meterID);
                 return Ok(records);
             }

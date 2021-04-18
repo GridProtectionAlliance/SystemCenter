@@ -28,18 +28,20 @@ import CFGParser from '../../../TS/CFGParser';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectMeasurementTypes, SelectMeasurementTypeStatus, FetchMeasurementType } from '../Store/MeasurementTypeSlice';
 import { SelectPhaseStatus, SelectPhases, FetchPhase } from '../Store/PhaseSlice';
-import { toNumber } from 'lodash';
+import Table from '@gpa-gemstone/react-table'
+import { Input, Select } from '@gpa-gemstone/react-forms';
+import { Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA.Channel>, UpdateChannels: (record: OpenXDA.Channel[]) => void, UpdateAssets: (record: OpenXDA.Asset[]) => void  }) {
+export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA.Channel>, UpdateChannels: (record: OpenXDA.Channel[]) => void, UpdateAssets: (record: OpenXDA.Asset[]) => void, SetError: (e: string[]) => void  }) {
     const fileInput = React.useRef(null);
     const dispatch = useDispatch();
     const measurementTypes = useSelector(SelectMeasurementTypes);
     const mtStatus = useSelector(SelectMeasurementTypeStatus) as SystemCenter.Status;
     const phases = useSelector(SelectPhases);
     const phStatus = useSelector(SelectPhaseStatus) as SystemCenter.Status;
-
+    const [showCFGError, setShowCFGError] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         $(".custom-file-input").on("change", (evt: any) => {
@@ -69,6 +71,13 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
         }
     }, [dispatch, phStatus]);
 
+    React.useEffect(() => {
+        let e = [];
+        if (props.Channels.length == 0)
+            e.push('At Least 1 Channel has to be set up.');
+        props.SetError(e);
+    }, [props.Channels]);
+
     function readSingleFile(evt: React.ChangeEvent<HTMLInputElement>) {
         //Retrieve the first (and only!) File from the FileList object
         var f = evt.target.files[0];
@@ -86,14 +95,18 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
 
                 }
                 else
-                    alert('File is not of type cfg. Please only use comtrade standard cfg files.');
+                    setShowCFGError(true);
+                   
             }
             r.readAsText(f);
         }
     }
 
-    function deleteChannel(index: number): void {
+    function deleteChannel(id: number): void {
         let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
+        let index = channels.findIndex(ch => ch.ID == id);
+        if (index == -1)
+            return;
         let record: OpenXDA.Channel = channels.splice(index, 1)[0];
         props.UpdateChannels(channels);
 
@@ -125,6 +138,17 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
         }
     }
 
+    function editChannel(channel: OpenXDA.Channel) {
+        let index = props.Channels.findIndex(ch => ch.ID == channel.ID);
+        let updated = _.cloneDeep(props.Channels)
+        if (index > -1)
+            updated[index] = channel;
+        else
+            updated.push(channel);
+     
+        props.UpdateChannels(updated);
+    }
+
     return (
         <>
             <div className="row">
@@ -137,7 +161,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                             { ID: 3, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'IA', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current A', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series] } as OpenXDA.Channel,
                             { ID: 4, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'IB', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current B', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series] } as OpenXDA.Channel,
                             { ID: 5, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'IC', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current C', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series] } as OpenXDA.Channel,
-                            { ID: 6, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'NG', Name: 'IN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current NG', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series] } as OpenXDA.Channel,
+                            { ID: 6, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'RES', Name: 'IR', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current RES', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series] } as OpenXDA.Channel,
 
                         ]
                         props.UpdateChannels(channels);
@@ -154,73 +178,53 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                 </div>
                 <div className="col">
                     <button className="btn btn-primary pull-right" onClick={() => {
-                        let channel: OpenXDA.Channel = { ID: props.Channels.length, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series] } as OpenXDA.Channel
+                        let channel: OpenXDA.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series] } as OpenXDA.Channel
                         let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
                         channels.push(channel);
                         props.UpdateChannels(channels);
-
                     }}>Add Channel</button>
                 </div>
 
             </div>
-            <div style={{ width: '100%', maxHeight: 'calc(100% - 35px)', padding: 30, overflowY: 'auto' }}>
-                <table className="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Channel</th>
-                            <th>Name</th>
-                            <th>Desc</th>
-                            <th>Type</th>
-                            <th>Phase</th>
-                            <th>Adder</th>
-                            <th>Multiplier</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            props.Channels.map((channel, index, array) => {
-                                return (
-                                    <tr key={index}>
-                                        <td style={{ width: '5%' }}><input className='form-control'  value={channel.Series[0].SourceIndexes} onChange={(event) => {
-                                            channel.Series[0].SourceIndexes = event.target.value;
-                                            props.UpdateChannels([...array]);
-                                        }} /></td>
-                                        <td style={{ width: '20%' }}><input className='form-control' value={channel.Name} onChange={(event) => {
-                                            channel.Name = event.target.value;
-                                            props.UpdateChannels([...array]);
-                                        }}/></td>
-                                        <td style={{ width: '35%' }}><input className='form-control' value={channel.Description} onChange={(event) => {
-                                            channel.Description = event.target.value;
-                                            props.UpdateChannels([...array]);
-                                        }}/></td>
-                                        <td style={{ width: '10%' }}>{<select className= 'form-control'  value={channel.MeasurementType} onChange={(event) => {
-                                            channel.MeasurementType = event.target.value;
-                                            props.UpdateChannels([...array]);
-                                        }}>{measurementTypes.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
-                                        <td style={{ width: '10%' }}>{<select className='form-control' value={channel.Phase} onChange={(event) => {
-                                            channel.Phase = event.target.value;
-                                            props.UpdateChannels([...array]);
-                                        }}>{phases.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
-                                        <td style={{ width: '5%' }}><input className='form-control' value={channel.Adder} onChange={(event) => {
-                                            channel.Adder = toNumber(event.target.value);
-                                            props.UpdateChannels([...array]);
-                                        }} /></td>
-                                        <td style={{ width: '5%' }}><input className='form-control' value={channel.Multiplier} onChange={(event) => {
-                                            channel.Multiplier = toNumber(event.target.value);
-                                            props.UpdateChannels([...array]);
-                                        }} /></td>
-                                        <td style={{ width: '10%' }}>
-                                            <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span><i className="fa fa-times"></i></span></button>
-                                        </td>
-
-                                    </tr>
-                                )
-                            })
-                            }
-                    </tbody>
-                </table>
+            <div style={{ width: '100%', maxHeight: innerHeight - 380, padding: 30 }}>
+                <Table<OpenXDA.Channel> cols={[
+                    {
+                        key: 'Series', label: 'Channel', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Series> Field={'SourceIndexes'}
+                            Record={item.Series[0]} Setter={(series) => {
+                            item.Series[0].SourceIndexes = series.SourceIndexes;
+                            editChannel(item)
+                        }} Label={''} Valid={() => true}/>
+                    },
+                    {
+                        key: 'Name', label: 'Name', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (item) => <Input<OpenXDA.Channel> Field={'Name'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
+                    },
+                    {
+                        key: 'Description', label: 'Desc', headerStyle: { width: '33%' }, rowStyle: { width: '33%' }, content: (item) => <Input<OpenXDA.Channel> Field={'Description'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
+                    },
+                    {
+                        key: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={(measurementTypes as OpenXDA.MeasurementType[]).map((t) => ({ Value: t.Name, Label: t.Name }))} />
+                    },
+                    {
+                        key: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={(phases as OpenXDA.Phase[]).map((t) => ({ Value: t.Name, Label: t.Name }))} />
+                    },
+                    { key: 'Adder', label: 'Adder', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Channel> Field={'Adder'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
+                    { key: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Channel> Field={'Multiplier'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
+                    { key: null, label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%', paddingTop: 36, paddingBottom: 36 }, content: (item) => <button className="btn btn-sm" onClick={(e) => deleteChannel(item.ID)}><span><i className="fa fa-times"></i></span></button> },
+                    
+                ]}
+                    tableClass="table table-hover"
+                    data={props.Channels}
+                    sortField={'SourceIndexes'}
+                    ascending={false}
+                    onSort={(d) => {}}
+                    onClick={(fld) => { }}
+                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: innerHeight - 460, }}
+                    rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    selected={(item) => false}
+                />
             </div>
+            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={'File is not of type cfg. Please only use comtrade standard cfg files.'} CallBack={() => setShowCFGError(false)} />
                 
         </>
         );

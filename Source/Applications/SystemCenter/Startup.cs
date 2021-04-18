@@ -21,15 +21,12 @@
 //
 //******************************************************************************************************
 
-using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.Routing;
 using GSF.Configuration;
 using GSF.Web.Hosting;
-using GSF.Web.Model.Handlers;
 using GSF.Web.Security;
 using Microsoft.AspNet.SignalR;
 using Microsoft.AspNet.SignalR.Json;

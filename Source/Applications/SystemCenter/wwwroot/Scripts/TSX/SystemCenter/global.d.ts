@@ -45,10 +45,10 @@ export namespace SystemCenter {
     interface ExternalDBField { DisplayName: string, FieldValueID: number, OpenXDAParentTableID: number, AdditionalFieldID: number, Value: string, FieldName: string, PreviousValue: string, Error: boolean, Message: string, isXDAField: boolean, Changed: boolean}
 
     interface Company { ID: number, CompanyTypeID: number, CompanyID: string, Name: string, Description: string }
-    interface CompanyMeter { ID: number, CompanyID: number, OpenXDAMeterID: number, MeterName: string }
+    interface CompanyMeter { ID: number, CompanyID: number, MeterID: number, DisplayName: string, Enabled: boolean }
     interface CompanyType { ID: number, Name: string, Description: string }
 
-    interface Customer { ID: number, AccountName: string, Name: string, Phone: string, Description: string }
+    interface Customer { ID: number, CustomerKey: string, Name: string, Phone: string, Description: string }
     interface CustomerAccess { ID: number, CustomerID: number, PQViewSiteID: number }
     interface AdditionalField { ID: number, OpenXDAParentTable: string, FieldName: string, Type: AdditionalFieldType, ExternalDB: string, ExternalDBTable: string, ExternalDBTableKey: string, IsSecure: boolean }
     interface AdditionalFieldValue { ID: number, OpenXDAParentTableID: number, AdditionalFieldID: number, Value: string }
@@ -64,7 +64,7 @@ export namespace SystemCenter {
     interface Role { ID: number, Name: string, Description: string }
 
     type NewEdit = 'New' | 'Edit'
-    type AdditionalFieldType = 'integer' | 'number' | 'string' | 'boolean';
+    type AdditionalFieldType = 'integer' | 'number' | 'string' | 'boolean' | string;
     type SystemCeneterSecurityRoleName = 'Administrator' | 'Transmission SME' | 'PQ Data Viewer';
     type OpenXDASecurityRoleName = 'Administrator' | 'DataPusher' | 'Developer' | 'Viewer' | 'Engineer';
     type AttachedDatabases = 'SystemCenter' | 'OpenXDA'
@@ -86,12 +86,12 @@ export namespace OpenXDA {
     interface CapBank extends Asset {
         NumberOfBanks: number, CapacitancePerBank: number, CktSwitcher: string, MaxKV: number, UnitKV: number, UnitKVAr: number, NegReactanceTol: number, PosReactanceTol: number,
         Nparalell: number, Nseries: number, NSeriesGroup: number, NParalellGroup: number, Fused: boolean, VTratioBus: number, NumberLVCaps: number, NumberLVUnits: number, LVKVAr: number, LVKV: number,
-        LVNegReactanceTol: number, LVPosReactanceTol: number, UpperXFRRatio: number, LowerXFRRatio: number, Nshorted: number, BlownFuses: number, BlownGroups: number, RelayPTRatioPrimary: number, Rv: number,
+        LVNegReactanceTol: number, LVPosReactanceTol: number, LowerXFRRatio: number, Nshorted: number, BlownFuses: number, BlownGroups: number, RelayPTRatioPrimary: number, Rv: number,
         Rh: number, Compensated: boolean, NLowerGroups: number, ShortedGroups: number, Sh: number, RelayPTRatioSecondary: number
     }
     interface CapBankRelay extends Asset { OnVoltageThreshhold: number }
     interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Detail: LineDetail }
-    interface LineSegment extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number }
+    interface LineSegment extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number, IsEnd: boolean }
     interface Transformer extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, PrimaryVoltageKV: number, SecondaryVoltageKV: number, Tap: number }
     interface LineDetail { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number }
     // Links
@@ -109,6 +109,8 @@ export namespace OpenXDA {
 
     // Types
     type AssetTypeName = 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay'
+
+    type DetailedAsset = (OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer | OpenXDA.CapBankRelay)
 
     // AssetGroups
     interface AssetGroup { ID: number, Name: string, DisplayDashboard: boolean, AssetGroups: number, Meters: number, Assets: number, Users: number }

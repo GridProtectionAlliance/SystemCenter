@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
 import FormInput from '../CommonComponents/FormInput';
-import AssetAttributes from './Asset';
+import { AssetAttributes } from './Asset';
 
 function CapBankRelayAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.CapBankRelay, UpdateState: (newEditAsset: OpenXDA.CapBankRelay) => void }): JSX.Element {
     function valid(field: keyof (OpenXDA.CapBankRelay)): boolean {

@@ -29,6 +29,7 @@ using System.Transactions;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 
@@ -44,35 +45,86 @@ namespace SystemCenter.Controllers.OpenXDA
         protected override string Connection { get; } = "dbOpenXDA";
         protected override string DefaultSort { get; } = "LocationKey";
 
-        [HttpPost, Route("SearchableList")]
-        public IHttpActionResult GetMetersUsingSearchableList([FromBody] IEnumerable<Search> searches)
-        {
-            string whereClause = BuildWhereClause(searches);
+        protected override bool AllowSearch => true;
 
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+        [HttpPost, Route("SearchableListIncludingMeter")]
+        public IHttpActionResult GetMetersUsingSearchableList([FromBody] PostData searches)
+        {
+
+            if (!AllowSearch || (GetRoles != string.Empty && !User.IsInRole(GetRoles)))
+                return Unauthorized();
+
+            try
             {
-                DataTable table = connection.RetrieveData(@"
-                SELECT
-	                DISTINCT
-                    Location.ID,
-	                Location.LocationKey,
-	                Location.Name,
-	                COUNT(DISTINCT Meter.ID) as Meters,
-	                COUNT(DISTINCT AssetLocation.AssetID) as Assets
-                FROM
-	                Location LEFT JOIN
-	                Meter ON Location.ID = Meter.LocationID LEFT JOIN
-	                AssetLocation ON Location.ID = AssetLocation.LocationID LEFT JOIN
-                    Asset ON AssetLocation.AssetID = Asset.ID LEFT JOIN
-	                Note ON Note.NoteTypeID = (SELECT ID FROM NoteType WHERE Name = 'Location') AND Note.ReferenceTableID = Meter.ID
-                   " + whereClause + @"
-                GROUP BY
-                    Location.ID,
-	                Location.LocationKey,
-	                Location.Name
-                ");
-                return Ok(table);
+
+                string whereClause = BuildWhereClause(searches.Searches);
+
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+
+                    string view = @"SELECT
+
+                        DISTINCT
+                        Location.ID,
+	                    Location.LocationKey,
+	                    Location.Name,
+	                    COUNT(DISTINCT Meter.ID) as Meters,
+	                    COUNT(DISTINCT AssetLocation.AssetID) as Assets
+                    FROM
+                        Location LEFT JOIN
+
+                        Meter ON Location.ID = Meter.LocationID LEFT JOIN
+
+                        AssetLocation ON Location.ID = AssetLocation.LocationID LEFT JOIN
+                        Asset ON AssetLocation.AssetID = Asset.ID
+
+                    GROUP BY
+                        Location.ID,
+	                    Location.LocationKey,
+	                    Location.Name
+                    ";
+
+                    string sql = "";
+
+                    sql = $@"
+                        DECLARE @PivotColumns NVARCHAR(MAX) = N''
+                        SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
+                            FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE ParentTable = 'Location') AS t
+
+                        DECLARE @SQLStatement NVARCHAR(MAX) = N'
+                            SELECT * INTO #Tbl FROM (
+                            SELECT 
+                                M.*,
+                                (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
+	                            afv.Value
+                            FROM ({view.Replace("'", "''")}) M LEFT JOIN 
+                                [SystemCenter.AdditionalField] af on af.ParentTable = ''Location'' LEFT JOIN
+	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
+                            ) as T PIVOT (
+                                Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT
+                            {whereClause.Replace("'", "''")}
+                            ORDER BY { searches.OrderBy} {(searches.Ascending ? "ASC" : "DESC")};
+
+                            DECLARE @NoNPivotColumns NVARCHAR(MAX) = N''''
+                                SELECT @NoNPivotColumns = @NoNPivotColumns + ''[''+ name + ''],''
+                                    FROM tempdb.sys.columns WHERE  object_id = Object_id(''tempdb..#Tbl'') AND name NOT LIKE ''AFV%''; 
+		                    DECLARE @CleanSQL NVARCHAR(MAX) = N''SELECT '' + SUBSTRING(@NoNPivotColumns,0, LEN(@NoNPivotColumns)) + ''FROM #Tbl''
+
+		                    exec sp_executesql @CleanSQL
+                        '
+                        exec sp_executesql @SQLStatement";
+
+                    DataTable table = connection.RetrieveData(sql, "");
+
+                    return Ok(JsonConvert.SerializeObject(table));
+                }
             }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
         }
 
         [HttpGet, Route("{locationID:int}/Meters")]

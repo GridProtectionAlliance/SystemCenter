@@ -24,8 +24,9 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
-import AssetAttributes from './Asset';
+import { AssetAttributes } from './Asset';
 import FormInput from '../CommonComponents/FormInput';
+import { Input } from '@gpa-gemstone/react-forms';
 
 function LineAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.Line, UpdateState: (newEditAsset: OpenXDA.Line) => void }): JSX.Element {
     function valid(field: keyof (OpenXDA.Line) | keyof(OpenXDA.LineDetail)): boolean {
@@ -62,14 +63,18 @@ function LineAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.L
     if (props.Asset == null || props.Asset.Detail == null) return null;
     return (
         <>
-            <FormInput<OpenXDA.Line> Record={props.Asset} Field={'MaxFaultDistance'} Label={'Max Fault Distance'} Feedback={'Max Fault Distance is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Line> Record={props.Asset} Field={'MinFaultDistance'} Label={'Min Fault Distance'} Feedback={'Min Fault Distance is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'Length'} Feedback={'Length is a required numeric field.'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
-            <FormInput<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'R0'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
-            <FormInput<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'X0'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
-            <FormInput<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'R1'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
-            <FormInput<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'X1'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
-            <FormInput<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'ThermalRating'} Label={'Thermal Rating'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.Line> Record={props.Asset} Field={'MaxFaultDistance'} Label={'Max Fault Distance'} Feedback={'Max Fault Distance is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Line> Record={props.Asset} Field={'MinFaultDistance'} Label={'Min Fault Distance'} Feedback={'Min Fault Distance is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <div className="alert alert-info" role="alert">
+                <p>Reactance, Length and Thermal rating are based on the LineSegments associated with this Line.</p>
+                <p>To edit these values the properties of the LineSegement need to be changed.</p>
+            </div>
+            <Input<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'Length'} Feedback={'Length is a required numeric field.'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'R0'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'X0'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'R1'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'X1'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.LineDetail> Record={props.Asset.Detail} Field={'ThermalRating'} Label={'Thermal Rating'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
         </>
     );
 }

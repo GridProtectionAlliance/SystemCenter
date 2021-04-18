@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
-import AssetAttributes from './Asset';
+import { AssetAttributes } from './Asset';
 import FormInput from '../CommonComponents/FormInput';
 function TransformerAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.Transformer, UpdateState: (newEditAsset: OpenXDA.Transformer) => void }): JSX.Element {
     function valid(field: keyof (OpenXDA.Transformer)): boolean {
