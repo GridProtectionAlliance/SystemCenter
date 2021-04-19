@@ -247,7 +247,7 @@ export namespace AssetAttributes {
             if ((asset as OpenXDA.LineSegment).R1 == null || !AssetAttributes.isRealNumber((asset as OpenXDA.LineSegment).R1))
                 errors.push('A valid R1 is required.')
             if ((asset as OpenXDA.LineSegment).X1 == null || !AssetAttributes.isRealNumber((asset as OpenXDA.LineSegment).X1))
-                errors.push('A X1 Length is required.')
+                errors.push('A valid X1 is required.')
             if ((asset as OpenXDA.LineSegment).ThermalRating == null || !AssetAttributes.isRealNumber((asset as OpenXDA.LineSegment).ThermalRating))
                 errors.push('A valid ThermalRating is required.')
         }
@@ -266,9 +266,110 @@ export namespace AssetAttributes {
            
         }
 
-       
+        if (type == 'CapacitorBankRelay') {
+            if ((asset as OpenXDA.CapBankRelay).OnVoltageThreshhold == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBankRelay).OnVoltageThreshhold))
+                errors.push('A valid On Voltage Threshold  is required.')
+        }
+
+        if (type == 'Transformer') {
+            if ((asset as OpenXDA.Transformer).R0 == null || !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).R0))
+                errors.push('A valid R0 is required.')
+            if ((asset as OpenXDA.Transformer).X0 == null || !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).X0))
+                errors.push('A valid X0 is required.')
+            if ((asset as OpenXDA.Transformer).R1 == null || !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).R1))
+                errors.push('A valid R1 is required.')
+            if ((asset as OpenXDA.Transformer).X1 == null || !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).X1))
+                errors.push('A valid X1 is required.')
+            if ((asset as OpenXDA.Transformer).ThermalRating == null || !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).ThermalRating))
+                errors.push('A valid ThermalRating is required.')
+        }
+
+        if (type == 'CapacitorBank') {
+            if ((asset as OpenXDA.CapBank).NumberOfBanks == null || !AssetAttributes.isInteger((asset as OpenXDA.CapBank).NumberOfBanks))
+                errors.push('A valid Number Of Banks is required.')
+            if ((asset as OpenXDA.CapBank).CapacitancePerBank == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).CapacitancePerBank))
+                errors.push('A valid Capacitor Step Size is required.')
+            if ((asset as OpenXDA.CapBank).MaxKV == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).MaxKV))
+                errors.push('A valid Maximum Operating Voltage is required.')
+            if ((asset as OpenXDA.CapBank).UnitKV == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).UnitKV))
+                errors.push('A valid Rated Voltage for a Unit is required.')
+
+            if ((asset as OpenXDA.CapBank).UnitKVAr == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).UnitKVAr))
+                errors.push('A valid kVAR Rating for a Unit is required.')
+            if ((asset as OpenXDA.CapBank).PosReactanceTol == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).PosReactanceTol))
+                errors.push('A valid pos. Reactance Tolerance is required.')
+            if ((asset as OpenXDA.CapBank).NegReactanceTol == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).NegReactanceTol))
+                errors.push('A valid neg. Reactance Tolerance is required.')
+
+            if ((asset as OpenXDA.CapBank).Fused) {
+                if ((asset as OpenXDA.CapBank).Nparalell == null || !AssetAttributes.isInteger((asset as OpenXDA.CapBank).Nparalell))
+                    errors.push('A valid num. of units per Group is required.')
+                if ((asset as OpenXDA.CapBank).Nseries == null || !AssetAttributes.isInteger((asset as OpenXDA.CapBank).Nseries))
+                    errors.push('A valid num. of Series Groups per Phase is required.')
+
+                if ((asset as OpenXDA.CapBank).LowerXFRRatio == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).LowerXFRRatio))
+                    errors.push('A valid Midgroup VT Ratio is required.')
+
+                if ((asset as OpenXDA.CapBank).Nshorted == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).Nshorted))
+                    errors.push('A valid initial guess of shorted Elements is required.')
+
+                if ((asset as OpenXDA.CapBank).BlownFuses == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).BlownFuses))
+                    errors.push('A valid initial guess of blown Fuses per Group is required.')
+
+                if ((asset as OpenXDA.CapBank).BlownGroups == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).BlownGroups))
+                    errors.push('A valid initial guess of Groups with Blown fuse is required.')
+
+            }
+            else {
+                if ((asset as OpenXDA.CapBank).Nparalell == null || !AssetAttributes.isInteger((asset as OpenXDA.CapBank).Nparalell))
+                    errors.push('A valid num. of Parallel Strings is required.')
+                if ((asset as OpenXDA.CapBank).Nseries == null || !AssetAttributes.isInteger((asset as OpenXDA.CapBank).Nseries))
+                    errors.push('A valid num. of Units per String is required.')
+
+                if ((asset as OpenXDA.CapBank).NSeriesGroup == null || !AssetAttributes.isInteger((asset as OpenXDA.CapBank).NSeriesGroup))
+                    errors.push('A valid valid num. of Series Groups in each Unit is required.')
+                if ((asset as OpenXDA.CapBank).NParalellGroup == null || !AssetAttributes.isInteger((asset as OpenXDA.CapBank).NParalellGroup))
+                    errors.push('A valid num. of Elements per Group is required.')
+                if ((asset as OpenXDA.CapBank).VTratioBus == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).VTratioBus))
+                    errors.push('A valid Bus VT ratio is required.')
+                if ((asset as OpenXDA.CapBank).NumberLVCaps == null || !AssetAttributes.isInteger((asset as OpenXDA.CapBank).NumberLVCaps))
+                    errors.push('A valid num. of Relay Caps is required.')
+                if ((asset as OpenXDA.CapBank).NumberLVUnits == null || !AssetAttributes.isInteger((asset as OpenXDA.CapBank).NumberLVUnits))
+                    errors.push('A valid num. of elements per Relay Cap is required.')
+
+
+                if ((asset as OpenXDA.CapBank).LVKVAr == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).LVKVAr))
+                    errors.push('A valid Low Voltage Cap Size is required.')
+                if ((asset as OpenXDA.CapBank).LVKV == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).LVKV))
+                    errors.push('A valid Low Voltage Cap rating is required.')
+                if ((asset as OpenXDA.CapBank).LVNegReactanceTol == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).LVNegReactanceTol))
+                    errors.push('A valid neg. Reactance Tolerance for LV Units is required.')
+                if ((asset as OpenXDA.CapBank).LVPosReactanceTol == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).LVPosReactanceTol))
+                    errors.push('A valid pos. Reactance Tolerance for LV Units is required.')
+                if ((asset as OpenXDA.CapBank).Nshorted == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).Nshorted))
+                    errors.push('A valid initial guess of shorted elements is required.')
+
+                if ((asset as OpenXDA.CapBank).Compensated) {
+                    if ((asset as OpenXDA.CapBank).RelayPTRatioPrimary == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).RelayPTRatioPrimary))
+                        errors.push('A valid Relay PT ratio is required.')
+                    if ((asset as OpenXDA.CapBank).Rh == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).Rh))
+                        errors.push('A valid Vt Input Resistor is required.')
+                    if ((asset as OpenXDA.CapBank).Sh == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).Sh))
+                        errors.push('A valid VT Input Resistor Wattage is required.')
+                }
+                else {
+                    if ((asset as OpenXDA.CapBank).Rv == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).Rv))
+                        errors.push('A valid Voltage Divider Output R is required.')
+                    if ((asset as OpenXDA.CapBank).Rh == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBank).Rh))
+                        errors.push('A valid Voltage Divider Input R is required.')
+                }
+            }
+
+        }
 
         return errors;
     }
+
+
 }
 

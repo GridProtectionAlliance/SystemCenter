@@ -83,11 +83,11 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
         else if (field == 'ShortedGroups')
             return props.Asset.ShortedGroups != null && AssetAttributes.isRealNumber(props.Asset.ShortedGroups);
         else if (field == 'RelayPTRatioPrimary')
-            return props.Asset.ShortedGroups != null && AssetAttributes.isInteger(props.Asset.RelayPTRatioPrimary);
+            return props.Asset.RelayPTRatioPrimary != null && AssetAttributes.isRealNumber(props.Asset.RelayPTRatioPrimary);
         else if (field == 'RelayPTRatioSecondary')
-            return props.Asset.ShortedGroups != null && AssetAttributes.isInteger(props.Asset.RelayPTRatioSecondary);
+            return props.Asset.RelayPTRatioSecondary != null && AssetAttributes.isRealNumber(props.Asset.RelayPTRatioSecondary);
         else if (field == 'Sh')
-            return props.Asset.ShortedGroups != null && AssetAttributes.isRealNumber(props.Asset.Sh);
+            return props.Asset.Sh != null && AssetAttributes.isRealNumber(props.Asset.Sh);
         return false;
     }
     if (props.Asset == null) return null;
