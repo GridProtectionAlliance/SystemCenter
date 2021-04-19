@@ -252,6 +252,21 @@ export namespace AssetAttributes {
                 errors.push('A valid ThermalRating is required.')
         }
 
+        if (type == 'Breaker') {
+            if ((asset as OpenXDA.Breaker).ThermalRating == null || !AssetAttributes.isRealNumber((asset as OpenXDA.Breaker).ThermalRating))
+                errors.push('A valid ThermalRating is required.')
+            if ((asset as OpenXDA.Breaker).Speed == null || !AssetAttributes.isRealNumber((asset as OpenXDA.Breaker).Speed))
+                errors.push('A valid Breaker Speed id required.')
+            if ((asset as OpenXDA.Breaker).TripTime != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Breaker).TripTime))
+                errors.push('Trip Time Limit needs to be a numeric value or empty.')
+            if ((asset as OpenXDA.Breaker).PickupTime != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Breaker).PickupTime))
+                errors.push('Pickup Time Limit needs to be a numeric value or empty.')
+            if ((asset as OpenXDA.Breaker).TripCoilCondition != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Breaker).TripCoilCondition))
+                errors.push('Trip Coil Condition Limit needs to be a numeric value or empty.')
+           
+        }
+
+       
 
         return errors;
     }

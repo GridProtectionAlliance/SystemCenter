@@ -59,9 +59,9 @@ function BreakerAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
         <>
             <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'Thermal rating is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={ props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'Speed'} Feedback={'Speed is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'TripTime'} Label={'Trip Time'} Feedback={'Trip Time is an integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'PickupTime'} Label={'Pickup Time'} Feedback={'Pickup Time is an integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition'} Feedback={'Trip Coil Condition is an numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'TripTime'} Label={'Trip Time Limit'} Feedback={'Trip Time is an integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'PickupTime'} Label={'Pickup Time Limit'} Feedback={'Pickup Time is an integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition Limit'} Feedback={'Trip Coil Condition is an numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'EDNAPoint'} Label={'EDNA Point'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
             <div className="form-group" hidden={props.ShowSpare != true}>
