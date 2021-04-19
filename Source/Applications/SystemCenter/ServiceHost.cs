@@ -913,6 +913,8 @@ namespace SystemCenter
 
         private void LoggedExceptionHandler(object sender, EventArgs<Exception> e)
         {
+            HandleException(e.Argument);
+
             if ((object)LoggedException != null)
                 LoggedException(sender, new EventArgs<Exception>(e.Argument));
         }
