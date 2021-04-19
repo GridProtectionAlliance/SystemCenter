@@ -298,10 +298,10 @@ export default function Page4(props: Page4Props) {
                         props.UpdateAssets(list);
                         setNewEditAsset(AssetAttributes.getNewAsset('Line'));                        
                     }}
-                    DisableConfirm={newEdit == 'New' && AssetAttributes.AttributeError(newEditAsset).length > 0 }
-                    ConfirmShowToolTip={newEdit == 'New' && AssetAttributes.AttributeError(newEditAsset).length > 0}
+                    DisableConfirm={newEdit == 'New' && (AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).length > 0) }
+                    ConfirmShowToolTip={newEdit == 'New' && (AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).length > 0)}
                     ConfirmToolTipContent={
-                        AssetAttributes.AttributeError(newEditAsset).map((e, i) => <p key={i}><ErrorSymbol /> {e}</p>)
+                       AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).map((e, i) => <p key={i}><ErrorSymbol /> {e}</p>)
                     }
                 >
                     <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
