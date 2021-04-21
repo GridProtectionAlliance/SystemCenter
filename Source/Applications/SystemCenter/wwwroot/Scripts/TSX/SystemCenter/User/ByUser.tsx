@@ -53,7 +53,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
 
     const [data, setData] = React.useState<Array<UserAccount>>([]);
-    const [sortField, setSortField] = React.useState<string>('UserAccountKey');
+    const [sortField, setSortField] = React.useState<string>('FirstName');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
     const [newUserAccount, setNewUserAccount] = React.useState<SystemCenter.UserAccount>(null);
