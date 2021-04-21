@@ -105,7 +105,7 @@ export default class UserInfoWindow extends React.Component<{ User: SystemCenter
                     </div>
                 </div>
                 <div className="card-body">
-                    <div className="row">
+                    <div className="row" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                         <div className="col">
                             <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'AccountName'} Label='Name' Feedback={'A Name of less than 200 characters is required.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={(record) => {
                                 if (this.state.User.UseADAuthentication)
