@@ -116,6 +116,8 @@ namespace SystemCenter.Controllers.OpenXDA
                     string assetType = asset["AssetType"].ToString();
                     if (asset["ID"].ToString() == "0")
                     {
+                        asset["Description"] = asset["Description"] ?? "";
+
                         if (assetType == "Line")
                         {
                             string maxFaultDistance = asset["MaxFaultDistance"].ToString() == string.Empty ? "NULL" : asset["MaxFaultDistance"].ToString();
