@@ -77,6 +77,9 @@ XCOPY "%historiants%" "%historiandependencies%\" /E /U /Y
 XCOPY "%historiansqlclr%" "%historiandependencies%\" /E /U /Y
 XCOPY "%sourcemasterbuild%" "%targetmasterbuild%\" /Y
 XCOPY "%openXDALibraries%" "%gsfdependencies%\" /E /U /Y
+ECHO Updating GSF dependencies again to avoid outdated files from openXDA Dependencies....
+XCOPY "%gsflibraries%" "%gsfdependencies%\" /E /U /Y
+:: This is temporary until I get the openXDA dependencies moved to a seperate folder
 
 :CommitChanges
 ECHO.
