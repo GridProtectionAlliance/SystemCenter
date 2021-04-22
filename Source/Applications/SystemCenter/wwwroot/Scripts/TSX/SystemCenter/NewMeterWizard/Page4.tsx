@@ -294,6 +294,10 @@ export default function Page4(props: Page4Props) {
 
                         if (newEdit == 'New')
                             list.push(record);
+                        if (newEdit == 'Edit') {
+
+                        }
+
                         props.UpdateChannels(channels);
                         props.UpdateAssets(list);
                         setNewEditAsset(AssetAttributes.getNewAsset('Line'));                        

@@ -29,6 +29,13 @@ import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 
 function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.CapBank, UpdateState: (newEditAsset: OpenXDA.CapBank) => void }): JSX.Element {
+
+    React.useEffect(() => {
+        if (props.Asset.Fused == undefined || props.Asset.Compensated == undefined || props.Asset.CktSwitcher == undefined || props.Asset.CktSwitcher.length == 0)
+            props.UpdateState({ ...props.Asset, Fused: true, Compensated: false, CktSwitcher: '0' });
+
+    }, [props.Asset])
+
     function valid(field: keyof (OpenXDA.CapBank)): boolean {
         if (field == 'NumberOfBanks')
             return props.Asset.NumberOfBanks != null && AssetAttributes.isInteger(props.Asset.NumberOfBanks);
@@ -94,10 +101,12 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
     return (
         <>
             <DesignSelect Record={props.Asset} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+
+            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NumberOfBanks'} Label={'Number Of Banks'} Feedback={'Number Of Banks is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+
             <PreSwitchSelect Record={props.Asset} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             
-            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'NumberOfBanks'} Label={'Number Of Banks'} Feedback={'Number Of Banks is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'CapacitancePerBank'} Label={'Capacitor Step Size (kVAR)'} Feedback={'Capacitor Step Size is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'CapacitancePerBank'} Label={'Capacitor Step Size (kVAR)'} Feedback={'Capacitor Step Size is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'MaxKV'} Label={'Maximum Operating Voltage (kV)'} Feedback={'Maximum Operating Voltage is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.CapBank> Record={props.Asset} Field={'UnitKV'} Label={'Rated Voltage of a Unit (kV)'} Feedback={'Rated Voltage of a Unit is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
