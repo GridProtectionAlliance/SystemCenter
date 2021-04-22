@@ -33,6 +33,9 @@ import { getSIDFromUserName, getIsUser, getFilledUser, getRoles, getTSCs, validU
 import FormSelect from '../CommonComponents/FormSelect';
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
+import CryptoJS from 'crypto-js'
+import { Input } from '@gpa-gemstone/react-forms';
+
 
 declare var homePath: string;
 
@@ -162,7 +165,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
             url: `${homePath}api/SystemCenter/UserAccount/Add`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(newUserAccount),
+            data: JSON.stringify({ ...newUserAccount, Password: CryptoJS.SHA256(newUserAccount.Password + "0").toString(CryptoJS.enc.Base64) }),
             cache: false,
             async: true
         }).done((data) => getData());
@@ -293,7 +296,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
                                             <div className="card-body" hidden={newUserAccount.UseADAuthentication}>
                                                 <div className="row">
                                                     <div className="col">
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Password'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Input<SystemCenter.UserAccount> Record={newUserAccount} Field={'Password'} Feedback={'Password must be less than 200 characters.'} Type={'password'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
                                                         <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
                                                         <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
                                                         <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Title'} Feedback={'Title must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />

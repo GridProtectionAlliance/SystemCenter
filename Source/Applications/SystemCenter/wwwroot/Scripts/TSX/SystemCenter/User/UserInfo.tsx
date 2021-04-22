@@ -28,11 +28,14 @@ import FormCheckBox from '../CommonComponents/FormCheckBox';
 import FormDatePicker from '../CommonComponents/FormDatePicker';
 import { getSIDFromUserName, getIsUser, validUserAccountField, getRoles, getTSCs } from './../../../TS/Services/User';
 import FormSelect from '../CommonComponents/FormSelect';
+import CryptoJS from 'crypto-js'
+import { Input } from '@gpa-gemstone/react-forms';
 
 declare var homePath: string;
+
 type UserValidation = 'Resolving' | 'Valid' | 'Invalid' | 'Unknown';
 
-export default class UserInfoWindow extends React.Component<{ User: SystemCenter.UserAccount, stateSetter: (user: SystemCenter.UserAccount) => void }, { User: SystemCenter.UserAccount, UserValidation: UserValidation, Roles: Array<SystemCenter.Role>, TSCs: Array<SystemCenter.TSC>}, {}> {
+export default class UserInfoWindow extends React.Component<{ User: SystemCenter.UserAccount, stateSetter: (user: SystemCenter.UserAccount) => void }, { User: SystemCenter.UserAccount, UserValidation: UserValidation, Roles: Array<SystemCenter.Role>, TSCs: Array<SystemCenter.TSC>, changedPassword: boolean}, {}> {
     jqueryHandle: JQuery.jqXHR;
     constructor(props, context) {
         super(props, context);
@@ -40,7 +43,8 @@ export default class UserInfoWindow extends React.Component<{ User: SystemCenter
             User: this.props.User,
             UserValidation: 'Invalid',
             Roles: [],
-            TSCs: []
+            TSCs: [],
+            changedPassword: false
         }
     }
 
@@ -57,17 +61,17 @@ export default class UserInfoWindow extends React.Component<{ User: SystemCenter
     }
 
     componentWillReceiveProps(nextProps): void {
-        this.setState({ User: nextProps.User})
+        this.setState({ User: nextProps.User, changedPassword: false })
     }
 
     updateUser(): JQuery.jqXHR {
         var user = _.clone(this.state.User);
-
+        let encryptedPwd = (this.state.changedPassword ? CryptoJS.SHA256(this.state.User.Password + "0").toString(CryptoJS.enc.Base64) : this.state.User.Password)
        return $.ajax({
             type: "PATCH",
            url: `${homePath}api/SystemCenter/UserAccount/Update`,
-            contentType: "application/json; charset=utf-8",
-           data: JSON.stringify(this.state.User),
+           contentType: "application/json; charset=utf-8",
+           data: JSON.stringify({ ...this.state.User, Password: encryptedPwd }),
             dataType: 'json',
             cache: true,
             async: true
@@ -164,7 +168,7 @@ export default class UserInfoWindow extends React.Component<{ User: SystemCenter
                                 <div className="card-body" hidden={this.state.User.UseADAuthentication}>
                                     <div className="row">
                                         <div className="col">
-                                            <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Password'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({User: record})} />
+                                            <Input<SystemCenter.UserAccount> Record={this.state.User} Field={'Password'} Type={'password'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({ User: record, changedPassword: true })} />
                                             <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({User: record})} />
                                             <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({User: record})} />
                                             <FormInput<SystemCenter.UserAccount> Record={this.state.User} Field={'Title'} Feedback={'Title must be less than 200 characters.'} Valid={field => validUserAccountField(this.state.User, field)} Setter={record => this.setState({ User: record })} />
