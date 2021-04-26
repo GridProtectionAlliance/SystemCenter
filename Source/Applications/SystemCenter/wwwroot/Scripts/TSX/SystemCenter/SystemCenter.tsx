@@ -100,6 +100,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
         });
     }
 
+
     if (Object.keys(queryString.parse(history.location.search)).length == 0)
         history.push({ pathname: homePath + 'index.cshtml', search: 'name=Meters', state: {} })
 
@@ -110,7 +111,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                 {/*<input className="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"/>*/}
                 <ul className="navbar-nav px-3">
                     <li className="nav-item text-nowrap">
-                        <a className="nav-link" href="#">Sign out</a>
+                        <a className="nav-link" href="./@GSF/Web/Security/Views/Login.cshtml?logout=yes" >Sign out</a>
                     </li>
                 </ul>
             </nav>
