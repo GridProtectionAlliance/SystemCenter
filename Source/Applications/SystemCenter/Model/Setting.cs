@@ -22,6 +22,9 @@
 //******************************************************************************************************
 
 using GSF.Data.Model;
+using System.Web.Http;
+using SystemCenter.Controllers;
+
 namespace SystemCenter.Model
 {
     public class Setting
@@ -38,5 +41,15 @@ namespace SystemCenter.Model
         [Searchable]
         public string DefaultValue { get; set; }
 
+    }
+
+    [RoutePrefix("api/SystemCenter/Setting")]
+    public class SettingController : ModelController<Setting>
+    {
+        protected override string PostRoles { get; } = "Administrator";
+        protected override string PatchRoles { get; } = "Administrator";
+        protected override string DeleteRoles { get; } = "Administrator";
+        protected override bool AllowSearch => true;
+        protected override string DefaultSort => "ID";
     }
 }

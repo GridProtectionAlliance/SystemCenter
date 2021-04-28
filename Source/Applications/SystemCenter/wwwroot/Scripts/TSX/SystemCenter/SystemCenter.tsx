@@ -71,6 +71,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const AssetGroup = React.lazy(() => import(/* webpackChunkName: "AssetGroup" */ './AssetGroups/AssetGroup'));
     const ByCompany = React.lazy(() => import(/* webpackChunkName: "ByCompany" */ './Company/ByCompany'));
     const Company = React.lazy(() => import(/* webpackChunkName: "Company" */ './Company/Company'));
+    const BySetting = React.lazy(() => import(/* webpackChunkName: "ByCompany" */ './Settings/BySetting'));
 
     const [roles, setRoles] = React.useState<Array<SystemCenter.SystemCeneterSecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer(x => x + 1, 0); // integer state for resize renders
@@ -171,6 +172,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Users"} to={controllerViewPath + "?name=Users"}>Users</NavLink>
 
                                 </li>
+                                <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings"} to={controllerViewPath + "?name=Settings"}>Settings</NavLink>
+
+                                </li>
                             </ul>
                             <div style={{ width: '100%', textAlign: 'center', position:'absolute', bottom: 50 }}>
 
@@ -222,6 +227,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ByCustomer Roles={roles} />
                                 else if (qs['?name'] == "NewMeterWizard")
                                     return <NewMeterWizard />
+                                else if (qs['?name'] == "Settings")
+                                    return <BySetting Roles={roles}/>
                                 else
                                     return null;
                             }} />
