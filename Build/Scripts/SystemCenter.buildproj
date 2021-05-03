@@ -109,6 +109,10 @@
   </Target>
 
   <Target Name="BeforeBuildProjects">
+	 <PropertyGroup>
+		<PowerShellExe Condition=" '$(PowerShellExe)'=='' ">%WINDIR%\System32\WindowsPowerShell\v1.0\powershell.exe</PowerShellExe>
+	</PropertyGroup>
+	<Exec Command="$(PowerShellExe) -NonInteractive -executionpolicy Unrestricted -command &quot;&amp; { &amp;&apos;$(LocalFolder)\Build\Scripts\BuildTSX.ps1&apos; &apos;$(LocalFolder)\Source\Applications\SystemCenter&apos; } &quot;" />
     <ItemGroup>
       <!--List of projects to build.-->
       <ProjectsToBuild Include="$(ProjectSolution)"/>
@@ -136,7 +140,9 @@
     
     <!--Move the SQL database file to the build output folder.-->
     <Copy SourceFiles="@(BinariesToArchive)" DestinationFolder="$(BuildOutputFolder)\Applications\SystemCenter\"/>
-      
+     
+	 
+	 
     <ItemGroup>
       <!--List of source code files to archive.-->
       <SourcesToArchive Include="$(LocalFolder)\Source\**\*.*" Exclude="$(LocalFolder)\Source\**\obj\**\*.*"/>
