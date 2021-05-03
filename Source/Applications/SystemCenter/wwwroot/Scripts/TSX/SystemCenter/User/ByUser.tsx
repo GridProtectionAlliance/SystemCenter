@@ -199,6 +199,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<UserAccount>
                     cols={[
+                        { key: 'Name', label: 'User Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Role', label: 'Role', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
