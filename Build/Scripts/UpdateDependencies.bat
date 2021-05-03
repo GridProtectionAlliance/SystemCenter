@@ -38,6 +38,7 @@ IF "%target%" == "" SET target=%defaulttarget%
 
 SET gsflibraries=%gsf%\Libraries\*.*
 SET gsfdependencies=%target%\Source\Dependencies\GSF
+SET xdadependencies=%target%\Source\Dependencies\openXDA
 SET openXDALibraries=%openXDA%\Libraries\*.*
 SET historiants=%historian%\Library\openHistorian.TimeSeries\*.*
 SET historiansqlclr=%historian%\Library\openHistorian.SqlClr\*.*
@@ -76,10 +77,7 @@ XCOPY "%gsflibraries%" "%gsfdependencies%\" /E /U /Y
 XCOPY "%historiants%" "%historiandependencies%\" /E /U /Y
 XCOPY "%historiansqlclr%" "%historiandependencies%\" /E /U /Y
 XCOPY "%sourcemasterbuild%" "%targetmasterbuild%\" /Y
-XCOPY "%openXDALibraries%" "%gsfdependencies%\" /E /U /Y
-ECHO Updating GSF dependencies again to avoid outdated files from openXDA Dependencies....
-XCOPY "%gsflibraries%" "%gsfdependencies%\" /E /U /Y
-:: This is temporary until I get the openXDA dependencies moved to a seperate folder
+XCOPY "%openXDALibraries%" "%xdadependencies%\" /E /U /Y
 
 :CommitChanges
 ECHO.
