@@ -34,7 +34,10 @@ function Build-TS {
 
 function Remove-NPM {
 	"Remove NPM"
+	mkdir "tmp"
+	robocopy /MIR .\tmp .\node_modules > NULL
 	Remove-Item '.\node_modules' -Recurse
+	Remove-Item '.\tmp' -Recurse
 }
 
 Set-Location "$projectDir"
