@@ -32,6 +32,12 @@ function Build-TS {
 	"Built TypeScript"
 }
 
+function Remove-NPM {
+	"Remove NPM"
+	Remove-Item '.\node_modules' -Recurse
+}
+
 Set-Location "$projectDir"
 Install-NPM
 Build-TS
+Remove-NPM
