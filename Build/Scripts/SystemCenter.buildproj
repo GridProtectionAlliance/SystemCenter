@@ -128,9 +128,13 @@
   <Target Name="AfterExecuteUnitTests">
     <!--Clean-up after all unit tests have been executed and passed.-->
     <RemoveDir Directories="%(UnitTestAssemblies.RootDir)%(UnitTestAssemblies.Directory)" Condition="Exists('%(UnitTestAssemblies.RootDir)%(UnitTestAssemblies.Directory)')"/>
-	<RemoveDir Directories="$(LocalFolder)\Source\Applications\SystemCenter\node_modules" Condition="Exists('$(LocalFolder)\Source\Applications\SystemCenter\node_modules')"/>
   </Target>
-
+  
+ <Target Name="BeforeCleanBuild">
+    <!--Clean-up teh node_module directory.-->
+  	<RemoveDir Directories="$(LocalFolder)\Source\Applications\SystemCenter\node_modules" Condition="Exists('$(LocalFolder)\Source\Applications\SystemCenter\node_modules')"/>
+  </Target>
+  
   <Target Name="BeforeDeployBuild">
     <!--Directories containing help files.-->
     
