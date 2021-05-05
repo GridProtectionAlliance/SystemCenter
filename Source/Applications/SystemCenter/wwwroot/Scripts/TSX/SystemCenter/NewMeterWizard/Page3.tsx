@@ -42,6 +42,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
     const phases = useSelector(SelectPhases);
     const phStatus = useSelector(SelectPhaseStatus) as SystemCenter.Status;
     const [showCFGError, setShowCFGError] = React.useState<boolean>(false);
+    const [showSpareWarning, setShowSpareWarning] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         $(".custom-file-input").on("change", (evt: any) => {
@@ -149,10 +150,43 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
         props.UpdateChannels(updated);
     }
 
+    function clearSpareChannels() {
+        let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
+        let assets: Array<OpenXDA.Asset> = JSON.parse(localStorage.getItem('NewMeterWizard.Assets'));
+
+        if (assets != null && assets.length > 0) {
+
+            channels.filter(c => IsSpare(c)).forEach(c => {
+
+                if (c.Asset == '') return;
+
+                let asset = assets.find(a => a.AssetKey == c.Asset)
+                if (asset == null) return;
+
+                let channelIndex = asset.Channels.findIndex(ch => ch.ID = c.ID);
+                if (channelIndex < 0) return;
+
+                asset.Channels.splice(channelIndex, 1)
+            });
+            props.UpdateAssets(assets);
+        }
+
+        props.UpdateChannels(channels.filter(c => !IsSpare(c)));
+    }
+
+    function IsSpare(ch: OpenXDA.Channel): boolean {
+        const regex = new RegExp('\(A[0-9]+\)Analog Channel [0-9]+');
+
+        return ch.Description.toLowerCase() == 'spare' || (regex.test(ch.Description) && ch.MeasurementType == 'Digital') ;
+    }
+
+    const NSpare = props.Channels.filter(c => IsSpare(c)).length;
+
+
     return (
         <>
             <div className="row">
-                <div className="col">
+                <div className="col-2">
                     <button className="btn btn-primary" onClick={() => {
                         let channels: Array<OpenXDA.Channel> = [
                             { ID: 0, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series] } as OpenXDA.Channel,
@@ -168,7 +202,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                         clearAssetsChannels();
                     }}>Default Setup</button>
                 </div>
-                <div className="col">
+                <div className="col-6">
                     <div className="form-group" style={{ width: '100%' }}>
                         <div className="custom-file">
                             <input type="file" className="custom-file-input" ref={fileInput} accept=".cfg,.par" />
@@ -176,7 +210,10 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                         </div>
                     </div>
                 </div>
-                <div className="col">
+                <div className="col-2">
+                    <button className="btn btn-primary pull-right" disabled={NSpare == 0} onClick={() => setShowSpareWarning(true)}>Remove Spare</button>
+                </div>
+                <div className="col-2">
                     <button className="btn btn-primary pull-right" onClick={() => {
                         let channel: OpenXDA.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series] } as OpenXDA.Channel
                         let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
@@ -225,7 +262,8 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                 />
             </div>
             <Warning Show={showCFGError} Title={'Error Parsing File'} Message={'File is not of type cfg. Please only use comtrade standard cfg files.'} CallBack={() => setShowCFGError(false)} />
-                
+            <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare channels. This will remove ${NSpare} Channels from the Configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
+
         </>
         );
 
