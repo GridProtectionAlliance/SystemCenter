@@ -72,6 +72,7 @@ function Asset(props: { AssetID: number }) {
         getAssetTypes().done((assetTypes: Array<OpenXDA.AssetType>) => {
             let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
             setAssetType(assetType.Name);
+            setAsset((cur) => ({ ...cur, AssetType: assetType.Name }));
         });
     }
 
