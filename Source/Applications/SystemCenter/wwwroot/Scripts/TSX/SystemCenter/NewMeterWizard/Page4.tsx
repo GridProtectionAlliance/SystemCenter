@@ -321,11 +321,11 @@ export default function Page4(props: Page4Props) {
                             <label>Associated Channels</label>
                             <select multiple style={{ height: innerHeight - 330, width: '100%' }} onChange={(evt) => {
                                 let asset = _.clone(newEditAsset as OpenXDA.Asset);
-                                asset.Channels = ($(evt.target).val() as Array<string>).map(a => props.Channels[parseInt(a)])
+                                asset.Channels = ($(evt.target).val() as Array<string>).map(a => props.Channels.find(ch => ch.ID == parseInt(a)))
                                 setNewEditAsset(asset);
                             }} value={newEditAsset.Channels.map(a => a.ID.toString())}>
                                 {
-                                    props.Channels.map((channel, index) => <option key={index} value={index} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
+                                    props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
                                 }
                             </select>
                         </div>
