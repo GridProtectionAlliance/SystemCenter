@@ -138,7 +138,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Meters:</h4>
+                        <h4>Connections:</h4>
                     </div>
                 </div>
             </div>
