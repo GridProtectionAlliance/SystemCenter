@@ -406,26 +406,7 @@
     <None Include="wwwroot\Layout.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="wwwroot\Scripts\Asset.js" />
-    <Content Include="wwwroot\Scripts\AssetGroup.js" />
-    <Content Include="wwwroot\Scripts\Asset~ByAsset.js" />
-    <Content Include="wwwroot\Scripts\Asset~ByAsset~Location~Meter~NewMeterWizard.js" />
-    <Content Include="wwwroot\Scripts\Asset~Company~Customer~Location~Meter.js" />
-    <Content Include="wwwroot\Scripts\ByAsset.js" />
-    <Content Include="wwwroot\Scripts\ByAssetGroup.js" />
-    <Content Include="wwwroot\Scripts\ByCompany.js" />
-    <Content Include="wwwroot\Scripts\ByCustomer.js" />
-    <Content Include="wwwroot\Scripts\ByLocation.js" />
-    <Content Include="wwwroot\Scripts\ByMeter.js" />
-    <Content Include="wwwroot\Scripts\ByUser.js" />
-    <Content Include="wwwroot\Scripts\ByUser~User.js" />
-    <Content Include="wwwroot\Scripts\Company.js" />
-    <Content Include="wwwroot\Scripts\ConfigurationHistory.js" />
-    <Content Include="wwwroot\Scripts\Customer.js" />
     <Content Include="wwwroot\Scripts\d3\d3.v4.min.js" />
-    <Content Include="wwwroot\Scripts\Location.js" />
-    <Content Include="wwwroot\Scripts\Meter.js" />
-    <Content Include="wwwroot\Scripts\NewMeterWizard.js" />
     <Content Include="wwwroot\Scripts\react-router\react-router-dom.min.js" />
     <Content Include="wwwroot\Scripts\react-router\react-router-dom.min.js.map" />
     <None Include="wwwroot\Scripts\Site.js">
@@ -433,8 +414,6 @@
     </None>
     <Content Include="wwwroot\Scripts\ace\ace.js" />
     <Content Include="wwwroot\Scripts\ace\mode-xml.js" />
-    <Content Include="wwwroot\Scripts\default.polyfill.min.js" />
-    <Content Include="wwwroot\Scripts\SystemCenter.js" />
     <None Include="AppDebug.config">
       <SubType>Designer</SubType>
     </None>
@@ -451,10 +430,6 @@
     <None Include="Web.config">
       <SubType>Designer</SubType>
     </None>
-    <Content Include="wwwroot\Scripts\User.js" />
-    <Content Include="wwwroot\Scripts\UserStatistics.js" />
-    <Content Include="wwwroot\Scripts\vendors~Asset~AssetGroup~ByAsset~ByAssetGroup~ByCompany~ByCustomer~ByLocation~ByMeter~ByUser~Company~159a7171.js" />
-    <Content Include="wwwroot\Scripts\vendors~ByCompany~Company.js" />
     <Content Include="XDA.ico" />
     <Content Include="wwwroot\Users.cshtml" />
     <Content Include="wwwroot\ValueListGroups.cshtml" />
