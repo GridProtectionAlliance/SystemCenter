@@ -21,6 +21,7 @@
 //
 //******************************************************************************************************
 
+using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Identity;
@@ -99,7 +100,15 @@ namespace SystemCenter.Model.Security
             {
                 try
                 {
-                    UserInfo userInfo = new UserInfo(UserInfo.SIDToAccountName(userAccount.Name));
+                    // Grab LdapPath From Configuration File
+                    ConfigurationFile configFile = ConfigurationFile.Current;
+                    CategorizedSettingsElementCollection securityProviderSettings = configFile.Settings["securityProvider"];
+                    securityProviderSettings.Add("LdapPath", "", "Specifies the LDAP path used to initialize the security provider.");
+
+
+                    string ldapPath = securityProviderSettings["LdapPath"].Value;
+
+                    UserInfo userInfo = new UserInfo(UserInfo.SIDToAccountName(userAccount.Name), ldapPath);
                     userAccount.Phone = userInfo.Telephone;
                     userAccount.MobilePhone = userInfo.GetUserPropertyValue("mobile");
 
