@@ -80,6 +80,8 @@
     </BeforeBuildDependsOn>
   </PropertyGroup>
   
+  <Target Name="BeforeBuild" DependsOnTargets="$(BeforeBuildDependsOn)">
+  </Target>
   <PropertyGroup>
     <PreBuildEvent>"C:\Program Files (x86)\WiX Toolset v3.11\bin\heat.exe" dir "$(SolutionDir)Applications\SystemCenter\wwwroot" -cg SystemCenterWebFiles -dr WWWROOTFOLDER -gg -sfrag -srd -sreg -var var.SystemCenterSource -out "$(SolutionDir)\Applications\SystemCenterSetup\SystemCenterWebFiles.wxs"</PreBuildEvent>
   </PropertyGroup>
