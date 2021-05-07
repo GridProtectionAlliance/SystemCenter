@@ -190,12 +190,14 @@ namespace SystemCenter.Controllers.OpenXDA
                     double adder = channel["Adder"].ToObject<double>();
                     double multiplier = channel["Multiplier"].ToObject<double>();
                     string description = channel["Description"].ToString() == string.Empty ? "NULL" : "'" + channel["Description"].ToString() + "'";
+                    int conPriority = channel["ConnectionPriority"].ToObject<int>();
+
                     JToken Series = channel["Series"];
                     string sourceIndex = Series[0]["SourceIndexes"].ToString();
                     if (assetName == string.Empty) continue;
 
-                    sqlString += $"INSERT INTO Channel (AssetID, MeasurementTypeID, MeterID, MeasurementCharacteristicID, PhaseID, Name, Adder, Multiplier, SamplesPerHour, HarmonicGroup, Description, Enabled) VALUES ";
-                    sqlString += $"((SELECT ID FROM Asset WHERE AssetKey = '{assetName}'),(SELECT ID FROM MeasurementType WHERE Name = '{measurementType}'),(SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'),(SELECT ID FROM MeasurementCharacteristic WHERE Name = '{measurementcharacteristic}'),(SELECT ID FROM Phase WHERE Name = '{phase}'), '{name}', {adder}, {multiplier}, 0,0,{description}, 1 ) \n";
+                    sqlString += $"INSERT INTO Channel (AssetID, MeasurementTypeID, MeterID, MeasurementCharacteristicID, PhaseID, Name, Adder, Multiplier, SamplesPerHour, HarmonicGroup, Description, Enabled, ConnectionPriority) VALUES ";
+                    sqlString += $"((SELECT ID FROM Asset WHERE AssetKey = '{assetName}'),(SELECT ID FROM MeasurementType WHERE Name = '{measurementType}'),(SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'),(SELECT ID FROM MeasurementCharacteristic WHERE Name = '{measurementcharacteristic}'),(SELECT ID FROM Phase WHERE Name = '{phase}'), '{name}', {adder}, {multiplier}, 0,0,{description}, 1,{conPriority} ) \n";
                     sqlString += $"INSERT INTO Series (ChannelID, SeriesTypeID, SourceIndexes) VALUES ((SELECT @@Identity), (SELECT ID FROM SeriesType WHERE Name = 'Values'), '{sourceIndex}') \n";
                 }
 
@@ -256,7 +258,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         channel.PerUnitValue = channelToken["PerUnitValue"].ToObject<double?>();
                         channel.HarmonicGroup = channelToken["HarmonicGroup"].ToObject<int>();
                         channel.Enabled = channelToken["Enabled"].ToObject<bool>();
-
+                        channel.ConnectionPriority = channelToken["ConnectionPriority"].ToObject<int>();
                         if (channel.AssetID == 0)
                             continue;
 
@@ -335,7 +337,8 @@ namespace SystemCenter.Controllers.OpenXDA
                 "    Channel.PerUnitValue, " +
                 "    Channel.HarmonicGroup, " +
                 "    Channel.Description, " +
-                "    Channel.Enabled " +
+                "    Channel.Enabled, " +
+                "    Channel.ConnectionPriority " +
                 "FROM " +
                 "    Channel JOIN " +
                 "    Asset ON Channel.AssetID = Asset.ID JOIN " +

@@ -164,6 +164,7 @@ export default class MeterEventChannelWindow extends React.Component<{ Meter: Op
                                     <th>Adder</th>
                                     <th>Multiplier</th>
                                     <th>Asset</th>
+                                    <th>Conn.</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -180,7 +181,7 @@ export default class MeterEventChannelWindow extends React.Component<{ Meter: Op
                                                     channel.Name = event.target.value;
                                                     this.setState({ Channels: array });
                                                 }} /></td>
-                                                <td style={{ width: '30%' }}><input className='form-control' value={channel.Description == null ? '' : channel.Description} onChange={(event) => {
+                                                <td style={{ width: '25%' }}><input className='form-control' value={channel.Description == null ? '' : channel.Description} onChange={(event) => {
                                                     channel.Description = event.target.value;
                                                     this.setState({ Channels: array });
                                                 }} /></td>
@@ -206,6 +207,10 @@ export default class MeterEventChannelWindow extends React.Component<{ Meter: Op
                                                 }}>
                                                     <option value=""></option>
                                                     {this.state.AllAssets.map(a => <option key={a.ID} value={a.AssetKey}>{a.AssetKey}</option>)}</select>}</td>
+                                                <td style={{ width: '5%' }}><input className='form-control' value={channel.ConnectionPriority} onChange={(event) => {
+                                                    channel.ConnectionPriority = toNumber(event.target.value);
+                                                    this.setState({ Channels: array });
+                                                }} /></td>
                                                 <td style={{ width: '5%' }}>
                                                     <button className="btn btn-sm" onClick={(e) => this.deleteChannel(index)}><span><i className="fa fa-times"></i></span></button>
                                                 </td>

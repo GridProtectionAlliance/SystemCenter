@@ -75,7 +75,7 @@ export default function Page2(props: { LocationInfo: OpenXDA.Location, UpdateLoc
     return (
         <MeterLocationProperties Meter={{LocationID: props.LocationInfo.ID == null ? '0' : props.LocationInfo.ID} as OpenXDA.Meter} Location={props.LocationInfo} SetLocation={props.UpdateLocationInfo} 
             UpdateMeter={(m) => {
-                if (m.LocationID != 0)
+                if (m.LocationID != 0 && m.LocationID != null)
                     getDifferentMeterLocation(m.LocationID)
                 else
                     props.UpdateLocationInfo({
