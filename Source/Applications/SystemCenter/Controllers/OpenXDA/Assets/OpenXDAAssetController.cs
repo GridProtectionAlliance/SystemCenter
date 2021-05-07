@@ -18,15 +18,7 @@
 //  ----------------------------------------------------------------------------------------------------
 //  08/26/2019 - Billy Ernest
 //       Generated original version of source code.
-// record fields for asset JObject Post records
-//  Asset: { ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Channels: Array<OpenXDA.Channel>
-// interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number,EDNAPoint?:string }
-// interface Bus extends Asset { }
-// interface CapBank extends Asset { NumberOfBanks: number, CansPerBank: number, CapacitancePerBank: number }
-// interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Segment: LineSegment }
-// interface LineSegment extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number }
-// interface Transformer extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, PrimaryVoltageKV: number, SecondaryVoltageKV: number, Tap: number }
-// AssetConnections: List<{ ID: int, AssetRelationshipTypeID: int, Parent: string, Child: string }>
+//
 //******************************************************************************************************
 
 using System;
@@ -849,6 +841,7 @@ namespace SystemCenter.Controllers.OpenXDA
             capBankRelay.Description = record["Description"].ToString();
             capBankRelay.AssetName = record["AssetName"].ToString();
             capBankRelay.OnVoltageThreshhold = record["OnVoltageThreshhold"].ToObject<double>();
+            capBankRelay.CapBankNumber = record["CapBankNumber"].ToObject<int>();
         }
 
         private void CreateTransformerFromJToken(Transformer transformer, JToken record) {

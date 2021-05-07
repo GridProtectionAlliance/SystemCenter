@@ -269,6 +269,8 @@ export namespace AssetAttributes {
         if (type == 'CapacitorBankRelay') {
             if ((asset as OpenXDA.CapBankRelay).OnVoltageThreshhold == null || !AssetAttributes.isRealNumber((asset as OpenXDA.CapBankRelay).OnVoltageThreshhold))
                 errors.push('A valid On Voltage Threshold  is required.')
+            if ((asset as OpenXDA.CapBankRelay).CapBankNumber == null || !AssetAttributes.isInteger((asset as OpenXDA.CapBankRelay).CapBankNumber))
+                errors.push('A valid Protected CapBank  is required.')
         }
 
         if (type == 'Transformer') {

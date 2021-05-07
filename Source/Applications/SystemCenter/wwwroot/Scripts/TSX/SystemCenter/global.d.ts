@@ -89,7 +89,7 @@ export namespace OpenXDA {
         LVNegReactanceTol: number, LVPosReactanceTol: number, LowerXFRRatio: number, Nshorted: number, BlownFuses: number, BlownGroups: number, RelayPTRatioPrimary: number, Rv: number,
         Rh: number, Compensated: boolean, NLowerGroups: number, ShortedGroups: number, Sh: number, RelayPTRatioSecondary: number
     }
-    interface CapBankRelay extends Asset { OnVoltageThreshhold: number }
+    interface CapBankRelay extends Asset { OnVoltageThreshhold: number, CapBankNumber: number  }
     interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Detail: LineDetail }
     interface LineSegment extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number, IsEnd: boolean }
     interface Transformer extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, PrimaryVoltageKV: number, SecondaryVoltageKV: number, Tap: number }

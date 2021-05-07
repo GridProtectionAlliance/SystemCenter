@@ -24,17 +24,20 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
-import FormInput from '../CommonComponents/FormInput';
 import { AssetAttributes } from './Asset';
+import { Input } from '@gpa-gemstone/react-forms';
 
 function CapBankRelayAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.CapBankRelay, UpdateState: (newEditAsset: OpenXDA.CapBankRelay) => void }): JSX.Element {
     function valid(field: keyof (OpenXDA.CapBankRelay)): boolean {
         if (field == 'OnVoltageThreshhold')
             return props.Asset.OnVoltageThreshhold != null && AssetAttributes.isRealNumber(props.Asset.OnVoltageThreshhold);
+        if (field == 'CapBankNumber')
+            return props.Asset.CapBankNumber != null && AssetAttributes.isInteger(props.Asset.CapBankNumber);
         return true;
     }
     return <>
-        <FormInput<OpenXDA.CapBankRelay> Record={props.Asset} Field={'OnVoltageThreshhold'} Label={'Relay On Voltage Threshhold (pu)'} Feedback={'Relay On Voltage Threshhold (pu) is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+        <Input<OpenXDA.CapBankRelay> Record={props.Asset} Field={'OnVoltageThreshhold'} Label={'Relay On Voltage Threshhold (pu)'} Feedback={'Relay On Voltage Threshhold (pu) is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+        <Input<OpenXDA.CapBankRelay> Record={props.Asset} Field={'CapBankNumber'} Label={'Protected CapBank'} Feedback={'Protected CapBank is a required field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
     </>;
 
 }
