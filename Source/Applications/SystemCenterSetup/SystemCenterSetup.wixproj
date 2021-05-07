@@ -73,6 +73,13 @@
   <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
     <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
   </Target>
+  
+  <PropertyGroup>
+   <BeforeBuildDependsOn>
+      VersionBitmap
+    </BeforeBuildDependsOn>
+  </PropertyGroup>
+  
   <PropertyGroup>
     <PreBuildEvent>"C:\Program Files (x86)\WiX Toolset v3.11\bin\heat.exe" dir "$(SolutionDir)Applications\SystemCenter\wwwroot" -cg SystemCenterWebFiles -dr WWWROOTFOLDER -gg -sfrag -srd -sreg -var var.SystemCenterSource -out "$(SolutionDir)\Applications\SystemCenterSetup\SystemCenterWebFiles.wxs"</PreBuildEvent>
   </PropertyGroup>
@@ -80,4 +87,17 @@
 	To modify your build process, add your task inside one of the targets below and uncomment it.
 	Other similar extension points exist, see Wix.targets.
 	-->
+  <Target Name="VersionBitmap">
+    <PropertyGroup>
+      <VersionFile>$(SolutionDir)\..\Build\Scripts\SystemCenter.version</VersionFile>
+    </PropertyGroup>
+    <ReadLinesFromFile File="$(VersionFile)">
+      <Output TaskParameter="Lines" ItemName="VersionNumber" />
+    </ReadLinesFromFile>
+    <Exec Command="Powershell -ExecutionPolicy ByPass -File &quot;$(ProjectDir)\VersionBitmap.ps1&quot; &quot;$(ProjectDir)\SystemCenterSetupDialog.bmp&quot; &quot;@(VersionNumber)&quot;" />
+  </Target>
+  <Target Name="RestoreBitmap">
+    <Exec Command="Powershell -ExecutionPolicy ByPass -File &quot;$(ProjectDir)\RestoreBitmap.ps1&quot; &quot;$(ProjectDir)\SystemCenterSetupDialog.bmp&quot;" />
+  </Target>
+  
 </Project>

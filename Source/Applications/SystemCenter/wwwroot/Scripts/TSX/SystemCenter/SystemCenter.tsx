@@ -51,6 +51,7 @@ import store from './Store/Store';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
+declare var version: string;
 
 const SystemCenter: React.FunctionComponent = (props: {}) => {
     const history = createBrowserHistory();
@@ -179,7 +180,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             </ul>
                             <div style={{ width: '100%', textAlign: 'center', position:'absolute', bottom: 50 }}>
 
-                                <span>Version { version}</span>
+                                <span>Version {version}</span>
                                 <br />
                                 <span></span>
                             </div>

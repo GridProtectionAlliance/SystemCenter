@@ -27,7 +27,7 @@
 @inherits ExtendedTemplateBase<AppModel>
 @{
     Version assemblyVersionInfo = AssemblyInfo.EntryAssembly.Version;
-    string applicationVersion = assemblyVersionInfo.Major + "." + assemblyVersionInfo.Minor + "." + assemblyVersionInfo.Build;
+    string applicationVersion = assemblyVersionInfo.Major + "." + assemblyVersionInfo.Minor + "." + assemblyVersionInfo.Build + "." +  assemblyVersionInfo.Revision;
 #if DEBUG
     bool debug = true;
 #else
