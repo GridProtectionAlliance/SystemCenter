@@ -154,9 +154,15 @@ namespace SystemCenter.Controllers.OpenXDA
                         {
                             string primaryVoltageKV = asset["PrimaryVoltageKV"].ToString() == string.Empty ? "NULL" : asset["PrimaryVoltageKV"].ToString();
                             string secondaryVoltageKV = asset["SecondaryVoltageKV"].ToString() == string.Empty ? "NULL" : asset["SecondaryVoltageKV"].ToString();
+                            string tertiaryVoltageKV = asset["TertiaryVoltageKV"].ToString() == string.Empty ? "NULL" : asset["TertiaryVoltageKV"].ToString();
+
+                            string primaryWinding = asset["PrimaryWinding"].ToString() == string.Empty ? "NULL" : asset["PrimaryWinding"].ToString();
+                            string secondaryWinding = asset["SecondaryWinding"].ToString() == string.Empty ? "NULL" : asset["SecondaryWinding"].ToString();
+                            string tertiaryWinding = asset["TertiaryWinding"].ToString() == string.Empty ? "NULL" : asset["TertiaryWinding"].ToString();
+
                             string tap = asset["Tap"].ToString() == string.Empty ? "NULL" : asset["Tap"].ToString();
 
-                            sqlString += $"INSERT INTO Transformer (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,R0, X0, R1, X1, ThermalRating, PrimaryVoltageKV, SecondaryVoltageKV, Tap) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Transformer'),{asset["R0"].ToString()},{asset["X0"].ToString()},{asset["R1"].ToString()},{asset["X1"].ToString()},{asset["ThermalRating"].ToString()},{primaryVoltageKV},{secondaryVoltageKV},{tap} ) \n";
+                            sqlString += $"INSERT INTO Transformer (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,R0, X0, R1, X1, ThermalRating, PrimaryVoltageKV, SecondaryVoltageKV, Tap,TertiaryVoltageKV, PrimaryWinding, SecondaryWinding, TertiaryWinding ) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Transformer'),{asset["R0"].ToString()},{asset["X0"].ToString()},{asset["R1"].ToString()},{asset["X1"].ToString()},{asset["ThermalRating"].ToString()},{primaryVoltageKV},{secondaryVoltageKV},{tap},{tertiaryVoltageKV},{primaryWinding},{secondaryWinding},{tertiaryWinding} ) \n";
                         }
                         else if (assetType == "CapacitorBankRelay")
                             sqlString += $"INSERT INTO CapBankRelay (VoltageKV, AssetKey, Description, AssetName, AssetTypeID, Spare, OnVoltageThreshhold, CapBankNumber) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'CapacitorBankRelay'),0,{asset["OnVoltageThreshhold"].ToString()},{asset["CapBankNumber"].ToString()}) \n";

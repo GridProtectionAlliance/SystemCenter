@@ -32,6 +32,14 @@ function TransformerAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: Op
             return props.Asset.PrimaryVoltageKV == null || AssetAttributes.isRealNumber(props.Asset.PrimaryVoltageKV);
         else if (field == 'SecondaryVoltageKV')
             return props.Asset.SecondaryVoltageKV == null || AssetAttributes.isRealNumber(props.Asset.SecondaryVoltageKV);
+        else if (field == 'TertiaryVoltageKV')
+            return props.Asset.TertiaryVoltageKV == null || AssetAttributes.isRealNumber(props.Asset.TertiaryVoltageKV);
+        else if (field == 'PrimaryWinding')
+            return props.Asset.PrimaryWinding == null || AssetAttributes.isRealNumber(props.Asset.PrimaryWinding);
+        else if (field == 'SecondaryWinding')
+            return props.Asset.SecondaryWinding == null || AssetAttributes.isRealNumber(props.Asset.SecondaryWinding);
+        else if (field == 'TertiaryWinding')
+            return props.Asset.TertiaryWinding == null || AssetAttributes.isRealNumber(props.Asset.TertiaryWinding);
         else if (field == 'Tap')
             return props.Asset.Tap == null || AssetAttributes.isRealNumber(props.Asset.Tap);
         else if (field == 'R0')
@@ -51,14 +59,19 @@ function TransformerAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: Op
     if (props.Asset == null) return null;
     return (
         <>
-            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'R0'} Feedback={'R0 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'X0'} Feedback={'X0 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'R1'} Feedback={'R1 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'X1'} Feedback={'X1 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'Thermal Rating is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'R0'} Label={'R0 (p.u.)'} Feedback={'R0 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'X0'} Label={'X0 (p.u.)'} Feedback={'X0 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'R1'} Label={'R1 (p.u.)'} Feedback={'R1 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'X1'} Label={'X1 (p.u.)'} Feedback={'X1 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'ThermalRating'} Label={'Rating (kVA)'} Feedback={'Thermal Rating is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'PrimaryVoltageKV'} Label={'Primary Voltage (kV)'} Feedback={'Primary Voltage (kV) is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'SecondaryVoltageKV'} Label={'Secondary Voltage (kV)'} Feedback={'Secondary Voltage (kV) is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'TertiaryVoltageKV'} Label={'Tertiary Voltage (kV)'} Feedback={'Tertiary Voltage (kV) is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'Tap'} Feedback={'Tap is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'PrimaryWinding'} Label={'Primary Winding'} Feedback={'Primary Winding a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'SecondaryWinding'} Label={'Secondary Winding'} Feedback={'Secondary Winding is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <FormInput<OpenXDA.Transformer> Record={props.Asset} Field={'TertiaryWinding'} Label={'Tertiary Winding'} Feedback={'Tertiary Winding is a numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+
         </>
     );
 }

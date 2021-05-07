@@ -283,7 +283,19 @@ export namespace AssetAttributes {
             if ((asset as OpenXDA.Transformer).X1 == null || !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).X1))
                 errors.push('A valid X1 is required.')
             if ((asset as OpenXDA.Transformer).ThermalRating == null || !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).ThermalRating))
-                errors.push('A valid ThermalRating is required.')
+                errors.push('A valid Rating is required.')
+            if ((asset as OpenXDA.Transformer).PrimaryVoltageKV != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).PrimaryVoltageKV))
+                errors.push('Primary Voltage needs to be numeric.')
+            if ((asset as OpenXDA.Transformer).SecondaryVoltageKV != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).SecondaryVoltageKV))
+                errors.push('Secondary Voltage needs to be numeric.')
+            if ((asset as OpenXDA.Transformer).TertiaryWinding != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).TertiaryWinding))
+                errors.push('Tertiary Voltage needs to be numeric.')
+            if ((asset as OpenXDA.Transformer).PrimaryWinding != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).PrimaryWinding))
+                errors.push('Primary Winding needs to be numeric.')
+            if ((asset as OpenXDA.Transformer).SecondaryWinding != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).SecondaryWinding))
+                errors.push('Secondary Winding needs to be numeric.')
+            if ((asset as OpenXDA.Transformer).TertiaryWinding != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).TertiaryWinding))
+                errors.push('Tertiary Winding needs to be numeric.')
         }
 
         if (type == 'CapacitorBank') {
