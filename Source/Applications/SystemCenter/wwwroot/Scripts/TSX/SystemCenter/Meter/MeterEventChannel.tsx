@@ -28,7 +28,7 @@ import { toNumber } from 'lodash';
 
 declare var homePath: string;
 
-export default class MeterEventChannelWindow extends React.Component<{ Meter: OpenXDA.Meter }, { Channels: Array<OpenXDA.Channel>, Phases: Array<OpenXDA.Phase>, MeasurementTypes: Array<OpenXDA.MeasurementType>, AllAssets: Array<OpenXDA.Asset> }, {}>{
+export default class MeterEventChannelWindow extends React.Component<{ Meter: OpenXDA.Meter, IsVisible: boolean }, { Channels: Array<OpenXDA.Channel>, Phases: Array<OpenXDA.Phase>, MeasurementTypes: Array<OpenXDA.MeasurementType>, AllAssets: Array<OpenXDA.Asset> }, {}>{
     constructor(props, context) {
         super(props, context);
         this.state = {
@@ -43,10 +43,42 @@ export default class MeterEventChannelWindow extends React.Component<{ Meter: Op
     }
 
     componentDidMount() {
+        // If tab is not visible,
+        // defer initialization until
+        // tab becomes visible
+        if (!this.props.IsVisible)
+            return;
+
         this.getPhases();
         this.getAssets();
         this.getMeasurementTypes();
         this.getChannels();
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        // If tab is not visible,
+        // clear state because user may be modifying
+        // state of channels in another tab
+        if (!props.IsVisible && state.Channels.length > 0)
+            return { Channels: [] };
+
+        return null;
+    }
+
+    shouldComponentUpdate(nextProps, nextState) {
+        // If tab is not visible, don't bother rendering
+        if (!nextProps.IsVisible)
+            return false;
+
+        // If tab becomes visible, reinitialize to receive the latest state
+        if (!this.props.IsVisible && nextProps.IsVisible) {
+            this.getPhases();
+            this.getAssets();
+            this.getMeasurementTypes();
+            this.getChannels();
+        }
+
+        return true;
     }
 
     getChannels(): void {

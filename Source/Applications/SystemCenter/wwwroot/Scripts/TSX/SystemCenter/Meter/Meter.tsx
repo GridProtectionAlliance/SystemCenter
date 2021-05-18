@@ -30,6 +30,7 @@ import { OpenXDA } from '../global';
 import MeterInfoWindow from './MeterInfo';
 import MeterEventChannelWindow from '../Meter/MeterEventChannel';
 import MeterTrendChannelWindow from '../Meter/MeterTrendChannel';
+import MeterChannelScalingWindow from '../Meter/MeterChannelScaling';
 import MeterAssetWindow from '../Meter/MeterAsset';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
@@ -145,6 +146,9 @@ function Meter(props: IProps) {
                     <a className={"nav-link" + (Tab == "trendChannels" ? " active" : "")} onClick={() => setTab('trendChannels')} data-toggle="tab" href="#trendChannels">Trend Channels</a>
                 </li>
                 <li className="nav-item">
+                    <a className={"nav-link" + (Tab == "channelScaling" ? " active" : "")} onClick={() => setTab('channelScaling')} data-toggle="tab" href="#channelScaling">Scale Channels</a>
+                </li>
+                <li className="nav-item">
                     <a className={"nav-link" + (Tab == "configurationHistory" ? " active" : "")} onClick={() => setTab('configurationHistory')} data-toggle="tab" href="#configurationHistory">Configuration History</a>
                 </li>
                 <li className="nav-item">
@@ -166,10 +170,13 @@ function Meter(props: IProps) {
                     <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Meter) => setMeter(meter)} />
                 </div>
                 <div className={"tab-pane " + (Tab == "eventChannels" ? " active" : "fade")} id="eventChannels">
-                    <MeterEventChannelWindow Meter={meter} />
+                    <MeterEventChannelWindow Meter={meter} IsVisible={Tab === "eventChannels"} />
                 </div>
                 <div className={"tab-pane " + (Tab == "trendChannels" ? " active" : "fade")} id="trendChannels">
-                    <MeterTrendChannelWindow Meter={meter} />
+                    <MeterTrendChannelWindow Meter={meter} IsVisible={Tab === "trendChannels"} />
+                </div>
+                <div className={"tab-pane " + (Tab == "channelScaling" ? " active" : "fade")} id="channelScaling">
+                    <MeterChannelScalingWindow Meter={meter} IsVisible={Tab === "channelScaling"} />
                 </div>
                 <div className={"tab-pane " + (Tab == "assets" ? " active" : "fade")} id="assets">
                     <MeterAssetWindow Meter={meter} />
