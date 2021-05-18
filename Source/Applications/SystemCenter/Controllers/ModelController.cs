@@ -506,6 +506,10 @@ namespace SystemCenter.Controllers
 
                 string whereClause = BuildWhereClause(postData.Searches);
 
+                string pivotCollums = "(" + String.Join(",", postData.Searches.Where(item => item.isPivotColumn).Select(search => "'" + search.FieldName + "'")) + ")";
+
+                if (pivotCollums == "()")
+                    pivotCollums = "('')";
 
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
@@ -518,7 +522,7 @@ namespace SystemCenter.Controllers
                         sql = $@"
                         DECLARE @PivotColumns NVARCHAR(MAX) = N''
                         SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
-                            FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE ParentTable = '{tableName}') AS t
+                            FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE ParentTable = '{tableName}' AND FieldName IN {pivotCollums} ) AS t
 
                         DECLARE @SQLStatement NVARCHAR(MAX) = N'
                             SELECT * INTO #Tbl FROM (
@@ -527,7 +531,7 @@ namespace SystemCenter.Controllers
                                 (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
 	                            afv.Value
                             FROM ( {tableName}  M LEFT JOIN 
-                                [SystemCenter.AdditionalField] af on af.ParentTable = ''{tableName}'' LEFT JOIN
+                                [SystemCenter.AdditionalField] af on af.ParentTable = ''{tableName}'' AND af.FieldName IN {pivotCollums.Replace("'", "''")} LEFT JOIN
 	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
                             ) as T ' + (SELECT CASE WHEN Len(@PivotColumns) > 0 THEN 'PIVOT (
                                 Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT' ELSE '' END) + ' 
@@ -547,7 +551,7 @@ namespace SystemCenter.Controllers
                         sql = $@"
                         DECLARE @PivotColumns NVARCHAR(MAX) = N''
                         SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
-                            FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE ParentTable = '{tableName}') AS t
+                            FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE ParentTable = '{tableName}'  AND FieldName IN {pivotCollums}) AS t
 
                         DECLARE @SQLStatement NVARCHAR(MAX) = N'
                             SELECT * INTO #Tbl FROM (
@@ -556,7 +560,7 @@ namespace SystemCenter.Controllers
                                 (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
 	                            afv.Value
                             FROM ({CustomView.Replace("'", "''")}) M LEFT JOIN 
-                                [SystemCenter.AdditionalField] af on af.ParentTable = ''{tableName}'' LEFT JOIN
+                                [SystemCenter.AdditionalField] af on af.ParentTable = ''{tableName}'' AND af.FieldName IN {pivotCollums.Replace("'", "''")} LEFT JOIN
 	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
                             ) as T ' + (SELECT CASE WHEN Len(@PivotColumns) > 0 THEN 'PIVOT (
                                 Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT' ELSE '' END) + '

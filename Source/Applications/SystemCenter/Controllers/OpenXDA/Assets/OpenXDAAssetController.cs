@@ -200,11 +200,17 @@ namespace SystemCenter.Controllers.OpenXDA
 
                     string sql = "";
 
+                    string pivotCollums = "(" + String.Join(",",searches.Searches.Where(item => item.isPivotColumn).Select(search => "'" + search.FieldName + "'")) + ")";
+
+                    if (pivotCollums == "()")
+                        pivotCollums = "('')";
+
                     sql = $@"
                         DECLARE @PivotColumns NVARCHAR(MAX) = N''
                         SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
                             FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE 
                                 ParentTable = 'Line' OR  ParentTable = 'Transformer' OR  ParentTable = 'Breaker'  OR  ParentTable = 'CapBank'  OR  ParentTable = 'Bus'
+                                AND FieldName IN {pivotCollums}
                             ) AS t
 
                         DECLARE @SQLStatement NVARCHAR(MAX) = N'
@@ -214,7 +220,7 @@ namespace SystemCenter.Controllers.OpenXDA
                                 (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
 	                            afv.Value
                             FROM ({view.Replace("'", "''")}) M LEFT JOIN 
-                                [SystemCenter.AdditionalField] af on af.ParentTable IN (''Line'',''Transformer'',''Breaker'',''CapBank'',''Bus'')
+                                [SystemCenter.AdditionalField] af on af.ParentTable IN (''Line'',''Transformer'',''Breaker'',''CapBank'',''Bus'') AND af.FieldName IN {pivotCollums.Replace("'", "''")}
                                     LEFT JOIN
 	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
                             ) as T PIVOT (
