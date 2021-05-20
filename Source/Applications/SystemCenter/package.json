@@ -25,7 +25,7 @@
     "@gpa-gemstone/react-interactive": "1.0.4",
     "@gpa-gemstone/react-table": "^1.0.10",
     "@gpa-gemstone/application-typings": "^0.0.9",
-    "@gpa-gemstone/common-pages": "^0.0.1",
+    "@gpa-gemstone/common-pages": "^0.0.2",
     "@reduxjs/toolkit": "1.4.0",
     "@types/ace": "0.0.42",
     "@types/d3": "4.13.2",
