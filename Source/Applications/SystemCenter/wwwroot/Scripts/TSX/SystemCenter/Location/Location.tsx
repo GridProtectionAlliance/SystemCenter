@@ -30,6 +30,7 @@ import LocationAssetWindow from './LocationAsset';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
+import { TabSelector } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
@@ -80,9 +81,10 @@ export default class Location extends React.Component<{ LocationID: number }, { 
         });
     }
 
-    setTab(tab:string): void {
+    setTab(tab: string): void {
+        const ctrl = this;
         sessionStorage.setItem('Location.Tab', JSON.stringify(tab));
-        this.setState({Tab: tab});
+        ctrl.setState({Tab: tab});
     }
     
     componentDidMount() {
@@ -93,8 +95,21 @@ export default class Location extends React.Component<{ LocationID: number }, { 
         sessionStorage.clear();
     }
 
+   
+
     render() {
         if (this.state.Location == null) return null;
+
+        const Tabs = [
+            { Id: "notes", Label: "Notes" },
+            { Id: "locationInfo", Label: "Location Info" },
+            { Id: "additionalFields", Label: "Additional Fields" },
+            { Id: "meters", Label: "Meters" },
+            { Id: "assets", Label: "Assets" },
+            { Id: "extDB", Label: "External DB" }
+        ];
+
+        
         return (
             <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
                 <div className="row">
@@ -106,29 +121,9 @@ export default class Location extends React.Component<{ LocationID: number }, { 
                     </div>
                 </div>
 
-
                 <hr />
-                <ul className="nav nav-tabs">
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "notes" ? " active" : "")} onClick={() => this.setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "locationInfo" ? " active" : "")} onClick={() => this.setTab('locationInfo')} data-toggle="tab" href="#locationInfo">Location Info</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "additionalFields" ? " active" : "")} onClick={() => this.setTab('additionalFields')} data-toggle="tab" href="#additionalFields">Additional Fields</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "meters" ? " active" : "")} onClick={() => this.setTab('meters')} data-toggle="tab" href="#meters">Meters</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "assets" ? " active" : "")} onClick={() => this.setTab('assets')} data-toggle="tab" href="#assets">Assets</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "extDB" ? " active" : "")} onClick={() => this.setTab('extDB')} data-toggle="tab" href="#extDB">External DB</a>
-                    </li>
-                </ul>
-             
+                <TabSelector CurrentTab={this.state.Tab} SetTab={(t) => this.setTab(t)} Tabs={Tabs} />
+               
                 <div className="tab-content" style={{maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
                     <div className={"tab-pane " + (this.state.Tab == "notes" ? " active" : "fade")} id="notes">
                         <NoteWindow ID={this.props.LocationID} Type='Location'/>

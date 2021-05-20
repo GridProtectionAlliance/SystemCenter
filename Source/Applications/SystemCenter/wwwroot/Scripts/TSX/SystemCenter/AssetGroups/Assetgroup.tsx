@@ -32,6 +32,7 @@ import MeterAssetGroupWindow from './MeterAssetGroup';
 import UserAssetGroupWindow from './UserAssetGroup';
 import AssetGroupAssetGroupWindow from './AssetgroupAssetGroup';
 import Warning from '../CommonComponents/WarningModal';
+import { TabSelector } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup' | 'user' 
@@ -126,6 +127,15 @@ function AssetGroup(props: { AssetGroupID: number }) {
 
 
     if (assetGroup == null) return null;
+
+    const Tabs = [
+        { Id: "info", Label: "Info" },
+        { Id: "asset", Label: "Assets" },
+        { Id: "meter", Label: "Meters" },
+        { Id: "user", Label: "Users" },
+        { Id: "assetgroup", Label: "Asset Groups" }];
+
+
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
@@ -139,24 +149,8 @@ function AssetGroup(props: { AssetGroupID: number }) {
             <Warning Id={'deleteModal'} Title={'Warning'} Confirm={'Delete'} Deny={'Cancel'} Content={'This will permanently delete this Asset Group. Are you sure you want to continue?'} Action={(result) => { if (result) deleteAssetGroup(); }}/>
 
             <hr />
-            <ul className="nav nav-tabs">
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "info" ? " active" : "")} onClick={() => setTab('info')} data-toggle="tab" href="#info">Info</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "asset" ? " active" : "")} onClick={() => setTab('asset')} data-toggle="tab" href="#asset">Assets</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "meter" ? " active" : "")} onClick={() => setTab('meter')} data-toggle="tab" href="#meter">Meters</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "user" ? " active" : "")} onClick={() => setTab('user')} data-toggle="tab" href="#user">Users</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "assetgroup" ? " active" : "")} onClick={() => setTab('assetgroup')} data-toggle="tab" href="#assetGroup">Asset Groups</a>
-                </li>
-            </ul>
-             
+            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
+            
             <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
                     <AssetgroupInfoWindow AssetGroup={assetGroup} StateSetter={(data) => setAssetGroup(data)} AllAssetGroups={allAssetGroups} />

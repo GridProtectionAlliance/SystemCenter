@@ -35,6 +35,7 @@ import AssetConnectionWindow from './AssetConnection';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import { getAssetTypes } from '../../../TS/Services/Asset';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
+import { TabSelector } from '@gpa-gemstone/react-interactive';
 declare var homePath: string;
 declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'Segments'
 
@@ -114,6 +115,21 @@ function Asset(props: { AssetID: number }) {
     }, [props.AssetID]);
 
     if (asset == null) return null;
+
+    const Tabs = [
+        { Id: "notes", Label: "Notes" },
+        { Id: "assetInfo", Label: "Asset Info" },
+        { Id: "additionalFields", Label: "Additional Fields" },
+        { Id: "substations", Label: "Substations" },
+        { Id: "meters", Label: "Meters" },
+        { Id: "connections", Label: "Connections" },
+       ];
+
+    if (assetType == 'Line')
+        Tabs.push({ Id: "Segments", Label: "Line Segments" });
+    if (assetType == 'Breaker' || assetType == 'CapacitorBank' || assetType == 'Line' || assetType == 'Transformer' || assetType == 'Bus')
+        Tabs.push({ Id: "extDB", Label: "External DB" });
+
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
@@ -127,36 +143,7 @@ function Asset(props: { AssetID: number }) {
 
 
             <hr />
-            <ul className="nav nav-tabs">
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "notes" ? " active" : "")} onClick={() => setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "assetInfo" ? " active" : "")} onClick={() => setTab('assetInfo')} data-toggle="tab" href="#assetInfo">Asset Info</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "additionalFields" ? " active" : "")} onClick={() => setTab('additionalFields')} data-toggle="tab" href="#additionalFields">Additional Fields</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "substations" ? " active" : "")} onClick={() => setTab('substations')} data-toggle="tab" href="#substations">Substations</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "meters" ? " active" : "")} onClick={() => setTab('meters')} data-toggle="tab" href="#meters">Meters</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "connections" ? " active" : "")} onClick={() => setTab('connections')} data-toggle="tab" href="#connections">Connections</a>
-                </li>
-                {(assetType == 'Line')?
-                    <li className="nav-item">
-                        <a className={"nav-link" + (tab == "Segments" ? " active" : "")} onClick={() => setTab('Segments')} data-toggle="tab" href="#Segments">Line Segments</a>
-                    </li> : null
-                }
-                {(assetType == 'Breaker' || assetType == 'CapacitorBank' || assetType == 'Line' || assetType == 'Transformer' || assetType == 'Bus') ?
-                    <li className="nav-item">
-                        <a className={"nav-link" + (tab == "extDB" ? " active" : "")} onClick={() => setTab('extDB')} data-toggle="tab" href="#extDB">External DB</a>
-                    </li> : null
-                }
-            </ul>
+            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
              
             <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes">

@@ -26,6 +26,7 @@ import * as _ from 'lodash';
 import { SystemCenter } from '../global';
 import UserInfoWindow from './UserInfo';
 import UserPermissionsWindow from './UserPermissions';
+import { TabSelector } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
@@ -84,6 +85,11 @@ export default class User extends React.Component<{ UserID: string }, { User: Sy
 
     render() {
         if (this.state.User == null) return null;
+
+        const Tabs = [
+            { Id: "userInfo", Label: "User Info" },
+            { Id: "permissions", Label: "Permissions" }];
+
         return (
             <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
                 <div className="row">
@@ -97,15 +103,8 @@ export default class User extends React.Component<{ UserID: string }, { User: Sy
 
 
                 <hr />
-                <ul className="nav nav-tabs">
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "userInfo" ? " active" : "")} onClick={() => this.setTab('userInfo')} data-toggle="tab" href="#userInfo">User Info</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "permissions" ? " active" : "")} onClick={() => this.setTab('permissions')} data-toggle="tab">Permissions</a>
-                    </li>
-                </ul>
-             
+                <TabSelector CurrentTab={this.state.Tab} SetTab={(t) => this.setTab(t)} Tabs={Tabs} />
+                             
                 <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                     <div className={"tab-pane " + (this.state.Tab == "userInfo" ? " active" : "fade")} id="userInfo">
                         <UserInfoWindow User={this.state.User} stateSetter={(record) => this.setState({User: record})}/>

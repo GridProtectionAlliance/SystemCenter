@@ -36,8 +36,8 @@ import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import MeterConfigurationHistoryWindow from './MeterConfigurationHistory';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import { Modal, Warning, LoadingIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
-
+import { Warning, LoadingScreen, TabSelector } from '@gpa-gemstone/react-interactive';
+ 
 declare var homePath: string;
 
 interface IProps { MeterID: number }
@@ -111,6 +111,18 @@ function Meter(props: IProps) {
 
     if (meter == null) return null;
 
+    const Tabs = [
+        { Id: "notes", Label: "Notes" },
+        { Id: "meterInfo", Label: "Meter Info" },
+        { Id: "additionalFields", Label: "Additional Fields" },
+        { Id: "substation", Label: "Substations" },
+        { Id: "assets", Label: "Assets" },
+        { Id: "eventChannels", Label: "Event Channels" },
+        { Id: "trendChannels", Label: "Trend Channels" },
+        { Id: "channelScaling", Label: "Scale Channels" },
+        { Id: "configurationHistory", Label: "Configuration History" },
+        { Id: "extDB", Label: "External DB" }];
+
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15 }}>
             <div className="row">
@@ -123,38 +135,7 @@ function Meter(props: IProps) {
             </div>
 
             <hr />
-            <ul className="nav nav-tabs" style={{ maxHeight: 38 }}>
-                <li className="nav-item">
-                    <a className={"nav-link" + (Tab == "notes" ? " active" : "")} onClick={() => setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (Tab == "meterInfo" ? " active" : "")} onClick={() => setTab('meterInfo')} data-toggle="tab" href="#meterInfo">Meter Info</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (Tab == "additionalFields" ? " active" : "")} onClick={() => setTab('additionalFields')} data-toggle="tab" href="#additionalFields">Additional Fields</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (Tab == "substation" ? " active" : "")} onClick={() => setTab('substation')} data-toggle="tab" href="#substation">Substation</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (Tab == "assets" ? " active" : "")} onClick={() => setTab('assets')} data-toggle="tab" href="#assets">Assets</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (Tab == "eventChannels" ? " active" : "")} onClick={() => setTab('eventChannels')} data-toggle="tab" href="#eventChannels">Event Channels</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (Tab == "trendChannels" ? " active" : "")} onClick={() => setTab('trendChannels')} data-toggle="tab" href="#trendChannels">Trend Channels</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (Tab == "channelScaling" ? " active" : "")} onClick={() => setTab('channelScaling')} data-toggle="tab" href="#channelScaling">Scale Channels</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (Tab == "configurationHistory" ? " active" : "")} onClick={() => setTab('configurationHistory')} data-toggle="tab" href="#configurationHistory">Configuration History</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (Tab == "extDB" ? " active" : "")} onClick={() => setTab('extDB')} data-toggle="tab" href="#extDB">External DB</a>
-                </li>
-            </ul>
+            <TabSelector CurrentTab={Tab} SetTab={setTab} Tabs={Tabs} />
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (Tab == "notes" ? " active" : "fade")} id="notes" style={{ maxHeight: window.innerHeight - 215 }}>
