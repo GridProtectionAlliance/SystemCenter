@@ -119,8 +119,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
             </nav>
             <div className="container-fluid" style={{ top: 75,  position: 'absolute', width: '100%', height: 'calc(100% - 75px)', overflow: 'hidden' }}>
                 <div className="row" style={{height: '100%'}}>
-                    <nav className="col bg-light sidebar" style={{ maxWidth: 250 }}>
-                        <div className="sidebar-sticky">
+                    <nav className="col bg-light sidebar" style={{ maxWidth: 250, height: '100%' }}>
+                        <div className="sidebar-sticky" style={{height: 'calc(100% - 35px)'}}>
                             <div style={{ width: '100%', marginTop: 5, textAlign: 'center' }}><h3>System Center</h3></div>
                             <hr />
 
@@ -178,8 +178,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
                                 </li>
                             </ul>
-                            <div style={{ width: '100%', textAlign: 'center', position:'absolute', bottom: 50 }}>
-
+                        </div>
+                        <div className="sidebar-sticky" style={{ height: '35px' }}>
+                            <div style={{ width: '100%', textAlign: 'center'}}>
                                 <span>Version {version}</span>
                                 <br />
                                 <span></span>
