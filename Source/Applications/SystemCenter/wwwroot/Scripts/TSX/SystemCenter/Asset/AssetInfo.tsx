@@ -61,7 +61,7 @@ export default class AssetInfoWindow extends React.Component<{ Asset: OpenXDA.As
     }
 
     componentWillReceiveProps(nextProps): void {
-        if (nextProps.Asset != this.state.Asset)
+        if (nextProps.Asset != this.state.Asset && this.state.AssetTypes.length > 0)
             this.setState({ Asset: nextProps.Asset }, () => {
                 let assetType = this.state.AssetTypes.find(at => at.ID == this.state.Asset['AssetTypeID'])
                 getAssetWithAdditionalFields(this.state.Asset.ID, assetType.Name).then(asset => this.setState({ Asset: asset }));
