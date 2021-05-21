@@ -557,7 +557,7 @@
         <Control Id="CompanyAcronymEdit" Type="Edit" X="45" Y="125" Width="220" Height="18" Property="COMPANYACRONYM" Text="{80}" />
         <Control Id="BottomLine" Type="Line" X="0" Y="234" Width="370" Height="0" />
         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="&amp;Back">
-          <Publish Event="NewDialog" Value="ServiceAccountDialog">NOT(NOT INSTALLSERVICEFEATURE OR NOT SAMEACCOUNT)</Publish>
+          <Publish Event="NewDialog" Value="ServiceAccountDialog">1</Publish>
         </Control>
         <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17" Default="yes" Text="&amp;Next">
           <Publish Event="NewDialog" Value="DatabaseConnectionDialog">1</Publish>
