@@ -59,6 +59,8 @@ export default function Page4(props: Page4Props) {
     const aStatus = useSelector(SelectAssetStatus);
 
     const [newEditAsset, setNewEditAsset] = React.useState<AssetType>(AssetAttributes.getNewAsset('Line'));
+    const [editAssetKey, setEditAssetKey] = React.useState<string>('');
+
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
 
@@ -125,6 +127,7 @@ export default function Page4(props: Page4Props) {
     function editAsset(index: number) {
         setNewEdit('Edit');
         setNewEditAsset(props.Assets[index]);
+        setEditAssetKey(props.Assets[index].AssetKey);
         setShowAssetModal(true);
     }
 
@@ -295,7 +298,8 @@ export default function Page4(props: Page4Props) {
                         if (newEdit == 'New')
                             list.push(record);
                         if (newEdit == 'Edit') {
-
+                            const index = list.findIndex(a => a.AssetKey == editAssetKey);
+                            list[index] = record;
                         }
 
                         props.UpdateChannels(channels);
