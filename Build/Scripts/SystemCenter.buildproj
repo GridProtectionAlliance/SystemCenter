@@ -85,8 +85,8 @@
       
       <VersionMajorChange>None</VersionMajorChange>
       <VersionMinorChange>None</VersionMinorChange>
-      <VersionBuildChange>None</VersionBuildChange>
-      <VersionRevisionChange>Increment</VersionRevisionChange>
+      <VersionBuildChange>Increment</VersionBuildChange>
+      <VersionRevisionChange>None</VersionRevisionChange>
 
       <!-- Override default settings. -->
       <GitServer Condition="'$(GitServer)' == ''">git@github.com:GridProtectionAlliance/SystemCenter.git</GitServer>
