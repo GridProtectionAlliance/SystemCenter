@@ -253,6 +253,13 @@
     <Compile Include="Model\ExternalOpenXDAField.cs" />
     <Compile Include="Model\extDBTables.cs" />
     <Compile Include="Model\ExternalDBField.cs" />
+    <Compile Include="Model\MeterHealthStatistics\MiMDDailyStatistic.cs" />
+    <Compile Include="Model\MeterHealthStatistics\OpenMICDailyStatistic.cs" />
+    <Compile Include="Model\MeterHealthStatistics\OpenXDADailyStatistic.cs" />
+    <Compile Include="Model\Notes\Note.cs" />
+    <Compile Include="Model\Notes\NoteApplication.cs" />
+    <Compile Include="Model\Notes\NoteTable.cs" />
+    <Compile Include="Model\Notes\NoteType.cs" />
     <Compile Include="Model\TSC.cs" />
     <Compile Include="Model\Role.cs" />
     <Compile Include="Model\PQView\Site.cs" />
