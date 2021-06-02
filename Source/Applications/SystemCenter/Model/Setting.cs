@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 using GSF.Data.Model;
+using GSF.Web.Model;
 using System.Web.Http;
 using SystemCenter.Controllers;
 

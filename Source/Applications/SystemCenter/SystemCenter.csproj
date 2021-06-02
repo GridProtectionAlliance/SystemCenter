@@ -227,7 +227,6 @@
     <Compile Include="Controllers\OpenXDA\AssetGroups\OpenXDAAssetGroupsController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDACapBankRelayController.cs" />
     <Compile Include="MetaDataUpdater.cs" />
-    <Compile Include="Controllers\ModelController.cs" />
     <Compile Include="Controllers\OpenXDA\AssetConnections\OpenXDAAssetConnectionTypeController.cs" />
     <Compile Include="Controllers\OpenXDA\AssetConnections\OpenXDAAssetConnectionController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineSegmentController.cs" />

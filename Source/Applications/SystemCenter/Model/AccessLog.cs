@@ -24,6 +24,7 @@
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Security.Model;
+using GSF.Web.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;

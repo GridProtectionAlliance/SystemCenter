@@ -25,6 +25,7 @@
 
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.Web.Model;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;

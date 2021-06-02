@@ -29,6 +29,7 @@ using System.Transactions;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
