@@ -23,6 +23,7 @@
 
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.Web.Model;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;

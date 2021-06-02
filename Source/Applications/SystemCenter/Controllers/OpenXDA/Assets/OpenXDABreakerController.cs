@@ -23,6 +23,7 @@
 
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using System;

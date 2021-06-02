@@ -27,6 +27,7 @@ using GSF.Data.Model;
 using GSF.Identity;
 using GSF.Security;
 using GSF.Security.Model;
+using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;

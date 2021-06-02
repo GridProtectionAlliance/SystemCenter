@@ -42,6 +42,7 @@ using openXDA.Model;
 using System.Transactions;
 using System.Data.SqlClient;
 using System.Linq;
+using GSF.Web.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
