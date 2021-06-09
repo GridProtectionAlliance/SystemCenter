@@ -226,7 +226,7 @@
     <Compile Include="Controllers\ExternalDB\MaximoController.cs" />
     <Compile Include="Controllers\OpenXDA\AssetGroups\OpenXDAAssetGroupsController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDACapBankRelayController.cs" />
-    <Compile Include="Controllers\RVHTController.cs" />
+    <Compile Include="Controllers\SystemCenter\RVHTController.cs" />
     <Compile Include="MetaDataUpdater.cs" />
     <Compile Include="Controllers\OpenXDA\AssetConnections\OpenXDAAssetConnectionTypeController.cs" />
     <Compile Include="Controllers\OpenXDA\AssetConnections\OpenXDAAssetConnectionController.cs" />
