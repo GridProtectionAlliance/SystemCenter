@@ -35,6 +35,7 @@ namespace SystemCenter.Model
     public class ValueListGroupController : ModelController<ValueListGroup> { }
 
     [PrimaryLabel("Name")]
+    [TableName("SystemCenter.ValueListGroup"), UseEscapedName]
     public class ValueListGroup
     {
         [PrimaryKey(true)]

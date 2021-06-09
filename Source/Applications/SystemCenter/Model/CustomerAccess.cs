@@ -33,6 +33,7 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
+    [UseEscapedName, TableName("SystemCenter.CustomerAccess")]
     public class CustomerAccess
     {
         [PrimaryKey(true)]

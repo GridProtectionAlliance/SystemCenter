@@ -32,6 +32,7 @@ import { DefaultSearchField, SearchFields, TransformSearchFields } from '../Comm
 
 
 interface Company extends SystemCenter.Company {
+    CompanyTypeName: string,
     Meters: number
 }
 
@@ -195,7 +196,7 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
                 <Table<Company>
                     cols={[
                         { key: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'CompanyTypeID', label: 'Type', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'CompanyTypeName', label: 'Type', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'CompanyID', label: 'CompanyID', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Meters', label: 'Assigned Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },

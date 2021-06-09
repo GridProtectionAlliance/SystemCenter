@@ -26,17 +26,18 @@ using System;
 
 namespace SystemCenter.Model
 {
+    [UseEscapedName, TableName("SystemCenter.OpenXDADailyStatistic")]
     public class OpenXDADailyStatistic
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
 
         [UseEscapedName]
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
 
         public string Meter { get; set; }
-        public DateTime LastSuccessfulFileProcessed { get; set; }
-        public DateTime LastUnsuccessfulFileProcessed { get; set; }
+        public DateTime? LastSuccessfulFileProcessed { get; set; }
+        public DateTime? LastUnsuccessfulFileProcessed { get; set; }
 
         public string LastUnsuccessfulFileProcessedExplanation { get; set; }
         public int TotalFilesProcessed { get; set; }

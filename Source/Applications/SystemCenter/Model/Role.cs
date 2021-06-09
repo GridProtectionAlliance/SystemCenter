@@ -33,6 +33,7 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
+    [SettingsCategory("securityProvider")]
     public class Role
     {
         [PrimaryKey(true)]
@@ -47,6 +48,6 @@ namespace SystemCenter.Model
         protected override string PostRoles { get; } = "Administrator, Transmission SME";
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-
+        protected override string Connection => "securityProvider";
     }
 }

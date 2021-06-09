@@ -30,10 +30,11 @@ using System.Transactions;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
-using GSF.Web.Model;
+using GSF.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
+using SystemCenter.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
@@ -174,6 +175,27 @@ namespace SystemCenter.Controllers.OpenXDA
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
 
+                    TableNameAttribute tableNameAttribute;
+                    UseEscapedNameAttribute escapedNameAttribute;
+
+                    string addtionalFieldTableName;
+                    if (typeof(AdditionalField).TryGetAttribute(out tableNameAttribute))
+                        addtionalFieldTableName = tableNameAttribute.TableName;
+                    else
+                        addtionalFieldTableName = typeof(AdditionalField).Name;
+
+                    if (typeof(AdditionalField).TryGetAttribute(out escapedNameAttribute))
+                        addtionalFieldTableName = $"[{addtionalFieldTableName}]";
+
+                    string addtionalFieldValueTableName;
+                    if (typeof(AdditionalFieldValue).TryGetAttribute(out tableNameAttribute))
+                        addtionalFieldValueTableName = tableNameAttribute.TableName;
+                    else
+                        addtionalFieldValueTableName = typeof(AdditionalFieldValue).Name;
+
+                    if (typeof(AdditionalFieldValue).TryGetAttribute(out escapedNameAttribute))
+                        addtionalFieldValueTableName = $"[{addtionalFieldValueTableName}]";
+
                     string view = @"SELECT
 
                         DISTINCT
@@ -209,21 +231,24 @@ namespace SystemCenter.Controllers.OpenXDA
                     sql = $@"
                         DECLARE @PivotColumns NVARCHAR(MAX) = N''
                         SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
-                            FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE 
+                            FROM (Select DISTINCT FieldName FROM {addtionalFieldTableName} WHERE 
                                 ParentTable = 'Line' OR  ParentTable = 'Transformer' OR  ParentTable = 'Breaker'  OR  ParentTable = 'CapBank'  OR  ParentTable = 'Bus'
                                 AND FieldName IN {pivotCollums}
                             ) AS t
 
-                        DECLARE @SQLStatement NVARCHAR(MAX) = N'
+
+                        DECLARE @SQLStatement NVARCHAR(MAX) = N''
+                        
+                        IF @PivotColumns != ''
+                            SET @SQLStatement = N'
                             SELECT * INTO #Tbl FROM (
                             SELECT 
                                 M.*,
                                 (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
 	                            afv.Value
                             FROM ({view.Replace("'", "''")}) M LEFT JOIN 
-                                [SystemCenter.AdditionalField] af on af.ParentTable IN (''Line'',''Transformer'',''Breaker'',''CapBank'',''Bus'') AND af.FieldName IN {pivotCollums.Replace("'", "''")}
-                                    LEFT JOIN
-	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
+                                {addtionalFieldTableName} af on af.ParentTable IN (''Line'',''Transformer'',''Breaker'',''CapBank'',''Bus'') AND af.FieldName IN {pivotCollums.Replace("'", "''")} LEFT JOIN
+	                            {addtionalFieldValueTableName} afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
                             ) as T PIVOT (
                                 Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT
                             {whereClause.Replace("'", "''")}
@@ -236,6 +261,9 @@ namespace SystemCenter.Controllers.OpenXDA
 
 		                    exec sp_executesql @CleanSQL
                         '
+                        ELSE 
+                            SET @SQLStatement = '{view.Replace("'", "''")}'
+
                         exec sp_executesql @SQLStatement";
 
                     DataTable table = connection.RetrieveData(sql, "");

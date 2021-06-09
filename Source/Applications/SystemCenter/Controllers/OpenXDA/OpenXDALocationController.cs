@@ -29,10 +29,12 @@ using System.Transactions;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.Reflection;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
+using SystemCenter.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
@@ -63,45 +65,54 @@ namespace SystemCenter.Controllers.OpenXDA
 
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
+                    string addtionalFieldTableName = new TableOperations<AdditionalField>(connection).TableName;
+                    string addtionalFieldValueTableName = new TableOperations<AdditionalFieldValue>(connection).TableName;
 
-                    string view = @"SELECT
+                    string meterTableName = new TableOperations<Meter>(connection).TableName;
+                    string locationTableName = new TableOperations<Location>(connection).TableName;
+                    string assetTableName = new TableOperations<Asset>(connection).TableName;
+                    string assetLocationTableName = new TableOperations<AssetLocation>(connection).TableName;
 
+                    string view = $@"
+                    SELECT
                         DISTINCT
-                        Location.ID,
-	                    Location.LocationKey,
-	                    Location.Name,
-	                    COUNT(DISTINCT Meter.ID) as Meters,
-	                    COUNT(DISTINCT AssetLocation.AssetID) as Assets
+                        l.ID,
+	                    l.LocationKey,
+	                    l.Name,
+	                    COUNT(DISTINCT m.ID) as Meters,
+	                    COUNT(DISTINCT al.AssetID) as Assets
                     FROM
-                        Location LEFT JOIN
-
-                        Meter ON Location.ID = Meter.LocationID LEFT JOIN
-
-                        AssetLocation ON Location.ID = AssetLocation.LocationID LEFT JOIN
-                        Asset ON AssetLocation.AssetID = Asset.ID
-
+                        {locationTableName} as l LEFT JOIN
+                        {meterTableName} as m ON l.ID = m.LocationID LEFT JOIN
+                        {assetLocationTableName} as al ON l.ID = al.LocationID LEFT JOIN
+                        {assetTableName} as a ON al.AssetID = a.ID
                     GROUP BY
-                        Location.ID,
-	                    Location.LocationKey,
-	                    Location.Name
+                        l.ID,
+	                    l.LocationKey,
+	                    l.Name
                     ";
 
                     string sql = "";
 
                     sql = $@"
                         DECLARE @PivotColumns NVARCHAR(MAX) = N''
-                        SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
-                            FROM (Select DISTINCT FieldName FROM [SystemCenter.AdditionalField] WHERE ParentTable = 'Location') AS t
 
-                        DECLARE @SQLStatement NVARCHAR(MAX) = N'
+                        SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
+                            FROM (Select DISTINCT FieldName FROM {addtionalFieldTableName} WHERE ParentTable = 'Location') AS t
+
+
+                        DECLARE @SQLStatement NVARCHAR(MAX) = N''
+                        
+                        IF @PivotColumns != ''
+                            SET @SQLStatement = N'
                             SELECT * INTO #Tbl FROM (
                             SELECT 
                                 M.*,
                                 (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
 	                            afv.Value
                             FROM ({view.Replace("'", "''")}) M LEFT JOIN 
-                                [SystemCenter.AdditionalField] af on af.ParentTable = ''Location'' LEFT JOIN
-	                            [SystemCenter.AdditionalFieldValue] afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
+                                {addtionalFieldTableName} af on af.ParentTable = ''Location'' LEFT JOIN
+	                            {addtionalFieldValueTableName} afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
                             ) as T PIVOT (
                                 Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT
                             {whereClause.Replace("'", "''")}
@@ -114,6 +125,9 @@ namespace SystemCenter.Controllers.OpenXDA
 
 		                    exec sp_executesql @CleanSQL
                         '
+
+                        ELSE 
+                            SET @SQLStatement = '{view.Replace("'", "''")}'
                         exec sp_executesql @SQLStatement";
 
                     DataTable table = connection.RetrieveData(sql, "");
@@ -150,18 +164,23 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
+
+                string assetTableName = new TableOperations<Asset>(connection).TableName;
+                string assetTypeTableName = new TableOperations<AssetTypes>(connection).TableName;
+                string assetLocationTableName = new TableOperations<AssetLocation>(connection).TableName;
+
                 try
                 {
-                    DataTable result = connection.RetrieveData(@"
+                    DataTable result = connection.RetrieveData($@"
                     SELECT 
-	                    Asset.*,
-	                    AssetType.Name as AssetType
+	                    a.*,
+	                    at.Name as AssetType
                     FROM
-	                    Asset JOIN 
-	                    AssetType ON Asset.AssetTypeID = AssetType.ID JOIN
-	                    AssetLocation ON Asset.ID = AssetLocation.AssetID
+	                    {assetTableName} as a JOIN 
+	                    {assetTypeTableName} as at ON a.AssetTypeID = at.ID JOIN
+	                    {assetLocationTableName} as al ON a.ID = al.AssetID
                     WHERE
-                        AssetLocation.LocationID = {0}", locationID);
+                        al.LocationID = {{0}}", locationID);
                     return Ok(result);
                 }
                 catch (Exception ex)

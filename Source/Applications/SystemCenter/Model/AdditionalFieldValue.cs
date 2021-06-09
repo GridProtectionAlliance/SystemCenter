@@ -31,11 +31,12 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
+    [UseEscapedName, TableName("SystemCenter.AdditionalFieldValue")]
     public class AdditionalFieldValue
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
-        public int OpenXDAParentTableID { get; set; }
+        public int ParentTableID { get; set; }
         public int AdditionalFieldID { get; set; }
         public string Value { get; set; }
     }
@@ -43,7 +44,7 @@ namespace SystemCenter.Model
     [RoutePrefix("api/SystemCenter/AdditionalFieldValue")]
     public class AdditionalFieldValueController : ModelController<AdditionalFieldValue>
     {
-        public AdditionalFieldValueController() : base(true, "OpenXDAParentTableID")
+        public AdditionalFieldValueController() : base(true, "ParentTableID")
         { 
         }
 

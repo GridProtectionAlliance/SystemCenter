@@ -31,6 +31,7 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
+    [UseEscapedName, TableName("SystemCenter.extDBTables")]
     public class extDBTables
     {
         [PrimaryKey(true)]

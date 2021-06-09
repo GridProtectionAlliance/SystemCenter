@@ -28,6 +28,7 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
+    [ConfigFilePrefacedTableName("Setting"), UseEscapedName]
     public class Setting
     {
         [PrimaryKey(true)]
