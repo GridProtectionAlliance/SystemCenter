@@ -33,6 +33,7 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
+    [TableName("SystemCenter.TSC"), UseEscapedName]
     public class TSC
     {
         [PrimaryKey(true)]

@@ -198,7 +198,7 @@ namespace SystemCenter.Controllers
                             valueTable.AddNewRecord(new Model.AdditionalFieldValue()
                             {
                                 AdditionalFieldID = fld.AdditionalFieldID,
-                                OpenXDAParentTableID = fld.OpenXDAParentTableID,
+                                ParentTableID = fld.OpenXDAParentTableID,
                                 Value = fld.Value,
                             });
                         }

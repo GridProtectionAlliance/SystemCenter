@@ -29,7 +29,8 @@ using System.Web.Http;
 using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
-{ 
+{
+    [UseEscapedName, TableName("SystemCenter.ExternalOpenXDAField")]
     public class ExternalOpenXDAField
     {
         [PrimaryKey(true)]

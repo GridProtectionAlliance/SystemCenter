@@ -226,6 +226,7 @@
     <Compile Include="Controllers\ExternalDB\MaximoController.cs" />
     <Compile Include="Controllers\OpenXDA\AssetGroups\OpenXDAAssetGroupsController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDACapBankRelayController.cs" />
+    <Compile Include="Controllers\RVHTController.cs" />
     <Compile Include="MetaDataUpdater.cs" />
     <Compile Include="Controllers\OpenXDA\AssetConnections\OpenXDAAssetConnectionTypeController.cs" />
     <Compile Include="Controllers\OpenXDA\AssetConnections\OpenXDAAssetConnectionController.cs" />
@@ -245,6 +246,7 @@
     <Compile Include="Controllers\SystemCenter\PingController.cs" />
     <Compile Include="DataHub.cs" />
     <Compile Include="Model\AccessLog.cs" />
+    <Compile Include="Model\ConfigFilePrefacedTableNameAttribute.cs" />
     <Compile Include="Model\DetailedMeter.cs" />
     <Compile Include="Model\CompanyType.cs" />
     <Compile Include="Model\Company.cs" />
@@ -259,6 +261,7 @@
     <Compile Include="Model\Notes\NoteApplication.cs" />
     <Compile Include="Model\Notes\NoteTable.cs" />
     <Compile Include="Model\Notes\NoteType.cs" />
+    <Compile Include="Model\SettingsCategoryAttribute.cs" />
     <Compile Include="Model\TSC.cs" />
     <Compile Include="Model\Role.cs" />
     <Compile Include="Model\PQView\Site.cs" />

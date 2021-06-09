@@ -21,27 +21,77 @@
 //
 //******************************************************************************************************
 
+using GSF.Data;
 using GSF.Data.Model;
+using Newtonsoft.Json;
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web.Http;
+using SystemCenter.Controllers;
 
 namespace SystemCenter.Model.MeterHealthStatistics
 {
+    [UseEscapedName, TableName("SystemCenter.MiMDDailyStatistic")]
     public class MiMDDailyStatistic
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
 
         [UseEscapedName]
-        public DateTime Date { get; set; }
+        public string Date { get; set; }
 
         public string Meter { get; set; }
-        public DateTime LastSuccessfulFileProcessed { get; set; }
-        public DateTime LastUnsuccessfulFileProcessed { get; set; }
+
+        public DateTime? LastSuccessfulFileProcessed { get; set; }
+        public DateTime? LastUnsuccessfulFileProcessed { get; set; }
 
         public string LastUnsuccessfulFileProcessedExplanation { get; set; }
         public int TotalFilesProcessed { get; set; }
         public int TotalUnsuccessfulFilesProcessed { get; set; }
         public int TotalSuccessfulFilesProcessed { get; set; }
+        public int ConfigChanges { get; set; }
+        public int DiagnosticAlarms { get; set; }
+        public int ComplianceIssues { get; set; }
+    }
+
+    [RoutePrefix("api/SystemCenter/Statistics/MiMD")]
+    public class MiMDDailyStatisticController : ModelController<MiMDDailyStatistic>
+    {
+        protected override string PostRoles { get; } = "Administrator";
+        protected override string PatchRoles { get; } = "Administrator";
+        protected override string DeleteRoles { get; } = "Administrator";
+        protected override bool AllowSearch => true;
+        protected override string DefaultSort => "ID";
+
+        [HttpGet, Route("Last/{meter}")]
+        public IHttpActionResult GetLast(string meter)
+        {
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+            {
+
+                try
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection("systemSettings")) {
+                        IEnumerable<MiMDDailyStatistic> result = new TableOperations<MiMDDailyStatistic>(connection).QueryRecordsWhere("Meter = {0}", meter);
+                        MiMDDailyStatistic statistic = null;
+                        if(result.Any()) statistic = result.OrderBy(x => x.Date).Last();
+                        return Ok(statistic);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
+        }
 
     }
+
 }

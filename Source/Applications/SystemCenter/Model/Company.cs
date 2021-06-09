@@ -41,7 +41,10 @@ namespace SystemCenter.Model
         public int ID { get; set; }
         [Required]
         public string CompanyID { get; set; }
-        public string CompanyTypeID { get; set; }
+        public int CompanyTypeID { get; set; }
+
+        [NonRecordField]
+        public string CompanyTypeName { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
     }
@@ -62,7 +65,7 @@ namespace SystemCenter.Model
                     Company.CompanyID,
                     Company.Name,
                     Company.Description,
-                    CompanyType.Name as CompanyTypeID,
+                    CompanyType.Name as CompanyTypeName,
                     COUNT(CompanyMeter.ID) as Meters
                 FROM
 

@@ -25,7 +25,7 @@ using GSF.Data.Model;
 
 namespace SystemCenter.Model.Notes
 {
-    [TableName("[SystemCenter.NoteType]")]
+    [TableName("SystemCenter.NoteType"), UseEscapedName]
     public class NoteType
     {
         [PrimaryKey(true)]

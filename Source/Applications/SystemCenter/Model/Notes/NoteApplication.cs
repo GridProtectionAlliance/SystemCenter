@@ -25,7 +25,7 @@ using GSF.Data.Model;
 
 namespace SystemCenter.Model
 {
-    [TableName("[SystemCenter.NoteApplication]")]
+    [TableName("SystemCenter.NoteApplication"), UseEscapedName]
     public class NoteApplication
     {
         [PrimaryKey(true)]
