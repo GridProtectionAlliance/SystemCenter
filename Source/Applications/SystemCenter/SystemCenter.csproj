@@ -246,7 +246,6 @@
     <Compile Include="Controllers\SystemCenter\PingController.cs" />
     <Compile Include="DataHub.cs" />
     <Compile Include="Model\AccessLog.cs" />
-    <Compile Include="Model\ConfigFilePrefacedTableNameAttribute.cs" />
     <Compile Include="Model\DetailedMeter.cs" />
     <Compile Include="Model\CompanyType.cs" />
     <Compile Include="Model\Company.cs" />
@@ -261,8 +260,6 @@
     <Compile Include="Model\Notes\NoteApplication.cs" />
     <Compile Include="Model\Notes\NoteTable.cs" />
     <Compile Include="Model\Notes\NoteType.cs" />
-    <Compile Include="Model\SettingsCategoryAttribute.cs" />
-    <Compile Include="Model\TSC.cs" />
     <Compile Include="Model\Role.cs" />
     <Compile Include="Model\PQView\Site.cs" />
     <Compile Include="Model\CustomerAccess.cs" />
@@ -558,7 +555,16 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ParameterSearch.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AddToGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\PhaseSlice.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\GenericSlice.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\ValueListGroupSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\ValueListSlice.ts" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ByValueListGroup.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroup.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupForm.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupInfo.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupItem.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TS\Services\User.ts" />
   </ItemGroup>
   <ItemGroup>

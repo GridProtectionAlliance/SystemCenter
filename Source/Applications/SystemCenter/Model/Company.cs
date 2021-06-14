@@ -25,6 +25,7 @@
 
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.Reflection;
 using GSF.Web.Model;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -35,6 +36,7 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
+    [SettingsCategory("dbOpenXDA")]
     public class Company
     {
         [PrimaryKey(true)]
@@ -57,9 +59,24 @@ namespace SystemCenter.Model
         protected override string PatchRoles { get; } = "Administrator, Transmission SME";
         protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
         protected override bool AllowSearch => true;
-        protected override string Connection => "dbOpenXDA";
+        protected override string Connection { get 
+            {
+                string connection = "";
+
+                if (typeof(Company).TryGetAttribute(out SettingsCategoryAttribute attribute) && !string.IsNullOrWhiteSpace(attribute.SettingsCategory))
+                    connection = attribute.SettingsCategory;
+
+                return connection; 
+            }
+        }
+
         protected override string DefaultSort => "CompanyID";
-        protected override string CustomView => @"SELECT
+        protected override string CustomView
+        {
+            get
+            {
+
+                return @"SELECT
                     DISTINCT
                     Company.ID,
                     Company.CompanyID,
@@ -78,6 +95,8 @@ namespace SystemCenter.Model
 	                Company.Name,
 	                Company.Description,
                     CompanyType.Name";
+            }
+        }
 
     }
 }

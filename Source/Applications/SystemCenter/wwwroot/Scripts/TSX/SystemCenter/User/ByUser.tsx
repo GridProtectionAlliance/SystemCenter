@@ -62,7 +62,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
     const [newUserAccount, setNewUserAccount] = React.useState<SystemCenter.UserAccount>(null);
     const [userValidation, setUserValidation] = React.useState<UserValidation>('Invalid');
     const [roles, setRoles] = React.useState<Array<SystemCenter.Role>>([]);
-    const [tscs, setTscs] = React.useState<Array<SystemCenter.TSC>>([]);
+    const [tscs, setTscs] = React.useState<Array<SystemCenter.ValueListItem>>([]);
 
     React.useEffect(() => {
         return getData();
@@ -287,7 +287,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
                                                         <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'RoleID'} Label='Role' Options={roles.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={setNewUserAccount} EmptyOption={true}/>
                                                     </div>
                                                     <div className="col">
-                                                        <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'TSCID'} Label='TSC' Options={tscs.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={setNewUserAccount} EmptyOption={true}/>
+                                                        <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'TSCID'} Label='TSC' Options={tscs.map(rs => { return { Value: rs.ID.toString(), Label: rs.Value.toString() } })} Setter={setNewUserAccount} EmptyOption={true}/>
                                                         <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Phone'} Feedback={'Phone must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
                                                         <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'MobilePhone'} Label='Mobile Phone' Feedback={'Mobile Phone must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
                                                         <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Email'} Feedback={'Email must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
@@ -304,7 +304,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
                                                         <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'RoleID'} Label='Role' Options={roles.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={setNewUserAccount} EmptyOption={true} />
                                                     </div>
                                                     <div className="col">
-                                                        <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'TSCID'} Label='TSC' Options={tscs.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={setNewUserAccount} EmptyOption={true} />
+                                                        <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'TSCID'} Label='TSC' Options={tscs.map(rs => { return { Value: rs.ID.toString(), Label: rs.Value.toString() } })} Setter={setNewUserAccount} EmptyOption={true} />
                                                         <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Phone'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
                                                         <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'MobilePhone'} Label='Mobile Phone' Feedback={'Mobile Phone must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
                                                         <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Email'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />

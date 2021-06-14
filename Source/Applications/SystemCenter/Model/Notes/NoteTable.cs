@@ -25,7 +25,7 @@ using GSF.Data.Model;
 
 namespace SystemCenter.Model.Notes
 {
-    [TableName("SystemCenter.NoteTable"), UseEscapedName]
+    [TableName("NoteTable"), UseEscapedName, ConfigFileTableNamePrefix]
     public class NoteTable
     {
         [PrimaryKey(true)]

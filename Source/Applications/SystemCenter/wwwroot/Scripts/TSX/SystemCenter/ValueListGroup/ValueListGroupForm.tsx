@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  TSC.cs - Gbtc
+//  CompanyForm.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,37 +16,29 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  02/06/2020 - Billy Ernest
+//  10/20/2020 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using GSF.Data;
-using GSF.Data.Model;
-using GSF.Web.Model;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Data;
-using System.Linq;
-using System.Web.Http;
-using SystemCenter.Controllers;
+import * as React from 'react';
+import { SystemCenter } from '../global';
+import { Input, TextArea } from '@gpa-gemstone/react-forms';
 
-namespace SystemCenter.Model
-{
-    [TableName("SystemCenter.TSC"), UseEscapedName]
-    public class TSC
-    {
-        [PrimaryKey(true)]
-        public int ID { get; set; }
-        public string Name { get; set; }
-        public string DepartmentNumber { get; set; }
-        public string Description { get; set; }
+export default function ValueListGroupForm(props: { Record: SystemCenter.ValueListGroup, Setter: (record: SystemCenter.ValueListGroup) => void, setErrors?: (e: string[]) => void }) {
+    function Valid(field: keyof (SystemCenter.ValueListGroup)): boolean {
+        if (field == 'Name')
+            return props.Record.Name != null && props.Record.Name.length > 0 && props.Record.Name.length <= 200;
+        else if (field == 'Description')
+            return true;
+        return false;
     }
 
-    [RoutePrefix("api/SystemCenter/TSC")]
-    public class TSCController : ModelController<TSC> {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-    }
+    return (
+        <form>
+            <Input<SystemCenter.ValueListGroup> Record={props.Record} Field={'Name'} Feedback={'Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <TextArea<SystemCenter.ValueListGroup> Rows={3} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} />
+        </form>
+
+        );
 }

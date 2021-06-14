@@ -234,7 +234,7 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
                         {t} </p>)
                 }>
                 <CompanyForm Company={newCompany} Setter={setNewCompany} setErrors={setNewCompanyErrors} />
-                </Modal>
+            </Modal>
             
         </div>
     )

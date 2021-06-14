@@ -37,50 +37,16 @@ using SystemCenter.Controllers;
 namespace SystemCenter.Model
 {
     [PrimaryLabel("Text")]
+    [TableName("ValueList"), ConfigFileTableNamePrefix, UseEscapedName]
     public class ValueList
     {
 
         [PrimaryKey(true)]
         public int ID { get; set; }
-
         public int GroupID { get; set; }
-
-        [Label("Key (Option Value)")]
-        [UseEscapedName]
-        public int Key { get; set; }
-
-        [Label("Text (Option Label)")]
-        [StringLength(200)]
-        public string Text { get; set; }
-
-        [Label("Alternate Text 1")]
-        [StringLength(200)]
-        public string AltText1 { get; set; }
-
-        [Label("Alternate Text 2")]
-        [StringLength(200)]
-        public string AltText2 { get; set; }
-
-        [StringLength(12)]
-        public string Abbreviation { get; set; }
-
-        [Label("Numeric Value")]
-        public int Value { get; set; }
-
-        public bool Flag { get; set; }
-
-        public string Description { get; set; }
-
-        [Label("Sort Order")]
+        public string Value { get; set; }
+        public string AltValue { get; set; }
         public int SortOrder { get; set; }
-
-        public bool Hidden { get; set; }
-        public bool IsDefault { get; set; }
-
-        [InitialValueScript("true")]
-        public bool Enabled { get; set; }
-
-        public DateTime CreatedOn { get; set; }
     }
 
     [RoutePrefix("api/ValueList")]
@@ -96,7 +62,8 @@ namespace SystemCenter.Model
         {
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
-                IEnumerable<ValueList> records = new TableOperations<ValueList>(connection).QueryRecordsWhere("GroupID = ( SELECT ID FROM ValueListGroup WHERE Name = {0})", groupName);
+                string tableName = new TableOperations<ValueListGroup>(connection).TableName;
+                IEnumerable<ValueList> records = new TableOperations<ValueList>(connection).QueryRecordsWhere($"GroupID = ( SELECT ID FROM {tableName} WHERE Name = {{0}})", groupName);
                 return Ok(records);
             }
         }

@@ -31,7 +31,7 @@ import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
-declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer'| 'Company' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' | 'Asset' | 'CapacitorBankRelay'
+declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer'| 'Company' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' | 'Asset' | 'CapacitorBankRelay' | 'ValueListGroup'
 interface IProps { ID: number, Type: AdditionalFieldType, Tab: string }
 
 function AdditionalFieldsWindow(props: IProps): JSX.Element {
@@ -435,7 +435,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
 
                 >
                 <Input<SystemCenter.AdditionalField> Record={newField} Field='FieldName' Valid={(field) => newField.FieldName != null && newField.FieldName.length > 0 && newFieldNameValid} Label="Field Name" Setter={setNewField} Feedback={'The additional field needs to have a unique Field Name'} />
-                <Select<SystemCenter.AdditionalField> Record={newField} Field='Type' Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }].concat(valueListGroups.filter(x => x.Enabled).map(x => { return { Value: x.Name, Label: x.Name } }))} Label="Field Type" Setter={setNewField} />
+                <Select<SystemCenter.AdditionalField> Record={newField} Field='Type' Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }].concat(valueListGroups.map(x => { return { Value: x.Name, Label: x.Name } }))} Label="Field Type" Setter={setNewField} />
                 <Select<SystemCenter.AdditionalField> Record={newField} Field='ExternalDB' Label="External Database"
                     Setter={(fld: SystemCenter.AdditionalField) => {
                         if (fld.ExternalDB == null || fld.ExternalDB == '')
@@ -528,5 +528,5 @@ const ValueField = (props: IValueFieldProps) => {
         return <Input<SystemCenter.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'text'} Setter={Setter} />
     if (props.Field.Type == 'boolean')
         return <CheckBox<SystemCenter.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Label={''} Setter={Setter} />
-    return <Select<SystemCenter.AdditionalFieldValue> EmptyOption={true} Record={props.Values[valueIndex]} Field={'Value'} Label={''} Setter={Setter} Options={valueListItems.map(x => ({ Value: x.ID.toString(), Label: x.Text }))} />
+    return <Select<SystemCenter.AdditionalFieldValue> EmptyOption={true} Record={props.Values[valueIndex]} Field={'Value'} Label={''} Setter={Setter} Options={valueListItems.map(x => ({ Value: x.ID.toString(), Label: x.Value }))} />
 }

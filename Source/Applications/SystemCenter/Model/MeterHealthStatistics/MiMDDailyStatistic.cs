@@ -23,6 +23,7 @@
 
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.Web.Model;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -32,7 +33,7 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model.MeterHealthStatistics
 {
-    [UseEscapedName, TableName("SystemCenter.MiMDDailyStatistic")]
+    [UseEscapedName, ConfigFileTableNamePrefix ,TableName("MiMDDailyStatistic")]
     public class MiMDDailyStatistic
     {
         [PrimaryKey(true)]

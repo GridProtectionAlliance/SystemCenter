@@ -181,35 +181,35 @@ GO
 
 CREATE TABLE AdditionalField(
 	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	OpenXDAParentTable varchar(100) NOT NULL,
+	ParentTable varchar(100) NOT NULL,
 	FieldName varchar(100) NOT NULL,
 	Type varchar(max) NULL DEFAULT ('string'),
 	ExternalDB varchar(max) NULL,
 	ExternalDBTable varchar(max) NULL,
 	ExternalDBTableKey varchar(max) NULL,
 	IsSecure bit NULL DEFAULT(0)
-	Constraint UC_AdditonaField UNIQUE(OpenXDAParentTable, FieldName)
+	Constraint UC_AdditonaField UNIQUE(ParentTable, FieldName)
 )
 GO
 
 CREATE TABLE AdditionalFieldValue(
 	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	OpenXDAParentTableID int NOT NULL,
+	ParentTableID int NOT NULL,
 	AdditionalFieldID int NOT NULL FOREIGN KEY REFERENCES AdditionalField(ID),
 	Value varchar(max) NULL,
     UpdatedOn DATE NULL DEFAULT (SYSDATETIME()),
-	Constraint UC_AdditonaFieldValue UNIQUE(OpenXDAParentTableID, AdditionalFieldID)
+	Constraint UC_AdditonaFieldValue UNIQUE(ParentTableID, AdditionalFieldID)
 )
 GO
 
 CREATE TABLE ExternalOpenXDAField(
 	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	OpenXDAParentTable varchar(100) NOT NULL,
+	ParentTable varchar(100) NOT NULL,
 	FieldName varchar(100) NOT NULL,
 	ExternalDB varchar(max) NULL,
 	ExternalDBTable varchar(max) NULL,
 	ExternalDBTableKey varchar(max) NULL,
-	Constraint UC_ExternalOpenXDAField UNIQUE(OpenXDAParentTable, FieldName)
+	Constraint UC_ExternalOpenXDAField UNIQUE(ParentTable, FieldName)
 )
 GO
 
@@ -219,14 +219,6 @@ CREATE TABLE CustomerAccessPQDigest(
 	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
 	CustomerID int NOT NULL,
 	OpenXDAMeterID int NOT NULL
-)
-GO
-
-CREATE TABLE TSC (
-	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	Name varchar(200) NOT NULL,
-	Description varchar(max) NULL,
-	DepartmentNumber varchar(6) NOT NULL
 )
 GO
 
