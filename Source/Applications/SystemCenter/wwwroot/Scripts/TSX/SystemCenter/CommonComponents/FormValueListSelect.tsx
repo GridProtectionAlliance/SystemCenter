@@ -87,7 +87,7 @@ export default class FormValueListSelect extends React.Component<{ valueListGrou
                     <select className='form-control' value={(this.props.field.AssetTypeFieldValue != null ? this.props.field.AssetTypeFieldValue : '')} onChange={(evt) => this.props.onChange(evt, this.props.field.FieldName, (evt.target.value != '' ? evt.target.value : null))} disabled={this.props.disabled}>
                         <option value=''></option>
                         {
-                            this.state.options.map(x => <option key={x.ID} value={x.Text}>{x.Text}</option>)
+                            this.state.options.map(x => <option key={x.ID} value={x.Value}>{x.Value}</option>)
                         }
                     </select>
                 </>);

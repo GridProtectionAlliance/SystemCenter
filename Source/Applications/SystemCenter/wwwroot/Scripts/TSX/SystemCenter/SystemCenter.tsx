@@ -73,6 +73,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ByCompany = React.lazy(() => import(/* webpackChunkName: "ByCompany" */ './Company/ByCompany'));
     const Company = React.lazy(() => import(/* webpackChunkName: "Company" */ './Company/Company'));
     const BySetting = React.lazy(() => import(/* webpackChunkName: "ByCompany" */ './Settings/BySetting'));
+    const ByValueListGroup = React.lazy(() => import(/* webpackChunkName: "ByValueListGroup" */ './ValueListGroup/ByValueListGroup'));
+    const ValueListGroup = React.lazy(() => import(/* webpackChunkName: "ValueListGroup" */ './ValueListGroup/ValueListGroup'));
 
     const [roles, setRoles] = React.useState<Array<SystemCenter.SystemCeneterSecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer(x => x + 1, 0); // integer state for resize renders
@@ -193,12 +195,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Switch>
                             <Route children={({ match, ...rest }) => {
                                 let qs = queryString.parse(rest.location.search);
-                                if (qs['?name'] == undefined || qs['?name'] == "Meters") {
+                                if (qs['?name'] == undefined || qs['?name'] == "Meters") 
                                     return <ByMeter Roles={roles} />
-                                }
-                                else if (qs['?name'] == "Locations") {
-                                    return <ByLocation Roles={roles} />
-                                }
+                                else if (qs['?name'] == "Locations") 
+                                    return <ByLocation Roles={roles} />                            
                                 else if (qs['?name'] == "Assets")
                                     return <ByAsset Roles={roles} />
                                 else if (qs['?name'] == "AssetGroups")
@@ -229,27 +229,22 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ByCustomer Roles={roles} />
                                 else if (qs['?name'] == "NewMeterWizard")
                                     return <NewMeterWizard />
+                                else if (qs['?name'] == "ValueListGroup")
+                                    return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} />
                                 else if (qs['?name'] == "Settings")
-                                    return <BySetting Roles={roles}/>
+                                    return <BySetting Roles={roles} />
+                                else if (queryString.parse(rest.location.search)['?name'] == "ValueLists") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    //return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'ValueListGroups.cshtml'}></iframe>
+                                    return <ByValueListGroup Roles={roles} />
+                                }
+                                else if (queryString.parse(rest.location.search)['?name'] == "ConfigurationHistory") {
+                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
+                                    return <ConfigurationHistory MeterConfigurationID={parseInt(queryString.parse(rest.location.search).MeterConfigurationID as string)} MeterKey={queryString.parse(rest.location.search).MeterKey as string} />
+                                }
                                 else
                                     return null;
                             }} />
-
-                            <Route children={({ match, ...rest }) => {
-                                if (roles.indexOf('Administrator') < 0) return null;
-                                else if (queryString.parse(rest.location.search)['?name'] == "ValueLists")
-                                    return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'ValueListGroups.cshtml'}></iframe>
-                                else
-                                    return null;
-                            }} />
-
-                            <Route children={({ match, ...rest }) => {
-                                if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
-                                else if (queryString.parse(rest.location.search)['?name'] == "ConfigurationHistory")
-                                    return <ConfigurationHistory MeterConfigurationID={parseInt(queryString.parse(rest.location.search).MeterConfigurationID as string)} MeterKey={queryString.parse(rest.location.search).MeterKey as string}/>
-                                else
-                                    return null;
-                                }} />
                             </Switch>
 
                         </React.Suspense>

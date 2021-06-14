@@ -141,7 +141,7 @@ const MeterProperties = (props: IProps) => {
                 <div className="col">
                 <Input<OpenXDA.Meter> Record={props.Meter} Field={'Make'} Feedback={'Make must be less than 200 characters.'} Valid={valid} Setter={(meter: OpenXDA.Meter) => props.StateSetter(meter)} />
                 <Input<OpenXDA.Meter> Record={props.Meter} Field={'Model'} Feedback={'Model must be less than 200 characters.'} Valid={valid} Setter={(meter: OpenXDA.Meter) => props.StateSetter(meter)} />
-                <Select<OpenXDA.Meter> Help={'The Timezone needs to match the Timezone the meter is configured in.'} Record={props.Meter} Field={'TimeZone'} Options={timeZones.map(item => { return { Value: item.Text, Label: item.AltText1 } })}
+                <Select<OpenXDA.Meter> Help={'The Timezone needs to match the Timezone the meter is configured in.'} Record={props.Meter} Field={'TimeZone'} Options={timeZones.map(item => { return { Value: item.Value, Label: item.Value } })}
                     Label={'Time Zone'} Setter={(meter) => props.StateSetter(meter)} EmptyOption={true} EmptyLabel={'None Selected'} />
                             
                 <TextArea<OpenXDA.Meter> Rows={3} Record={props.Meter} Field={'Description'} Valid={valid} Setter={(meter: OpenXDA.Meter) => props.StateSetter(meter)} />

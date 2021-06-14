@@ -32,11 +32,12 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
+    [UseEscapedName, ConfigFileTableNamePrefix]
     public class AdditionalField
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
-        public string OpenXDAParentTable { get; set; }
+        public string ParentTable { get; set; }
         public string FieldName { get; set; }
         public string Type { get; set; }
         public string ExternalDB { get; set; }
@@ -67,7 +68,7 @@ namespace SystemCenter.Model
 
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
-                    IEnumerable<AdditionalField> records = new TableOperations<AdditionalField>(connection).QueryRecords(orderByExpression, new RecordRestriction("OpenXDAParentTable = {0}", openXDAParentTable));
+                    IEnumerable<AdditionalField> records = new TableOperations<AdditionalField>(connection).QueryRecords(orderByExpression, new RecordRestriction("ParentTable = {0}", openXDAParentTable));
                     if (!User.IsInRole("Administrator"))
                     {
                         records = records.Where(x => !x.IsSecure);
@@ -90,7 +91,8 @@ namespace SystemCenter.Model
 
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
-                    DataTable dataTbl = connection.RetrieveData("SELECT DISTINCT [ExternalDB] from extDBTables");
+                    string tableName = new TableOperations<extDBTables>(connection).TableName;
+                    DataTable dataTbl = connection.RetrieveData($"SELECT DISTINCT [ExternalDB] from {tableName}");
                     return Ok(dataTbl);
                 }
             }

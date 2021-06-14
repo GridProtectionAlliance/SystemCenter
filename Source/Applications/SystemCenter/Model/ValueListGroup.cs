@@ -35,7 +35,7 @@ namespace SystemCenter.Model
     public class ValueListGroupController : ModelController<ValueListGroup> { }
 
     [PrimaryLabel("Name")]
-    [TableName("SystemCenter.ValueListGroup"), UseEscapedName]
+    [TableName("ValueListGroup"), ConfigFileTableNamePrefix, UseEscapedName]
     public class ValueListGroup
     {
         [PrimaryKey(true)]
@@ -44,9 +44,5 @@ namespace SystemCenter.Model
         [StringLength(200)]
         public string Name { get; set; }
         public string Description { get; set; }
-
-        [InitialValueScript("true")]
-        public bool Enabled { get; set; }
-        public DateTime CreatedOn { get; set; }
     }
 }

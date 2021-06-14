@@ -65,22 +65,9 @@
 }
 @helper AddNewEditDialog(DataContext dataContext)
 {
-    <div class="col-md-6">
-        @Html.Raw(dataContext.AddInputField<ValueList>("Key"))
-        @Html.Raw(dataContext.AddInputField<ValueList>("Text"))
-        @Html.Raw(dataContext.AddInputField<ValueList>("AltText1"))
-        @Html.Raw(dataContext.AddInputField<ValueList>("AltText2"))
-        @Html.Raw(dataContext.AddInputField<ValueList>("Abbreviation"))
-    </div>
-    <div class="col-md-6">
         @Html.Raw(dataContext.AddInputField<ValueList>("Value"))
-        @Html.Raw(dataContext.AddCheckBoxField<ValueList>("Flag"))
-        @Html.Raw(dataContext.AddTextAreaField<ValueList>("Description", rows: 3))
+        @Html.Raw(dataContext.AddInputField<ValueList>("AltValue"))
         @Html.Raw(dataContext.AddInputField<ValueList>("SortOrder"))
-        @Html.Raw(dataContext.AddCheckBoxField<ValueList>("IsDefault"))
-        @Html.Raw(dataContext.AddCheckBoxField<ValueList>("Hidden"))
-        @Html.Raw(dataContext.AddCheckBoxField<ValueList>("Enabled"))
-    </div>
 }
 @Html.RenderResource("GSF.Web.Model.Views.PagedViewModel.cshtml")
 @section Scripts {

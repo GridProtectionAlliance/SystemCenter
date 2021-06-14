@@ -31,6 +31,7 @@ using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Reflection;
+using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;

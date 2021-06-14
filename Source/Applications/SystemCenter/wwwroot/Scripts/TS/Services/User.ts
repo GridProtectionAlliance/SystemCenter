@@ -110,10 +110,10 @@ export function getSecurityRolesForUser(id: string, applicationName: 'SystemCent
     });
 }
 
-export function getTSCs(): JQuery.jqXHR<Array<SystemCenter.TSC>> {
+export function getTSCs(): JQuery.jqXHR<Array<SystemCenter.ValueListItem>> {
     return $.ajax({
         type: "GET",
-        url: `${homePath}api/SystemCenter/TSC`,
+        url: `${homePath}api/ValueList/Group/TSC`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         cache: true,

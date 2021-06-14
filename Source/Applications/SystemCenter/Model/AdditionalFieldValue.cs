@@ -31,7 +31,7 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
-    [UseEscapedName, TableName("SystemCenter.AdditionalFieldValue")]
+    [UseEscapedName, TableName("AdditionalFieldValue"), ConfigFileTableNamePrefix]
     public class AdditionalFieldValue
     {
         [PrimaryKey(true)]

@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Store.ts - Gbtc
+//  ValueListGroupForm.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -21,34 +21,25 @@
 //
 //******************************************************************************************************
 
-import { configureStore } from '@reduxjs/toolkit';
-import CompanyTypeReducer from '../Company/CompanyTypeSlice';
-import ValueListReducer from './ValueListSlice';
-import MeasurementTypeReducer from './MeasurementTypeSlice';
-import PhaseReducer from './PhaseSlice';
-import AssetTypeReducer from './AssetTypeSlice';
-import AssetConnectionTypeReducer from './AssetConnectionTypeSlice';
-import MeterReducer from './MeterSlice';
-import LocationReducer from './LocationSlice';
-import AssetReducer from './AssetSlice';
-import GenericSlice from './GenericSlice'
+import * as React from 'react';
 import { SystemCenter } from '../global';
+import { Input } from '@gpa-gemstone/react-forms';
 
-export const ValueListGroupSlice = new GenericSlice<SystemCenter.ValueListGroup>('ValueListGroup');
-export const ValueListSlice = new GenericSlice<SystemCenter.ValueListItem>('ValueList');
-
-export default configureStore({
-    reducer: {
-        CompanyType: CompanyTypeReducer,
-        //ValueList: ValueListReducer,
-        MeasurementType: MeasurementTypeReducer,
-        Phase: PhaseReducer,
-        AssetType: AssetTypeReducer,
-        AssetConnectionType: AssetConnectionTypeReducer,
-        Meter: MeterReducer,
-        Asset: AssetReducer,
-        Location: LocationReducer,
-        ValueListGroup: ValueListGroupSlice.Reducer,
-        ValueList: ValueListSlice.Reducer,
+export default function ValueListForm(props: { Record: SystemCenter.ValueListItem, Setter: (record: SystemCenter.ValueListItem) => void }) {
+    function Valid(field: keyof (SystemCenter.ValueListItem)): boolean {
+        if (field == 'Value')
+            return props.Record.Value != null && props.Record.Value.length > 0 && props.Record.Value.length <= 200;
+        else if (field == 'AltValue')
+            return props.Record.AltValue == null || props.Record.AltValue.length <= 200;
+        return true;
     }
-});
+
+    return (
+        <form>
+            <Input<SystemCenter.ValueListItem> Record={props.Record} Field={'Value'} Feedback={'Value must be set and be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.ValueListItem> Record={props.Record} Field={'AltValue'} Feedback={'AltValue must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.ValueListItem> Record={props.Record} Field={'SortOrder'} Type='number' Valid={Valid} Setter={props.Setter} />
+        </form>
+
+        );
+}

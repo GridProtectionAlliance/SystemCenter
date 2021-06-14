@@ -106,8 +106,10 @@ namespace SystemCenter
         [RecordOperation(typeof(ValueListGroup), RecordOperation.AddNewRecord)]
         public void AddNewValueListGroup(ValueListGroup record)
         {
-            record.CreatedOn = DateTime.UtcNow;
-            DataContext.Table<ValueListGroup>().AddNewRecord(record);
+            using(AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                new TableOperations<ValueListGroup>(connection).AddNewRecord(record);
+            }
         }
 
         [AuthorizeHubRole("Administrator")]
@@ -154,7 +156,6 @@ namespace SystemCenter
         [RecordOperation(typeof(ValueList), RecordOperation.AddNewRecord)]
         public void AddNewValueList(ValueList record)
         {
-            record.CreatedOn = DateTime.UtcNow;
             DataContext.Table<ValueList>().AddNewRecord(record);
         }
 

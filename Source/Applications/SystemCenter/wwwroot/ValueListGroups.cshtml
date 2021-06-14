@@ -56,7 +56,6 @@
     <div class="col-md-12">
         @Html.Raw(dataContext.AddInputField<ValueListGroup>("Name"))
         @Html.Raw(dataContext.AddTextAreaField<ValueListGroup>("Description", rows: 3))
-        @Html.Raw(dataContext.AddCheckBoxField<ValueListGroup>("Enabled"))
     </div>
 }
 @Html.RenderResource("GSF.Web.Model.Views.PagedViewModel.cshtml")
