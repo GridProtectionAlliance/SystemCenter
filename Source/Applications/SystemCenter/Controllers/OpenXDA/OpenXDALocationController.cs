@@ -38,18 +38,10 @@ using SystemCenter.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
+
     [RoutePrefix("api/OpenXDA/Location")]
     public class OpenXDALocationController : ModelController<Location>
     {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string DefaultSort { get; } = "LocationKey";
-
-        protected override bool AllowSearch => true;
-
         [HttpPost, Route("SearchableListIncludingMeter")]
         public IHttpActionResult GetMetersUsingSearchableList([FromBody] PostData searches)
         {

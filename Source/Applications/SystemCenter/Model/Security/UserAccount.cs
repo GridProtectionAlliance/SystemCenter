@@ -60,9 +60,6 @@ namespace SystemCenter.Model.Security
 
     [RoutePrefix("api/SystemCenter/UserAccount")]
     public class UserAccountController : ModelController<UserAccount> {
-        protected override string GetRoles { get; } = "Administrator";
-        protected override string Connection => "securityProvider";
-
         [HttpGet, Route("UpdateMetaData")]
         public IHttpActionResult GetUdateMetaData()
         {
@@ -235,16 +232,12 @@ namespace SystemCenter.Model.Security
 
     }
 
+    [SettingsCategory("SecurityProvider")]
+    public class ApplicationRoleUserAccount : GSF.Security.Model.ApplicationRoleUserAccount { }
+
     [RoutePrefix("api/SystemCenter/ApplicationRoleUserAccount")]
     public class SystemCenterApplicationRoleUserAccountController : ModelController<ApplicationRoleUserAccount>
     {
-        public SystemCenterApplicationRoleUserAccountController() : base(true, "UserAccountID")
-        {
-
-        }
-
-        protected override string GetRoles { get; } = "Administrator";
-        protected override string Connection => "securityProvider";
         [HttpPatch, Route("UpdateArray")]
         public IHttpActionResult PatchArray([FromBody] IEnumerable<ApplicationRoleUserAccount> records)
         {
@@ -286,11 +279,10 @@ namespace SystemCenter.Model.Security
 
     }
 
+    [SettingsCategory("SecurityProvider")]
+    public class ApplicationRole : GSF.Security.Model.ApplicationRole { }
+
     [RoutePrefix("api/SystemCenter/ApplicationRole")]
-    public class SystemCenterApplicationRoleController : ModelController<ApplicationRole>
-    {
-        protected override string Connection => "securityProvider";
-        protected override string GetRoles { get; } = "Administrator";
-    }
+    public class SystemCenterApplicationRoleController : ModelController<ApplicationRole> {}
 
 }

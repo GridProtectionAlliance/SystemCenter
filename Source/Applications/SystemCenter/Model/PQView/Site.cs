@@ -46,7 +46,4 @@ namespace SystemCenter.Model.PQView
         //public DateTime upsize_ts { get; set; }
 
     }
-
-    [RoutePrefix("api/PQView/Site")]
-    public class PQViewSiteController : ModelController<Site> {}
 }

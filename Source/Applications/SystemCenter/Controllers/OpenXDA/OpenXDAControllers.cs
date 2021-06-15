@@ -48,55 +48,26 @@ namespace SystemCenter.Controllers.OpenXDA
 {
 
     [RoutePrefix("api/OpenXDA/AssetType")]
-    public class AssetTypeController : ModelController<AssetTypes>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "Name";
-
-    }
+    public class AssetTypeController : ModelController<AssetTypes> {}
 
     [RoutePrefix("api/OpenXDA/Phase")]
-    public class PhaseController:ModelController<Phase> {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "Name";
-
-    }
+    public class PhaseController:ModelController<Phase> {}
 
     [RoutePrefix("api/OpenXDA/MeasurementType")]
-    public class MeasurementTypeController:ModelController<MeasurementType> {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "Name";
-
-    }
+    public class MeasurementTypeController:ModelController<MeasurementType> {}
 
     [RoutePrefix("api/OpenXDA/MeasurementCharacteristic")]
-    public class MeasurementCharacteristicController : ModelController<MeasurementCharacteristic>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "Name";
+    public class MeasurementCharacteristicController : ModelController<MeasurementCharacteristic> {}
 
-    }
+    [RoutePrefix("api/OpenXDA/AssetConnection")]
+    public class OpenXDAAssetConnectionController : ModelController<AssetConnection> { }
+
+    [RoutePrefix("api/OpenXDA/AssetConnectionType")]
+    public class AssetConnectionTypeController : ModelController<AssetConnectionType> { }
 
     [RoutePrefix("api/OpenXDA/Note")]
     public class NoteController : ModelController<Notes>
     {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string PostRoles { get; } = "Administrator, Transmission SME, PQ Data Viewer";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override bool AllowSearch => true;
 
         [HttpGet, Route("ForObject/{noteType}/{referenceTableID:int}")]
         public IHttpActionResult GetNotes(string noteType, int referenceTableID)
@@ -182,29 +153,26 @@ namespace SystemCenter.Controllers.OpenXDA
     }
 
     [RoutePrefix("api/OpenXDA/NoteType")]
-    public class NoteTypeController : ModelController<NoteType>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-
-    }
+    public class NoteTypeController : ModelController<NoteType> {}
 
     [RoutePrefix("api/OpenXDA/ApplicationRole")]
-    public class OpenXDAApplicationRoleController : ModelController<ApplicationRole>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string GetRoles { get; } = "Administrator";
-    }
+    public class OpenXDAApplicationRoleController : ModelController<ApplicationRole> {}
+
+    [RoutePrefix("api/OpenXDA/Bus")]
+    public class OpenXDABusController : ModelController<Bus> { }
+
+    [RoutePrefix("api/OpenXDA/CapacitorBank")]
+    public class OpenXDACapBankController : ModelController<CapBank> { }
+
+    [RoutePrefix("api/OpenXDA/CapacitorBankRelay")]
+    public class OpenXDACapBankRelayController : ModelController<CapBankRelay> { }
+
+    [RoutePrefix("api/OpenXDA/Transformer")]
+    public class OpenXDATransformerController : ModelController<Transformer> { }
 
     [RoutePrefix("api/OpenXDA/ApplicationRoleUserAccount")]
     public class OpenXDAApplicationRoleUserAccountController : ModelController<ApplicationRoleUserAccount>
     {
-        public OpenXDAApplicationRoleUserAccountController() : base(true, "UserAccountID")
-        {
-
-        }
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string GetRoles { get; } = "Administrator";
-
         [HttpPatch, Route("UpdateArray")]
         public IHttpActionResult PatchArray([FromBody] IEnumerable<ApplicationRoleUserAccount> records)
         {
@@ -245,6 +213,57 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+    }
+
+    [RoutePrefix("api/OpenXDA/CompanyType")]
+    public class CompanyTypeController : ModelController<CompanyType> { }
+
+    [CustomView(@"
+    SELECT
+        DISTINCT
+        Company.ID,
+        Company.CompanyID,
+        Company.Name,
+        Company.Description,
+        CompanyType.Name as CompanyTypeName,
+        COUNT(CompanyMeter.ID) as Meters
+    FROM
+
+        Company JOIN
+        CompanyType ON Company.CompanyTypeID = CompanyType.ID LEFT JOIN
+        CompanyMeter ON Company.ID = CompanyMeter.CompanyID
+    GROUP BY
+        Company.ID,
+        Company.CompanyID,
+        Company.Name,
+        Company.Description,
+        CompanyType.Name
+    ")]
+    public class SCCompany : Company { }
+    [RoutePrefix("api/OpenXDA/Company")]
+    public class CompanyController : ModelController<SCCompany> {}
+
+    [RoutePrefix("api/OpenXDA/CompanyMeter")]
+    public class CompanyMeterController : ModelController<CompanyMeter>
+    {
+        [HttpPost, Route("AddMultiple")]
+        public IHttpActionResult AddMultipleCompanyMeter(IEnumerable<CompanyMeter> companyMeters)
+        {
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    foreach (CompanyMeter companyMeter in companyMeters)
+                        new TableOperations<CompanyMeter>(connection).AddNewRecord(companyMeter);
+
+                    return Ok("Added all records without error.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 
 

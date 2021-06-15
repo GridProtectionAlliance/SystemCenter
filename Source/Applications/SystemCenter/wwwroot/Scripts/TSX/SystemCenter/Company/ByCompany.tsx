@@ -109,7 +109,7 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
 
         return $.ajax({
             type: "Post",
-            url: `${homePath}api/SystemCenter/Company/ExtendedSearchableList`,
+            url: `${homePath}api/OpenXDA/Company/ExtendedSearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({ Searches: TransformSearchFields.Company(search), OrderBy: sortField, Ascending: ascending }),
@@ -131,7 +131,7 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
     function addNewCompany() {
         $.ajax({
             type: "POST",
-            url: `${homePath}api/SystemCenter/Company/Add`,
+            url: `${homePath}api/OpenXDA/Company/Add`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify(newCompany),

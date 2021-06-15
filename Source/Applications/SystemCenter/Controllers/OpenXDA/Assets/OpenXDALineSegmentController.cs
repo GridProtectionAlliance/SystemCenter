@@ -39,19 +39,11 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/LineSegment")]
     public class OpenXDALineSegmentController : ModelController<LineSegment>
     {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "AssetKey";
-
-        public OpenXDALineSegmentController() : base(false, "", true, "AssetKey") { }
-
-        protected override string Connection { get; } = "dbOpenXDA";
 
         [HttpGet, Route("{segmentID:int}/AddToLine/{lineID:int}")]
         public IHttpActionResult AddLineSegmentToLine(int segmentID, int lineID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 AssetConnection assetConnection = new AssetConnection()
                 {
@@ -73,7 +65,7 @@ namespace SystemCenter.Controllers.OpenXDA
             {
                 using (TransactionScope scope = new TransactionScope())
                 {
-                    using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         JToken asset = record["Asset"];
                         int assetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'LineSegment'");
@@ -119,7 +111,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("{segmentID:int}/Disconnect/{lineID:int}")]
         public IHttpActionResult DisconnectLineSegmentFromLine(int segmentID, int lineID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 int typeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationShipType WHERE Name = 'Line-LineSegment'");
                 connection.ExecuteNonQuery("DELETE FROM AssetRelationship WHERE AssetRelationshipTypeID = {0} AND ((ChildID = {1} AND ParentID = {2}) OR (ChildID = {2} AND ParentID = {1}))",typeID, lineID, segmentID);

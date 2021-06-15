@@ -66,7 +66,7 @@ export const SelectCompanyTypesStatus = state => state.CompanyType.Status as Sys
 function GetCompanyTypes(): JQuery.jqXHR<SystemCenter.CompanyType[]> {
     return $.ajax({
         type: "GET",
-        url: `${homePath}api/SystemCenter/CompanyType`,
+        url: `${homePath}api/OpenXDA/CompanyType`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         cache: true,

@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
-//  AccessLog.cs - Gbtc
+//  AccessLogController.cs - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2021, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,10 +16,12 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  02/07/2020 - Billy Ernest
+//  06/15/2021 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
+
+
 
 using GSF.Data;
 using GSF.Data.Model;
@@ -32,16 +34,8 @@ using System.Linq;
 using System.Web.Http;
 using SystemCenter.Controllers;
 
-namespace SystemCenter.Model
+namespace SystemCenter.Controllers
 {
-    //public class AccessLog
-    //{
-    //    [PrimaryKey(true)]
-    //    public int ID { get; set; }
-    //    public string UserName { get; set; }
-    //    public bool AccessGranted { get; set; }
-    //    public DateTime CreatedOn { get; set; }
-    //}
 
      [RoutePrefix("api/SystemCenter/AccessLog")]
     public class SystemCenterAccessLogController : ModelController<AccessLog> {

@@ -55,20 +55,11 @@ namespace SystemCenter.Controllers.OpenXDA
             public List<int> AssetGroupList { get; set; }
 
         }
-
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override bool AllowSearch => true;
-        public OpenXDAAssetGroupController() : base(false, "", true, "Name") { }
-
-
-        protected override string Connection { get; } = "dbOpenXDA";
      
         [HttpGet, Route("{assetGroupID:int}/Assets")]
         public IHttpActionResult GetAssets(int assetGroupID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 try
                 {

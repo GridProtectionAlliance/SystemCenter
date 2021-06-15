@@ -39,15 +39,6 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/MeterConfiguration")]
     public class OpenXDAMeterConfigurationController : ModelController<MeterConfiguration>
     {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "AssetKey";
-
-        public OpenXDAMeterConfigurationController() : base(true, "MeterID") { }
-
-        protected override string Connection { get; } = "dbOpenXDA";
-
         [HttpGet, Route("Meter/{meterID:int}")]
         public IHttpActionResult GetMeterConfigurationsForMeter(int meterID)
         {

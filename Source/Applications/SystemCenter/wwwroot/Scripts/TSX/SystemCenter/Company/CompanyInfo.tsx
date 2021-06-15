@@ -50,7 +50,7 @@ export default class CompanyInfoWindow extends React.Component<{ Company: System
 
        return $.ajax({
             type: "PATCH",
-           url: `${homePath}api/SystemCenter/Company/Update`,
+           url: `${homePath}api/OpenXDA/Company/Update`,
             contentType: "application/json; charset=utf-8",
            data: JSON.stringify(this.state.Company),
             dataType: 'json',

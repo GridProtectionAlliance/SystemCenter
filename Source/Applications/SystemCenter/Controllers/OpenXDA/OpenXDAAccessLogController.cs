@@ -36,8 +36,6 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/AccessLog")]
     public class OpenXDAAccessLogController : ModelController<AccessLog>
     {
-        protected override string Connection { get; } = "dbOpenXDA";
-
         [HttpGet, Route("Aggregates/{days:int}")]
         public IHttpActionResult GetAggregates(int days)
         {

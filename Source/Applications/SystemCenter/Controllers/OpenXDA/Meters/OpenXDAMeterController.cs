@@ -39,17 +39,10 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/Meter")]
     public class OpenXDAMeterController : ModelController<Meter>
     {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "AssetKey";
-        protected override bool AllowSearch { get; } = true;
-
         [HttpGet, Route("Line/{lineID:int}")]
         public IHttpActionResult GetMetersForLine(int lineID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("ID IN ( SELECT MeterID FROM MeterLine WHERE LineID = {0})", lineID);
                 return Ok(records);
@@ -59,7 +52,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("MeterLocation/{meterLocationID:int}")]
         public IHttpActionResult GetMetersForMeterLocation(int meterLocationID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("MeterLocationID = {0}", meterLocationID);
                 return Ok(records);
@@ -204,7 +197,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
                 using (TransactionScope scope = new TransactionScope())
                 {
-                    using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         connection.ExecuteNonQuery(sqlString);
                     }
@@ -229,7 +222,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     TableOperations<Channel> channelTable = new TableOperations<Channel>(connection);
                     TableOperations<Series> seriesTable = new TableOperations<Series>(connection);
@@ -361,7 +354,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 "    Channel ON Series.ChannelID = Channel.ID " +
                 "WHERE Channel.MeterID = {0}";
 
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 DataTable channelTable = connection.RetrieveData(ChannelQuery, meterID);
                 string channelJSON = JsonConvert.SerializeObject(channelTable);
@@ -413,7 +406,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("{meterID:int}/Asset/{sort=AssetKey}/{ascending:int=1}")]
         public IHttpActionResult GetMeterAssets(int meterID, string sort, int ascending)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 DataTable records = connection.RetrieveData($@"
                     SELECT 
@@ -449,7 +442,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpDelete, Route("{meterID:int}/Asset/{assetID:int}/{locationID:int}")]
         public IHttpActionResult DeleteMeterAsset(int meterID, int assetID, int locationID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 try
                 {

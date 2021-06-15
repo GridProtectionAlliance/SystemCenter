@@ -29,9 +29,34 @@ using System.Linq;
 using System.Web.Http;
 using SystemCenter.Controllers;
 
-namespace SystemCenter.Model
+namespace OpenXDA.Model
 {
-    [TableName("Meter")]
+    [TableName("Meter"), 
+     CustomView(@"
+    SELECT
+        DISTINCT
+        Meter.ID,
+        Meter.AssetKey,
+        Meter.Name,
+        Meter.Make,
+        Meter.Model,
+        Location.Name as Location,
+        COUNT(DISTINCT MeterAsset.AssetID)  as MappedAssets
+    FROM 
+        Meter LEFT JOIN
+        Location ON Meter.LocationID = Location.ID LEFT JOIN
+        MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN 
+        Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
+        Note ON Note.NoteTypeID = (SELECT ID FROM NoteType WHERE Name = 'Meter') AND Note.ReferenceTableID = Meter.ID
+    GROUP BY
+        Meter.ID,
+        Meter.AssetKey,
+        Meter.Name,
+        Meter.Make,
+        Meter.Model,
+        Location.Name
+    ")]
+
     public class DetailedMeter
     {
         [PrimaryKey(true)]
@@ -45,40 +70,6 @@ namespace SystemCenter.Model
     }
 
     [RoutePrefix("api/OpenXDA/MeterList")]
-    public class OpenXDADetailedMeterController : ModelController<DetailedMeter>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "AssetKey";
-        protected override bool AllowSearch { get; } = true;
-        protected override bool ViewOnly => true;
-
-        protected override string CustomView => @"
-           SELECT
-	                    DISTINCT
-                        Meter.ID,
-                        Meter.AssetKey,
-                        Meter.Name,
-                        Meter.Make,
-                        Meter.Model,
-                        Location.Name as Location,
-                        COUNT(DISTINCT MeterAsset.AssetID)  as MappedAssets
-                    FROM 
-                        Meter LEFT JOIN
-                        Location ON Meter.LocationID = Location.ID LEFT JOIN
-                        MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN 
-                        Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
-	                    Note ON Note.NoteTypeID = (SELECT ID FROM NoteType WHERE Name = 'Meter') AND Note.ReferenceTableID = Meter.ID
-                    GROUP BY
-                        Meter.ID,
-	                    Meter.AssetKey,
-                        Meter.Name,
-                        Meter.Make,
-                        Meter.Model,
-                        Location.Name
-                ";
-    }
+    public class OpenXDADetailedMeterController : ModelController<DetailedMeter> {}
 
 }

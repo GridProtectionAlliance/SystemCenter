@@ -35,19 +35,10 @@ using SystemCenter.Controllers;
 [RoutePrefix("api/OpenXDA/Breaker")]
 public class OpenXDABreakerController : ModelController<Breaker>
 {
-    protected override string PostRoles { get; } = "Administrator, Transmission SME";
-    protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-    protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-    protected override string DefaultSort { get; } = "AssetKey";
-
-    public OpenXDABreakerController() : base(false, "", true, "AssetKey") { }
-
-    protected override string Connection { get; } = "dbOpenXDA";
-
     [HttpGet, Route("{breakerID:int}/EDNAPoint")]
     public IHttpActionResult GetEDNAPoinsForBreaker(int breakerID)
     {
-        using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+        using (AdoDataConnection connection = new AdoDataConnection(Connection))
         {
             EDNAPoint record = new TableOperations<EDNAPoint>(connection).QueryRecordWhere("BreakerID = {0}", breakerID);
             return Ok(record);
@@ -57,7 +48,7 @@ public class OpenXDABreakerController : ModelController<Breaker>
     [HttpGet, Route("{breakerID:int}/SpareBreaker")]
     public IHttpActionResult GetSpareBreakerForBreaker(int breakerID)
     {
-        using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+        using (AdoDataConnection connection = new AdoDataConnection(Connection))
         {
             Breaker record = new TableOperations<Breaker>(connection).QueryRecordWhere("ID = (SELECT SpareAssetID FROM AssetSpare WHERE AssetID = {0})", breakerID);
             return Ok(record);
@@ -67,7 +58,7 @@ public class OpenXDABreakerController : ModelController<Breaker>
     [HttpGet, Route("{breakerID:int}/SpareBreakersForSubstation")]
     public IHttpActionResult SpareBreakersForSubstationForBreaker(int breakerID)
     {
-        using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+        using (AdoDataConnection connection = new AdoDataConnection(Connection))
         {
             IEnumerable<Breaker> record = new TableOperations<Breaker>(connection).QueryRecordsWhere(@"
                     Spare=1 AND ID IN 
@@ -90,7 +81,7 @@ public class OpenXDABreakerController : ModelController<Breaker>
     [HttpGet, Route("SpareBreakers/Substation/{locationID:int}")]
     public IHttpActionResult SpareBreakersForSubstation(int locationID)
     {
-        using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+        using (AdoDataConnection connection = new AdoDataConnection(Connection))
         {
             IEnumerable<Breaker> record = new TableOperations<Breaker>(connection).QueryRecordsWhere(@"
                     Spare=1 AND ID IN 
@@ -120,7 +111,7 @@ public class OpenXDABreakerController : ModelController<Breaker>
     public override IHttpActionResult Post([FromBody] JObject record)
     {
         Breaker breakerRecord = base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<Breaker>().Result;
-        using (AdoDataConnection connection = new AdoDataConnection("systemSettings")) {
+        using (AdoDataConnection connection = new AdoDataConnection(Connection)) {
             if (record["EDNAPoint"] != null)
             {
                 EDNAPoint eDNAPoint = new EDNAPoint()

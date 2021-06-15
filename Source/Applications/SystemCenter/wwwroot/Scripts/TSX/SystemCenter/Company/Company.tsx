@@ -59,7 +59,7 @@ export default function Company (props: { CompanyID: number }) {
     function getCompany(): JQuery.jqXHR<SystemCenter.Company> {
        return $.ajax({
             type: "GET",
-           url: `${homePath}api/SystemCenter/Company/One/${props.CompanyID}`,
+           url: `${homePath}api/OpenXDA/Company/One/${props.CompanyID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -74,7 +74,7 @@ export default function Company (props: { CompanyID: number }) {
 
         return $.ajax({
             type: "DELETE",
-            url: `${homePath}api/SystemCenter/Company/Delete`,
+            url: `${homePath}api/OpenXDA/Company/Delete`,
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(company),
             dataType: 'json',
