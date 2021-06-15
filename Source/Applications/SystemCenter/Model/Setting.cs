@@ -29,12 +29,17 @@ using SystemCenter.Controllers;
 namespace SystemCenter.Model
 {
     [ConfigFileTableNamePrefix, TableName("Setting"), UseEscapedName]
+    [PostRoles("Administrator")]
+    [DeleteRoles("Administrator")]
+    [PatchRoles("Administrator")]
+    [AllowSearch]
     public class Setting
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
 
         [Searchable]
+        [DefaultSortOrder]
         public string Name { get; set; }
 
         [Searchable]
@@ -47,11 +52,5 @@ namespace SystemCenter.Model
 
     [RoutePrefix("api/SystemCenter/Setting")]
     public class SettingController : ModelController<Setting>
-    {
-        protected override string PostRoles { get; } = "Administrator";
-        protected override string PatchRoles { get; } = "Administrator";
-        protected override string DeleteRoles { get; } = "Administrator";
-        protected override bool AllowSearch => true;
-        protected override string DefaultSort => "ID";
-    }
+    {}
 }

@@ -38,14 +38,5 @@ namespace SystemCenter.Controllers.OpenXDA
 {
     [RoutePrefix("api/OpenXDA/CapacitorBankRelay")]
     public class OpenXDACapBankRelayController : ModelController<CapBankRelay>
-    {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "AssetKey";
-
-        public OpenXDACapBankRelayController() : base(false, "", true, "AssetKey") { }
-
-        protected override string Connection { get; } = "dbOpenXDA";
-    }
+    {}
 }

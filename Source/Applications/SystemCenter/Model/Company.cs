@@ -36,47 +36,7 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
-    [SettingsCategory("dbOpenXDA")]
-    public class Company
-    {
-        [PrimaryKey(true)]
-        public int ID { get; set; }
-        [Required]
-        public string CompanyID { get; set; }
-        public int CompanyTypeID { get; set; }
-
-        [NonRecordField]
-        public string CompanyTypeName { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-    }
-
-
-    [RoutePrefix("api/SystemCenter/Company")]
-    public class CompanyController : ModelController<Company> {
-
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override bool AllowSearch => true;
-        protected override string Connection { get 
-            {
-                string connection = "";
-
-                if (typeof(Company).TryGetAttribute(out SettingsCategoryAttribute attribute) && !string.IsNullOrWhiteSpace(attribute.SettingsCategory))
-                    connection = attribute.SettingsCategory;
-
-                return connection; 
-            }
-        }
-
-        protected override string DefaultSort => "CompanyID";
-        protected override string CustomView
-        {
-            get
-            {
-
-                return @"SELECT
+    [CustomView(@"SELECT
                     DISTINCT
                     Company.ID,
                     Company.CompanyID,
@@ -94,9 +54,29 @@ namespace SystemCenter.Model
 	                Company.CompanyID,
 	                Company.Name,
 	                Company.Description,
-                    CompanyType.Name";
-            }
-        }
+                    CompanyType.Name")]
+    [AllowSearch]
+    [PatchRoles("Administrator, Transmission SME")]
+    [PostRoles("Administrator, Transmission SME")]
+    [DeleteRoles("Administrator, Transmission SME")]
+    public class Company
+    {
+        [PrimaryKey(true)]
+        public int ID { get; set; }
+        [Required]
+        public string CompanyID { get; set; }
+        public int CompanyTypeID { get; set; }
 
+        [NonRecordField]
+        public string CompanyTypeName { get; set; }
+
+        [DefaultSortOrder]
+        public string Name { get; set; }
+        public string Description { get; set; }
     }
+
+
+    [RoutePrefix("api/SystemCenter/Company")]
+    public class CompanyController : ModelController<Company>
+    {}
 }

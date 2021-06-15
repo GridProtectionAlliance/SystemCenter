@@ -39,93 +39,99 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/LineSegment")]
     public class OpenXDALineSegmentController : ModelController<LineSegment>
     {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "AssetKey";
-
-        public OpenXDALineSegmentController() : base(false, "", true, "AssetKey") { }
-
-        protected override string Connection { get; } = "dbOpenXDA";
-
         [HttpGet, Route("{segmentID:int}/AddToLine/{lineID:int}")]
         public IHttpActionResult AddLineSegmentToLine(int segmentID, int lineID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            if (PatchRoles == string.Empty || User.IsInRole(PatchRoles))
             {
-                AssetConnection assetConnection = new AssetConnection()
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
                 {
-                    AssetRelationshipTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationShipType WHERE Name = 'Line-LineSegment'"),
-                    ChildID = lineID,
-                    ParentID = segmentID
-                };
+                    AssetConnection assetConnection = new AssetConnection()
+                    {
+                        AssetRelationshipTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationShipType WHERE Name = 'Line-LineSegment'"),
+                        ChildID = lineID,
+                        ParentID = segmentID
+                    };
 
-                (new TableOperations<AssetConnection>(connection)).AddNewRecord(assetConnection);
-                return Ok(1);
+                    (new TableOperations<AssetConnection>(connection)).AddNewRecord(assetConnection);
+                    return Ok(1);
+                }
             }
+            else
+                return Unauthorized();
 
         }
         
         [HttpPost, Route("New/Line/{lineID:int}")]
         public IHttpActionResult PostNewAssetForLocation([FromBody] JObject record, int lineID)
         {
-            try
+            if (PostRoles == string.Empty || User.IsInRole(PostRoles))
             {
-                using (TransactionScope scope = new TransactionScope())
+                try
                 {
-                    using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                    using (TransactionScope scope = new TransactionScope())
                     {
-                        JToken asset = record["Asset"];
-                        int assetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'LineSegment'");
-
-                        LineSegment lineSegment = new LineSegment();
-
-                        lineSegment.VoltageKV = asset["VoltageKV"].ToObject<double>();
-                        lineSegment.AssetKey = asset["AssetKey"].ToString();
-                        lineSegment.Description = asset["Description"].ToString();
-                        lineSegment.AssetName = asset["AssetName"].ToString();
-                        lineSegment.R0 = asset["R0"].ToObject<double>();
-                        lineSegment.X0 = asset["X0"].ToObject<double>();
-                        lineSegment.R1 = asset["R1"].ToObject<double>();
-                        lineSegment.X1 = asset["X1"].ToObject<double>();
-                        lineSegment.Length = asset["Length"].ToObject<double>();
-                        lineSegment.ThermalRating = asset["ThermalRating"].ToObject<double>();
-                        
-
-                        new TableOperations<LineSegment>(connection).AddNewRecord(lineSegment);
-                        
-                        int assetID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", asset["AssetKey"].ToString());
-                        AssetConnection assetConnection = new AssetConnection()
+                        using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
                         {
-                            AssetRelationshipTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationShipType WHERE Name = 'Line-LineSegment'"),
-                            ChildID = lineID,
-                            ParentID = assetID
-                        };
+                            JToken asset = record["Asset"];
+                            int assetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'LineSegment'");
 
-                        (new TableOperations<AssetConnection>(connection)).AddNewRecord(assetConnection);
+                            LineSegment lineSegment = new LineSegment();
+
+                            lineSegment.VoltageKV = asset["VoltageKV"].ToObject<double>();
+                            lineSegment.AssetKey = asset["AssetKey"].ToString();
+                            lineSegment.Description = asset["Description"].ToString();
+                            lineSegment.AssetName = asset["AssetName"].ToString();
+                            lineSegment.R0 = asset["R0"].ToObject<double>();
+                            lineSegment.X0 = asset["X0"].ToObject<double>();
+                            lineSegment.R1 = asset["R1"].ToObject<double>();
+                            lineSegment.X1 = asset["X1"].ToObject<double>();
+                            lineSegment.Length = asset["Length"].ToObject<double>();
+                            lineSegment.ThermalRating = asset["ThermalRating"].ToObject<double>();
+
+
+                            new TableOperations<LineSegment>(connection).AddNewRecord(lineSegment);
+
+                            int assetID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", asset["AssetKey"].ToString());
+                            AssetConnection assetConnection = new AssetConnection()
+                            {
+                                AssetRelationshipTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationShipType WHERE Name = 'Line-LineSegment'"),
+                                ChildID = lineID,
+                                ParentID = assetID
+                            };
+
+                            (new TableOperations<AssetConnection>(connection)).AddNewRecord(assetConnection);
+                        }
+
+                        scope.Complete();
+                        return Ok("Completed without errors");
+
                     }
-
-                    scope.Complete();
-                    return Ok("Completed without errors");
-
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
                 }
             }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
+            else
+                return Unauthorized();
         }
 
         [HttpGet, Route("{segmentID:int}/Disconnect/{lineID:int}")]
         public IHttpActionResult DisconnectLineSegmentFromLine(int segmentID, int lineID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            if (DeleteRoles == string.Empty || User.IsInRole(DeleteRoles))
             {
-                int typeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationShipType WHERE Name = 'Line-LineSegment'");
-                connection.ExecuteNonQuery("DELETE FROM AssetRelationship WHERE AssetRelationshipTypeID = {0} AND ((ChildID = {1} AND ParentID = {2}) OR (ChildID = {2} AND ParentID = {1}))",typeID, lineID, segmentID);
-              
-                return Ok(1);
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                {
+                    int typeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationShipType WHERE Name = 'Line-LineSegment'");
+                    connection.ExecuteNonQuery("DELETE FROM AssetRelationship WHERE AssetRelationshipTypeID = {0} AND ((ChildID = {1} AND ParentID = {2}) OR (ChildID = {2} AND ParentID = {1}))", typeID, lineID, segmentID);
+
+                    return Ok(1);
+                }
             }
+            else
+                return Unauthorized();
 
         }
     }

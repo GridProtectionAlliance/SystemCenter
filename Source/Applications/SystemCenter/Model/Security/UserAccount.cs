@@ -31,6 +31,7 @@ using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -40,6 +41,9 @@ using SystemCenter.Controllers;
 namespace SystemCenter.Model.Security
 {
     [SettingsCategory("securityProvider")]
+    [GetRoles("Administrator")]
+    [PostRoles("Administrator")]
+    [PatchRoles("Administrator")]
     public class UserAccount : GSF.Security.Model.UserAccount {
         static UserAccount()
         {
@@ -60,9 +64,7 @@ namespace SystemCenter.Model.Security
 
     [RoutePrefix("api/SystemCenter/UserAccount")]
     public class UserAccountController : ModelController<UserAccount> {
-        protected override string GetRoles { get; } = "Administrator";
-        protected override string Connection => "securityProvider";
-
+   
         [HttpGet, Route("UpdateMetaData")]
         public IHttpActionResult GetUdateMetaData()
         {
@@ -235,16 +237,15 @@ namespace SystemCenter.Model.Security
 
     }
 
+    [MetadataType(typeof(GSF.Security.Model.ApplicationRoleUserAccount))]
+    [SettingsCategory("securityProvider")]
+    public class ApplicationRoleUserAccount : GSF.Security.Model.ApplicationRoleUserAccount
+    { }
+
     [RoutePrefix("api/SystemCenter/ApplicationRoleUserAccount")]
     public class SystemCenterApplicationRoleUserAccountController : ModelController<ApplicationRoleUserAccount>
     {
-        public SystemCenterApplicationRoleUserAccountController() : base(true, "UserAccountID")
-        {
-
-        }
-
-        protected override string GetRoles { get; } = "Administrator";
-        protected override string Connection => "securityProvider";
+       
         [HttpPatch, Route("UpdateArray")]
         public IHttpActionResult PatchArray([FromBody] IEnumerable<ApplicationRoleUserAccount> records)
         {
@@ -286,11 +287,13 @@ namespace SystemCenter.Model.Security
 
     }
 
+    [MetadataType(typeof(GSF.Security.Model.ApplicationRole))]
+    [SettingsCategory("securityProvider")]
+    public class ApplicationRole : GSF.Security.Model.ApplicationRole
+    { }
+
     [RoutePrefix("api/SystemCenter/ApplicationRole")]
     public class SystemCenterApplicationRoleController : ModelController<ApplicationRole>
-    {
-        protected override string Connection => "securityProvider";
-        protected override string GetRoles { get; } = "Administrator";
-    }
+    {}
 
 }

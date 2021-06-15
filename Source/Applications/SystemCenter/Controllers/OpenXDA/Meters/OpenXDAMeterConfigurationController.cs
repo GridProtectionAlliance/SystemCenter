@@ -39,21 +39,15 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/MeterConfiguration")]
     public class OpenXDAMeterConfigurationController : ModelController<MeterConfiguration>
     {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "AssetKey";
-
-        public OpenXDAMeterConfigurationController() : base(true, "MeterID") { }
-
-        protected override string Connection { get; } = "dbOpenXDA";
-
         [HttpGet, Route("Meter/{meterID:int}")]
         public IHttpActionResult GetMeterConfigurationsForMeter(int meterID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                DataTable records = connection.RetrieveData(@"
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+
+                    DataTable records = connection.RetrieveData(@"
                     SELECT
                         MeterConfiguration.ID,
 	                    CAST(MeterConfiguration.RevisionMajor as varchar(max)) + '.'+  CAST(MeterConfiguration.RevisionMinor as varchar(max)) as Revision,
@@ -72,32 +66,45 @@ namespace SystemCenter.Controllers.OpenXDA
                     ORDER BY
                         MeterConfiguration.RevisionMajor DESC, MeterConfiguration.RevisionMinor DESC
                 ", meterID);
-                return Ok(records);
+                    return Ok(records);
+                }
             }
+            else
+                return Unauthorized();
         }
 
         [HttpGet, Route("{meterConfigurationID:int}/FilesProcessed")]
         public IHttpActionResult GetFilesProcessedForMeterConfigurations(int meterConfigurationID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                IEnumerable<DataFile> records = new TableOperations<DataFile>(connection).QueryRecordsWhere(@"FileGroupID IN (SELECT FileGroupID FROM FileGroupMeterConfiguration WHERE MeterConfigurationID = {0})", meterConfigurationID);
-                return Ok(records);
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    IEnumerable<DataFile> records = new TableOperations<DataFile>(connection).QueryRecordsWhere(@"FileGroupID IN (SELECT FileGroupID FROM FileGroupMeterConfiguration WHERE MeterConfigurationID = {0})", meterConfigurationID);
+                    return Ok(records);
+                }
             }
+            else
+                return Unauthorized();
         }
 
         public override IHttpActionResult GetOne(string id)
         {
-            IHttpActionResult result =  base.GetOne(id);
-            MeterConfiguration meterConfiguration = result.ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<MeterConfiguration>().Result;
-            if (meterConfiguration.DiffID != null)
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                IHttpActionResult result = base.GetOne(id);
+                MeterConfiguration meterConfiguration = result.ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<MeterConfiguration>().Result;
+                if (meterConfiguration.DiffID != null)
                 {
-                    meterConfiguration.ConfigText = new TableOperations<MeterConfiguration>(connection).Unpatch(meterConfiguration);
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        meterConfiguration.ConfigText = new TableOperations<MeterConfiguration>(connection).Unpatch(meterConfiguration);
+                    }
                 }
+                return Ok(meterConfiguration);
             }
-            return Ok(meterConfiguration);
+            else
+                return Unauthorized();
 
         }
 
@@ -105,7 +112,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             try
             {
-                if (User.IsInRole(PostRoles))
+                if (User.IsInRole(PostRoles) || PostRoles == string.Empty)
                 {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {

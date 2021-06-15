@@ -33,27 +33,8 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
-    public class Customer
-    {
-        [PrimaryKey(true)]
-        public int ID { get; set; }
-        [Required]
-        public string CustomerKey { get; set; }
-        public string Name { get; set; }
-        public string Phone { get; set; }
-        public string Description { get; set; }
-    }
-
-    [RoutePrefix("api/SystemCenter/Customer")]
-    public class CustomerController : ModelController<Customer> {
-
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override bool AllowSearch => true;
-        protected override string Connection => "dbOpenXDA";
-        protected override string DefaultSort => "ID";
-        protected override string CustomView => @"SELECT
+    [AllowSearch]
+    [CustomView(@"SELECT
                     DISTINCT
                     Customer.ID,
 	                Customer.CustomerKey,
@@ -70,6 +51,24 @@ namespace SystemCenter.Model
 	                Customer.CustomerKey,
 	                Customer.Name,
 	                Customer.Phone,
-	                Customer.Description";
+	                Customer.Description")]
+    [PatchRoles("Administrator, Transmission SME")]
+    [PostRoles("Administrator, Transmission SME")]
+    [DeleteRoles("Administrator, Transmission SME")]
+    public class Customer
+    {
+        [PrimaryKey(true)]
+        
+        public int ID { get; set; }
+        [Required]
+        [DefaultSortOrder]
+        public string CustomerKey { get; set; }
+        public string Name { get; set; }
+        public string Phone { get; set; }
+        public string Description { get; set; }
     }
+
+    [RoutePrefix("api/SystemCenter/Customer")]
+    public class CustomerController : ModelController<Customer>
+    { }
 }

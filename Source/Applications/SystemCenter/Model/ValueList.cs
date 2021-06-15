@@ -37,12 +37,14 @@ using SystemCenter.Controllers;
 namespace SystemCenter.Model
 {
     [PrimaryLabel("Text")]
-    [TableName("ValueList"), ConfigFileTableNamePrefix, UseEscapedName]
+    [TableName("ValueList"), UseEscapedName]
+
     public class ValueList
     {
 
         [PrimaryKey(true)]
         public int ID { get; set; }
+        [ParentKey(typeof(ValueListGroup))]
         public int GroupID { get; set; }
         public string Value { get; set; }
         public string AltValue { get; set; }
@@ -52,20 +54,21 @@ namespace SystemCenter.Model
     [RoutePrefix("api/ValueList")]
     public class ValueListController : ModelController<ValueList> {
         #region [ Constructor ]
-        public ValueListController() : base(true, "GroupID")
-        {
-
-        }
-
+       
         [HttpGet, Route("Group/{groupName}")]
         public IHttpActionResult GetValueListForGroup(string groupName)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                string tableName = new TableOperations<ValueListGroup>(connection).TableName;
-                IEnumerable<ValueList> records = new TableOperations<ValueList>(connection).QueryRecordsWhere($"GroupID = ( SELECT ID FROM {tableName} WHERE Name = {{0}})", groupName);
-                return Ok(records);
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    string tableName = new TableOperations<ValueListGroup>(connection).TableName;
+                    IEnumerable<ValueList> records = new TableOperations<ValueList>(connection).QueryRecordsWhere($"GroupID = ( SELECT ID FROM {tableName} WHERE Name = {{0}})", groupName);
+                    return Ok(records);
+                }
             }
+            else
+                return Unauthorized();
         }
 
 

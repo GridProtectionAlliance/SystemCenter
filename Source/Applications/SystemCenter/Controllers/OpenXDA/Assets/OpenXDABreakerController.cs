@@ -35,41 +35,46 @@ using SystemCenter.Controllers;
 [RoutePrefix("api/OpenXDA/Breaker")]
 public class OpenXDABreakerController : ModelController<Breaker>
 {
-    protected override string PostRoles { get; } = "Administrator, Transmission SME";
-    protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-    protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-    protected override string DefaultSort { get; } = "AssetKey";
-
-    public OpenXDABreakerController() : base(false, "", true, "AssetKey") { }
-
-    protected override string Connection { get; } = "dbOpenXDA";
-
+  
     [HttpGet, Route("{breakerID:int}/EDNAPoint")]
     public IHttpActionResult GetEDNAPoinsForBreaker(int breakerID)
     {
-        using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+        if (GetRoles == string.Empty || User.IsInRole(GetRoles))
         {
-            EDNAPoint record = new TableOperations<EDNAPoint>(connection).QueryRecordWhere("BreakerID = {0}", breakerID);
-            return Ok(record);
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                EDNAPoint record = new TableOperations<EDNAPoint>(connection).QueryRecordWhere("BreakerID = {0}", breakerID);
+                return Ok(record);
+            }
         }
+        else
+            return Unauthorized();
     }
 
     [HttpGet, Route("{breakerID:int}/SpareBreaker")]
     public IHttpActionResult GetSpareBreakerForBreaker(int breakerID)
     {
-        using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+        if (GetRoles == string.Empty || User.IsInRole(GetRoles))
         {
-            Breaker record = new TableOperations<Breaker>(connection).QueryRecordWhere("ID = (SELECT SpareAssetID FROM AssetSpare WHERE AssetID = {0})", breakerID);
-            return Ok(record);
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                Breaker record = new TableOperations<Breaker>(connection).QueryRecordWhere("ID = (SELECT SpareAssetID FROM AssetSpare WHERE AssetID = {0})", breakerID);
+                return Ok(record);
+            }
         }
+        else
+            return Unauthorized();
     }
 
     [HttpGet, Route("{breakerID:int}/SpareBreakersForSubstation")]
     public IHttpActionResult SpareBreakersForSubstationForBreaker(int breakerID)
     {
-        using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+        if (GetRoles == string.Empty || User.IsInRole(GetRoles))
         {
-            IEnumerable<Breaker> record = new TableOperations<Breaker>(connection).QueryRecordsWhere(@"
+
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                IEnumerable<Breaker> record = new TableOperations<Breaker>(connection).QueryRecordsWhere(@"
                     Spare=1 AND ID IN 
                     (SELECT AssetID FROM AssetLocation WHERE LocationID = 
                         (
@@ -83,65 +88,84 @@ public class OpenXDABreakerController : ModelController<Breaker>
                         )
                     )
                 ", breakerID);
-            return Ok(record);
+                return Ok(record);
+            }
         }
+        else
+        return Unauthorized();
     }
 
     [HttpGet, Route("SpareBreakers/Substation/{locationID:int}")]
     public IHttpActionResult SpareBreakersForSubstation(int locationID)
     {
-        using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+        if (GetRoles == string.Empty || User.IsInRole(GetRoles))
         {
-            IEnumerable<Breaker> record = new TableOperations<Breaker>(connection).QueryRecordsWhere(@"
+            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            {
+                IEnumerable<Breaker> record = new TableOperations<Breaker>(connection).QueryRecordsWhere(@"
                     Spare=1 AND ID IN 
                     (SELECT AssetID FROM AssetLocation WHERE LocationID = {0})
                 ", locationID);
-            return Ok(record);
+                return Ok(record);
+            }
         }
+        else
+            return Unauthorized();
     }
 
     [HttpGet, Route("{breakerID:int}/Location")]
     public IHttpActionResult GetLocationForAsset(int breakerID)
     {
-        using (AdoDataConnection connection = new AdoDataConnection(Connection))
+        if (GetRoles == string.Empty || User.IsInRole(GetRoles))
         {
-            try
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                Location record = new TableOperations<Location>(connection).QueryRecordWhere("ID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", breakerID);
-                return Ok(record);
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
+                try
+                {
+                    Location record = new TableOperations<Location>(connection).QueryRecordWhere("ID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", breakerID);
+                    return Ok(record);
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
             }
         }
+        else
+            return Unauthorized();
     }
 
     public override IHttpActionResult Post([FromBody] JObject record)
     {
-        Breaker breakerRecord = base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<Breaker>().Result;
-        using (AdoDataConnection connection = new AdoDataConnection("systemSettings")) {
-            if (record["EDNAPoint"] != null)
+        if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+        {
+            Breaker breakerRecord = base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<Breaker>().Result;
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
-                EDNAPoint eDNAPoint = new EDNAPoint()
+                if (record["EDNAPoint"] != null)
                 {
-                    BreakerID = breakerRecord.ID,
-                    Point = record["EDNAPoint"].ToString()
-                };
-                new TableOperations<EDNAPoint>(connection).AddNewRecord(eDNAPoint);
+                    EDNAPoint eDNAPoint = new EDNAPoint()
+                    {
+                        BreakerID = breakerRecord.ID,
+                        Point = record["EDNAPoint"].ToString()
+                    };
+                    new TableOperations<EDNAPoint>(connection).AddNewRecord(eDNAPoint);
+                }
+
+                if (record["SpareBreakerID"] != null)
+                {
+                    AssetSpare assetSpare = new AssetSpare()
+                    {
+                        AssetID = breakerRecord.ID,
+                        SpareAssetID = record["SpareBreakerID"].ToObject<int>()
+                    };
+                    new TableOperations<AssetSpare>(connection).AddNewRecord(assetSpare);
+                }
             }
 
-            if (record["SpareBreakerID"] != null)
-            {
-                AssetSpare assetSpare = new AssetSpare()
-                {
-                    AssetID = breakerRecord.ID,
-                    SpareAssetID = record["SpareBreakerID"].ToObject<int>()
-                };
-                new TableOperations<AssetSpare>(connection).AddNewRecord(assetSpare);
-            }
+            return Ok(breakerRecord);
         }
-
-        return Ok(breakerRecord);
+        else
+            return Unauthorized();
     }
 }

@@ -42,77 +42,90 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/Asset")]
     public class OpenXDAAssetController : ModelController<Asset>
     {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "AssetKey";
-        protected override bool AllowSearch => true;
-        public OpenXDAAssetController() : base(false, "", true, "AssetKey") { }
-
-        protected override string Connection { get; } = "dbOpenXDA";
+        private class ExtDB
+        {
+            public string name;
+            public DateTime lastupdate;
+        }
 
         [HttpGet, Route("{assetID:int}/Locations")]
         public IHttpActionResult GetAssetLocations(int assetID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
                 {
-                    IEnumerable<Location> records = new TableOperations<Location>(connection).QueryRecordsWhere("ID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", assetID);
+                    try
+                    {
+                        IEnumerable<Location> records = new TableOperations<Location>(connection).QueryRecordsWhere("ID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", assetID);
 
-                    return Ok(records);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                        return Ok(records);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            else
+                return Unauthorized();
         }
 
         [HttpGet, Route("{assetID:int}/AssetNear")]
         public IHttpActionResult GetAssetsNearAnAsset(int assetID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
                 {
-                    IEnumerable<Asset> records = new TableOperations<Asset>(connection).QueryRecordsWhere("ID IN (SELECT oal.AssetID FROM AssetLocation as oal WHERE oal.LocationID IN (SELECT ial.LocationID FROM AssetLocation as ial WHERE ial.AssetID = {0})) AND ID NOT IN (SELECT CASE WHEN ParentID = {0} THEN ChildID ELSE ParentID END as ID FROM AssetConnection WHERE ParentID = {0} OR ChildID = {0})", assetID).OrderBy(x => x.AssetKey);
+                    try
+                    {
+                        IEnumerable<Asset> records = new TableOperations<Asset>(connection).QueryRecordsWhere("ID IN (SELECT oal.AssetID FROM AssetLocation as oal WHERE oal.LocationID IN (SELECT ial.LocationID FROM AssetLocation as ial WHERE ial.AssetID = {0})) AND ID NOT IN (SELECT CASE WHEN ParentID = {0} THEN ChildID ELSE ParentID END as ID FROM AssetConnection WHERE ParentID = {0} OR ChildID = {0})", assetID).OrderBy(x => x.AssetKey);
 
-                    return Ok(records);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                        return Ok(records);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            else
+                return Unauthorized();
         }
 
         [HttpGet, Route("{assetID:int}/Meters")]
         public IHttpActionResult GetAssetMeters(int assetID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
                 {
-                    IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("ID IN (SELECT MeterID FROM MeterAsset WHERE AssetID = {0})", assetID);
+                    try
+                    {
+                        IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("ID IN (SELECT MeterID FROM MeterAsset WHERE AssetID = {0})", assetID);
 
-                    return Ok(records);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                        return Ok(records);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            return Unauthorized();
         }
 
         [HttpGet, Route("{assetID:int}/AssetConnections")]
         public IHttpActionResult GetAssetAssetConnections(int assetID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
                 {
-                    DataTable records = connection.RetrieveData(@"
+                    try
+                    {
+                        DataTable records = connection.RetrieveData(@"
                         SELECT
 	                        AssetRelationship.AssetRelationshipTypeID,
 	                        AssetRelationshipType.Name,
@@ -131,33 +144,37 @@ namespace SystemCenter.Controllers.OpenXDA
 	                        ParentID = {0} OR ChildID = {0}
                     ", assetID);
 
-                    return Ok(records);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                        return Ok(records);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            return Unauthorized();
         }
-
-
 
         [HttpGet, Route("{assetID:int}/OtherLocations")]
         public IHttpActionResult GetOtherLocations(int assetID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
                 {
-                    IEnumerable<Location> records = new TableOperations<Location>(connection).QueryRecordsWhere("ID NOT IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", assetID);
+                    try
+                    {
+                        IEnumerable<Location> records = new TableOperations<Location>(connection).QueryRecordsWhere("ID NOT IN (SELECT LocationID FROM AssetLocation WHERE AssetID = {0})", assetID);
 
-                    return Ok(records);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                        return Ok(records);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            return Unauthorized();
         }
         
         [HttpPost, Route("SearchableListIncludingMeter")]
@@ -899,8 +916,7 @@ namespace SystemCenter.Controllers.OpenXDA
             transformer.Tap = record["Tap"].ToObject<double>();
         }
 
-        //Need to Override the external DB Function to return the list for all Assets
-        public override IHttpActionResult GetExtendedDataBases()
+        public IHttpActionResult GetExtendedDataBases()
         {
 
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))

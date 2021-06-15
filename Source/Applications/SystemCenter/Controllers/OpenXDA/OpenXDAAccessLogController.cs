@@ -36,18 +36,19 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/AccessLog")]
     public class OpenXDAAccessLogController : ModelController<AccessLog>
     {
-        protected override string Connection { get; } = "dbOpenXDA";
-
+       
         [HttpGet, Route("Aggregates/{days:int}")]
         public IHttpActionResult GetAggregates(int days)
         {
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                if (GetRoles == string.Empty || User.IsInRole(GetRoles))
                 {
-                    DataTable table = connection.RetrieveData(@"
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        DataTable table = connection.RetrieveData(@"
                         DECLARE @startDate Date = CAST( GETDATE() as DATE)
-                        DECLARE @endDate DATE = DATEADD(DAY, -" +days + @", @startDate)
+                        DECLARE @endDate DATE = DATEADD(DAY, -" + days + @", @startDate)
 
                         DECLARE @columns nvarchar(max) = N''
 
@@ -81,10 +82,13 @@ namespace SystemCenter.Controllers.OpenXDA
 
                     ", "");
 
-                    var firstRow = table.Select().FirstOrDefault();
-                    var dates = table.Columns.Cast<DataColumn>().Select(x => new { Date = x.ColumnName, Count = (firstRow == null ? 0 : firstRow[x.ColumnName]) });
-                    return Ok(dates);
+                        var firstRow = table.Select().FirstOrDefault();
+                        var dates = table.Columns.Cast<DataColumn>().Select(x => new { Date = x.ColumnName, Count = (firstRow == null ? 0 : firstRow[x.ColumnName]) });
+                        return Ok(dates);
+                    }
                 }
+                else
+                    return Unauthorized();
 
             }
             catch (Exception ex)
@@ -98,9 +102,11 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                if (GetRoles == string.Empty || User.IsInRole(GetRoles))
                 {
-                    DataTable table = connection.RetrieveData(@"
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        DataTable table = connection.RetrieveData(@"
                         DECLARE @startDate Date = CAST( GETDATE() as DATE)
                         DECLARE @endDate DATE = DATEADD(DAY, -" + days + @", @startDate)
 
@@ -115,8 +121,11 @@ namespace SystemCenter.Controllers.OpenXDA
                         GROUP BY
 	                        UserName
                     ", "");
-                    return Ok(table);
+                        return Ok(table);
+                    }
                 }
+                else
+                    return Unauthorized();
 
             }
             catch (Exception ex)

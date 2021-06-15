@@ -31,11 +31,12 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
-    [UseEscapedName, TableName("AdditionalFieldValue"), ConfigFileTableNamePrefix]
+    [UseEscapedName, TableName("AdditionalFieldValue")]
     public class AdditionalFieldValue
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
+        [ParentKey(typeof(int))]
         public int ParentTableID { get; set; }
         public int AdditionalFieldID { get; set; }
         public string Value { get; set; }
@@ -44,16 +45,13 @@ namespace SystemCenter.Model
     [RoutePrefix("api/SystemCenter/AdditionalFieldValue")]
     public class AdditionalFieldValueController : ModelController<AdditionalFieldValue>
     {
-        public AdditionalFieldValueController() : base(true, "ParentTableID")
-        { 
-        }
 
         [HttpPatch, Route("Array")]
         public IHttpActionResult PatchValues([FromBody] IEnumerable<AdditionalFieldValue> values)
         {
             try
             {
-                if (User.IsInRole(PatchRoles))
+                if (User.IsInRole(PatchRoles) || PatchRoles == String.Empty)
                 {
 
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))

@@ -49,113 +49,90 @@ namespace SystemCenter.Controllers.OpenXDA
 
     [RoutePrefix("api/OpenXDA/AssetType")]
     public class AssetTypeController : ModelController<AssetTypes>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "Name";
-
-    }
+    {}
 
     [RoutePrefix("api/OpenXDA/Phase")]
-    public class PhaseController:ModelController<Phase> {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "Name";
-
-    }
+    public class PhaseController:ModelController<Phase> 
+    { }
 
     [RoutePrefix("api/OpenXDA/MeasurementType")]
-    public class MeasurementTypeController:ModelController<MeasurementType> {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "Name";
-
-    }
+    public class MeasurementTypeController:ModelController<MeasurementType> {}
 
     [RoutePrefix("api/OpenXDA/MeasurementCharacteristic")]
     public class MeasurementCharacteristicController : ModelController<MeasurementCharacteristic>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort { get; } = "Name";
-
-    }
+    {}
 
     [RoutePrefix("api/OpenXDA/Note")]
     public class NoteController : ModelController<Notes>
     {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string PostRoles { get; } = "Administrator, Transmission SME, PQ Data Viewer";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override bool AllowSearch => true;
-
         [HttpGet, Route("ForObject/{noteType}/{referenceTableID:int}")]
         public IHttpActionResult GetNotes(string noteType, int referenceTableID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    IEnumerable<Notes> result = new TableOperations<Notes>(connection).QueryRecordsWhere("NoteTypeID = (SELECT ID FROM NoteType WHERE ReferenceTableName = {0}) AND ReferenceTableID = {1} ", noteType, referenceTableID).OrderByDescending(x => x.Timestamp);
-                    return Ok(result);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                    try
+                    {
+                        IEnumerable<Notes> result = new TableOperations<Notes>(connection).QueryRecordsWhere("NoteTypeID = (SELECT ID FROM NoteType WHERE ReferenceTableName = {0}) AND ReferenceTableID = {1} ", noteType, referenceTableID).OrderByDescending(x => x.Timestamp);
+                        return Ok(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            else
+                return Unauthorized();
         }
 
         [HttpPost, Route("ForObject/{noteType}/{referenceTableID:int}/Search")]
         public IHttpActionResult SearchNotes(string noteType, int referenceTableID, [FromBody] PostData postData)
         {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    int noteTypeID = connection.ExecuteScalar<int>("SELECT ID FROM NoteType WHERE ReferenceTableName = {0}", noteType);
-                    PostData extended = postData;
-                    List<Search> searches = postData.Searches.ToList();
-                    searches.Add(new Search()
+                    try
                     {
-                        FieldName = "NoteTypeID",
-                        SearchText = noteTypeID.ToString(),
-                        Type = "number",
-                        Operator = "="
-                    });
+                        int noteTypeID = connection.ExecuteScalar<int>("SELECT ID FROM NoteType WHERE ReferenceTableName = {0}", noteType);
+                        PostData extended = postData;
+                        List<Search> searches = postData.Searches.ToList();
+                        searches.Add(new Search()
+                        {
+                            FieldName = "NoteTypeID",
+                            SearchText = noteTypeID.ToString(),
+                            Type = "number",
+                            Operator = "="
+                        });
 
-                    searches.Add(new Search()
+                        searches.Add(new Search()
+                        {
+                            FieldName = "ReferenceTableID",
+                            SearchText = referenceTableID.ToString(),
+                            Type = "number",
+                            Operator = "="
+                        });
+                        extended.Searches = searches;
+
+                        return GetSearchableList(extended);
+                    }
+                    catch (Exception ex)
                     {
-                        FieldName = "ReferenceTableID",
-                        SearchText = referenceTableID.ToString(),
-                        Type = "number",
-                        Operator = "="
-                    });
-                    extended.Searches = searches;
-                  
-                    return GetSearchableList(extended);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            else
+                return Unauthorized();
         }
 
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             try
             {
-                if (User.IsInRole(PostRoles))
+                if (User.IsInRole(PostRoles) || PostRoles == String.Empty)
                 {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
@@ -183,28 +160,16 @@ namespace SystemCenter.Controllers.OpenXDA
 
     [RoutePrefix("api/OpenXDA/NoteType")]
     public class NoteTypeController : ModelController<NoteType>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-
-    }
+    {}
 
     [RoutePrefix("api/OpenXDA/ApplicationRole")]
     public class OpenXDAApplicationRoleController : ModelController<ApplicationRole>
-    {
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string GetRoles { get; } = "Administrator";
-    }
+    {}
 
     [RoutePrefix("api/OpenXDA/ApplicationRoleUserAccount")]
     public class OpenXDAApplicationRoleUserAccountController : ModelController<ApplicationRoleUserAccount>
     {
-        public OpenXDAApplicationRoleUserAccountController() : base(true, "UserAccountID")
-        {
-
-        }
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string GetRoles { get; } = "Administrator";
-
+        
         [HttpPatch, Route("UpdateArray")]
         public IHttpActionResult PatchArray([FromBody] IEnumerable<ApplicationRoleUserAccount> records)
         {

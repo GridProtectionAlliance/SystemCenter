@@ -32,7 +32,7 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
-    [UseEscapedName, ConfigFileTableNamePrefix]
+    [UseEscapedName, AllowSearch]
     public class AdditionalField
     {
         [PrimaryKey(true)]
@@ -49,15 +49,13 @@ namespace SystemCenter.Model
 
     [RoutePrefix("api/SystemCenter/AdditionalField")]
     public class AdditionalFieldController : ModelController<AdditionalField> {
-
-        protected override bool AllowSearch => true;
-
+       
         [HttpGet, Route("ParentTable/{openXDAParentTable}/{sort}/{ascending:int}")]
         public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable, string sort, int ascending)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                //Fix added Fro Capacitor Bank due to naming Missmatch
+                //Fix added for Capacitor Bank due to naming Missmatch
                 if (openXDAParentTable == "CapacitorBank")
                     openXDAParentTable = "CapBank";
 

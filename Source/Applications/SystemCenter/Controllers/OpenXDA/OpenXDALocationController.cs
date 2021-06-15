@@ -41,15 +41,7 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/Location")]
     public class OpenXDALocationController : ModelController<Location>
     {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-
-        protected override string Connection { get; } = "dbOpenXDA";
-        protected override string DefaultSort { get; } = "LocationKey";
-
-        protected override bool AllowSearch => true;
-
+       
         [HttpPost, Route("SearchableListIncludingMeter")]
         public IHttpActionResult GetMetersUsingSearchableList([FromBody] PostData searches)
         {
@@ -65,13 +57,13 @@ namespace SystemCenter.Controllers.OpenXDA
 
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    string addtionalFieldTableName = new TableOperations<AdditionalField>(connection).TableName;
-                    string addtionalFieldValueTableName = new TableOperations<AdditionalFieldValue>(connection).TableName;
+                    string addtionalFieldTableName = TableOperations<AdditionalField>.GetTableName();
+                    string addtionalFieldValueTableName = TableOperations<AdditionalFieldValue>.GetTableName();
 
-                    string meterTableName = new TableOperations<Meter>(connection).TableName;
-                    string locationTableName = new TableOperations<Location>(connection).TableName;
-                    string assetTableName = new TableOperations<Asset>(connection).TableName;
-                    string assetLocationTableName = new TableOperations<AssetLocation>(connection).TableName;
+                    string meterTableName = TableOperations<Meter>.GetTableName();
+                    string locationTableName = TableOperations<Location>.GetTableName();
+                    string assetTableName = TableOperations<Asset>.GetTableName();
+                    string assetLocationTableName = TableOperations<AssetLocation>.GetTableName();
 
                     string view = $@"
                     SELECT
@@ -145,33 +137,40 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("{locationID:int}/Meters")]
         public IHttpActionResult GetMetersForLocation(int locationID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            if (GetRoles != string.Empty && !User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    IEnumerable<Meter> result = new TableOperations<Meter>(connection).QueryRecordsWhere("LocationID = {0}", locationID);
-                    return Ok(result);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                    try
+                    {
+                        IEnumerable<Meter> result = new TableOperations<Meter>(connection).QueryRecordsWhere("LocationID = {0}", locationID);
+                        return Ok(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            else
+                return Unauthorized();
+
         }
 
         [HttpGet, Route("{locationID:int}/Assets")]
         public IHttpActionResult GetAssetsForLocation(int locationID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
-            {
-
-                string assetTableName = new TableOperations<Asset>(connection).TableName;
-                string assetTypeTableName = new TableOperations<AssetTypes>(connection).TableName;
-                string assetLocationTableName = new TableOperations<AssetLocation>(connection).TableName;
-
-                try
+            if (GetRoles != string.Empty && !User.IsInRole(GetRoles))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    DataTable result = connection.RetrieveData($@"
+
+                    string assetTableName = TableOperations<Asset>.GetTableName();
+                    string assetTypeTableName = TableOperations<AssetTypes>.GetTableName();
+                    string assetLocationTableName = TableOperations<AssetLocation>.GetTableName();
+
+                    try
+                    {
+                        DataTable result = connection.RetrieveData($@"
                     SELECT 
 	                    a.*,
 	                    at.Name as AssetType
@@ -181,15 +180,17 @@ namespace SystemCenter.Controllers.OpenXDA
 	                    {assetLocationTableName} as al ON a.ID = al.AssetID
                     WHERE
                         al.LocationID = {{0}}", locationID);
-                    return Ok(result);
+                        return Ok(result);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
-                }
+            else
+                return Unauthorized();
             }
-        }
-
+        
     }
 
 }

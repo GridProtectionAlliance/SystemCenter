@@ -31,7 +31,10 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
-    [UseEscapedName, TableName("SystemCenter.extDBTables")]
+    [TableName("extDBTables")]
+    [PostRoles("Administrator, Transmission SME")]
+    [PatchRoles("Administrator, Transmission SME")]
+    [GetRoles("Administrator, Transmission SME")]
     public class extDBTables
     {
         [PrimaryKey(true)]
@@ -43,11 +46,5 @@ namespace SystemCenter.Model
 
     [RoutePrefix("api/SystemCenter/ExternalDBTables")]
     public class ExtDBTablesController : ModelController<extDBTables>
-    {
-
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-
-    }
+    {}
 }

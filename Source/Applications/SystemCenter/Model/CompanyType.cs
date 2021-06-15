@@ -33,21 +33,21 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
+    [PatchRoles("Administrator, Transmission SME")]
+    [PostRoles("Administrator, Transmission SME")]
+    [DeleteRoles("Administrator, Transmission SME")]
     public class CompanyType
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
+        [DefaultSortOrder]
         public string Name { get; set; }
         public string Description { get; set; }
     }
 
 
     [RoutePrefix("api/SystemCenter/CompanyType")]
-    public class CompanyTypeController : ModelController<CompanyType> {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string DefaultSort => "Name";
-        protected override string Connection => "dbOpenXDA";
-    }
+    public class CompanyTypeController : ModelController<CompanyType>
+    { }
+    
 }

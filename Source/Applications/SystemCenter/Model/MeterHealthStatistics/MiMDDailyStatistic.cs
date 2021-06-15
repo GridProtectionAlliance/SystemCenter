@@ -33,7 +33,10 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model.MeterHealthStatistics
 {
-    [UseEscapedName, ConfigFileTableNamePrefix ,TableName("MiMDDailyStatistic")]
+    [UseEscapedName,TableName("MiMDDailyStatistic")]
+    [PostRoles("Administrator")]
+    [DeleteRoles("Administrator")]
+    [PatchRoles("Administrator")]
     public class MiMDDailyStatistic
     {
         [PrimaryKey(true)]
@@ -59,11 +62,6 @@ namespace SystemCenter.Model.MeterHealthStatistics
     [RoutePrefix("api/SystemCenter/Statistics/MiMD")]
     public class MiMDDailyStatisticController : ModelController<MiMDDailyStatistic>
     {
-        protected override string PostRoles { get; } = "Administrator";
-        protected override string PatchRoles { get; } = "Administrator";
-        protected override string DeleteRoles { get; } = "Administrator";
-        protected override bool AllowSearch => true;
-        protected override string DefaultSort => "ID";
 
         [HttpGet, Route("Last/{meter}")]
         public IHttpActionResult GetLast(string meter)

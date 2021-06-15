@@ -53,34 +53,29 @@ namespace SystemCenter.Controllers.OpenXDA
             public List<int> AssetList { get; set; }
             public List<int> UserList { get; set; }
             public List<int> AssetGroupList { get; set; }
-
         }
 
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override bool AllowSearch => true;
-        public OpenXDAAssetGroupController() : base(false, "", true, "Name") { }
-
-
-        protected override string Connection { get; } = "dbOpenXDA";
-     
         [HttpGet, Route("{assetGroupID:int}/Assets")]
         public IHttpActionResult GetAssets(int assetGroupID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
                 {
-                    IEnumerable<AssetAssetGroupView> records = new TableOperations<AssetAssetGroupView>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
+                    try
+                    {
+                        IEnumerable<AssetAssetGroupView> records = new TableOperations<AssetAssetGroupView>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
 
-                    return Ok(records);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                        return Ok(records);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            else
+                return Unauthorized();
         }
 
         [HttpPost, Route("{assetGroupID:int}/AddAssets")]
@@ -117,19 +112,24 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("{assetGroupID:int}/Meters")]
         public IHttpActionResult GetMeters(int assetGroupID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
                 {
-                    IEnumerable<MeterAssetGroupView> records = new TableOperations<MeterAssetGroupView>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
+                    try
+                    {
+                        IEnumerable<MeterAssetGroupView> records = new TableOperations<MeterAssetGroupView>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
 
-                    return Ok(records);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                        return Ok(records);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            else
+                return Unauthorized();
         }
 
         [HttpPost, Route("{assetGroupID:int}/AddMeters")]
@@ -165,37 +165,47 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("{assetGroupID:int}/Users")]
         public IHttpActionResult GetUserAccounts(int assetGroupID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
                 {
-                    IEnumerable<UserAccountAssetGroupView> records = new TableOperations<UserAccountAssetGroupView>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
+                    try
+                    {
+                        IEnumerable<UserAccountAssetGroupView> records = new TableOperations<UserAccountAssetGroupView>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
 
-                    return Ok(records);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                        return Ok(records);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            else
+                return Unauthorized();
         }
 
         [HttpGet, Route("{assetGroupID:int}/AssetGroups")]
         public IHttpActionResult GetSubGroups(int assetGroupID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                try
+                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
                 {
-                    IEnumerable<AssetGroupView> records = new TableOperations<AssetGroupView>(connection).QueryRecordsWhere("ID in (SELECT ChildAssetGroupID FROM AssetGroupAssetGroupView WHERE ParentAssetGroupID = {0})", assetGroupID);
+                    try
+                    {
+                        IEnumerable<AssetGroupView> records = new TableOperations<AssetGroupView>(connection).QueryRecordsWhere("ID in (SELECT ChildAssetGroupID FROM AssetGroupAssetGroupView WHERE ParentAssetGroupID = {0})", assetGroupID);
 
-                    return Ok(records);
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
+                        return Ok(records);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
                 }
             }
+            else
+                return Unauthorized();
         }
 
         [HttpPost, Route("{assetGroupID:int}/AddAssetGroups")]
@@ -228,30 +238,7 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-       /*[HttpPost, Route("SearchableList")]
-        public IHttpActionResult GetAssetsUsingSearchableList([FromBody] IEnumerable<Search> searches)
-        {
-            string whereClause = BuildWhereClause(searches);
-
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
-            {
-                DataTable table = connection.RetrieveData(@"
-                    SELECT
-	                DISTINCT
-                        AssetGroupView.ID,
-	                    AssetGroupView.Name,
-	                    AssetGroupView.DisplayDashboard,
-	                    AssetGroupView.AssetGroups,
-	                    AssetGroupView.Meters,
-	                    AssetGroupView.Assets,
-                        AssetGroupView.Users
-                    FROM
-	                    AssetGroupView
-                   " + whereClause);
-                return Ok(table);
-            }
-        }
-       */
+       
         [HttpDelete, Route("Delete")]
         public override IHttpActionResult Delete(AssetGroupView record)
         {

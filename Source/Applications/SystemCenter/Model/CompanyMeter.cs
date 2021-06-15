@@ -35,10 +35,14 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
+    [PatchRoles("Administrator, Transmission SME")]
+    [PostRoles("Administrator, Transmission SME")]
+    [DeleteRoles("Administrator, Transmission SME")]
     public class CompanyMeter
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
+        [ParentKey(typeof(Company))]
         public int CompanyID { get; set; }
         public int MeterID { get; set; }
         public string DisplayName { get; set; }
@@ -47,26 +51,23 @@ namespace SystemCenter.Model
 
     [RoutePrefix("api/SystemCenter/CompanyMeter")]
     public class CompanyMeterController : ModelController<CompanyMeter> {
-        protected override string PostRoles { get; } = "Administrator, Transmission SME";
-        protected override string PatchRoles { get; } = "Administrator, Transmission SME";
-        protected override string DeleteRoles { get; } = "Administrator, Transmission SME";
-        protected override string Connection => "dbOpenXDA";
-        public CompanyMeterController() : base(true, "CompanyID")
-        {
-
-        }
-
+   
         [HttpPost, Route("AddMultiple")]
         public IHttpActionResult AddMultipleCompanyMeter(IEnumerable<CompanyMeter> companyMeters) {
             try
             {
-                using(AdoDataConnection connection = new AdoDataConnection(Connection))
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
                 {
-                    foreach (CompanyMeter companyMeter in companyMeters)
-                        new TableOperations<CompanyMeter>(connection).AddNewRecord(companyMeter);
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        foreach (CompanyMeter companyMeter in companyMeters)
+                            new TableOperations<CompanyMeter>(connection).AddNewRecord(companyMeter);
 
-                    return Ok("Added all records without error.");
+                        return Ok("Added all records without error.");
+                    }
                 }
+                else
+                    return Unauthorized();
             }
             catch (Exception ex) {
                 return InternalServerError(ex);
