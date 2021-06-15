@@ -31,7 +31,7 @@ using GSF.Data.Model;
 using Newtonsoft.Json.Linq;
 using Oracle.ManagedDataAccess.Client;
 using openXDA.Model;
-using SystemCenter.Model.PQView;
+using PQView.Model;
 
 namespace SystemCenter.Controllers
 {
