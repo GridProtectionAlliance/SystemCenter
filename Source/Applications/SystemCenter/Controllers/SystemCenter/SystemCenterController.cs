@@ -56,29 +56,29 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/ValueListGroup")]
     public class ValueListGroupController : ModelController<ValueListGroup> { }
 
+    [TableName("Customer"), AllowSearch, CustomView(@"
+            SELECT
+                DISTINCT
+                    Customer.ID,
+                 Customer.CustomerKey,
+                 Customer.Name,
+                 Customer.Phone,
+                 Customer.Description,
+                 COUNT([systemCenter.CustomerAccess].ID) as Meters
+                FROM
+                 Customer LEFT JOIN
+                 [systemCenter.CustomerAccess] ON Customer.ID = [systemCenter.CustomerAccess].CustomerID LEFT JOIN
+                 PQViewSite ON [systemCenter.CustomerAccess].PQViewSiteID = PQViewSite.ID 
+               GROUP BY
+                    Customer.ID,
+                 Customer.CustomerKey,
+                 Customer.Name,
+                 Customer.Phone,
+                 Customer.Description"
+    )]
+    public class SCCustomer : Customer { }
     [RoutePrefix("api/SystemCenter/Customer")]
-    public class CustomerController : ModelController<Customer>
-    {
-
-        //protected override string CustomView => @"SELECT
-        //            DISTINCT
-        //            Customer.ID,
-	       //         Customer.CustomerKey,
-	       //         Customer.Name,
-	       //         Customer.Phone,
-	       //         Customer.Description,
-	       //         COUNT([systemCenter.CustomerAccess].ID) as Meters
-        //        FROM
-	       //         Customer LEFT JOIN
-	       //         [systemCenter.CustomerAccess] ON Customer.ID = [systemCenter.CustomerAccess].CustomerID LEFT JOIN
-	       //         PQViewSite ON [systemCenter.CustomerAccess].PQViewSiteID = PQViewSite.ID 
-        //       GROUP BY
-        //            Customer.ID,
-	       //         Customer.CustomerKey,
-	       //         Customer.Name,
-	       //         Customer.Phone,
-	       //         Customer.Description";
-    }
+    public class CustomerController : ModelController<SCCustomer> {}
 
     [RoutePrefix("api/SystemCenter/CustomerAccess")]
     public class CustomerAccessController : ModelController<CustomerAccess>

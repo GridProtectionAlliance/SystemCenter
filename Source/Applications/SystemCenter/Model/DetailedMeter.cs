@@ -55,7 +55,7 @@ namespace OpenXDA.Model
         Meter.Make,
         Meter.Model,
         Location.Name
-    ")]
+    "), AllowSearch]
 
     public class DetailedMeter
     {

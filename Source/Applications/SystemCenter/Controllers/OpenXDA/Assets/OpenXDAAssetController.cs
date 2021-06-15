@@ -39,8 +39,11 @@ using SystemCenter.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
+    [TableName("Asset"), AllowSearch]
+    public class DBAsset : Asset { }
+
     [RoutePrefix("api/OpenXDA/Asset")]
-    public class OpenXDAAssetController : ModelController<Asset>
+    public class OpenXDAAssetController : ModelController<DBAsset>
     {
         [HttpGet, Route("{assetID:int}/Locations")]
         public IHttpActionResult GetAssetLocations(int assetID)

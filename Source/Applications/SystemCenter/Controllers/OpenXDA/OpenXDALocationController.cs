@@ -24,8 +24,15 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Transactions;
+using System.Web;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
@@ -35,12 +42,14 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using SystemCenter.Model;
+using Setting = SystemCenter.Model.Setting;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
-
+    [TableName("Location"), AllowSearch]
+    public class XDALocation: Location { }
     [RoutePrefix("api/OpenXDA/Location")]
-    public class OpenXDALocationController : ModelController<Location>
+    public class OpenXDALocationController : ModelController<XDALocation>
     {
         [HttpPost, Route("SearchableListIncludingMeter")]
         public IHttpActionResult GetMetersUsingSearchableList([FromBody] PostData searches)
@@ -179,6 +188,59 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     return InternalServerError(ex);
                 }
+            }
+        }
+
+        [HttpGet, Route("{locationID:int}/Images")]
+        public IHttpActionResult GetImagesForLocation(int locationID)
+        {
+            try
+            {
+
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    string key = new TableOperations<Location>(connection).QueryRecordWhere("ID = {0}", locationID).LocationKey;
+                    string path = new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'ImageDirectory.Path'")?.Value;
+                    if (path == null) return BadRequest("ImageDirectory.Path not set in settings table.");
+
+                    if (Directory.Exists(Path.Combine(path, key)))
+                        return Ok(Directory.GetFiles(Path.Combine(path, key)).Select(fp => new FileInfo(fp).Name));
+                    else
+                        return Ok(new string[] { });
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
+
+        [HttpGet, Route("{locationID:int}/Images/{file}")]
+        public HttpResponseMessage GetImageForLocation(int locationID, string file)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                string key = new TableOperations<Location>(connection).QueryRecordWhere("ID = {0}", locationID).LocationKey;
+                string path = new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'ImageDirectory.Path'")?.Value;
+                if (path == null) throw new Exception("ImageDirectory.Path not set in Settings table");
+
+                using (FileStream fileStream = new FileStream(Path.Combine(path, key, file), FileMode.Open))
+                {
+                    using (var memoryStream = new MemoryStream())
+                    {
+                        fileStream.CopyTo(memoryStream);
+                        Bitmap image = new Bitmap(1, 1);
+                        image.Save(memoryStream, ImageFormat.Jpeg);
+                        HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+                        result.Content = new ByteArrayContent(memoryStream.ToArray());
+                        result.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+                        return result;
+
+                    }
+                }
+
             }
         }
 

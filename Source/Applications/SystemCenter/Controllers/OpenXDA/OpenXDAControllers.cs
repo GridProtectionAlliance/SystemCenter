@@ -65,8 +65,10 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/AssetConnectionType")]
     public class AssetConnectionTypeController : ModelController<AssetConnectionType> { }
 
+    [TableName("Note"), AllowSearch]
+    public class DBNote : Notes { }
     [RoutePrefix("api/OpenXDA/Note")]
-    public class NoteController : ModelController<Notes>
+    public class NoteController : ModelController<DBNote>
     {
 
         [HttpGet, Route("ForObject/{noteType}/{referenceTableID:int}")]
@@ -238,7 +240,7 @@ namespace SystemCenter.Controllers.OpenXDA
         Company.Name,
         Company.Description,
         CompanyType.Name
-    ")]
+    "), AllowSearch]
     public class SCCompany : Company { }
     [RoutePrefix("api/OpenXDA/Company")]
     public class CompanyController : ModelController<SCCompany> {}

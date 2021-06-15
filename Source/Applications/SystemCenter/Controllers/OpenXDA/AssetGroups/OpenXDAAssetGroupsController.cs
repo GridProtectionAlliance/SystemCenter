@@ -44,8 +44,11 @@ using openXDA.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
+    [TableName("AssetGroupView"), AllowSearch]
+    public class DBAssetGroupView : AssetGroupView { }
+
     [RoutePrefix("api/OpenXDA/AssetGroup")]
-    public class OpenXDAAssetGroupController : ModelController<AssetGroupView>
+    public class OpenXDAAssetGroupController : ModelController<DBAssetGroupView>
     {
         private class extendedAssetGroupView: AssetGroupView
         {
@@ -244,7 +247,7 @@ namespace SystemCenter.Controllers.OpenXDA
         }
        */
         [HttpDelete, Route("Delete")]
-        public override IHttpActionResult Delete(AssetGroupView record)
+        public override IHttpActionResult Delete(DBAssetGroupView record)
         {
             try
             {
