@@ -31,32 +31,6 @@ using SystemCenter.Controllers;
 
 namespace OpenXDA.Model
 {
-<<<<<<< HEAD
-    [TableName("Meter")]
-    [CustomView(@"  SELECT
-	                    DISTINCT
-                        Meter.ID,
-                        Meter.AssetKey,
-                        Meter.Name,
-                        Meter.Make,
-                        Meter.Model,
-                        Location.Name as Location,
-                        COUNT(DISTINCT MeterAsset.AssetID)  as MappedAssets
-                    FROM 
-                        Meter LEFT JOIN
-                        Location ON Meter.LocationID = Location.ID LEFT JOIN
-                        MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN 
-                        Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
-	                    Note ON Note.NoteTypeID = (SELECT ID FROM NoteType WHERE Name = 'Meter') AND Note.ReferenceTableID = Meter.ID
-                    GROUP BY
-                        Meter.ID,
-	                    Meter.AssetKey,
-                        Meter.Name,
-                        Meter.Make,
-                        Meter.Model,
-                        Location.Name")]
-    [AllowSearch]
-=======
     [TableName("Meter"), 
      CustomView(@"
     SELECT
@@ -83,16 +57,12 @@ namespace OpenXDA.Model
         Location.Name
     "), AllowSearch]
 
->>>>>>> 765b1b25640f1c68de1de81630320eb9ecde23bf
     public class DetailedMeter
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
-<<<<<<< HEAD
 
         [DefaultSortOrder]
-=======
->>>>>>> 765b1b25640f1c68de1de81630320eb9ecde23bf
         public string AssetKey { get; set; }
         public string Name { get; set; }
         public string Location { get; set; }
@@ -100,15 +70,7 @@ namespace OpenXDA.Model
         public string Make { get; set; }
         public string Model { get; set; } 
     }
-<<<<<<< HEAD
-=======
-
     [RoutePrefix("api/OpenXDA/MeterList")]
     public class OpenXDADetailedMeterController : ModelController<DetailedMeter> {}
->>>>>>> 765b1b25640f1c68de1de81630320eb9ecde23bf
-
-    [RoutePrefix("api/OpenXDA/MeterList")]
-    public class OpenXDADetailedMeterController : ModelController<DetailedMeter>
-    {}
 
 }
