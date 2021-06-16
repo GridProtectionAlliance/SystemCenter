@@ -65,7 +65,7 @@ namespace SystemCenter.Controllers.OpenXDA
     }
 
 
-    public class NoteController : ModelController<Note>
+    public class NoteController : ModelController<Notes>
 { 
        
 
