@@ -65,8 +65,9 @@ namespace SystemCenter.Controllers.OpenXDA
     }
 
 
+    [RoutePrefix("api/OpenXDA/Note")]
     public class NoteController : ModelController<Notes>
-{ 
+    { 
        
 
         [HttpGet, Route("ForObject/{noteType}/{referenceTableID:int}")]
@@ -221,6 +222,8 @@ namespace SystemCenter.Controllers.OpenXDA
         }
 
     }
+
+    [RoutePrefix("api/OpenXDA/CompanyType")]
     public class CompanyTypeController : ModelController<CompanyType> { }
 
    
