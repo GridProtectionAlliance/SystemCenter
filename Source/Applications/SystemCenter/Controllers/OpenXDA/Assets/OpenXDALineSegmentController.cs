@@ -45,7 +45,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (PatchRoles == string.Empty || User.IsInRole(PatchRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     AssetConnection assetConnection = new AssetConnection()
                     {
@@ -72,7 +72,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     using (TransactionScope scope = new TransactionScope())
                     {
-                        using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                        using (AdoDataConnection connection = new AdoDataConnection(Connection))
                         {
                             JToken asset = record["Asset"];
                             int assetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'LineSegment'");
@@ -123,7 +123,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (DeleteRoles == string.Empty || User.IsInRole(DeleteRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     int typeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationShipType WHERE Name = 'Line-LineSegment'");
                     connection.ExecuteNonQuery("DELETE FROM AssetRelationship WHERE AssetRelationshipTypeID = {0} AND ((ChildID = {1} AND ParentID = {2}) OR (ChildID = {2} AND ParentID = {1}))", typeID, lineID, segmentID);

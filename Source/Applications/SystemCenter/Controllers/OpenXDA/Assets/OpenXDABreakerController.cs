@@ -40,7 +40,7 @@ public class OpenXDABreakerController : ModelController<Breaker>
     {
         if (GetRoles == string.Empty || User.IsInRole(GetRoles))
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 EDNAPoint record = new TableOperations<EDNAPoint>(connection).QueryRecordWhere("BreakerID = {0}", breakerID);
                 return Ok(record);
@@ -55,7 +55,7 @@ public class OpenXDABreakerController : ModelController<Breaker>
     {
         if (GetRoles == string.Empty || User.IsInRole(GetRoles))
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 Breaker record = new TableOperations<Breaker>(connection).QueryRecordWhere("ID = (SELECT SpareAssetID FROM AssetSpare WHERE AssetID = {0})", breakerID);
                 return Ok(record);
@@ -71,7 +71,7 @@ public class OpenXDABreakerController : ModelController<Breaker>
         if (GetRoles == string.Empty || User.IsInRole(GetRoles))
         {
 
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 IEnumerable<Breaker> record = new TableOperations<Breaker>(connection).QueryRecordsWhere(@"
                     Spare=1 AND ID IN 
@@ -99,7 +99,7 @@ public class OpenXDABreakerController : ModelController<Breaker>
     {
         if (GetRoles == string.Empty || User.IsInRole(GetRoles))
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 IEnumerable<Breaker> record = new TableOperations<Breaker>(connection).QueryRecordsWhere(@"
                     Spare=1 AND ID IN 

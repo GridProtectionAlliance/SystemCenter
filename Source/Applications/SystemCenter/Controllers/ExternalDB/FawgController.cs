@@ -88,7 +88,7 @@ namespace SystemCenter.Controllers
         public IHttpActionResult GetLineSegmentsForLine(int lineID)
         {
             Line line;
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 line = (new TableOperations<Line>(connection)).QueryRecordWhere("ID = {0}", lineID);
             }
@@ -187,7 +187,7 @@ namespace SystemCenter.Controllers
 
                 using (TransactionScope scope = new TransactionScope())
                 {
-                    using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         Line line = (new TableOperations<Line>(connection)).QueryRecordWhere("ID = {0}", lineID);
 
@@ -266,7 +266,7 @@ namespace SystemCenter.Controllers
         private int ExistingSegment(FawgLineSegment Segment, int LineID)
         {
 
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 return connection.ExecuteScalar<int?>($@"
                     SELECT ID
                     FROM LineSegment
@@ -295,7 +295,7 @@ namespace SystemCenter.Controllers
         private bool SegmentChanged(FawgLineSegment Segment, int SegmentID)
         {
             LineSegment original;
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 original = new TableOperations<LineSegment>(connection).QueryRecordWhere("ID = {0}", SegmentID);
             if (original == null)
                 return true;
@@ -330,7 +330,7 @@ namespace SystemCenter.Controllers
         protected override string getDataQuery(Transformer xfr, string tablename)
         {
 
-            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 Model.AdditionalField uidFieldhigh = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'FAWG High Side Bus'");
                 if (uidFieldhigh == null)

@@ -47,7 +47,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
                     {
@@ -70,7 +70,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
                     {
@@ -93,7 +93,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
                     {
@@ -115,7 +115,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
                     {
@@ -154,7 +154,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
                     {
@@ -296,7 +296,7 @@ namespace SystemCenter.Controllers.OpenXDA
             try
             {
                 using (TransactionScope scope = new TransactionScope()) {
-                    using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         JToken asset = record["Asset"];
                         string assetType = asset["AssetType"].ToString();
@@ -432,7 +432,7 @@ namespace SystemCenter.Controllers.OpenXDA
             {
                 using (TransactionScope scope = new TransactionScope())
                 {
-                    using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         JToken asset = record["Asset"];
                         string assetType = asset["AssetType"].ToString();
@@ -564,7 +564,7 @@ namespace SystemCenter.Controllers.OpenXDA
             {
                 using (TransactionScope scope = new TransactionScope())
                 {
-                    using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         JToken asset = record["Asset"];
                         int assetID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", asset["AssetKey"].ToString());
@@ -589,7 +589,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     JToken asset = record["Asset"];
                     int assetID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", asset["AssetKey"].ToString());
@@ -609,7 +609,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     AssetLocation assetLocation = new AssetLocation() { LocationID = locationID, AssetID = assetID };
                     new TableOperations<AssetLocation>(connection).AddNewRecord(assetLocation);
@@ -630,7 +630,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     JToken asset = record["Asset"];
                     string assetType = asset["AssetType"].ToString();
@@ -750,7 +750,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpDelete, Route("{assetID:int}/Location/{locationID:int}")]
         public IHttpActionResult DeleteAssetLocation(int assetID, int locationID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 try
                 {
@@ -768,7 +768,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpDelete, Route("{assetID:int}/Asset/{locationID:int}")]
         public IHttpActionResult DeleteAssetConnections(int assetOneID, int assetTwoID)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 try
                 {

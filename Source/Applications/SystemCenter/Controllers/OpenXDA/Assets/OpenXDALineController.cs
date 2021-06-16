@@ -54,7 +54,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     LineDetails result = new LineDetails();
 
@@ -98,7 +98,7 @@ namespace SystemCenter.Controllers.OpenXDA
             if (PostRoles == string.Empty || User.IsInRole(PostRoles))
             {
                 Line lineRecord = base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<Line>().Result;
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     LineSegment lineSegment = new LineSegment()
                     {

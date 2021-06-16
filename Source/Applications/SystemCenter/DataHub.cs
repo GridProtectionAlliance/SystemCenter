@@ -174,7 +174,7 @@ namespace SystemCenter
         [RecordOperation(typeof(PQViewSite), RecordOperation.QueryRecordCount)]
         public int QueryPQViewSiteCount(string filterString)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
                 return new TableOperations<PQViewSite>(connection).QueryRecordCount(filterString);
             }
@@ -184,7 +184,7 @@ namespace SystemCenter
         [RecordOperation(typeof(PQViewSite), RecordOperation.QueryRecords)]
         public IEnumerable<PQViewSite> QueryPQViewSites(string sortField, bool ascending, int page, int pageSize, string filterString)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
                 return new TableOperations<PQViewSite>(connection).QueryRecords(sortField, ascending, page, pageSize, filterString).ToList();
             }
@@ -194,7 +194,7 @@ namespace SystemCenter
         [RecordOperation(typeof(PQViewSite), RecordOperation.DeleteRecord)]
         public void DeletePQViewSite(int id)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
 
                 new TableOperations<PQViewSite>(connection).DeleteRecord(id);
@@ -205,7 +205,7 @@ namespace SystemCenter
         [RecordOperation(typeof(PQViewSite), RecordOperation.CreateNewRecord)]
         public PQViewSite NewPQViewSite()
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
 
                 return new TableOperations<PQViewSite>(connection).NewRecord();
@@ -216,7 +216,7 @@ namespace SystemCenter
         [RecordOperation(typeof(PQViewSite), RecordOperation.AddNewRecord)]
         public void AddNewPQViewSite(PQViewSite record)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
 
                 new TableOperations<PQViewSite>(connection).AddNewRecord(record);
@@ -227,7 +227,7 @@ namespace SystemCenter
         [RecordOperation(typeof(PQViewSite), RecordOperation.UpdateRecord)]
         public void UpdatePQViewSite(PQViewSite record)
         {
-            using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
 
                 new TableOperations<PQViewSite>(connection).UpdateRecord(record);

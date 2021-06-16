@@ -61,7 +61,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
                     {
@@ -115,7 +115,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
                     {
@@ -168,7 +168,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
                     {
@@ -191,7 +191,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
                     {

@@ -44,9 +44,9 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("ID IN ( SELECT MeterID FROM MeterLine WHERE LineID = {0})", lineID);
+                    IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("ID IN ( SELECT MeterID FROM MeterAsset WHERE AssetID = {0})", lineID);
                     return Ok(records);
                 }
             }
@@ -59,9 +59,9 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("MeterLocationID = {0}", meterLocationID);
+                    IEnumerable<Meter> records = new TableOperations<Meter>(connection).QueryRecordsWhere("LocationID = {0}", meterLocationID);
                     return Ok(records);
                 }
             }
@@ -70,20 +70,6 @@ namespace SystemCenter.Controllers.OpenXDA
         }
 
        
-        /*
-         record fields
-         MeterInfo: { ID: int, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, LocationID: int, Description: string }
-         LocationInfo:  { ID: int, LocationKey: string, Name: string, Alias: string, Latitude: double, Longitude: double, Description: string, ShortName: string }
-         Channels: List<{ ID: number, Meter: string, Asset: string, MeasurementType: string, MeasurementCharacteristic: string, Phase: string, Name: string, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, Series: { ID: number, ChannelID: number, SeriesType: string, SourceIndexes: string } }>
-         Assets: List<{ ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer', Channels: Array<OpenXDA.Channel> }>
-            interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number,EDNAPoint?:string }
-            interface Bus extends Asset { }
-            interface CapBank extends Asset { NumberOfBanks: number, CansPerBank: number, CapacitancePerBank: number }
-            interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Segment: LineSegment }
-            interface LineSegment extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number }
-            interface Transformer extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, PrimaryVoltageKV: number, SecondaryVoltageKV: number, Tap: number }
-          AssetConnections: List<{ ID: int, AssetRelationshipTypeID: int, Parent: string, Child: string }>
-     */
         // #ToDo: Update to use Models instead of direct SQL Statements
         [HttpPost, Route("New")]
         public IHttpActionResult PostNewMeter([FromBody] JObject record)
@@ -240,7 +226,7 @@ namespace SystemCenter.Controllers.OpenXDA
             {
                 try
                 {
-                    using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         TableOperations<Channel> channelTable = new TableOperations<Channel>(connection);
                         TableOperations<Series> seriesTable = new TableOperations<Series>(connection);
@@ -434,7 +420,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     DataTable records = connection.RetrieveData($@"
                     SELECT 
@@ -475,7 +461,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (DeleteRoles == string.Empty || User.IsInRole(DeleteRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     try
                     {

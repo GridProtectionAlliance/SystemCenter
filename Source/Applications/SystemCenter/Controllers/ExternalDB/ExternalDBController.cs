@@ -34,6 +34,7 @@ using GSF.Reflection;
 using Newtonsoft.Json.Linq;
 using Oracle;
 using Oracle.ManagedDataAccess.Client;
+using SystemCenter.Model;
 
 namespace SystemCenter.Controllers
 {
@@ -43,6 +44,8 @@ namespace SystemCenter.Controllers
         #region [ Constructor ]
         public ExternalDBController()
         {
+            Connection = typeof(T).GetCustomAttribute<SettingsCategoryAttribute>()?.SettingsCategory ?? "systemSettings";
+            AdditionalFieldConnection = typeof(AdditionalField).GetCustomAttribute<SettingsCategoryAttribute>()?.SettingsCategory ?? "systemSettings";
         }
 
         #endregion
@@ -52,6 +55,8 @@ namespace SystemCenter.Controllers
         protected virtual string extDBConnectionSetting { get { return ""; } }
         protected virtual GSF.Data.DatabaseType extDBType { get { return DatabaseType.Oracle; } } 
         protected virtual string extDBName { get { return ""; } }
+        protected string Connection { get; }
+        protected string AdditionalFieldConnection { get; }
 
         #endregion
 
@@ -61,13 +66,12 @@ namespace SystemCenter.Controllers
         public IHttpActionResult Update(string id)
         {
             int xdaID = int.Parse(id);
-            //return InternalServerError(new Exception($"ID is {xdaID} and String is " + id));
 
             List<T> xdaObj = new List<T>();
 
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     if (xdaID < 0)
                     {
@@ -102,7 +106,7 @@ namespace SystemCenter.Controllers
 
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                using (AdoDataConnection connection = new AdoDataConnection(AdditionalFieldConnection))
                 {
                     fields = new TableOperations<Model.AdditionalField>(connection).QueryRecordsWhere("OpenXDAParentTable = {0} AND ExternalDB = {1}", tableName, extDBName).ToList();
                     xdaFields = new TableOperations<Model.ExternalOpenXDAField>(connection).QueryRecordsWhere("OpenXDAParentTable = {0} AND ExternalDB = {1}", tableName, extDBName).ToList();
@@ -160,8 +164,8 @@ namespace SystemCenter.Controllers
                 JToken data = record.GetValue("data");
                 List<Model.ExternalDBField> fields = data.ToObject<List<Model.ExternalDBField>>();
 
-                using (AdoDataConnection xdaConnection = new AdoDataConnection("dbOpenXDA"))
-                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = new AdoDataConnection(AdditionalFieldConnection))
                 {
                     TableOperations<Model.AdditionalFieldValue> valueTable = new TableOperations<Model.AdditionalFieldValue>(connection);
 
