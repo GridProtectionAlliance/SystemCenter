@@ -31,10 +31,14 @@ using GSF.Data.Model;
 using Newtonsoft.Json.Linq;
 using Oracle.ManagedDataAccess.Client;
 using openXDA.Model;
+using PQView.Model;
 
 namespace SystemCenter.Controllers
 {
-   
+    [RoutePrefix("api/ExternalDB/PQView/Site")]
+    public class PQViewSiteController : ExternalDBController<Site> { }
+
+
     [RoutePrefix("api/ExternalDB/PQView/Meter")]
     public class PQViewMeterController : ExternalDBController<Meter>
     {

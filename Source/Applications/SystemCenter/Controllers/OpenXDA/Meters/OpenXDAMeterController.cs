@@ -377,11 +377,11 @@ namespace SystemCenter.Controllers.OpenXDA
                     "    Channel ON Series.ChannelID = Channel.ID " +
                     "WHERE Channel.MeterID = {0}";
 
-                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-                {
-                    DataTable channelTable = connection.RetrieveData(ChannelQuery, meterID);
-                    string channelJSON = JsonConvert.SerializeObject(channelTable);
-                    JArray channelArray = JArray.Parse(channelJSON);
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                DataTable channelTable = connection.RetrieveData(ChannelQuery, meterID);
+                string channelJSON = JsonConvert.SerializeObject(channelTable);
+                JArray channelArray = JArray.Parse(channelJSON);
 
                     DataTable seriesTable = connection.RetrieveData(SeriesQuery, meterID);
                     string seriesJSON = JsonConvert.SerializeObject(seriesTable);

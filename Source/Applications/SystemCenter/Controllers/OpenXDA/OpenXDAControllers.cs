@@ -48,23 +48,27 @@ namespace SystemCenter.Controllers.OpenXDA
 {
 
     [RoutePrefix("api/OpenXDA/AssetType")]
-    public class AssetTypeController : ModelController<AssetTypes>
-    {}
+    public class AssetTypeController : ModelController<AssetTypes> {}
 
     [RoutePrefix("api/OpenXDA/Phase")]
-    public class PhaseController:ModelController<Phase> 
-    { }
+    public class PhaseController:ModelController<Phase> {}
 
     [RoutePrefix("api/OpenXDA/MeasurementType")]
     public class MeasurementTypeController:ModelController<MeasurementType> {}
 
     [RoutePrefix("api/OpenXDA/MeasurementCharacteristic")]
-    public class MeasurementCharacteristicController : ModelController<MeasurementCharacteristic>
-    {}
+    public class MeasurementCharacteristicController : ModelController<MeasurementCharacteristic> {}
 
-    [RoutePrefix("api/OpenXDA/Note")]
-    public class NoteController : ModelController<Notes>
-    {
+    [RoutePrefix("api/OpenXDA/AssetConnection")]
+    public class OpenXDAAssetConnectionController : ModelController<AssetConnection> { }
+
+    }
+
+
+    public class NoteController : ModelController<Note>
+{ 
+       
+
         [HttpGet, Route("ForObject/{noteType}/{referenceTableID:int}")]
         public IHttpActionResult GetNotes(string noteType, int referenceTableID)
         {
@@ -128,48 +132,56 @@ namespace SystemCenter.Controllers.OpenXDA
                 return Unauthorized();
         }
 
-        public override IHttpActionResult Post([FromBody] JObject record)
+    public override IHttpActionResult Post([FromBody] JObject record)
+    {
+        try
         {
-            try
+            if (User.IsInRole(PostRoles) || PostRoles == String.Empty)
             {
-                if (User.IsInRole(PostRoles) || PostRoles == String.Empty)
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                    {
-                        Notes newRecord = record.ToObject<Notes>();
+                    Notes newRecord = record.ToObject<Notes>();
 
-                        newRecord.UserAccount = User.Identity.Name;
-                        int result = new TableOperations<Notes>(connection).AddNewRecord(newRecord);
-                        return Ok(result);
-                    }
+                    newRecord.UserAccount = User.Identity.Name;
+                    int result = new TableOperations<Notes>(connection).AddNewRecord(newRecord);
+                    return Ok(result);
                 }
-                else
-                {
-                    return Unauthorized();
-                }
-
             }
-            catch (Exception ex)
+            else
             {
-                return InternalServerError(ex);
+                return Unauthorized();
             }
+
         }
-
-
+        catch (Exception ex)
+        {
+            return InternalServerError(ex);
+        }
     }
 
+    [RoutePrefix("api/OpenXDA/Bus")]
+    public class OpenXDABusController : ModelController<Bus> { }
+
+    [RoutePrefix("api/OpenXDA/CapacitorBank")]
+    public class OpenXDACapBankController : ModelController<CapBank> { }
+
+    [RoutePrefix("api/OpenXDA/CapacitorBankRelay")]
+    public class OpenXDACapBankRelayController : ModelController<CapBankRelay> { }
+
+    [RoutePrefix("api/OpenXDA/Transformer")]
+    public class OpenXDATransformerController : ModelController<Transformer> { }
+
     [RoutePrefix("api/OpenXDA/NoteType")]
-    public class NoteTypeController : ModelController<NoteType>
-    {}
+    public class NoteTypeController : ModelController<NoteType> {}
 
     [RoutePrefix("api/OpenXDA/ApplicationRole")]
-    public class OpenXDAApplicationRoleController : ModelController<ApplicationRole>
-    {}
+    public class OpenXDAApplicationRoleController : ModelController<ApplicationRole> {}
 
     [RoutePrefix("api/OpenXDA/ApplicationRoleUserAccount")]
     public class OpenXDAApplicationRoleUserAccountController : ModelController<ApplicationRoleUserAccount>
     {
         
+
         [HttpPatch, Route("UpdateArray")]
         public IHttpActionResult PatchArray([FromBody] IEnumerable<ApplicationRoleUserAccount> records)
         {
@@ -201,8 +213,6 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     return Unauthorized();
                 }
-
-
             }
             catch (Exception ex)
             {
@@ -210,6 +220,35 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+    }
+    public class CompanyTypeController : ModelController<CompanyType> { }
+
+   
+
+    [RoutePrefix("api/OpenXDA/Company")]
+    public class CompanyController : ModelController<Company> {}
+
+    [RoutePrefix("api/OpenXDA/CompanyMeter")]
+    public class CompanyMeterController : ModelController<CompanyMeter>
+    {
+        [HttpPost, Route("AddMultiple")]
+        public IHttpActionResult AddMultipleCompanyMeter(IEnumerable<CompanyMeter> companyMeters)
+        {
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    foreach (CompanyMeter companyMeter in companyMeters)
+                        new TableOperations<CompanyMeter>(connection).AddNewRecord(companyMeter);
+
+                    return Ok("Added all records without error.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 
 

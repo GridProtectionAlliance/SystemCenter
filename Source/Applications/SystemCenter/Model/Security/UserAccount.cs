@@ -64,7 +64,6 @@ namespace SystemCenter.Model.Security
 
     [RoutePrefix("api/SystemCenter/UserAccount")]
     public class UserAccountController : ModelController<UserAccount> {
-   
         [HttpGet, Route("UpdateMetaData")]
         public IHttpActionResult GetUdateMetaData()
         {
@@ -293,7 +292,6 @@ namespace SystemCenter.Model.Security
     { }
 
     [RoutePrefix("api/SystemCenter/ApplicationRole")]
-    public class SystemCenterApplicationRoleController : ModelController<ApplicationRole>
-    {}
+    public class SystemCenterApplicationRoleController : ModelController<ApplicationRole> {}
 
 }

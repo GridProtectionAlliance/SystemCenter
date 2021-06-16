@@ -51,7 +51,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
     function getSites(): JQuery.jqXHR<SystemCenter.CompanyMeter[]> {
         return $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/CompanyMeter/${props.Company.ID}`,
+            url: `${homePath}api/OpenXDA/CompanyMeter/${props.Company.ID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -62,7 +62,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
     function addSites(): void {
         $.ajax({
             type: "POST",
-            url: `${homePath}api/SystemCenter/CompanyMeter/AddMultiple`,
+            url: `${homePath}api/OpenXDA/CompanyMeter/AddMultiple`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify(selectedSites.map(ss => ({ ID: 0, CompanyID: props.Company.ID, MeterID: parseInt(ss.ID.toString()), DisplayName : ss.Name, Enabled: true }) as SystemCenter.CompanyMeter)),
@@ -93,7 +93,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
     function deleteCustommerAccess(record: SystemCenter.CompanyMeter): void {
         $.ajax({
             type: "DELETE",
-            url: `${homePath}api/SystemCenter/CompanyMeter/Delete`,
+            url: `${homePath}api/OpenXDA/CompanyMeter/Delete`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify(record),

@@ -49,7 +49,7 @@ namespace SystemCenter.Controllers.OpenXDA
             public double ThermalRating;
         }
 
-        [HttpGet, Route("{lineID:int}/LineDetail")]
+        [HttpGet, Route("{lineID:int}/LineSegment")]
         public IHttpActionResult GetLineSegmentForLine(int lineID)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
@@ -81,7 +81,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                using (AdoDataConnection connection = new AdoDataConnection("dbOpenXDA"))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     List<LineSegment> record = new TableOperations<LineSegment>(connection).QueryRecordsWhere("ID in (select ChildID from AssetRelationship where AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment') AND ParentID = {0})", lineID).ToList();
                     record = record.Concat(new TableOperations<LineSegment>(connection).QueryRecordsWhere("ID in (select ParentID from AssetRelationship where AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment') AND ChildID = {0})", lineID)).ToList();

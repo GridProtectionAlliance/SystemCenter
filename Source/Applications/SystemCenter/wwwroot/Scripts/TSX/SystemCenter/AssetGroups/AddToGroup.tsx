@@ -392,7 +392,7 @@ function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, typ
 
         return $.ajax({
             type: "Post",
-            url: `${homePath}api/OpenXDA/MeterList/ExtendedSearchableList`,
+            url: `${homePath}api/OpenXDA/MeterList/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),

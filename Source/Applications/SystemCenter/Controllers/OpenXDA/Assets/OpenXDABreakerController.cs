@@ -35,7 +35,6 @@ using SystemCenter.Controllers;
 [RoutePrefix("api/OpenXDA/Breaker")]
 public class OpenXDABreakerController : ModelController<Breaker>
 {
-  
     [HttpGet, Route("{breakerID:int}/EDNAPoint")]
     public IHttpActionResult GetEDNAPoinsForBreaker(int breakerID)
     {

@@ -53,6 +53,7 @@ namespace SystemCenter.Controllers.OpenXDA
             public List<int> AssetList { get; set; }
             public List<int> UserList { get; set; }
             public List<int> AssetGroupList { get; set; }
+
         }
 
         [HttpGet, Route("{assetGroupID:int}/Assets")]

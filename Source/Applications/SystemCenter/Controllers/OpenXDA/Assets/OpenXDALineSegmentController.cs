@@ -39,6 +39,7 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/LineSegment")]
     public class OpenXDALineSegmentController : ModelController<LineSegment>
     {
+
         [HttpGet, Route("{segmentID:int}/AddToLine/{lineID:int}")]
         public IHttpActionResult AddLineSegmentToLine(int segmentID, int lineID)
         {
