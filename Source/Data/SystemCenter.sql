@@ -32,23 +32,6 @@
 
 ----- TABLES -----
 
-CREATE TABLE Setting
-(
-    ID INT IDENTITY(1, 1) NOT NULL PRIMARY KEY,
-    Name VARCHAR(200) NULL,
-    Value VARCHAR(MAX) NULL,
-    DefaultValue VARCHAR(MAX) NULL
-)
-GO
-
-CREATE TABLE AccessLog(
-    ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
-    UserName varchar(200) NOT NULL,
-    AccessGranted bit NOT NULL,
-    CreatedOn datetime NOT NULL CONSTRAINT [DF_AccessLog_Timestamp]  DEFAULT (getutcdate())
-)
-GO
-
 -- -------- --
 -- Security --
 -- -------- --
@@ -131,35 +114,6 @@ CREATE TABLE SecurityGroupUserAccount
 )
 GO
 
-CREATE TABLE [dbo].[ValueListGroup](
-	[ID] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	[Name] [varchar](200) NULL,
-	[Description] [varchar](max) NULL,
-	[Enabled] [bit] NOT NULL,
-	[CreatedOn] [datetime] NULL DEFAULT GETDATE(),
-)
-GO
-
-
-CREATE TABLE [dbo].[ValueList](
-	[ID] [int] IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	[GroupID] [int] NOT NULL FOREIGN KEY REFERENCES ValueListGroup(ID),
-	[Key] [int] NOT NULL,
-	[Text] [varchar](200) NULL,
-	[AltText1] [varchar](200) NULL,
-	[AltText2] [varchar](200) NULL,
-	[Abbreviation] [varchar](12) NULL,
-	[Value] [int] NULL,
-	[Flag] [bit] NOT NULL,
-	[Description] [varchar](max) NULL,
-	[SortOrder] [int] NULL,
-	[IsDefault] [bit] NOT NULL,
-	[Hidden] [bit] NOT NULL,
-	[Enabled] [bit] NOT NULL,
-	[CreatedOn] [datetime] NOT NULL DEFAULT GETDATE(),
-)
-GO
-
 
 INSERT INTO ApplicationRole(Name, Description) VALUES('Administrator', 'Admin Role')
 GO
@@ -177,67 +131,6 @@ GO
 INSERT INTO ApplicationRoleSecurityGroup(ApplicationRoleID, SecurityGroupID) VALUES((SELECT ID FROM ApplicationRole WHERE Name = 'Transmission SME'), (SELECT ID FROM SecurityGroup))
 GO
 INSERT INTO ApplicationRoleSecurityGroup(ApplicationRoleID, SecurityGroupID) VALUES((SELECT ID FROM ApplicationRole WHERE Name = 'PQ Data Viewer'), (SELECT ID FROM SecurityGroup))
-GO
-
-CREATE TABLE AdditionalField(
-	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	ParentTable varchar(100) NOT NULL,
-	FieldName varchar(100) NOT NULL,
-	Type varchar(max) NULL DEFAULT ('string'),
-	ExternalDB varchar(max) NULL,
-	ExternalDBTable varchar(max) NULL,
-	ExternalDBTableKey varchar(max) NULL,
-	IsSecure bit NULL DEFAULT(0)
-	Constraint UC_AdditonaField UNIQUE(ParentTable, FieldName)
-)
-GO
-
-CREATE TABLE AdditionalFieldValue(
-	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	ParentTableID int NOT NULL,
-	AdditionalFieldID int NOT NULL FOREIGN KEY REFERENCES AdditionalField(ID),
-	Value varchar(max) NULL,
-    UpdatedOn DATE NULL DEFAULT (SYSDATETIME()),
-	Constraint UC_AdditonaFieldValue UNIQUE(ParentTableID, AdditionalFieldID)
-)
-GO
-
-CREATE TABLE ExternalOpenXDAField(
-	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	ParentTable varchar(100) NOT NULL,
-	FieldName varchar(100) NOT NULL,
-	ExternalDB varchar(max) NULL,
-	ExternalDBTable varchar(max) NULL,
-	ExternalDBTableKey varchar(max) NULL,
-	Constraint UC_ExternalOpenXDAField UNIQUE(ParentTable, FieldName)
-)
-GO
-
-
-
-CREATE TABLE CustomerAccessPQDigest(
-	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	CustomerID int NOT NULL,
-	OpenXDAMeterID int NOT NULL
-)
-GO
-
-CREATE TABLE Role (
-	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	Name varchar(200) NOT NULL,
-	Description varchar(max) NULL,
-)
-GO
-
-CREATE Table extDBTables (
-	ID int IDENTITY(1,1) NOT NULL PRIMARY KEY,
-	TableName varchar(200) NOT NULL,
-    ExternalDB varchar(200) NOT NULL,
-	Query varchar(max) NULL,
-)
-GO
-
-CREATE VIEW PQViewSite AS SELECT * FROM PQView3.dbo.Site
 GO
 
 -- Author: Kevin Conner
@@ -337,72 +230,4 @@ BEGIN
 
     DROP TABLE #DeleteCascade
 END
-GO
-
-CREATE PROCEDURE InsertIntoAuditLog(@tableName VARCHAR(128), @primaryKeyColumn VARCHAR(128), @deleted BIT = '0', @inserted BIT = '0') AS
-BEGIN
-    DECLARE @columnName varchar(100)
-    DECLARE @cursorColumnNames CURSOR
-
-    SET @cursorColumnNames = CURSOR FOR
-    SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_NAME = @tableName AND TABLE_CATALOG = db_name()
-
-    OPEN @cursorColumnNames
-
-    FETCH NEXT FROM @cursorColumnNames INTO @columnName
-    WHILE @@FETCH_STATUS = 0
-    BEGIN
-
-        DECLARE @sql VARCHAR(MAX)
-
-        IF @deleted = '0' AND @inserted = '0'
-        BEGIN
-            SET @sql = 'DECLARE @oldVal NVARCHAR(MAX) ' +
-                    'DECLARE @newVal NVARCHAR(MAX) ' +
-                    'SELECT @oldVal = CONVERT(NVARCHAR(MAX), #deleted.' + @columnName + '), @newVal = CONVERT(NVARCHAR(MAX), #inserted.' + @columnName + ') FROM #deleted, #inserted ' +
-                    'IF @oldVal <> @newVal BEGIN ' +
-                    'INSERT INTO AuditLog (TableName, PrimaryKeyColumn, PrimaryKeyValue, ColumnName, OriginalValue, NewValue, Deleted, UpdatedBy) ' +
-                    'SELECT ''' + @tableName + ''', ''' + @primaryKeyColumn + ''', CONVERT(NVARCHAR(MAX), #inserted.' + @primaryKeyColumn + '), ''' + @columnName + ''', ' +
-                    'CONVERT(NVARCHAR(MAX), #deleted.' + @columnName + '), CONVERT(NVARCHAR(MAX), #inserted.' + @columnName + '), ''0'', #inserted.UpdatedBy ' +
-                    'FROM #inserted JOIN #deleted ON #inserted.' + @primaryKeyColumn + ' = #deleted.' + @primaryKeyColumn + ' ' +
-                    'END'
-
-            EXECUTE (@sql)
-        END
-
-        FETCH NEXT FROM @cursorColumnNames INTO @columnName
-    END
-
-    CLOSE @cursorColumnNames
-    DEALLOCATE @cursorColumnNames
-END
-GO
-
-SET ANSI_NULLS ON
-GO
-SET QUOTED_IDENTIFIER ON
-GO
-
-INSERT INTO Setting(Name, Value, DefaultValue) VALUES('Email.AdminAddress', 'SystemCenter-admin@gridprotectionalliance.org', 'SystemCenter-admin@gridprotectionalliance.org')
-GO
-
-INSERT INTO Setting(Name, Value, DefaultValue) VALUES('Email.BlindCopyAddress', '', '')
-GO
-
-INSERT INTO Setting(Name, Value, DefaultValue) VALUES('Email.EnableSSL', 'False', 'False')
-GO
-
-INSERT INTO Setting(Name, Value, DefaultValue) VALUES('Email.FromAddress', 'SystemCenter@gridprotectionalliance.org', 'SystemCenter@gridprotectionalliance.org')
-GO
-
-INSERT INTO Setting(Name, Value, DefaultValue) VALUES('Email.Password', '', '')
-GO
-
-INSERT INTO Setting(Name, Value, DefaultValue) VALUES('Email.SMTPServer', '', '')
-GO
-
-INSERT INTO Setting(Name, Value, DefaultValue) VALUES('Email.Username', '', '')
-GO
-
-INSERT INTO Setting(Name, Value, DefaultValue) VALUES('SystemCenter.Url', 'http://localhost:8987', '')
 GO
