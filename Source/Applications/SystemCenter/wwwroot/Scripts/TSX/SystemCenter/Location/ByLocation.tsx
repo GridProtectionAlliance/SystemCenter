@@ -30,7 +30,7 @@ import FormTextArea from '../CommonComponents/FormTextArea';
 import { OpenXDA, SystemCenter } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 
 declare var homePath: string;
@@ -47,13 +47,16 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
     const [data, setData] = React.useState<Array<Location>>([]);
 
     const [newLocation, setNewLocation] = React.useState<OpenXDA.Location>(getNewLocation());
-
+    const [newLocationErrors, setNewLocationErrors] = React.useState<string[]>([]);
+    const [validAssetKey, setValidAssetKey] = React.useState<boolean>(true);
 
     const [sortField, setSortField] = React.useState<string>('LocationKey');
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Location>>>(SearchFields.Location as Search.IField<Location>[]);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
 
     const [ascending, setAscending] = React.useState<boolean>(true);
+
+    const [showNew, setShowNew] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         let handle = getLocations();
@@ -81,6 +84,42 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
         }
     }, []);
 
+    React.useEffect(() => {
+        let handle = CheckAssetKey();
+
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        }
+    }, [newLocation]);
+
+    React.useEffect(() => {
+        let errors = [];
+        if (newLocation.LocationKey == null || newLocation.LocationKey.length < 1)
+            errors.push('A Key is required.');
+        if (newLocation.Name == null || newLocation.Name.length < 1)
+            errors.push('A Name is required.');
+        if (newLocation.Name != null && newLocation.Name.length > 200)
+            errors.push('Name needs to be less than 200 characters.');
+        if (newLocation.Alias != null && newLocation.Alias.length > 200)
+            errors.push('Alias needs to be less than 200 characters.');
+        if (newLocation.ShortName != null && newLocation.ShortName.length > 50)
+            errors.push('Short Name needs to be less than 50 characters.');
+        if (newLocation.Latitude == null)
+            errors.push('Latitude is required.');
+        if (newLocation.Longitude == null)
+            errors.push('Longitude is required.');
+        if (newLocation.Latitude != null && !AssetAttributes.isRealNumber(newLocation.Latitude))
+            errors.push('Latitude needs to be numeric.');
+        if (newLocation.Longitude != null && !AssetAttributes.isRealNumber(newLocation.Longitude))
+            errors.push('Longitude needs to be numeric.');
+        if (!validAssetKey)
+            errors.push('The Key has to be unique.');
+
+        setNewLocationErrors(errors);
+
+    }, [newLocation, validAssetKey]);
+
+
     function getNewLocation() {
         return {
             ID: 0,
@@ -94,7 +133,25 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
         }
     }
 
+    function CheckAssetKey(): JQuery.jqXHR<string> {
+        if (newLocation.LocationKey == null || newLocation.LocationKey.length == 0) {
+            setValidAssetKey(true);
+            return null;
+        }
+        const h = $.ajax({
+            type: "Post",
+            url: `${homePath}api/openXDA/Location/SearchableList`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify({ Searches: [{ FieldName: 'LocationKey', SearchText: newLocation.LocationKey, Operator: '=', Type: 'string', isPivotColumn: false }], OrderBy: 'ID', Ascending: false }),
+            cache: false,
+            async: true
+        });
 
+        h.then((d) => { setValidAssetKey((JSON.parse(d) as Array<Location>).length == 0) });
+        return h;
+    }
+   
     function getLocations(): JQuery.jqXHR<string> {
         setSearchState('Loading');
 
@@ -156,7 +213,7 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
 
     function valid(field: keyof(OpenXDA.Location)): boolean {
         if (field == 'LocationKey')
-            return newLocation.LocationKey != null;
+            return newLocation.LocationKey != null && validAssetKey;
         else if (field == 'Name')
             return newLocation.Name != null && newLocation.Name.length > 0 && newLocation.Name.length <= 200;
         else if (field == 'Alias')
@@ -172,7 +229,6 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
         return false;
     }
 
-    
     return (
         <div style={{ width: '100%', height: '100%' }}>
 
@@ -202,8 +258,8 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <form>
-                        <div className="form-group">
-                            <button className="btn btn-primary" data-toggle='modal' data-target="#locationModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Add Substation</button>
+                            <div className="form-group">
+                                <div className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowNew(true); }}>Add Substation</div>
                         </div>
                         <div className="form-group">
                                 <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
@@ -243,37 +299,35 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
                 />
             </div>
 
-            <div className="modal" id="locationModal">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Add Substation</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="row">
-                                <div className="col">
-                                    <FormInput<OpenXDA.Location> Record={newLocation} Field={'LocationKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={setNewLocation} />
-                                    <FormInput<OpenXDA.Location> Record={newLocation} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={setNewLocation} />
-                                    <FormInput<OpenXDA.Location> Record={newLocation} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={setNewLocation} />
-                                    <FormInput<OpenXDA.Location> Record={newLocation} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={setNewLocation} />
-                                </div>
-                                <div className="col">
-                                    <FormInput<OpenXDA.Location> Record={newLocation} Field={'Latitude'} Feedback={'Latitude is a require numeric field.'} Valid={valid} Setter={setNewLocation} />
-                                    <FormInput<OpenXDA.Location> Record={newLocation} Field={'Longitude'} Feedback={'Longitude is a require numeric field.'} Valid={valid} Setter={setNewLocation} />
-                                    <FormTextArea<OpenXDA.Location> Rows={3} Record={newLocation} Field={'Description'} Valid={valid} Setter={setNewLocation} />
-                                </div>
-                            </div>
-
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewLocation}>Save</button>
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-
+            <Modal Show={showNew} Size={'lg'} Title={'Add Substation'}
+                ShowX={true}
+                CallBack={(conf) => {
+                    if (conf)
+                        addNewLocation()
+                    setShowNew(false);
+                }}
+                ConfirmShowToolTip={newLocationErrors.length > 0}
+                ConfirmToolTipContent={
+                    newLocationErrors.map((t, i) => <p key={i}>
+                        <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> {t}
+                    </p>)
+                }
+                DisableConfirm={newLocationErrors.length > 0}
+            >
+                <div className="row">
+                    <div className="col">
+                        <FormInput<OpenXDA.Location> Record={newLocation} Field={'LocationKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={setNewLocation} />
+                        <FormInput<OpenXDA.Location> Record={newLocation} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={setNewLocation} />
+                        <FormInput<OpenXDA.Location> Record={newLocation} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={setNewLocation} />
+                        <FormInput<OpenXDA.Location> Record={newLocation} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={setNewLocation} />
+                    </div>
+                    <div className="col">
+                        <FormInput<OpenXDA.Location> Record={newLocation} Field={'Latitude'} Feedback={'Latitude is a require numeric field.'} Valid={valid} Setter={setNewLocation} />
+                        <FormInput<OpenXDA.Location> Record={newLocation} Field={'Longitude'} Feedback={'Longitude is a require numeric field.'} Valid={valid} Setter={setNewLocation} />
+                        <FormTextArea<OpenXDA.Location> Rows={3} Record={newLocation} Field={'Description'} Valid={valid} Setter={setNewLocation} />
                     </div>
                 </div>
-            </div>
+            </Modal>
 
             <div className="modal" id="extDBModal">
                 <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>

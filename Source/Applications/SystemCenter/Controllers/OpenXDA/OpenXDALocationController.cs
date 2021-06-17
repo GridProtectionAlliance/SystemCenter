@@ -127,7 +127,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         '
 
                         ELSE 
-                            SET @SQLStatement = '{view.Replace("'", "''")}'
+                            SET @SQLStatement = 'SELECT * FROM ({view.Replace("'", "''")}) T {whereClause.Replace("'", "''")} ORDER BY { searches.OrderBy} {(searches.Ascending ? "ASC" : "DESC")}'
                         exec sp_executesql @SQLStatement";
 
                     DataTable table = connection.RetrieveData(sql, "");
