@@ -36,6 +36,7 @@ import { SystemCenter } from '../global';
 
 export const ValueListGroupSlice = new GenericSlice<SystemCenter.ValueListGroup>('ValueListGroup');
 export const ValueListSlice = new GenericSlice<SystemCenter.ValueListItem>('ValueList');
+export const LocationDrawingSlice = new GenericSlice<SystemCenter.LocationDrawing>('LocationDrawing');
 
 export default configureStore({
     reducer: {
@@ -50,5 +51,6 @@ export default configureStore({
         Location: LocationReducer,
         ValueListGroup: ValueListGroupSlice.Reducer,
         ValueList: ValueListSlice.Reducer,
+        LocationDrawing: LocationDrawingSlice.Reducer
     }
 });

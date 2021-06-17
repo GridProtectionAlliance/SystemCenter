@@ -1,0 +1,25 @@
+/*! ../CommonComponents/AdditionalFieldsWindow */
+
+/*! ../CommonComponents/NoteWindow */
+
+/*! ./CustomerInfo */
+
+/*! ./CustomerMeter */
+
+/*! @gpa-gemstone/react-forms */
+
+/*! lodash */
+
+/*! react */
+
+/*!************************************************!*\
+  !*** ./TSX/SystemCenter/Customer/Customer.tsx ***!
+  \************************************************/
+
+/*!****************************************************!*\
+  !*** ./TSX/SystemCenter/Customer/CustomerInfo.tsx ***!
+  \****************************************************/
+
+/*!*****************************************************!*\
+  !*** ./TSX/SystemCenter/Customer/CustomerMeter.tsx ***!
+  \*****************************************************/

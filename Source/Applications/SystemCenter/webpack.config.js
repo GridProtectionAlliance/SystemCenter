@@ -1,11 +1,13 @@
 ﻿"use strict";
 const path = require("path");
+const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+
 module.exports = env => {
-    if (process.env.NODE_ENV == undefined) process.env.NODE_ENV = 'development';
+    if (env.NODE_ENV == undefined) env.NODE_ENV = 'development';
 
 
     return {
-        mode: process.env.NODE_ENV,
+        mode: env.NODE_ENV,
         context: path.resolve(__dirname, 'wwwroot', 'Scripts'),
         cache: true,
         entry: {
@@ -15,7 +17,7 @@ module.exports = env => {
         output: {
             path: path.resolve(__dirname, 'wwwroot', 'Scripts'),
             publicPath: 'Scripts/',
-            filename: "[name].js",
+            filename: "[name].js"
             //chunkFilename: '[name].bundle.js'
         },
         // Enable sourcemaps for debugging webpack's output.
@@ -24,24 +26,23 @@ module.exports = env => {
             // Add '.ts' and '.tsx' as resolvable extensions.
             extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".css"],
             alias: {
-                ByMeter: path.resolve(__dirname, 'wwwroot', 'Scripts'),
             }
         },
         module: {
             rules: [
                 // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
-                { test: /\.tsx?$/, loader: "ts-loader" },
+                { test: /\.tsx?$/, loader: "ts-loader", options: {transpileOnly: false} },
                 {
                     test: /\.css$/,
                     include: /\./,
-                    loaders: ['style-loader', 'css-loader'],
+                    use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
                 },
                 {
                     test: /\.js$/,
                     enforce: "pre",
                     loader: "source-map-loader"
                 },
-                { test: /\.(woff|woff2|ttf|eot|svg|png|gif)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "url-loader?limit=100000" }
+                { test: /\.(woff|woff2|ttf|eot|svg|png|gif)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "url-loader", options: { limit: 100000 } },
             ]
         },
         externals: {
@@ -54,6 +55,7 @@ module.exports = env => {
             'react-router-dom': 'ReactRouterDOM',
         },
         optimization: {
+            //minimize: true
             //splitChunks: {
             //    chunks: 'all',
             //}
@@ -62,5 +64,8 @@ module.exports = env => {
             //    sourceMap: true
             //})],
         },
+        plugins: [
+            new NodePolyfillPlugin()
+        ]
     }
 };

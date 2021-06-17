@@ -31,24 +31,6 @@ import { SystemCenter } from './global';
 import { Provider } from 'react-redux';
 import store from './Store/Store';
 
-//import ByMeter from './Meter/ByMeter'
-//import ByLocation from './Location/ByLocation'
-//import ByAsset from './Asset/ByAsset'
-//import ByCustomer from './Customer/ByCustomer'
-//import ByUser from './User/ByUser'
-//import UserStatistics from './UserStatistics/UserStatistics'
-//import Customer from './Customer/Customer'
-//import User from './User/User'
-//import Asset from './Asset/Asset'
-//import NewMeterWizard from './NewMeterWizard/NewMeterWizard'
-//import ConfigurationHistory from './ConfigurationHistory/ConfigurationHistory'
-//import Meter from './Meter/Meter'
-//import Location from './Location/Location'
-//import ByAssetGroup from './AssetGroups/ByAssetGroup';
-//import AssetGroup from './AssetGroups/Assetgroup';
-//import ByCompany from './Company/ByCompany';
-//import Company from './Company/Company';
-
 declare var homePath: string;
 declare var controllerViewPath: string;
 declare var version: string;

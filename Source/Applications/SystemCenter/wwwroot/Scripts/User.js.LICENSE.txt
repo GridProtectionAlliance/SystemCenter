@@ -1,0 +1,35 @@
+/*! ../CommonComponents/FormCheckBox */
+
+/*! ../CommonComponents/FormDatePicker */
+
+/*! ../CommonComponents/FormInput */
+
+/*! ../CommonComponents/FormSelect */
+
+/*! ./../../../TS/Services/User */
+
+/*! ./UserInfo */
+
+/*! ./UserPermissions */
+
+/*! @gpa-gemstone/react-forms */
+
+/*! @gpa-gemstone/react-interactive */
+
+/*! crypto-js */
+
+/*! lodash */
+
+/*! react */
+
+/*!****************************************!*\
+  !*** ./TSX/SystemCenter/User/User.tsx ***!
+  \****************************************/
+
+/*!********************************************!*\
+  !*** ./TSX/SystemCenter/User/UserInfo.tsx ***!
+  \********************************************/
+
+/*!***************************************************!*\
+  !*** ./TSX/SystemCenter/User/UserPermissions.tsx ***!
+  \***************************************************/

@@ -27,7 +27,7 @@ import * as _ from 'lodash';
 declare var homePath: string;
 
 
-function getSpareBreaker(breaker: OpenXDA.Breaker): Promise<OpenXDA.Breaker> {
+function getSpareBreaker(breaker: OpenXDA.Breaker) {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/SpareBreaker`,
@@ -39,26 +39,29 @@ function getSpareBreaker(breaker: OpenXDA.Breaker): Promise<OpenXDA.Breaker> {
 }
 
 function getLocationForBreaker(breaker: OpenXDA.Breaker): Promise<OpenXDA.Location> {
-    return $.ajax({
-        type: "GET",
-        url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/Location`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: true,
-        async: true
-    }).promise();
+    return new Promise((res, rej) => {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/Location`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done(d => res(d)).fail(e => rej(e))
+    });
 
 }
 function getSparesForLocation(location: OpenXDA.Location): Promise<Array<OpenXDA.Breaker>> {
-    return $.ajax({
-        type: "GET",
-        url: `${homePath}api/OpenXDA/Breaker/SpareBreakers/Substation/${location.ID}`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: true,
-        async: true
-    }).promise();
-
+    return new Promise((res, rej) => {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Breaker/SpareBreakers/Substation/${location.ID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done(d => res(d)).fail(e => rej(e))
+    });
 }
 
 export async function getSpareBreakersForSubstation(breaker: OpenXDA.Breaker): Promise<Array<OpenXDA.Breaker>> {
@@ -91,7 +94,7 @@ export function getAllAssets(): JQueryXHR{
         })
 }
 
-export function getAsset(assetID: number, assetType: OpenXDA.AssetTypeName): Promise<OpenXDA.Asset> {
+export function getAsset(assetID: number, assetType: OpenXDA.AssetTypeName): JQuery.jqXHR<OpenXDA.Asset> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/OpenXDA/${assetType}/One/${assetID}`,
@@ -127,38 +130,43 @@ export async function getAssetWithAdditionalFields(assetID: number, assetType: O
 }
 
 function getEDNAPoint(breaker: OpenXDA.Breaker): Promise<OpenXDA.EDNAPoint> {
-    return $.ajax({
-        type: "GET",
-        url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/EDNAPoint`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: true,
-        async: true
-    }).promise();
+    return new Promise((res, rej) => {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/EDNAPoint`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done(d => res(d)).fail(e => rej(e))
+    });
 }
 
 function getLineDetails(line: OpenXDA.Line): Promise<OpenXDA.LineDetail> {
-    return $.ajax({
-        type: "GET",
-        url: `${homePath}api/OpenXDA/Line/${line.ID}/LineSegment`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        cache: true,
-        async: true
-    }).promise();
+    return new Promise((res, rej) => {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Line/${line.ID}/LineSegment`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done(d => res(d)).fail(e => rej(e))
+    });
 }
 
 
 export function editExistingAsset(asset: OpenXDA.Asset): Promise<OpenXDA.Asset> {
-   return $.ajax({
-        type: "POST",
-        url: `${homePath}api/OpenXDA/Asset/Edit`,
-        contentType: "application/json; charset=utf-8",
-        dataType: 'json',
-        data: JSON.stringify({ Asset: asset }),
-        cache: false,
-        async: true
-    }).promise();
-
+    return new Promise((res, rej) => {
+        $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/Asset/Edit`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify({ Asset: asset }),
+            cache: false,
+            async: true
+        }).done(d => res(d)).fail(e => rej(e))
+    });
 }
 

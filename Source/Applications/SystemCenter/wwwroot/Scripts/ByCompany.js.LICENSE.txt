@@ -1,0 +1,37 @@
+/*! ../CommonComponents/SearchFields */
+
+/*! ./CompanyForm */
+
+/*! ./CompanyTypeSlice */
+
+/*! @gpa-gemstone/common-pages */
+
+/*! @gpa-gemstone/react-forms */
+
+/*! @gpa-gemstone/react-interactive */
+
+/*! @gpa-gemstone/react-table */
+
+/*! lodash */
+
+/*! react */
+
+/*! react-redux */
+
+/*! react-router-dom */
+
+/*!************************************************!*\
+  !*** ./TSX/SystemCenter/Company/ByCompany.tsx ***!
+  \************************************************/
+
+/*!*************************************************!*\
+  !*** ./TSX/SystemCenter/Settings/BySetting.tsx ***!
+  \*************************************************/
+
+/*!**************************************************!*\
+  !*** ./TSX/SystemCenter/Company/CompanyForm.tsx ***!
+  \**************************************************/
+
+/*!************************************************************!*\
+  !*** ./TSX/SystemCenter/CommonComponents/SearchFields.tsx ***!
+  \************************************************************/

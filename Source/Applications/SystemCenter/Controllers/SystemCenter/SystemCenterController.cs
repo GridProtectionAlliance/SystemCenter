@@ -213,5 +213,8 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/Role")]
     public class RoleController : ModelController<ADRole> { }
 
+    [RoutePrefix("api/LocationDrawing")]
+    public class LocationDrawingController : ModelController<LocationDrawing> { }
+
 
 }
