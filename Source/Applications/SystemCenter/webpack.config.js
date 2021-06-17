@@ -1,6 +1,8 @@
 ﻿"use strict";
 const path = require("path");
 const NodePolyfillPlugin = require("node-polyfill-webpack-plugin");
+const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = env => {
     if (env.NODE_ENV == undefined) env.NODE_ENV = 'development';
@@ -8,10 +10,10 @@ module.exports = env => {
 
     return {
         mode: env.NODE_ENV,
-        context: path.resolve(__dirname, 'wwwroot', 'Scripts'),
+        context: path.resolve(__dirname),
         cache: true,
         entry: {
-            SystemCenter: "./TSX/SystemCenter/SystemCenter.tsx",
+            SystemCenter: "./wwwroot/Scripts/TSX/SystemCenter/SystemCenter.tsx",
         },
 
         output: {
@@ -31,18 +33,22 @@ module.exports = env => {
         module: {
             rules: [
                 // All files with a '.ts' or '.tsx' extension will be handled by 'ts-loader'.
-                { test: /\.tsx?$/, loader: "ts-loader", options: {transpileOnly: false} },
+                {
+                    test: /\.tsx?$/,
+                    include: path.resolve(__dirname, 'wwwroot', "Scripts"),
+                    loader: "ts-loader", options: { transpileOnly: true }
+                },
                 {
                     test: /\.css$/,
-                    include: /\./,
+                    include: path.resolve(__dirname, 'wwwroot', "Content"),
                     use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
                 },
-                {
-                    test: /\.js$/,
-                    enforce: "pre",
-                    loader: "source-map-loader"
-                },
-                { test: /\.(woff|woff2|ttf|eot|svg|png|gif)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "url-loader", options: { limit: 100000 } },
+                //{
+                //    test: /\.js$/,
+                //    enforce: "pre",
+                //    loader: "source-map-loader"
+                //},
+                //{ test: /\.(woff|woff2|ttf|eot|svg|png|gif)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "url-loader", options: { limit: 100000 } },
             ]
         },
         externals: {
@@ -59,13 +65,13 @@ module.exports = env => {
             //splitChunks: {
             //    chunks: 'all',
             //}
-            //minimizer: [new UglifyJsPlugin({
-            //    test: /\.js(\?.*)?$/i,
-            //    sourceMap: true
-            //})],
+            minimizer: [
+                new TerserPlugin({extractComments: false})
+            ],
         },
         plugins: [
-            new NodePolyfillPlugin()
+            new NodePolyfillPlugin(),
+            new ForkTsCheckerWebpackPlugin()
         ]
     }
 };
