@@ -26,11 +26,8 @@ import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { OpenXDA, SystemCenter } from '../global';
-import FormInput from '../CommonComponents/FormInput';
-import FormCheckBox from '../CommonComponents/FormCheckBox';
 import AddToGroupPopup from './AddToGroup';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
-import AssetGroup from './AssetGroup';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 
 declare var homePath: string;

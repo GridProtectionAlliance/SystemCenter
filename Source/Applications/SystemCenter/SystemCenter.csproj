@@ -409,6 +409,7 @@
     <None Include="Web.config">
       <SubType>Designer</SubType>
     </None>
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationImages.tsx" />
     <Content Include="XDA.ico" />
     <Content Include="wwwroot\Users.cshtml" />
     <Content Include="wwwroot\ValueListGroups.cshtml" />
@@ -499,12 +500,12 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\LineSegmentWizard.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\LineSegmentWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\ByAssetGroup.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\Assetgroup.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AssetGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AssetGroupInfo.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AssetAssetGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\MeterAssetGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\UserAssetGroup.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AssetgroupAssetGroup.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AssetGroupAssetGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\ByCompany.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\Company.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyInfo.tsx" />
@@ -517,6 +518,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\PropertyUI\MeterLocationProperties.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Settings\BySetting.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterChannelScaling.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationDrawings.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeasurementTypeSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetTypeSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetConnectionTypeSlice.ts" />

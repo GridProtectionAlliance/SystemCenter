@@ -145,7 +145,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("{locationID:int}/Meters")]
         public IHttpActionResult GetMetersForLocation(int locationID)
         {
-            if (GetRoles != string.Empty && !User.IsInRole(GetRoles))
+            if (GetRoles == string.Empty && !User.IsInRole(GetRoles))
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
@@ -168,7 +168,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("{locationID:int}/Assets")]
         public IHttpActionResult GetAssetsForLocation(int locationID)
         {
-            if (GetRoles != string.Empty && !User.IsInRole(GetRoles))
+            if (GetRoles == string.Empty && !User.IsInRole(GetRoles))
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
 

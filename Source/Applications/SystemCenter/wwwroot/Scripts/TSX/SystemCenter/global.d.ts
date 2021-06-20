@@ -62,6 +62,7 @@ export namespace SystemCenter {
     interface ApplicationRoleSecurityGroup { ID: string, ApplicationRoleID: string, SecurityGroupID: string }
     interface TSC { ID: number, Name: string, Description: string, DepartmentNumber: string }
     interface Role { ID: number, Name: string, Description: string }
+    interface LocationDrawing { ID: number, LocationID: number, Name: string, Link: string, Description: string }
 
     type NewEdit = 'New' | 'Edit'
     type AdditionalFieldType = 'integer' | 'number' | 'string' | 'boolean' | string;

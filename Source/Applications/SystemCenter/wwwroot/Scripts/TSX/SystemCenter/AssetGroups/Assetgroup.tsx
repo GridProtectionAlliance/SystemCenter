@@ -30,7 +30,7 @@ import AssetgroupInfoWindow from './AssetGroupInfo';
 import AssetAssetGroupWindow from './AssetAssetGroup';
 import MeterAssetGroupWindow from './MeterAssetGroup';
 import UserAssetGroupWindow from './UserAssetGroup';
-import AssetGroupAssetGroupWindow from './AssetgroupAssetGroup';
+import AssetGroupAssetGroupWindow from './AssetGroupAssetGroup';
 import Warning from '../CommonComponents/WarningModal';
 import { TabSelector } from '@gpa-gemstone/react-interactive';
 

@@ -41,8 +41,8 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
         getMeterConfiguration();
     }
 
-    function getMeterConfiguration(): Promise<OpenXDA.MeterConfiguration> {
-       return $.ajax({
+    function getMeterConfiguration(): void {
+       $.ajax({
             type: "GET",
            url: `${homePath}api/OpenXDA/MeterConfiguration/One/${props.MeterConfigurationID}`,
             contentType: "application/json; charset=utf-8",

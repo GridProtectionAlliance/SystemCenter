@@ -31,10 +31,12 @@ import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { TabSelector } from '@gpa-gemstone/react-interactive';
+import LocationImagesWindow from './LocationImages';
+import LocationDrawingsWindow from './LocationDrawings';
 
 declare var homePath: string;
-
-export default class Location extends React.Component<{ LocationID: number }, { Location: OpenXDA.Location, Tab: string}, {}>{
+type tab = 'notes' | 'locationInfo' | 'additionalFields' | 'meters' | 'assets' | 'extDB' | 'images' | 'drawings'
+export default class Location extends React.Component<{ LocationID: number }, { Location: OpenXDA.Location, Tab: tab }, {}>{
     constructor(props, context) {
         super(props, context);
 
@@ -44,7 +46,7 @@ export default class Location extends React.Component<{ LocationID: number }, { 
         }
     }
 
-    getTab(): string {
+    getTab(): tab {
         if (sessionStorage.hasOwnProperty('Location.Tab'))
             return JSON.parse(sessionStorage.getItem('Location.Tab'));
         else
@@ -52,10 +54,10 @@ export default class Location extends React.Component<{ LocationID: number }, { 
     }
 
     getLocation(): void {
-    if (this.props.LocationID == undefined) return;
-       $.ajax({
-        type: "GET",
-           url: `${homePath}api/OpenXDA/Location/One/${this.props.LocationID}`,
+        if (this.props.LocationID == undefined) return;
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Location/One/${this.props.LocationID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -81,12 +83,12 @@ export default class Location extends React.Component<{ LocationID: number }, { 
         });
     }
 
-    setTab(tab: string): void {
+    setTab(tab: tab): void {
         const ctrl = this;
         sessionStorage.setItem('Location.Tab', JSON.stringify(tab));
-        ctrl.setState({Tab: tab});
+        ctrl.setState({ Tab: tab });
     }
-    
+
     componentDidMount() {
         this.getLocation();
     }
@@ -95,21 +97,23 @@ export default class Location extends React.Component<{ LocationID: number }, { 
         sessionStorage.clear();
     }
 
-   
+
 
     render() {
         if (this.state.Location == null) return null;
 
-        const Tabs = [
+        const Tabs: { Id: tab, Label: string }[] = [
             { Id: "notes", Label: "Notes" },
             { Id: "locationInfo", Label: "Location Info" },
             { Id: "additionalFields", Label: "Additional Fields" },
             { Id: "meters", Label: "Meters" },
             { Id: "assets", Label: "Assets" },
-            { Id: "extDB", Label: "External DB" }
+            { Id: "extDB", Label: "External DB" },
+            { Id: "images", Label: "Images" },
+            { Id: "drawings", Label: "Drawings" },
         ];
 
-        
+
         return (
             <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
                 <div className="row">
@@ -122,11 +126,11 @@ export default class Location extends React.Component<{ LocationID: number }, { 
                 </div>
 
                 <hr />
-                <TabSelector CurrentTab={this.state.Tab} SetTab={(t) => this.setTab(t)} Tabs={Tabs} />
-               
-                <div className="tab-content" style={{maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
+                <TabSelector CurrentTab={this.state.Tab} SetTab={(t: tab) => this.setTab(t)} Tabs={Tabs} />
+
+                <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
                     <div className={"tab-pane " + (this.state.Tab == "notes" ? " active" : "fade")} id="notes">
-                        <NoteWindow ID={this.props.LocationID} Type='Location'/>
+                        <NoteWindow ID={this.props.LocationID} Type='Location' />
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "locationInfo" ? " active" : "fade")} id="locationInfo">
                         <LocationInfoWindow Location={this.state.Location} stateSetter={(Location: OpenXDA.Location) => this.setState({ Location: Location })} />
@@ -143,8 +147,14 @@ export default class Location extends React.Component<{ LocationID: number }, { 
                     <div className={"tab-pane " + (this.state.Tab == "extDB" ? " active" : "fade")} id="extDB">
                         <ExternalDBUpdate ID={this.props.LocationID} Type='Location' Tab={this.state.Tab} />
                     </div>
+                    <div className={"tab-pane " + (this.state.Tab == "images" ? " active" : "fade")} id="images">
+                        <LocationImagesWindow Location={this.state.Location} />
+                    </div>
+                    <div className={"tab-pane " + (this.state.Tab == "drawings" ? " active" : "fade")} id="drawings">
+                        <LocationDrawingsWindow Location={this.state.Location} />
+                    </div>
 
-                </div>                
+                </div>
             </div>
         )
     }

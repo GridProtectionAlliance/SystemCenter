@@ -22,8 +22,9 @@
 //******************************************************************************************************
 
 import { createSlice, createAsyncThunk, AsyncThunk, Slice, Draft } from '@reduxjs/toolkit';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { SystemCenter } from '../global';
+import * as $ from 'jquery';
 
 export default class GenericSlice<T> {
     Name: string = "";
@@ -32,7 +33,8 @@ export default class GenericSlice<T> {
         Error: string,
         Data: T[],
         SortField: keyof T,
-        Ascending: boolean
+        Ascending: boolean,
+        ParentID: number
     }> = null;
     Fetch: AsyncThunk<any, void | number, {}> = null;
     DBAction: AsyncThunk<any, { verb: 'POST' | 'DELETE' | 'PATCH', record: T }, {}> = null;
@@ -57,13 +59,15 @@ export default class GenericSlice<T> {
                 Error: null,
                 Data: [],
                 SortField: 'Name',
-                Ascending: true
+                Ascending: true,
+                ParentID: null
             } as {
                 Status: SystemCenter.Status,
                 Error: string,
                 Data: T[],
                 SortField: keyof T,
-                Ascending: boolean
+                Ascending: boolean,
+                ParentID: number
             },
             reducers: {
                 Sort: (state, action) => {
@@ -83,6 +87,7 @@ export default class GenericSlice<T> {
                     state.Data = _.orderBy(action.payload as Draft<T[]>, [state.SortField], [state.Ascending ? "asc" : "desc"]);
                 });
                 builder.addCase(fetch.pending, (state, action) => {
+                    state.ParentID = action.meta.arg;
                     state.Status = 'loading';
                 });
 
@@ -153,6 +158,8 @@ export default class GenericSlice<T> {
     public Status = (state) => state[this.Name].Status as SystemCenter.Status;
     public SortField = (state) => state[this.Name].SortField;
     public Ascending = (state) => state[this.Name].Ascending;
+    public ParentID = (state) => state[this.Name].ParentID;
+
 }
 
 
