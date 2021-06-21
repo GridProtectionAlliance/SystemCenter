@@ -43,12 +43,6 @@ module.exports = env => {
                     include: path.resolve(__dirname, 'wwwroot', "Content"),
                     use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
                 },
-                //{
-                //    test: /\.js$/,
-                //    enforce: "pre",
-                //    loader: "source-map-loader"
-                //},
-                //{ test: /\.(woff|woff2|ttf|eot|svg|png|gif)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: "url-loader", options: { limit: 100000 } },
             ]
         },
         externals: {
