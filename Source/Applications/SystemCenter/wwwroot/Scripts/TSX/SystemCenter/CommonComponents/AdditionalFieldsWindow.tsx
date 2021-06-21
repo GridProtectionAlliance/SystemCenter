@@ -23,10 +23,10 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import {SystemCenter, OpenXDA } from '../global';
+import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 
-import { LoadingScreen, Modal, Search, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
 
@@ -36,30 +36,31 @@ interface IProps { ID: number, Type: AdditionalFieldType, Tab: string }
 
 function AdditionalFieldsWindow(props: IProps): JSX.Element {
 
-    const [valueListGroups, setValueListGroups] = React.useState<Array<SystemCenter.ValueListGroup>>([]);
+    const [valueListGroups, setValueListGroups] = React.useState<Array<SystemCenter.Types.ValueListGroup>>([]);
     const [externalDBs, setExternalDBs] = React.useState<Array<string>>([]);
     const [externalDBTables, setExternalDBTables] = React.useState<Array<string>>([]);
 
-    const [additionalFields, setAdditionalFields] = React.useState<Array<SystemCenter.AdditionalField>>([]);
-    const [additionalFieldValues, setAdditionalFieldVaules] = React.useState<Array<SystemCenter.AdditionalFieldValue>>([]);
+    const [additionalFields, setAdditionalFields] = React.useState<Array<SystemCenter.Types.AdditionalField>>([]);
+    const [additionalFieldValues, setAdditionalFieldVaules] = React.useState<Array<SystemCenter.Types.AdditionalFieldValue>>([]);
 
-    const [additionalFieldValuesWorking, setAdditionalFieldValuesWorking] = React.useState<Array<SystemCenter.AdditionalFieldValue>>([]);
+    const [additionalFieldValuesWorking, setAdditionalFieldValuesWorking] = React.useState<Array<SystemCenter.Types.AdditionalFieldValue>>([]);
     const [edit, setEdit] = React.useState<boolean>(false);
 
-    const [sortFields, setSortField] = React.useState<keyof SystemCenter.AdditionalField>('FieldName');
+    const [sortFields, setSortField] = React.useState<keyof SystemCenter.Types.AdditionalField>('FieldName');
     const [ascending, setAscending] = React.useState<boolean>(false);
 
-    const [newField, setNewField] = React.useState<SystemCenter.AdditionalField>({ ID: 0, FieldName: '', Type: 'string', OpenXDAParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
+    const [newField, setNewField] = React.useState<SystemCenter.Types.AdditionalField>({ ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
+
+    const [state, setState] = React.useState<'idle' | 'loading' | 'error'>('idle');
 
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
-    const [showLoading, setShowLoading] = React.useState<boolean>(false)
-    const [showEdit, setShowEdit] = React.useState<boolean>(false)
+    const [showEdit, setShowEdit] = React.useState<boolean>(false);
 
     const [hover, setHover] = React.useState<('None' | 'Save' | 'New' | 'View' | 'Clear' | 'ExternalDB' )>('None');
 
     const [newFieldNameValid, setNewFieldNameValid] = React.useState<boolean>(true);
 
-    const EmptyField: SystemCenter.AdditionalField = { ID: 0, FieldName: '', Type: 'string', OpenXDAParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false };
+    const EmptyField: SystemCenter.Types.AdditionalField = { ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false };
 
     React.useEffect(() => {
         return getData();
@@ -79,19 +80,22 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     }, [newField.ID, newField.FieldName])
 
     function getData() {
-        let handle1 = getFields();
-        let handle2 = getFieldValues();
-        let handle3 = getValueLists();
-        let handle4 = getExternalDataBase();
-        let handle5 = getExternalDataBaseTables();
-        setNewField({ ID: 0, FieldName: '', Type: 'string', OpenXDAParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
+        setState('loading');
+        let fieldHandle = getFields();
+        let fieldValueHandle = getFieldValues();
+        let valueListHandle = getValueLists();
+        let extDBHandle = getExternalDataBase();
+        let extTBLHandle = getExternalDataBaseTables();
+        setNewField({ ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
+        Promise.all([fieldHandle, fieldValueHandle, valueListHandle, extDBHandle, extTBLHandle])
+            .then(() => { setState('idle') }, () => { setState('error') })
 
         return () => {
-            if (handle1.abort != undefined) handle1.abort();
-            if (handle2.abort != undefined) handle2.abort();
-            if (handle3.abort != undefined) handle3.abort();
-            if (handle4.abort != undefined) handle4.abort();
-            if (handle5.abort != undefined) handle5.abort();
+            if (fieldHandle.abort != undefined) fieldHandle.abort();
+            if (fieldValueHandle.abort != undefined) fieldValueHandle.abort();
+            if (valueListHandle.abort != undefined) valueListHandle.abort();
+            if (extDBHandle.abort != undefined) extDBHandle.abort();
+            if (extTBLHandle.abort != undefined) extTBLHandle.abort();
         }
     }
 
@@ -105,7 +109,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             async: true
         })
 
-        handle.done((data: Array<SystemCenter.AdditionalField>) => {
+        handle.done((data: Array<SystemCenter.Types.AdditionalField>) => {
             setAdditionalFields(data);
         });
 
@@ -123,7 +127,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             async: true
         })
 
-        handle.done((data: Array<SystemCenter.AdditionalFieldValue>) => {
+        handle.done((data: Array<SystemCenter.Types.AdditionalFieldValue>) => {
             setAdditionalFieldVaules(data);
         });
 
@@ -141,7 +145,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             async: true
         })
 
-        handle.done((data: Array<SystemCenter.ValueListGroup>) => {
+        handle.done((data: Array<SystemCenter.Types.ValueListGroup>) => {
             setValueListGroups(data);
         });
 
@@ -194,7 +198,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             url: `${homePath}api/SystemCenter/AdditionalField/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: [{ FieldName: 'FieldName', Operator: "=", SearchText: newField.FieldName, Type: 'string' } as Search.IFilter<SystemCenter.AdditionalField>], OrderBy: "FieldName", Ascending: true }),
+            data: JSON.stringify({ Searches: [{ FieldName: 'FieldName', Operator: "=", SearchText: newField.FieldName, Type: 'string' } as Search.IFilter<SystemCenter.Types.AdditionalField>], OrderBy: "FieldName", Ascending: true }),
             cache: false,
             async: true
         });
@@ -231,10 +235,10 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     }
 
     function addNewField(): void {
-        setShowLoading(true)
+        setState('loading');
         $.ajax({
-            type: "PATCH",
-            url: `${homePath}api/SystemCenter/AdditionalField/Update`,
+            type: "POST",
+            url: `${homePath}api/SystemCenter/AdditionalField/Add`,
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(newField),
             dataType: 'json',
@@ -242,12 +246,13 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             async: true
         }).done(e => {
             getData();
-            setShowLoading(false);
+        }).fail(() => {
+            setState('error');
         });
     }
 
-    function deleteField(field: SystemCenter.AdditionalField): void {
-        setShowLoading(true);
+    function deleteField(field: SystemCenter.Types.AdditionalField): void {
+        setState('loading');
         $.ajax({
             type: "DELETE",
             url: `${homePath}api/SystemCenter/AdditionalField/Delete`,
@@ -258,7 +263,6 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             async: true
         }).done(e => {
             getData();
-            setShowLoading(false);
         });
 
     }
@@ -331,6 +335,43 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         return result;
     }
 
+    if (state == 'loading')
+        return <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Additional Fields:</h4>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+                <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
+                    <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                        <LoadingIcon Show={true} Size={40} />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                        
+    if (state == 'error')
+        return <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Additional Fields:</h4>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+                <div style={{ width: '100%', height: '200px' }}>
+                    <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                    </div>
+                </div>
+            </div>
+        </div>
+
     return (
         <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
             <div className="card-header">
@@ -350,7 +391,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 
             </div>
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-                    <Table<SystemCenter.AdditionalField>
+                <Table<SystemCenter.Types.AdditionalField>
                         cols={[
                             { key: 'FieldName', label: 'Field', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'ExternalDB', label: 'Ext DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -360,7 +401,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                                     let index: number = additionalFieldValues.findIndex(value => value.AdditionalFieldID == item.ID);
                                     if (!edit)
                                         return (index > -1 && additionalFieldValues[index].Value != null ? additionalFieldValues[index].Value.toString() : '');
-                                    return <ValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} Setter={(val: SystemCenter.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
+                                    return <ValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
                                 }                            
                             },
                         { key: 'ID', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span><i className="fa fa-pencil"></i></span></button> : '') },
@@ -414,7 +455,6 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                     {HasValueChanged() ? ChangedValues(true) : null }
                 </ToolTip>
             </div>
-            <LoadingScreen Show={showLoading} />
             <Warning Show={showWarning} Title={'Delete ' + newField.FieldName}
                 Message={"This will delete the field '" + newField.FieldName + "' from all " + props.Type + "s and will also delete all information assigned to these fields."}
                 CallBack={(confirm: boolean) => { if (confirm) deleteField(newField); setShowWarning(false) }} />
@@ -434,22 +474,22 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 }
 
                 >
-                <Input<SystemCenter.AdditionalField> Record={newField} Field='FieldName' Valid={(field) => newField.FieldName != null && newField.FieldName.length > 0 && newFieldNameValid} Label="Field Name" Setter={setNewField} Feedback={'The additional field needs to have a unique Field Name'} />
-                <Select<SystemCenter.AdditionalField> Record={newField} Field='Type' Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }].concat(valueListGroups.map(x => { return { Value: x.Name, Label: x.Name } }))} Label="Field Type" Setter={setNewField} />
-                <Select<SystemCenter.AdditionalField> Record={newField} Field='ExternalDB' Label="External Database"
-                    Setter={(fld: SystemCenter.AdditionalField) => {
+                <Input<SystemCenter.Types.AdditionalField> Record={newField} Field='FieldName' Valid={(field) => newField.FieldName != null && newField.FieldName.length > 0 && newFieldNameValid} Label="Field Name" Setter={setNewField} Feedback={'The additional field needs to have a unique Field Name'} />
+                <Select<SystemCenter.Types.AdditionalField> Record={newField} Field='Type' Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }].concat(valueListGroups.map(x => { return { Value: x.Name, Label: x.Name } }))} Label="Field Type" Setter={setNewField} />
+                <Select<SystemCenter.Types.AdditionalField> Record={newField} Field='ExternalDB' Label="External Database"
+                    Setter={(fld: SystemCenter.Types.AdditionalField) => {
                         if (fld.ExternalDB == null || fld.ExternalDB == '')
                             fld = { ...fld, ExternalDB: null, ExternalDBTable: null, ExternalDBTableKey: null };
                         setNewField(fld);
                     }}
                     EmptyOption={true} Options={externalDBs.map(item => ({ Value: item, Label: item }))} />
                 <div data-tooltip="ExternalDB" onMouseEnter={() => setHover('ExternalDB')} onMouseLeave={() => setHover('None')}>
-                    <Select<SystemCenter.AdditionalField> EmptyOption={true} Disabled={newField.ExternalDB == null || newField.ExternalDB.length == 0} Record={newField} Field='ExternalDBTable' Options={externalDBTables.map(item => ({ Value: item, Label: item }))}
+                    <Select<SystemCenter.Types.AdditionalField> EmptyOption={true} Disabled={newField.ExternalDB == null || newField.ExternalDB.length == 0} Record={newField} Field='ExternalDBTable' Options={externalDBTables.map(item => ({ Value: item, Label: item }))}
                         Label="External Database Table"
                         Setter={setNewField} />
                 </div>
-                <Input<SystemCenter.AdditionalField> Disabled={newField.ExternalDB == null || newField.ExternalDB.length == 0} Record={newField} Field='ExternalDBTableKey' Valid={(field) => true} Label="External Database Table Key" Setter={setNewField} />
-                <CheckBox<SystemCenter.AdditionalField> Record={newField} Field='IsSecure' Label="Secure Data" Setter={setNewField} /> 
+                <Input<SystemCenter.Types.AdditionalField> Disabled={newField.ExternalDB == null || newField.ExternalDB.length == 0} Record={newField} Field='ExternalDBTableKey' Valid={(field) => true} Label="External Database Table Key" Setter={setNewField} />
+                <CheckBox<SystemCenter.Types.AdditionalField> Record={newField} Field='IsSecure' Label="Secure Data" Setter={setNewField} />
             </Modal>
             <ToolTip Zindex={9999} Show={hover == 'ExternalDB' && (newField.ExternalDB == null || newField.ExternalDB.length == 0)} Position={'bottom'} Theme={'dark'} Target={"ExternalDB"}>
                 <p> No External Database selected.</p>
@@ -462,20 +502,20 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
 export default AdditionalFieldsWindow;
 
 interface IValueFieldProps {
-    Field: SystemCenter.AdditionalField,
-    Values: SystemCenter.AdditionalFieldValue[],
+    Field: SystemCenter.Types.AdditionalField,
+    Values: SystemCenter.Types.AdditionalFieldValue[],
     ParentTableID: number,
-    Setter: (val: SystemCenter.AdditionalFieldValue[]) => void
+    Setter: (val: SystemCenter.Types.AdditionalFieldValue[]) => void
 }
 const ValueField = (props: IValueFieldProps) => {
-    const [valueListItems, setValueListItems] = React.useState<Array<SystemCenter.ValueListItem>>([]);
+    const [valueListItems, setValueListItems] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
     const [valueIndex, setValueIndex] = React.useState<number>(-1)
 
     React.useEffect(() => {
         let index = props.Values.findIndex(value => value.AdditionalFieldID == props.Field.ID);
         setValueIndex(index);
         if (index == -1)
-            props.Setter([...props.Values, { ID: 0, AdditionalFieldID: props.Field.ID, OpenXDAParentTableID: props.ParentTableID, Value: null }]);
+            props.Setter([...props.Values, { ID: 0, AdditionalFieldID: props.Field.ID, ParentTableID: props.ParentTableID, Value: null }]);
         
     }, [props.Values, props.Field]);
 
@@ -491,7 +531,7 @@ const ValueField = (props: IValueFieldProps) => {
                 async: true
             })
 
-            handle.done((vl: Array<SystemCenter.ValueListItem>) => {
+            handle.done((vl: Array<SystemCenter.Types.ValueListItem>) => {
                 setValueListItems(vl);
             });
 
@@ -501,13 +541,13 @@ const ValueField = (props: IValueFieldProps) => {
         }
     }, [props.Field.Type]);
 
-    function Setter(record: SystemCenter.AdditionalFieldValue): void {
+    function Setter(record: SystemCenter.Types.AdditionalFieldValue): void {
         let updated = _.cloneDeep(props.Values);
         updated[valueIndex] = record;
         props.Setter(updated)
     }
 
-    function Valid(type: SystemCenter.AdditionalFieldType): boolean {
+    function Valid(type: SystemCenter.Types.AdditionalFieldType): boolean {
         if (props.Field.Type == "integer")
             return props.Values[valueIndex].Value == null || AssetAttributes.isInteger(props.Values[valueIndex].Value);
         else if (props.Field.Type == "number")
@@ -523,10 +563,10 @@ const ValueField = (props: IValueFieldProps) => {
     }
 
     if (props.Field.Type == 'number' || props.Field.Type == 'integer')
-        return <Input<SystemCenter.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'number'} Setter={Setter} Feedback={props.Field.FieldName + ' is an integer field.'} />
+        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'number'} Setter={Setter} Feedback={props.Field.FieldName + ' is an integer field.'} />
     if (props.Field.Type == 'string')
-        return <Input<SystemCenter.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'text'} Setter={Setter} />
+        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'text'} Setter={Setter} />
     if (props.Field.Type == 'boolean')
-        return <CheckBox<SystemCenter.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Label={''} Setter={Setter} />
-    return <Select<SystemCenter.AdditionalFieldValue> EmptyOption={true} Record={props.Values[valueIndex]} Field={'Value'} Label={''} Setter={Setter} Options={valueListItems.map(x => ({ Value: x.ID.toString(), Label: x.Value }))} />
+        return <CheckBox<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Label={''} Setter={Setter} />
+    return <Select<SystemCenter.Types.AdditionalFieldValue> EmptyOption={true} Record={props.Values[valueIndex]} Field={'Value'} Label={''} Setter={Setter} Options={valueListItems.map(x => ({ Value: x.ID.toString(), Label: x.Value }))} />
 }

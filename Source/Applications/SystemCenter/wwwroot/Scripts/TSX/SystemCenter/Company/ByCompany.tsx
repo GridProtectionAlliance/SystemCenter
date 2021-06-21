@@ -25,13 +25,14 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { SystemCenter } from '../global';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SCGlobal } from '../global';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import CompanyForm from './CompanyForm';
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 
 
-interface Company extends SystemCenter.Company {
+interface Company extends SCGlobal.Company {
     CompanyTypeName: string,
     Meters: number
 }
@@ -39,14 +40,14 @@ interface Company extends SystemCenter.Company {
 declare var homePath: string;
 
 
-const ByCompany: SystemCenter.ByComponent = (props) => {
+const ByCompany: SCGlobal.ByComponent = (props) => {
     let history = useHistory();
     
     const [search, setSearch] = React.useState<Array<Search.IFilter<Company>>>([]);
     const [data, setData] = React.useState<Array<Company>>([]);
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [newCompany, setNewCompany] = React.useState<SystemCenter.Company>(getNewCompany());
+    const [newCompany, setNewCompany] = React.useState<SCGlobal.Company>(getNewCompany());
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Company>>>(SearchFields.Company as Search.IField<Company>[]);
     const [showNew, setShowNew] = React.useState<boolean>(false);
@@ -77,7 +78,7 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
         }
     }, []);
 
-    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.AdditionalField>> {
+    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Company/FieldName/0`,
@@ -94,7 +95,7 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
             }
         }
 
-        handle.done((d: Array<SystemCenter.AdditionalField>) => {
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
             let ordered = _.orderBy((SearchFields.Company as Search.IField<Company>[]).concat(d.map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Location>
             ))), ['label'], ["asc"]);
@@ -118,7 +119,7 @@ const ByCompany: SystemCenter.ByComponent = (props) => {
         });
     }
 
-    function getNewCompany(): SystemCenter.Company {
+    function getNewCompany(): SCGlobal.Company {
         return {
             ID: 0,
             CompanyTypeID: 0,

@@ -32,11 +32,11 @@ import MeterReducer from './MeterSlice';
 import LocationReducer from './LocationSlice';
 import AssetReducer from './AssetSlice';
 import GenericSlice from './GenericSlice'
-import { SystemCenter } from '../global';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
 
-export const ValueListGroupSlice = new GenericSlice<SystemCenter.ValueListGroup>('ValueListGroup');
-export const ValueListSlice = new GenericSlice<SystemCenter.ValueListItem>('ValueList');
-export const LocationDrawingSlice = new GenericSlice<SystemCenter.LocationDrawing>('LocationDrawing');
+export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup');
+export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList');
+export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing');
 
 export default configureStore({
     reducer: {

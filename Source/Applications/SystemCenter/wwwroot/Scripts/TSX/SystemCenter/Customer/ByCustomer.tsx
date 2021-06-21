@@ -25,20 +25,21 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { SystemCenter } from '../global';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SCGlobal } from '../global';
 
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 
 
-interface Customer extends SystemCenter.Customer {
+interface Customer extends SCGlobal.Customer {
     Meters: number
 }
 
 declare var homePath: string;
 
-const ByCustomer: SystemCenter.ByComponent = (props) => {
+const ByCustomer: SCGlobal.ByComponent = (props) => {
     let history = useHistory();
     
     const [search, setSearch] = React.useState<Array<Search.IFilter<Customer>>>([]);
@@ -48,7 +49,7 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
     const [data, setData] = React.useState<Array<Customer>>([]);
     const [sortField, setSortField] = React.useState<string>('CustomerKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [newCustomer, setNewCustomer] = React.useState<SystemCenter.Customer>(getNewCustomer());
+    const [newCustomer, setNewCustomer] = React.useState<SCGlobal.Customer>(getNewCustomer());
 
     React.useEffect(() => {
         return getData();
@@ -87,7 +88,7 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
         });
     }
 
-    function getNewCustomer(): SystemCenter.Customer {
+    function getNewCustomer(): SCGlobal.Customer {
         return {
             ID: 0,
             CustomerKey: null,
@@ -110,7 +111,7 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
 
     }
 
-    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.AdditionalField>> {
+    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Customer/FieldName/0`,
@@ -127,7 +128,7 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
             }
         }
 
-        handle.done((d: Array<SystemCenter.AdditionalField>) => {
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
             let ordered = _.orderBy((SearchFields.Customer as Search.IField<Customer>[]).concat(d.map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Customer>
             ))), ['label'], ["asc"]);
@@ -141,7 +142,7 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Customer&CustomerID=' + item.row.ID, state: {} })
     }
 
-    function valid(field: keyof (SystemCenter.Customer)): boolean {
+    function valid(field: keyof (SCGlobal.Customer)): boolean {
         if (field == 'CustomerKey')
             return newCustomer.CustomerKey != null && newCustomer.CustomerKey.length > 0 && newCustomer.CustomerKey.length <= 25;
         else if (field == 'Name')
@@ -228,10 +229,10 @@ const ByCustomer: SystemCenter.ByComponent = (props) => {
                         <div className="modal-body">
                             <div className="row">
                                 <div className="col">
-                                    <Input<SystemCenter.Customer> Record={newCustomer} Field={'CustomerKey'} Feedback={'AccountName of less than 25 characters is required.'} Valid={valid} Setter={setNewCustomer} />
-                                    <Input<SystemCenter.Customer> Record={newCustomer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={setNewCustomer} />
-                                    <Input<SystemCenter.Customer> Record={newCustomer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={setNewCustomer} />
-                                    <TextArea<SystemCenter.Customer> Rows={3} Record={newCustomer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={setNewCustomer} />
+                                    <Input<SCGlobal.Customer> Record={newCustomer} Field={'CustomerKey'} Feedback={'AccountName of less than 25 characters is required.'} Valid={valid} Setter={setNewCustomer} />
+                                    <Input<SCGlobal.Customer> Record={newCustomer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={setNewCustomer} />
+                                    <Input<SCGlobal.Customer> Record={newCustomer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={setNewCustomer} />
+                                    <TextArea<SCGlobal.Customer> Rows={3} Record={newCustomer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={setNewCustomer} />
                                 </div>
                             </div>
 

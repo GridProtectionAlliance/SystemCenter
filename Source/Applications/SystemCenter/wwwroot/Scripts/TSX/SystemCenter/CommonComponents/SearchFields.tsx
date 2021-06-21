@@ -39,6 +39,10 @@ export namespace SearchFields {
         { label: 'Company Type', key: 'CompanyTypeID', type: 'enum' },
     ];
 
+    export const ValueListGroup = [
+        { label: 'Name', key: 'Name', type: 'string' }
+    ];
+
     export const UserAccount = [
         { label: 'First Name', key: 'UserAccount.FirstName', type: 'string' },
         { label: 'Last Name', key: 'UserAccount.LastName', type: 'string' },
@@ -63,6 +67,7 @@ export namespace SearchFields {
 
 export namespace DefaultSearchField {
     export const Company = { label: 'Name', key: 'Name', type: 'string' };
+    export const ValueListGroup = { label: 'Name', key: 'Name', type: 'string' };
     export const Customer = { label: 'Account Name', key: 'CustomerKey', type: 'string' };
     export const UserAccount = { label: 'First Name', key: 'UserAccount.FirstName', type: 'string' };
     export const Location = { label: 'Name', key: 'Name', type: 'string' };
@@ -72,6 +77,15 @@ export namespace TransformSearchFields {
     export function Company(search) {
         return search.map(s => {
             if (SearchFields.Company.findIndex(item => item.key == s.FieldName) == -1)
+                return { ...s, isPivotColumn: true };
+            else
+                return s;
+        })
+    }
+
+    export function ValueListGroup(search) {
+        return search.map(s => {
+            if (SearchFields.ValueListGroup.findIndex(item => item.key == s.FieldName) == -1)
                 return { ...s, isPivotColumn: true };
             else
                 return s;

@@ -22,7 +22,8 @@
 //******************************************************************************************************
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { SystemCenter } from '../global';
+import { SystemCenter as SCTyping } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SCGlobal }   from '../global';
 
 export const FetchValueList = createAsyncThunk('ValueList/FetchValueList', async (vl: {group: string}, { dispatch }) => {
     return await GetValueList(vl.group);
@@ -39,7 +40,7 @@ export const ValueListSlice = createSlice({
         builder.addCase(FetchValueList.fulfilled, (state, action) => {
             if (state[action.meta.arg.group] === undefined) {
                 state[action.meta.arg.group] = {
-                    Status: 'unitiated' as SystemCenter.Status,
+                    Status: 'unitiated' as SCGlobal.Status,
                     Data: [] as any,
                     Error: null
                 };
@@ -52,7 +53,7 @@ export const ValueListSlice = createSlice({
         builder.addCase(FetchValueList.pending, (state, action) => {
             if (state[action.meta.arg.group] === undefined) {
                 state[action.meta.arg.group] = {
-                    Status: 'unitiated' as SystemCenter.Status,
+                    Status: 'unitiated' as SCGlobal.Status,
                     Data: [] as any,
                     Error: null
                 };
@@ -63,7 +64,7 @@ export const ValueListSlice = createSlice({
         builder.addCase(FetchValueList.rejected, (state, action) => {
             if (state[action.meta.arg.group] === undefined) {
                 state[action.meta.arg.group] = {
-                    Status: 'unitiated' as SystemCenter.Status,
+                    Status: 'unitiated' as SCGlobal.Status,
                     Data: [] as any,
                     Error: null
                 };
@@ -80,10 +81,10 @@ export const ValueListSlice = createSlice({
 
 export const { } = ValueListSlice.actions;
 export default ValueListSlice.reducer;
-export const SelectValueList = (state, group: string) => state.ValueList[group] !== undefined ? state.ValueList[group].Data : [] as SystemCenter.ValueListItem[] ;
-export const SelectValueListStatus = (state, group: string) => state.ValueList[group] !== undefined ? state.ValueList[group].Status : 'unintiated' as SystemCenter.Status;
+export const SelectValueList = (state, group: string) => state.ValueList[group] !== undefined ? state.ValueList[group].Data : [] as SCTyping.Types.ValueListItem[];
+export const SelectValueListStatus = (state, group: string) => state.ValueList[group] !== undefined ? state.ValueList[group].Status : 'unintiated' as SCGlobal.Status;
 
-function GetValueList(group: string): JQuery.jqXHR<SystemCenter.ValueListItem[]> {
+function GetValueList(group: string): JQuery.jqXHR<SCTyping.Types.ValueListItem[]> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/ValueList/Group/${group}`,

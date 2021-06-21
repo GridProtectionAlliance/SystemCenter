@@ -23,23 +23,23 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '../global';
+import { SystemCenter as SCTyping } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SCGlobal } from '../global';
+
 import { useSelector, useDispatch } from 'react-redux';
 import { ValueListSlice } from '../Store/Store';
-import { Modal } from '@gpa-gemstone/react-interactive';
-import { Input } from '@gpa-gemstone/react-forms';
 import ValueListForm from './ValueListForm';
 
-export default function ValueListGroupItems(props: { Record: SystemCenter.ValueListGroup }) {
+export default function ValueListGroupItems(props: { Record: SCTyping.Types.ValueListGroup }) {
     const dispatch = useDispatch();
 
-    const data: SystemCenter.ValueListItem[] = useSelector(ValueListSlice.Data);
-    const status: SystemCenter.Status = useSelector(ValueListSlice.Status);
-    const sortField: keyof SystemCenter.ValueListGroup = useSelector(ValueListSlice.SortField);
+    const data: SCTyping.Types.ValueListItem[] = useSelector(ValueListSlice.Data);
+    const status: SCGlobal.Status = useSelector(ValueListSlice.Status);
+    const sortField: keyof SCTyping.Types.ValueListGroup = useSelector(ValueListSlice.SortField);
     const ascending: boolean = useSelector(ValueListSlice.Ascending);
 
-    const emptyRecord: SystemCenter.ValueListItem = { ID: 0, GroupID: 0, Value: '', AltValue: '', SortOrder: 0 };
-    const [record, setRecord] = React.useState<SystemCenter.ValueListItem>(emptyRecord);
+    const emptyRecord: SCTyping.Types.ValueListItem = { ID: 0, GroupID: 0, Value: '', AltValue: '', SortOrder: 0 };
+    const [record, setRecord] = React.useState<SCTyping.Types.ValueListItem>(emptyRecord);
 
     const [searchTextAS, setSearchTextAS] = React.useState<string>('');
 

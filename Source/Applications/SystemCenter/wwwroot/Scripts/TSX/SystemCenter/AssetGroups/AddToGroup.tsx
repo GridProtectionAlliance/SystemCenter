@@ -24,7 +24,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '../global';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import Table from '@gpa-gemstone/react-table';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 
@@ -231,7 +231,7 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
 
     }
 
-    function getAdditionalFields(Type: string): JQuery.jqXHR<Array<SystemCenter.AdditionalField>> {
+    function getAdditionalFields(Type: string): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${Type}/FieldName/0`,
@@ -248,7 +248,7 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
             }
         }
 
-        handle.done((d: Array<SystemCenter.AdditionalField>) => {
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
 
             setFilterableList(lst => {
                 let ordered = _.orderBy(lst.concat(d.map(item => (
@@ -401,7 +401,7 @@ function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, typ
         });
     }
 
-    function searchAssetGroups(search: Search.IFilter<OpenXDA.AssetGroup>[], ascending: boolean, sortField: string): JQueryXHR {
+    function searchAssetGroups(search: Search.IFilter<OpenXDA.Types.AssetGroup>[], ascending: boolean, sortField: string): JQueryXHR {
         let searches = search;
 
         return $.ajax({
@@ -421,7 +421,7 @@ function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, typ
     if (props.type == 'Meter')
         return <AddToAssetGroup<IMeter> Show={props.Show} setShow={() => props.Close()} type='Meter' PrimaryKey='ID' getData={searchMeters} onComplete={props.onComplete} />
     if (props.type == 'Group')
-        return <AddToAssetGroup<OpenXDA.AssetGroup> Show={props.Show} setShow={() => props.Close()} type='Group' PrimaryKey='ID' getData={searchAssetGroups} onComplete={props.onComplete} />
+        return <AddToAssetGroup<OpenXDA.Types.AssetGroup> Show={props.Show} setShow={() => props.Close()} type='Group' PrimaryKey='ID' getData={searchAssetGroups} onComplete={props.onComplete} />
 }
 
 

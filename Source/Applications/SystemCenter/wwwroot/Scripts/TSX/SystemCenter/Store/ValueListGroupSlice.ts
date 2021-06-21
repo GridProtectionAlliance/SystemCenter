@@ -23,13 +23,14 @@
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import _ from 'lodash';
-import { SystemCenter } from '../global';
+import { SystemCenter as SCTyping } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SCGlobal } from '../global';
 
 export const FetchValueListGroup = createAsyncThunk('ValueListGroup/FetchValueListGroup', async (_, { dispatch }) => {
     return await GetValueListGroups();
 });
 
-export const DBActionValueListGroup = createAsyncThunk('ValueListGroup/DBActionValueListGroup', async (args: { verb: 'POST' | 'DELETE' | 'PATCH', record: SystemCenter.ValueListGroup }, { dispatch }) => {
+export const DBActionValueListGroup = createAsyncThunk('ValueListGroup/DBActionValueListGroup', async (args: { verb: 'POST' | 'DELETE' | 'PATCH', record: SCTyping.Types.ValueListGroup }, { dispatch }) => {
     return await ActionValueListGroup(args.verb, args.record);
 });
 
@@ -43,10 +44,10 @@ export const ValueListGroupSlice = createSlice({
         SortField: 'Name',
         Ascending: true
     } as {
-        Status: SystemCenter.Status,
+        Status: SCGlobal.Status,
         Error: string,
-        Data: SystemCenter.ValueListGroup[],
-        SortField: keyof SystemCenter.ValueListGroup,
+        Data: SCTyping.Types.ValueListGroup[],
+        SortField: keyof SCTyping.Types.ValueListGroup,
         Ascending: boolean
     },
     reducers: {
@@ -57,7 +58,7 @@ export const ValueListGroupSlice = createSlice({
                 state.SortField = action.payload.SortField;
 
             const sorted = _.orderBy(state.Data, [state.SortField], [state.Ascending ? "asc" : "desc"])
-            state.Data = sorted as SystemCenter.ValueListGroup[];
+            state.Data = sorted as SCTyping.Types.ValueListGroup[];
         }
     },
     extraReducers: (builder) => {
@@ -95,13 +96,13 @@ export const ValueListGroupSlice = createSlice({
 
 export const { Sort } = ValueListGroupSlice.actions;
 export default ValueListGroupSlice.reducer;
-export const SelectValueListGroups = (state) => state.ValueListGroup.Data as SystemCenter.ValueListGroup[] ;
-export const SelectValueListGroupStatus = (state) => state.ValueListGroup.Status as SystemCenter.Status;
+export const SelectValueListGroups = (state) => state.ValueListGroup.Data as SCTyping.Types.ValueListGroup[] ;
+export const SelectValueListGroupStatus = (state) => state.ValueListGroup.Status as SCGlobal.Status;
 export const SelectValueListGroupSortField = (state) => state.ValueListGroup.SortField;
 export const SelectValueListGroupAscending = (state) => state.ValueListGroup.Ascending;
-export const SelectNewValueListGroup = (state) => ({ ID: 0, Name: '', Description: ''} as SystemCenter.ValueListGroup);
+export const SelectNewValueListGroup = (state) => ({ ID: 0, Name: '', Description: '' } as SCTyping.Types.ValueListGroup);
 
-function GetValueListGroups(): JQuery.jqXHR<SystemCenter.ValueListGroup[]> {
+function GetValueListGroups(): JQuery.jqXHR<SCTyping.Types.ValueListGroup[]> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/ValueListGroup`,
@@ -112,7 +113,7 @@ function GetValueListGroups(): JQuery.jqXHR<SystemCenter.ValueListGroup[]> {
     });
 }
 
-function ActionValueListGroup(verb: 'POST' | 'DELETE' | 'PATCH', record: SystemCenter.ValueListGroup): JQuery.jqXHR<SystemCenter.ValueListGroup> {
+function ActionValueListGroup(verb: 'POST' | 'DELETE' | 'PATCH', record: SCTyping.Types.ValueListGroup): JQuery.jqXHR<SCTyping.Types.ValueListGroup> {
     return $.ajax({
         type: verb,
         url: `${homePath}api/ValueListGroup`,

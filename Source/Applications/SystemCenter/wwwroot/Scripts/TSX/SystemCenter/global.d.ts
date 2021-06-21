@@ -50,11 +50,7 @@ export namespace SystemCenter {
 
     interface Customer { ID: number, CustomerKey: string, Name: string, Phone: string, Description: string }
     interface CustomerAccess { ID: number, CustomerID: number, PQViewSiteID: number }
-    interface AdditionalField { ID: number, OpenXDAParentTable: string, FieldName: string, Type: AdditionalFieldType, ExternalDB: string, ExternalDBTable: string, ExternalDBTableKey: string, IsSecure: boolean }
-    interface AdditionalFieldValue { ID: number, OpenXDAParentTableID: number, AdditionalFieldID: number, Value: string }
 
-    interface ValueListGroup { ID: number, Name: string, Description: string, Items?: ValueListItem[]}
-    interface ValueListItem { ID: number, GroupID: number, AltValue: string, Value: string, SortOrder: number}
     interface UserAccount { ID: string, Name: string, Password: string, FirstName: string, LastName: string, DefaultNodeID?: string, Phone: string, PhoneConfirmed: boolean, Email: string, EmailConfirmed: boolean, LockedOut: boolean, Approved: boolean, UseADAuthentication: boolean, ChangePasswordOn: Date, CreatedOn?: Date, CreatedBy?: string, UpdatedOn?: Date, AccountName?: string, TSCID: number, RoleID: number, Title: string, Department: string, DepartmentNumber: string, MobilePhone: string, ReceiveNotifications: boolean}
     interface ApplicationRole<T> { ID: string, Name: T, Description: string, NodeID: string, CreatedOn: Date, CreatedBy: string, UpdatedOn: Date, UpdatedBy: string, Assigned?: boolean }
     interface ApplicationRoleUserAccount { ID: string, ApplicationRoleID: string, UserAccountID: string }
@@ -62,10 +58,9 @@ export namespace SystemCenter {
     interface ApplicationRoleSecurityGroup { ID: string, ApplicationRoleID: string, SecurityGroupID: string }
     interface TSC { ID: number, Name: string, Description: string, DepartmentNumber: string }
     interface Role { ID: number, Name: string, Description: string }
-    interface LocationDrawing { ID: number, LocationID: number, Name: string, Link: string, Description: string }
 
     type NewEdit = 'New' | 'Edit'
-    type AdditionalFieldType = 'integer' | 'number' | 'string' | 'boolean' | string;
+   
     type SystemCeneterSecurityRoleName = 'Administrator' | 'Transmission SME' | 'PQ Data Viewer';
     type OpenXDASecurityRoleName = 'Administrator' | 'DataPusher' | 'Developer' | 'Viewer' | 'Engineer';
     type AttachedDatabases = 'SystemCenter' | 'OpenXDA'

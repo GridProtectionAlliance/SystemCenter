@@ -25,16 +25,13 @@ import * as React from 'react';
 import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import FormInput from '../CommonComponents/FormInput';
-import { SystemCenter } from '../global';
-import FormDatePicker from '../CommonComponents/FormDatePicker';
-import FormCheckBox from '../CommonComponents/FormCheckBox';
-import { getSIDFromUserName, getIsUser, getFilledUser, getRoles, getTSCs, validUserAccountField} from './../../../TS/Services/User';
-import FormSelect from '../CommonComponents/FormSelect';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SCGlobal } from '../global';
+import { getSIDFromUserName, getIsUser, getFilledUser, getRoles, getTSCs, validUserAccountField} from './../../../TS/Services/User';;
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
 import CryptoJS from 'crypto-js'
-import { Input } from '@gpa-gemstone/react-forms';
+import { CheckBox, DatePicker, Input, Select } from '@gpa-gemstone/react-forms';
 
 
 declare var homePath: string;
@@ -45,12 +42,12 @@ interface Search {
     Field: FieldName,
     SearchText: string
 }   
-interface UserAccount extends SystemCenter.UserAccount {
+interface UserAccount extends SCGlobal.UserAccount {
     Role: string, TSC: string
 }
 
 
-const ByUser: SystemCenter.ByComponent = (props) => {
+const ByUser: SCGlobal.ByComponent = (props) => {
     let history = useHistory();
     const [search, setSearch] = React.useState<Array<Search.IFilter<UserAccount>>>([]);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
@@ -59,10 +56,10 @@ const ByUser: SystemCenter.ByComponent = (props) => {
     const [sortField, setSortField] = React.useState<string>('FirstName');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
-    const [newUserAccount, setNewUserAccount] = React.useState<SystemCenter.UserAccount>(null);
+    const [newUserAccount, setNewUserAccount] = React.useState<SCGlobal.UserAccount>(null);
     const [userValidation, setUserValidation] = React.useState<UserValidation>('Invalid');
-    const [roles, setRoles] = React.useState<Array<SystemCenter.Role>>([]);
-    const [tscs, setTscs] = React.useState<Array<SystemCenter.ValueListItem>>([]);
+    const [roles, setRoles] = React.useState<Array<SCGlobal.Role>>([]);
+    const [tscs, setTscs] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
 
     React.useEffect(() => {
         return getData();
@@ -97,7 +94,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
         }
     }
 
-    function getNewUserAccount(): JQuery.jqXHR< SystemCenter.UserAccount> {
+    function getNewUserAccount(): JQuery.jqXHR<SCGlobal.UserAccount> {
         return $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/UserAccount/New`,
@@ -108,7 +105,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
         });
     }
 
-    function getUserAccounts(): JQuery.jqXHR<Array<SystemCenter.UserAccount>> {
+    function getUserAccounts(): JQuery.jqXHR<Array<SCGlobal.UserAccount>> {
         return $.ajax({
             type: "Post",
             url: `${homePath}api/SystemCenter/UserAccount/SecureSearchableList`,
@@ -241,7 +238,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
 
                                 <div className="row">
                                     <div className="col">
-                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={(record) => {
+                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={(record) => {
                                             if (newUserAccount.UseADAuthentication)
                                                 validateUser(record.Name);
 
@@ -261,7 +258,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
                                                     <div className="col-xs-4">
                                                         <div className="form-check-inline">
                                                             <label className="form-check-label"><input className='form-check-input' type='radio' checked={newUserAccount.UseADAuthentication} onChange={(e) => {
-                                                                var record: SystemCenter.UserAccount = _.clone(newUserAccount);
+                                                                var record: SCGlobal.UserAccount = _.clone(newUserAccount);
                                                                 record.UseADAuthentication = e.target.checked;
                                                                 setNewUserAccount(record);
                                                             }} />Active Directory User</label>
@@ -270,7 +267,7 @@ const ByUser: SystemCenter.ByComponent = (props) => {
                                                     <div className="col-xs-4">
                                                         <div className="form-check-inline">
                                                             <label className="form-check-label"><input className='form-check-input' type='radio' checked={!newUserAccount.UseADAuthentication} onChange={(e) => {
-                                                                var record: SystemCenter.UserAccount = _.clone(newUserAccount);
+                                                                var record: SCGlobal.UserAccount = _.clone(newUserAccount);
                                                                 record.UseADAuthentication = !e.target.checked;
                                                                 setNewUserAccount(record);
                                                             }} />Database User</label>
@@ -281,45 +278,45 @@ const ByUser: SystemCenter.ByComponent = (props) => {
                                             <div className="card-body" hidden={!newUserAccount.UseADAuthentication}>
                                                 <div className="row">
                                                     <div className="col">
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Title'} Feedback={'Title must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
-                                                        <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'RoleID'} Label='Role' Options={roles.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={setNewUserAccount} EmptyOption={true}/>
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'Title'} Feedback={'Title must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Select<SCGlobal.UserAccount> Record={newUserAccount} Field={'RoleID'} Label='Role' Options={roles.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={setNewUserAccount} EmptyOption={true}/>
                                                     </div>
                                                     <div className="col">
-                                                        <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'TSCID'} Label='TSC' Options={tscs.map(rs => { return { Value: rs.ID.toString(), Label: rs.Value.toString() } })} Setter={setNewUserAccount} EmptyOption={true}/>
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Phone'} Feedback={'Phone must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'MobilePhone'} Label='Mobile Phone' Feedback={'Mobile Phone must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Email'} Feedback={'Email must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Select<SCGlobal.UserAccount> Record={newUserAccount} Field={'TSCID'} Label='TSC' Options={tscs.map(rs => { return { Value: rs.ID.toString(), Label: rs.Value.toString() } })} Setter={setNewUserAccount} EmptyOption={true}/>
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'Phone'} Feedback={'Phone must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'MobilePhone'} Label='Mobile Phone' Feedback={'Mobile Phone must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'Email'} Feedback={'Email must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="card-body" hidden={newUserAccount.UseADAuthentication}>
                                                 <div className="row">
                                                     <div className="col">
-                                                        <Input<SystemCenter.UserAccount> Record={newUserAccount} Field={'Password'} Feedback={'Password must be less than 200 characters.'} Type={'password'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Title'} Feedback={'Title must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
-                                                        <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'RoleID'} Label='Role' Options={roles.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={setNewUserAccount} EmptyOption={true} />
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'Password'} Feedback={'Password must be less than 200 characters.'} Type={'password'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'FirstName'} Label='First Name' Feedback={'First Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'LastName'} Label='Last Name' Feedback={'Last Name must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'Title'} Feedback={'Title must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Select<SCGlobal.UserAccount> Record={newUserAccount} Field={'RoleID'} Label='Role' Options={roles.map(rs => { return { Value: rs.ID.toString(), Label: rs.Name } })} Setter={setNewUserAccount} EmptyOption={true} />
                                                     </div>
                                                     <div className="col">
-                                                        <FormSelect<SystemCenter.UserAccount> Record={newUserAccount} Field={'TSCID'} Label='TSC' Options={tscs.map(rs => { return { Value: rs.ID.toString(), Label: rs.Value.toString() } })} Setter={setNewUserAccount} EmptyOption={true} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Phone'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'MobilePhone'} Label='Mobile Phone' Feedback={'Mobile Phone must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
-                                                        <FormInput<SystemCenter.UserAccount> Record={newUserAccount} Field={'Email'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
-                                                        <FormDatePicker<SystemCenter.UserAccount> Record={newUserAccount} Field={'ChangePasswordOn'} Label='Change Password On' Setter={setNewUserAccount} />
+                                                        <Select<SCGlobal.UserAccount> Record={newUserAccount} Field={'TSCID'} Label='TSC' Options={tscs.map(rs => { return { Value: rs.ID.toString(), Label: rs.Value.toString() } })} Setter={setNewUserAccount} EmptyOption={true} />
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'Phone'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'MobilePhone'} Label='Mobile Phone' Feedback={'Mobile Phone must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <Input<SCGlobal.UserAccount> Record={newUserAccount} Field={'Email'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(newUserAccount, field)} Setter={setNewUserAccount} />
+                                                        <DatePicker<SCGlobal.UserAccount> Record={newUserAccount} Field={'ChangePasswordOn'} Label='Change Password On' Setter={setNewUserAccount} />
                                                     </div>
                                                 </div>
                                             </div>
                                             <div className="row">
                                                 <div className="col"></div>
                                                 <div className="col-lg-2">
-                                                    <FormCheckBox<SystemCenter.UserAccount> Record={newUserAccount} Label='Locked Out' Field='LockedOut' Setter={setNewUserAccount} />
-                                                    <FormCheckBox<SystemCenter.UserAccount> Record={newUserAccount} Label='Phone Confirmed' Field='PhoneConfirmed' Setter={setNewUserAccount} />
-                                                    <FormCheckBox<SystemCenter.UserAccount> Record={newUserAccount} Label='Email Confirmed' Field='EmailConfirmed' Setter={setNewUserAccount} />
-                                                    <FormCheckBox<SystemCenter.UserAccount> Record={newUserAccount} Field='Approved' Setter={setNewUserAccount} />
-                                                    <FormCheckBox<SystemCenter.UserAccount> Record={newUserAccount} Field='ReceiveNotifications' Label='Receive Notifications' Setter={setNewUserAccount} />
+                                                    <CheckBox<SCGlobal.UserAccount> Record={newUserAccount} Label='Locked Out' Field='LockedOut' Setter={setNewUserAccount} />
+                                                    <CheckBox<SCGlobal.UserAccount> Record={newUserAccount} Label='Phone Confirmed' Field='PhoneConfirmed' Setter={setNewUserAccount} />
+                                                    <CheckBox<SCGlobal.UserAccount> Record={newUserAccount} Label='Email Confirmed' Field='EmailConfirmed' Setter={setNewUserAccount} />
+                                                    <CheckBox<SCGlobal.UserAccount> Record={newUserAccount} Field='Approved' Setter={setNewUserAccount} />
+                                                    <CheckBox<SCGlobal.UserAccount> Record={newUserAccount} Field='ReceiveNotifications' Label='Receive Notifications' Setter={setNewUserAccount} />
 
                                                 </div>
                                             </div>

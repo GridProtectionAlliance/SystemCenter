@@ -26,7 +26,8 @@ import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes } from '../../../TS/Services/Asset';
-import { OpenXDA, SystemCenter } from '../global';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SCGlobal } from '../global';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import CapBankAttributes from '../AssetAttribute/CapBank';
 import BusAttributes from '../AssetAttribute/Bus';
@@ -55,17 +56,17 @@ interface Asset {
 }
 declare var homePath: string;
 
-const ByAsset: SystemCenter.ByComponent = (props) => {
+const ByAsset: SCGlobal.ByComponent = (props) => {
     let history = useHistory();
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<Asset>>>([]);
     const [data, setData] = React.useState<Array<Asset>>([]);
     const [sortField, setSortField] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [newAsset, setNewAsset] = React.useState<OpenXDA.Asset>(AssetAttributes.getNewAsset('Line'));
+    const [newAsset, setNewAsset] = React.useState<OpenXDA.Types.Asset>(AssetAttributes.getNewAsset('Line'));
 
 
-    const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.AssetType>>([]);
+    const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.Types.AssetType>>([]);
     const [extDBtab, setextDBTab] = React.useState<string>(getextDBTab());
 
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Asset>>>(defaultSearchcols);
@@ -129,7 +130,7 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
         }
     }, [dispatch, aStatus]);
 
-    function getAdditionalFields(Type: string): JQuery.jqXHR<Array<SystemCenter.AdditionalField>> {
+    function getAdditionalFields(Type: string): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${Type}/FieldName/0`,
@@ -146,7 +147,7 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
             }
         }
 
-        handle.done((d: Array<SystemCenter.AdditionalField>) => {
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
 
             setFilterableList(lst => {
                 let ordered = _.orderBy(lst.concat(d.map(item => (
@@ -192,7 +193,7 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
             data: JSON.stringify(newAsset),
             cache: false,
             async: true
-        }).done((newAsset: OpenXDA.Asset) => {
+        }).done((newAsset: OpenXDA.Types.Asset) => {
             sessionStorage.clear();
             history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + newAsset.ID, state: {} })
         }).fail((msg) => {
@@ -204,19 +205,19 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
 
     function showAttributes(): JSX.Element {
         if (newAsset.AssetType == 'Breaker')
-            return <BreakerAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Breaker} UpdateState={setNewAsset} ShowSpare={true} />;
+            return <BreakerAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.Breaker} UpdateState={setNewAsset} ShowSpare={true} />;
         else if (newAsset.AssetType == 'Bus')
-            return <BusAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Bus} UpdateState={setNewAsset} />;
+            return <BusAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.Bus} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'CapacitorBank')
-            return <CapBankAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.CapBank} UpdateState={setNewAsset} />;
+            return <CapBankAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.CapBank} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'CapacitorBankRelay')
-            return <CapBankRelayAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.CapBankRelay} UpdateState={setNewAsset} />;
+            return <CapBankRelayAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.CapBankRelay} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'Line')
-            return <LineAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Line} UpdateState={setNewAsset} />;
+            return <LineAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.Line} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'LineSegment')
-            return <LineSegmentAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.LineSegment} UpdateState={setNewAsset} />;
+            return <LineSegmentAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.LineSegment} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'Transformer')
-            return <TransformerAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Transformer} UpdateState={setNewAsset} />;
+            return <TransformerAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.Transformer} UpdateState={setNewAsset} />;
     }
 
 
@@ -248,16 +249,7 @@ const ByAsset: SystemCenter.ByComponent = (props) => {
                 }}
 
             >
-           
-                                                            {/*<option value='Asset.AssetKey'>Key</option>
-                                                            <option value='Asset.AssetName'>Name</option>
-                                                            <option value='AssetType.Name'>AssetType</option>
-                                                            <option value='Asset.VoltageKV'>VoltageKV</option>
-                                                            <option value='Meter.AssetKey'>Meter</option>
-                                                            <option value='Location.LocationKey'>Location</option>
-                                                            <option value='Note.Note'>Note</option>*/}
-                                                       
-                        
+             
                     <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>

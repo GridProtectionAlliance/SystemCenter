@@ -21,12 +21,12 @@
 //
 //******************************************************************************************************
 
-import { SystemCenter } from "../global";
+import { SystemCenter } from "@gpa-gemstone/application-typings";
 import * as React from "react";
 
 declare var homePath: string;
 
-export default class FormValueListSelect extends React.Component<{ valueListGroupID: number, field: any, onChange(evt: React.ChangeEvent, fieldName: string, result: any): any, disabled: boolean }, { options: Array<SystemCenter.ValueListItem> }, {}> {
+export default class FormValueListSelect extends React.Component<{ valueListGroupID: number, field: any, onChange(evt: React.ChangeEvent, fieldName: string, result: any): any, disabled: boolean }, { options: Array<SystemCenter.Types.ValueListItem> }, {}> {
 
     constructor(props, context) {
         super(props, context)

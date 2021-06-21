@@ -25,7 +25,8 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { SystemCenter } from '../global';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SCGlobal} from '../global';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
 
@@ -43,7 +44,7 @@ const defaultSearchcols: Array<Search.IField<Meter>> = [
     { label: 'Number of Assets', key: 'MappedAssets', type: 'number' },
 ];
 
-const ByMeter: SystemCenter.ByComponent = (props) => {
+const ByMeter: SCGlobal.ByComponent = (props) => {
     let history = useHistory();
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<Meter>>>([]);
@@ -99,7 +100,7 @@ const ByMeter: SystemCenter.ByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard', state: {} })
     }
 
-    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.AdditionalField>> {
+    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Meter/FieldName/0`,
@@ -116,7 +117,7 @@ const ByMeter: SystemCenter.ByComponent = (props) => {
             }
         }
 
-        handle.done((d: Array<SystemCenter.AdditionalField>) => {
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
             let ordered = _.orderBy(defaultSearchcols.concat(d.map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Meter>
             ))), ['label'], ["asc"]);

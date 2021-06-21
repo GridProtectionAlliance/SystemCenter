@@ -26,10 +26,8 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '../global';
-import { AssetAttributes } from '../AssetAttribute/Asset';
-import FormTextArea from '../CommonComponents/FormTextArea';
-import FormInput from '../CommonComponents/FormInput';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SCGlobal } from '../global';
 import Table from '@gpa-gemstone/react-table';
 import { useSelector, useDispatch } from 'react-redux';
 import { LocationDrawingSlice } from '../Store/Store';
@@ -37,16 +35,16 @@ import { Input } from '@gpa-gemstone/react-forms';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 
-const LocationDrawingsWindow = (props: { Location: OpenXDA.Location }) => {
+const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => {
     const dispatch = useDispatch();
 
-    const links: SystemCenter.LocationDrawing[] = useSelector(LocationDrawingSlice.Data);
-    const status: SystemCenter.Status = useSelector(LocationDrawingSlice.Status);
-    const sortField: keyof SystemCenter.LocationDrawing = useSelector(LocationDrawingSlice.SortField);
+    const links: SystemCenter.Types.LocationDrawing[] = useSelector(LocationDrawingSlice.Data);
+    const status: SCGlobal.Status = useSelector(LocationDrawingSlice.Status);
+    const sortField: keyof SystemCenter.Types.LocationDrawing = useSelector(LocationDrawingSlice.SortField);
     const ascending: boolean = useSelector(LocationDrawingSlice.Ascending);
     const parentID: number = useSelector(LocationDrawingSlice.ParentID);
-    const emptyRecord: SystemCenter.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '' };
-    const [record, setRecord] = React.useState<SystemCenter.LocationDrawing>(emptyRecord);
+    const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '' };
+    const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || parentID !== props.Location.ID)
@@ -67,7 +65,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Location }) => {
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    <Table<SystemCenter.LocationDrawing>
+                    <Table<SystemCenter.Types.LocationDrawing>
                         cols={[
                             { key: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                             { key: 'Link', label: 'Link', headerStyle: { width: '30%' }, rowStyle: { width: '30%' }, content: (item, key, style) => <a href={item[key] as string} target='_blank'>{item[key]}</a> },
@@ -110,9 +108,9 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Location }) => {
                             </button>
                         </div>
                         <div className="modal-body">
-                            <Input<SystemCenter.LocationDrawing> Record={record} Field={'Name'} Feedback={'Name must be set and be less than 200 characters.'} Valid={() => record.Name != null && record.Name.length > 0 && record.Name.length <= 200} Setter={(r) => setRecord(r)} />
-                            <Input<SystemCenter.LocationDrawing> Record={record} Field={'Link'} Feedback={'Link must be set.'} Valid={() => (record.Link != null && record.Link.length > 0)} Setter={(r) => setRecord(r)} />
-                            <Input<SystemCenter.LocationDrawing> Record={record} Field={'Description'} Type='text' Valid={() => true} Setter={(r) => setRecord(r)} />
+                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Name'} Feedback={'Name must be set and be less than 200 characters.'} Valid={() => record.Name != null && record.Name.length > 0 && record.Name.length <= 200} Setter={(r) => setRecord(r)} />
+                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Link'} Feedback={'Link must be set.'} Valid={() => (record.Link != null && record.Link.length > 0)} Setter={(r) => setRecord(r)} />
+                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Description'} Type='text' Valid={() => true} Setter={(r) => setRecord(r)} />
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => dispatch(LocationDrawingSlice.DBAction({ verb: 'PATCH', record }))}>Save changes</button>

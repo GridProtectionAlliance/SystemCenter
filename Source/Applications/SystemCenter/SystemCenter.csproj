@@ -539,7 +539,6 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupInfo.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupItem.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TS\Services\User.ts" />
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Company.tsx - Gbtc
+//  ValueListGroup.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -25,11 +25,10 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '../global';
+import { SystemCenter as SCTyping } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SCGlobal } from '../global';
 import ValueListGroupInfo from './ValueListGroupInfo';
 import ValueListGroupItems from './ValueListGroupItem';
-import NoteWindow from '../CommonComponents/NoteWindow';
-import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import { useSelector, useDispatch } from 'react-redux';
 import { ValueListGroupSlice } from '../Store/Store';
 
@@ -37,10 +36,10 @@ declare var homePath: string;
 
 export default function ValueListGroup (props: { GroupID: number }) {
     const dispatch = useDispatch();
-    const record: SystemCenter.ValueListGroup = useSelector((state) => ValueListGroupSlice.Datum(state, props.GroupID));
+    const record: SCTyping.Types.ValueListGroup = useSelector((state) => ValueListGroupSlice.Datum(state, props.GroupID));
 
-    const data: SystemCenter.ValueListGroup[] = useSelector(ValueListGroupSlice.Data);
-    const valueListGroupStatus: SystemCenter.Status = useSelector(ValueListGroupSlice.Status);
+    const data: SCTyping.Types.ValueListGroup[] = useSelector(ValueListGroupSlice.Data);
+    const valueListGroupStatus: SCGlobal.Status = useSelector(ValueListGroupSlice.Status);
 
     const [tab, setTab] = React.useState('items');
 

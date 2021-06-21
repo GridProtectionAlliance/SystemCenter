@@ -29,29 +29,30 @@ import { ValueListSlice } from '../Store/Store';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { SystemCenter } from '../global';
-import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
+import { SystemCenter as SCTyping } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SCGlobal } from '../global';
+import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
 
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 
 
-const ValueListGroups: SystemCenter.ByComponent = (props) => {
+const ValueListGroups: SCGlobal.ByComponent = (props) => {
     const dispatch = useDispatch();
 
-    const data: SystemCenter.ValueListGroup[] = useSelector(ValueListGroupSlice.Data);
-    const status: SystemCenter.Status = useSelector(ValueListGroupSlice.Status);
-    const items: SystemCenter.ValueListItem[] = useSelector(ValueListSlice.Data);
-    const itemStatus: SystemCenter.Status = useSelector(ValueListSlice.Status);
+    const data: SCTyping.Types.ValueListGroup[] = useSelector(ValueListGroupSlice.Data);
+    const status: SCGlobal.Status = useSelector(ValueListGroupSlice.Status);
+    const items: SCTyping.Types.ValueListItem[] = useSelector(ValueListSlice.Data);
+    const itemStatus: SCGlobal.Status = useSelector(ValueListSlice.Status);
 
-    const sortField: keyof SystemCenter.ValueListGroup = useSelector(ValueListGroupSlice.SortField);
+    const sortField: keyof SCTyping.Types.ValueListGroup = useSelector(ValueListGroupSlice.SortField);
     const ascending: boolean = useSelector(ValueListGroupSlice.Ascending);
-    const emptyRecord: SystemCenter.ValueListGroup = {ID: 0, Name: '', Description: ''};
+    const emptyRecord: SCTyping.Types.ValueListGroup = {ID: 0, Name: '', Description: ''};
     let history = useHistory();
     
-    const [search, setSearch] = React.useState<Array<Search.IFilter<SystemCenter.ValueListGroup>>>([]);
-    const [newRecord, setNewRecord] = React.useState<SystemCenter.ValueListGroup>(emptyRecord);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<SCTyping.Types.ValueListGroup>>>([]);
+    const [newRecord, setNewRecord] = React.useState<SCTyping.Types.ValueListGroup>(emptyRecord);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<SystemCenter.ValueListGroup>>>(SearchFields.Company as Search.IField<SystemCenter.ValueListGroup>[]);
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<SCTyping.Types.ValueListGroup>>>(SearchFields.ValueListGroup as Search.IField<SCTyping.Types.ValueListGroup>[]);
     const [showNew, setShowNew] = React.useState<boolean>(false);
 
     React.useEffect(() => {
@@ -79,7 +80,7 @@ const ValueListGroups: SystemCenter.ByComponent = (props) => {
     
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<SystemCenter.ValueListGroup> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Company as Search.IField<SystemCenter.ValueListGroup>} Width={'50%'} Label={'Search'}
+            <SearchBar< SCTyping.Types.ValueListGroup> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.ValueListGroup as Search.IField<SCTyping.Types.ValueListGroup>} Width={'50%'} Label={'Search'}
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Groups'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
@@ -101,12 +102,7 @@ const ValueListGroups: SystemCenter.ByComponent = (props) => {
                     return () => { if (handle != null && handle.abort == null) handle.abort(); }
                 }}
 
-            >
-                {/*
-                                                            <option value='CompanyMeter.AssetKey'>Meter</option>
-                                                            <option value='CompanyType.Name'>Type</option>*/}
-
-                                                   
+            >                                                
                                     
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
@@ -123,7 +119,7 @@ const ValueListGroups: SystemCenter.ByComponent = (props) => {
             </SearchBar>
             
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<SystemCenter.ValueListGroup>
+                <Table< SCTyping.Types.ValueListGroup>
                     cols={[
                         { key: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Description', label: 'Description/Comments', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },

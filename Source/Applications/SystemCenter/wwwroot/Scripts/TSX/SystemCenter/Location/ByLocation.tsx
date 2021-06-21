@@ -26,7 +26,8 @@ import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { SystemCenter } from '../global';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter as SCGlobal } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
@@ -41,7 +42,7 @@ interface Location {
 }
 
 
-const ByLocation: SystemCenter.ByComponent = (props) => {
+const ByLocation: SCGlobal.ByComponent = (props) => {
     let history = useHistory();
     const [search, setSearch] = React.useState<Array<Search.IFilter<Location>>>([]);
     const [data, setData] = React.useState<Array<Location>>([]);
@@ -166,7 +167,7 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
         });
     }
 
-    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.AdditionalField>> {
+    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Location/FieldName/0`,
@@ -183,7 +184,7 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
             }
         }
 
-        handle.done((d: Array<SystemCenter.AdditionalField>) => {
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
             let ordered = _.orderBy((SearchFields.Location as Search.IField<Location>[]).concat(d.map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Location>
             ))), ['label'], ["asc"]);

@@ -22,6 +22,7 @@
 //******************************************************************************************************
 
 import { SystemCenter } from "../../TSX/SystemCenter/global";
+import { SystemCenter as SCTypings } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
 declare var homePath: string;
 
@@ -110,7 +111,7 @@ export function getSecurityRolesForUser(id: string, applicationName: 'SystemCent
     });
 }
 
-export function getTSCs(): JQuery.jqXHR<Array<SystemCenter.ValueListItem>> {
+export function getTSCs(): JQuery.jqXHR<Array<SCTypings.Types.ValueListItem>> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/ValueList/Group/TSC`,
