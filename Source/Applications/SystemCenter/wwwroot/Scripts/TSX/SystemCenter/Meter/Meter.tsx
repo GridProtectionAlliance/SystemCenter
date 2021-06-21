@@ -36,7 +36,9 @@ import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import MeterConfigurationHistoryWindow from './MeterConfigurationHistory';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import { Warning, LoadingScreen, TabSelector } from '@gpa-gemstone/react-interactive';
+import { Warning, LoadingScreen, TabSelector, Modal } from '@gpa-gemstone/react-interactive';
+import DataRescueWindow from './Advanced/MeterDataRescue';
+import { CreateGuid } from '@gpa-gemstone/helper-functions';
  
 declare var homePath: string;
 
@@ -45,8 +47,10 @@ interface IProps { MeterID: number }
 function Meter(props: IProps) {
     const [meter, setMeter] = React.useState<OpenXDA.Meter>(null);
     const [Tab, setTab] = React.useState<string>(null);
+    const [showAdvanced, setShowAdvanced] = React.useState<boolean>(false);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
+    const [dataRescueWindow, setDataRescueWindow] = React.useState<React.ReactElement>();
 
     React.useEffect(() => {
         setTab(getTab());
@@ -66,7 +70,6 @@ function Meter(props: IProps) {
 
     }, [props.MeterID]);
 
-    React.useEffect(() => { }, [])
     function getTab(): string {
         if (sessionStorage.hasOwnProperty('Meter.Tab'))
             return JSON.parse(sessionStorage.getItem('Meter.Tab'));
@@ -109,6 +112,19 @@ function Meter(props: IProps) {
         return handle;
     }
 
+    function showDataRescueWindow() {
+        // Create a new key to reset state whenever
+        // the user navigates to data rescue
+        const guid = CreateGuid();
+
+        const newWindow = () =>
+            <DataRescueWindow key={guid} Meter={meter} />;
+
+        setShowAdvanced(false);
+        setTab("dataRescue");
+        setDataRescueWindow(newWindow());
+    }
+
     if (meter == null) return null;
 
     const Tabs = [
@@ -131,6 +147,7 @@ function Meter(props: IProps) {
                 </div>
                 <div className="col" style={{maxHeight: 50}}>
                     <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete Meter</button>
+                    <button className="btn btn-light pull-right" onClick={() => setShowAdvanced(true)}>Advanced</button>
                 </div>
             </div>
 
@@ -168,7 +185,15 @@ function Meter(props: IProps) {
                 <div className={"tab-pane " + (Tab == "extDB" ? " active" : "fade")} id="extDB">
                     <ExternalDBUpdate ID={props.MeterID} Type='Meter' Tab={Tab} />
                 </div>
+                <div className={"tab-pane " + (Tab == "dataRescue" ? " active" : "fade")} id="dataRescue">
+                    {dataRescueWindow}
+                </div>
             </div>
+            <Modal Title={'Advanced options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
+                <button className="btn btn-dark btn-block" onClick={showDataRescueWindow}>Data Rescue</button>
+                <button className="btn btn-dark btn-block">Merge Data</button>
+                <button className="btn btn-danger btn-block">Delete Data</button>
+            </Modal>
             <Warning Message={'This will permanently Delete this meter and can not be undone.'} Show={showDelete} Title={'Delete Meter ' + meter.AssetKey} CallBack={(conf) => { if (conf) deleteMeter(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
