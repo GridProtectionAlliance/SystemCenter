@@ -51,7 +51,7 @@ const ByLocation: SCGlobal.ByComponent = (props) => {
     const [newLocationErrors, setNewLocationErrors] = React.useState<string[]>([]);
     const [validAssetKey, setValidAssetKey] = React.useState<boolean>(true);
 
-    const [sortField, setSortField] = React.useState<string>('LocationKey');
+    const [sortField, setSortField] = React.useState<keyof Location>('LocationKey');
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Location>>>(SearchFields.Location as Search.IField<Location>[]);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
 

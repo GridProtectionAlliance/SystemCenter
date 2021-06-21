@@ -33,10 +33,11 @@ interface Iprops<T> {
     Show: boolean,
     onComplete: (id: Array<any>) => JQueryXHR,
     setShow: (show: boolean) => void,
-    getData: (search: Array<Search.IFilter<T>>, ascending: boolean, sortField: string) => JQueryXHR,
+    getData: (search: Array<Search.IFilter<T>>, ascending: boolean, sortField: keyof T) => JQueryXHR,
     type: ('Asset' | 'Meter' | 'Group'),
     PrimaryKey: keyof (T),
-    
+    SortField: keyof T,
+    Ascending: boolean
 }
 
 function AddToAssetGroup<T>(props: Iprops<T>) {
@@ -45,11 +46,11 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
 
     const [selectedData, setSelectedData] = React.useState<Array<T>>([]);
 
-    const [sortFieldAll, setSortFieldAll] = React.useState<string>('AssetKey');
-    const [ascendingAll, setAscendingAll] = React.useState<boolean>(true);
+    const [sortFieldAll, setSortFieldAll] = React.useState<keyof T >(props.SortField);
+    const [ascendingAll, setAscendingAll] = React.useState<boolean>(props.Ascending);
 
-    const [sortFieldSelected, setSortFieldSelected] = React.useState<string>('AssetKey');
-    const [ascendingSelected, setAscendingSelected] = React.useState<boolean>(true);
+    const [sortFieldSelected, setSortFieldSelected] = React.useState<keyof T>(props.SortField);
+    const [ascendingSelected, setAscendingSelected] = React.useState<boolean>(props.Ascending);
 
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<T>>>(getSearchField());
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
@@ -293,7 +294,7 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
             </div>
             <div className="row">
                 <div className="col" style={{ width: '60%' }}>
-                    <Table
+                    <Table<T>
                         cols={getTableCollumns()}
                         tableClass="table table-hover"
                         data={data}
@@ -304,7 +305,7 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
                                 setAscendingAll(!ascendingAll);
                             else {
                                 setAscendingAll(true);
-                                setSortFieldAll(d.col as string);
+                                setSortFieldAll(d.col);
                             }
                         }}
                         onClick={(d) => { setSelectedData((l) => { let updated = _.cloneDeep(l); updated.push(d.row); return updated; }) }}
@@ -334,7 +335,7 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
                                 let ordered = _.orderBy(selectedData, [d.col], ["asc"]);
                                 setAscendingSelected(!ascendingSelected);
                                 setSelectedData(ordered);
-                                setSortFieldSelected(d.col as string);
+                                setSortFieldSelected(d.col);
                             }
                         }}
                         onClick={() => { }}
@@ -360,7 +361,7 @@ interface IMeter {
 
 function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, type: ('Asset' | 'Meter' | 'Group'), Show: boolean, Close: () => void; }) {
 
-    function searchAsset(search: Search.IFilter<ITransmissionAsset>[], ascending: boolean, sortField: string): JQueryXHR {
+    function searchAsset(search: Search.IFilter<ITransmissionAsset>[], ascending: boolean, sortField: keyof ITransmissionAsset): JQueryXHR {
         const defaults = [
             { label: 'Name', key: 'Name', type: 'string' },
         ];
@@ -378,7 +379,7 @@ function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, typ
         });
     }
 
-    function searchMeters(search: Search.IFilter<IMeter>[], ascending: boolean, sortField: string): JQueryXHR {
+    function searchMeters(search: Search.IFilter<IMeter>[], ascending: boolean, sortField: keyof IMeter): JQueryXHR {
         const defaults: Array<Search.IField<IMeter>> = [
             { label: 'AssetKey', key: 'AssetKey', type: 'string' },
             { label: 'Name', key: 'Name', type: 'string' },
@@ -401,7 +402,7 @@ function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, typ
         });
     }
 
-    function searchAssetGroups(search: Search.IFilter<OpenXDA.Types.AssetGroup>[], ascending: boolean, sortField: string): JQueryXHR {
+    function searchAssetGroups(search: Search.IFilter<OpenXDA.Types.AssetGroup>[], ascending: boolean, sortField: keyof OpenXDA.Types.AssetGroup): JQueryXHR {
         let searches = search;
 
         return $.ajax({
@@ -417,11 +418,11 @@ function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, typ
     }
 
     if (props.type == 'Asset')
-        return <AddToAssetGroup<ITransmissionAsset> Show={props.Show} setShow={() => props.Close()} type='Asset' PrimaryKey='ID' getData={searchAsset} onComplete={props.onComplete} />
+        return <AddToAssetGroup<ITransmissionAsset> Show={props.Show} setShow={() => props.Close()} type='Asset' PrimaryKey='ID' getData={searchAsset} onComplete={props.onComplete} SortField='AssetKey' Ascending={true} />
     if (props.type == 'Meter')
-        return <AddToAssetGroup<IMeter> Show={props.Show} setShow={() => props.Close()} type='Meter' PrimaryKey='ID' getData={searchMeters} onComplete={props.onComplete} />
+        return <AddToAssetGroup<IMeter> Show={props.Show} setShow={() => props.Close()} type='Meter' PrimaryKey='ID' getData={searchMeters} onComplete={props.onComplete} SortField='AssetKey' Ascending={true} />
     if (props.type == 'Group')
-        return <AddToAssetGroup<OpenXDA.Types.AssetGroup> Show={props.Show} setShow={() => props.Close()} type='Group' PrimaryKey='ID' getData={searchAssetGroups} onComplete={props.onComplete} />
+        return <AddToAssetGroup<OpenXDA.Types.AssetGroup> Show={props.Show} setShow={() => props.Close()} type='Group' PrimaryKey='ID' getData={searchAssetGroups} onComplete={props.onComplete} SortField='Name' Ascending={true}/>
 }
 
 

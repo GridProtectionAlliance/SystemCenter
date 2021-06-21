@@ -26,7 +26,8 @@ import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { SystemCenter as SCGlobal} from '../global';
+import { SystemCenter as SCGlobal } from '../global';
+
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
 

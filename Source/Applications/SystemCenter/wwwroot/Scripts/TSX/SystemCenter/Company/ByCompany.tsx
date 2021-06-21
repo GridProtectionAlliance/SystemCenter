@@ -45,7 +45,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
     
     const [search, setSearch] = React.useState<Array<Search.IFilter<Company>>>([]);
     const [data, setData] = React.useState<Array<Company>>([]);
-    const [sortField, setSortField] = React.useState<string>('Name');
+    const [sortField, setSortField] = React.useState<keyof Company>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newCompany, setNewCompany] = React.useState<SCGlobal.Company>(getNewCompany());
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');

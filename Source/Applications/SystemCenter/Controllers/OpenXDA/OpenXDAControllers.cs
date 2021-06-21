@@ -137,10 +137,12 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/CompanyType")]
     public class CompanyTypeController : ModelController<CompanyType> { }
 
-   
 
+
+    [AllowSearch,TableName("Company")]
+    public class SCCompany : Company { }
     [RoutePrefix("api/OpenXDA/Company")]
-    public class CompanyController : ModelController<Company> {}
+    public class CompanyController : ModelController<SCCompany> {}
 
     [RoutePrefix("api/OpenXDA/CompanyMeter")]
     public class CompanyMeterController : ModelController<CompanyMeter>

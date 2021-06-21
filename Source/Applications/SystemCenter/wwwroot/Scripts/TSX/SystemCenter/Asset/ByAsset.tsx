@@ -61,7 +61,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<Asset>>>([]);
     const [data, setData] = React.useState<Array<Asset>>([]);
-    const [sortField, setSortField] = React.useState<string>('AssetKey');
+    const [sortField, setSortField] = React.useState<keyof Asset>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newAsset, setNewAsset] = React.useState<OpenXDA.Types.Asset>(AssetAttributes.getNewAsset('Line'));
 

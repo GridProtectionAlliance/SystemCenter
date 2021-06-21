@@ -35,7 +35,7 @@ interface Asset { ID: number, AssetName: string, LongAssetName: string, AssetID:
 function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     let history = useHistory();
     const [assetList, setAssetList] = React.useState<Array<Asset>>([]);
-    const [sortField, setSortField] = React.useState<string>('Assetname');
+    const [sortField, setSortField] = React.useState<keyof Asset>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
 

@@ -47,7 +47,7 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Customer>>>(SearchFields.Customer as Search.IField<Customer>[]);
 
     const [data, setData] = React.useState<Array<Customer>>([]);
-    const [sortField, setSortField] = React.useState<string>('CustomerKey');
+    const [sortField, setSortField] = React.useState<keyof Customer>('CustomerKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newCustomer, setNewCustomer] = React.useState<SCGlobal.Customer>(getNewCustomer());
 

@@ -251,7 +251,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                 ]}
                     tableClass="table table-hover"
                     data={props.Channels}
-                    sortField={'SourceIndexes'}
+                    sortField={'Series'}
                     ascending={false}
                     onSort={(d) => {}}
                     onClick={(fld) => { }}

@@ -519,6 +519,8 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Settings\BySetting.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterChannelScaling.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationDrawings.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\MeterHealth\ByMeter.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\MeterHealth\Meter.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeasurementTypeSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetTypeSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetConnectionTypeSlice.ts" />

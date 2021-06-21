@@ -53,7 +53,7 @@ const MeterAssetWindow = (props: IProps) => {
     const [showEditNew, setShoweditNew] = React.useState<boolean>(false);
     const [showDeleteWarning, setShowDeleteWarning] = React.useState<boolean>(false);
 
-    const [sortField, setSortField] = React.useState<string>('AssetKey');
+    const [sortField, setSortField] = React.useState<keyof OpenXDA.Asset>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showLoading, setShowLoading] = React.useState<boolean>(false);
 

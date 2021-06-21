@@ -57,7 +57,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<AssetGroup>>>([]);
     const [data, setData] = React.useState<Array<AssetGroup>>([]);
-    const [sortField, setSortField] = React.useState<string>('Name');
+    const [sortField, setSortField] = React.useState<keyof AssetGroup>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<AssetGroup>>>(defaultSearchcols);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
