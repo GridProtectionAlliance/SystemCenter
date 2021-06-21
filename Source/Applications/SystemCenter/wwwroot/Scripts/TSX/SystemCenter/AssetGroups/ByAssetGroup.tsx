@@ -187,7 +187,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
                                     <div className="form-group">
-                                    <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { setShowNewGroup(true) }}>Add New AssetGroup</button>
+                                    <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowNewGroup(true); }}>Add New AssetGroup</button>
                                     </div>
                                 </form>
                             </fieldset>
