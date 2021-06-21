@@ -25,13 +25,13 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import FormInput from '../CommonComponents/FormInput';
-import FormTextArea from '../CommonComponents/FormTextArea';
-import { OpenXDA, SystemCenter } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { SystemCenter } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
+import { Input, TextArea } from '@gpa-gemstone/react-forms';
 
 declare var homePath: string;
 
@@ -46,7 +46,7 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
     const [search, setSearch] = React.useState<Array<Search.IFilter<Location>>>([]);
     const [data, setData] = React.useState<Array<Location>>([]);
 
-    const [newLocation, setNewLocation] = React.useState<OpenXDA.Location>(getNewLocation());
+    const [newLocation, setNewLocation] = React.useState<OpenXDA.Types.Location>(getNewLocation());
     const [newLocationErrors, setNewLocationErrors] = React.useState<string[]>([]);
     const [validAssetKey, setValidAssetKey] = React.useState<boolean>(true);
 
@@ -211,7 +211,7 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Location&LocationID=' + item.row.ID, state: {} })
     }
 
-    function valid(field: keyof(OpenXDA.Location)): boolean {
+    function valid(field: keyof (OpenXDA.Types.Location)): boolean {
         if (field == 'LocationKey')
             return newLocation.LocationKey != null && validAssetKey;
         else if (field == 'Name')
@@ -316,15 +316,15 @@ const ByLocation: SystemCenter.ByComponent = (props) => {
             >
                 <div className="row">
                     <div className="col">
-                        <FormInput<OpenXDA.Location> Record={newLocation} Field={'LocationKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={setNewLocation} />
-                        <FormInput<OpenXDA.Location> Record={newLocation} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={setNewLocation} />
-                        <FormInput<OpenXDA.Location> Record={newLocation} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={setNewLocation} />
-                        <FormInput<OpenXDA.Location> Record={newLocation} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'LocationKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={setNewLocation} />
                     </div>
                     <div className="col">
-                        <FormInput<OpenXDA.Location> Record={newLocation} Field={'Latitude'} Feedback={'Latitude is a require numeric field.'} Valid={valid} Setter={setNewLocation} />
-                        <FormInput<OpenXDA.Location> Record={newLocation} Field={'Longitude'} Feedback={'Longitude is a require numeric field.'} Valid={valid} Setter={setNewLocation} />
-                        <FormTextArea<OpenXDA.Location> Rows={3} Record={newLocation} Field={'Description'} Valid={valid} Setter={setNewLocation} />
+                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Latitude'} Feedback={'Latitude is a require numeric field.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Longitude'} Feedback={'Longitude is a require numeric field.'} Valid={valid} Setter={setNewLocation} />
+                        <TextArea<OpenXDA.Types.Location> Rows={3} Record={newLocation} Field={'Description'} Valid={valid} Setter={setNewLocation} />
                     </div>
                 </div>
             </Modal>
