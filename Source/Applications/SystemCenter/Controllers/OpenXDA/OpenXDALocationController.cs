@@ -145,7 +145,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("{locationID:int}/Meters")]
         public IHttpActionResult GetMetersForLocation(int locationID)
         {
-            if (GetRoles == string.Empty && !User.IsInRole(GetRoles))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
@@ -168,7 +168,7 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("{locationID:int}/Assets")]
         public IHttpActionResult GetAssetsForLocation(int locationID)
         {
-            if (GetRoles == string.Empty && !User.IsInRole(GetRoles))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
 
@@ -204,19 +204,21 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             try
             {
+                if (GetRoles == string.Empty || User.IsInRole(GetRoles))
 
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        string key = new TableOperations<Location>(connection).QueryRecordWhere("ID = {0}", locationID).LocationKey;
+                        string path = new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'ImageDirectory.Path'")?.Value;
+                        if (path == null) return BadRequest("ImageDirectory.Path not set in settings table.");
 
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    string key = new TableOperations<Location>(connection).QueryRecordWhere("ID = {0}", locationID).LocationKey;
-                    string path = new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'ImageDirectory.Path'")?.Value;
-                    if (path == null) return BadRequest("ImageDirectory.Path not set in settings table.");
-
-                    if (Directory.Exists(Path.Combine(path, key)))
-                        return Ok(Directory.GetFiles(Path.Combine(path, key)).Select(fp => new FileInfo(fp).Name));
-                    else
-                        return Ok(new string[] { });
-                }
+                        if (Directory.Exists(Path.Combine(path, key)))
+                            return Ok(Directory.GetFiles(Path.Combine(path, key)).Select(fp => new FileInfo(fp).Name));
+                        else
+                            return Ok(new string[] { });
+                    }
+                else
+                    return Unauthorized();
             }
             catch (Exception ex)
             {
@@ -228,28 +230,33 @@ namespace SystemCenter.Controllers.OpenXDA
         [HttpGet, Route("{locationID:int}/Images/{file}")]
         public HttpResponseMessage GetImageForLocation(int locationID, string file)
         {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                string key = new TableOperations<Location>(connection).QueryRecordWhere("ID = {0}", locationID).LocationKey;
-                string path = new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'ImageDirectory.Path'")?.Value;
-                if (path == null) throw new Exception("ImageDirectory.Path not set in Settings table");
-
-                using (FileStream fileStream = new FileStream(Path.Combine(path, key, file), FileMode.Open))
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    using (var memoryStream = new MemoryStream())
+                    string key = new TableOperations<Location>(connection).QueryRecordWhere("ID = {0}", locationID).LocationKey;
+                    string path = new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'ImageDirectory.Path'")?.Value;
+                    if (path == null) throw new Exception("ImageDirectory.Path not set in Settings table");
+
+                    using (FileStream fileStream = new FileStream(Path.Combine(path, key, file), FileMode.Open))
                     {
-                        fileStream.CopyTo(memoryStream);
-                        Bitmap image = new Bitmap(1, 1);
-                        image.Save(memoryStream, ImageFormat.Jpeg);
-                        HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
-                        result.Content = new ByteArrayContent(memoryStream.ToArray());
-                        result.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
-                        return result;
+                        using (var memoryStream = new MemoryStream())
+                        {
+                            fileStream.CopyTo(memoryStream);
+                            Bitmap image = new Bitmap(1, 1);
+                            image.Save(memoryStream, ImageFormat.Jpeg);
+                            HttpResponseMessage result = new HttpResponseMessage(HttpStatusCode.OK);
+                            result.Content = new ByteArrayContent(memoryStream.ToArray());
+                            result.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+                            return result;
 
+                        }
                     }
-                }
 
+                }
             }
+            else
+                return new HttpResponseMessage(HttpStatusCode.Unauthorized);
         }
 
     }
