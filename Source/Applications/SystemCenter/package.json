@@ -50,6 +50,6 @@
     "stream-browserify": "3.0.0"
   },
   "scripts": {
-    "build": "webpack --mode=development"
+    "build": "npm install && webpack --mode=development"
   }
 }

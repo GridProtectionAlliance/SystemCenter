@@ -28,14 +28,18 @@ import { BrowserRouter as Router, Route, NavLink, Switch } from 'react-router-do
 import queryString from "querystring";
 import { createBrowserHistory } from "history"
 import { SystemCenter } from './global';
-import { Provider } from 'react-redux';
-import store from './Store/Store';
+import { SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import store, { SettingSlice } from './Store/Store';
+import DeviceHealthReport from './DeviceHealthReport/DeviceHealthReport';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
 declare var version: string;
 
 const SystemCenter: React.FunctionComponent = (props: {}) => {
+    const dispatch = useDispatch();
+
     const history = createBrowserHistory();
     const ByMeter = React.lazy(() => import(/*webpackChunkName: "ByMeter"*/'./Meter/ByMeter'));
     const ByLocation = React.lazy(() => import(/* webpackChunkName: "ByLocation" */ './Location/ByLocation'));
@@ -74,6 +78,19 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
         }
 
     }, []);
+
+    const settings: SCTypes.Types.Setting[] = useSelector(SettingSlice.Data);
+    const settingsStatus: SystemCenter.Status = useSelector(SettingSlice.Status);
+
+    React.useEffect(() => {
+        if (settingsStatus == 'unintiated' || settingsStatus == 'changed')
+            dispatch(SettingSlice.Fetch());
+
+        return function () {
+        }
+
+    }, [dispatch, settingsStatus]);
+
 
     function getRoles(): JQuery.jqXHR<Array<SystemCenter.SystemCeneterSecurityRoleName>> {
        return $.ajax({
@@ -122,6 +139,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=AssetGroups"} to={controllerViewPath + "?name=AssetGroups"}>Asset Groups</NavLink>
                                 </li>
+                                <li className="nav-item" hidden={settings.find(s => s.Name == 'SystemCenter.ShowDeviceHealthReport')?.Value != "1" }>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DeviceHealthReport"} to={controllerViewPath + "?name=DeviceHealthReport"}>Device Health Report</NavLink>
+                                </li>
+
                             </ul>
 
                             <hr />
@@ -144,6 +165,11 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ValueLists"} to={controllerViewPath + "?name=ValueLists"}>Value Lists</NavLink>
                                 </li>
+                                <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings"} to={controllerViewPath + "?name=Settings"}>Settings</NavLink>
+
+                                </li>
+
                             </ul>
 
                             <hr />
@@ -155,10 +181,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Users"} to={controllerViewPath + "?name=Users"}>Users</NavLink>
-
-                                </li>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings"} to={controllerViewPath + "?name=Settings"}>Settings</NavLink>
 
                                 </li>
                             </ul>
@@ -215,6 +237,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} />
                                 else if (qs['?name'] == "Settings")
                                     return <BySetting Roles={roles} />
+                                else if (qs['?name'] == "DeviceHealthReport") {
+                                    return <DeviceHealthReport Roles={roles} />
+                                }
                                 else if (queryString.parse(rest.location.search)['?name'] == "ValueLists") {
                                     if (roles.indexOf('Administrator') < 0) return null;
                                     //return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'ValueListGroups.cshtml'}></iframe>

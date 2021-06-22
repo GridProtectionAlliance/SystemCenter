@@ -34,6 +34,7 @@ import { SystemCenter as SCGlobal } from '../global';
 import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
 
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
+import ValueListGroupForm from './ValueListGroupForm';
 
 
 const ValueListGroups: SCGlobal.ByComponent = (props) => {
@@ -54,6 +55,8 @@ const ValueListGroups: SCGlobal.ByComponent = (props) => {
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<SCTyping.Types.ValueListGroup>>>(SearchFields.ValueListGroup as Search.IField<SCTyping.Types.ValueListGroup>[]);
     const [showNew, setShowNew] = React.useState<boolean>(false);
+
+    const [record, setRecord] = React.useState<SCTyping.Types.ValueListGroup>(emptyRecord);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
@@ -84,8 +87,6 @@ const ValueListGroups: SCGlobal.ByComponent = (props) => {
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Groups'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
-                    if (field.key == "CompanyTypeID")
-                        return () => { }
                     if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
                         return () => { };
 
@@ -108,11 +109,7 @@ const ValueListGroups: SCGlobal.ByComponent = (props) => {
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
-                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => {
-                                event.preventDefault()
-                                setNewRecord(emptyRecord);
-                                setShowNew(true);
-                            }}>Add Group</button>
+                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} data-toggle="modal" data-target="#exampleModal" onClick={(evt) => { evt.preventDefault(); setRecord({ ...emptyRecord }); }}>Add Group</button>
                         </form>
                     </fieldset>
                 </li>
@@ -138,7 +135,28 @@ const ValueListGroups: SCGlobal.ByComponent = (props) => {
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     selected={(item) => false}
                 />
-            </div>            
+            </div>
+
+            <div className="modal" id="exampleModal" role="dialog">
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title">Add new list item</h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                            <ValueListGroupForm Record={record} Setter={setRecord} />
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => dispatch(ValueListGroupSlice.DBAction({ verb: 'POST', record }))}>Save changes</button>
+                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
     )
 }

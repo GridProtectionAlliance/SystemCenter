@@ -37,6 +37,7 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup');
 export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList');
 export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing');
+export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting')
 
 export default configureStore({
     reducer: {
@@ -51,6 +52,7 @@ export default configureStore({
         Location: LocationReducer,
         ValueListGroup: ValueListGroupSlice.Reducer,
         ValueList: ValueListSlice.Reducer,
-        LocationDrawing: LocationDrawingSlice.Reducer
+        LocationDrawing: LocationDrawingSlice.Reducer,
+        Setting: SettingSlice.Reducer
     }
 });

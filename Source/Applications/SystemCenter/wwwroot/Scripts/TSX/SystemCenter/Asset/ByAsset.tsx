@@ -47,7 +47,7 @@ declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Brea
 
 
 const defaultSearchcols: Array<Search.IField<Asset>> = [
-    { label: 'Name', key: 'Name', type: 'string' },
+    { label: 'Name', key: 'AssetName', type: 'string' },
 ];
 
 
@@ -225,7 +225,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID, state: {} })
     }
 
-    const standardSearch: Search.IField<Asset> = { label: 'Name', key: 'Name', type: 'string' };
+    const standardSearch: Search.IField<Asset> = { label: 'Name', key: 'AssetName', type: 'string' };
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <SearchBar<Asset> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
