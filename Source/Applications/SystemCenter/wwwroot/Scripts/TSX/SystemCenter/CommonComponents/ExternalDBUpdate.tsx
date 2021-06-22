@@ -23,12 +23,8 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import {SystemCenter, OpenXDA } from '../global';
-import { AssetAttributes } from '../AssetAttribute/Asset';
-import FormInput from './FormInput';
-import FormCheckBox from './FormCheckBox';
-import FormSelect from './FormSelect';
-import { Moment } from '../../../../../node_modules/moment/moment';
+import {SystemCenter } from '../global';
+import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 declare var homePath: string;
 
 
@@ -42,8 +38,9 @@ function ExternalDataBaseWindow(props: {
     const [externalDBFields, setFields] = React.useState<Array<SystemCenter.ExternalDBField>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
     const [currentDB, setCurrentDB] = React.useState<string>("");
-   
-    
+
+    const [status, setStatus] = React.useState<('error' | 'idle' | 'loading')>('idle');
+
     React.useEffect(() => {
         setChanged(false);
         setFields([]);
@@ -51,6 +48,7 @@ function ExternalDataBaseWindow(props: {
     }, [props.ID, props.Type, props.Tab]); 
 
     function getExternalDBs() {
+       setStatus('loading')
        let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/${props.Type}/extDataBases`, 
@@ -60,9 +58,12 @@ function ExternalDataBaseWindow(props: {
             async: true
        })
 
-       handle.done((data: Array<SystemCenter.ExternalDB>) => {
-           setexternalDB(data);
-       });
+        handle
+            .done((data: Array<SystemCenter.ExternalDB>) => {
+            setStatus('idle')
+            setexternalDB(data);
+        })
+            .fail(() => { setStatus('error') });
 
         return () => {
             if (handle.abort != undefined) handle.abort();
@@ -70,7 +71,7 @@ function ExternalDataBaseWindow(props: {
     }
 
     function updateExternalDB(type: string) {
-
+        setStatus('loading')
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/ExternalDB/${type}/${props.Type}/Update/${props.ID}`,
@@ -82,11 +83,12 @@ function ExternalDataBaseWindow(props: {
 
         handle.done((data: Array<SystemCenter.ExternalDBField>) => {
             setFields(data)
+            setStatus('idle')
             setChanged(true)
             setCurrentDB(type)
             if (data.length < 1)
                 cancelUpdate()
-        });
+        }).fail(() => { setStatus('error') });
 
         return () => {
             if (handle.abort != undefined) handle.abort();
@@ -112,7 +114,7 @@ function ExternalDataBaseWindow(props: {
     }
 
     function submitUpdate() {
-
+        setStatus('loading')
         let handle = $.ajax({
             type: "POST",
             url: `${homePath}api/ExternalDB/${currentDB}/${props.Type}/ConfirmUpdate`,
@@ -121,17 +123,54 @@ function ExternalDataBaseWindow(props: {
             data: JSON.stringify({ "data": externalDBFields }),
             cache: false,
             async: true
-        })
+        }).done(() => {
+            setFields([])
+            setChanged(false)
 
-        setFields([])
-        setChanged(false)
-
-        getExternalDBs();
+            getExternalDBs();
+        }).fail(() => setStatus('error'))
 
         return () => {
             if (handle.abort != undefined) handle.abort();
         } 
     }
+
+    if (status == 'loading')
+        return <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4> External Data Base Connections:</h4>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+                <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
+                    <div style={{ height: '100%', width: '100%', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                        <LoadingIcon Show={true} Size={40} />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+    if (status == 'error')
+        return <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4> External Data Base Connections:</h4>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+                <div style={{ width: '100%', height: '200px' }}>
+                    <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                    </div>
+                </div>
+            </div>
+        </div>
 
     return (
         <div className="card" style={{ marginBottom: 10 }}>

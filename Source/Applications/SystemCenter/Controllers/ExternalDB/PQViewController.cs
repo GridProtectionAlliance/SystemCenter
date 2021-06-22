@@ -35,8 +35,13 @@ using PQView.Model;
 
 namespace SystemCenter.Controllers
 {
-    [RoutePrefix("api/ExternalDB/PQView/Site")]
-    public class PQViewSiteController : ExternalDBController<Site> { }
+    [RoutePrefix("api/ExternalDB/PQView/Location")]
+    public class PQViewSiteController : ExternalDBController<Location> 
+    {
+        protected override string extDBConnectionSetting { get { return "dbPQView"; } }
+        protected override GSF.Data.DatabaseType extDBType { get { return DatabaseType.SQLServer; } }
+        protected override string extDBName { get { return "PQView"; } }
+    }
 
 
     [RoutePrefix("api/ExternalDB/PQView/Meter")]

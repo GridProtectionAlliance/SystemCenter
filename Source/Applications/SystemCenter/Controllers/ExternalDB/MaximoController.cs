@@ -61,11 +61,11 @@ namespace SystemCenter.Controllers
         {
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
-                    Model.AdditionalField uidField = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Location' AND FieldName = 'Maximo Asset Number (UID)'");
+                    Model.AdditionalField uidField = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Location' AND FieldName = 'Maximo Asset Number (UID)'");
                     if (uidField == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValue = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", location.ID, uidField.ID);
+                    Model.AdditionalFieldValue uiValue = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", location.ID, uidField.ID);
 
                     if (uiValue == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
@@ -102,11 +102,11 @@ namespace SystemCenter.Controllers
         {
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
-                Model.AdditionalField uidField = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Meter' AND FieldName = 'Maximo Asset Number (UID)'");
+                Model.AdditionalField uidField = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Meter' AND FieldName = 'Maximo Asset Number (UID)'");
                 if (uidField == null)
                     throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                Model.AdditionalFieldValue uiValue = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", meter.ID, uidField.ID);               
+                Model.AdditionalFieldValue uiValue = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", meter.ID, uidField.ID);               
                 if (uiValue == null)
                     throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -143,11 +143,11 @@ namespace SystemCenter.Controllers
             {
                 if (tablename == "TripCoil")
                 {
-                    Model.AdditionalField uidFieldTC = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Breaker' AND FieldName = 'Maximo TripCoil Asset Number (UID)'");
+                    Model.AdditionalField uidFieldTC = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Breaker' AND FieldName = 'Maximo TripCoil Asset Number (UID)'");
                     if (uidFieldTC == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueTC = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", breaker.ID, uidFieldTC.ID);
+                    Model.AdditionalFieldValue uiValueTC = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", breaker.ID, uidFieldTC.ID);
                     if (uiValueTC == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -156,11 +156,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "INSTXFR_A")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Breaker' AND FieldName = 'Phase A Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Breaker' AND FieldName = 'Phase A Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", breaker.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", breaker.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -169,11 +169,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "INSTXFR_B")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Breaker' AND FieldName = 'Phase B Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Breaker' AND FieldName = 'Phase B Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", breaker.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", breaker.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -182,11 +182,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "INSTXFR_C")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Breaker' AND FieldName = 'Phase C Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Breaker' AND FieldName = 'Phase C Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", breaker.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", breaker.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -194,11 +194,11 @@ namespace SystemCenter.Controllers
                 }
 
 
-                Model.AdditionalField uidFieldBreaker = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Breaker' AND FieldName = 'Maximo Breaker Asset Number (UID)'");
+                Model.AdditionalField uidFieldBreaker = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Breaker' AND FieldName = 'Maximo Breaker Asset Number (UID)'");
                 if (uidFieldBreaker == null)
                     throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                Model.AdditionalFieldValue uiValueBreaker = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", breaker.ID, uidFieldBreaker.ID);
+                Model.AdditionalFieldValue uiValueBreaker = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", breaker.ID, uidFieldBreaker.ID);
                 if (uiValueBreaker == null)
                     throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -240,11 +240,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "INSTXFR_A")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'CapBank' AND FieldName = 'Phase A Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'CapBank' AND FieldName = 'Phase A Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", capBank.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", capBank.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -253,11 +253,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "INSTXFR_B")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'CapBank' AND FieldName = 'Phase B Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'CapBank' AND FieldName = 'Phase B Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", capBank.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", capBank.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -266,22 +266,22 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "INSTXFR_C")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'CapBank' AND FieldName = 'Phase C Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'CapBank' AND FieldName = 'Phase C Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", capBank.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", capBank.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
                     return String.Format("UNID = '{0}'", uiValueXFR.Value);
                 }
 
-                Model.AdditionalField uidField = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'CapBank' AND FieldName = 'Maximo Asset Number (UID)'");
+                Model.AdditionalField uidField = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'CapBank' AND FieldName = 'Maximo Asset Number (UID)'");
                 if (uidField == null)
                     throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                Model.AdditionalFieldValue uiValue = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", capBank.ID, uidField.ID);
+                Model.AdditionalFieldValue uiValue = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", capBank.ID, uidField.ID);
                 if (uiValue == null)
                     throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -320,11 +320,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "INSTXFR_A")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Line' AND FieldName = 'Phase A Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Line' AND FieldName = 'Phase A Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", line.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", line.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -333,11 +333,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "INSTXFR_B")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Line' AND FieldName = 'Phase B Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Line' AND FieldName = 'Phase B Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", line.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", line.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -346,11 +346,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "INSTXFR_C")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Line' AND FieldName = 'Phase C Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Line' AND FieldName = 'Phase C Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", line.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", line.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -358,11 +358,11 @@ namespace SystemCenter.Controllers
                 }
 
             
-                Model.AdditionalField uidField = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Line' AND FieldName = 'Maximo Asset Number (UID)'");
+                Model.AdditionalField uidField = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Line' AND FieldName = 'Maximo Asset Number (UID)'");
                 if (uidField == null)
                     throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                Model.AdditionalFieldValue uiValue = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", line.ID, uidField.ID);
+                Model.AdditionalFieldValue uiValue = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", line.ID, uidField.ID);
                 if (uiValue == null)
                     throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -401,11 +401,11 @@ namespace SystemCenter.Controllers
             {
                 if (tablename == "INSTXFR_A")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'Phase A Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Transformer' AND FieldName = 'Phase A Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -414,11 +414,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "INSTXFR_B")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'Phase B Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Transformer' AND FieldName = 'Phase B Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -427,11 +427,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "INSTXFR_C")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'Phase C Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Transformer' AND FieldName = 'Phase C Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -440,11 +440,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "LTC_A")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'Phase A LTC Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Transformer' AND FieldName = 'Phase A LTC Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -453,11 +453,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "LTC_B")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'Phase B LTC Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Transformer' AND FieldName = 'Phase B LTC Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -466,11 +466,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "LTC_C")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'Phase C LTC Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Transformer' AND FieldName = 'Phase C LTC Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -480,11 +480,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "Transformer_A")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'Maximo Phase A Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Transformer' AND FieldName = 'Maximo Phase A Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -493,11 +493,11 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "Transformer_B")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'Maximo Phase B Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Transformer' AND FieldName = 'Maximo Phase B Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -505,11 +505,11 @@ namespace SystemCenter.Controllers
                 }
 
                 
-                Model.AdditionalField uidFieldXFRC = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'Maximo Phase C Asset Number (UID)'");
+                Model.AdditionalField uidFieldXFRC = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Transformer' AND FieldName = 'Maximo Phase C Asset Number (UID)'");
                 if (uidFieldXFRC == null)
                     throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                Model.AdditionalFieldValue uiValueXFRC = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFRC.ID);
+                Model.AdditionalFieldValue uiValueXFRC = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldXFRC.ID);
                 if (uiValueXFRC == null)
                     throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -547,11 +547,11 @@ namespace SystemCenter.Controllers
             {
                 if (tablename == "INSTXFR_A")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Bus' AND FieldName = 'Phase A Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Bus' AND FieldName = 'Phase A Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", bus.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", bus.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
@@ -560,22 +560,22 @@ namespace SystemCenter.Controllers
 
                 if (tablename == "INSTXFR_B")
                 {
-                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Bus' AND FieldName = 'Phase B Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFR = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Bus' AND FieldName = 'Phase B Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFR == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", bus.ID, uidFieldXFR.ID);
+                    Model.AdditionalFieldValue uiValueXFR = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", bus.ID, uidFieldXFR.ID);
                     if (uiValueXFR == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 
                     return String.Format("UNID = '{0}'", uiValueXFR.Value);
                 }
 
-                    Model.AdditionalField uidFieldXFRC = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Bus' AND FieldName = 'Phase C Inst. XFR Asset Number (UID)'");
+                    Model.AdditionalField uidFieldXFRC = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Bus' AND FieldName = 'Phase C Inst. XFR Asset Number (UID)'");
                     if (uidFieldXFRC == null)
                         throw (new Exception("Unable to Find Maximo Asset Number Field"));
 
-                    Model.AdditionalFieldValue uiValueXFRC = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", bus.ID, uidFieldXFRC.ID);
+                    Model.AdditionalFieldValue uiValueXFRC = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", bus.ID, uidFieldXFRC.ID);
                     if (uiValueXFRC == null)
                         throw (new Exception("No valid Maximo Asset Number Defined"));
 

@@ -39,7 +39,7 @@ using SystemCenter.Model;
 namespace SystemCenter.Controllers
 {
     [RoutePrefix("api/ExternalDB/")]
-    public class ExternalDBController<T> : ApiController where T : class, new()
+    public abstract class ExternalDBController<T> : ApiController where T : class, new()
     {
         #region [ Constructor ]
         public ExternalDBController()
@@ -81,7 +81,8 @@ namespace SystemCenter.Controllers
                     }
                     else
                     {
-                        xdaObj.Add((new TableOperations<T>(connection)).QueryRecordsWhere("ID = {0}", xdaID).First());
+                        if ((new TableOperations<T>(connection)).QueryRecordCountWhere("ID = {0}", xdaID) > 0)
+                            xdaObj.Add((new TableOperations<T>(connection)).QueryRecordsWhere("ID = {0}", xdaID).First());
                     }
                 }
             }
@@ -108,8 +109,8 @@ namespace SystemCenter.Controllers
             {
                 using (AdoDataConnection connection = new AdoDataConnection(AdditionalFieldConnection))
                 {
-                    fields = new TableOperations<Model.AdditionalField>(connection).QueryRecordsWhere("OpenXDAParentTable = {0} AND ExternalDB = {1}", tableName, extDBName).ToList();
-                    xdaFields = new TableOperations<Model.ExternalOpenXDAField>(connection).QueryRecordsWhere("OpenXDAParentTable = {0} AND ExternalDB = {1}", tableName, extDBName).ToList();
+                    fields = new TableOperations<Model.AdditionalField>(connection).QueryRecordsWhere("ParentTable = {0} AND ExternalDB = {1}", tableName, extDBName).ToList();
+                    xdaFields = new TableOperations<Model.ExternalOpenXDAField>(connection).QueryRecordsWhere("ParentTable = {0} AND ExternalDB = {1}", tableName, extDBName).ToList();
 
                     IEnumerable<IGrouping<string, Model.AdditionalField>> fieldGroups = fields.GroupBy(item => item.ExternalDBTable);
                     IEnumerable<IGrouping<string, Model.ExternalOpenXDAField>> xdafieldGroups = xdaFields.GroupBy(item => item.ExternalDBTable);
@@ -138,7 +139,7 @@ namespace SystemCenter.Controllers
 
                     fields.ForEach(item =>
                         xdaObj.ForEach( asset => 
-                            connection.ExecuteNonQuery("UPDATE AdditionalFieldValue SET [UpdatedOn] = sysdatetime() WHERE OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}",
+                            connection.ExecuteNonQuery("UPDATE AdditionalFieldValue SET [UpdatedOn] = sysdatetime() WHERE ParentTableID = {0} AND AdditionalFieldID = {1}",
                             asset.GetType().GetProperty("ID").GetValue(asset), item.ID)
                             )
                     );
@@ -400,9 +401,9 @@ namespace SystemCenter.Controllers
 
                     res = processExternalAdditionalField(xdaObj, res);
 
-                    if (valueTable.QueryRecordCountWhere("AdditionalFieldID = {0} AND OpenXDAParentTableID = {1}", item.ID, res.OpenXDAParentTableID) > 0)
+                    if (valueTable.QueryRecordCountWhere("AdditionalFieldID = {0} AND ParentTableID = {1}", item.ID, res.OpenXDAParentTableID) > 0)
                     {
-                        Model.AdditionalFieldValue val = valueTable.QueryRecordsWhere("AdditionalFieldID = {0} AND OpenXDAParentTableID = {1}", item.ID, res.OpenXDAParentTableID).First();
+                        Model.AdditionalFieldValue val = valueTable.QueryRecordsWhere("AdditionalFieldID = {0} AND ParentTableID = {1}", item.ID, res.OpenXDAParentTableID).First();
                         res.FieldValueID = val.ID;
                         res.PreviousValue = val.Value;
                     }

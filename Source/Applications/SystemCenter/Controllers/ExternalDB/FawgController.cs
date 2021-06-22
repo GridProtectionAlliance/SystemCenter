@@ -332,19 +332,19 @@ namespace SystemCenter.Controllers
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                Model.AdditionalField uidFieldhigh = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'FAWG High Side Bus'");
+                Model.AdditionalField uidFieldhigh = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Transformer' AND FieldName = 'FAWG High Side Bus'");
                 if (uidFieldhigh == null)
                     throw (new Exception("Unable to Find High Side Bus Field"));
 
-                Model.AdditionalFieldValue uiValueHigh = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldhigh.ID);
+                Model.AdditionalFieldValue uiValueHigh = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldhigh.ID);
                 if (uiValueHigh == null)
                     throw (new Exception("No valid High Side Bus Defined"));
 
-                Model.AdditionalField uidFieldlow = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("OpenXDAParentTable = 'Transformer' AND FieldName = 'FAWG Low Side Bus'");
+                Model.AdditionalField uidFieldlow = new TableOperations<Model.AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Transformer' AND FieldName = 'FAWG Low Side Bus'");
                 if (uidFieldlow == null)
                     throw (new Exception("Unable to Find Low Side Bus Field"));
 
-                Model.AdditionalFieldValue uiValueLow = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("OpenXDAParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldlow.ID);
+                Model.AdditionalFieldValue uiValueLow = new TableOperations<Model.AdditionalFieldValue>(connection).QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", xfr.ID, uidFieldlow.ID);
                 if (uiValueLow == null)
                     throw (new Exception("No valid Low Side Bus Defined"));
 
