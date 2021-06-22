@@ -250,6 +250,7 @@
     <Compile Include="DebugHost.Designer.cs">
       <DependentUpon>DebugHost.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model\DeviceHealthReport.cs" />
     <Compile Include="Model\GlobalSettings.cs" />
     <Compile Include="Model\Security\UserAccount.cs" />
     <Compile Include="SystemCenterEngine.cs" />
@@ -519,8 +520,8 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Settings\BySetting.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterChannelScaling.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationDrawings.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\MeterHealth\ByMeter.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\MeterHealth\Meter.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceHealthReport.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\Meter.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeasurementTypeSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetTypeSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetConnectionTypeSlice.ts" />
@@ -584,8 +585,7 @@
     </VisualStudio>
   </ProjectExtensions>
   <PropertyGroup>
-    <PostBuildEvent>
-CALL "$(ProjectDir)PostBuildSetup.bat" "$(ProjectDir)bin" "$(SolutionDir)Dependencies\GSF\*.*"
+    <PostBuildEvent>CALL "$(ProjectDir)PostBuildSetup.bat" "$(ProjectDir)bin" "$(SolutionDir)Dependencies\GSF\*.*"
 
 CALL "$(ProjectDir)PostBuildSetup.bat" "$(ProjectDir)bin" "$(TargetDir)*.dll"
 
@@ -599,8 +599,10 @@ CALL "$(ProjectDir)PostBuildSetup.bat" "$(ProjectDir)bin" "%25SystemRoot%25\Micr
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>CALL cd $(ProjectDir)
-CALL npm install
-CALL npm run build</PreBuildEvent>
+CALL npm run build
+
+
+</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

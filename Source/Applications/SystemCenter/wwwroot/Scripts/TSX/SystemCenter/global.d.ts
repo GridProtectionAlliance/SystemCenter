@@ -59,6 +59,7 @@ export namespace SystemCenter {
     interface TSC { ID: number, Name: string, Description: string, DepartmentNumber: string }
     interface Role { ID: number, Name: string, Description: string }
 
+    interface DeviceHealthReport { ID: number, Name: string, Model: string, Substation: string, TSC: string, Sector: string, IP: string, LastGood: string,  BadDays: number, Status: string, LastConfigChange: string }
     type NewEdit = 'New' | 'Edit'
    
     type SystemCeneterSecurityRoleName = 'Administrator' | 'Transmission SME' | 'PQ Data Viewer';

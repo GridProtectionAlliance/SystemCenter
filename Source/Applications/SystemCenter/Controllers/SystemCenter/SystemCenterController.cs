@@ -81,7 +81,7 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/ExternalDBTables")]
     public class ExtDBTablesController : ModelController<extDBTables> { }
 
-    [RoutePrefix("api/SystemCenter/Setting")]
+    [RoutePrefix("api/Setting")]
     public class SettingController : ModelController<Setting> { }
 
     [RoutePrefix("api/SystemCenter/Statistics/MiMD")]

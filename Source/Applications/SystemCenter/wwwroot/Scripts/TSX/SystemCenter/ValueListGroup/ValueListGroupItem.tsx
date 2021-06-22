@@ -37,6 +37,7 @@ export default function ValueListGroupItems(props: { Record: SCTyping.Types.Valu
     const status: SCGlobal.Status = useSelector(ValueListSlice.Status);
     const sortField: keyof SCTyping.Types.ValueListGroup = useSelector(ValueListSlice.SortField);
     const ascending: boolean = useSelector(ValueListSlice.Ascending);
+    const parentID: number = useSelector(ValueListSlice.ParentID);
 
     const emptyRecord: SCTyping.Types.ValueListItem = { ID: 0, GroupID: 0, Value: '', AltValue: '', SortOrder: 0 };
     const [record, setRecord] = React.useState<SCTyping.Types.ValueListItem>(emptyRecord);
@@ -45,7 +46,7 @@ export default function ValueListGroupItems(props: { Record: SCTyping.Types.Valu
 
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status == 'unintiated' || status == 'changed' || parentID != props.Record.ID)
             dispatch(ValueListSlice.Fetch(props.Record.ID));
 
         return function () {

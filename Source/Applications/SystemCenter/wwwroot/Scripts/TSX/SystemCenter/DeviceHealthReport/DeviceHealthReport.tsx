@@ -31,28 +31,29 @@ import { SystemCenter as SCGlobal } from '../global';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
 
-interface Meter {
-    ID: number, AssetKey: string, Name: string, Location: string, MappedAssets: number, Make: string, Model: string 
-}
-declare var homePath: string;
 
-const defaultSearchcols: Array<Search.IField<Meter>> = [
-    { label: 'AssetKey', key: 'AssetKey', type: 'string' },
+const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'Name', key: 'Name', type: 'string' },
-    { label: 'Location', key: 'Location', type: 'string' },
-    { label: 'Make', key: 'Make', type: 'string' },
+    { label: 'Substation', key: 'Substation', type: 'string' },
     { label: 'Model', key: 'Model', type: 'string' },
-    { label: 'Number of Assets', key: 'MappedAssets', type: 'number' },
+    { label: 'TSC', key: 'TSC', type: 'string' },
+    { label: 'Sector', key: 'Sector', type: 'string' },
+    { label: 'IP', key: 'IP', type: 'string' },
+    { label: 'Last Good Health', key: 'LastGood', type: 'datetime' },
+    { label: 'Bad Days', key: 'BadDays', type: 'number' },
+    { label: 'Status', key: 'Status', type: 'string' },
+    { label: 'Last Config Change', key: 'LastConfigChange', type: 'datetime' },
+
 ];
 
-const ByMeter: SCGlobal.ByComponent = (props) => {
+const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
     let history = useHistory();
 
-    const [search, setSearch] = React.useState<Array<Search.IFilter<Meter>>>([]);
-    const [data, setData] = React.useState<Array<Meter>>([]);
+    const [search, setSearch] = React.useState<Search.IFilter<SCGlobal.DeviceHealthReport>[]>([]);
+    const [data, setData] = React.useState<SCGlobal.DeviceHealthReport[]>([]);
 
-    const [sortField, setSortField] = React.useState<keyof Meter>('AssetKey');
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Meter>>>(defaultSearchcols);
+    const [sortField, setSortField] = React.useState<keyof SCGlobal.DeviceHealthReport>('Name');
+    const [filterableList, setFilterableList] = React.useState<Search.IField<SCGlobal.DeviceHealthReport>[]>(defaultSearchcols);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
 
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -61,7 +62,7 @@ const ByMeter: SCGlobal.ByComponent = (props) => {
         let handle = getMeters();
         handle.done((dt: string) => {
             setSearchState('Idle');
-            setData(JSON.parse(dt) as Array<Meter>);
+            setData(JSON.parse(dt) as SCGlobal.DeviceHealthReport[]);
         }).fail((d) => setSearchState('Error'));
 
         return function cleanup() {
@@ -85,7 +86,7 @@ const ByMeter: SCGlobal.ByComponent = (props) => {
 
         return $.ajax({
             type: "Post",
-            url: `${homePath}api/OpenXDA/MeterList/SearchableList`,
+            url: `${homePath}api/DeviceHealthReport/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
@@ -120,7 +121,7 @@ const ByMeter: SCGlobal.ByComponent = (props) => {
 
         handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
             let ordered = _.orderBy(defaultSearchcols.concat(d.map(item => (
-                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Meter>
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<SCGlobal.DeviceHealthReport>
             ))), ['label'], ["asc"]);
             setFilterableList(ordered)
         });
@@ -129,11 +130,11 @@ const ByMeter: SCGlobal.ByComponent = (props) => {
     }
 
 
-    const standardSearch: Search.IField<Meter> = { label: 'Name', key: 'Name', type: 'string' };
+    const standardSearch: Search.IField<SCGlobal.DeviceHealthReport> = { label: 'Name', key: 'Name', type: 'string' };
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<Meter> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
+            <SearchBar<SCGlobal.DeviceHealthReport> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Meters'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
@@ -154,34 +155,21 @@ const ByMeter: SCGlobal.ByComponent = (props) => {
                 }}
 
             >
-                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                        <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
-                        <form>
-                            <button className="btn btn-primary" data-tooltip onClick={goNewMeterWizard} hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}>New Meter</button>
-                        </form>
-                    </fieldset>
-                </li>
-                <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
-                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                        <form>
-                            <div className="form-group">
-                                <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
-                            </div>
-                        </form>
-                    </fieldset>
-                </li>
             </SearchBar>
+
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table
+                <Table<SCGlobal.DeviceHealthReport>
                     cols={[
                         { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'Location', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'MappedAssets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Substation', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'TSC', label: 'TSC', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Sector', label: 'Sector', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'IP', label: 'IP', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'LastGood', label: 'Last Good', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'BadDays', label: 'Bad Days', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'LastConfigChange', label: 'Last Config Change', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                     ]}
@@ -228,5 +216,5 @@ const ByMeter: SCGlobal.ByComponent = (props) => {
     )
 }
 
-export default ByMeter;
+export default DeviceHealthReport;
 
