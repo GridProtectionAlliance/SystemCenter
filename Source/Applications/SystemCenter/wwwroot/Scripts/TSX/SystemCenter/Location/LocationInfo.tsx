@@ -134,7 +134,11 @@ const LocationInfo = (props: IProps) => {
             url: `${homePath}api/openXDA/Location/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: [{ FieldName: 'LocationKey', SearchText: location.LocationKey, Operator: '=', Type: 'string', isPivotColumn: false }], OrderBy: 'ID', Ascending: false }),
+            data: JSON.stringify({
+                Searches: [
+                    { FieldName: 'LocationKey', SearchText: location.LocationKey, Operator: '=', Type: 'string', isPivotColumn: false },
+                    { FieldName: 'ID', SearchText: location.ID, Operator: '<>', Type: 'number', isPivotColumn: false }                ], OrderBy: 'ID', Ascending: false
+            }),
             cache: false,
             async: true
         });
