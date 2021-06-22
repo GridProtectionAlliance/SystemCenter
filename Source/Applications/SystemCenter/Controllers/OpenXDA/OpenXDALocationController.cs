@@ -49,7 +49,6 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/Location")]
     public class OpenXDALocationController : ModelController<Location>
     {
-
         [HttpPost, Route("SearchableListIncludingMeter")]
         public IHttpActionResult GetMetersUsingSearchableList([FromBody] PostData searches)
         {
@@ -259,6 +258,36 @@ namespace SystemCenter.Controllers.OpenXDA
                 return new HttpResponseMessage(HttpStatusCode.Unauthorized);
         }
 
+        [HttpGet, Route("extDataBases")]
+        public IHttpActionResult GetExternalDB()
+        {
+            try
+            {
+                if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+
+                    using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                    {
+                                    string query = @"SELECT MIN(UpdatedOn) AS lastUpdate, AdditionalField.ExternalDB AS name  
+                                                    FROM 
+                                                    AdditionalField LEFT JOIN AdditionalFieldValue ON AdditionalField.ID = AdditionalFieldValue.AdditionalFieldID
+                                                    WHERE 
+                                                        AdditionalField.ParentTable = 'Location'
+                                                        AND AdditionalField.ExternalDB IS NOT NULL AND AdditionalField.ExternalDB <> ''
+                                                    GROUP BY AdditionalField.ExternalDB";
+
+                                    DataTable table = connection.RetrieveData(query);
+
+                                    return Ok(table);
+                    }
+                else
+                    return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
     }
 
 }
