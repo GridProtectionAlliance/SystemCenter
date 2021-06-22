@@ -251,6 +251,23 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         });
     }
 
+    function updateField(): void {
+        setState('loading');
+        $.ajax({
+            type: "Patch",
+            url: `${homePath}api/SystemCenter/AdditionalField/Update`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(newField),
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done(e => {
+            getData();
+        }).fail(() => {
+            setState('error');
+        });
+    }
+
     function deleteField(field: SystemCenter.Types.AdditionalField): void {
         setState('loading');
         $.ajax({
@@ -463,7 +480,18 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 Title={'Additional Field'} ConfirmText={'Save'} CancelText={'Close'}
                 ConfirmBtnClass={'btn-primary' + (!ValidField() ? ' disabled' : '')}
                 Show={showEdit} Size={'lg'} ShowX={true}
-                CallBack={(confirmation: boolean, btn: boolean) => { if (!ValidField() && confirmation) return; if (confirmation) addNewField(); setShowEdit(false); }}
+                CallBack={(confirmation: boolean, btn: boolean) => {
+                    if (!ValidField() && confirmation)
+                        return;
+                    if (confirmation) {
+                        if (newField.ID == 0)
+                            addNewField();
+                        else
+                            updateField();
+                    }
+                        
+                    setShowEdit(false);
+                }}
                 ConfirmShowToolTip={!ValidField()}
                 ConfirmToolTipContent={
                     <>
