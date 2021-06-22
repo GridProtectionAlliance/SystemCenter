@@ -47,12 +47,12 @@ module.exports = env => {
         },
         externals: {
             jquery: 'jQuery',
-            react: 'React',
-            'react-dom': 'ReactDOM',
+            //react: 'React',
+            //'react-dom': 'ReactDOM',
             //moment: 'moment',
             ace: 'ace',
             d3: 'd3',
-            'react-router-dom': 'ReactRouterDOM',
+            //'react-router-dom': 'ReactRouterDOM',
         },
         optimization: {
             //minimize: true

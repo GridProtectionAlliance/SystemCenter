@@ -59,12 +59,12 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ValueListGroup = React.lazy(() => import(/* webpackChunkName: "ValueListGroup" */ './ValueListGroup/ValueListGroup'));
 
     const [roles, setRoles] = React.useState<Array<SystemCenter.SystemCeneterSecurityRoleName>>([]);
-    const [ignored, forceUpdate] = React.useReducer(x => x + 1, 0); // integer state for resize renders
+    const [ignored, forceUpdate] = React.useReducer((x:number) => x + 1, 0); // integer state for resize renders
 
     React.useEffect(() => {
         let handle = getRoles();
         handle.done(rs => setRoles(rs));
-        window.addEventListener('resize', (evt) => forceUpdate(1));
+        window.addEventListener('resize', (evt) => forceUpdate());
 
         return function cleanup() {
             if (handle.abort != null)

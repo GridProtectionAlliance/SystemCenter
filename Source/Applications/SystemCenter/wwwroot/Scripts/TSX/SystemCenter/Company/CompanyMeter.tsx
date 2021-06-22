@@ -34,7 +34,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
     const [searchTextAS, setSearchTextAS] = React.useState<string>('');
 
     const [selectedSites, setSelectedSites] = React.useState<{ID: number, Name: string}[]>([]);
-    const [updated, Sync] = React.useReducer(x => x + 1, 0); // integer state for inducing database sync
+    const [updated, Sync] = React.useReducer(x => x + 1, 0);// integer state for inducing database sync
 
     React.useEffect(() => {
         let promise1 = getSites();
@@ -69,12 +69,12 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
             cache: false,
             async: true
         }).done(() => {
-            Sync(1);
+            Sync();
         }).fail(msg => {
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
             else {
-                Sync(1);
+                Sync();
             }
         });
     }
@@ -100,12 +100,12 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
             cache: false,
             async: true
         }).done(() => {
-            Sync(1);
+            Sync();
         }).fail(msg => {
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
             else {
-                Sync(1);
+                Sync();
             }
         });
 
