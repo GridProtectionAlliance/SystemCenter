@@ -43,6 +43,7 @@ using System.Transactions;
 using System.Data.SqlClient;
 using System.Linq;
 using GSF.Web.Model;
+using PQView.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
@@ -166,6 +167,10 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
     }
+
+    [RoutePrefix("api/PQView/PQViewSite")]
+    public class PQViewSiteCotnroller : ModelController<Site> { }
+       
 }
 
 
