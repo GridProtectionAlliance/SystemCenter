@@ -45,14 +45,14 @@ namespace SystemCenter.Controllers
 
         protected override Model.ExternalDBField processExternalAdditionalField(Meter meter, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = meter.ID;
+            field.ParentTableID = meter.ID;
             field.DisplayName = meter.AssetKey;
             return field;
         }
 
         protected override Model.ExternalDBField processExternalopenXDAField(Meter meter, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = meter.ID;
+            field.ParentTableID = meter.ID;
             field.DisplayName = meter.AssetKey;
             return field;
         }

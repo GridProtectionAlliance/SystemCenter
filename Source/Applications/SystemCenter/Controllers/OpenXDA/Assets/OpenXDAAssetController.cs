@@ -856,9 +856,9 @@ namespace SystemCenter.Controllers.OpenXDA
             breaker.AssetName = record["AssetName"].ToString();
             breaker.ThermalRating = record["ThermalRating"].ToObject<double>();
             breaker.Speed = record["Speed"].ToObject<double>();
-            breaker.TripTime = record["TripTime"].ToObject<int?>();
-            breaker.PickupTime = record["PickupTime"].ToObject<int?>();
-            breaker.TripCoilCondition = record["TripCoilCondition"].ToObject<double?>();
+            breaker.TripTime = record["TripTime"].ToObject<int>();
+            breaker.PickupTime = record["PickupTime"].ToObject<int>();
+            breaker.TripCoilCondition = record["TripCoilCondition"].ToObject<double>();
             breaker.Spare = record["Spare"].ToObject<bool>();
         }
 

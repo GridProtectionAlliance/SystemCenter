@@ -45,14 +45,14 @@ namespace SystemCenter.Controllers
 
         protected override Model.ExternalDBField processExternalAdditionalField(Location location, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = location.ID;
+            field.ParentTableID = location.ID;
             field.DisplayName = location.LocationKey;
             return field;
         }
 
         protected override Model.ExternalDBField processExternalopenXDAField(Location location, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = location.ID;
+            field.ParentTableID = location.ID;
             field.DisplayName = location.LocationKey;
             return field;
         }
@@ -86,14 +86,14 @@ namespace SystemCenter.Controllers
 
         protected override Model.ExternalDBField processExternalAdditionalField(Meter meter, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = meter.ID;
+            field.ParentTableID = meter.ID;
             field.DisplayName = meter.AssetKey;
             return field;
         }
 
         protected override Model.ExternalDBField processExternalopenXDAField(Meter meter, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = meter.ID;
+            field.ParentTableID = meter.ID;
             field.DisplayName = meter.AssetKey;
             return field;
         }
@@ -125,14 +125,14 @@ namespace SystemCenter.Controllers
 
         protected override Model.ExternalDBField processExternalAdditionalField(Breaker breaker, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = breaker.ID;
+            field.ParentTableID = breaker.ID;
             field.DisplayName = breaker.AssetKey;
             return field;
         }
 
         protected override Model.ExternalDBField processExternalopenXDAField(Breaker breaker, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = breaker.ID;
+            field.ParentTableID = breaker.ID;
             field.DisplayName = breaker.AssetKey;
             return field;
         }
@@ -221,14 +221,14 @@ namespace SystemCenter.Controllers
 
         protected override Model.ExternalDBField processExternalAdditionalField(CapBank capBank, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = capBank.ID;
+            field.ParentTableID = capBank.ID;
             field.DisplayName = capBank.AssetKey;
             return field;
         }
 
         protected override Model.ExternalDBField processExternalopenXDAField(CapBank capBank, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = capBank.ID;
+            field.ParentTableID = capBank.ID;
             field.DisplayName = capBank.AssetKey;
             return field;
         }
@@ -301,14 +301,14 @@ namespace SystemCenter.Controllers
 
         protected override Model.ExternalDBField processExternalAdditionalField(Line line, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = line.ID;
+            field.ParentTableID = line.ID;
             field.DisplayName = line.AssetKey;
             return field;
         }
 
         protected override Model.ExternalDBField processExternalopenXDAField(Line line, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = line.ID;
+            field.ParentTableID = line.ID;
             field.DisplayName = line.AssetKey;
             return field;
         }
@@ -382,14 +382,14 @@ namespace SystemCenter.Controllers
 
         protected override Model.ExternalDBField processExternalAdditionalField(Transformer xfr, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = xfr.ID;
+            field.ParentTableID = xfr.ID;
             field.DisplayName = xfr.AssetKey;
             return field;
         }
 
         protected override Model.ExternalDBField processExternalopenXDAField(Transformer xfr, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = xfr.ID;
+            field.ParentTableID = xfr.ID;
             field.DisplayName = xfr.AssetKey;
             return field;
         }
@@ -529,14 +529,14 @@ namespace SystemCenter.Controllers
 
         protected override Model.ExternalDBField processExternalAdditionalField(Bus bus, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = bus.ID;
+            field.ParentTableID = bus.ID;
             field.DisplayName = bus.AssetKey;
             return field;
         }
 
         protected override Model.ExternalDBField processExternalopenXDAField(Bus bus, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = bus.ID;
+            field.ParentTableID = bus.ID;
             field.DisplayName = bus.AssetKey;
             return field;
         }

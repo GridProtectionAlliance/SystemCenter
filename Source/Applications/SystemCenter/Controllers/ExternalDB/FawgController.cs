@@ -44,14 +44,14 @@ namespace SystemCenter.Controllers
 
         protected override Model.ExternalDBField processExternalAdditionalField(LineSegment segment, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = segment.ID;
+            field.ParentTableID = segment.ID;
             field.DisplayName = segment.AssetKey;
             return field;
         }
 
         protected override Model.ExternalDBField processExternalopenXDAField(LineSegment segment, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = segment.ID;
+            field.ParentTableID = segment.ID;
             field.DisplayName = segment.AssetKey;
             return field;
         }
@@ -315,14 +315,14 @@ namespace SystemCenter.Controllers
 
         protected override Model.ExternalDBField processExternalAdditionalField(Transformer xfr, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = xfr.ID;
+            field.ParentTableID = xfr.ID;
             field.DisplayName = xfr.AssetKey;
             return field;
         }
 
         protected override Model.ExternalDBField processExternalopenXDAField(Transformer xfr, Model.ExternalDBField field)
         {
-            field.OpenXDAParentTableID = xfr.ID;
+            field.ParentTableID = xfr.ID;
             field.DisplayName = xfr.AssetKey;
             return field;
         }

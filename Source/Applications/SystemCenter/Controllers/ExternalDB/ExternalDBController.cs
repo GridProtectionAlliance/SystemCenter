@@ -177,7 +177,7 @@ namespace SystemCenter.Controllers
 
                         if (fld.isXDAField)
                         {
-                            T xdaObj = (new TableOperations<T>(xdaConnection)).QueryRecordWhere("ID = {0}", fld.OpenXDAParentTableID);
+                            T xdaObj = (new TableOperations<T>(xdaConnection)).QueryRecordWhere("ID = {0}", fld.ParentTableID);
                             
                             // Convert to int, string or other 
                             MethodInfo m = xdaObj.GetType().GetProperty(fld.FieldName).GetValue(xdaObj).GetType().GetMethod("Parse", new Type[] { typeof(string) });
@@ -203,7 +203,7 @@ namespace SystemCenter.Controllers
                             valueTable.AddNewRecord(new Model.AdditionalFieldValue()
                             {
                                 AdditionalFieldID = fld.AdditionalFieldID,
-                                ParentTableID = fld.OpenXDAParentTableID,
+                                ParentTableID = fld.ParentTableID,
                                 Value = fld.Value,
                             });
                         }
@@ -401,9 +401,9 @@ namespace SystemCenter.Controllers
 
                     res = processExternalAdditionalField(xdaObj, res);
 
-                    if (valueTable.QueryRecordCountWhere("AdditionalFieldID = {0} AND ParentTableID = {1}", item.ID, res.OpenXDAParentTableID) > 0)
+                    if (valueTable.QueryRecordCountWhere("AdditionalFieldID = {0} AND ParentTableID = {1}", item.ID, res.ParentTableID) > 0)
                     {
-                        Model.AdditionalFieldValue val = valueTable.QueryRecordsWhere("AdditionalFieldID = {0} AND ParentTableID = {1}", item.ID, res.OpenXDAParentTableID).First();
+                        Model.AdditionalFieldValue val = valueTable.QueryRecordsWhere("AdditionalFieldID = {0} AND ParentTableID = {1}", item.ID, res.ParentTableID).First();
                         res.FieldValueID = val.ID;
                         res.PreviousValue = val.Value;
                     }
