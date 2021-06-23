@@ -25,9 +25,8 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
 import { AssetAttributes } from './Asset';
-import FormInput from '../CommonComponents/FormInput';
-import FormCheckBox from '../CommonComponents/FormCheckBox';
 import { getSpareBreakersForSubstation } from '../../../TS/Services/Asset';
+import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 
 function BreakerAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.Breaker, UpdateState: (newEditAsset: OpenXDA.Breaker) => void, ShowSpare?: boolean }): JSX.Element {
     function valid(field: keyof(OpenXDA.Breaker)): boolean {
@@ -36,11 +35,11 @@ function BreakerAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
         else if (field == 'Speed')
             return props.Asset.Speed != null && AssetAttributes.isRealNumber(props.Asset.Speed);
         else if (field == 'TripTime')
-            return props.Asset.TripTime == null || AssetAttributes.isInteger(props.Asset.TripTime);
+            return props.Asset.TripTime != null && AssetAttributes.isInteger(props.Asset.TripTime);
         else if (field == 'PickupTime')
-            return props.Asset.PickupTime == null || AssetAttributes.isInteger(props.Asset.PickupTime);
+            return props.Asset.PickupTime != null && AssetAttributes.isInteger(props.Asset.PickupTime);
         else if (field == 'TripCoilCondition')
-            return props.Asset.TripCoilCondition == null || AssetAttributes.isRealNumber(props.Asset.TripCoilCondition);
+            return props.Asset.TripCoilCondition != null && AssetAttributes.isRealNumber(props.Asset.TripCoilCondition);
         else if (field == 'EDNAPoint') return true;
         else if (field == 'Spare') return true;
         else if (field == 'SpareBreakerID') return true;
@@ -57,12 +56,12 @@ function BreakerAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
     if (props.Asset == null) return null;
     return (
         <>
-            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'Thermal rating is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={ props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'Speed'} Feedback={'Speed is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'TripTime'} Label={'Trip Time Limit'} Feedback={'Trip Time is an integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'PickupTime'} Label={'Pickup Time Limit'} Feedback={'Pickup Time is an integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition Limit'} Feedback={'Trip Coil Condition is an numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <FormInput<OpenXDA.Breaker> Record={props.Asset} Field={'EDNAPoint'} Label={'EDNA Point'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Breaker> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'Thermal rating is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={ props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Breaker> Record={props.Asset} Field={'Speed'} Feedback={'Speed is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Breaker> Record={props.Asset} Field={'TripTime'} Label={'Trip Time Limit'} Feedback={'Trip Time is an integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Breaker> Record={props.Asset} Field={'PickupTime'} Label={'Pickup Time Limit'} Feedback={'Pickup Time is an integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition Limit'} Feedback={'Trip Coil Condition is an numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Breaker> Record={props.Asset} Field={'EDNAPoint'} Label={'EDNA Point'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
             <div className="form-group" hidden={props.ShowSpare != true}>
                 <label>Spare Breaker</label>
@@ -81,7 +80,7 @@ function BreakerAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
 
                 </select>
             </div>
-            <FormCheckBox<OpenXDA.Breaker> Record={props.Asset} Field={'Spare'} Label={'Is Spare'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <CheckBox<OpenXDA.Breaker> Record={props.Asset} Field={'Spare'} Label={'Is Spare'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
         </>
     );

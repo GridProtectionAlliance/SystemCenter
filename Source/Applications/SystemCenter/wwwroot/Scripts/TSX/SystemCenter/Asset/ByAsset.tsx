@@ -36,7 +36,7 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
-import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table'
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
@@ -65,12 +65,16 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newAsset, setNewAsset] = React.useState<OpenXDA.Types.Asset>(AssetAttributes.getNewAsset('Line'));
 
+    const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
+    const [showNewModal, setShowNewModal] = React.useState<boolean>(false);
 
     const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.Types.AssetType>>([]);
     const [extDBtab, setextDBTab] = React.useState<string>(getextDBTab());
 
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Asset>>>(defaultSearchcols);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
+
+    const [assetErrors, setAssetErrors] = React.useState<string[]>([]);
 
     const allAssets = useSelector(SelectAssets);
     const aStatus = useSelector(SelectAssetStatus);
@@ -129,6 +133,16 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
             }
         }
     }, [dispatch, aStatus]);
+
+    React.useEffect(() => {
+        const errors = AssetAttributes.AssetError(newAsset, newAsset.AssetType);
+        if (newAsset.AssetKey == null || newAsset.AssetKey.length == 0)
+            errors.push('A AssetKey is required.')
+        else if (allAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(newAsset.AssetKey.toLowerCase()) > -1)
+            errors.push('AssetKey has to be unique.')
+
+        setAssetErrors(errors);
+    }, [newAsset])
 
     function getAdditionalFields(Type: string): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
         let handle = $.ajax({
@@ -254,11 +268,11 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
-                                <div className="form-group">
-                                    <button className="btn btn-primary" data-toggle='modal' data-target="#assetModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Add Asset</button>
+                            <div className="form-group">
+                                <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowNewModal(true); }}>Add Asset</button>
                                 </div>
-                                <div className="form-group">
-                                    <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
+                            <div className="form-group">
+                                <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>Update Ext DB </button>
                                 </div>
                                     
                             </form>
@@ -298,94 +312,78 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
                 />
             </div>
 
-            <div className="modal" id="assetModal">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Add a New Asset</h4>
-                            <button type="button" className="close" data-dismiss="modal" onClick={(evt) => {
-                                let asset = AssetAttributes.getNewAsset('Line');
-                                asset['AssetTypeID'] = assetTypes.find(ats => ats.Name == 'Line').ID;
-                                setNewAsset(asset);
-                            }}>&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="row">
-                                <div className="col">
-                                    <AssetAttributes.AssetAttributeFields Asset={newAsset} NewEdit={'New'} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} HideAssetType={false} />
-                                </div>
-                                <div className="col">
-                                    {showAttributes()}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewAsset}>Save</button>
-                            <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => {
-                                let asset = AssetAttributes.getNewAsset('Line');
-                                asset['AssetTypeID'] = assetTypes.find(ats => ats.Name == 'Line').ID;
-                                setNewAsset(asset);
-                            }}>Close</button>
-                        </div>
-
+            <Modal Show={showNewModal} Size={'lg'} Title={'Add a New Asset'}
+                ConfirmText={'Save'}
+                DisableConfirm={assetErrors.length > 0}
+                ConfirmShowToolTip={assetErrors.length > 0}
+                ConfirmToolTipContent={
+                    assetErrors.map((t, i) =><p key={i}>
+                        <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> {t}
+                    </p>)
+                }
+                CallBack={(conf) => {
+                    if (conf) {
+                        addNewAsset();
+                    }
+                    else {
+                        const asset = AssetAttributes.getNewAsset('Line');
+                        asset['AssetTypeID'] = assetTypes.find(ats => ats.Name == 'Line').ID;
+                        setNewAsset(asset);
+                    }
+                    setShowNewModal(false);
+                }}
+            >
+                <div className="row">
+                    <div className="col">
+                        <AssetAttributes.AssetAttributeFields Asset={newAsset} NewEdit={'New'} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} HideAssetType={false} />
+                    </div>
+                    <div className="col">
+                        {showAttributes()}
                     </div>
                 </div>
-            </div>
+            </Modal>
+           
+            <Modal Show={showEXTModal} Size={'xlg'} Title={'Assets External Database Fields'}
+                ShowCancel={false} ConfirmText={'close'} CallBack={() => { setShowExtModal(false); }}
+            >
+                <ul className="nav nav-tabs">
+                    <li className="nav-item">
+                        <a className={"nav-link" + (extDBtab == "Bus" ? " active" : "")} onClick={() => setextDBTab('Bus')} data-toggle="tab" href="#extDBBus">Buses</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (extDBtab == "Line" ? " active" : "")} onClick={() => setextDBTab('Line')} data-toggle="tab" href="#extDBLine">Lines</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (extDBtab == "Breaker" ? " active" : "")} onClick={() => setextDBTab('Breaker')} data-toggle="tab" href="#extDBBreaker">Breakers</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (extDBtab == "Transformer" ? " active" : "")} onClick={() => setextDBTab('Transformer')} data-toggle="tab" href="#extDBXFR">Transformers</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (extDBtab == "CapacitorBank" ? " active" : "")} onClick={() => setextDBTab('CapacitorBank')} data-toggle="tab" href="#extDBCapacitorBank">CapBanks</a>
+                    </li>
+                </ul>
 
-            <div className="modal" id="extDBModal">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Assets External Database Fields</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <ul className="nav nav-tabs">
-                                <li className="nav-item">
-                                    <a className={"nav-link" + (extDBtab == "Bus" ? " active" : "")} onClick={() => setextDBTab('Bus')} data-toggle="tab" href="#extDBBus">Buses</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className={"nav-link" + (extDBtab == "Line" ? " active" : "")} onClick={() => setextDBTab('Line')} data-toggle="tab" href="#extDBLine">Lines</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className={"nav-link" + (extDBtab == "Breaker" ? " active" : "")} onClick={() => setextDBTab('Breaker')} data-toggle="tab" href="#extDBBreaker">Breakers</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className={"nav-link" + (extDBtab == "Transformer" ? " active" : "")} onClick={() => setextDBTab('Transformer')} data-toggle="tab" href="#extDBXFR">Transformers</a>
-                                </li>
-                                <li className="nav-item">
-                                    <a className={"nav-link" + (extDBtab == "CapacitorBank" ? " active" : "")} onClick={() => setextDBTab('CapacitorBank')} data-toggle="tab" href="#extDBCapacitorBank">CapBanks</a>
-                                </li>
-                            </ul>
-
-                            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                                <div className={"tab-pane " + (extDBtab == "Bus" ? " active" : "fade")} id="extDBBus">
-                                    <ExternalDBUpdate ID={-1} Type='Bus' Tab={extDBtab} />
-                                </div>
-                                <div className={"tab-pane " + (extDBtab == "Line" ? " active" : "fade")} id="extDBLine">
-                                    <ExternalDBUpdate ID={-1} Type='Line' Tab={extDBtab} />
-                                </div>
-                                <div className={"tab-pane " + (extDBtab == "Breaker" ? " active" : "fade")} id="extDBBreaker">
-                                    <ExternalDBUpdate ID={-1} Type='Breaker' Tab={extDBtab} />
-                                </div>
-                                <div className={"tab-pane " + (extDBtab == "Transformer" ? " active" : "fade")} id="extDBXFR">
-                                    <ExternalDBUpdate ID={-1} Type='Transformer' Tab={extDBtab} />
-                                </div>
-                                <div className={"tab-pane " + (extDBtab == "CapacitorBank" ? " active" : "fade")} id="extDBCapacitorBank">
-                                    <ExternalDBUpdate ID={-1} Type={'CapacitorBank'} Tab={extDBtab} />
-                                </div>
-                                
-                            </div>                
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-
+                <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
+                    <div className={"tab-pane " + (extDBtab == "Bus" ? " active" : "fade")} id="extDBBus">
+                        <ExternalDBUpdate ID={-1} Type='Bus' Tab={extDBtab} />
                     </div>
-                </div>
-            </div>
-         
+                    <div className={"tab-pane " + (extDBtab == "Line" ? " active" : "fade")} id="extDBLine">
+                        <ExternalDBUpdate ID={-1} Type='Line' Tab={extDBtab} />
+                    </div>
+                    <div className={"tab-pane " + (extDBtab == "Breaker" ? " active" : "fade")} id="extDBBreaker">
+                        <ExternalDBUpdate ID={-1} Type='Breaker' Tab={extDBtab} />
+                    </div>
+                    <div className={"tab-pane " + (extDBtab == "Transformer" ? " active" : "fade")} id="extDBXFR">
+                        <ExternalDBUpdate ID={-1} Type='Transformer' Tab={extDBtab} />
+                    </div>
+                    <div className={"tab-pane " + (extDBtab == "CapacitorBank" ? " active" : "fade")} id="extDBCapacitorBank">
+                        <ExternalDBUpdate ID={-1} Type={'CapacitorBank'} Tab={extDBtab} />
+                    </div>
 
+                </div>
+            </Modal>
+            
         </div>
     )
 }
