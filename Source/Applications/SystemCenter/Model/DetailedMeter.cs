@@ -56,7 +56,17 @@ namespace OpenXDA.Model
         Meter.Model,
         Location.Name
     "), AllowSearch]
-
+    [AdditionalFieldSearch("ParentTable='Meter'", @"
+    (SELECT
+	    AdditionalFieldValue.ID,
+	    AdditionalField.FieldName,
+	    AdditionalFieldValue.Value,
+        AdditionalFieldValue.ParentTableID, 
+        AdditionalField.ParentTable
+    FROM
+	    AdditionalField JOIN
+	    AdditionalFieldValue ON AdditionalField.ID = AdditionalFieldValue.AdditionalFieldID)
+    ", "ParentTableID", "Value", "FieldName")]
     public class DetailedMeter
     {
         [PrimaryKey(true)]

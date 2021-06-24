@@ -521,7 +521,10 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterChannelScaling.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationDrawings.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceHealthReport.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\Meter.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceIssuesPage.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DownloadedFiles.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceTSCContacts.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceSectorContatcs.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeasurementTypeSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetTypeSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetConnectionTypeSlice.ts" />
@@ -538,6 +541,8 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\ValueListSlice.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ByValueListGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroup.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\AdditionalUserFieldsWindow.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\UserForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupInfo.tsx" />

@@ -51,7 +51,11 @@ export namespace SystemCenter {
     interface Customer { ID: number, CustomerKey: string, Name: string, Phone: string, Description: string }
     interface CustomerAccess { ID: number, CustomerID: number, PQViewSiteID: number }
 
-    interface UserAccount { ID: string, Name: string, Password: string, FirstName: string, LastName: string, DefaultNodeID?: string, Phone: string, PhoneConfirmed: boolean, Email: string, EmailConfirmed: boolean, LockedOut: boolean, Approved: boolean, UseADAuthentication: boolean, ChangePasswordOn: Date, CreatedOn?: Date, CreatedBy?: string, UpdatedOn?: Date, AccountName?: string, TSCID: number, RoleID: number, Title: string, Department: string, DepartmentNumber: string, MobilePhone: string, ReceiveNotifications: boolean}
+    interface UserAccount { ID: string, Name: string, Password: string, FirstName: string, LastName: string, DefaultNodeID?: string, Phone: string, PhoneConfirmed: boolean, Email: string, EmailConfirmed: boolean, LockedOut: boolean, Approved: boolean, UseADAuthentication: boolean, ChangePasswordOn: Date, CreatedOn?: Date, CreatedBy?: string, UpdatedOn?: Date, AccountName?: string, Title: string, Department: string, DepartmentNumber: string, MobilePhone: string, ReceiveNotifications: boolean}
+    interface AdditionalUserField { ID: number, FieldName: string, Type: string, IsSecure: boolean }
+    interface AdditionalUserFieldValue { ID: number, UserAccountID: string, AdditionalUserFieldID: number, Value: string }
+
+
     interface ApplicationRole<T> { ID: string, Name: T, Description: string, NodeID: string, CreatedOn: Date, CreatedBy: string, UpdatedOn: Date, UpdatedBy: string, Assigned?: boolean }
     interface ApplicationRoleUserAccount { ID: string, ApplicationRoleID: string, UserAccountID: string }
     interface SecurityGroup { ID: string, Name: string, Description: string, CreatedOn: Date, CreatedBy: string, UpdatedOn: Date }
@@ -59,7 +63,8 @@ export namespace SystemCenter {
     interface TSC { ID: number, Name: string, Description: string, DepartmentNumber: string }
     interface Role { ID: number, Name: string, Description: string }
 
-    interface DeviceHealthReport { ID: number, Name: string, Model: string, Substation: string, TSC: string, Sector: string, IP: string, LastGood: string,  BadDays: number, Status: string, LastConfigChange: string }
+    interface DeviceHealthReport { ID: number, Name: string, Model: string, LocationID: number, Substation: string, TSC: string, Sector: string, IP: string, LastGood: string,  BadDays: number, Status: string, LastConfigChange: string }
+
     type NewEdit = 'New' | 'Edit'
    
     type SystemCeneterSecurityRoleName = 'Administrator' | 'Transmission SME' | 'PQ Data Viewer';

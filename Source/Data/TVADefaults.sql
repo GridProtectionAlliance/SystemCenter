@@ -1020,54 +1020,58 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
             )')
 GO
 
+INSERT INTO ValueListGroup (Name, Description) VALUES ('TSC', 'List of TSCs - Value is TSC name, AltValue is department number') 
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Bowling Green', 'D17312', 1)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Browns Ferry', 'D17341', 2)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Chattanooga', 'D17323',3)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Columbia', 'D17311', 4)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Huntsville', 'D17325', 5)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Johnson City', 'D17321', 6)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Knoxville', 'D17322', 7)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Mayfield', 'D17313', 8)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Memphis', 'D17332', 9)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Murfreesboro', 'D17314', 10)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Muscle Shoals', 'D17335', 11)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Sequoyah', 'D17342', 12)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Starkville', 'D17334', 13)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Tupelo', 'D17333',14)
+GO
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'TSC'), 'Watts Bar', 'D17343', 15)
+GO
 
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Columbia', 'Also covers Nashville', 'D17311')
+INSERT INTO ValueListGroup (Name, Description) VALUES ('Role', 'List of Roles - Value is Category, AltValue is list of roles that fall underneath it') 
 GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Bowling Green', NULL, 'D17312')
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'Role'), 'TSM (Transmission Service Manager)', 'Mgr, Transmission Service Cntr', 1)
 GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Mayfield', 'Also covers Jackson', 'D17313')
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'Role'), 'PMTM (Program Manager, Transmission Maintenance)', 'Prog Mgr, Trans Maint', 2)
 GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Murfreesboro', 'Also covers Nashville', 'D17314')
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'Role'), 'SE (System Engineer)', 'SY ENGR, TRANSM (PSO) A;SY ENGR, TRANSM (PSO) B;SY ENGR, TRANSM (PSO) C;SYSTEM ENGR TRANS, (REST USE);ELEC ENG-TRANS SERV;ELECT ENGR, TRANS SVS (PSO) B', 3)
 GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Johnson City', NULL, 'D17321')
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'Role'), 'PMS (Power Maintenance Specialist)', 'Maint Spec, Trans System (C)', 4)
 GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Knoxville', NULL, 'D17322')
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'Role'), 'PMT (Power Maintenance Technician)', 'TECH, PWR MAINT (PSO) A;TECH, POWER MAINT (PSO) B', 5)
 GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Chattanooga', 'Also covers Cleveland', 'D17323')
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'Role'), 'TCE (Telecom Engineer)', 'ELECT ENGR, POWR CN SY (PSO) A;ELECT ENGR, POWR CN SY (PSO) B', 6)
 GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Huntsville', NULL, 'D17325')
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'Role'), 'TCS (Telecom Specialist)', 'MAINT SPEC, TRANS COMM (PSO) C', 7)
 GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Memphis', 'Also covers Jackson', 'D17332')
-GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Tupelo', NULL, 'D17333')
-GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Starkville', NULL, 'D17334')
-GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Muscle Shoals', NULL, 'D17335')
-GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Browns Ferry', NULL, 'D17341')
-GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Sequoyah', NULL, 'D17342')
-GO
-INSERT INTO TSC (Name, Description, DepartmentNumber) VALUES ('Watts Bar', NULL, 'D17343')
+INSERT INTO ValueList (GroupID, Value, AltValue, SortOrder) VALUES ((SELECT ID FROM ValueListGroup WHERE Name = 'Role'), 'TCT (Telecom Technician)', 'Technician, Telecom (PSO) A;Technician, Telecom (PSO) B', 8)
 GO
 
-INSERT INTO Role (Name, Description) VALUES ('TSM (Transmission Service Manager)', 'Mgr, Transmission Service Cntr')
-GO
-INSERT INTO Role (Name, Description) VALUES ('PMTM (Program Manager, Transmission Maintenance)', 'Prog Mgr, Trans Maint')
-GO
-INSERT INTO Role (Name, Description) VALUES ('SE (System Engineer)', 'SY ENGR, TRANSM (PSO) A;SY ENGR, TRANSM (PSO) B;SY ENGR, TRANSM (PSO) C;SYSTEM ENGR TRANS, (REST USE);ELEC ENG-TRANS SERV;ELECT ENGR, TRANS SVS (PSO) B')
-GO
-INSERT INTO Role (Name, Description) VALUES ('PMS (Power Maintenance Specialist)', 'Maint Spec, Trans System (C)')
-GO
-INSERT INTO Role (Name, Description) VALUES ('PMT (Power Maintenance Technician)', 'TECH, PWR MAINT (PSO) A;TECH, POWER MAINT (PSO) B')
-GO
-INSERT INTO Role (Name, Description) VALUES ('TCE (Telecom Engineer)', 'ELECT ENGR, POWR CN SY (PSO) A;ELECT ENGR, POWR CN SY (PSO) B')
-GO
-INSERT INTO Role (Name, Description) VALUES ('TCS (Telecom Specialist)', 'MAINT SPEC, TRANS COMM (PSO) C')
-GO
-INSERT INTO Role (Name, Description) VALUES ('TCT (Telecom Technician)', 'Technician, Telecom (PSO) A;Technician, Telecom (PSO) B')
-GO
 
 INSERT INTO CompanyType (Name,Description) VALUES ('Industrial (Directly Served)','C - Industrial (Directly Served)')
 GO
@@ -1080,10 +1084,9 @@ GO
 INSERT INTO CompanyType (Name,Description) VALUES ('Interchange and Transmission','X - Interchange and Transmission')
 GO
 
-INSERT INTO ValueListGroup ([Name],[Description],[Enabled]) VALUES
-	('TimeZones','TimeZones',1),
-	('TSC','TSC',1),
-	('Status','Status',1)
+INSERT INTO ValueListGroup ([Name],[Description]) VALUES
+	('TimeZones','TimeZones'),
+	('Status','Status')
 GO
 
 INSERT INTO ValueList ([GroupID], [Key], [Value],[Text],[AltText1],[SortOrder],[IsDefault],[Enabled],[Flag],[Hidden]) VALUES
@@ -1096,11 +1099,6 @@ INSERT INTO ValueList ([GroupID], [Key], [Value],[Text],[AltText1],[SortOrder],[
 (1,3,0,'Eastern Standard Time','(UTC-05:00) Eastern Time (US & Canada)',3,0,1,0,0),
 (1,2,0,'US Eastern Standard Time','(UTC-05:00) Indiana (East)',2,1,2,0,0),
 (1,1,0,'UTC','(UTC) Coordinated Universal Time',1,0,2,0,0),
-(2,0,1,'AL',NULL,1,0,1,0,0),
-(2,0,2,'TN',NULL,2,0,1,0,0),
-(2,0,3,'GA',NULL,3,0,1,0,0),
-(2,0,4,'MS',NULL,4,0,1,0,0),
-(2,0,5,'KY',NULL,5,0,1,0,0),
 (3,1,0,'Active',NULL,1,0,1,0,0),
 (3,2,0,'Retired',NULL,1,0,1,0,0),
 (3,3,0,'Planned',NULL,1,0,1,0,0),

@@ -39,6 +39,7 @@ namespace SystemCenter.Model
 	    Meter.ID,
 	    Meter.Name,
 	    Make + ' ' + Model as Model,
+		Location.ID as LocationID,
 	    Location.Name as Substation,
 	    vltsc.Value as TSC,
 	    vltsector.Value as Sector,
@@ -63,6 +64,7 @@ namespace SystemCenter.Model
 		public int ID { get; set; }
 		public string Name { get; set; }
 		public string Model { get; set; }
+		public int LocationID { get; set; }
 		public string Substation { get; set; }
 		public string TSC { get; set; }
 		public string Sector { get; set; }

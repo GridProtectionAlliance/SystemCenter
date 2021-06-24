@@ -36,7 +36,7 @@ import LocationDrawingsWindow from './LocationDrawings';
 
 declare var homePath: string;
 type tab = 'notes' | 'locationInfo' | 'additionalFields' | 'meters' | 'assets' | 'extDB' | 'images' | 'drawings'
-export default class Location extends React.Component<{ LocationID: number }, { Location: OpenXDA.Location, Tab: tab }, {}>{
+export default class Location extends React.Component<{ LocationID: number, Tab: tab }, { Location: OpenXDA.Location, Tab: tab }, {}>{
     constructor(props, context) {
         super(props, context);
 
@@ -47,7 +47,8 @@ export default class Location extends React.Component<{ LocationID: number }, { 
     }
 
     getTab(): tab {
-        if (sessionStorage.hasOwnProperty('Location.Tab'))
+        if (this.props.Tab != undefined) return this.props.Tab;
+        else if (sessionStorage.hasOwnProperty('Location.Tab'))
             return JSON.parse(sessionStorage.getItem('Location.Tab'));
         else
             return 'notes';

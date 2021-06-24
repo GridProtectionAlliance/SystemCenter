@@ -36,6 +36,9 @@ using openXDA.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
+    [AdditionalFieldSearch("ParentTable='Meter'")]
+    public class MeterDetail : openXDA.Model.Meter { }
+    
     [RoutePrefix("api/OpenXDA/Meter")]
     public class OpenXDAMeterController : ModelController<Meter>
     {

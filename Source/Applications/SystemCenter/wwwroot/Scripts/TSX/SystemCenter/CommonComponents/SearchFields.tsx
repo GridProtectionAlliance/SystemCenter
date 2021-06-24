@@ -69,7 +69,7 @@ export namespace DefaultSearchField {
     export const Company = { label: 'Name', key: 'Name', type: 'string' };
     export const ValueListGroup = { label: 'Name', key: 'Name', type: 'string' };
     export const Customer = { label: 'Account Name', key: 'CustomerKey', type: 'string' };
-    export const UserAccount = { label: 'First Name', key: 'UserAccount.FirstName', type: 'string' };
+    export const UserAccount = { label: 'Last Name', key: 'LastName', type: 'string' };
     export const Location = { label: 'Name', key: 'Name', type: 'string' };
 }
 

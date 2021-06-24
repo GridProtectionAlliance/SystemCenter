@@ -26,6 +26,8 @@ import * as _ from 'lodash';
 import { SystemCenter } from '../global';
 import UserInfoWindow from './UserInfo';
 import UserPermissionsWindow from './UserPermissions';
+import AdditionalUserFieldsWindow from './AdditionalUserFieldsWindow';
+
 import { TabSelector } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
@@ -88,7 +90,9 @@ export default class User extends React.Component<{ UserID: string }, { User: Sy
 
         const Tabs = [
             { Id: "userInfo", Label: "User Info" },
-            { Id: "permissions", Label: "Permissions" }];
+            { Id: "permissions", Label: "Permissions" },
+            { Id: "additionalFields", Label: "Additional Fields" }
+        ];
 
         return (
             <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
@@ -111,6 +115,9 @@ export default class User extends React.Component<{ UserID: string }, { User: Sy
                     </div>
                     <div className={"tab-pane " + (this.state.Tab == "permissions" ? " active" : "fade")} id="permissions">
                         <UserPermissionsWindow User={this.state.User} />
+                    </div>
+                    <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields" style={{ maxHeight: window.innerHeight - 215 }}>
+                        <AdditionalUserFieldsWindow ID={this.props.UserID} Tab={this.state.Tab} />
                     </div>
 
                 </div>                

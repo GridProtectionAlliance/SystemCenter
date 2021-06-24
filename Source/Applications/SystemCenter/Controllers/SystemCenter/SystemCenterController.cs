@@ -210,6 +210,47 @@ namespace SystemCenter.Controllers
 
     }
 
+    [RoutePrefix("api/SystemCenter/AdditionalUserField")]
+    public class AdditionalUserFieldController : ModelController<AdditionalUserField> {}
+
+    [RoutePrefix("api/SystemCenter/AdditionalUserFieldValue")]
+    public class AdditionalUserFieldValueController : ModelController<AdditionalUserFieldValue>
+    {
+
+        [HttpPatch, Route("Array")]
+        public IHttpActionResult PatchValues([FromBody] IEnumerable<AdditionalUserFieldValue> values)
+        {
+            try
+            {
+                if (User.IsInRole(PatchRoles))
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        foreach (AdditionalUserFieldValue value in values)
+                        {
+                            new TableOperations<AdditionalUserFieldValue>(connection).AddNewOrUpdateRecord(value);
+                        }
+                        return Ok("Patched values without exception.");
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+
+    }
+
+
     [RoutePrefix("api/SystemCenter/Role")]
     public class RoleController : ModelController<ADRole> { }
 

@@ -96,7 +96,7 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID, state: {} })
+        //history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID, state: {} })
     }
     function goNewMeterWizard() {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard', state: {} })
@@ -161,15 +161,22 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
                 <Table<SCGlobal.DeviceHealthReport>
                     cols={[
                         { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Substation', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Substation', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=Location&LocationID=${item.LocationID}&Tab=images` } target='_blank'>{item[key]}</a> },
                         { key: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'TSC', label: 'TSC', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Sector', label: 'Sector', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'IP', label: 'IP', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'LastGood', label: 'Last Good', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'LastGood', label: 'Last Good', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item,key,style) => moment(item[key]).format('MM/DD/YYYY') },
                         { key: 'BadDays', label: 'Bad Days', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'LastConfigChange', label: 'Last Config Change', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        {
+                            key: 'LastConfigChange', label: 'Last Config Change', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => {
+                                if (item[key] == undefined)
+                                    return '';
+                                else
+                                    return moment(item[key]).format('MM/DD/YYYY')
+                            }
+                        },
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                     ]}

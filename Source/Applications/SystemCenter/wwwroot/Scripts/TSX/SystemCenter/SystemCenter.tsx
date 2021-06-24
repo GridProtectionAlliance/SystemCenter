@@ -105,7 +105,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
 
     if (Object.keys(queryString.parse(history.location.search)).length == 0)
-        history.push({ pathname: homePath + 'index.cshtml', search: 'name=Meters', state: {} })
+        history.push({ pathname: homePath + 'index.cshtml', search: 'name=Meters' })
 
     return (
         <Router>
@@ -218,7 +218,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "Meter")
                                     return <Meter MeterID={parseInt(qs.MeterID as string)} />
                                 else if (qs['?name'] == "Location")
-                                    return <Location LocationID={parseInt(qs.LocationID as string)} />
+                                    return <Location LocationID={parseInt(qs.LocationID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Asset")
                                     return <Asset AssetID={parseInt(qs.AssetID as string)} />
                                 else if (qs['?name'] == "AssetGroup")

@@ -146,6 +146,18 @@ export function validUserAccountField(user: SystemCenter.UserAccount,field: keyo
 
 }
 
+export function getNewUserAccount(): JQuery.jqXHR<SystemCenter.UserAccount> {
+    return $.ajax({
+        type: "GET",
+        url: `${homePath}api/SystemCenter/UserAccount/New`,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        cache: false,
+        async: true
+    });
+}
+
+
 export function GetAccessLogAggregates(database: SystemCenter.AttachedDatabases, days: number) {
     return $.ajax({
         type: "GET",

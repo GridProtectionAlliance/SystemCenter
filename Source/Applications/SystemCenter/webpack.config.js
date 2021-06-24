@@ -38,6 +38,14 @@ module.exports = env => {
                     include: path.resolve(__dirname, 'wwwroot', "Scripts"),
                     loader: "ts-loader", options: { transpileOnly: true }
                 },
+                //{
+                //    test: /\.tsx?$/,
+                //    include: path.resolve(__dirname, 'wwwroot', "Scripts"),
+                //    loader: "esbuild-loader", options: {
+                //        loader: 'tsx', target: 'es2015', tsconfigRaw: require('./tsconfig.json')
+                //    }
+                //},
+
                 {
                     test: /\.css$/,
                     include: path.resolve(__dirname, 'wwwroot', "Content"),
@@ -46,13 +54,8 @@ module.exports = env => {
             ]
         },
         externals: {
-            jquery: 'jQuery',
-            //react: 'React',
-            //'react-dom': 'ReactDOM',
-            //moment: 'moment',
             ace: 'ace',
             d3: 'd3',
-            //'react-router-dom': 'ReactRouterDOM',
         },
         optimization: {
             //minimize: true
