@@ -26,6 +26,7 @@ import _ from 'lodash';
 import { OpenXDA } from '../global';
 import Table from '../CommonComponents/Table';
 import { useHistory } from "react-router-dom";
+import { Modal } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
@@ -44,7 +45,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
 
     const [sortField, setSortField] = React.useState<keyof (AssetConnection)>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
-
+    const [showModal, setShowModal] = React.useState<boolean>(false);
     React.useEffect(() => {
         getData();
     }, [props.Asset]);
@@ -183,49 +184,45 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right" data-toggle='modal' data-target='#connectionModal'>Add Connection</button>
+                    <button className="btn btn-primary pull-right" onClick={(evt) => { evt.preventDefault(); setShowModal(true); }}>Add Connection</button>
                 </div>
 
             </div>
 
-            <div className="modal" id="connectionModal">
-                <div className="modal-dialog">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Add Asset to Asset Connection</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="form-group">
-                                <label>Asset:</label>
-                                <select className="form-control" value={newAssetConnection != null ? newAssetConnection.Child : '0'} onChange={(evt) => {
-                                    let r = _.clone(newAssetConnection);
-                                    r.Child = evt.target.value;
-                                    setNewAssetConnection(r);
-                                }}>
-                                    {localAssets.map(als => <option value={als.ID} key={als.ID}>{als.AssetKey}</option>)}
-                                </select>
+            <Modal Show={showModal} Title={'Add Asset to Asset Connection'} ShowCancel={false} ShowX={true}
+                CallBack={(conf) => {
+                    if (conf)
+                        addConnection();
+                    setShowModal(false);
+                }} ConfirmText={'Add'}>
 
-                                <label>Asset Connection Type:</label>
-                                <select className="form-control" value={newAssetConnection != null ? newAssetConnection.AssetRelationshipTypeID : '0'} onChange={(evt) => {
-                                    let r = _.clone(newAssetConnection);
-                                    r.AssetRelationshipTypeID = assetConnectionTypes.find(l => l.ID.toString() == evt.target.value).ID
-                                    setNewAssetConnection(r);
-                                }}>
-                                    {assetConnectionTypes.map(als => <option value={als.ID} key={als.ID}>{als.Name}</option>)}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addConnection}>Save</button>
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-
-                    </div>
+                <div className="alert alert-info" role="alert">
+                    <p>Assets that are connected have to be located in the same SubStation.</p>
+                    <p>
+                        If an Asset does not show up in the list it is not possible to add the selected connection type between the two Assets
+                        or they are not located in the same Substation.
+                    </p>
                 </div>
-            </div>
+                <div className="form-group">
+                    <label>Asset Connection Type:</label>
+                    <select className="form-control" value={newAssetConnection != null ? newAssetConnection.AssetRelationshipTypeID : '0'} onChange={(evt) => {
+                        let r = _.clone(newAssetConnection);
+                        r.AssetRelationshipTypeID = assetConnectionTypes.find(l => l.ID.toString() == evt.target.value).ID
+                        setNewAssetConnection(r);
+                    }}>
+                        {assetConnectionTypes.map(als => <option value={als.ID} key={als.ID}>{als.Name}</option>)}
+                    </select>
 
-
+                    <label>Asset:</label>
+                    <select className="form-control" value={newAssetConnection != null ? newAssetConnection.Child : '0'} onChange={(evt) => {
+                        let r = _.clone(newAssetConnection);
+                        r.Child = evt.target.value;
+                        setNewAssetConnection(r);
+                    }}>
+                        {localAssets.map(als => <option value={als.ID} key={als.ID}>{als.AssetKey}</option>)}
+                    </select>
+                </div>
+            </Modal>
         </div>
                 
     );

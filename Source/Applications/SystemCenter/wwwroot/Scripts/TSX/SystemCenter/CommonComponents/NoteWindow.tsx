@@ -143,7 +143,7 @@ const NoteWindow = (props: IProps) => {
             type: "POST",
             url: `${homePath}api/OpenXDA/Note/Add`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({ ...d, Timestamp: moment().format('MM/DD/YYYY HH:mm'), UserAccount: '', ReferenceTableID: props.ID } as OpenXDA.Types.Note),
+            data: JSON.stringify({ ...d, Timestamp: moment().format('MM/DD/YYYY HH:mm'), UserAccount: undefined, ReferenceTableID: props.ID } as OpenXDA.Types.Note),
             dataType: 'json',
             cache: true,
             async: true

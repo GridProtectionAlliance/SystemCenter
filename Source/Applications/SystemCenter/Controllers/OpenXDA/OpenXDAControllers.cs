@@ -63,8 +63,40 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/AssetConnection")]
     public class OpenXDAAssetConnectionController : ModelController<AssetConnection> { }
 
+    [RoutePrefix("api/OpenXDA/AssetConnectionType")]
+    public class OpenXDAAssetConnectionTypeController : ModelController<AssetConnectionType> { }
+
     [RoutePrefix("api/OpenXDA/Note")]
-    public class NoteController : ModelController<Notes> {}
+    public class NoteController : ModelController<Notes> 
+    {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                if (User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        Notes newRecord = record.ToObject<Notes>();
+
+                        newRecord.UserAccount = User.Identity.Name;
+                        int result = new TableOperations<Notes>(connection).AddNewRecord(newRecord);
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+    }
 
     [RoutePrefix("api/OpenXDA/Bus")]
     public class OpenXDABusController : ModelController<Bus> { }

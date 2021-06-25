@@ -63,7 +63,13 @@ function BreakerAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
             <Input<OpenXDA.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition Limit'} Feedback={'Trip Coil Condition is an numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <Input<OpenXDA.Breaker> Record={props.Asset} Field={'EDNAPoint'} Label={'EDNA Point'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
-            <div className="form-group" hidden={props.ShowSpare != true}>
+            {props.ShowSpare ?
+                <>
+                    <div className="alert alert-info" role="alert">
+                        <p>Spare Breakers must be assigned to the same Substation as the original Breaker.</p>
+                        <p>If a Breakers does not show up in the list below it is not assigned to the same Substation.</p>
+                    </div>
+                    <div className="form-group" hidden={!props.Asset.Spare}>
                 <label>Spare Breaker</label>
                 <select className="form-control" value={props.Asset.SpareBreakerID == null ? 0 : props.Asset.SpareBreakerID} onChange={(evt) => {
                     let record: OpenXDA.Breaker = _.clone(props.Asset);
@@ -80,8 +86,8 @@ function BreakerAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
 
                 </select>
             </div>
-            <CheckBox<OpenXDA.Breaker> Record={props.Asset} Field={'Spare'} Label={'Is Spare'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-
+            <CheckBox<OpenXDA.Breaker> Record={props.Asset} Field={'Spare'} Label={'Use Spare instead'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+               </> : null}
         </>
     );
 

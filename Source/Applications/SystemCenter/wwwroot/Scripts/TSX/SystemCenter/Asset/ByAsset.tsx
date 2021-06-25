@@ -36,7 +36,7 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
-import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table'
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
@@ -75,6 +75,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
 
     const [assetErrors, setAssetErrors] = React.useState<string[]>([]);
+    const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle')
 
     const allAssets = useSelector(SelectAssets);
     const aStatus = useSelector(SelectAssetStatus);
@@ -199,6 +200,8 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
     }
 
     function addNewAsset() {
+        setPageState('loading');
+        setNewAsset(newAsset);
         $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/${newAsset.AssetType}/Add`,
@@ -207,12 +210,12 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
             data: JSON.stringify(newAsset),
             cache: false,
             async: true
-        }).done((newAsset: OpenXDA.Types.Asset) => {
+        }).done(() => {
             sessionStorage.clear();
-            history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + newAsset.ID, state: {} })
-        }).fail((msg) => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
+            setPageState('idle')
+            setSortField('AssetKey');
+        }).fail(() => {
+            setPageState('error')
         });
 
     }
@@ -240,6 +243,25 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
     }
 
     const standardSearch: Search.IField<Asset> = { label: 'Name', key: 'AssetName', type: 'string' };
+
+    if (pageState == 'loading')
+        return <div style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
+                <div style={{ height: '100%', width: '100%', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                    <LoadingIcon Show={true} Size={40} />
+                </div>
+            </div>
+        </div>
+    if (pageState == 'error')
+        return <div style={{ width: '100%', height: '100%' }}>
+            <div style={{ width: '100%', height: '200px' }}>
+            <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+            </div>
+            </div>
+        </div>
+
+
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <SearchBar<Asset> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
@@ -333,7 +355,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
                     setShowNewModal(false);
                 }}
             >
-                <div className="row">
+                <div className="row" style={{ maxHeight: innerHeight - 300, overflow: 'auto' }}>
                     <div className="col">
                         <AssetAttributes.AssetAttributeFields Asset={newAsset} NewEdit={'New'} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} HideAssetType={false} />
                     </div>
