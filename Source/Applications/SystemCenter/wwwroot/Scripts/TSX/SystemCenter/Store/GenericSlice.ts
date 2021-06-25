@@ -25,6 +25,7 @@ import { createSlice, createAsyncThunk, AsyncThunk, Slice, Draft } from '@reduxj
 import * as _ from 'lodash';
 import { SystemCenter } from '../global';
 import * as $ from 'jquery';
+import { Search } from '@gpa-gemstone/react-interactive';
 
 export default class GenericSlice<T> {
     Name: string = "";
@@ -38,6 +39,7 @@ export default class GenericSlice<T> {
     }> = null;
     Fetch: AsyncThunk<any, void | number, {}> = null;
     DBAction: AsyncThunk<any, { verb: 'POST' | 'DELETE' | 'PATCH', record: T }, {}> = null;
+    DBSearch: AsyncThunk<any, { filter: Search.IFilter<T>, sortField?: keyof T, ascending?: boolean }, {}> = null;
     Sort;
     Reducer;
 
@@ -52,22 +54,37 @@ export default class GenericSlice<T> {
             return await this.Action(args.verb, args.record);
         });
 
+        const dBSearch = createAsyncThunk(`${name}/Search${name}`, async (args: { filter, sortfield?, ascending?}, { dispatch, getState }) => {
+
+            let sortfield = args.sortfield;
+            let asc = args.ascending;
+
+            sortfield = sortfield == undefined ? getState()[this.Name].SortField : sortfield;
+            asc = asc == undefined ? getState()[this.Name].Ascending : asc;
+           
+            return await this.Search(args.filter, asc,sortfield);
+        });
+
         const slice = createSlice({
             name: this.Name,
             initialState: {
                 Status: 'unintiated',
+                SearchStatus: 'unintiated',
                 Error: null,
                 Data: [],
                 SortField: 'Name',
                 Ascending: true,
-                ParentID: null
+                ParentID: null,
+                SearchResults: []
             } as {
                 Status: SystemCenter.Status,
+                SearchStatus: SystemCenter.Status,
                 Error: string,
                 Data: T[],
                 SortField: keyof T,
                 Ascending: boolean,
-                ParentID: number
+                ParentID: number,
+                SearchResults: T[]
             },
             reducers: {
                 Sort: (state, action) => {
@@ -109,6 +126,18 @@ export default class GenericSlice<T> {
                     state.Error = null;
                 });
 
+                builder.addCase(dBSearch.pending, (state, action) => {
+                    state.SearchStatus = 'loading';
+                });
+                builder.addCase(dBSearch.rejected, (state, action) => {
+                    state.SearchStatus = 'error';
+
+                });
+                builder.addCase(dBSearch.fulfilled, (state, action) => {
+                    state.SearchStatus = 'changed';
+                    state.SearchResults = JSON.parse(action.payload) as Draft<T[]>
+                });
+
             }
 
         });
@@ -117,7 +146,7 @@ export default class GenericSlice<T> {
         this.Fetch = fetch;
         this.DBAction = dBAction;
         this.Slice = slice;
-
+        this.DBSearch = dBSearch;
         const { Sort } = slice.actions
         this.Sort = Sort;
         this.Reducer = slice.reducer;
@@ -153,6 +182,19 @@ export default class GenericSlice<T> {
         });
     }
 
+    private Search(filter: Search.IFilter<T>[], ascending: boolean, sortField: keyof T): JQuery.jqXHR<string> {
+        return $.ajax({
+            type: 'POST',
+            url: `${homePath}api/${this.Name}/SearchableList`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify({ Searches: filter, OrderBy: sortField, Ascending: ascending }),
+            cache: false,
+            async: true
+        });
+    }
+    
+
     public Data = (state) => state[this.Name].Data as T[];
     public Datum = (state, id: number) => state[this.Name].Data.find(d => d.ID == id) as T;
     public Status = (state) => state[this.Name].Status as SystemCenter.Status;
@@ -160,6 +202,9 @@ export default class GenericSlice<T> {
     public Ascending = (state) => state[this.Name].Ascending;
     public ParentID = (state) => state[this.Name].ParentID;
 
+    public SearchResults = (state) => state[this.Name].SearchResults as T[];
+    public SearchStatus = (state) => state[this.Name].SearchStatus as SystemCenter.Status;
+    public SearchFilters = (state) => state[this.Name].SearchResults as T[];
 }
 
 

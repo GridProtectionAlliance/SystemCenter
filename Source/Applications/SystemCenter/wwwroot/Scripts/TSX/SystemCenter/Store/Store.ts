@@ -32,12 +32,13 @@ import MeterReducer from './MeterSlice';
 import LocationReducer from './LocationSlice';
 import AssetReducer from './AssetSlice';
 import GenericSlice from './GenericSlice'
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 
 export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup');
 export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList');
 export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing');
 export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting')
+export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType");
 
 export default configureStore({
     reducer: {
@@ -46,7 +47,7 @@ export default configureStore({
         MeasurementType: MeasurementTypeReducer,
         Phase: PhaseReducer,
         AssetType: AssetTypeReducer,
-        AssetConnectionType: AssetConnectionTypeReducer,
+        AssetConnectionType: AssetConnectionTypeSlice.Reducer,
         Meter: MeterReducer,
         Asset: AssetReducer,
         Location: LocationReducer,
