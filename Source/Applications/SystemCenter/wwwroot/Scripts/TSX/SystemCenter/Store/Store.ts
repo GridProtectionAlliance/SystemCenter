@@ -26,8 +26,6 @@ import CompanyTypeReducer from '../Company/CompanyTypeSlice';
 import ValueListReducer from './ValueListSlice';
 import MeasurementTypeReducer from './MeasurementTypeSlice';
 import PhaseReducer from './PhaseSlice';
-import AssetTypeReducer from './AssetTypeSlice';
-import AssetConnectionTypeReducer from './AssetConnectionTypeSlice';
 import MeterReducer from './MeterSlice';
 import LocationReducer from './LocationSlice';
 import AssetReducer from './AssetSlice';
@@ -39,6 +37,8 @@ export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>
 export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing');
 export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting')
 export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType");
+export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType");
+
 
 export default configureStore({
     reducer: {
@@ -46,7 +46,6 @@ export default configureStore({
         //ValueList: ValueListReducer,
         MeasurementType: MeasurementTypeReducer,
         Phase: PhaseReducer,
-        AssetType: AssetTypeReducer,
         AssetConnectionType: AssetConnectionTypeSlice.Reducer,
         Meter: MeterReducer,
         Asset: AssetReducer,
@@ -54,6 +53,7 @@ export default configureStore({
         ValueListGroup: ValueListGroupSlice.Reducer,
         ValueList: ValueListSlice.Reducer,
         LocationDrawing: LocationDrawingSlice.Reducer,
-        Setting: SettingSlice.Reducer
+        Setting: SettingSlice.Reducer,
+        AssetType: AssetTypeSlice.Reducer
     }
 });

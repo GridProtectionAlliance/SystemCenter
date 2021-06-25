@@ -32,7 +32,7 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { useDispatch, useSelector } from 'react-redux';
-import { SelectAssetTypes, SelectAssetTypeStatus, FetchAssetType } from '../Store/AssetTypeSlice';
+import { AssetTypeSlice } from '../Store/Store';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
 import { Modal } from '@gpa-gemstone/react-interactive';
 
@@ -53,8 +53,8 @@ type AssetType = OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line 
 
 export default function Page4(props: Page4Props) {
     const dispatch = useDispatch();
-    const assetTypes = useSelector(SelectAssetTypes);
-    const atStatus = useSelector(SelectAssetTypeStatus);
+    const assetTypes = useSelector(AssetTypeSlice.Data);
+    const atStatus = useSelector(AssetTypeSlice.Status);
     const assets = useSelector(SelectAssets);
     const aStatus = useSelector(SelectAssetStatus);
 
@@ -66,7 +66,7 @@ export default function Page4(props: Page4Props) {
 
     React.useEffect(() => {
         if (atStatus === 'unintiated' || atStatus === 'changed') {
-            dispatch(FetchAssetType());
+            dispatch(AssetTypeSlice.Fetch());
             return function () {
             }
         }

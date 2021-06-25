@@ -25,15 +25,15 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { useDispatch, useSelector } from 'react-redux';
-import { SelectAssetConnectionTypes, SelectAssetConnectionTypeStatus, FetchAssetConnectionType } from '../Store/AssetConnectionTypeSlice';
+import { AssetConnectionTypeSlice } from '../Store/Store';
 import { Modal } from '@gpa-gemstone/react-interactive';
 
 export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnections: Array<OpenXDA.AssetConnection>, UpdateAssetConnections: (record: OpenXDA.AssetConnection[]) => void }) {
     const selectAsset = React.useRef(null);
     const selectType = React.useRef(null);
     const dispatch = useDispatch();
-    const assetConnectionTypes = useSelector(SelectAssetConnectionTypes);
-    const actStatus = useSelector(SelectAssetConnectionTypeStatus);
+    const assetConnectionTypes = useSelector(AssetConnectionTypeSlice.Data);
+    const actStatus = useSelector(AssetConnectionTypeSlice.Status);
 
     const [showAssetConnection, setShowAssetConnection] = React.useState<boolean>(false);
 
@@ -41,7 +41,7 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
 
     React.useEffect(() => {
         if (actStatus === 'unintiated' || actStatus === 'changed') {
-            let promise = dispatch(FetchAssetConnectionType());
+            let promise = dispatch(AssetConnectionTypeSlice.Fetch());
             return function () {
                 //if (tzStatus == 'loading') promise.abort();
             }
