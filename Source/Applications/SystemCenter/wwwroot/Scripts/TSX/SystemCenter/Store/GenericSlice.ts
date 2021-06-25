@@ -134,7 +134,7 @@ export default class GenericSlice<T> {
 
                 });
                 builder.addCase(dBSearch.fulfilled, (state, action) => {
-                    state.SearchStatus = 'changed';
+                    state.SearchStatus = 'idle';
                     state.SearchResults = JSON.parse(action.payload) as Draft<T[]>
                 });
 
