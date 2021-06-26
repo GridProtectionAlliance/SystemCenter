@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import BreakerAttributes from '../AssetAttribute/Breaker';
@@ -32,57 +32,87 @@ import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
-import { getAllAssets, getAssetTypes, getAssetWithAdditionalFields, editExistingAsset } from '../../../TS/Services/Asset';
+import { useSelector, useDispatch } from 'react-redux';
+import { FetchAsset, SelectAssets, SelectAssetStatus } from '../Store/AssetSlice';
+import { AssetTypeSlice } from '../Store/Store';
+import { getAssetWithAdditionalFields, editExistingAsset, getAllAssets } from '../../../TS/Services/Asset';
+import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-interface LocationAssetState {
-    Assets: Array<OpenXDA.Asset>,
-    NewEditAsset: OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer,
-    AllAssets: Array<OpenXDA.Asset>,
-    AssetTypes: Array<OpenXDA.AssetType>,
-    NewEdit: SystemCenter.NewEdit,
-    Sortfield: keyof (OpenXDA.Meter), Ascending: boolean
-
-}
 
 function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element{
     let history = useHistory();
+    let dispatch = useDispatch();
+
     const [data, setData] = React.useState<Array<OpenXDA.Asset>>([]);
     const [sortField, setSortField] = React.useState<keyof(OpenXDA.Asset)>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [trigger, setTrigger] = React.useState<number>(0);
+
     const [newEditAsset, setNewEditAsset] = React.useState<OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer>(AssetAttributes.getNewAsset('Line'));
+    const [editAsset, setEditasset] = React.useState<OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer>(AssetAttributes.getNewAsset('Line'));
+
     const [newEdit, setNewEdit] = React.useState<SystemCenter.NewEdit>('New');
-    const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.AssetType>>([]);
-    const [allAssets, setAllAssets] = React.useState<Array<OpenXDA.Asset>>([]);
+
+    const [assetErrors, setAssetErrors] = React.useState<string[]>([]);
+    const [showModal, setShowModal] = React.useState<boolean>(false);
+
+    const [lStatus, setLStatus] = React.useState<'error' | 'loading' | 'idle'>('idle')
+
+    const aStatus = useSelector(SelectAssetStatus);
+    const atStatus = useSelector(AssetTypeSlice.Status);
+
+    const assetTypes = useSelector(AssetTypeSlice.Data);
+    const allAssets = useSelector(SelectAssets);
 
     React.useEffect(() => {
-        getDatas()
-    }, [props.Location.ID]);
+        if (atStatus == 'unintiated' || atStatus == 'changed')
+            dispatch(AssetTypeSlice.Fetch());
+    }, []);
 
-    function getDatas(): void {
-        getAssets();
-        getAllAssets().done((assets: Array<OpenXDA.Asset>) => {
-            setAllAssets(assets);
-        });
-        getAssetTypes().done((assetTypes: Array<OpenXDA.AssetType>) => {
-            setAssetTypes( assetTypes);
-        });
-    }
+    React.useEffect(() => {
+        if (aStatus == 'unintiated' || aStatus == 'changed')
+            dispatch(FetchAsset());
+    }, []);
 
-    function getAssets(): void {
-        $.ajax({
+    React.useEffect(() => {
+        let assetsHandle = getAssets();
+        return () => { if (assetsHandle != null && assetsHandle.abort != null) assetsHandle.abort(); }
+
+    }, [props.Location.ID, trigger]);
+
+    React.useEffect(() => {
+        const errors = AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType);
+        if (newEditAsset.AssetKey == null || newEditAsset.AssetKey.length == 0)
+            errors.push('A AssetKey is required.')
+        else if (allAssets.findIndex(asset => asset.AssetKey.toLowerCase() == newEditAsset.AssetKey.toLowerCase() && asset.ID != newEditAsset.ID) > -1)
+            errors.push('AssetKey has to be unique.')
+
+        setAssetErrors(errors);
+    }, [newEditAsset])
+
+    React.useEffect(() => { setNewEditAsset(editAsset) }, [editAsset]);
+
+    function getAssets(): JQuery.jqXHR<OpenXDA.Asset[]> {
+        setLStatus('loading');
+
+        return $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Location/${props.Location.ID}/Assets`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        }).done((data, _ ) => setData(data));
+        }).done((d) => {
+            setData(d);
+            setLStatus('idle')
+        }).fail(() => setLStatus('error'));
     }
 
 
     function addNewAsset() {
+        setLStatus('loading');
         $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/Asset/New/Location/${props.Location.ID}`,
@@ -92,18 +122,20 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
             cache: false,
             async: true
         }).done(() => {
-            sessionStorage.clear();
-            getDatas();
+            dispatch(FetchAsset());
+            setTrigger(x => x + 1);
             setNewEditAsset(AssetAttributes.getNewAsset('Line'))
 
         }).fail((msg) => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
+            setLStatus('error')
         });
 
     }
 
+    
+
     async function addExistingAsset() {
+        setLStatus('loading');
         return $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/Asset/Existing/Location/${props.Location.ID}`,
@@ -113,20 +145,18 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
             cache: false,
             async: true
         }).done(() => {
-        }).fail((msg) => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
-            else {
-                sessionStorage.clear();
-                getDatas();
-                setNewEditAsset(AssetAttributes.getNewAsset('Line'))
-            }
+            dispatch(FetchAsset());
+            setTrigger(x => x + 1);
+            setNewEditAsset(AssetAttributes.getNewAsset('Line'))
 
+        }).fail((msg) => {
+            setLStatus('error')
         });
 
     }
 
     async function deleteAsset(asset: OpenXDA.Asset) {
+        setLStatus('loading')
       return  $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Asset/${asset.ID}/Location/${props.Location.ID}`,
@@ -134,27 +164,18 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
             dataType: 'json',
             cache: true,
             async: true
-        }).done((assets: Array<OpenXDA.Asset>) => {
-        }).fail((msg) => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
-            else {
-                sessionStorage.clear();
-                getDatas();
-            }
-
-        });
+      }).done(() => {
+          setTrigger(x => x + 1);
+          setNewEditAsset(AssetAttributes.getNewAsset('Line'))
+      }).fail((msg) => {
+          setLStatus('error')
+      });
     }
 
     function addNewButton(): void {
         setNewEdit('New');
+        setShowModal(true);
         setNewEditAsset(AssetAttributes.getNewAsset('Line'));
-    }
-
-    async function saveButtonForExistingAssets() {
-        let thing = await editExistingAsset(newEditAsset);
-        getDatas();
-        setNewEditAsset(AssetAttributes.getNewAsset('Line'))
     }
 
     function showAttributes(): JSX.Element {
@@ -169,10 +190,70 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
         else if (newEditAsset.AssetType == 'Transformer')
             return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Transformer} UpdateState={setNewEditAsset} />;
     }
+
     function handleSelect(item, event) {
         if (event.target.localName == 'td')
             history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID, state: {} })
     }
+
+    function GetDifferentAsset(assetID: number) {
+        setLStatus('loading')
+        let asset = allAssets.find(a => a.ID == assetID);
+        let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
+        getAssetWithAdditionalFields(assetID, assetType.Name).then(asset => {
+            setLStatus('idle')
+            setNewEditAsset(asset)
+        }, () => setLStatus('error'));
+    }
+
+    async function saveButtonForExistingAssets() {
+        setLStatus('loading')
+
+        editExistingAsset(newEditAsset).then(() => {
+            dispatch(FetchAsset());
+            setNewEditAsset(AssetAttributes.getNewAsset('Line'));
+            setTrigger(x => x + 1);
+        }, () => setLStatus('error'));        
+        
+    }
+
+    if (atStatus == 'error' || aStatus == 'error' || lStatus == 'error')
+        return <div className="card" style={{ marginBottom: 10 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Assets:</h4>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body">
+                <div style={{ width: '100%', height: '200px' }}>
+                    <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    if (atStatus == 'loading' || aStatus == 'loading' || lStatus == 'loading')
+        return <div className="card" style={{ marginBottom: 10 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Assets:</h4>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body">
+                <div style={{ width: '100%', height: '200px' }}>
+                    <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                        <LoadingIcon Show={true} Size={40} Label={''} />
+                    </div>
+                </div>
+            </div>
+            </div>
+
+    const assetChanged = !_.isEqual(editAsset, newEditAsset);
 
     return (
         <div className="card" style={{ marginBottom: 10 }}>
@@ -192,11 +273,13 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
                             { key: 'AssetType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                             {
                                 key: null, label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (asset, key, style) => <>
-                                    <button className="btn btn-sm" data-toggle='modal' data-target='#assetModal' onClick={(e) => {
+                                    <button className="btn btn-sm" onClick={(e) => {
                                         e.preventDefault();
-                                        let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
-                                        getAssetWithAdditionalFields(asset.ID, assetType.Name).then(asset => setNewEditAsset(asset));
+                                        let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID']);
+                                        setLStatus('loading')
+                                        getAssetWithAdditionalFields(asset.ID, assetType.Name).then(asset => { setEditasset(asset); setLStatus('idle'); }, () => setLStatus('error'));
                                         setNewEdit('Edit');
+                                        setShowModal(true);
                                     }}><span><i className="fa fa-pencil"></i></span></button>
                                     <button className="btn btn-sm" onClick={(e) => {
                                         e.preventDefault();
@@ -231,47 +314,57 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right" data-toggle='modal' data-target='#assetModal' onClick={addNewButton}>Add Asset</button>
+                    <button className="btn btn-primary pull-right"  onClick={addNewButton}>Add Asset</button>
                 </div>
             </div>
 
-            <div className="modal" id="assetModal">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">{newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + newEditAsset.AssetKey + ' for Meter'}</h4>
-                            <button type="button" className="close" data-dismiss="modal" onClick={(evt) => setNewEditAsset(AssetAttributes.getNewAsset('Line'))}>&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <div className="row">
-                                <div className="col">
-                                    <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewEditAsset} GetDifferentAsset={(assetID) => {
-                                        let asset = allAssets.find(a => a.ID == assetID);
-                                        let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
-                                        getAssetWithAdditionalFields(assetID, assetType.Name).then(asset => setNewEditAsset(asset));
-                                    }} HideAssetType={false} HideSelectAsset={false} />
-                                </div>
-                                <div className="col">
-                                    {showAttributes()}
-                                </div>
-                            </div>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewAsset} hidden={newEdit == 'Edit' || newEditAsset.ID != 0}>Save</button>
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addExistingAsset} hidden={newEdit == 'Edit' || newEditAsset.ID == 0}>Save</button>
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={(evt) => saveButtonForExistingAssets()} hidden={newEdit == 'New'}>Save</button>
 
+            <Modal Show={showModal}
+                Title={newEdit == 'New' ? 'Add New Asset to Location' : 'Edit ' + newEditAsset.AssetKey + ' at Location'}
+                ConfirmBtnClass={'btn-success'}
+                ConfirmText={newEdit == 'Edit' ? 'Save' : 'Add'}
+                CancelBtnClass={'btn-danger'}
+                CancelText={'Close'}
+                Size={'xlg'}
+                CallBack={(confirm) => {
+                    setShowModal(false);
 
-                            <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={(evt) => setNewEditAsset(AssetAttributes.getNewAsset('Line'))}>Close</button>
-                        </div>
-
+                    if (!confirm) {
+                        setNewEditAsset(AssetAttributes.getNewAsset('Line'));
+                        return;
+                    }
+                    if (newEdit == 'New' && newEditAsset.ID == 0)
+                        addNewAsset();
+                    else if (newEdit == 'New' && newEditAsset.ID != 0)
+                        addExistingAsset();
+                    if (newEdit == 'Edit') 
+                        saveButtonForExistingAssets();
+                    
+                    setNewEditAsset(AssetAttributes.getNewAsset('Line'));
+                }}
+                DisableConfirm={(assetErrors.length > 0) || (newEdit == 'Edit' && !assetChanged)}
+                ConfirmShowToolTip={(assetErrors.length > 0)}
+                ConfirmToolTipContent={
+                    assetErrors.map((e, i) => <p key={i}><ErrorSymbol /> {e}</p>)
+                }
+            >
+                <div className="row" style={{ maxHeight: innerHeight - 300, overflow: 'auto' }}>
+                    <div className="col">
+                        <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets}
+                            UpdateState={setNewEditAsset}
+                            GetDifferentAsset={GetDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={false} />
                     </div>
-                </div>
-            </div>
-
+                    <div className="col">
+                        {showAttributes()}
+                    </div>
+                    </div>
+            </Modal>
         </div>
                 
     );
 }
+const ErrorSymbol = () => <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
+
+
 
 export default LocationAssetWindow;
