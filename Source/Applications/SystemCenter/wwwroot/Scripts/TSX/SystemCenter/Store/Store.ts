@@ -36,7 +36,7 @@ export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueList
 export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList', 'ValueList');
 export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing', 'LocationDrawing');
 export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', 'Setting')
-export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType", "AssetConnectionType");
+export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType", "OpenXDA/AssetConnectionType");
 export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType", "OpenXDA/AssetType");
 
 

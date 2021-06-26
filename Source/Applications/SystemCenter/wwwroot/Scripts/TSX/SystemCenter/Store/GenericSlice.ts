@@ -36,7 +36,8 @@ export default class GenericSlice<T> {
         Data: T[],
         SortField: keyof T,
         Ascending: boolean,
-        ParentID: number
+        ParentID: number,
+        SearchResults: T[]
     }> = null;
     Fetch: AsyncThunk<any, void | number, {}> = null;
     DBAction: AsyncThunk<any, { verb: 'POST' | 'DELETE' | 'PATCH', record: T }, {}> = null;

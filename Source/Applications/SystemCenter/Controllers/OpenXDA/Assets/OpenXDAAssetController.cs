@@ -765,7 +765,7 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpDelete, Route("{assetID:int}/Asset/{locationID:int}")]
+        [HttpDelete, Route("{assetOneID:int}/AssetConnection/{assetTwoID:int}")]
         public IHttpActionResult DeleteAssetConnections(int assetOneID, int assetTwoID)
         {
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
