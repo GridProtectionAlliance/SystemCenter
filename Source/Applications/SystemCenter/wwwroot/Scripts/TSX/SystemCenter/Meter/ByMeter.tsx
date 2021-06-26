@@ -36,12 +36,12 @@ interface Meter {
 declare var homePath: string;
 
 const defaultSearchcols: Array<Search.IField<Meter>> = [
-    { label: 'AssetKey', key: 'AssetKey', type: 'string' },
-    { label: 'Name', key: 'Name', type: 'string' },
-    { label: 'Location', key: 'Location', type: 'string' },
-    { label: 'Make', key: 'Make', type: 'string' },
-    { label: 'Model', key: 'Model', type: 'string' },
-    { label: 'Number of Assets', key: 'MappedAssets', type: 'number' },
+    { label: 'AssetKey', key: 'AssetKey', type: 'string', isPivotField: false },
+    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+    { label: 'Location', key: 'Location', type: 'string', isPivotField: false },
+    { label: 'Make', key: 'Make', type: 'string', isPivotField: false },
+    { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
+    { label: 'Number of Assets', key: 'MappedAssets', type: 'number', isPivotField: false },
 ];
 
 const ByMeter: SCGlobal.ByComponent = (props) => {
@@ -128,7 +128,7 @@ const ByMeter: SCGlobal.ByComponent = (props) => {
     }
 
 
-    const standardSearch: Search.IField<Meter> = { label: 'Name', key: 'Name', type: 'string' };
+    const standardSearch: Search.IField<Meter> = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
 
     return (
         <div style={{ width: '100%', height: '100%' }}>

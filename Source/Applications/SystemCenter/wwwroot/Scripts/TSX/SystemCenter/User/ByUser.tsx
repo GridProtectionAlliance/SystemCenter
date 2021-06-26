@@ -33,11 +33,11 @@ import CryptoJS from 'crypto-js'
 import UserForm from './UserForm';
 
 const defaultSearchcols: Array<Search.IField<SCGlobal.UserAccount>> = [
-    { label: 'First Name', key: 'FirstName', type: 'string' },
-    { label: 'Last Name', key: 'LastName', type: 'string' },
-    { label: 'Location', key: 'Location', type: 'string' },
-    { label: 'Phone', key: 'Phone', type: 'string' },
-    { label: 'Email', key: 'Email', type: 'string' },
+    { label: 'First Name', key: 'FirstName', type: 'string', isPivotField: false },
+    { label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false },
+    { label: 'Location', key: 'Location', type: 'string', isPivotField: false },
+    { label: 'Phone', key: 'Phone', type: 'string', isPivotField: false },
+    { label: 'Email', key: 'Email', type: 'string', isPivotField: false },
 
 ];
 
@@ -146,7 +146,7 @@ const ByUser: SCGlobal.ByComponent = (props) => {
     if (props.Roles.indexOf('Administrator') < 0) return null;
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<SCGlobal.UserAccount> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.UserAccount as Search.IField<SCGlobal.UserAccount>} Width={'50%'} Label={'Search'}
+            <SearchBar<SCGlobal.UserAccount> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={{ label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' UserAccounts'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;

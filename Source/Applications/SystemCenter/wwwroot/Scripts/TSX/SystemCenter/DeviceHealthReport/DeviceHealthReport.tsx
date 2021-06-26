@@ -33,16 +33,16 @@ import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
 
 
 const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
-    { label: 'Name', key: 'Name', type: 'string' },
-    { label: 'Substation', key: 'Substation', type: 'string' },
-    { label: 'Model', key: 'Model', type: 'string' },
-    { label: 'TSC', key: 'TSC', type: 'string' },
-    { label: 'Sector', key: 'Sector', type: 'string' },
-    { label: 'IP', key: 'IP', type: 'string' },
-    { label: 'Last Good Health', key: 'LastGood', type: 'datetime' },
-    { label: 'Bad Days', key: 'BadDays', type: 'number' },
-    { label: 'Status', key: 'Status', type: 'string' },
-    { label: 'Last Config Change', key: 'LastConfigChange', type: 'datetime' },
+    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+    { label: 'Substation', key: 'Substation', type: 'string', isPivotField: false },
+    { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
+    { label: 'TSC', key: 'TSC', type: 'string', isPivotField: false },
+    { label: 'Sector', key: 'Sector', type: 'string', isPivotField: false },
+    { label: 'IP', key: 'IP', type: 'string', isPivotField: false },
+    { label: 'Last Good Health', key: 'LastGood', type: 'datetime', isPivotField: false },
+    { label: 'Bad Days', key: 'BadDays', type: 'number', isPivotField: false },
+    { label: 'Status', key: 'Status', type: 'string', isPivotField: false },
+    { label: 'Last Config Change', key: 'LastConfigChange', type: 'datetime', isPivotField: false },
 
 ];
 
@@ -130,7 +130,7 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
     }
 
 
-    const standardSearch: Search.IField<SCGlobal.DeviceHealthReport> = { label: 'Name', key: 'Name', type: 'string' };
+    const standardSearch: Search.IField<SCGlobal.DeviceHealthReport> = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
 
     return (
         <div style={{ width: '100%', height: '100%' }}>

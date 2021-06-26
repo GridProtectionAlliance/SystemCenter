@@ -24,53 +24,43 @@ import {SystemCenter, OpenXDA } from '../global';
 
 export namespace SearchFields {
     export const Customer = [
-        { label: 'Account Name', key: 'CustomerKey', type: 'string' },
-        { label: 'Name', key: 'Name', type: 'string' },
-        { label: 'Phone', key: 'Phone', type: 'string' },
-        { label: 'Description', key: 'Description', type: 'string' },
-        { label: 'PQView Site Name', key: 'PQViewSite', type: 'string' },
-        { label: 'Number of Assigned Meters', key: 'Meters', type: 'integer' },
+        { label: 'Account Name', key: 'CustomerKey', type: 'string', isPivotField: false },
+        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+        { label: 'Phone', key: 'Phone', type: 'string', isPivotField: false },
+        { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+        { label: 'PQView Site Name', key: 'PQViewSite', type: 'string', isPivotField: false },
+        { label: 'Number of Assigned Meters', key: 'Meters', type: 'integer', isPivotField: false },
     ];
 
     export const Company = [
-        { label: 'Name', key: 'Name', type: 'string' },
-        { label: 'CompanyID', key: 'CompanyID', type: 'string' },
-        { label: 'Description', key: 'Description', type: 'string' },
-        { label: 'Company Type', key: 'CompanyTypeID', type: 'enum' },
+        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+        { label: 'CompanyID', key: 'CompanyID', type: 'string', isPivotField: false },
+        { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+        { label: 'Company Type', key: 'CompanyTypeID', type: 'enum', isPivotField: false },
     ];
 
     export const ValueListGroup = [
-        { label: 'Name', key: 'Name', type: 'string' }
+        { label: 'Name', key: 'Name', type: 'string', isPivotField: false }
     ];
 
-    export const UserAccount = [
-        { label: 'First Name', key: 'UserAccount.FirstName', type: 'string' },
-        { label: 'Last Name', key: 'UserAccount.LastName', type: 'string' },
-        { label: 'Phone', key: 'UserAccount.Phone', type: 'string' },
-        { label: 'Mobile Phone', key: 'UserAccount.MobilePhone', type: 'string' },
-        { label: 'Email', key: 'UserAccount.Email', type: 'string' },
-        { label: 'TSC', key: 'UserAccount.TSC', type: 'string' },
-        { label: 'Role', key: 'Role.Name', type: 'string' },
-        { label: 'Security Role', key: 'ApplicationRole.Name', type: 'string' }
-    ];
+    
 
     export const Location = [
-        { label: 'Name', key: 'Name', type: 'string' },
-        { label: 'Key', key: 'LocationKey', type: 'string' },
-        { label: 'Asset', key: 'Asset', type: 'string' },
-        { label: 'Meter', key: 'Meter', type: 'string' },
-        { label: 'Number of Assets', key: 'Assets', type: 'integer' },
-        { label: 'Number of Meters', key: 'Meters', type: 'integer' },
+        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+        { label: 'Key', key: 'LocationKey', type: 'string', isPivotField: false },
+        { label: 'Asset', key: 'Asset', type: 'string', isPivotField: false },
+        { label: 'Meter', key: 'Meter', type: 'string', isPivotField: false },
+        { label: 'Number of Assets', key: 'Assets', type: 'integer', isPivotField: false },
+        { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
     ];
 
 }
 
 export namespace DefaultSearchField {
-    export const Company = { label: 'Name', key: 'Name', type: 'string' };
-    export const ValueListGroup = { label: 'Name', key: 'Name', type: 'string' };
-    export const Customer = { label: 'Account Name', key: 'CustomerKey', type: 'string' };
-    export const UserAccount = { label: 'Last Name', key: 'LastName', type: 'string' };
-    export const Location = { label: 'Name', key: 'Name', type: 'string' };
+    export const Company = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
+    export const ValueListGroup = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
+    export const Customer = { label: 'Account Name', key: 'CustomerKey', type: 'string', isPivotField: false };
+    export const Location = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
 }
 
 export namespace TransformSearchFields {

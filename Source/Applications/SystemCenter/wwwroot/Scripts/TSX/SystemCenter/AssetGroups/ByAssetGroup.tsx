@@ -34,11 +34,11 @@ declare var homePath: string;
 
 
 const defaultSearchcols: Array<Search.IField<AssetGroup>> = [
-    { label: 'Name', key: 'Name', type: 'string' },
-    { label: 'Number of Meter', key: 'Meters', type: 'integer' },
-    { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer' },
-    { label: 'Number of Users', key: 'Users', type: 'integer' },
-    { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean' },
+    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+    { label: 'Number of Meter', key: 'Meters', type: 'integer', isPivotField: false },
+    { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer', isPivotField: false },
+    { label: 'Number of Users', key: 'Users', type: 'integer', isPivotField: false },
+    { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean', isPivotField: false },
         
 ];
 

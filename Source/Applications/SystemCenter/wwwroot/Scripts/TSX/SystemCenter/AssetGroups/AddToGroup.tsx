@@ -109,24 +109,24 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
         switch (props.type) {
             case 'Asset':
                 return [
-                    { label: 'Name', key: 'Name', type: 'string' },
+                    { label: 'Name', key: 'Name', type: 'string', isPivotField: false},
                 ];
             case 'Meter':
                 return [
-                    { label: 'AssetKey', key: 'AssetKey', type: 'string' },
-                    { label: 'Name', key: 'Name', type: 'string' },
-                    { label: 'Location', key: 'Location', type: 'string' },
-                    { label: 'Make', key: 'Make', type: 'string' },
-                    { label: 'Model', key: 'Model', type: 'string' },
-                    { label: 'Number of Assets', key: 'MappedAssets', type: 'number' },
+                    { label: 'AssetKey', key: 'AssetKey', type: 'string', isPivotField: false },
+                    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+                    { label: 'Location', key: 'Location', type: 'string', isPivotField: false },
+                    { label: 'Make', key: 'Make', type: 'string', isPivotField: false },
+                    { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
+                    { label: 'Number of Assets', key: 'MappedAssets', type: 'number', isPivotField: false },
                 ];
             case 'Group':
                 return [
-                    { label: 'Name', key: 'Name', type: 'string' },
-                    { label: 'Number of Meter', key: 'Meters', type: 'integer' },
-                    { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer' },
-                    { label: 'Number of Users', key: 'Users', type: 'integer' },
-                    { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean' },
+                    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+                    { label: 'Number of Meter', key: 'Meters', type: 'integer', isPivotField: false },
+                    { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer', isPivotField: false },
+                    { label: 'Number of Users', key: 'Users', type: 'integer', isPivotField: false },
+                    { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean', isPivotField: false },
                 ];
         }
     }
@@ -134,11 +134,11 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
     function getStandardSearch(): Search.IField<T> {
         switch (props.type) {
             case 'Asset':
-                return { label: 'Name', key: 'Name', type: 'string' };
+                return { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
             case 'Meter':
-                return { label: 'Name', key: 'Name', type: 'string' };
+                return { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
             case 'Group':
-                return { label: 'Name', key: 'Name', type: 'string' };
+                return { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
         }
     }
 
@@ -381,12 +381,12 @@ function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, typ
 
     function searchMeters(search: Search.IFilter<IMeter>[], ascending: boolean, sortField: keyof IMeter): JQueryXHR {
         const defaults: Array<Search.IField<IMeter>> = [
-            { label: 'AssetKey', key: 'AssetKey', type: 'string' },
-            { label: 'Name', key: 'Name', type: 'string' },
-            { label: 'Location', key: 'Location', type: 'string' },
-            { label: 'Make', key: 'Make', type: 'string' },
-            { label: 'Model', key: 'Model', type: 'string' },
-            { label: 'Number of Assets', key: 'MappedAssets', type: 'number' },
+            { label: 'AssetKey', key: 'AssetKey', type: 'string', isPivotField: false },
+            { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+            { label: 'Location', key: 'Location', type: 'string', isPivotField: false},
+            { label: 'Make', key: 'Make', type: 'string', isPivotField: false },
+            { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
+            { label: 'Number of Assets', key: 'MappedAssets', type: 'number', isPivotField: false },
         ];
 
         let searches = search.map(s => { if (defaults.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })

@@ -47,7 +47,7 @@ declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Brea
 
 
 const defaultSearchcols: Array<Search.IField<Asset>> = [
-    { label: 'Name', key: 'AssetName', type: 'string' },
+    { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false },
 ];
 
 
@@ -242,7 +242,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID, state: {} })
     }
 
-    const standardSearch: Search.IField<Asset> = { label: 'Name', key: 'AssetName', type: 'string' };
+    const standardSearch: Search.IField<Asset> = { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false };
 
     if (pageState == 'loading')
         return <div style={{ width: '100%', height: '100%' }}>
