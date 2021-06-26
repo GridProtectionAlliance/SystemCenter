@@ -40,7 +40,7 @@ export default class GenericSlice<T> {
     }> = null;
     Fetch: AsyncThunk<any, void | number, {}> = null;
     DBAction: AsyncThunk<any, { verb: 'POST' | 'DELETE' | 'PATCH', record: T }, {}> = null;
-    DBSearch: AsyncThunk<any, { filter: Search.IFilter<T>, sortField?: keyof T, ascending?: boolean }, {}> = null;
+    DBSearch: AsyncThunk<any, { filter: Search.IFilter<T>[], sortField?: keyof T, ascending?: boolean }, {}> = null;
     Sort;
     Reducer;
 
