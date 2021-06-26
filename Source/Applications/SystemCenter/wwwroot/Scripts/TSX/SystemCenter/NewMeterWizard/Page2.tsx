@@ -37,11 +37,8 @@ export default function Page2(props: { LocationInfo: OpenXDA.Location, UpdateLoc
     React.useEffect(() => {
         if (lStatus === 'unintiated' || lStatus === 'changed') {
             dispatch(FetchLocation());
-            return function () {
-                //if (tzStatus == 'loading') promise.abort();
-            }
         }
-    }, [dispatch, lStatus]);
+    }, []);
 
     React.useEffect(() => {
         const error = [];
@@ -63,7 +60,7 @@ export default function Page2(props: { LocationInfo: OpenXDA.Location, UpdateLoc
 
         props.SetError(error);
 
-    }, [props.LocationInfo, props.SetError]);
+    }, [props.LocationInfo]);
 
 
 

@@ -68,7 +68,7 @@ export default function NewMeterWizard(props: {}) {
             return function () {
             }
         }
-    }, [dispatch, mStatus]);
+    }, []);
 
     React.useEffect(() => {
         if (lStatus === 'unintiated' || lStatus === 'changed') {
@@ -76,7 +76,7 @@ export default function NewMeterWizard(props: {}) {
             return function () {
             }
         }
-    }, [dispatch, lStatus]);
+    }, []);
 
     React.useEffect(() => {
         localStorage.setItem('NewMeterWizard.CurrentStep', currentStep.toString())
