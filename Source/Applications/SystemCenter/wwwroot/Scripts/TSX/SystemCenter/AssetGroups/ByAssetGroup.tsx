@@ -157,7 +157,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
         return true;
     }
 
-    const standardSearch: Search.IField<AssetGroup> = { label: 'Name', key: 'Name', type: 'string' };
+    const standardSearch: Search.IField<AssetGroup> = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
     return (
         <>
         <div style={{ width: '100%', height: '100%' }}>
