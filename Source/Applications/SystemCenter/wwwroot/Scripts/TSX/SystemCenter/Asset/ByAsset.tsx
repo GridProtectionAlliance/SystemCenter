@@ -201,7 +201,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
 
     function addNewAsset() {
         setPageState('loading');
-        setNewAsset(newAsset);
+        
         $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/${newAsset.AssetType}/Add`,
@@ -217,7 +217,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
         }).fail(() => {
             setPageState('error')
         });
-
+       
     }
 
     function showAttributes(): JSX.Element {
@@ -347,11 +347,11 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
                     if (conf) {
                         addNewAsset();
                     }
-                    else {
-                        const asset = AssetAttributes.getNewAsset('Line');
-                        asset['AssetTypeID'] = assetTypes.find(ats => ats.Name == 'Line').ID;
-                        setNewAsset(asset);
-                    }
+                    
+                    const asset = AssetAttributes.getNewAsset('Line');
+                    asset['AssetTypeID'] = assetTypes.find(ats => ats.Name == 'Line').ID;
+                    setNewAsset(asset);
+                    
                     setShowNewModal(false);
                 }}
             >
