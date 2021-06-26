@@ -97,9 +97,12 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (PostRoles == string.Empty || User.IsInRole(PostRoles))
             {
-                Line lineRecord = base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<Line>().Result;
+                base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<Line>().Wait();
+                Line lineRecord = record.ToObject<Line>();
+
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
+                    lineRecord = (new TableOperations<Line>(connection)).QueryRecordWhere("AssetKey = {0}", lineRecord.AssetKey);
                     LineSegment lineSegment = new LineSegment()
                     {
                         VoltageKV = record["VoltageKV"].ToObject<double>(),

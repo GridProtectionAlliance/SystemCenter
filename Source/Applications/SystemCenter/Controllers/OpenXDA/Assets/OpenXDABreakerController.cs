@@ -138,9 +138,11 @@ public class OpenXDABreakerController : ModelController<Breaker>
     {
         if (PostRoles == string.Empty || User.IsInRole(PostRoles))
         {
-            Breaker breakerRecord = base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<Breaker>().Result;
-            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<Breaker>().Wait();
+            Breaker breakerRecord = record.ToObject<Breaker>();
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
+                breakerRecord = (new TableOperations<Breaker>(connection)).QueryRecordWhere("AssetKey = {0}", breakerRecord.AssetKey);
                 if (record["EDNAPoint"] != null)
                 {
                     EDNAPoint eDNAPoint = new EDNAPoint()
