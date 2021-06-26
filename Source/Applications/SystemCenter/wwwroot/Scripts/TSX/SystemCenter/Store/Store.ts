@@ -32,12 +32,12 @@ import AssetReducer from './AssetSlice';
 import GenericSlice from './GenericSlice'
 import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 
-export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup');
-export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList');
-export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing');
-export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting')
-export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType");
-export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType");
+export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup', 'ValueListGroup');
+export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList', 'ValueList');
+export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing', 'LocationDrawing');
+export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', 'Setting')
+export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType", "AssetConnectionType");
+export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType", "OpenXDA/AssetType");
 
 
 export default configureStore({

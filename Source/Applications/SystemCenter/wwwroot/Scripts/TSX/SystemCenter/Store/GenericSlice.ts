@@ -29,6 +29,7 @@ import { Search } from '@gpa-gemstone/react-interactive';
 
 export default class GenericSlice<T> {
     Name: string = "";
+    APIPath: string = "";
     Slice: Slice<{
         Status: SystemCenter.Status,
         Error: string,
@@ -43,8 +44,9 @@ export default class GenericSlice<T> {
     Sort;
     Reducer;
 
-    constructor(name: string) {
+    constructor(name: string, apiPath: string) {
         this.Name = name;
+        this.APIPath = apiPath;
 
         const fetch = createAsyncThunk(`${name}/Fetch${name}`, async (parentID:number, { dispatch }) => {
             return await this.GetRecords(parentID);
@@ -157,7 +159,7 @@ export default class GenericSlice<T> {
     private GetRecords(parentID: number): JQuery.jqXHR<T[]> {
         return $.ajax({
             type: "GET",
-            url: `${homePath}api/${this.Name}${(parentID != null ? '/' + parentID: '')}`,
+            url: `${homePath}api/${this.APIPath}${(parentID != null ? '/' + parentID : '')}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -173,7 +175,7 @@ export default class GenericSlice<T> {
 
         return $.ajax({
             type: verb,
-            url: `${homePath}api/${this.Name}/${action}`,
+            url: `${homePath}api/${this.APIPath}/${action}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({ ...record }),
@@ -185,7 +187,7 @@ export default class GenericSlice<T> {
     private Search(filter: Search.IFilter<T>[], ascending: boolean, sortField: keyof T): JQuery.jqXHR<string> {
         return $.ajax({
             type: 'POST',
-            url: `${homePath}api/${this.Name}/SearchableList`,
+            url: `${homePath}api/${this.APIPath}/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({ Searches: filter, OrderBy: sortField, Ascending: ascending }),
