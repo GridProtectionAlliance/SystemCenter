@@ -27,11 +27,13 @@ import { SystemCenter } from '../global';
 import { Input, TextArea, Select, CheckBox, DatePicker } from '@gpa-gemstone/react-forms';
 import { getFilledUser, getNewUserAccount, getSIDFromUserName, validUserAccountField } from '../../../TS/Services/User';
 import _ from 'lodash';
+import { LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
 
 type UserValidation = 'Resolving' | 'Valid' | 'Invalid' | 'Unknown';
 
 export default function UserForm(props: { UserAccount: SystemCenter.UserAccount, Setter: (record: SystemCenter.UserAccount) => void, Edit: boolean }) {
     const [userValidation, setUserValidation] = React.useState<UserValidation>('Invalid');
+    const [fillState,setFillState] = React.useState<'loading' | 'error' | 'idle'>('idle');
 
     React.useEffect(() => {
         validateUser(props.UserAccount?.Name);
@@ -54,8 +56,24 @@ export default function UserForm(props: { UserAccount: SystemCenter.UserAccount,
 
     }
 
+    function updateADInformation() {
+        if (userValidation != 'Valid')
+            return;
+        setFillState('loading')
+        let handle = getFilledUser(props.UserAccount);
+        handle.done((d: SystemCenter.UserAccount) => {
+            props.Setter(d);
+            setFillState('idle');
+        }).fail((d) => setFillState('error'))
+    }
+
     if (props.UserAccount == null) return null;
     return (
+        <>
+            <LoadingScreen Show={fillState == 'loading'} />
+            <Modal Title={'Unable to connect to AD'} ShowCancel={false} ConfirmText={'Close'} Size={'sm'} CallBack={() => { setFillState('idle') }} Show={fillState == 'error'} >
+                <p> The System is unable to get the the account information from the Active Directory.</p>
+            </Modal>
         <form>
             <div className="row">
                 <div className="col">
@@ -64,14 +82,17 @@ export default function UserForm(props: { UserAccount: SystemCenter.UserAccount,
                             validateUser(record.Name);
 
                         props.Setter(record);
-                    }} />
-                    <div className="row" style={{ position: 'absolute', top: 0, left: 100 }} hidden={!props.UserAccount.UseADAuthentication}>
-                        <span id="resolvingAccount" hidden={userValidation != 'Resolving'}><i style={{ height: 10, width: 10, color: 'grey' }} className="fa fa fa-spin fa-refresh"></i>&nbsp;<em className="small">Resolving account details...</em></span>
-                        <span id="accountValid" hidden={userValidation != 'Valid'}><i style={{ height: 20, width: 20, color: 'green' }} className="fa fa-check-circle"></i>&nbsp;<em className="small">Resolved account name</em></span>
-                        <span id="accountInvalid" hidden={userValidation != 'Invalid'}><i style={{ height: 20, width: 20, color: 'red' }} className="fa fa-times-circle"></i>&nbsp;<em className="small">Cannot resolve account name</em></span>
-                        <span id="accountUnknown" hidden={userValidation != 'Unknown'}><i style={{ height: 20, width: 20, color: 'orange' }} className="fa fa-exclamation-circle"></i>&nbsp;<em className="small">Valid account name is not a user or Active Directory access is limited</em></span>
-                    </div>
+                        }} />
 
+                        <div className="row" style={{ position: 'absolute', top: 0, left: 100 }} hidden={!props.UserAccount.UseADAuthentication}>
+                            <span id="resolvingAccount" hidden={userValidation != 'Resolving'}><i style={{ height: 10, width: 10, color: 'grey' }} className="fa fa fa-spin fa-refresh"></i>&nbsp;<em className="small">Resolving account details...</em></span>
+                            <span id="accountValid" hidden={userValidation != 'Valid'}><i style={{ height: 20, width: 20, color: 'green' }} className="fa fa-check-circle"></i>&nbsp;<em className="small">Resolved account name </em></span>
+                            <span id="accountInvalid" hidden={userValidation != 'Invalid'}><i style={{ height: 20, width: 20, color: 'red' }} className="fa fa-times-circle"></i>&nbsp;<em className="small">Cannot resolve account name</em></span>
+                            <span id="accountUnknown" hidden={userValidation != 'Unknown'}><i style={{ height: 20, width: 20, color: 'orange' }} className="fa fa-exclamation-circle"></i>&nbsp;<em className="small">Valid account name is not a user or Active Directory access is limited</em></span>
+                            
+                        </div>
+
+                        <button style={{ marginBottom: 10 }} type="button" className="btn btn-primary btn-sm" onClick={(evt) => { evt.preventDefault(); updateADInformation(); }} hidden={userValidation != 'Valid'}>Load Information from AD</button>
 
                     <div className="card">
                         <div className="card-header">
@@ -142,6 +163,6 @@ export default function UserForm(props: { UserAccount: SystemCenter.UserAccount,
                 </div>
             </div>
         </form>
-
+            </>
     );
 }

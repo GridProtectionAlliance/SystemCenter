@@ -62,15 +62,15 @@ export default function UserInfoWindow(props: { User: SystemCenter.UserAccount, 
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
+            <div className="card-body" style={{ height: window.innerHeight - 440, maxHeight: window.innerHeight - 440, overflowY: 'auto' }}>
                 <UserForm UserAccount={user} Setter={props.stateSetter} Edit={true }/>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={() => updateUser()} disabled={user != props.User}>Update</button>
+                    <button className="btn btn-primary" onClick={() => updateUser()} disabled={_.isEqual(user, props.User)}>Update</button>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={() => setUser(props.User)} disabled={user == props.User}>Reset</button>
+                    <button className="btn btn-default" onClick={() => setUser(props.User)} disabled={_.isEqual(user, props.User)}>Reset</button>
                 </div>
             </div>
 
