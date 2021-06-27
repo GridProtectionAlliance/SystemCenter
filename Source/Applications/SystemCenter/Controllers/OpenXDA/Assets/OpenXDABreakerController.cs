@@ -28,9 +28,11 @@ using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Net.Http;
 using System.Web.Http;
 using SystemCenter.Controllers;
+using SystemCenter.Model;
 
 [RoutePrefix("api/OpenXDA/Breaker")]
 public class OpenXDABreakerController : ModelController<Breaker>
@@ -168,5 +170,40 @@ public class OpenXDABreakerController : ModelController<Breaker>
         }
         else
             return Unauthorized();
+    }
+
+    [HttpGet, Route("extDataBases")]
+    public IHttpActionResult GetExternalDB()
+    {
+        try
+        {
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+            {
+                string afTbl = TableOperations<AdditionalField>.GetTableName();
+                string afvTbl = TableOperations<AdditionalFieldValue>.GetTableName();
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    string query = $@"SELECT MIN(UpdatedOn) AS lastUpdate, {afTbl}.ExternalDB AS name  
+                                                    FROM 
+                                                    {afTbl} LEFT JOIN {afvTbl} ON {afTbl}.ID = {afvTbl}.AdditionalFieldID
+                                                    WHERE 
+                                                        {afTbl}.ParentTable = 'Breaker'
+                                                        AND {afTbl}.ExternalDB IS NOT NULL AND {afTbl}.ExternalDB <> ''
+                                                    GROUP BY {afTbl}.ExternalDB";
+
+                    DataTable table = connection.RetrieveData(query);
+
+                    return Ok(table);
+                }
+            }
+            else
+                return Unauthorized();
+        }
+        catch (Exception ex)
+        {
+            return InternalServerError(ex);
+        }
+
     }
 }

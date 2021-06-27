@@ -264,21 +264,25 @@ namespace SystemCenter.Controllers.OpenXDA
             try
             {
                 if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+                {
+                    string afTbl = TableOperations<AdditionalField>.GetTableName();
+                    string afvTbl = TableOperations<AdditionalFieldValue>.GetTableName();
 
-                    using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                                    string query = @"SELECT MIN(UpdatedOn) AS lastUpdate, AdditionalField.ExternalDB AS name  
+                        string query = $@"SELECT MIN(UpdatedOn) AS lastUpdate, {afTbl}.ExternalDB AS name  
                                                     FROM 
-                                                    AdditionalField LEFT JOIN AdditionalFieldValue ON AdditionalField.ID = AdditionalFieldValue.AdditionalFieldID
+                                                    {afTbl} LEFT JOIN {afvTbl} ON {afTbl}.ID = {afvTbl}.AdditionalFieldID
                                                     WHERE 
-                                                        AdditionalField.ParentTable = 'Location'
-                                                        AND AdditionalField.ExternalDB IS NOT NULL AND AdditionalField.ExternalDB <> ''
-                                                    GROUP BY AdditionalField.ExternalDB";
+                                                        {afTbl}.ParentTable = 'Location'
+                                                        AND {afTbl}.ExternalDB IS NOT NULL AND {afTbl}.ExternalDB <> ''
+                                                    GROUP BY {afTbl}.ExternalDB";
 
-                                    DataTable table = connection.RetrieveData(query);
+                        DataTable table = connection.RetrieveData(query);
 
-                                    return Ok(table);
+                        return Ok(table);
                     }
+                }
                 else
                     return Unauthorized();
             }

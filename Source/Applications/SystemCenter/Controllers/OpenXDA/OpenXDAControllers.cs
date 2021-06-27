@@ -44,6 +44,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using GSF.Web.Model;
 using PQView.Model;
+using SystemCenter.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
@@ -99,16 +100,159 @@ namespace SystemCenter.Controllers.OpenXDA
     }
 
     [RoutePrefix("api/OpenXDA/Bus")]
-    public class OpenXDABusController : ModelController<Bus> { }
+    public class OpenXDABusController : ModelController<Bus> 
+    {
+        [HttpGet, Route("extDataBases")]
+        public IHttpActionResult GetExternalDB()
+        {
+            try
+            {
+                if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+                {
+                    string afTbl = TableOperations<AdditionalField>.GetTableName();
+                    string afvTbl = TableOperations<AdditionalFieldValue>.GetTableName();
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        string query = $@"SELECT MIN(UpdatedOn) AS lastUpdate, {afTbl}.ExternalDB AS name  
+                                                    FROM 
+                                                    {afTbl} LEFT JOIN {afvTbl} ON {afTbl}.ID = {afvTbl}.AdditionalFieldID
+                                                    WHERE 
+                                                        {afTbl}.ParentTable = 'Bus'
+                                                        AND {afTbl}.ExternalDB IS NOT NULL AND {afTbl}.ExternalDB <> ''
+                                                    GROUP BY {afTbl}.ExternalDB";
+
+                        DataTable table = connection.RetrieveData(query);
+
+                        return Ok(table);
+                    }
+                }
+                else
+                    return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
+    }
 
     [RoutePrefix("api/OpenXDA/CapacitorBank")]
-    public class OpenXDACapBankController : ModelController<CapBank> { }
+    public class OpenXDACapBankController : ModelController<CapBank> 
+    {
+        [HttpGet, Route("extDataBases")]
+        public IHttpActionResult GetExternalDB()
+        {
+            try
+            {
+                if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+                {
+                    string afTbl = TableOperations<AdditionalField>.GetTableName();
+                    string afvTbl = TableOperations<AdditionalFieldValue>.GetTableName();
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        string query = $@"SELECT MIN(UpdatedOn) AS lastUpdate, {afTbl}.ExternalDB AS name  
+                                                    FROM 
+                                                    {afTbl} LEFT JOIN {afvTbl} ON {afTbl}.ID = {afvTbl}.AdditionalFieldID
+                                                    WHERE 
+                                                        {afTbl}.ParentTable = 'CapBank'
+                                                        AND {afTbl}.ExternalDB IS NOT NULL AND {afTbl}.ExternalDB <> ''
+                                                    GROUP BY {afTbl}.ExternalDB";
+
+                        DataTable table = connection.RetrieveData(query);
+
+                        return Ok(table);
+                    }
+                }
+                else
+                    return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
+    }
 
     [RoutePrefix("api/OpenXDA/CapacitorBankRelay")]
-    public class OpenXDACapBankRelayController : ModelController<CapBankRelay> { }
+    public class OpenXDACapBankRelayController : ModelController<CapBankRelay> {
+        [HttpGet, Route("extDataBases")]
+        public IHttpActionResult GetExternalDB()
+        {
+            try
+            {
+                if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+                {
+                    string afTbl = TableOperations<AdditionalField>.GetTableName();
+                    string afvTbl = TableOperations<AdditionalFieldValue>.GetTableName();
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        string query = $@"SELECT MIN(UpdatedOn) AS lastUpdate, {afTbl}.ExternalDB AS name  
+                                                    FROM 
+                                                    {afTbl} LEFT JOIN {afvTbl} ON {afTbl}.ID = {afvTbl}.AdditionalFieldID
+                                                    WHERE 
+                                                        {afTbl}.ParentTable = 'CapBankRelay'
+                                                        AND {afTbl}.ExternalDB IS NOT NULL AND {afTbl}.ExternalDB <> ''
+                                                    GROUP BY {afTbl}.ExternalDB";
+
+                        DataTable table = connection.RetrieveData(query);
+
+                        return Ok(table);
+                    }
+                }
+                else
+                    return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
+    }
 
     [RoutePrefix("api/OpenXDA/Transformer")]
-    public class OpenXDATransformerController : ModelController<Transformer> { }
+    public class OpenXDATransformerController : ModelController<Transformer> 
+    {
+        [HttpGet, Route("extDataBases")]
+        public IHttpActionResult GetExternalDB()
+        {
+            try
+            {
+                if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+                {
+                    string afTbl = TableOperations<AdditionalField>.GetTableName();
+                    string afvTbl = TableOperations<AdditionalFieldValue>.GetTableName();
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        string query = $@"SELECT MIN(UpdatedOn) AS lastUpdate, {afTbl}.ExternalDB AS name  
+                                                    FROM 
+                                                    {afTbl} LEFT JOIN {afvTbl} ON {afTbl}.ID = {afvTbl}.AdditionalFieldID
+                                                    WHERE 
+                                                        {afTbl}.ParentTable = 'Transformer'
+                                                        AND {afTbl}.ExternalDB IS NOT NULL AND {afTbl}.ExternalDB <> ''
+                                                    GROUP BY {afTbl}.ExternalDB";
+
+                        DataTable table = connection.RetrieveData(query);
+
+                        return Ok(table);
+                    }
+                }
+                else
+                    return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
+    }
 
     [RoutePrefix("api/OpenXDA/NoteType")]
     public class NoteTypeController : ModelController<NoteType> {}
