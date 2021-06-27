@@ -14,7 +14,6 @@
         <!-- SystemCenter Database-->
         <Feature Id="DatabaseFeature" Title="SystemCenter Database" AllowAdvertise="no" Description="Installs the SystemCenter database schema to a SQL Server database.">
           <ComponentRef Id="DBScript" />
-          <ComponentRef Id="TVADefaults" />
         </Feature>
 
         <!-- SystemCenter Service -->
@@ -152,8 +151,6 @@
     <CustomAction Id="GrantDBPermissions" BinaryKey="InstallerActions" DllEntry="DatabaseQueryAction" Execute="deferred" Impersonate="yes" />
     <CustomAction Id="SystemCenter.sql.SetProperty" Property="SystemCenter.sql" Value="SERVICENAME=[SERVICENAME];CONNECTIONSTRING=[DBCONNECTIONSTRING];DATAPROVIDERSTRING=[DATAPROVIDERSTRING];SCRIPTPATH=[#SystemCenter.sql]" />
     <CustomAction Id="SystemCenter.sql" BinaryKey="InstallerActions" DllEntry="DatabaseScriptAction" Execute="deferred" Impersonate="yes" />
-    <CustomAction Id="TVADefaults.sql.SetProperty" Property="TVADefaults.sql" Value="SERVICENAME=[SERVICENAME];CONNECTIONSTRING=[DBCONNECTIONSTRING];DATAPROVIDERSTRING=[DATAPROVIDERSTRING];SCRIPTPATH=[#TVADefaults.sql]" />
-    <CustomAction Id="TVADefaults.sql" BinaryKey="InstallerActions" DllEntry="DatabaseScriptAction" Execute="deferred" Impersonate="yes" />
     
     <UI>
       <ProgressText Action="CreateDatabase">Creating database [DATABASENAME]...</ProgressText>
@@ -164,7 +161,6 @@
       <ProgressText Action="GrantDBPermissions">Granting privileges to login [XDASERVICELOGIN]...</ProgressText>
 
       <ProgressText Action="SystemCenter.sql">Setting up initial schema...</ProgressText>
-      <ProgressText Action="TVADefaults.sql">Loading TVA Initial Defaults...</ProgressText>
     </UI>
 
     <InstallExecuteSequence>
@@ -191,8 +187,6 @@
 
       <Custom Action="SystemCenter.sql.SetProperty" After="GrantDBPermissions">INSTALLDATABASEFEATURE</Custom>
       <Custom Action="SystemCenter.sql" After="SystemCenter.sql.SetProperty">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="TVADefaults.sql.SetProperty" After="SystemCenter.sql">INSTALLDATABASEFEATURE</Custom>
-      <Custom Action="TVADefaults.sql" After="TVADefaults.sql.SetProperty">INSTALLDATABASEFEATURE</Custom>
     </InstallExecuteSequence>
   </Product>
 
@@ -265,9 +259,6 @@
       <!-- Database Scripts -->
       <Component Id="DBScript">
         <File Id="SystemCenter.sql" Name="SystemCenter.sql" Source="$(var.SolutionDir)\Data\SystemCenter.sql" />
-      </Component>
-      <Component Id="TVADefaults">
-        <File Id="TVADefaults.sql" Name="TVADefaults.sql" Source="$(var.SolutionDir)\Data\TVADefaults.sql" />
       </Component>
     </ComponentGroup>
     
