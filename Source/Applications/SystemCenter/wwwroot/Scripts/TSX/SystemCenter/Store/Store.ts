@@ -24,8 +24,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import CompanyTypeReducer from '../Company/CompanyTypeSlice';
 import ValueListReducer from './ValueListSlice';
-import MeasurementTypeReducer from './MeasurementTypeSlice';
-import PhaseReducer from './PhaseSlice';
 import MeterReducer from './MeterSlice';
 import LocationReducer from './LocationSlice';
 import AssetReducer from './AssetSlice';
@@ -38,14 +36,15 @@ export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.Location
 export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', 'Setting')
 export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType", "OpenXDA/AssetConnectionType");
 export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType", "OpenXDA/AssetType");
-
+export const PhaseSlice = new GenericSlice<OpenXDA.Types.Phase>("Phase", "OpenXDA/Phase");
+export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementType>("MeasurementType", "OpenXDA/MeasurementType");
 
 export default configureStore({
     reducer: {
         CompanyType: CompanyTypeReducer,
         //ValueList: ValueListReducer,
-        MeasurementType: MeasurementTypeReducer,
-        Phase: PhaseReducer,
+        MeasurementType: MeasurmentTypeSlice.Reducer,
+        Phase: PhaseSlice.Reducer,
         AssetConnectionType: AssetConnectionTypeSlice.Reducer,
         Meter: MeterReducer,
         Asset: AssetReducer,

@@ -26,8 +26,8 @@ import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '../global';
 import CFGParser from '../../../TS/CFGParser';
 import { useDispatch, useSelector } from 'react-redux';
-import { SelectMeasurementTypes, SelectMeasurementTypeStatus, FetchMeasurementType } from '../Store/MeasurementTypeSlice';
-import { SelectPhaseStatus, SelectPhases, FetchPhase } from '../Store/PhaseSlice';
+
+import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store';
 import Table from '@gpa-gemstone/react-table'
 import { Input, Select } from '@gpa-gemstone/react-forms';
 import { Warning } from '@gpa-gemstone/react-interactive';
@@ -37,10 +37,10 @@ declare var homePath: string;
 export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA.Channel>, UpdateChannels: (record: OpenXDA.Channel[]) => void, UpdateAssets: (record: OpenXDA.Asset[]) => void, SetError: (e: string[]) => void  }) {
     const fileInput = React.useRef(null);
     const dispatch = useDispatch();
-    const measurementTypes = useSelector(SelectMeasurementTypes);
-    const mtStatus = useSelector(SelectMeasurementTypeStatus) as SystemCenter.Status;
-    const phases = useSelector(SelectPhases);
-    const phStatus = useSelector(SelectPhaseStatus) as SystemCenter.Status;
+    const measurementTypes = useSelector(MeasurmentTypeSlice.Data);
+    const mtStatus = useSelector(MeasurmentTypeSlice.Status) as SystemCenter.Status;
+    const phases = useSelector(PhaseSlice.Data);
+    const phStatus = useSelector(PhaseSlice.Status) as SystemCenter.Status;
     const [showCFGError, setShowCFGError] = React.useState<boolean>(false);
     const [showSpareWarning, setShowSpareWarning] = React.useState<boolean>(false);
 
@@ -58,7 +58,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
 
     React.useEffect(() => {
         if (mtStatus === 'unintiated' || mtStatus === 'changed') {
-            dispatch(FetchMeasurementType());
+            dispatch(MeasurmentTypeSlice.Fetch());
             return function () {
             }
         }
@@ -66,7 +66,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
 
     React.useEffect(() => {
         if (phStatus === 'unintiated' || phStatus === 'changed') {
-            dispatch(FetchPhase());
+            dispatch(PhaseSlice.Fetch());
             return function () {
             }
         }
