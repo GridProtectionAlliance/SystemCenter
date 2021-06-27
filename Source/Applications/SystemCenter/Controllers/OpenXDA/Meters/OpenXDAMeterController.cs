@@ -82,132 +82,123 @@ namespace SystemCenter.Controllers.OpenXDA
                 try
                 {
                     Meter meter = record["MeterInfo"].ToObject<Meter>();
-
-                    meter.Description = meter.Description == string.Empty ? "NULL" : "'" + meter.Description + "'";
-                    meter.Alias = meter.Alias == string.Empty ? "NULL" : "'" + meter.Alias + "'";
-                    meter.ShortName = meter.ShortName == string.Empty ? "NULL" : "'" + meter.ShortName + "'";
-                    meter.TimeZone = meter.TimeZone == string.Empty ? "NULL" : "'" + meter.TimeZone + "'";
-
                     Location location = record["LocationInfo"].ToObject<Location>();
-
-                    location.Description = location.Description == string.Empty ? "NULL" : "'" + location.Description + "'";
-                    location.Alias = location.Alias == string.Empty ? "NULL" : "'" + location.Alias + "'";
-                    location.ShortName = location.ShortName == string.Empty ? "NULL" : "'" + location.ShortName + "'";
-
-                    if (location.Description == string.Empty) location.Description = "NULL";
-                    if (location.Alias == string.Empty) location.Alias = "NULL";
-                    if (location.ShortName == string.Empty) location.ShortName = "NULL";
-
-                    string sqlString = @"";
-
-                    if (location.ID == 0)
-                        sqlString += $"INSERT INTO Location (LocationKey, Name, Alias, Latitude, Longitude, Description, ShortName) VALUES ('{location.LocationKey}','{location.Name}', {location.Alias}, {location.Latitude}, {location.Longitude}, {location.Description}, {location.ShortName} ) \n";
-
-                    sqlString += $"INSERT INTO Meter (AssetKey, LocationID, Name, Alias, ShortName, Make, Model, TimeZone, Description) VALUES ('{meter.AssetKey}', (SELECT ID FROM Location WHERE LocationKey ='{location.LocationKey}') ,'{meter.Name}', {meter.Alias}, {meter.ShortName} , '{meter.Make}', '{meter.Model}', {meter.TimeZone}, {meter.Description} ) \n";
-
-                    JToken Assets = record["Assets"];
-
-                    foreach (var asset in Assets)
-                    {
-                        string assetType = asset["AssetType"].ToString();
-                        if (asset["ID"].ToString() == "0")
-                        {
-                            asset["Description"] = asset["Description"] ?? "";
-
-                            if (assetType == "Line")
-                            {
-                                string maxFaultDistance = asset["MaxFaultDistance"].ToString() == string.Empty ? "NULL" : asset["MaxFaultDistance"].ToString();
-                                string minFaultDistance = asset["MinFaultDistance"].ToString() == string.Empty ? "NULL" : asset["MinFaultDistance"].ToString();
-
-                                sqlString += $"INSERT INTO Line (VoltageKV, AssetKey, Description, AssetName, AssetTypeID, MaxFaultDistance, MinFaultDistance) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Line'),{maxFaultDistance},{minFaultDistance}) \n";
-                                //sqlString += $"INSERT INTO LineSegment (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,R0, X0, R1, X1, ThermalRating, Length) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}LineSegment','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'LineSegment'),{asset["Segment"]["R0"].ToString()},{asset["Segment"]["X0"].ToString()},{asset["Segment"]["R1"].ToString()},{asset["Segment"]["X1"].ToString()},{asset["Segment"]["ThermalRating"].ToString()},{asset["Segment"]["Length"].ToString()} ) \n";
-                                //sqlString += $"INSERT INTO AssetRelationship (AssetRelationshipTypeID, ParentID, ChildID) VALUES ((SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}LineSegment')) \n";
-                                //sqlString += $"INSERT INTO MeterAsset (MeterID, AssetID) VALUES ((SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}LineSegment')) \n";
-                                //sqlString += $"INSERT INTO AssetLocation (LocationID, AssetID) VALUES ((SELECT ID FROM Location WHERE LocationKey = '{location.LocationKey}'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}LineSegment')) \n";
-
-                            }
-                            else if (assetType == "LineSegment")
-                                sqlString += $"INSERT INTO LineSegment (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,R0, X0, R1, X1, ThermalRating, Length) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'LineSegment'),{asset["R0"].ToString()},{asset["X0"].ToString()},{asset["R1"].ToString()},{asset["X1"].ToString()},{asset["ThermalRating"].ToString()},{asset["Length"].ToString()} ) \n";
-                            else if (assetType == "Breaker")
-                            {
-                                string tripTime = asset["TripTime"].ToString() == string.Empty ? "NULL" : asset["TripTime"].ToString();
-                                string pickupTime = asset["PickupTime"].ToString() == string.Empty ? "NULL" : asset["PickupTime"].ToString();
-                                string tripCoilCondition = asset["TripCoilCondition"].ToString() == string.Empty ? "NULL" : asset["TripCoilCondition"].ToString();
-
-
-                                sqlString += $"INSERT INTO Breaker (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,ThermalRating, Speed, TripTime, PickupTime, TripCoilCondition, Spare) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Breaker'),{asset["ThermalRating"].ToString()},{asset["Speed"].ToString()},{tripTime},{pickupTime},{tripCoilCondition}, {(asset["Spare"].ToString() == "true" ? "1" : "0")} ) \n";
-                                if (asset["EDNAPoint"] != null)
-                                    sqlString += $"INSERT INTO EDNAPoint (BreakerID, Point) VALUES ((SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'),'{asset["EDNAPoint"].ToString()}') \n";
-                            }
-                            else if (assetType == "Bus")
-                                sqlString += $"INSERT INTO Bus (VoltageKV, AssetKey, Description, AssetName, AssetTypeID) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Bus')) \n";
-                            else if (assetType == "CapacitorBank")
-                            {
-                                sqlString += $"INSERT INTO CapBank (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,[Spare],[NumberOfBanks],[CapacitancePerBank],[CktSwitcher],[MaxKV],[UnitKV],[UnitKVAr],[NegReactanceTol],[PosReactanceTol],[Nparalell],[Nseries],[NSeriesGroup],[NParalellGroup],[Fused],[VTratioBus],[NumberLVCaps],[NumberLVUnits],[LVKVAr],[LVKV],[LVNegReactanceTol],[LVPosReactanceTol],[LowerXFRRatio],[Nshorted],[BlownFuses],[BlownGroups],[RelayPTRatioPrimary],[RelayPTRatioSecondary],[Sh],[Rv],[Rh],[Compensated],[NLowerGroups],[ShortedGroups] ) ";
-                                sqlString += $"VALUES ({asset["VoltageKV"]?.ToString() ?? "160"},'{asset["AssetKey"].ToString()}','{asset["Description"]?.ToString() ?? ""}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'CapacitorBank'),0,{asset["NumberOfBanks"]?.ToString() ?? "1"},{asset["CapacitancePerBank"]?.ToString() ?? "1"},'{asset["CktSwitcher"]?.ToString() ?? "1"}',{asset["MaxKV"]?.ToString() ?? "173"},{asset["UnitKV"]?.ToString() ?? "13.2"},{asset["UnitKVAr"]?.ToString() ?? "10"},{asset["NegReactanceTol"]?.ToString() ?? "0"},{asset["PosReactanceTol"]?.ToString() ?? "10"},{asset["Nparalell"]?.ToString() ?? "1"},{asset["Nseries"]?.ToString() ?? "1"},{asset["NSeriesGroup"]?.ToString() ?? "1"},{asset["NParalellGroup"]?.ToString() ?? "1"},'{asset["Fused"]?.ToString() ?? "1"}',{asset["VTratioBus"]?.ToString() ?? "800"},{asset["NumberLVCaps"]?.ToString() ?? "1"},{asset["NumberLVUnits"]?.ToString() ?? "1"},{asset["LVKVAr"]?.ToString() ?? "1"},{asset["LVKV"]?.ToString() ?? "1"},{asset["LVNegReactanceTol"]?.ToString() ?? "0"},{asset["LVPosReactanceTol"]?.ToString() ?? "10"},{asset["LowerXFRRatio"]?.ToString() ?? "100"},{asset["Nshorted"]?.ToString() ?? "0"},{asset["BlownFuses"]?.ToString() ?? "0"},{asset["BlownGroups"]?.ToString() ?? "0"},{asset["RelayPTRatioPrimary"]?.ToString() ?? "0"},{asset["RelayPTRatioSecondary"]?.ToString() ?? "0"},{asset["Sh"]?.ToString() ?? "0"},{asset["Rv"]?.ToString() ?? "1"},{asset["Rh"]?.ToString() ?? "0"},'{asset["Compensated"]?.ToString() ?? "1"}',{asset["NLowerGroups"]?.ToString() ?? "1"},{asset["ShortedGroups"]?.ToString() ?? "1"} ) \n";
-                            }
-                            else if (assetType == "Transformer")
-                            {
-                                string primaryVoltageKV = asset["PrimaryVoltageKV"].ToString() == string.Empty ? "NULL" : asset["PrimaryVoltageKV"].ToString();
-                                string secondaryVoltageKV = asset["SecondaryVoltageKV"].ToString() == string.Empty ? "NULL" : asset["SecondaryVoltageKV"].ToString();
-                                string tertiaryVoltageKV = asset["TertiaryVoltageKV"].ToString() == string.Empty ? "NULL" : asset["TertiaryVoltageKV"].ToString();
-
-                                string primaryWinding = asset["PrimaryWinding"].ToString() == string.Empty ? "NULL" : asset["PrimaryWinding"].ToString();
-                                string secondaryWinding = asset["SecondaryWinding"].ToString() == string.Empty ? "NULL" : asset["SecondaryWinding"].ToString();
-                                string tertiaryWinding = asset["TertiaryWinding"].ToString() == string.Empty ? "NULL" : asset["TertiaryWinding"].ToString();
-
-                                string tap = asset["Tap"].ToString() == string.Empty ? "NULL" : asset["Tap"].ToString();
-
-                                sqlString += $"INSERT INTO Transformer (VoltageKV, AssetKey, Description, AssetName, AssetTypeID,R0, X0, R1, X1, ThermalRating, PrimaryVoltageKV, SecondaryVoltageKV, Tap,TertiaryVoltageKV, PrimaryWinding, SecondaryWinding, TertiaryWinding ) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Transformer'),{asset["R0"].ToString()},{asset["X0"].ToString()},{asset["R1"].ToString()},{asset["X1"].ToString()},{asset["ThermalRating"].ToString()},{primaryVoltageKV},{secondaryVoltageKV},{tap},{tertiaryVoltageKV},{primaryWinding},{secondaryWinding},{tertiaryWinding} ) \n";
-                            }
-                            else if (assetType == "CapacitorBankRelay")
-                                sqlString += $"INSERT INTO CapBankRelay (VoltageKV, AssetKey, Description, AssetName, AssetTypeID, Spare, OnVoltageThreshhold, CapBankNumber) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'CapacitorBankRelay'),0,{asset["OnVoltageThreshhold"].ToString()},{asset["CapBankNumber"].ToString()}) \n";
-                            else
-                                sqlString += $"INSERT INTO Asset (VoltageKV, AssetKey, Description, AssetName, AssetTypeID) VALUES ({asset["VoltageKV"].ToString()},'{asset["AssetKey"].ToString()}','{asset["Description"].ToString()}','{asset["AssetName"].ToString()}',(SELECT ID FROM AssetType WHERE Name = 'Bus')) \n";
-                        }
-
-                        sqlString += $"INSERT INTO MeterAsset (MeterID, AssetID) VALUES ((SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}')) \n";
-                        sqlString += $"INSERT INTO AssetLocation (LocationID, AssetID) VALUES ((SELECT ID FROM Location WHERE LocationKey = '{location.LocationKey}'),(SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}')) \n";
-                    }
-
-                    JToken AssetConnections = record["AssetConnections"];
-                    foreach (var assetConnection in AssetConnections)
-                        sqlString += $"INSERT INTO AssetRelationship (AssetRelationshipTypeID, ParentID, ChildID) VALUES ({assetConnection["AssetRelationshipTypeID"].ToString()},(SELECT ID FROM Asset WHERE AssetKey = '{assetConnection["Parent"].ToString()}'),(SELECT ID FROM Asset WHERE AssetKey = '{assetConnection["Child"].ToString()}')) \n";
-
-
-                    JToken Channels = record["Channels"];
-                    foreach (var channel in Channels)
-                    {
-                        string assetName = channel["Asset"].ToString();
-                        string measurementType = channel["MeasurementType"].ToString();
-                        string measurementcharacteristic = channel["MeasurementCharacteristic"].ToString();
-                        string phase = channel["Phase"].ToString();
-                        string name = channel["Name"].ToString();
-                        double adder = channel["Adder"].ToObject<double>();
-                        double multiplier = channel["Multiplier"].ToObject<double>();
-                        string description = channel["Description"].ToString() == string.Empty ? "NULL" : "'" + channel["Description"].ToString() + "'";
-                        int conPriority = channel["ConnectionPriority"].ToObject<int>();
-
-                        JToken Series = channel["Series"];
-                        string sourceIndex = Series[0]["SourceIndexes"].ToString();
-                        if (assetName == string.Empty) continue;
-
-                        sqlString += $"INSERT INTO Channel (AssetID, MeasurementTypeID, MeterID, MeasurementCharacteristicID, PhaseID, Name, Adder, Multiplier, SamplesPerHour, HarmonicGroup, Description, Enabled, ConnectionPriority) VALUES ";
-                        sqlString += $"((SELECT ID FROM Asset WHERE AssetKey = '{assetName}'),(SELECT ID FROM MeasurementType WHERE Name = '{measurementType}'),(SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'),(SELECT ID FROM MeasurementCharacteristic WHERE Name = '{measurementcharacteristic}'),(SELECT ID FROM Phase WHERE Name = '{phase}'), '{name}', {adder}, {multiplier}, 0,0,{description}, 1,{conPriority} ) \n";
-                        sqlString += $"INSERT INTO Series (ChannelID, SeriesTypeID, SourceIndexes) VALUES ((SELECT @@Identity), (SELECT ID FROM SeriesType WHERE Name = 'Values'), '{sourceIndex}') \n";
-                    }
 
                     using (TransactionScope scope = new TransactionScope())
                     {
-                        using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                        using (AdoDataConnection connection = new AdoDataConnection(Connection))
                         {
-                            connection.ExecuteNonQuery(sqlString);
-                        }
+                            if (location.ID == 0)
+                                (new TableOperations<Location>(connection)).AddNewRecord(location);
 
-                        // The Complete method commits the transaction. If an exception has been thrown,
-                        // Complete is not  called and the transaction is rolled back.
-                        scope.Complete();
-                    }
+                            JToken Assets = record["Assets"];
+                            int locationID = connection.ExecuteScalar<int>($"SELECT ID FROM Location WHERE LocationKey = '{location.LocationKey}'");
+                            meter.LocationID = locationID;
+
+                            (new TableOperations<Meter>(connection)).AddNewRecord(meter);
+                            int meterId = connection.ExecuteScalar<int>($"SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'");
+
+                            foreach (var asset in Assets)
+                            {
+                                string assetType = asset["AssetType"].ToString();
+                                if (asset["ID"].ToString() == "0")
+                                {
+                                    if (assetType == "Line")
+                                        (new TableOperations<Line>(connection)).AddNewRecord(asset.ToObject<Line>());
+                                    else if (assetType == "LineSegment")
+                                        (new TableOperations<LineSegment>(connection)).AddNewRecord(asset.ToObject<LineSegment>());
+                                    else if (assetType == "Breaker")
+                                    {
+                                        (new TableOperations<Breaker>(connection)).AddNewRecord(asset.ToObject<Breaker>());
+                                        if (asset["EDNAPoint"] != null)
+                                            connection.ExecuteNonQuery($"INSERT INTO EDNAPoint (BreakerID, Point) VALUES ((SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'),'{asset["EDNAPoint"].ToString()}')");
+                                    }
+                                    else if (assetType == "Bus")
+                                        (new TableOperations<Bus>(connection)).AddNewRecord(asset.ToObject<Bus>());
+                                    else if (assetType == "CapacitorBank")
+                                        (new TableOperations<CapBank>(connection)).AddNewRecord(asset.ToObject<CapBank>());
+                                    else if (assetType == "Transformer")
+                                        (new TableOperations<Transformer>(connection)).AddNewRecord(asset.ToObject<Transformer>());
+                                    else if (assetType == "CapacitorBankRelay")
+                                        (new TableOperations<CapBankRelay>(connection)).AddNewRecord(asset.ToObject<CapBankRelay>());
+                                    else
+                                        (new TableOperations<Asset>(connection)).AddNewRecord(asset.ToObject<Asset>());
+                                }
+                                int assetID = connection.ExecuteScalar<int>($"SELECT ID FROM Asset WHERE AssetKey = '{asset["AssetKey"].ToString()}'");
+
+                                (new TableOperations<MeterAsset>(connection)).AddNewRecord(new MeterAsset()
+                                {
+                                    AssetID = assetID,
+                                    MeterID = meterId
+                                });
+                                (new TableOperations<AssetLocation>(connection)).AddNewRecord(new AssetLocation()
+                                {
+                                    AssetID = assetID,
+                                    LocationID = locationID
+                                });
+                            }
+
+                            JToken AssetConnections = record["AssetConnections"];
+                            foreach (var assetConnection in AssetConnections)
+                            {
+                                int childID = connection.ExecuteScalar<int>($"SELECT ID From asset WHERE AssetKey = '{assetConnection["Child"].ToString()}'");
+                                int parentID = connection.ExecuteScalar<int>($"SELECT ID From asset WHERE AssetKey = '{assetConnection["Parent"].ToString()}'");
+                                (new TableOperations<AssetConnection>(connection)).AddNewRecord(new AssetConnection()
+                                {
+                                    ParentID = parentID,
+                                    ChildID = childID,
+                                    AssetRelationshipTypeID = int.Parse(assetConnection["AssetRelationshipTypeID"].ToString())
+                                });
+                            }
+
+                            JToken Channels = record["Channels"];
+                            foreach (var channel in Channels)
+                            {
+                                string assetKey = channel["Asset"].ToString();
+                                string measurementType = channel["MeasurementType"].ToString();
+                                string measurementcharacteristic = channel["MeasurementCharacteristic"].ToString();
+                                string phase = channel["Phase"].ToString();
+                                string name = channel["Name"].ToString();
+                                double adder = channel["Adder"].ToObject<double>();
+                                double multiplier = channel["Multiplier"].ToObject<double>();
+                                string description = channel["Description"].ToString() == string.Empty ? "NULL" : "'" + channel["Description"].ToString() + "'";
+                                int conPriority = channel["ConnectionPriority"].ToObject<int>();
+
+                                JToken Series = channel["Series"];
+                                string sourceIndex = Series[0]["SourceIndexes"].ToString();
+                                if (assetKey == string.Empty) continue;
+
+                                connection.ExecuteNonQuery($@"INSERT INTO Channel
+                                    (
+                                        AssetID,
+                                        MeasurementTypeID,
+                                        MeterID,
+                                        MeasurementCharacteristicID,   
+                                        PhaseID,
+                                        Name,
+                                        Adder,
+                                        Multiplier,
+                                        SamplesPerHour,
+                                        HarmonicGroup,
+                                        Description,
+                                        Enabled,
+                                        ConnectionPriority
+                                    ) VALUES 
+                                ((SELECT ID FROM Asset WHERE AssetKey = '{assetKey}'),
+                                (SELECT ID FROM MeasurementType WHERE Name = '{measurementType}'),
+                                {meterId},
+                                (SELECT ID FROM MeasurementCharacteristic WHERE Name = '{measurementcharacteristic}'),
+                                (SELECT ID FROM Phase WHERE Name = '{phase}'),
+                                '{name}', {adder}, {multiplier}, 0,0,{description}, 1,{conPriority} )");
+
+                                connection.ExecuteNonQuery($@"INSERT INTO Series (ChannelID, SeriesTypeID, SourceIndexes) VALUES 
+                                    ((SELECT @@Identity), (SELECT ID FROM SeriesType WHERE Name = 'Values'), '{sourceIndex}') ");
+                            }
+
+                            scope.Complete();
+                        }
+                    }                
+
                     return Ok("Completed without errors.");
                 }
                 catch (Exception ex)
