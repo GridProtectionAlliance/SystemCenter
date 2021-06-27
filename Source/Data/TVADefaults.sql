@@ -1,23 +1,23 @@
-﻿INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Meter', 'Maximo Asset Number (UID)')
+﻿INSERT INTO AdditionalField (ParentTable, FieldName) VALUES ('Meter', 'Maximo Asset Number (UID)')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Location', 'Maximo Asset Number (UID)')
+INSERT INTO AdditionalField (ParentTable, FieldName) VALUES ('Location', 'Maximo Asset Number (UID)')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName) VALUES 
 ('Breaker', 'Maximo Breaker Asset Number (UID)'),
 ('Breaker', 'Maximo TripCoil Asset Number (UID)')
 GO
 
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('Line', 'Maximo Asset Number (UID)')
+INSERT INTO AdditionalField (ParentTable, FieldName) VALUES ('Line', 'Maximo Asset Number (UID)')
 GO
 
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES ('CapBank', 'Maximo Asset Number (UID)')
+INSERT INTO AdditionalField (ParentTable, FieldName) VALUES ('CapBank', 'Maximo Asset Number (UID)')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES
+INSERT INTO AdditionalField (ParentTable, FieldName) VALUES
 ('Transformer', 'FAWG High Side Bus'),
 ('Transformer', 'FAWG Low Side Bus'),
 ('Transformer', 'Maximo Phase A Asset Number (UID)'),
@@ -28,7 +28,7 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES
 ('Transformer', 'Phase C LTC Asset Number (UID)')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName) VALUES
+INSERT INTO AdditionalField (ParentTable, FieldName) VALUES
 ('Transformer', 'Phase A Inst. XFR Asset Number (UID)'),
 ('Transformer', 'Phase B Inst. XFR Asset Number (UID)'),
 ('Transformer', 'Phase C Inst. XFR Asset Number (UID)'),
@@ -50,7 +50,7 @@ GO
 
 /* Alias will hold the Name Field Matching PQView*/
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Meter', 'Serial Number','PQView','SerialNumber','Value'),
 ('Meter', 'Connection Type','PQView','ConnectionType','connectiontype'),
 ('Meter', 'PQView Site ID','PQView','site','id'),
@@ -65,13 +65,13 @@ GO
 
 
 /* XDA Fields */
-INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
 ('Meter','Make','PQView','Vendor','Value'),
 ('Meter','Model','PQView','Equipment','Value')
 GO
 
 /* Transformer Fawg Fields */
-INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
 ('Transformer','R1','Fawg','Transformer','PosSeqResistance'),
 ('Transformer','X1','Fawg','Transformer','PosSeqReactance'),
 ('Transformer','R0','Fawg','Transformer','ZeroSeqResistance'),
@@ -80,12 +80,12 @@ INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, Ext
 ('Transformer','SecondaryVoltageKV','Fawg','Transformer','Vlow')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Transformer', 'XFR Type','Fawg','Transformer','Type')
 GO
 
 /* Fields From Maximo for Meter */
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Meter', 'Function','Maximo','Meter','Function'),
 ('Meter', 'Location Name','Maximo','Meter','Location_Name'),
 ('Meter', 'Meter Sector','Maximo','Meter','METERSECTOR'),
@@ -102,12 +102,12 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 GO
 
 /* XDA Fields */
-INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
 ('Meter','Description','Maximo','Meter','DESCRIPTION')
 GO
 
 /* Fields From Maximo for Substations */
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Location', 'City','Maximo','Location','City'),
 ('Location', 'County','Maximo','Location','County'),
 ('Location', 'State','Maximo','Location','State'),
@@ -123,12 +123,12 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 GO
 
 /* XDA Fields */
-INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
 ('Location','Description','Maximo','Location','DESCRIPTION')
 GO
 
 /* Fields From Maximo for Breakers */
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Breaker', 'Function','Maximo','Breaker','Function'),
 ('Breaker', 'Location Name','Maximo','Breaker','Location_Name'),
 ('Breaker', 'TVA Model No','Maximo','Breaker','TVA_MODEL_NO'),
@@ -147,13 +147,13 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 
 GO
 
-INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
 ('Breaker','Description','Maximo','Breaker','DESCRIPTION'),
 ('Breaker','VoltageKV','Maximo','Breaker','OperatingKV')
 GO
 
 /* Fields From Maximo for CapBank */
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('CapBank', 'Function','Maximo','CapBank','Function'),
 ('CapBank', 'Location Name','Maximo','CapBank','Location_Name'),
 ('CapBank', 'TVA Model No','Maximo','CapBank','TVA_MODEL_NO'),
@@ -166,7 +166,7 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 ('CapBank', 'Bank KVAR','Maximo','CapBank','BankVAR')
 GO
 
-INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
 ('CapBank','Description','Maximo','CapBank','DESCRIPTION'),
 ('CapBank','VoltageKV','Maximo','CapBank','OperatingKV'),
 ('CapBank','CapacitancePerBank','Maximo','CapBank','CapKVAR'),
@@ -174,7 +174,7 @@ INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, Ext
 GO
 
 /* Fields From Maximo for Lines */
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Line', 'Function','Maximo','Line','Function'),
 ('Line', 'Unit','Maximo','Line','Unit'),
 ('Line', 'Address','Maximo','Line','Address'),
@@ -184,13 +184,13 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 ('Line', 'Phasing Drawing','Maximo','Line','PhasingDWG'),
 ('Line', 'Structure List Drawing','Maximo','Line','StructureListDWG')
 GO
-INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
 ('Line','Description','Maximo','Line','DESCRIPTION'),
 ('Line','VoltageKV','Maximo','Line','OperatingKV')
 GO
 
 /* Fields from Maximo for Transformer */
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Transformer', 'Function Phase A','Maximo','Transformer_A','Function'),
 ('Transformer', 'Location Name Phase A','Maximo','Transformer_A','Location_Name'),
 ('Transformer', 'Unit Phase A','Maximo','Transformer_A','Unit'),
@@ -223,7 +223,7 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 GO
 
 /* Fields from Maximo for LTC */
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Transformer', 'Function Phase A LTC','Maximo','LTC_A','Function'),
 ('Transformer', 'Location Name Phase A LTC','Maximo','LTC_A','Location_Name'),
 ('Transformer', 'Unit Phase A LTC','Maximo','LTC_A','Unit'),
@@ -251,7 +251,7 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 GO
 
 /* Fields From Maximo for Instrument Transformers */
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Breaker', 'INST. XFR A Function','Maximo','INSTXFR_A','Function'),
 ('Breaker', 'INST. XFR A Location Name','Maximo','INSTXFR_A','Location_Name'),
 ('Breaker', 'INST. XFR A  Model No','Maximo','INSTXFR_A','TVA_MODEL_NO'),
@@ -292,7 +292,7 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 ('Breaker', 'INST. XFR C Serial No.','Maximo','INSTXFR_C','Serial_No')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Line', 'INST. XFR A Function','Maximo','INSTXFR_A','Function'),
 ('Line', 'INST. XFR A Location Name','Maximo','INSTXFR_A','Location_Name'),
 ('Line', 'INST. XFR A  Model No','Maximo','INSTXFR_A','TVA_MODEL_NO'),
@@ -333,7 +333,7 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 ('Line', 'INST. XFR C Serial No.','Maximo','INSTXFR_C','Serial_No')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Bus', 'INST. XFR A Function','Maximo','INSTXFR_A','Function'),
 ('Bus', 'INST. XFR A Location Name','Maximo','INSTXFR_A','Location_Name'),
 ('Bus', 'INST. XFR A  Model No','Maximo','INSTXFR_A','TVA_MODEL_NO'),
@@ -374,7 +374,7 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 ('Bus', 'INST. XFR C Serial No.','Maximo','INSTXFR_C','Serial_No')
 GO
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('CapBank', 'INST. XFR A Function','Maximo','INSTXFR_A','Function'),
 ('CapBank', 'INST. XFR A Location Name','Maximo','INSTXFR_A','Location_Name'),
 ('CapBank', 'INST. XFR A  Model No','Maximo','INSTXFR_A','TVA_MODEL_NO'),
@@ -416,7 +416,7 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 GO
 
 
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Transformer', 'INST. XFR A Function','Maximo','INSTXFR_A','Function'),
 ('Transformer', 'INST. XFR A Location Name','Maximo','INSTXFR_A','Location_Name'),
 ('Transformer', 'INST. XFR A  Model No','Maximo','INSTXFR_A','TVA_MODEL_NO'),
@@ -457,7 +457,7 @@ INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, External
 ('Transformer', 'INST. XFR C Serial No.','Maximo','INSTXFR_C','Serial_No')
 GO
 
-INSERT INTO ExternalOpenXDAField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
 ('Transformer','Description','Maximo','Transformer_A','DESCRIPTION'),
 ('Transformer','VoltageKV','Maximo','Transformer_A','OperatingKV')
 GO
@@ -1089,24 +1089,24 @@ INSERT INTO ValueListGroup ([Name],[Description]) VALUES
 	('Status','Status')
 GO
 
-INSERT INTO ValueList ([GroupID], [Key], [Value],[Text],[AltText1],[SortOrder],[IsDefault],[Enabled],[Flag],[Hidden]) VALUES
-(1,9,0,'Hawaiian Standard Time','(UTC-10:00) Hawaii', 9, 0, 1,0,0),
-(1,8,0,'UTC-08','(UTC-08:00) Coordinated Universal Time-08',8,0,1,0,0),
-(1,7,0,'Pacific Standard Time','(UTC-08:00) Pacific Time (US & Canada)',7,0,1,0,0),
-(1,6,0,'US Mountain Standard Time','(UTC-07:00) Arizona',6,0,1,0,0),
-(1,5,0,'Mountain Standard Time','(UTC-07:00) Mountain Time (US & Canada)',5,0,1,0,0),
-(1,4,0,'Central Standard Time','(UTC-06:00) Central Time (US & Canada)',4,0,1,0,0),
-(1,3,0,'Eastern Standard Time','(UTC-05:00) Eastern Time (US & Canada)',3,0,1,0,0),
-(1,2,0,'US Eastern Standard Time','(UTC-05:00) Indiana (East)',2,1,2,0,0),
-(1,1,0,'UTC','(UTC) Coordinated Universal Time',1,0,2,0,0),
-(3,1,0,'Active',NULL,1,0,1,0,0),
-(3,2,0,'Retired',NULL,1,0,1,0,0),
-(3,3,0,'Planned',NULL,1,0,1,0,0),
-(3,4,0,'Repair',NULL,1,0,1,0,0)
+INSERT INTO ValueList ([GroupID], [Value],[AltValue],[SortOrder]) VALUES
+((SELECT ID FROM ValueListGroup WHERE Name = 'TimeZones'),'Hawaiian Standard Time','(UTC-10:00) Hawaii', 9),
+((SELECT ID FROM ValueListGroup WHERE Name = 'TimeZones'),'UTC-08','(UTC-08:00) Coordinated Universal Time-08',8),
+((SELECT ID FROM ValueListGroup WHERE Name = 'TimeZones'),'Pacific Standard Time','(UTC-08:00) Pacific Time (US & Canada)',7),
+((SELECT ID FROM ValueListGroup WHERE Name = 'TimeZones'),'US Mountain Standard Time','(UTC-07:00) Arizona',6),
+((SELECT ID FROM ValueListGroup WHERE Name = 'TimeZones'),'Mountain Standard Time','(UTC-07:00) Mountain Time (US & Canada)',5),
+((SELECT ID FROM ValueListGroup WHERE Name = 'TimeZones'),'Central Standard Time','(UTC-06:00) Central Time (US & Canada)',4),
+((SELECT ID FROM ValueListGroup WHERE Name = 'TimeZones'),'Eastern Standard Time','(UTC-05:00) Eastern Time (US & Canada)',3),
+((SELECT ID FROM ValueListGroup WHERE Name = 'TimeZones'),'US Eastern Standard Time','(UTC-05:00) Indiana (East)',2),
+((SELECT ID FROM ValueListGroup WHERE Name = 'TimeZones'),'UTC','(UTC) Coordinated Universal Time',1),
+((SELECT ID FROM ValueListGroup WHERE Name = 'Status'),'Active',NULL,1),
+((SELECT ID FROM ValueListGroup WHERE Name = 'Status'),'Retired',NULL,1),
+((SELECT ID FROM ValueListGroup WHERE Name = 'Status'),'Planned',NULL,1),
+((SELECT ID FROM ValueListGroup WHERE Name = 'Status'),'Repair',NULL,1)
 GO
 
 /* Fields for Line segments to identify changes compared to FAWG - also needed for possible email Alerts against changes in FAWG */
-INSERT INTO AdditionalField (OpenXDAParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('LineSegment', 'FromBus','','',''),
 ('LineSegment', 'ToBus','','','')
 GO
