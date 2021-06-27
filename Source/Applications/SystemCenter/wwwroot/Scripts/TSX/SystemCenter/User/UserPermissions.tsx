@@ -59,7 +59,7 @@ export default function UserPermissionsWindow(props: { User: SystemCenter.UserAc
 
     async function UpdateData() {
         let done1 = await updateSecurityRolesForUser('SystemCenter', scRoles.filter(scr => scr.Assigned).map(scr => { return { ID: '00000000-0000-0000-0000-000000000000', ApplicationRoleID: scr.ID, UserAccountID: props.User.ID } as SystemCenter.ApplicationRoleUserAccount }));
-        let done2 = await updateSecurityRolesForUser('OpenXDA', xdaRoles.filter(scr => scr.Assigned).map(scr => { return { ID: '00000000-0000-0000-0000-000000000000', ApplicationRoleID: scr.ID, UserAccountID: props.User.ID } as SystemCenter.ApplicationRoleUserAccount }));
+        //let done2 = await updateSecurityRolesForUser('OpenXDA', xdaRoles.filter(scr => scr.Assigned).map(scr => { return { ID: '00000000-0000-0000-0000-000000000000', ApplicationRoleID: scr.ID, UserAccountID: props.User.ID } as SystemCenter.ApplicationRoleUserAccount }));
         GetData();
     }
 
@@ -90,7 +90,7 @@ export default function UserPermissionsWindow(props: { User: SystemCenter.UserAc
                         </fieldset>
                     </div>
                     <div className="col">
-                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        {/*<fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large' }}>OpenXDA:</legend>
                             <form>
                                 {
@@ -102,7 +102,7 @@ export default function UserPermissionsWindow(props: { User: SystemCenter.UserAc
                                     }} />)
                                 }
                             </form>
-                        </fieldset>
+                        </fieldset>*/}
                     </div>
                 </div>
             </div>
