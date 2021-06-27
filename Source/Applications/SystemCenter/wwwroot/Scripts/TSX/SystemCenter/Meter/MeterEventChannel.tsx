@@ -23,258 +23,324 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
-import { toNumber } from 'lodash';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { SystemCenter } from '../global'
+import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
+import { forEach, toNumber } from 'lodash';
+import { useSelector, useDispatch } from 'react-redux';
+import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { error } from 'console';
+import { AssetAttributes } from '../AssetAttribute/Asset';
 
 declare var homePath: string;
 
-export default class MeterEventChannelWindow extends React.Component<{ Meter: OpenXDA.Meter, IsVisible: boolean }, { Channels: Array<OpenXDA.Channel>, Phases: Array<OpenXDA.Phase>, MeasurementTypes: Array<OpenXDA.MeasurementType>, AllAssets: Array<OpenXDA.Asset> }, {}>{
-    constructor(props, context) {
-        super(props, context);
-        this.state = {
-            Channels: [],
-            Phases: [],
-            MeasurementTypes: [],
-            AllAssets: []
-        }
+interface IProps { Meter: OpenXDA.Types.Meter, IsVisible: boolean }
 
-        this.getChannels = this.getChannels.bind(this);
-        this.updateChannels = this.updateChannels.bind(this);
-    }
+const MeterEventChannelWindow = (props: IProps) => {
+    const dispatch = useDispatch();
 
-    componentDidMount() {
-        // If tab is not visible,
-        // defer initialization until
-        // tab becomes visible
-        if (!this.props.IsVisible)
+    const [channels, setChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
+    const [meterChannels, setMeterChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
+    const phases = useSelector(PhaseSlice.Data) as OpenXDA.Types.Phase[];
+    const measurementTypes = useSelector(MeasurmentTypeSlice.Data) as OpenXDA.Types.MeasurementType[];
+
+    const [assets, setAssets] = React.useState<OpenXDA.Types.Asset[]>([]);
+
+    const pStatus = useSelector(PhaseSlice.Status) as SystemCenter.Status;
+    const mtStatus = useSelector(MeasurmentTypeSlice.Status) as SystemCenter.Status;
+    const [status, setStatus] = React.useState<SystemCenter.Status>('idle')
+    const [trigger, setTrigger] = React.useState<number>(0);
+
+    const [errors, setErrors] = React.useState<string[]>([]);
+    const [nChanges, setNChanges] = React.useState<number>(0);
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'New')>('None');
+
+    
+
+    React.useEffect(() => {
+        if (pStatus == 'unintiated')
+            dispatch(PhaseSlice.Fetch());
+    }, [])
+
+    React.useEffect(() => {
+        if (mtStatus == 'unintiated')
+            dispatch(MeasurmentTypeSlice.Fetch());
+    }, [])
+
+    React.useEffect(() => {
+        setNChanges(0);
+        setChannels(_.cloneDeep(meterChannels));
+    }, [meterChannels]);
+
+    React.useEffect(() => {
+        if (!props.IsVisible)
             return;
 
-        this.getPhases();
-        this.getAssets();
-        this.getMeasurementTypes();
-        this.getChannels();
-    }
+        let channelHandle = getChannels();
+        let assetHandle = getAssets();
 
-    static getDerivedStateFromProps(props, state) {
-        // If tab is not visible,
-        // clear state because user may be modifying
-        // state of channels in another tab
-        if (!props.IsVisible && state.Channels.length > 0)
-            return { Channels: [] };
-
-        return null;
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        // If tab is not visible, don't bother rendering
-        if (!nextProps.IsVisible)
-            return false;
-
-        // If tab becomes visible, reinitialize to receive the latest state
-        if (!this.props.IsVisible && nextProps.IsVisible) {
-            this.getPhases();
-            this.getAssets();
-            this.getMeasurementTypes();
-            this.getChannels();
+        Promise.all([channelHandle, assetHandle]).then(() => setStatus('idle'), () => setStatus('error'))
+        return () => {
+            if (channelHandle != null && channelHandle.abort != null)
+                channelHandle.abort();
+            if (assetHandle != null && assetHandle.abort != null)
+                assetHandle.abort();
         }
 
-        return true;
-    }
+    }, [props.IsVisible, props.Meter, trigger])
 
-    getChannels(): void {
-        $.ajax({
+    React.useEffect(() => {
+        const changed = channels.filter((c, i) => i < meterChannels.length && !_.isEqual(c, meterChannels[i]));
+        setNChanges(changed.length + (channels.length - meterChannels.length));
+
+        let e = [];
+        changed.forEach((c) => {
+            if (c.Adder != null && !AssetAttributes.isRealNumber(c.Adder))
+                e.push('All Adders must be numeric values')
+            if (c.Multiplier != null && !AssetAttributes.isRealNumber(c.Multiplier))
+                e.push('All Multipliers must be numeric values')
+            if (c.Name == null || c.Name.length == 0)
+                e.push('All Channels must have a Name')
+            if (c.Phase == null || c.Phase.length == 0)
+                e.push('All Channels must have a Phase')
+            if (c.MeasurementType == null || c.MeasurementType.length == 0)
+                e.push('All Channels must have a Measurement Type')
+        })
+        setErrors(_.uniq(e));
+
+    }, [channels])
+    function getChannels(): JQuery.jqXHR<OpenXDA.Types.Channel[]> {
+        setStatus('loading')
+        return $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Meter/${this.props.Meter.ID}/Channels/Event`,
+            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Channels/Event`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
-        }).done((channels: Array<any>) => {
-            let makeChannels = channels.map(channel => channel as OpenXDA.Channel)
-            this.setState({ Channels:  makeChannels})
+        }).done((d: Array<OpenXDA.Types.Channel>) => {
+            setMeterChannels(d);
+        });
+    }
+    function getAssets(): JQuery.jqXHR<OpenXDA.Types.Asset[]> {
+        return $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Asset`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done((d: Array<OpenXDA.Types.Asset>) => {
+            setAssets(d)
         });
     }
 
-    updateChannels(): void {
+    function applyUpdates(): void {
+        setStatus('loading')
         $.ajax({
             type: "POST",
-            url: `${homePath}api/OpenXDA/Meter/${this.props.Meter.ID}/Channel/Update/Event`,
+            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Channel/Update/Event`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({Channels: this.state.Channels}),
+            data: JSON.stringify({ Channels: this.state.Channels }),
             cache: false,
             async: true
         }).done(() => {
-            this.getChannels();
+            setTrigger(x => x +1 )
         }).fail(msg => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
-            else {
-                this.getChannels();
-            }
-        });;
+            setStatus('error')
+        });
     }
 
-
-    getAssets(): void {
-            $.ajax({
-                type: "GET",
-                url: `${homePath}api/OpenXDA/Meter/${this.props.Meter.ID}/Asset`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            }).done((assets: Array<OpenXDA.Asset>) => {
-                this.setState({ AllAssets: assets })
-            });
+    function deleteChannel(index: number) {
+        setChannels((d) => {
+            let u = _.clone(d);
+            u.splice(index, 1);
+            return u;
+        })
     }
 
-
-
-    getPhases(): void {
-        if (sessionStorage.hasOwnProperty('SystemCenter.Phases'))
-            this.setState({ Phases: JSON.parse(sessionStorage.getItem('SystemCenter.Phases')) });
-        else
-            $.ajax({
-                type: "GET",
-                url: `${homePath}api/OpenXDA/Phase`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            }).done((phases: Array<OpenXDA.Phase>) => {
-                this.setState({ Phases: phases })
-                sessionStorage.setItem('NewMeterWizard.Phases', JSON.stringify(phases));
-
-            });
-    }
-
-    getMeasurementTypes(): void {
-        if (sessionStorage.hasOwnProperty('OpenXDA.MeasurementTypes'))
-            this.setState({ MeasurementTypes: JSON.parse(sessionStorage.getItem('OpenXDA.MeasurementTypes')) });
-        else
-            $.ajax({
-                type: "GET",
-                url: `${homePath}api/OpenXDA/MeasurementType`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-            }).done((measurementTypes: Array<OpenXDA.MeasurementType>) => {
-                this.setState({ MeasurementTypes: measurementTypes })
-                sessionStorage.setItem('OpenXDA.MeasurementTypes', JSON.stringify(measurementTypes));
-
-            });
-    }
-
-    deleteChannel(index: number): void {
-        let channels: Array<OpenXDA.Channel> = _.clone(this.state.Channels);
-        let record: OpenXDA.Channel = channels.splice(index, 1)[0];
-        this.setState({ Channels: channels });
-    }
-
-    render() {
-        return (
-            <div className="card" style={{ marginBottom: 10 }}>
-                <div className="card-header">
-                    <div className="row">
-                        <div className="col">
-                            <h4>Channels:</h4>
-                        </div>
-                    </div>
-                </div>
-                <div className="card-body">
-                    <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
-                        <table className="table table-hover">
-                            <thead>
-                                <tr>
-                                    <th>Channel</th>
-                                    <th>Name</th>
-                                    <th>Desc</th>
-                                    <th>Type</th>
-                                    <th>Phase</th>
-                                    <th>Adder</th>
-                                    <th>Multiplier</th>
-                                    <th>Asset</th>
-                                    <th>Conn.</th>
-                                    <th></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                    this.state.Channels.map((channel, index, array) => {
-                                        return (
-                                            <tr key={index}>
-                                                <td style={{ width: '5%' }}><input className='form-control' value={channel.Series[0].SourceIndexes} onChange={(event) => {
-                                                    channel.Series[0].SourceIndexes = event.target.value;
-                                                    this.setState({ Channels: array });
-                                                }} /></td>
-                                                <td style={{ width: '15%' }}><input className='form-control' value={channel.Name} onChange={(event) => {
-                                                    channel.Name = event.target.value;
-                                                    this.setState({ Channels: array });
-                                                }} /></td>
-                                                <td style={{ width: '25%' }}><input className='form-control' value={channel.Description == null ? '' : channel.Description} onChange={(event) => {
-                                                    channel.Description = event.target.value;
-                                                    this.setState({ Channels: array });
-                                                }} /></td>
-                                                <td style={{ width: '10%' }}>{<select className='form-control' value={channel.MeasurementType} onChange={(event) => {
-                                                    channel.MeasurementType = event.target.value;
-                                                    this.setState({ Channels: array });
-                                                }}>{this.state.MeasurementTypes.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
-                                                <td style={{ width: '10%' }}>{<select className='form-control' value={channel.Phase} onChange={(event) => {
-                                                    channel.Phase = event.target.value;
-                                                    this.setState({ Channels: array });
-                                                }}>{this.state.Phases.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
-                                                <td style={{ width: '5%' }}><input className='form-control' value={channel.Adder} onChange={(event) => {
-                                                    channel.Adder = toNumber(event.target.value);
-                                                    this.setState({ Channels: array });
-                                                }} /></td>
-                                                <td style={{ width: '5%' }}><input className='form-control' value={channel.Multiplier} onChange={(event) => {
-                                                    channel.Multiplier = toNumber(event.target.value);
-                                                    this.setState({ Channels: array });
-                                                }} /></td>
-                                                <td style={{ width: '10%' }}>{<select className='form-control' value={channel.Asset} onChange={(event) => {
-                                                    channel.Asset = event.target.value;
-                                                    this.setState({ Channels: array });
-                                                }}>
-                                                    <option value=""></option>
-                                                    {this.state.AllAssets.map(a => <option key={a.ID} value={a.AssetKey}>{a.AssetKey}</option>)}</select>}</td>
-                                                <td style={{ width: '5%' }}><input className='form-control' value={channel.ConnectionPriority} onChange={(event) => {
-                                                    channel.ConnectionPriority = toNumber(event.target.value);
-                                                    this.setState({ Channels: array });
-                                                }} /></td>
-                                                <td style={{ width: '5%' }}>
-                                                    <button className="btn btn-sm" onClick={(e) => this.deleteChannel(index)}><span><i className="fa fa-times"></i></span></button>
-                                                </td>
-
-                                            </tr>
-                                        )
-                                    })
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                <div className="card-footer">
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-primary pull-right" onClick={() => {
-                            let channel: OpenXDA.Channel = { ID: 0, Meter: this.props.Meter.AssetKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series] } as OpenXDA.Channel
-                            let channels: Array<OpenXDA.Channel> = _.clone(this.state.Channels);
-                            channels.push(channel);
-                            this.setState({ Channels: channels });
-                        }}>Add Channel</button>
-                    </div>
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-primary pull-right" onClick={this.updateChannels}>Save Changes</button>
-                    </div>
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-default" onClick={this.getChannels}>Clear Changes</button>
+    if (status == 'error' || pStatus == 'error' || mtStatus == 'error')
+        return <div className="card" style={{ marginBottom: 10 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Channels:</h4>
                     </div>
                 </div>
             </div>
-                
-        );
-    }
+            <div className="card-body">
+                <div style={{ width: '100%', height: '200px' }}>
+                    <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    if (status == 'loading' || pStatus == 'loading' || mtStatus == 'loading')
+        return <div className="card" style={{ marginBottom: 10 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Channels:</h4>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body">
+                <div style={{ width: '100%', height: '200px' }}>
+                    <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                        <LoadingIcon Show={true} Size={40} Label={''} />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    return <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card-header">
+            <div className="row">
+                <div className="col">
+                    <h4>Channels:</h4>
+                </div>
+            </div>
+        </div>
+        <div className="card-body">
+            <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
+                <table className="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Channel</th>
+                            <th>Name</th>
+                            <th>Desc</th>
+                            <th>Type</th>
+                            <th>Phase</th>
+                            <th>Adder</th>
+                            <th>Multiplier</th>
+                            <th>Asset</th>
+                            <th>Conn.</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            channels.map((c, index, array) => {
+                                return (
+                                    <tr key={index}>
+                                        <td style={{ width: '5%' }}><input className='form-control' value={c.Series[0].SourceIndexes} onChange={(event) => {
+                                            c.Series[0].SourceIndexes = event.target.value;
+                                            setChannels((d) => {
+                                                let u = [...d];
+                                                u[index] = c;
+                                                return u;
+                                            })
+                                        }} /></td>
+                                        <td style={{ width: '15%' }}><input className='form-control' value={c.Name} onChange={(event) => {
+                                            c.Name = event.target.value;
+                                            setChannels((d) => {
+                                                let u = [...d];
+                                                u[index] = c;
+                                                return u;
+                                            })
+                                        }} /></td>
+                                        <td style={{ width: '25%' }}><input className='form-control' value={c.Description == null ? '' : c.Description} onChange={(event) => {
+                                            c.Description = event.target.value;
+                                            setChannels((d) => {
+                                                let u = [...d];
+                                                u[index] = c;
+                                                return u;
+                                            })
+                                        }} /></td>
+                                        <td style={{ width: '10%' }}>{<select className='form-control' value={c.MeasurementType} onChange={(event) => {
+                                            c.MeasurementType = event.target.value;
+                                            setChannels((d) => {
+                                                let u = [...d];
+                                                u[index] = c;
+                                                return u;
+                                            })
+                                        }}>{measurementTypes.map(a => <option key={a.Name} value={a.Name}>{a.Name}</option>)}</select>}</td>
+                                        <td style={{ width: '10%' }}>{<select className='form-control' value={c.Phase} onChange={(event) => {
+                                            c.Phase = event.target.value;
+                                            setChannels((d) => {
+                                                let u = [...d];
+                                                u[index] = c;
+                                                return u;
+                                            })
+                                        }}>{phases.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
+                                        <td style={{ width: '5%' }}><input className='form-control' value={c.Adder} onChange={(event) => {
+                                            c.Adder = parseFloat(event.target.value);
+                                            setChannels((d) => {
+                                                let u = [...d];
+                                                u[index] = c;
+                                                return u;
+                                            })
+                                        }} /></td>
+                                        <td style={{ width: '5%' }}><input className='form-control' value={c.Multiplier} onChange={(event) => {
+                                            c.Multiplier = parseFloat(event.target.value);
+                                            setChannels((d) => {
+                                                let u = [...d];
+                                                u[index] = c;
+                                                return u;
+                                            })
+                                        }} /></td>
+                                        <td style={{ width: '10%' }}>{<select className='form-control' value={c.Asset} onChange={(event) => {
+                                            c.Asset = event.target.value;
+                                            setChannels((d) => {
+                                                let u = [...d];
+                                                u[index] = c;
+                                                return u;
+                                            })
+                                        }}>
+                                            <option value=""></option>
+                                            {assets.map(a => <option key={a.ID} value={a.AssetKey}>{a.AssetKey}</option>)}</select>}</td>
+                                        <td style={{ width: '5%' }}><input className='form-control' value={c.ConnectionPriority} onChange={(event) => {
+                                            c.ConnectionPriority = parseInt(event.target.value);
+                                            setChannels((d) => {
+                                                let u = [...d];
+                                                u[index] = c;
+                                                return u;
+                                            })
+                                        }} /></td>
+                                        <td style={{ width: '5%' }}>
+                                            <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span><i className="fa fa-times"></i></span></button>
+                                        </td>
+
+                                    </tr>
+                                )
+                            })
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div className="card-footer">
+            <div className="btn-group mr-2">
+                <button className="btn btn-primary pull-right" onClick={() => {
+                    let channel: OpenXDA.Types.Channel = { ID: 0, Meter: props.Meter.AssetKey, ConnectionPriority: 0, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series] }
+                    setChannels((d) => [...d,channel])
+                }}>Add Channel</button>
+            </div>
+            <div className="btn-group mr-2">
+                <button className={"btn btn-primary" + (errors.length > 0 || nChanges == 0 ? ' disabled' : '')} onClick={() => { if (errors.length > 0 || nChanges == 0) applyUpdates() }}
+                    onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')} data-tooltip={'save'}>Save Changes</button>
+                <ToolTip Show={hover == 'New' && (errors.length > 0 || nChanges == 0)} Position={'top'} Theme={'dark'} Target={"save"}>
+                    {nChanges == 0 ? <p> no changes have been made. </p> : null}
+                    {errors.length > 0 ? errors.map((e, i) => <p key={i}><ErrorSymbol /> {e}</p>) : null}
+                </ToolTip>
+            </div>
+            <div className="btn-group mr-2">
+                <button className={"btn btn-primary" + (nChanges == 0 ? ' disabled' : '')} onClick={() => { if (nChanges > 0) setTrigger(x => x+1) }}
+                    onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"clr"}>Clear Changes</button>
+                <ToolTip Show={hover == 'Reset' && (nChanges > 0)} Position={'top'} Theme={'dark'} Target={"clr"}>
+                    <p> There are {nChanges} channels with changes that will be lost. </p>
+                </ToolTip>
+            </div>
+        </div>
+    </div>
 
 }
+
+const ErrorSymbol = () => <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
+
+export default MeterEventChannelWindow
+;
 
