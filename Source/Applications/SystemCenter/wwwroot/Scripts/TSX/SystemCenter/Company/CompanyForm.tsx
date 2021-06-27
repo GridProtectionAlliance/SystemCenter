@@ -55,6 +55,14 @@ export default function CompanyForm(props: { Company: SystemCenter.Company, Sett
         }
     }, []);
 
+    React.useEffect(() => {
+        if (companyTypes.length == 0)
+            return;
+
+        if (props.Company.CompanyTypeID == 0)
+            props.Setter({ ...props.Company, CompanyTypeID: companyTypes[0].ID })
+    }, [companyTypes, props.Company])
+
     function Valid(field: keyof(SystemCenter.Company)): boolean {
         if (field == 'CompanyID')
             return props.Company.CompanyID != null && props.Company.CompanyID.match(/[0-9,a-z,A-Z]{8}/) != null;
@@ -64,6 +72,7 @@ export default function CompanyForm(props: { Company: SystemCenter.Company, Sett
             return true;
         return false;
     }
+
 
     return (
         <form>
