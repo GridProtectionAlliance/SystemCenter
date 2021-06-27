@@ -20,13 +20,9 @@
         <Feature Id="ServiceFeature" Title="SystemCenter Service" AllowAdvertise="no" Description="Installs the SystemCenter Windows service to perform data analytics.">
           <ComponentGroupRef Id="ServiceComponents" />
 
-          <!-- Web Files -->
-          <!--<?include WebFeatures.wxi ?>-->
-          <!-- Web Files -->
           <Feature Id="WebFiles" Level="1" Title="Web Files">
             <ComponentGroupRef Id="SystemCenterWebFiles"/>
           </Feature>
-
         </Feature>
       </Feature>
     </Feature>
@@ -245,11 +241,6 @@
         <Directory Id="ApplicationProgramsFolder" Name="SystemCenter" />
       </Directory>
     </Directory>
-  </Fragment>
-
-  <!-- Web Files -->
-  <Fragment>
-    <?include WebFiles.wxi ?>
   </Fragment>
 
   <!-- dlls and Components -->

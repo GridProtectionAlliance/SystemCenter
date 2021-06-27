@@ -86,8 +86,8 @@ const UserStatistics: SystemCenter.ByComponent = (props) => {
         let line = d3.line<Aggregate>().x(d => x(moment(d.Date))).y(d => y(d.Count));
         y.domain(d3.extent(maxCounts, d => d));
         x.domain(d3.extent(sca, d => moment(d.Date)));
-        d3.select('#yaxis').call(d3.axisLeft(y)).call(g => g.select(".domain").remove());
-        d3.select('#xaxis').call(d3.axisBottom(x)).call(g => g.select(".domain").remove());
+        d3.select('#yaxis').call(() => d3.axisLeft(y)).call(g => g.select(".domain").remove());
+        d3.select('#xaxis').call(() => d3.axisBottom(x)).call(g => g.select(".domain").remove());
         d3.select('#scapath').datum(sca).attr('d', line)
         d3.select('#xdapath').datum(xdaa).attr('d', line)
 

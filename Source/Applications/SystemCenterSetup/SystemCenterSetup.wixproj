@@ -27,22 +27,23 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
     <OutputPath>$(SolutionDir)..\Build\Output\$(Configuration)\Setup\</OutputPath>
     <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
-	    <CompilerAdditionalOptions>-dSystemCenterSource=$(SolutionDir)Applications\SystemCenter\wwwroot</CompilerAdditionalOptions>
+    <CompilerAdditionalOptions>-dSystemCenterSource=$(SolutionDir)Applications\SystemCenter\wwwroot</CompilerAdditionalOptions>
     <LinkerAdditionalOptions>
     </LinkerAdditionalOptions>
-
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="obj\SystemCenterWebFiles.wxs">
+      <Link>SystemCenterWebFiles.wxs</Link>
+    </Compile>
     <Compile Include="SystemCenter.wxs" />
-	<Compile Include="SystemCenterWebFiles.wxs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="INSTALL_LICENSE.rtf" />
-    <Content Include="LICENSE.txt"/>
+    <Content Include="LICENSE.txt" />
     <Content Include="SystemCenterSetupBanner.bmp" />
     <Content Include="SystemCenterSetupDialog.bmp" />
     <Content Include="packages.config" />
-    <Content Include="README.txt"/>
+    <Content Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SystemCenter\SystemCenter.csproj">
@@ -54,41 +55,48 @@
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
   </ItemGroup>
-    <ItemGroup>
+  <ItemGroup>
     <WixExtension Include="WixUtilExtension">
-      <HintPath>..\..\Dependencies\NuGet\WiX.Toolset.2015.3.10.0.1502\tools\wix\WixUtilExtension.dll</HintPath>
+      <HintPath>$(WixExtDir)\WixUtilExtension.dll</HintPath>
       <Name>WixUtilExtension</Name>
     </WixExtension>
     <WixExtension Include="WixUIExtension">
-      <HintPath>..\..\Dependencies\NuGet\WiX.Toolset.2015.3.10.0.1502\tools\wix\WixUIExtension.dll</HintPath>
+      <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
       <Name>WixUIExtension</Name>
     </WixExtension>
     <WixExtension Include="WixNetFxExtension">
-      <HintPath>..\..\Dependencies\NuGet\WiX.Toolset.2015.3.10.0.1502\tools\wix\WixNetFxExtension.dll</HintPath>
+      <HintPath>$(WixExtDir)\WixNetFxExtension.dll</HintPath>
       <Name>WixNetFxExtension</Name>
     </WixExtension>
   </ItemGroup>
-  <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
-  <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
-    <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
-  </Target>
-  
   <PropertyGroup>
-   <BeforeBuildDependsOn>
+    <WixToolPath>$(SolutionDir)Dependencies\NuGet\WiX.Toolset.2015.3.10.0.1502\tools\wix\</WixToolPath>
+    <WixInstallPath>$(WixToolPath)</WixInstallPath>
+    <WixTargetsPath>$(WixToolPath)wix.targets</WixTargetsPath>
+    <WixTasksPath>$(WixToolPath)WixTasks.dll</WixTasksPath>
+    <WixExtDir>$(WixToolPath)</WixExtDir>
+  </PropertyGroup>
+  <Import Project="$(WixTargetsPath)" Condition="Exists($(WixTargetsPath))" />
+  <Target Name="Build" DependsOnTargets="$(BuildDependsOn)" Outputs="$(TargetPath)">
+    <OnError ExecuteTargets="RestoreBitmap" />
+  </Target>
+  <PropertyGroup>
+    <BeforeBuildDependsOn>
       VersionBitmap
     </BeforeBuildDependsOn>
   </PropertyGroup>
-  
   <Target Name="BeforeBuild" DependsOnTargets="$(BeforeBuildDependsOn)">
   </Target>
   <PropertyGroup>
-    <PreBuildEvent>"C:\Program Files (x86)\WiX Toolset v3.11\bin\heat.exe" dir "$(SolutionDir)Applications\SystemCenter\wwwroot" -cg SystemCenterWebFiles -dr WWWROOTFOLDER -gg -sfrag -srd -sreg -var var.SystemCenterSource -out "$(SolutionDir)\Applications\SystemCenterSetup\SystemCenterWebFiles.wxs"</PreBuildEvent>
+    <AfterBuildDependsOn>
+		RestoreBitmap
+	</AfterBuildDependsOn>
   </PropertyGroup>
-  <!--
-	To modify your build process, add your task inside one of the targets below and uncomment it.
-	Other similar extension points exist, see Wix.targets.
-	-->
+  <Target Name="AfterBuild" DependsOnTargets="$(AfterBuildDependsOn)">
+  </Target>
+  <PropertyGroup>
+    <PreBuildEvent>"$(WixToolPath)\heat.exe" dir "$(SolutionDir)Applications\SystemCenter\wwwroot" -cg SystemCenterWebFiles -dr WWWROOTFOLDER -gg -sfrag -srd -sreg -var var.SystemCenterSource -out "$(SolutionDir)\Applications\SystemCenterSetup\obj\SystemCenterWebFiles.wxs"</PreBuildEvent>
+  </PropertyGroup>
   <Target Name="VersionBitmap">
     <PropertyGroup>
       <VersionFile>$(SolutionDir)\..\Build\Scripts\SystemCenter.version</VersionFile>
@@ -101,5 +109,8 @@
   <Target Name="RestoreBitmap">
     <Exec Command="Powershell -ExecutionPolicy ByPass -File &quot;$(ProjectDir)\RestoreBitmap.ps1&quot; &quot;$(ProjectDir)\SystemCenterSetupDialog.bmp&quot;" />
   </Target>
-  
+  <!--
+	To modify your build process, add your task inside one of the targets below and uncomment it.
+	Other similar extension points exist, see Wix.targets.
+	-->
 </Project>
