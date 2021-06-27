@@ -26,14 +26,17 @@ import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { useDispatch, useSelector } from 'react-redux';
 import { AssetConnectionTypeSlice } from '../Store/Store';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { Modal, Search } from '@gpa-gemstone/react-interactive';
 
 export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnections: Array<OpenXDA.AssetConnection>, UpdateAssetConnections: (record: OpenXDA.AssetConnection[]) => void }) {
-    const selectAsset = React.useRef(null);
-    const selectType = React.useRef(null);
+
     const dispatch = useDispatch();
-    const assetConnectionTypes = useSelector(AssetConnectionTypeSlice.Data);
+    const assetConnectionTypes = useSelector(AssetConnectionTypeSlice.SearchResults);
     const actStatus = useSelector(AssetConnectionTypeSlice.Status);
+    const allConnectionTypes = useSelector(AssetConnectionTypeSlice.Data);
+
+    const [selectedTypeID, setSelectedTypeID] = React.useState<number>(0);
+    const [selectedAssetKey, setSelectedAssetKey] = React.useState<string>((props.Assets[1].AssetKey));
 
     const [showAssetConnection, setShowAssetConnection] = React.useState<boolean>(false);
 
@@ -41,12 +44,38 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
 
     React.useEffect(() => {
         if (actStatus === 'unintiated' || actStatus === 'changed') {
-            let promise = dispatch(AssetConnectionTypeSlice.Fetch());
-            return function () {
-                //if (tzStatus == 'loading') promise.abort();
-            }
+            dispatch(AssetConnectionTypeSlice.Fetch());
+            
         }
-    }, [dispatch, actStatus]);
+    }, []);
+
+    
+
+    React.useEffect(() => {
+        const filter: Search.IFilter<OpenXDA.AssetConnection>[] = [
+            { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${props.Assets[assetIndex].AssetType}')`, Operator: 'IN', Type: 'number', isPivotColumn: false },
+            { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${props.Assets.find(a => a.AssetKey == selectedAssetKey).AssetType}')`, Operator: 'IN', Type: 'number', isPivotColumn: false }
+        ]
+        dispatch(AssetConnectionTypeSlice.DBSearch({ filter }))
+
+    }, [assetIndex, selectedAssetKey])
+
+    React.useEffect(() => {
+        if (assetIndex == 0)
+            setSelectedAssetKey(props.Assets[1].AssetKey)
+        else
+            setSelectedAssetKey(props.Assets[0].AssetKey)
+    }, [assetIndex])
+
+    React.useEffect(() => {
+        if (assetConnectionTypes.length == 0)
+            return;
+        if (selectedTypeID == 0)
+            setSelectedTypeID(assetConnectionTypes[0].ID);
+        const i = assetConnectionTypes.findIndex(act => act.ID == selectedTypeID);
+        if (i < 0)
+            setSelectedTypeID(assetConnectionTypes[0].ID);
+    }, [assetConnectionTypes, selectedTypeID])
 
     function next() {
         // Make sure currentStep is set to something reasonable
@@ -59,7 +88,6 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
 
     function prev() {
         if (assetIndex <= 0) {
-            setAssetIndex(0);
         } else {
             setAssetIndex(assetIndex - 1);
         }
@@ -87,7 +115,7 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
                     <div className="card" style={{ height: '100%' }}>
                         <div className="card-header">
                             <button className="btn btn-primary pull-right" onClick={() => setShowAssetConnection(true)} disabled={props.Assets.length <= 1}>Add Connection</button>
-                            <h4 style={{ width: '100%' }}>{currentAsset.AssetKey}</h4>
+                            <h4 style={{ width: '100%' }}>{currentAsset.AssetType} - {currentAsset.AssetKey} </h4>
                         </div>
                         <div className="card-body" style={{overflowY:'scroll', maxHeight: window.innerHeight - 415}}>
                             <table className="table table-hover">
@@ -109,7 +137,7 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
                                             else
                                                 connectionAsset = props.Assets.find(asset => asset.AssetKey == ac.Parent);
 
-                                            let connectionType = assetConnectionTypes.find(act => act.ID == ac.AssetRelationshipTypeID);
+                                            let connectionType = allConnectionTypes.find(act => act.ID == ac.AssetRelationshipTypeID);
                                             return (
                                                 <tr key={index}>
                                                     <td style={{ width: '20%' }}>{connectionAsset.AssetKey}</td>
@@ -135,14 +163,14 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
             </div>
 
             <Modal Show={showAssetConnection} Size={'sm'} Title={'Add a Connection to ' + currentAsset.AssetKey}
-                CancelText={'Close'} ConfirmText={'Save'}
+                ConfirmText={'Save'} DisableConfirm={assetConnectionTypes.length == 0} ShowX={true} ShowCancel={false}
                 CallBack={(confirmed) => {
                     setShowAssetConnection(false);
                     if (!confirmed)
                         return;
 
-                    let childConnection = $(selectAsset.current).val() as string;
-                    let connectionType = parseInt($(selectType.current).val() as string);
+                    let childConnection = selectedAssetKey;
+                    let connectionType = selectedTypeID;
                     let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(props.AssetConnections);
                     assetConnections.push({ ID: 0, AssetRelationshipTypeID: connectionType, Parent: currentAsset.AssetKey, Child: childConnection });
                     props.UpdateAssetConnections(assetConnections);
@@ -151,21 +179,25 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
             >
                 <div className="form-group">
                     <label>Select Connecting Asset</label>
-                    <select ref={selectAsset} className="form-control" onChange={(evt) => {}}>
+                    <select value={selectedAssetKey} className="form-control" onChange={(evt) => { setSelectedAssetKey((evt.target.value) as string); }}>
                         {
                             props.Assets.filter(asset => asset.AssetKey != currentAsset.AssetKey).map((asset, index) => <option key={index} value={asset.AssetKey} >{asset.AssetKey}</option>)
                         }
                     </select>
                 </div>
-                <div className="form-group">
+                {assetConnectionTypes.length > 0 ?
+                    < div className="form-group">
                     <label>Select Connection Type</label>
-                    <select ref={selectType} className="form-control" onChange={(evt) => {
+                    <select value={selectedTypeID} className="form-control" onChange={(evt) => {
+                        setSelectedTypeID(parseInt(evt.target.value))
                     }}>
                         {
                             assetConnectionTypes.map((act, index) => <option key={index} value={act.ID} >{act.Name}</option>)
                         }
                     </select>
-                </div>
+                    </div> : <div className="alert alert-warning" role="alert">
+                        <p>There is no Asset Connection available to connect these two Assets.</p>
+                    </div>}
             </Modal>
         </>
     );
