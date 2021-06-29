@@ -58,10 +58,6 @@ module.exports = env => {
             d3: 'd3',
         },
         optimization: {
-            //minimize: true
-            //splitChunks: {
-            //    chunks: 'all',
-            //}
             minimizer: [
                 new TerserPlugin({extractComments: false})
             ],

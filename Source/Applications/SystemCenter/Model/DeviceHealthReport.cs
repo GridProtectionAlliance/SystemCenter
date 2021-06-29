@@ -41,8 +41,11 @@ namespace SystemCenter.Model
 	    Make + ' ' + Model as Model,
 		Location.ID as LocationID,
 	    Location.Name as Substation,
+		Location.LocationKey,
 	    vltsc.Value as TSC,
+		vltsc.ID as TSCID,
 	    vltsector.Value as Sector,
+		vltsector.ID as SectorID,
 	    afvip.Value as IP,
 	    CAST(GETDATE() as date) as LastGood,
 	    0 as BadDays,
@@ -66,8 +69,11 @@ namespace SystemCenter.Model
 		public string Model { get; set; }
 		public int LocationID { get; set; }
 		public string Substation { get; set; }
+		public string LocationKey { get; set; }
 		public string TSC { get; set; }
+		public int TSCID { get; set; }
 		public string Sector { get; set; }
+		public int SectorID { get; set; }
 		public string IP { get; set; }
 		public DateTime LastGood { get; set; }
 		public int BadDays { get; set; }

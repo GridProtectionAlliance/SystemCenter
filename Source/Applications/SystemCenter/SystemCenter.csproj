@@ -241,6 +241,7 @@
     <Compile Include="Controllers\SystemCenter\RoleController.cs" />
     <Compile Include="Controllers\SystemCenter\PingController.cs" />
     <Compile Include="DataHub.cs" />
+    <Compile Include="Model\DataFile.cs" />
     <Compile Include="Model\DetailedMeter.cs" />
     <Compile Include="Model\AppModel.cs" />
     <Compile Include="Configuration\CategorizedSetting.cs" />
@@ -523,7 +524,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceHealthReport.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceIssuesPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DownloadedFiles.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceTSCContacts.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceContacts.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceSectorContatcs.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\LocationSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetSlice.ts" />

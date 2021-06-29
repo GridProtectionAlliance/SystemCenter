@@ -92,6 +92,75 @@ namespace SystemCenter.Model.Security
 
         }
 
+        [HttpGet, Route("TSC/{tscid:int}")]
+        public IHttpActionResult GetUsersForTSC(int tscid)
+        {
+            if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    string uaTableName = TableOperations<UserAccount>.GetTableName();
+                    string aufvTableName = TableOperations<AdditionalUserFieldValue>.GetTableName();
+                    string aufTableName = TableOperations<AdditionalUserField>.GetTableName();
+
+                    string sql = $@"
+                        SELECT
+	                        UA.*
+                        FROM
+	                        {uaTableName} as UA JOIN
+	                        {aufvTableName} as AUFV ON UA.ID = AUFV.UserAccountID JOIN
+	                        {aufTableName} as AUF ON AUFV.AdditionalUserFieldID = AUF.ID
+                        WHERE
+	                        AUF.FieldName = 'TSC' AND AUFV.Value = {{0}}
+                    ";
+
+
+                    DataTable table = connection.RetrieveData(sql, tscid);
+                    return Ok(table);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
+
+        [HttpGet, Route("Sector/{sectorID:int}")]
+        public IHttpActionResult GetUsersForSector(int sectorID)
+        {
+            if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    string uaTableName = TableOperations<UserAccount>.GetTableName();
+                    string aufvTableName = TableOperations<AdditionalUserFieldValue>.GetTableName();
+                    string aufTableName = TableOperations<AdditionalUserField>.GetTableName();
+
+                    string sql = $@"
+                        SELECT
+	                        UA.*
+                        FROM
+	                        {uaTableName} as UA JOIN
+	                        {aufvTableName} as AUFV ON UA.ID = AUFV.UserAccountID JOIN
+	                        {aufTableName} as AUF ON AUFV.AdditionalUserFieldID = AUF.ID
+                        WHERE
+	                        AUF.FieldName = 'Sector' AND AUFV.Value = {{0}}
+                    ";
+
+                    DataTable table = connection.RetrieveData(sql, sectorID);
+                    return Ok(table);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
+
 
         [HttpPost, Route("SID")]
         public IHttpActionResult GetSIDFromUserName([FromBody] string userName) {
@@ -175,117 +244,6 @@ namespace SystemCenter.Model.Security
             public string TSC { get; set; }
 
         }
-
-        //public override IHttpActionResult GetSearchableList([FromBody] PostData postData)
-        //{
-        //    if (!AllowSearch || (GetRoles != string.Empty && !User.IsInRole(GetRoles)))
-        //        return Unauthorized();
-
-        //    try
-        //    {
-
-        //        string whereClause = BuildWhereClause(postData.Searches);
-
-        //        using (AdoDataConnection connection = new AdoDataConnection(Connection))
-        //        {
-        //            string tableName = TableOperations<UserAccount>.GetTableName();
-        //            string addFieldstableName = TableOperations<AdditionalUserField>.GetTableName();
-        //            string addFieldsValuetableName = TableOperations<AdditionalUserFieldValue>.GetTableName();
-
-        //            string sql = "";
-
-        //            if (SearchSettings == null && CustomView == String.Empty)
-        //                sql = $@" SELECT * FROM {tableName} {whereClause}
-        //                    ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")} ";
-
-        //            else if (SearchSettings == null)
-        //                sql = $@" SELECT* FROM({CustomView}) T1 
-        //                 {whereClause}
-        //                ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}";
-
-        //            else
-        //            {
-        //                string pivotCollums = "(" + String.Join(",", postData.Searches.Where(item => item.isPivotColumn).Select(search => "'" + search.FieldName + "'")) + ")";
-
-        //                if (pivotCollums == "()")
-        //                    pivotCollums = "('')";
-
-        //                string collumnCondition = SearchSettings.Condition;
-        //                if (collumnCondition != String.Empty)
-        //                    collumnCondition = collumnCondition + " AND";
-        //                collumnCondition = collumnCondition + $"{SearchSettings.FieldKeyField} IN {pivotCollums}";
-
-        //                string joinCondition = $"af.FieldName IN {pivotCollums.Replace("'", "''")} AND ";
-        //                joinCondition = joinCondition + SearchSettings.Condition.Replace("'", "''");
-        //                if (SearchSettings.Condition != String.Empty)
-        //                    joinCondition = joinCondition + " AND ";
-        //                joinCondition = joinCondition + $"SRC.{PrimaryKeyField} = AF.{SearchSettings.PrimaryKeyField}";
-
-        //                if (CustomView == String.Empty)
-        //                    sql = $@"
-        //                    DECLARE @PivotColumns NVARCHAR(MAX) = N''
-        //                    SELECT @PivotColumns = @PivotColumns + '[AFV_' + [Key] + '],'
-        //                        FROM (Select DISTINCT {SearchSettings.FieldKeyField} AS [Key] FROM {SearchSettings.AdditionalFieldTable} WHERE collumnCondition  ) AS [Fields]
-
-        //                    DECLARE @SQLStatement NVARCHAR(MAX) = N'
-        //                        SELECT * INTO #Tbl FROM (
-        //                        SELECT 
-        //                            SRC.*,
-        //                            AF.{SearchSettings.FieldKeyField} AS AFFieldKey,
-        //                         AF.{SearchSettings.ValueField} AS AFValue,
-        //                        FROM ( {tableName} SRC LEFT JOIN 
-        //                            {SearchSettings.AdditionalFieldTable} AF ON {joinCondition}
-        //                        ) as FullTbl ' + (SELECT CASE WHEN Len(@PivotColumns) > 0 THEN 'PIVOT (
-        //                            Max(FullTbl.AFValue) FOR FullTbl.AFFieldKey IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT' ELSE '' END) + ' 
-        //                        {whereClause.Replace("'", "''")}
-        //                        ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")};
-
-        //                        DECLARE @NoNPivotColumns NVARCHAR(MAX) = N''''
-        //                            SELECT @NoNPivotColumns = @NoNPivotColumns + ''[''+ name + ''],''
-        //                                FROM tempdb.sys.columns WHERE  object_id = Object_id(''tempdb..#Tbl'') AND name NOT LIKE ''AFV%''; 
-        //                  DECLARE @CleanSQL NVARCHAR(MAX) = N''SELECT '' + SUBSTRING(@NoNPivotColumns,0, LEN(@NoNPivotColumns)) + ''FROM #Tbl''
-
-        //                  exec sp_executesql @CleanSQL
-        //                    '
-        //                    exec sp_executesql @SQLStatement";
-        //                else
-        //                    sql = $@"
-        //                    DECLARE @PivotColumns NVARCHAR(MAX) = N''
-        //                    SELECT @PivotColumns = @PivotColumns + '[AFV_' + [Key] + '],'
-        //                        FROM (Select DISTINCT {SearchSettings.FieldKeyField} AS [Key] FROM {SearchSettings.AdditionalFieldTable} WHERE collumnCondition  ) AS [Fields]
-
-        //                    DECLARE @SQLStatement NVARCHAR(MAX) = N'
-        //                        SELECT * INTO #Tbl FROM (
-        //                        SELECT 
-        //                            SRC.*,
-        //                            AF.{SearchSettings.FieldKeyField} AS AFFieldKey,
-        //                         AF.{SearchSettings.ValueField} AS AFValue,
-        //                        FROM ( ({CustomView.Replace("'", "''")}) SRC LEFT JOIN 
-        //                            {SearchSettings.AdditionalFieldTable} AF ON {joinCondition}
-        //                        ) as FullTbl ' + (SELECT CASE WHEN Len(@PivotColumns) > 0 THEN 'PIVOT (
-        //                            Max(FullTbl.AFValue) FOR FullTbl.AFFieldKey IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT' ELSE '' END) + ' 
-        //                        {whereClause.Replace("'", "''")}
-        //                        ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")};
-
-        //                        DECLARE @NoNPivotColumns NVARCHAR(MAX) = N''''
-        //                            SELECT @NoNPivotColumns = @NoNPivotColumns + ''[''+ name + ''],''
-        //                                FROM tempdb.sys.columns WHERE  object_id = Object_id(''tempdb..#Tbl'') AND name NOT LIKE ''AFV%''; 
-        //                  DECLARE @CleanSQL NVARCHAR(MAX) = N''SELECT '' + SUBSTRING(@NoNPivotColumns,0, LEN(@NoNPivotColumns)) + ''FROM #Tbl''
-
-        //                  exec sp_executesql @CleanSQL
-        //                    '
-        //                    exec sp_executesql @SQLStatement";
-        //            }
-        //            DataTable table = connection.RetrieveData(sql, "");
-
-        //            return Ok(JsonConvert.SerializeObject(table));
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return InternalServerError(ex);
-        //    }
-        //}
 
 
         public override IHttpActionResult GetSearchableList([FromBody] PostData postData)

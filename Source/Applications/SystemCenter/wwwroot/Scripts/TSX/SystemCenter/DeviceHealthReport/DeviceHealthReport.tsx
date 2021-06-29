@@ -28,8 +28,9 @@ import { useHistory } from "react-router-dom";
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
 
-import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
+import { useDispatch, useSelector } from 'react-redux';
+import { SettingSlice } from '../Store/Store';
 
 
 const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
@@ -48,8 +49,10 @@ const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
 
 const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
     let history = useHistory();
+    let dispatch = useDispatch();
 
     const [search, setSearch] = React.useState<Search.IFilter<SCGlobal.DeviceHealthReport>[]>([]);
+
     const [data, setData] = React.useState<SCGlobal.DeviceHealthReport[]>([]);
 
     const [sortField, setSortField] = React.useState<keyof SCGlobal.DeviceHealthReport>('Name');
@@ -57,6 +60,9 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
 
     const [ascending, setAscending] = React.useState<boolean>(true);
+
+    const settings = useSelector(SettingSlice.Data);
+    const settingStatus = useSelector(SettingSlice.Status);
 
     React.useEffect(() => {
         let handle = getMeters();
@@ -79,6 +85,12 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
         }
     }, []);
 
+    React.useEffect(() => {
+        if (settingStatus == 'unintiated')
+            dispatch(SettingSlice.Fetch());
+    }, [settingStatus]);
+
+
 
     function getMeters(): JQuery.jqXHR<string>{
         setSearchState('Loading');
@@ -97,9 +109,6 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
 
     function handleSelect(item) {
         //history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID, state: {} })
-    }
-    function goNewMeterWizard() {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard', state: {} })
     }
 
     function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
@@ -160,11 +169,11 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<SCGlobal.DeviceHealthReport>
                     cols={[
-                        { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Substation', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=Location&LocationID=${item.LocationID}&Tab=images` } target='_blank'>{item[key]}</a> },
-                        { key: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'TSC', label: 'TSC', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Sector', label: 'Sector', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DownloadedFiles&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[key]}</a> },
+                        { key: 'Substation', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink').Value.replace('<AssetKey>', item.LocationKey) } target='_blank'>{item[key]}</a> },
+                        { key: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=Location&LocationID=${item.LocationID}&Tab=images`} target='_blank'>{item[key]}</a> },
+                        { key: 'TSC', label: 'TSC', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSCID}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[key]}</a> },
+                        { key: 'Sector', label: 'Sector', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.SectorID}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[key]}</a> },
                         { key: 'IP', label: 'IP', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'LastGood', label: 'Last Good', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item,key,style) => moment(item[key]).format('MM/DD/YYYY') },
                         { key: 'BadDays', label: 'Bad Days', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
@@ -200,25 +209,6 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
                     selected={(item) => false}
                 />
             </div>
-
-            <div className="modal" id="extDBModal">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Meter External Database Fields</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <ExternalDBUpdate ID={-1} Type='Meter' Tab = ""/>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
         </div>
     )
 }

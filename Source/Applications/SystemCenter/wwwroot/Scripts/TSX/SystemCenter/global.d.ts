@@ -63,7 +63,10 @@ export namespace SystemCenter {
     interface TSC { ID: number, Name: string, Description: string, DepartmentNumber: string }
     interface Role { ID: number, Name: string, Description: string }
 
-    interface DeviceHealthReport { ID: number, Name: string, Model: string, LocationID: number, LocationKey: string,  Substation: string, TSC: string, Sector: string, IP: string, LastGood: string,  BadDays: number, Status: string, LastConfigChange: string }
+    interface DeviceHealthReport {
+        ID: number, Name: string, Model: string, LocationID: number, LocationKey: string, Substation: string, TSCID: number, TSC: string,
+        SectorID: number, Sector: string, IP: string, LastGood: string, BadDays: number, Status: string, LastConfigChange: string
+    }
 
     type NewEdit = 'New' | 'Edit'
    

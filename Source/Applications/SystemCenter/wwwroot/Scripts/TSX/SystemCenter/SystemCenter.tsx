@@ -31,7 +31,6 @@ import { SystemCenter } from './global';
 import { SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import store, { SettingSlice } from './Store/Store';
-import DeviceHealthReport from './DeviceHealthReport/DeviceHealthReport';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -61,6 +60,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const BySetting = React.lazy(() => import(/* webpackChunkName: "ByCompany" */ './Settings/BySetting'));
     const ByValueListGroup = React.lazy(() => import(/* webpackChunkName: "ByValueListGroup" */ './ValueListGroup/ByValueListGroup'));
     const ValueListGroup = React.lazy(() => import(/* webpackChunkName: "ValueListGroup" */ './ValueListGroup/ValueListGroup'));
+    const DownloadedFiles = React.lazy(() => import(/* webpackChunkName: "DownloadedFiles" */ './DeviceHealthReport/DownloadedFiles'));
+    const DeviceHealthReport = React.lazy(() => import(/* webpackChunkName: "DeviceHealthReport" */ './DeviceHealthReport/DeviceHealthReport'));
+    const DeviceContacts = React.lazy(() => import(/* webpackChunkName: "DeviceContacts" */ './DeviceHealthReport/DeviceContacts'));
+
 
     const [roles, setRoles] = React.useState<Array<SystemCenter.SystemCeneterSecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x:number) => x + 1, 0); // integer state for resize renders
@@ -240,9 +243,12 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "DeviceHealthReport") {
                                     return <DeviceHealthReport Roles={roles} />
                                 }
+                                else if (qs['?name'] == "DownloadedFiles")
+                                    return <DownloadedFiles MeterID={parseInt(qs.MeterID as string)} MeterName={qs.MeterName as string } />
+                                else if (qs['?name'] == "DeviceContacts")
+                                    return <DeviceContacts ID={parseInt(qs.ID as string)} Name={qs.Name as string} Field={qs.Field as 'TSC' | 'Sector' } />
                                 else if (queryString.parse(rest.location.search)['?name'] == "ValueLists") {
                                     if (roles.indexOf('Administrator') < 0) return null;
-                                    //return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'ValueListGroups.cshtml'}></iframe>
                                     return <ByValueListGroup Roles={roles} />
                                 }
                                 else if (queryString.parse(rest.location.search)['?name'] == "ConfigurationHistory") {
