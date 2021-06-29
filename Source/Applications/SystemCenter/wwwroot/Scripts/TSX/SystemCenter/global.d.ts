@@ -63,7 +63,7 @@ export namespace SystemCenter {
     interface TSC { ID: number, Name: string, Description: string, DepartmentNumber: string }
     interface Role { ID: number, Name: string, Description: string }
 
-    interface DeviceHealthReport { ID: number, Name: string, Model: string, LocationID: number, Substation: string, TSC: string, Sector: string, IP: string, LastGood: string,  BadDays: number, Status: string, LastConfigChange: string }
+    interface DeviceHealthReport { ID: number, Name: string, Model: string, LocationID: number, LocationKey: string,  Substation: string, TSC: string, Sector: string, IP: string, LastGood: string,  BadDays: number, Status: string, LastConfigChange: string }
 
     type NewEdit = 'New' | 'Edit'
    
@@ -106,7 +106,7 @@ export namespace OpenXDA {
     interface NoteType { ID: number, Name: string, ReferenceTableName: string }
 
     interface MeterConfiguration { ID: number, MeterID: number, DiffID: number, ConfigKey: string, ConfigText: string, RevisionMajor: number, RevisionMinor: number }
-    interface DataFile { ID: number, FileGroupID: number, FilePath: string, FilePathHash: number, FileSize: number, CreationTime: string, LastWriteTime: string, LastAccessTime: string, }
+    interface DataFile { ID: number, FileGroupID: number, FilePath: string, FilePathHash: number, FileSize: number, CreationTime: string, LastWriteTime: string, LastAccessTime: string, MeterID: number, DataStartTime: string, ProcessingEndTime: string}
 
     // Types
     type AssetTypeName = 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay'

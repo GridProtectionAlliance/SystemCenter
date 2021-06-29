@@ -29,15 +29,17 @@ import LocationReducer from './LocationSlice';
 import AssetReducer from './AssetSlice';
 import GenericSlice from './GenericSlice'
 import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
+import { OpenXDA as OXDA } from '../global';
 
-export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup', 'ValueListGroup');
-export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList', 'ValueList');
-export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing', 'LocationDrawing');
-export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', 'Setting')
-export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType", "OpenXDA/AssetConnectionType");
-export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType", "OpenXDA/AssetType");
-export const PhaseSlice = new GenericSlice<OpenXDA.Types.Phase>("Phase", "OpenXDA/Phase");
-export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementType>("MeasurementType", "OpenXDA/MeasurementType");
+export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup', 'ValueListGroup', 'Name');
+export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList', 'ValueList', 'SortOrder');
+export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing', 'LocationDrawing', 'Name');
+export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', 'Setting','Name')
+export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType", "OpenXDA/AssetConnectionType", 'Name');
+export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType", "OpenXDA/AssetType", 'Name');
+export const PhaseSlice = new GenericSlice<OpenXDA.Types.Phase>("Phase", "OpenXDA/Phase", 'Name');
+export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementType>("MeasurementType", "OpenXDA/MeasurementType", 'Name');
+export const DataFileSlice = new GenericSlice<OXDA.DataFile>("DataFile", "OpenXDA/DataFile", "ProcessingEndTime", false);
 
 export default configureStore({
     reducer: {
@@ -53,6 +55,7 @@ export default configureStore({
         ValueList: ValueListSlice.Reducer,
         LocationDrawing: LocationDrawingSlice.Reducer,
         Setting: SettingSlice.Reducer,
-        AssetType: AssetTypeSlice.Reducer
+        AssetType: AssetTypeSlice.Reducer,
+        DataFile: DataFileSlice.Reducer,
     }
 });

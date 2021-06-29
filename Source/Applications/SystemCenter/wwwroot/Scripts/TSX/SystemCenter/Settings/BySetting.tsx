@@ -37,9 +37,9 @@ const BySetting: SC.ByComponent = (props) => {
     return <Setting<SystemCenter.Types.Setting>
         getNewSetting={() => ({ Name: '', DefaultValue: '', Value: '', ID: 0 })}
         searchSetting={SearchSettings}
-        addSetting={(setting) => dispatch(SettingSlice.DBAction({verb: 'POST', record: setting}))}
-        deleteSetting={(setting) => dispatch(SettingSlice.DBAction({ verb: 'DELETE', record: setting }))}
-        updateSetting={(setting) => dispatch(SettingSlice.DBAction({ verb: 'PATCH', record: setting }))}
+        addSetting={(setting) => dispatch(SettingSlice.DBAction({verb: 'POST', record: setting})) as any}
+        deleteSetting={(setting) => dispatch(SettingSlice.DBAction({ verb: 'DELETE', record: setting })) as any}
+        updateSetting={(setting) => dispatch(SettingSlice.DBAction({ verb: 'PATCH', record: setting })) as any}
     />
 
     function SearchSettings(search: Search.IFilter<SystemCenter.Types.Setting>[], ascending: boolean, sortField: string) {

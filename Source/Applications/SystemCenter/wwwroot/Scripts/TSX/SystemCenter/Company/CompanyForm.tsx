@@ -49,10 +49,7 @@ export default function CompanyForm(props: { Company: SystemCenter.Company, Sett
     React.useEffect(() => {
         if (ctStatus != 'unintiated') return;
 
-        let promise = dispatch(FetchCompanyTypes());
-        return function () {
-            if (promise.abort() !== undefined) promise.abort();
-        }
+        dispatch(FetchCompanyTypes());
     }, []);
 
     React.useEffect(() => {

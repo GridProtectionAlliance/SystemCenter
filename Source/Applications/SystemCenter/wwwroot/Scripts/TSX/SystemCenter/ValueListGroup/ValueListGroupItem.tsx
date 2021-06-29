@@ -35,7 +35,7 @@ export default function ValueListGroupItems(props: { Record: SCTyping.Types.Valu
 
     const data: SCTyping.Types.ValueListItem[] = useSelector(ValueListSlice.Data);
     const status: SCGlobal.Status = useSelector(ValueListSlice.Status);
-    const sortField: keyof SCTyping.Types.ValueListGroup = useSelector(ValueListSlice.SortField);
+    const sortField: keyof SCTyping.Types.ValueListItem = useSelector(ValueListSlice.SortField);
     const ascending: boolean = useSelector(ValueListSlice.Ascending);
     const parentID: number = useSelector(ValueListSlice.ParentID);
 

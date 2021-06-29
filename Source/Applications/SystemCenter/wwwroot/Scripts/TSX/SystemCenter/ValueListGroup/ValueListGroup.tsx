@@ -65,7 +65,10 @@ export default function ValueListGroup (props: { GroupID: number }) {
                     <h2>{record.Name}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" hidden={record == null} onClick={() => dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record })).done(() => window.location.href = homePath + 'index.cshtml?name=ValueListGroups')}>Delete Value List Group (Permanent)</button>
+                    <button className="btn btn-danger pull-right" hidden={record == null} onClick={() => {
+                        dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record }))
+                        window.location.href = homePath + 'index.cshtml?name=ValueListGroups';
+                    }}>Delete Value List Group (Permanent)</button>
                 </div>
             </div>
 

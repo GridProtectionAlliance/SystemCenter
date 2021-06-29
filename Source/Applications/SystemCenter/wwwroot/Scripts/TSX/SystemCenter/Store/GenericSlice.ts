@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { createSlice, createAsyncThunk, AsyncThunk, Slice, Draft } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, AsyncThunk, Slice, Draft, ActionCreatorWithPayload, PayloadAction } from '@reduxjs/toolkit';
 import * as _ from 'lodash';
 import { SystemCenter } from '../global';
 import * as $ from 'jquery';
@@ -42,10 +42,20 @@ export default class GenericSlice<T> {
     Fetch: AsyncThunk<any, void | number, {}> = null;
     DBAction: AsyncThunk<any, { verb: 'POST' | 'DELETE' | 'PATCH', record: T }, {}> = null;
     DBSearch: AsyncThunk<any, { filter: Search.IFilter<T>[], sortField?: keyof T, ascending?: boolean }, {}> = null;
-    Sort;
+    Sort: ActionCreatorWithPayload<{ SortField: keyof T, Ascending: boolean}, string>;
     Reducer;
 
-    constructor(name: string, apiPath: string) {
+    /**
+     * Creates a new GenericSlice of type T, which can be used to perform basic CRUD operations against
+     * a specified web api.
+     * @typeParam T - Model of Generic Slice 
+     * @param {string} name - string defining the name of the slice in the store
+     * @param {string} apiPath - string containing relative path to web api
+     * @param {keyof T} defaultSort - string showing default sort field
+     * @param {boolean} ascending - (optional) default sort direction - defaults to true
+     * @returns a new GenericSlice<T>
+     */
+    constructor(name: string, apiPath: string, defaultSort: keyof T, ascending: boolean = true) {
         this.Name = name;
         this.APIPath = apiPath;
 
@@ -75,8 +85,8 @@ export default class GenericSlice<T> {
                 SearchStatus: 'unintiated',
                 Error: null,
                 Data: [],
-                SortField: 'Name',
-                Ascending: true,
+                SortField: defaultSort,
+                Ascending: ascending,
                 ParentID: null,
                 SearchResults: []
             } as {
@@ -90,14 +100,14 @@ export default class GenericSlice<T> {
                 SearchResults: T[]
             },
             reducers: {
-                Sort: (state, action) => {
+                Sort: (state, action: PayloadAction<{SortField: keyof T, Ascending: boolean}>)  => {
                     if (state.SortField === action.payload.SortField)
                         state.Ascending = !action.payload.Ascending;
                     else
-                        state.SortField = action.payload.SortField;
+                        state.SortField = action.payload.SortField as Draft<keyof T>;
 
                     state.Data = _.orderBy(state.Data, [state.SortField], [state.Ascending ? "asc" : "desc"])
-                }
+                } 
             },
             extraReducers: (builder) => {
 
@@ -201,9 +211,9 @@ export default class GenericSlice<T> {
     public Data = (state) => state[this.Name].Data as T[];
     public Datum = (state, id: number) => state[this.Name].Data.find(d => d.ID == id) as T;
     public Status = (state) => state[this.Name].Status as SystemCenter.Status;
-    public SortField = (state) => state[this.Name].SortField;
-    public Ascending = (state) => state[this.Name].Ascending;
-    public ParentID = (state) => state[this.Name].ParentID;
+    public SortField = (state) => state[this.Name].SortField as keyof T;
+    public Ascending = (state) => state[this.Name].Ascending as boolean;
+    public ParentID = (state) => state[this.Name].ParentID as number;
 
     public SearchResults = (state) => state[this.Name].SearchResults as T[];
     public SearchStatus = (state) => state[this.Name].SearchStatus as SystemCenter.Status;
