@@ -25,24 +25,14 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
+using System.Linq;
 using System.Web.Http;
-using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
-using GSF.Net.Security;
 using GSF.Security.Model;
-using GSF.Web;
-using GSF.Web.Security;
+using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
-using System.Transactions;
-using System.Data.SqlClient;
-using System.Linq;
-using GSF.Web.Model;
 using PQView.Model;
 using SystemCenter.Model;
 
