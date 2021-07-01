@@ -178,15 +178,16 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
                         { key: 'IP', label: 'IP', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => (item.OpenMIC != undefined ? <a href={`${settings.find(s => s.Name == 'OpenMIC.Url').Value}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[key]}</a> : item[key]) },
                         { key: 'LastGood', label: 'Last Good', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item,key,style) => moment(item[key]).format('MM/DD/YYYY') },
                         { key: 'BadDays', label: 'Bad Days', headerStyle: { width: '5%' }, rowStyle: { width: '5%' } },
-                        { key: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         {
                             key: 'LastConfigChange', label: 'Last Config Change', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => {
                                 if (item[key] == undefined)
                                     return '';
                                 else
-                                    return moment(item[key]).format('MM/DD/YYYY')
+                                    return <a href={`${settings.find(s => s.Name == 'MiMD.Url').Value}/index.cshtml?name=Configuration&MeterID=${item.ID}`} target='_blank'>{moment(item[key]).format('MM/DD/YYYY')}</a>
                             }
                         },
+                        { key: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                     ]}
