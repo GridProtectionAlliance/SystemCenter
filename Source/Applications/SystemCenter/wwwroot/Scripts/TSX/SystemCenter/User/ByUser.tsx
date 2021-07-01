@@ -28,7 +28,7 @@ import { useHistory } from "react-router-dom";
 import { SystemCenter as SCGlobal } from '../global';
 import { getNewUserAccount} from './../../../TS/Services/User';;
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
-import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import CryptoJS from 'crypto-js'
 import UserForm from './UserForm';
 
@@ -53,6 +53,9 @@ const ByUser: SCGlobal.ByComponent = (props) => {
     const [newUserAccount, setNewUserAccount] = React.useState<SCGlobal.UserAccount>(null);
     const [filterableList, setFilterableList] = React.useState<Search.IField<SCGlobal.UserAccount>[]>(defaultSearchcols);
 
+    const [showModal, setShowModal] = React.useState<boolean>(false);
+    const [userError, setUserError] = React.useState<string[]>([]);
+
     React.useEffect(() => {
         return getData();
     }, [search, ascending, sortField]);
@@ -61,6 +64,14 @@ const ByUser: SCGlobal.ByComponent = (props) => {
     React.useEffect(() => {
         let handle = getAdditionalUserFields();
 
+        return () => {
+            if (handle.abort != null) handle.abort();
+        }
+    }, []);
+
+    React.useEffect(() => {
+        let handle = getNewUserAccount();
+        handle.done((ua) => setNewUserAccount(ua))
         return () => {
             if (handle.abort != null) handle.abort();
         }
@@ -171,7 +182,7 @@ const ByUser: SCGlobal.ByComponent = (props) => {
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
-                            <button className="btn btn-primary" data-toggle='modal' data-target="#userAccountModal" hidden={props.Roles.indexOf('Administrator') < 0} onClick={(event) => { event.preventDefault() }}>Add User</button>
+                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0} onClick={(event) => { event.preventDefault(); setShowModal(true) }}>Add User</button>
                         </form>
                     </fieldset>
                 </li>
@@ -208,29 +219,26 @@ const ByUser: SCGlobal.ByComponent = (props) => {
                     selected={(item) => false}
                 />
             </div>
-                <div className="modal" id="userAccountModal">
-                    <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                        <div className="modal-content">
-                            <div className="modal-header">
-                                <h4 className="modal-title">Add User</h4>
-                                <button type="button" className="close" data-dismiss="modal">&times;</button>
-                            </div>
-                        <div className="modal-body">
-                            <UserForm UserAccount={newUserAccount} Setter={setNewUserAccount} Edit={false}/>
-                            </div>
-                            <div className="modal-footer">
-                                <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={addNewUserAccount}>Save</button>
-                            <button type="button" className="btn btn-danger" data-dismiss="modal" onClick={() => getNewUserAccount().done(nua => setNewUserAccount(nua))}>Close</button>
-                            </div>
+            <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
+                Title={'Add User'} CallBack={(confirm) => {
+                    if (confirm)
+                        addNewUserAccount();
+                    else
+                        getNewUserAccount().done(nua => setNewUserAccount(nua));
 
-                        </div>
-                    </div>
-                </div>
-
-
+                    setShowModal(false);
+                }}
+                ConfirmShowToolTip={userError.length > 0}
+                ConfirmToolTipContent={userError.map((i, t) => <p key={i}><ErrorSymbol /> {t}</p>)}
+                DisableConfirm={userError.length > 0}
+            >
+                <UserForm UserAccount={newUserAccount} Setter={setNewUserAccount} Edit={false} />
+            </Modal>
         </div>
     )
    
 }
+const ErrorSymbol = () => <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
+
 
 export default ByUser;
