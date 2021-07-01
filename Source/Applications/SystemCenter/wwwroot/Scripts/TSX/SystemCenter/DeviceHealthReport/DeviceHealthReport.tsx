@@ -169,14 +169,15 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<SCGlobal.DeviceHealthReport>
                     cols={[
-                        { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DownloadedFiles&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[key]}</a> },
+                        { key: 'Name', label: 'Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DownloadedFiles&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[key]}</a> },
+                        { key: 'OpenMIC', label: 'OpenMIC ID', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${settings.find(s => s.Name == 'OpenMIC.Url').Value}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[key]}</a> },
                         { key: 'Substation', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink').Value.replace('<AssetKey>', item.LocationKey) } target='_blank'>{item[key]}</a> },
                         { key: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=Location&LocationID=${item.LocationID}&Tab=images`} target='_blank'>{item[key]}</a> },
-                        { key: 'TSC', label: 'TSC', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSCID}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[key]}</a> },
+                        { key: 'TSC', label: 'TSC', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSCID}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[key]}</a> },
                         { key: 'Sector', label: 'Sector', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.SectorID}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[key]}</a> },
-                        { key: 'IP', label: 'IP', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'IP', label: 'IP', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => (item.OpenMIC != undefined ? <a href={`${settings.find(s => s.Name == 'OpenMIC.Url').Value}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[key]}</a> : item[key]) },
                         { key: 'LastGood', label: 'Last Good', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item,key,style) => moment(item[key]).format('MM/DD/YYYY') },
-                        { key: 'BadDays', label: 'Bad Days', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'BadDays', label: 'Bad Days', headerStyle: { width: '5%' }, rowStyle: { width: '5%' } },
                         { key: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         {
                             key: 'LastConfigChange', label: 'Last Config Change', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => {

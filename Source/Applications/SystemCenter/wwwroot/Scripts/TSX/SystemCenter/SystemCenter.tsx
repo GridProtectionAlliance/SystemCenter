@@ -202,9 +202,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Switch>
                             <Route children={({ match, ...rest }) => {
                                 let qs = queryString.parse(rest.location.search);
-                                if (qs['?name'] == undefined || qs['?name'] == "Meters") 
-                                    return <ByMeter Roles={roles} />
-                                else if (qs['?name'] == "Locations") 
+                                if (qs['?name'] == "Locations") 
                                     return <ByLocation Roles={roles} />                            
                                 else if (qs['?name'] == "Assets")
                                     return <ByAsset Roles={roles} />
@@ -256,7 +254,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ConfigurationHistory MeterConfigurationID={parseInt(queryString.parse(rest.location.search).MeterConfigurationID as string)} MeterKey={queryString.parse(rest.location.search).MeterKey as string} />
                                 }
                                 else
-                                    return null;
+                                    return <ByMeter Roles={roles} />;
                             }} />
                             </Switch>
 

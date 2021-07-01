@@ -64,7 +64,7 @@ export namespace SystemCenter {
     interface Role { ID: number, Name: string, Description: string }
 
     interface DeviceHealthReport {
-        ID: number, Name: string, Model: string, LocationID: number, LocationKey: string, Substation: string, TSCID: number, TSC: string,
+        ID: number, OpenMIC: string, Name: string, Model: string, LocationID: number, LocationKey: string, Substation: string, TSCID: number, TSC: string,
         SectorID: number, Sector: string, IP: string, LastGood: string, BadDays: number, Status: string, LastConfigChange: string
     }
 

@@ -38,6 +38,7 @@ namespace SystemCenter.Model
     SELECT
 	    Meter.ID,
 	    Meter.Name,
+		omic.Value as OpenMIC,
 	    Make + ' ' + Model as Model,
 		Location.ID as LocationID,
 	    Location.Name as Substation,
@@ -54,6 +55,7 @@ namespace SystemCenter.Model
     FROM
 	    Meter JOIN
 	    Location ON Meter.LocationID = Location.ID LEFT JOIN
+		AdditionalFieldValue omic ON omic.ParentTableID = Meter.ID AND omic.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='OpenMICAcronym') LEFT JOIN
 	    AdditionalFieldValue afvtsc ON afvtsc.ParentTableID = Meter.ID AND afvtsc.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='TSC') LEFT JOIN
 	    ValueList vltsc ON vltsc.ID = afvtsc.Value and vltsc.GroupID = (SELECT ID FROM ValueListGroup WHERE Name = 'TSC') LEFT JOIN
 	    AdditionalFieldValue afvsector ON afvsector.ParentTableID = Meter.ID AND afvsector.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='Sector') LEFT JOIN
@@ -67,6 +69,7 @@ namespace SystemCenter.Model
 		public int ID { get; set; }
 		public string Name { get; set; }
 		public string Model { get; set; }
+		public string OpenMIC { get; set; }
 		public int LocationID { get; set; }
 		public string Substation { get; set; }
 		public string LocationKey { get; set; }
