@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  CompanyForm.tsx - Gbtc
+//  UserForm.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -22,22 +22,29 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import { SystemCenter } from '../global';
-import { Input, TextArea, Select, CheckBox, DatePicker } from '@gpa-gemstone/react-forms';
-import { getFilledUser, getNewUserAccount, getSIDFromUserName, validUserAccountField } from '../../../TS/Services/User';
+import { Input, CheckBox, DatePicker } from '@gpa-gemstone/react-forms';
+import { getFilledUser, getSIDFromUserName, validUserAccountField } from '../../../TS/Services/User';
 import _ from 'lodash';
 import { LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
 
 type UserValidation = 'Resolving' | 'Valid' | 'Invalid' | 'Unknown';
 
-export default function UserForm(props: { UserAccount: SystemCenter.UserAccount, Setter: (record: SystemCenter.UserAccount) => void, Edit: boolean }) {
+interface IProps { UserAccount: SystemCenter.UserAccount, Setter: (record: SystemCenter.UserAccount) => void, Edit: boolean }
+
+export default function UserForm(props: IProps) {
     const [userValidation, setUserValidation] = React.useState<UserValidation>('Invalid');
-    const [fillState,setFillState] = React.useState<'loading' | 'error' | 'idle'>('idle');
+    const [fillState, setFillState] = React.useState<'loading' | 'error' | 'idle'>('idle');
+    const [updatedAD, setUpdatedAD] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         validateUser(props.UserAccount?.Name);
     }, [props.UserAccount]);
+
+    React.useEffect(() => {
+        if (userValidation == 'Valid' && !props.Edit && updatedAD == false)
+            updateADInformation();
+    }, [userValidation, updatedAD])
 
     async function validateUser(accountName: string) {
         if (accountName == null || accountName.length == 0) {
@@ -57,14 +64,15 @@ export default function UserForm(props: { UserAccount: SystemCenter.UserAccount,
     }
 
     function updateADInformation() {
-        if (userValidation != 'Valid')
+        if (userValidation != 'Valid' || !props.UserAccount.UseADAuthentication)
             return;
         setFillState('loading')
         let handle = getFilledUser(props.UserAccount);
         handle.done((d: SystemCenter.UserAccount) => {
             props.Setter(d);
             setFillState('idle');
-        }).fail((d) => setFillState('error'))
+            setUpdatedAD(true);
+        }).fail((d) => { setFillState('error'); setUpdatedAD(true); })
     }
 
     if (props.UserAccount == null) return null;
@@ -77,7 +85,8 @@ export default function UserForm(props: { UserAccount: SystemCenter.UserAccount,
         <form>
             <div className="row">
                 <div className="col">
-                    <Input<SystemCenter.UserAccount> Record={props.UserAccount} Disabled={props.Edit == true} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={field => validUserAccountField(props.UserAccount, field)} Setter={(record) => {
+                        <Input<SystemCenter.UserAccount> Record={props.UserAccount} Disabled={props.Edit == true} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={field => validUserAccountField(props.UserAccount, field)} Setter={(record) => {
+                            setUpdatedAD(false);
                         if (props.UserAccount.UseADAuthentication)
                             validateUser(record.Name);
 
@@ -89,10 +98,9 @@ export default function UserForm(props: { UserAccount: SystemCenter.UserAccount,
                             <span id="accountValid" hidden={userValidation != 'Valid'}><i style={{ height: 20, width: 20, color: 'green' }} className="fa fa-check-circle"></i>&nbsp;<em className="small">Resolved account name </em></span>
                             <span id="accountInvalid" hidden={userValidation != 'Invalid'}><i style={{ height: 20, width: 20, color: 'red' }} className="fa fa-times-circle"></i>&nbsp;<em className="small">Cannot resolve account name</em></span>
                             <span id="accountUnknown" hidden={userValidation != 'Unknown'}><i style={{ height: 20, width: 20, color: 'orange' }} className="fa fa-exclamation-circle"></i>&nbsp;<em className="small">Valid account name is not a user or Active Directory access is limited</em></span>
-                            
                         </div>
 
-                        <button style={{ marginBottom: 10 }} type="button" className="btn btn-primary btn-sm" onClick={(evt) => { evt.preventDefault(); updateADInformation(); }} hidden={userValidation != 'Valid'}>Load Information from AD</button>
+                        <button style={{ marginBottom: 10 }} type="button" className="btn btn-primary btn-sm" onClick={(evt) => { evt.preventDefault(); updateADInformation(); }} hidden={userValidation != 'Valid' || !props.Edit}>Load Information from AD</button>
 
                     <div className="card">
                         <div className="card-header">
@@ -148,14 +156,14 @@ export default function UserForm(props: { UserAccount: SystemCenter.UserAccount,
                             </div>
                         </div>
                         <div className="row">
-                            <div className="col"></div>
-                            <div className="col-lg-2">
-                                <CheckBox<SystemCenter.UserAccount> Record={props.UserAccount} Label='Locked Out' Field='LockedOut' Setter={props.Setter} />
+                                <div className="col">
+                                    <CheckBox<SystemCenter.UserAccount> Record={props.UserAccount} Label='Locked Out' Field='LockedOut' Setter={props.Setter} />
+                                    <CheckBox<SystemCenter.UserAccount> Record={props.UserAccount} Field='Approved' Setter={props.Setter} />
+                                </div>
+                            <div className="col-lg-6">
                                 <CheckBox<SystemCenter.UserAccount> Record={props.UserAccount} Label='Phone Confirmed' Field='PhoneConfirmed' Setter={props.Setter} />
                                 <CheckBox<SystemCenter.UserAccount> Record={props.UserAccount} Label='Email Confirmed' Field='EmailConfirmed' Setter={props.Setter} />
-                                <CheckBox<SystemCenter.UserAccount> Record={props.UserAccount} Field='Approved' Setter={props.Setter} />
                                 <CheckBox<SystemCenter.UserAccount> Record={props.UserAccount} Field='ReceiveNotifications' Label='Receive Notifications' Setter={props.Setter} />
-
                             </div>
                         </div>
                     </div>
