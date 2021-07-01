@@ -182,7 +182,7 @@ const ByUser: SCGlobal.ByComponent = (props) => {
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
-                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0} onClick={(event) => { event.preventDefault(); setShowModal(true) }}>Add User</button>
+                            <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowModal(true) }}>Add User</button>
                         </form>
                     </fieldset>
                 </li>
@@ -232,7 +232,7 @@ const ByUser: SCGlobal.ByComponent = (props) => {
                 ConfirmToolTipContent={userError.map((i, t) => <p key={i}><ErrorSymbol /> {t}</p>)}
                 DisableConfirm={userError.length > 0}
             >
-                <UserForm UserAccount={newUserAccount} Setter={setNewUserAccount} Edit={false} />
+                <UserForm UserAccount={newUserAccount} Setter={setNewUserAccount} Edit={false} SetErrors={setUserError}/>
             </Modal>
         </div>
     )

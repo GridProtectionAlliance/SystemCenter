@@ -30,12 +30,14 @@ import { LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
 
 type UserValidation = 'Resolving' | 'Valid' | 'Invalid' | 'Unknown';
 
-interface IProps { UserAccount: SystemCenter.UserAccount, Setter: (record: SystemCenter.UserAccount) => void, Edit: boolean }
+interface IProps { UserAccount: SystemCenter.UserAccount, Setter: (record: SystemCenter.UserAccount) => void, Edit: boolean, SetErrors?: (e: string[]) => void }
 
 export default function UserForm(props: IProps) {
     const [userValidation, setUserValidation] = React.useState<UserValidation>('Invalid');
     const [fillState, setFillState] = React.useState<'loading' | 'error' | 'idle'>('idle');
     const [updatedAD, setUpdatedAD] = React.useState<boolean>(false);
+
+    const [userError, setUserError] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         validateUser(props.UserAccount?.Name);
@@ -45,6 +47,21 @@ export default function UserForm(props: IProps) {
         if (userValidation == 'Valid' && !props.Edit && updatedAD == false)
             updateADInformation();
     }, [userValidation, updatedAD])
+
+    React.useEffect(() => {
+        if (props.SetErrors != undefined)
+            props.SetErrors(userError);
+    }, [userError, props.SetErrors]);
+
+    React.useEffect(() => {
+        let e = [];
+        if (props.UserAccount.AccountName == null || props.UserAccount.AccountName.length == 0)
+            e.push('An AccountName is required.')
+        if (props.UserAccount.UseADAuthentication && userValidation != 'Valid')
+            e.push('The user could not be validated by the AD.')
+
+        setUserError(e);
+    }, [props.UserAccount, userValidation])
 
     async function validateUser(accountName: string) {
         if (accountName == null || accountName.length == 0) {
