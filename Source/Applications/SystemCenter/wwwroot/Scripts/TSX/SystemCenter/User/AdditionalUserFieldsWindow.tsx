@@ -423,9 +423,9 @@ function AdditionalUserFieldsWindow(props: IProps): JSX.Element {
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className={"btn btn-default" + (!(HasValueChanged()) || !edit ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && edit) getFieldValues(); }} onMouseEnter={() => setHover('Clear')}
-                        onMouseLeave={() => setHover('None')} data-tooltip={'Clear'}>Reset</button>
+                        onMouseLeave={() => setHover('None')} data-tooltip={'Reset'}>Reset</button>
                 </div>
-                <ToolTip Show={hover == 'Clear' && (!edit || HasValueChanged())} Position={'top'} Theme={'dark'} Target={"Clear"}>
+                <ToolTip Show={hover == 'Clear' && (!edit || HasValueChanged())} Position={'top'} Theme={'dark'} Target={'Reset'}>
                     {!edit ? <p> To change any Fields switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
                     {HasValueChanged() ? ChangedValues(true) : null }
                 </ToolTip>

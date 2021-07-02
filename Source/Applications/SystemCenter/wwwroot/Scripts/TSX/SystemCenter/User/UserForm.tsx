@@ -124,7 +124,7 @@ export default function UserForm(props: IProps) {
                             <div className="row">
                                 <div className="col-xs-4">
                                     <div className="form-check-inline">
-                                        <label className="form-check-label"><input className='form-check-input' type='radio' checked={props.UserAccount.UseADAuthentication} onChange={(e) => {
+                                            <label className="form-check-label"><input disabled={props.Edit == true} className='form-check-input' type='radio' checked={props.UserAccount.UseADAuthentication} onChange={(e) => {
                                             var record: SystemCenter.UserAccount = _.clone(props.UserAccount);
                                             record.UseADAuthentication = e.target.checked;
                                             props.Setter(record);
@@ -133,7 +133,7 @@ export default function UserForm(props: IProps) {
                                 </div>
                                 <div className="col-xs-4">
                                     <div className="form-check-inline">
-                                        <label className="form-check-label"><input className='form-check-input' type='radio' checked={!props.UserAccount.UseADAuthentication} onChange={(e) => {
+                                            <label className="form-check-label"><input disabled={props.Edit == true} className='form-check-input' type='radio' checked={!props.UserAccount.UseADAuthentication} onChange={(e) => {
                                             var record: SystemCenter.UserAccount = _.clone(props.UserAccount);
                                             record.UseADAuthentication = !e.target.checked;
                                             props.Setter(record);
@@ -173,7 +173,7 @@ export default function UserForm(props: IProps) {
                             </div>
                         </div>
                         <div className="row">
-                                <div className="col">
+                                <div className="col" style={{margin: 10}}>
                                     <CheckBox<SystemCenter.UserAccount> Record={props.UserAccount} Label='Locked Out' Field='LockedOut' Setter={props.Setter} />
                                     <CheckBox<SystemCenter.UserAccount> Record={props.UserAccount} Field='Approved' Setter={props.Setter} />
                                 </div>
