@@ -22,14 +22,13 @@
 //******************************************************************************************************
 
 import { configureStore } from '@reduxjs/toolkit';
-import CompanyTypeReducer from '../Company/CompanyTypeSlice';
 import ValueListReducer from './ValueListSlice';
 import MeterReducer from './MeterSlice';
 import LocationReducer from './LocationSlice';
 import AssetReducer from './AssetSlice';
 import GenericSlice from './GenericSlice'
 import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
-import { OpenXDA as OXDA } from '../global';
+import { OpenXDA as OXDA, SystemCenter as SC } from '../global';
 
 export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup', 'ValueListGroup', 'Name');
 export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList', 'ValueList', 'SortOrder');
@@ -40,10 +39,11 @@ export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetTy
 export const PhaseSlice = new GenericSlice<OpenXDA.Types.Phase>("Phase", "OpenXDA/Phase", 'Name');
 export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementType>("MeasurementType", "OpenXDA/MeasurementType", 'Name');
 export const DataFileSlice = new GenericSlice<OXDA.DataFile>("DataFile", "OpenXDA/DataFile", "ProcessingEndTime", false);
+export const CompanyTypeSlice = new GenericSlice<SC.CompanyType>("CompanyType", "OpenXDA/CompanyType", "Name", false);
 
 export default configureStore({
     reducer: {
-        CompanyType: CompanyTypeReducer,
+        CompanyType: CompanyTypeSlice.Reducer,
         //ValueList: ValueListReducer,
         MeasurementType: MeasurmentTypeSlice.Reducer,
         Phase: PhaseSlice.Reducer,

@@ -30,26 +30,26 @@ import { SystemCenter as SCGlobal } from '../global';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import CompanyForm from './CompanyForm';
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
-
-
-interface Company extends SCGlobal.Company {
-    CompanyTypeName: string,
-    Meters: number
-}
+import { useSelector, useDispatch } from 'react-redux';
+import { CompanyTypeSlice } from '../Store/Store';
 
 declare var homePath: string;
 
 
 const ByCompany: SCGlobal.ByComponent = (props) => {
     let history = useHistory();
-    
-    const [search, setSearch] = React.useState<Array<Search.IFilter<Company>>>([]);
-    const [data, setData] = React.useState<Array<Company>>([]);
-    const [sortField, setSortField] = React.useState<keyof Company>('Name');
+
+    const dispatch = useDispatch();
+    const companyTypes = useSelector(CompanyTypeSlice.Data) as SCGlobal.CompanyType[];
+    const ctStatus = useSelector(CompanyTypeSlice.Status) as SCGlobal.Status;
+
+    const [search, setSearch] = React.useState<Array<Search.IFilter<SCGlobal.Company>>>([]);
+    const [data, setData] = React.useState<Array<SCGlobal.Company>>([]);
+    const [sortField, setSortField] = React.useState<keyof SCGlobal.Company>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newCompany, setNewCompany] = React.useState<SCGlobal.Company>(getNewCompany());
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Company>>>(SearchFields.Company as Search.IField<Company>[]);
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<SCGlobal.Company>>>(SearchFields.Company as Search.IField<SCGlobal.Company>[]);
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [newCompanyErrors, setNewCompanyErrors] = React.useState<string[]>([]);
 
@@ -61,7 +61,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
         let handle = getCompanys();
         handle.done((data: string) => {
             setSearchState('Idle');
-            setData(JSON.parse(data) as Company[]);
+            setData(JSON.parse(data) as SCGlobal.Company[]);
 
         }).fail((d) => setSearchState('Error'));
         return function cleanup() {
@@ -76,6 +76,11 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
         return () => {
             if (handle.abort != null) handle.abort();
         }
+    }, []);
+
+    React.useEffect(() => {
+        if (ctStatus != 'unintiated') return;
+        dispatch(CompanyTypeSlice.Fetch());
     }, []);
 
     function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
@@ -96,7 +101,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
         }
 
         handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
-            let ordered = _.orderBy((SearchFields.Company as Search.IField<Company>[]).concat(d.map(item => (
+            let ordered = _.orderBy((SearchFields.Company as Search.IField<SCGlobal.Company>[]).concat(d.map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Location>
             ))), ['label'], ["asc"]);
             setFilterableList(ordered)
@@ -142,7 +147,6 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
 
     }
 
-
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Company&CompanyID=' + item.row.ID, state: {} })
     }
@@ -150,12 +154,14 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
     
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<Company> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Company as Search.IField<Company>} Width={'50%'} Label={'Search'}
+            <SearchBar<SCGlobal.Company> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Company as Search.IField<SCGlobal.Company>} Width={'50%'} Label={'Search'}
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Companys'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
-                    if (field.key == "CompanyTypeID")
+                    if (field.key == "CompanyTypeID") {
+                        setOptions(companyTypes.map(item => ({ Value: item.ID.toString(), Label: item.Name })))
                         return () => { }
+                    }
                     if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
                         return () => { };
 
@@ -172,13 +178,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
                     return () => { if (handle != null && handle.abort == null) handle.abort(); }
                 }}
 
-            >
-                {/*
-                                                            <option value='CompanyMeter.AssetKey'>Meter</option>
-                                                            <option value='CompanyType.Name'>Type</option>*/}
-
-                                                   
-                                    
+            >                                                                  
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
@@ -194,13 +194,12 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
             </SearchBar>
             
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<Company>
+                <Table<SCGlobal.Company>
                     cols={[
                         { key: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'CompanyTypeName', label: 'Type', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'CompanyID', label: 'CompanyID', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'CompanyTypeID', label: 'Type', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'CompanyID', label: 'CompanyID', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => companyTypes.find(ct => ct.ID == item.CompanyTypeID).Name },
                         { key: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Meters', label: 'Assigned Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                     ]}

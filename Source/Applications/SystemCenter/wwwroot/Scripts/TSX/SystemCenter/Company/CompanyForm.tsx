@@ -24,14 +24,14 @@
 import * as React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { SystemCenter } from '../global';
-import { Input, TextArea,Select } from '@gpa-gemstone/react-forms';
-import { SelectCompanyTypes, SelectCompanyTypesStatus, FetchCompanyTypes } from './CompanyTypeSlice';
+import { Input, TextArea, Select } from '@gpa-gemstone/react-forms';
+import { CompanyTypeSlice } from '../Store/Store';
 
 export default function CompanyForm(props: { Company: SystemCenter.Company, Setter: (company: SystemCenter.Company) => void, setErrors?: (e: string[]) => void }) {
 
     const dispatch = useDispatch();
-    const companyTypes = useSelector(SelectCompanyTypes) as SystemCenter.CompanyType[];
-    const ctStatus = useSelector(SelectCompanyTypesStatus) as SystemCenter.Status;
+    const companyTypes = useSelector(CompanyTypeSlice.Data) as SystemCenter.CompanyType[];
+    const ctStatus = useSelector(CompanyTypeSlice.Status) as SystemCenter.Status;
 
     React.useEffect(() => {
         let e = [];
@@ -49,7 +49,7 @@ export default function CompanyForm(props: { Company: SystemCenter.Company, Sett
     React.useEffect(() => {
         if (ctStatus != 'unintiated') return;
 
-        dispatch(FetchCompanyTypes());
+        dispatch(CompanyTypeSlice.Fetch());
     }, []);
 
     React.useEffect(() => {
