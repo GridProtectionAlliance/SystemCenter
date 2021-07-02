@@ -40,6 +40,8 @@ export const PhaseSlice = new GenericSlice<OpenXDA.Types.Phase>("Phase", "OpenXD
 export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementType>("MeasurementType", "OpenXDA/MeasurementType", 'Name');
 export const DataFileSlice = new GenericSlice<OXDA.DataFile>("DataFile", "OpenXDA/DataFile", "ProcessingEndTime", false);
 export const CompanyTypeSlice = new GenericSlice<SC.CompanyType>("CompanyType", "OpenXDA/CompanyType", "Name", false);
+export const CustomerSlice = new GenericSlice<SC.Customer>("Customer", "SystemCenter/Customer", "CustomerKey", false);
+
 
 export default configureStore({
     reducer: {
@@ -57,5 +59,6 @@ export default configureStore({
         Setting: SettingSlice.Reducer,
         AssetType: AssetTypeSlice.Reducer,
         DataFile: DataFileSlice.Reducer,
+        Customer: CustomerSlice.Reducer
     }
 });
