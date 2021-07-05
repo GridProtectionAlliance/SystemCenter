@@ -49,7 +49,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
     const [selectedTypeID, setSelectedtypeID] = React.useState<number>(0);
     const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
 
-    const [sortField, setSortField] = React.useState<keyof (AssetConnection)>('AssetKey');
+    const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showModal, setShowModal] = React.useState<boolean>(false);
 
@@ -225,10 +225,10 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
                     <Table<AssetConnection>
                         cols={[
-                            { key: 'AssetKey', label: 'Asset', headerStyle: { width: '47%' }, rowStyle: { width: '47%' } },
-                            { key: 'Name', label: 'Relationship', headerStyle: { width: '47%' }, rowStyle: { width: '47%' } },
+                            { key: 'AssetKey', field: 'AssetKey', label: 'Asset', headerStyle: { width: '47%' }, rowStyle: { width: '47%' } },
+                            { key: 'Name', field: 'Name', label: 'Relationship', headerStyle: { width: '47%' }, rowStyle: { width: '47%' } },
                             {
-                                key: null, label: '', headerStyle: { width: '6%' }, rowStyle: { width: '6%' }, content: (asset, key, style) => <>
+                                key: 'DeleteButton', label: '', headerStyle: { width: '6%' }, rowStyle: { width: '6%' }, content: (asset, key, style) => <>
                                     <button className="btn btn-sm" onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
@@ -240,19 +240,22 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
                         ]}
                         tableClass="table table-hover"
                         data={assetConnections}
-                        sortField={sortField}
+                        sortKey={sortKey}
                         ascending={ascending}
                         onSort={(d) => {
-                            if (d.col == sortField) {
-                                var ordered = _.orderBy(assetConnections, [d.col], [(!ascending ? "asc" : "desc")]);
+                            if (d.colKey === "DeleteButton")
+                                return;
+
+                            if (d.colKey === sortKey) {
+                                var ordered = _.orderBy(assetConnections, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
                                 setAssetConnections(ordered);
                             }
                             else {
-                                var ordered = _.orderBy(assetConnections, [d.col], ["asc"]);
+                                var ordered = _.orderBy(assetConnections, [d.colKey], ["asc"]);
                                 setAscending(!ascending);
                                 setAssetConnections(ordered);
-                                setSortField(d.col);
+                                setSortKey(d.colKey);
                             }
                         }}
                         onClick={handleSelect}

@@ -22,7 +22,7 @@
     "@gpa-gemstone/helper-functions": "0.0.6",
     "@gpa-gemstone/react-forms": "1.1.9",
     "@gpa-gemstone/react-interactive": "1.0.7",
-    "@gpa-gemstone/react-table": "1.0.12",
+    "@gpa-gemstone/react-table": "1.1.0",
     "@reduxjs/toolkit": "1.6.0",
     "@types/ace": "0.0.46",
     "@types/d3": "4.13.2",

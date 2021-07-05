@@ -235,7 +235,7 @@ function SectionSelect(props: IProps): JSX.Element {
                                 { key: 'endStationID', label: 'Length (miles)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.Segments.map((v) => props.Segments.find(seg => seg.AssetKey == v).Length).reduce((a,v) => a=a+v) },
 
                                 {
-                                    key: null, label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
+                                    key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
                                     content: (item) => <> 
                                         <button className="btn btn-sm"
                                             onClick={(e) => {
@@ -247,7 +247,7 @@ function SectionSelect(props: IProps): JSX.Element {
                             ]}
                             tableClass="table table-hover"
                             data={props.Sections}
-                            sortField={'startBus'}
+                            sortKey={'startBus'}
                             ascending={true}
                             onSort={(d) => { }}
                             onClick={() => { }}

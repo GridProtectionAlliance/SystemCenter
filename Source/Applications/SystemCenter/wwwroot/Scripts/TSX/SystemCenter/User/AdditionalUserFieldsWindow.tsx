@@ -47,7 +47,7 @@ function AdditionalUserFieldsWindow(props: IProps): JSX.Element {
     const [AdditionalUserFieldValuesWorking, setAdditionalUserFieldValuesWorking] = React.useState<SC.AdditionalUserFieldValue[]>([]);
     const [edit, setEdit] = React.useState<boolean>(false);
 
-    const [sortFields, setSortField] = React.useState<keyof SC.AdditionalUserField>('FieldName');
+    const [sortKey, setSortKey] = React.useState<string>('FieldName');
     const [ascending, setAscending] = React.useState<boolean>(false);
 
     const [newField, setNewField] = React.useState<SC.AdditionalUserField>({ ID: 0, FieldName: '', Type: 'string', IsSecure: false });
@@ -73,7 +73,7 @@ function AdditionalUserFieldsWindow(props: IProps): JSX.Element {
         let h = getFields();
 
         return () => { if (h.abort != undefined) h.abort() }
-    }, [sortFields, ascending])
+    }, [sortKey, ascending])
 
     React.useEffect(() => {
         let h = validateFieldName();
@@ -100,7 +100,7 @@ function AdditionalUserFieldsWindow(props: IProps): JSX.Element {
     function getFields(): JQuery.jqXHR {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalUserField/${sortFields}/${(ascending? '1' : '0')}`,
+            url: `${homePath}api/SystemCenter/AdditionalUserField/${sortKey}/${(ascending? '1' : '0')}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -369,8 +369,8 @@ function AdditionalUserFieldsWindow(props: IProps): JSX.Element {
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
                 <Table<SC.AdditionalUserField>
                         cols={[
-                            { key: 'FieldName', label: 'Field', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'FieldName', field: 'FieldName', label: 'Field', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             {
                                 key: 'IsSecure', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
                                     let index: number = AdditionalUserFieldValues.findIndex(value => value.AdditionalUserFieldID == item.ID);
@@ -379,22 +379,23 @@ function AdditionalUserFieldsWindow(props: IProps): JSX.Element {
                                     return <ValueField Field={item} UserAccountID={props.ID} Values={AdditionalUserFieldValuesWorking} Setter={(val: SC.AdditionalUserFieldValue[]) => setAdditionalUserFieldValuesWorking(val)} />
                                 }                            
                             },
-                        { key: 'ID', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span><i className="fa fa-pencil"></i></span></button> : '') },
-                        { key: null, label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span><i className="fa fa-times"></i></span></button> : '') },
+                        { key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span><i className="fa fa-pencil"></i></span></button> : '') },
+                        { key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span><i className="fa fa-times"></i></span></button> : '') },
 
                         ]}
                         tableClass="table table-hover"
                         data={AdditionalUserFields}
-                        sortField={sortFields}
+                        sortKey={sortKey}
                         ascending={ascending}
                         onSort={(d) => {
-                            if (d.col == null || d.col == 'ID' || d.col == 'IsSecure')
+                            if (d.colKey === 'EditButton' || d.colKey === 'DeleteButton' || d.colKey === 'IsSecure')
                                 return;
-                            if (d.col == sortFields)
+
+                            if (d.colKey === sortKey)
                                 setAscending(!ascending);
                             else {
                                 setAscending(true);
-                                setSortField(d.col);
+                                setSortKey(d.colKey);
                             }
                         }}
                         onClick={(fld) => { }}

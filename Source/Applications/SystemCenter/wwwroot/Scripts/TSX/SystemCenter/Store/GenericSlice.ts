@@ -34,15 +34,15 @@ export default class GenericSlice<T> {
         Status: SystemCenter.Status,
         Error: string,
         Data: T[],
-        SortField: keyof T,
+        SortKey: string,
         Ascending: boolean,
         ParentID: number,
         SearchResults: T[]
     }> = null;
     Fetch: AsyncThunk<any, void | number, {}> = null;
     DBAction: AsyncThunk<any, { verb: 'POST' | 'DELETE' | 'PATCH', record: T }, {}> = null;
-    DBSearch: AsyncThunk<any, { filter: Search.IFilter<T>[], sortField?: keyof T, ascending?: boolean }, {}> = null;
-    Sort: ActionCreatorWithPayload<{ SortField: keyof T, Ascending: boolean}, string>;
+    DBSearch: AsyncThunk<any, { filter: Search.IFilter<T>[], sortKey?: string, ascending?: boolean }, {}> = null;
+    Sort: ActionCreatorWithPayload<{ SortKey: string, Ascending: boolean}, string>;
     Reducer;
 
     /**
@@ -67,15 +67,15 @@ export default class GenericSlice<T> {
             return await this.Action(args.verb, args.record);
         });
 
-        const dBSearch = createAsyncThunk(`${name}/Search${name}`, async (args: { filter, sortfield?, ascending?}, { dispatch, getState }) => {
+        const dBSearch = createAsyncThunk(`${name}/Search${name}`, async (args: { filter, sortKey?, ascending?}, { dispatch, getState }) => {
 
-            let sortfield = args.sortfield;
+            let sortKey = args.sortKey;
             let asc = args.ascending;
 
-            sortfield = sortfield == undefined ? getState()[this.Name].SortField : sortfield;
+            sortKey = sortKey == undefined ? getState()[this.Name].SortKey : sortKey;
             asc = asc == undefined ? getState()[this.Name].Ascending : asc;
            
-            return await this.Search(args.filter, asc,sortfield);
+            return await this.Search(args.filter, asc, sortKey);
         });
 
         const slice = createSlice({
@@ -85,7 +85,7 @@ export default class GenericSlice<T> {
                 SearchStatus: 'unintiated',
                 Error: null,
                 Data: [],
-                SortField: defaultSort,
+                SortKey: defaultSort,
                 Ascending: ascending,
                 ParentID: null,
                 SearchResults: []
@@ -94,19 +94,19 @@ export default class GenericSlice<T> {
                 SearchStatus: SystemCenter.Status,
                 Error: string,
                 Data: T[],
-                SortField: keyof T,
+                SortKey: string,
                 Ascending: boolean,
                 ParentID: number,
                 SearchResults: T[]
             },
             reducers: {
-                Sort: (state, action: PayloadAction<{SortField: keyof T, Ascending: boolean}>)  => {
-                    if (state.SortField === action.payload.SortField)
+                Sort: (state, action: PayloadAction<{SortKey: string, Ascending: boolean}>)  => {
+                    if (state.SortKey === action.payload.SortKey)
                         state.Ascending = !action.payload.Ascending;
                     else
-                        state.SortField = action.payload.SortField as Draft<keyof T>;
+                        state.SortKey = action.payload.SortKey as Draft<string>;
 
-                    state.Data = _.orderBy(state.Data, [state.SortField], [state.Ascending ? "asc" : "desc"])
+                    state.Data = _.orderBy(state.Data, [state.SortKey], [state.Ascending ? "asc" : "desc"])
                 } 
             },
             extraReducers: (builder) => {
@@ -114,7 +114,7 @@ export default class GenericSlice<T> {
                 builder.addCase(fetch.fulfilled, (state, action) => {
                     state.Status = 'idle';
                     state.Error = null;
-                    state.Data = _.orderBy(action.payload as Draft<T[]>, [state.SortField], [state.Ascending ? "asc" : "desc"]);
+                    state.Data = _.orderBy(action.payload as Draft<T[]>, [state.SortKey], [state.Ascending ? "asc" : "desc"]);
                 });
                 builder.addCase(fetch.pending, (state, action) => {
                     state.ParentID = action.meta.arg;
@@ -195,13 +195,13 @@ export default class GenericSlice<T> {
         });
     }
 
-    private Search(filter: Search.IFilter<T>[], ascending: boolean, sortField: keyof T): JQuery.jqXHR<string> {
+    private Search(filter: Search.IFilter<T>[], ascending: boolean, sortKey: string): JQuery.jqXHR<string> {
         return $.ajax({
             type: 'POST',
             url: `${homePath}api/${this.APIPath}/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: filter, OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: filter, OrderBy: sortKey, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -211,7 +211,7 @@ export default class GenericSlice<T> {
     public Data = (state) => state[this.Name].Data as T[];
     public Datum = (state, id: number) => state[this.Name].Data.find(d => d.ID == id) as T;
     public Status = (state) => state[this.Name].Status as SystemCenter.Status;
-    public SortField = (state) => state[this.Name].SortField as keyof T;
+    public SortKey = (state) => state[this.Name].SortKey as string;
     public Ascending = (state) => state[this.Name].Ascending as boolean;
     public ParentID = (state) => state[this.Name].ParentID as number;
 

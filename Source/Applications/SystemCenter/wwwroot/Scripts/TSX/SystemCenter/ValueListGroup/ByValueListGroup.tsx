@@ -45,7 +45,7 @@ const ValueListGroups: SCGlobal.ByComponent = (props) => {
     const items: SCTyping.Types.ValueListItem[] = useSelector(ValueListSlice.Data);
     const itemStatus: SCGlobal.Status = useSelector(ValueListSlice.Status);
 
-    const sortField: keyof SCTyping.Types.ValueListGroup = useSelector(ValueListGroupSlice.SortField);
+    const sortKey: string = useSelector(ValueListGroupSlice.SortKey);
     const ascending: boolean = useSelector(ValueListGroupSlice.Ascending);
     const emptyRecord: SCTyping.Types.ValueListGroup = {ID: 0, Name: '', Description: ''};
     let history = useHistory();
@@ -118,17 +118,21 @@ const ValueListGroups: SCGlobal.ByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table< SCTyping.Types.ValueListGroup>
                     cols={[
-                        { key: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'Description', label: 'Description/Comments', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Items', label: 'Items', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => items.filter(i => i.GroupID == item.ID).length },
-                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'Description', field: 'Description', label: 'Description/Comments', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Items', field: 'Items', label: 'Items', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => items.filter(i => i.GroupID == item.ID).length },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortField={sortField}
+                    sortKey={sortKey}
                     ascending={ascending}
-                    onSort={(d) => dispatch(ValueListGroupSlice.Sort({ SortField: d.col, Ascending: d.ascending }))}
+                    onSort={(d) => {
+                        if (d.colKey === "Scroll")
+                            return;
+                        dispatch(ValueListGroupSlice.Sort({ SortKey: d.colKey, Ascending: d.ascending }));
+                    }}
                     onClick={handleSelect}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%'  }}

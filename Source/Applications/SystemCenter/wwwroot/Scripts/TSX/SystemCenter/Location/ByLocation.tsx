@@ -51,7 +51,7 @@ const ByLocation: SCGlobal.ByComponent = (props) => {
     const [newLocationErrors, setNewLocationErrors] = React.useState<string[]>([]);
     const [validAssetKey, setValidAssetKey] = React.useState<boolean>(true);
 
-    const [sortField, setSortField] = React.useState<keyof Location>('LocationKey');
+    const [sortKey, setSortKey] = React.useState<string>('LocationKey');
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Location>>>(SearchFields.Location as Search.IField<Location>[]);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
 
@@ -70,7 +70,7 @@ const ByLocation: SCGlobal.ByComponent = (props) => {
             if (handle.abort != null)
                 handle.abort();
         }
-    }, [sortField, ascending, search]);
+    }, [sortKey, ascending, search]);
 
    
     React.useEffect(() => {
@@ -161,7 +161,7 @@ const ByLocation: SCGlobal.ByComponent = (props) => {
             url: `${homePath}api/openXDA/Location/SearchableListIncludingMeter`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: TransformSearchFields.Location(search), OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: TransformSearchFields.Location(search), OrderBy: sortKey, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -273,23 +273,26 @@ const ByLocation: SCGlobal.ByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<Location>
                     cols={[
-                        { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'LocationKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                        //{ key: 'Type', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Meters', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Assets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'LocationKey', field: 'LocationKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                        //{ key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortField={sortField}
+                    sortKey={sortKey}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField)
+                        if (d.colKey === "Scroll")
+                            return;
+
+                        if (d.colKey === sortKey)
                             setAscending(!ascending);
                         else {
                             setAscending(true);
-                            setSortField(d.col);
+                            setSortKey(d.colKey);
                         }
                     }}
                     onClick={handleSelect}

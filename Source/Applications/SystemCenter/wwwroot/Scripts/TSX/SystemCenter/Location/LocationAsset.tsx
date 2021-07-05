@@ -46,7 +46,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
     let dispatch = useDispatch();
 
     const [data, setData] = React.useState<Array<OpenXDA.Asset>>([]);
-    const [sortField, setSortField] = React.useState<keyof(OpenXDA.Asset)>('AssetKey');
+    const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [trigger, setTrigger] = React.useState<number>(0);
 
@@ -268,11 +268,11 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
                     <Table<OpenXDA.Asset>
                         cols={[
-                            { key: 'AssetKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'AssetName', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'AssetType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                            { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                            { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                            { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                             {
-                                key: null, label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (asset, key, style) => <>
+                                key: 'EditDelete', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (asset, key, style) => <>
                                     <button className="btn btn-sm" onClick={(e) => {
                                         e.preventDefault();
                                         let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID']);
@@ -291,19 +291,22 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
                         ]}
                         tableClass="table table-hover"
                         data={data}
-                        sortField={sortField}
+                        sortKey={sortKey}
                         ascending={ascending}
                         onSort={(d) => {
-                            if (d.col == sortField) {
-                                var ordered = _.orderBy(data, [d.col], [(!ascending ? "asc" : "desc")]);
+                            if (d.colKey === "EditDelete")
+                                return;
+
+                            if (d.colKey === sortKey) {
+                                var ordered = _.orderBy(data, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
                                 setData(ordered);
                             }
                             else {
-                                var ordered = _.orderBy(data, [d.col], ["asc"]);
+                                var ordered = _.orderBy(data, [d.colKey], ["asc"]);
                                 setAscending(!ascending);
                                 setData(ordered);
-                                setSortField(d.col);
+                                setSortKey(d.colKey);
                             }
                         }}
                         onClick={handleSelect}

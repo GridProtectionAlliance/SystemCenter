@@ -246,12 +246,12 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                     },
                     { key: 'Adder', label: 'Adder', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Channel> Field={'Adder'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
                     { key: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Channel> Field={'Multiplier'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
-                    { key: null, label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%', paddingTop: 36, paddingBottom: 36 }, content: (item) => <button className="btn btn-sm" onClick={(e) => deleteChannel(item.ID)}><span><i className="fa fa-times"></i></span></button> },
+                    { key: 'DeleteButton', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%', paddingTop: 36, paddingBottom: 36 }, content: (item) => <button className="btn btn-sm" onClick={(e) => deleteChannel(item.ID)}><span><i className="fa fa-times"></i></span></button> },
                     
                 ]}
                     tableClass="table table-hover"
                     data={props.Channels}
-                    sortField={'Series'}
+                    sortKey={'Series'}
                     ascending={false}
                     onSort={(d) => {}}
                     onClick={(fld) => { }}

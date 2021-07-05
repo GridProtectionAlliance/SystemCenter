@@ -46,7 +46,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     const [additionalFieldValuesWorking, setAdditionalFieldValuesWorking] = React.useState<Array<SystemCenter.Types.AdditionalFieldValue>>([]);
     const [edit, setEdit] = React.useState<boolean>(false);
 
-    const [sortFields, setSortField] = React.useState<keyof SystemCenter.Types.AdditionalField>('FieldName');
+    const [sortKey, setSortKey] = React.useState<string>('FieldName');
     const [ascending, setAscending] = React.useState<boolean>(false);
 
     const [newField, setNewField] = React.useState<SystemCenter.Types.AdditionalField>({ ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
@@ -72,7 +72,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         let h = getFields();
 
         return () => { if (h.abort != undefined) h.abort() }
-    }, [sortFields, ascending])
+    }, [sortKey, ascending])
 
     React.useEffect(() => {
         let h = validateFieldName();
@@ -102,7 +102,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     function getFields(): JQuery.jqXHR {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${props.Type}/${sortFields}/${(ascending? '1' : '0')}`,
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${props.Type}/${sortKey}/${(ascending? '1' : '0')}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -410,9 +410,9 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
                 <Table<SystemCenter.Types.AdditionalField>
                         cols={[
-                            { key: 'FieldName', label: 'Field', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'ExternalDB', label: 'Ext DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'FieldName', field: 'FieldName', label: 'Field', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'ExternalDB', field: 'ExternalDB', label: 'Ext DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             {
                                 key: 'IsSecure', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
                                     let index: number = additionalFieldValues.findIndex(value => value.AdditionalFieldID == item.ID);
@@ -421,22 +421,23 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                                     return <ValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
                                 }                            
                             },
-                        { key: 'ID', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span><i className="fa fa-pencil"></i></span></button> : '') },
-                        { key: null, label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span><i className="fa fa-times"></i></span></button> : '') },
+                        { key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span><i className="fa fa-pencil"></i></span></button> : '') },
+                        { key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span><i className="fa fa-times"></i></span></button> : '') },
 
                         ]}
                         tableClass="table table-hover"
                         data={additionalFields}
-                        sortField={sortFields}
+                        sortKey={sortKey}
                         ascending={ascending}
                         onSort={(d) => {
-                            if (d.col == null || d.col == 'ID' || d.col == 'IsSecure')
+                            if (d.colKey === 'EditButton' || d.colKey === 'DeleteButton' || d.colKey === 'IsSecure')
                                 return;
-                            if (d.col == sortFields)
+
+                            if (d.colKey === sortKey)
                                 setAscending(!ascending);
                             else {
                                 setAscending(true);
-                                setSortField(d.col);
+                                setSortKey(d.colKey);
                             }
                         }}
                         onClick={(fld) => { }}

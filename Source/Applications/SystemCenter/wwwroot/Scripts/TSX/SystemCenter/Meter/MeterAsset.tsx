@@ -53,7 +53,7 @@ const MeterAssetWindow = (props: IProps) => {
     const [showEditNew, setShoweditNew] = React.useState<boolean>(false);
     const [showDeleteWarning, setShowDeleteWarning] = React.useState<boolean>(false);
 
-    const [sortField, setSortField] = React.useState<keyof OpenXDA.Asset>('AssetKey');
+    const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showLoading, setShowLoading] = React.useState<boolean>(false);
 
@@ -93,7 +93,7 @@ const MeterAssetWindow = (props: IProps) => {
         });
 
         return () => { if (h != null && h.abort != null) h.abort(); }
-    }, [props.Meter, ascending, sortField])
+    }, [props.Meter, ascending, sortKey])
 
     React.useEffect(() => {
         if (activeAssetID == 0) {
@@ -110,7 +110,7 @@ const MeterAssetWindow = (props: IProps) => {
     function getMeterAssets(): JQueryXHR {
         return $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Asset/${sortField}/${ascending? 1: 0}`,
+            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Asset/${sortKey}/${ascending? 1: 0}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -128,7 +128,7 @@ const MeterAssetWindow = (props: IProps) => {
             cache: true,
             async: true
         }).done((assets: Array<OpenXDA.Asset>) => {
-            setSortField('AssetKey');
+            setSortKey('AssetKey');
             forceAssetReload((x) => x + 1);
             setShowLoading(false);
         }).fail((msg) => {
@@ -154,14 +154,14 @@ const MeterAssetWindow = (props: IProps) => {
                         <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
                             <Table<OpenXDA.Asset>
                                 cols={[
-                                    { key: 'AssetKey', label: 'Key', headerStyle: { width: 'calc(20%-16px)' }, rowStyle: { width: 'calc(20%-16px)' } },
-                                    { key: 'AssetName', label: 'Name', headerStyle: { width: 'calc(30%-16px)' }, rowStyle: { width: 'calc(30%-16px)' } },
-                                    { key: 'AssetType', label: 'Type', headerStyle: { width: 'calc(10%-16px)' }, rowStyle: { width: 'calc(10%-16px)' } },
-                                    { key: 'VoltageKV', label: 'Base kV', headerStyle: { width: 'calc(10%-16x)' }, rowStyle: { width: 'calc(10%-16px)' } },
-                                    { key: 'Channels', label: 'Channels', headerStyle: { width: 'calc(10%-16px)' }, rowStyle: { width: 'calc(10%-16px)' } },
+                                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'calc(20%-16px)' }, rowStyle: { width: 'calc(20%-16px)' } },
+                                    { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'calc(30%-16px)' }, rowStyle: { width: 'calc(30%-16px)' } },
+                                    { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: 'calc(10%-16px)' }, rowStyle: { width: 'calc(10%-16px)' } },
+                                    { key: 'VoltageKV', field: 'VoltageKV', label: 'Base kV', headerStyle: { width: 'calc(10%-16x)' }, rowStyle: { width: 'calc(10%-16px)' } },
+                                    { key: 'Channels', field: 'Channels', label: 'Channels', headerStyle: { width: 'calc(10%-16px)' }, rowStyle: { width: 'calc(10%-16px)' } },
                                     
                                     {
-                                        key: null, label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
+                                        key: 'EditDelete', label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
                                         content: (item) => <> <button className="btn btn-sm"
                                             onClick={(e) => {
                                                 setActiveAssetType(item.AssetType);
@@ -179,16 +179,17 @@ const MeterAssetWindow = (props: IProps) => {
                                 ]}
                                 tableClass="table table-hover"
                                 data={meterAssets}
-                                sortField={sortField}
+                                sortKey={sortKey}
                                 ascending={ascending}
                                 onSort={(d) => {
-                                    if (d.col == null || d.col == 'ID')
+                                    if (d.colKey === 'EditDelete')
                                         return;
-                                    if (d.col == sortField)
+
+                                    if (d.colKey === sortKey)
                                         setAscending(!ascending);
                                     else {
                                         setAscending(true);
-                                        setSortField(d.col);
+                                        setSortKey(d.colKey);
                                     }
                                 }}
                                 onClick={(fld) => { }}

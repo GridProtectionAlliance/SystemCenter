@@ -50,7 +50,7 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
     const [search, setSearch] = React.useState<Array<Search.IFilter<SCGlobal.Customer>>>([]);
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<SCGlobal.Customer>>>(SearchFields.Customer as Search.IField<SCGlobal.Customer>[]);
 
-    const [sortField, setSortField] = React.useState<keyof SCGlobal.Customer>('CustomerKey');
+    const [sortKey, setSortKey] = React.useState<string>('CustomerKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newCustomer, setNewCustomer] = React.useState<SCGlobal.Customer>(getNewCustomer());
 
@@ -58,8 +58,8 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
     const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        dispatch(CustomerSlice.DBSearch({ sortField, ascending, filter: search }))
-    }, [search, ascending, sortField]);
+        dispatch(CustomerSlice.DBSearch({ sortKey, ascending, filter: search }))
+    }, [search, ascending, sortKey]);
 
     React.useEffect(() => {
         let handle = getAdditionalFields();
@@ -68,8 +68,6 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
             if (handle.abort != null) handle.abort();
         }
     }, []);
-
-    
 
     function getNewCustomer(): SCGlobal.Customer {
         return {
@@ -149,22 +147,25 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<SCGlobal.Customer>
                     cols={[
-                        { key: 'CustomerKey', label: 'Account Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                        { key: 'CustomerKey', field: 'CustomerKey', label: 'Account Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortField={sortField}
+                    sortKey={sortKey}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField)
+                        if (d.colKey === "Scroll")
+                            return;
+
+                        if (d.colKey === sortKey)
                             setAscending(!ascending);
                         else {
                             setAscending(true);
-                            setSortField(d.col);
+                            setSortKey(d.colKey);
                         }
                     }}
                     onClick={handleSelect}

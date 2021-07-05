@@ -35,7 +35,7 @@ interface Asset { ID: number, AssetName: string, LongAssetName: string, AssetID:
 function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     let history = useHistory();
     const [assetList, setAssetList] = React.useState<Array<Asset>>([]);
-    const [sortField, setSortField] = React.useState<keyof Asset>('AssetName');
+    const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
 
@@ -94,28 +94,31 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <Table
                         cols={[
-                            { key: 'AssetName', label: 'AssetKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'LongAssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssetLocation', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
+                            { key: 'AssetName', field: 'AssetName', label: 'AssetKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'LongAssetName', field: 'LongAssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'AssetLocation', field: 'AssetLocation', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
                             
                         ]}
                         tableClass="table table-hover"
                         data={assetList}
-                        sortField={sortField}
+                        sortKey={sortKey}
                         ascending={ascending}
                         onSort={(d) => {
-                            if (d.col == sortField) {
-                                let ordered = _.orderBy(assetList, [d.col], [(!ascending ? "asc" : "desc")]);
+                            if (d.colKey === "Scroll")
+                                return;
+
+                            if (d.colKey === sortKey) {
+                                let ordered = _.orderBy(assetList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
                                 setAssetList(ordered);
                             }
                             else {
-                                let ordered = _.orderBy(assetList, [d.col], ["asc"]);
+                                let ordered = _.orderBy(assetList, [d.colKey], ["asc"]);
                                 setAscending(!ascending);
                                 setAssetList(ordered);
-                                setSortField(d.col);
+                                setSortKey(d.colKey);
                             }
                         }}
                         onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.AssetID, state: {} }) }}

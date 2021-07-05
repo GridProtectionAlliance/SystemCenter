@@ -50,7 +50,7 @@ const ByMeter: SCGlobal.ByComponent = (props) => {
     const [search, setSearch] = React.useState<Array<Search.IFilter<Meter>>>([]);
     const [data, setData] = React.useState<Array<Meter>>([]);
 
-    const [sortField, setSortField] = React.useState<keyof Meter>('AssetKey');
+    const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Meter>>>(defaultSearchcols);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
 
@@ -67,7 +67,7 @@ const ByMeter: SCGlobal.ByComponent = (props) => {
             if (handle.abort != null)
                 handle.abort();
         }
-    }, [sortField, ascending, search]);
+    }, [sortKey, ascending, search]);
 
     React.useEffect(() => {
         let handle = getAdditionalFields();
@@ -87,7 +87,7 @@ const ByMeter: SCGlobal.ByComponent = (props) => {
             url: `${homePath}api/OpenXDA/MeterList/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -175,25 +175,28 @@ const ByMeter: SCGlobal.ByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table
                     cols={[
-                        { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'Location', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'MappedAssets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'MappedAssets', field: 'MappedAssets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortField={sortField}
+                    sortKey={sortKey}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField)
+                        if (d.colKey === "Scroll")
+                            return;
+
+                        if (d.colKey === sortKey)
                             setAscending(!ascending);
                         else {
                             setAscending(true);
-                            setSortField(d.col);
+                            setSortKey(d.colKey);
                         }
                         
                     }}

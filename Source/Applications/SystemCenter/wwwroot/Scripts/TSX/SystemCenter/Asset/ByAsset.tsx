@@ -61,7 +61,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<Asset>>>([]);
     const [data, setData] = React.useState<Array<Asset>>([]);
-    const [sortField, setSortField] = React.useState<keyof Asset>('AssetKey');
+    const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newAsset, setNewAsset] = React.useState<OpenXDA.Types.Asset>(AssetAttributes.getNewAsset('Line'));
 
@@ -92,7 +92,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
             if (handle.abort != null)
                 handle.abort();
         }
-    }, [sortField, ascending, search]);
+    }, [sortKey, ascending, search]);
 
     React.useEffect(() => {
         let handle = getAssetTypes();
@@ -193,7 +193,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
             url: `${homePath}api/OpenXDA/Asset/SearchableListIncludingMeter`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -213,7 +213,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
         }).done(() => {
             sessionStorage.clear();
             setPageState('idle')
-            setSortField('AssetKey');
+            setSortKey('AssetKey');
         }).fail(() => {
             setPageState('error')
         });
@@ -306,24 +306,27 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
                 <Table
                     cols={[
-                        { key: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetType', label: 'Asset Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Meters', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Locations', label: 'Substations', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                        { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortField={sortField}
+                    sortKey={sortKey}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField)
+                        if (d.colKey === "Scroll")
+                            return;
+
+                        if (d.colKey === sortKey)
                             setAscending(!ascending);
                         else {
                             setAscending(true);
-                            setSortField(d.col);
+                            setSortKey(d.colKey);
                         }
                     }}
                     onClick={handleSelect}
