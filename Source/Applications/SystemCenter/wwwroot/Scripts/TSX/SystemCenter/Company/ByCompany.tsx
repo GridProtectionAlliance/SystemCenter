@@ -198,7 +198,14 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
                     cols={[
                         { key: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'CompanyTypeID', label: 'Type', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'CompanyID', label: 'CompanyID', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => companyTypes.find(ct => ct.ID == item.CompanyTypeID).Name },
+                        {
+                            key: 'CompanyID', label: 'CompanyID', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => {
+                                const ct = companyTypes.find(ct => ct.ID == item.CompanyTypeID)
+                                if (ct == null)
+                                    return "";
+                                return ct.Name
+                                }
+                        },
                         { key: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 

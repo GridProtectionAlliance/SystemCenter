@@ -27,7 +27,9 @@ import { SystemCenter } from '../global';
 import { Input, TextArea, Select } from '@gpa-gemstone/react-forms';
 import { CompanyTypeSlice } from '../Store/Store';
 
-export default function CompanyForm(props: { Company: SystemCenter.Company, Setter: (company: SystemCenter.Company) => void, setErrors?: (e: string[]) => void }) {
+interface IProps { Company: SystemCenter.Company, Setter: (company: SystemCenter.Company) => void, setErrors?: (e: string[]) => void }
+
+export default function CompanyForm(props: IProps) {
 
     const dispatch = useDispatch();
     const companyTypes = useSelector(CompanyTypeSlice.Data) as SystemCenter.CompanyType[];
