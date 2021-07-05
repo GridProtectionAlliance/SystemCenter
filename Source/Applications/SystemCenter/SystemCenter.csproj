@@ -525,6 +525,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DownloadedFiles.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceContacts.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceSectorContatcs.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\CustomerForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\LocationSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeterSlice.ts" />

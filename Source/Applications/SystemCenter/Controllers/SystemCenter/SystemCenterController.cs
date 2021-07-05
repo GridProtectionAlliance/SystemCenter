@@ -24,6 +24,7 @@
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -53,7 +54,89 @@ namespace SystemCenter.Controllers
     public class ValueListGroupController : ModelController<ValueListGroup> { }
 
     [RoutePrefix("api/SystemCenter/Customer")]
-    public class CustomerController : ModelController<Customer> {}
+    public class CustomerController : ModelController<Customer> 
+    {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                if ((PostRoles == string.Empty || User.IsInRole(PostRoles)))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        Customer newRecord = record.ToObject<Customer>();
+                        int result = new TableOperations<Customer>(connection).AddNewRecord(newRecord);
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Patch([FromBody] Customer record)
+        {
+            try
+            {
+                if (PatchRoles == string.Empty || User.IsInRole(PatchRoles))
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        int result = new TableOperations<Customer>(connection).AddNewOrUpdateRecord(record);
+                        Customer newRecord = new TableOperations<Customer>(connection).QueryRecordWhere("ID = {0}", record.ID);
+                        return Ok(newRecord);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpDelete, Route("Delete")]
+        public override IHttpActionResult Delete(Customer record)
+        {
+            try
+            {
+                if ((DeleteRoles == string.Empty || User.IsInRole(DeleteRoles)))
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        int id = record.ID;
+                        int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete Customer, 'ID = {id}'");
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
 
     [RoutePrefix("api/SystemCenter/CustomerAccess")]
     public class CustomerAccessController : ModelController<CustomerAccess>

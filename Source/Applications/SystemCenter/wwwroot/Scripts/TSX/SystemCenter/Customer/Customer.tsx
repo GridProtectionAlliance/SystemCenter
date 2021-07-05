@@ -26,117 +26,104 @@ import * as _ from 'lodash';
 import { SystemCenter } from '../global';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
-import CustomerInfoWindow from './CustomerInfo';
+import CustomerInfo from './CustomerInfo';
 import CustomerMeterWindow from './CustomerMeter';
+import { useSelector, useDispatch } from 'react-redux';
+import { CustomerSlice } from '../Store/Store';
+import { Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-export default class Customer extends React.Component<{ CustomerID: number }, { Customer: SystemCenter.Customer, Tab: string}, {}>{
-    constructor(props, context) {
-        super(props, context);
+interface IProps { CustomerID: number}
+export default function Customer(props: IProps) {
+    const dispatch = useDispatch();
 
-        this.state = {
-            Customer: null,
-            Tab: this.getTab()
-        }
-    }
+    const [tab, setTab] = React.useState<string>(getTab());
+    const customer = useSelector((state) => CustomerSlice.Datum(state, props.CustomerID)) as SystemCenter.Customer;
+    const cStatus = useSelector(CustomerSlice.Status) as SystemCenter.Status;
+    const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
-    getTab(): string {
+    React.useEffect(() => {
+        if (getTab() != tab)
+            sessionStorage.setItem('Customer.Tab', JSON.stringify(tab));
+
+    }, [tab])
+
+    React.useEffect(() => {
+        if (cStatus == 'unintiated' || cStatus == 'changed')
+            dispatch(CustomerSlice.Fetch());
+    }, []);
+
+    React.useEffect(() => {
+        if (cStatus == 'unintiated' || cStatus == 'changed')
+            dispatch(CustomerSlice.Fetch());
+    }, [cStatus])
+
+
+    function getTab(): string {
         if (sessionStorage.hasOwnProperty('Customer.Tab'))
             return JSON.parse(sessionStorage.getItem('Customer.Tab'));
         else
             return 'customerInfo';
     }
 
-    getCustomer(): void {
-        if (this.props.CustomerID == undefined) return;
-       $.ajax({
-            type: "GET",
-           url: `${homePath}api/SystemCenter/Customer/One/${this.props.CustomerID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-       }).done((data: SystemCenter.Customer) => this.setState({ Customer: data }));
+    function deleteCustomer() {
+        dispatch(CustomerSlice.DBAction({
+            verb: 'DELETE', record: customer
+        }));
+        window.location.href = homePath + 'index.cshtml?name=PQViewCustomers'
     }
 
-    deleteMeter(): JQuery.jqXHR {
+    if (cStatus == 'unintiated' || cStatus == 'loading')
+        return null;
 
+    if (cStatus == 'error')
+        return null;
 
-        let response = confirm("This will delete the Customer Permanently");
-        if (!response)
-            return;
-
-        return $.ajax({
-            type: "DELETE",
-            url: `${homePath}api/SystemCenter/Customer/Delete`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(this.state.Customer),
-            dataType: 'json',
-            cache: true,
-            async: true
-        });
-    }
-
-    setTab(tab:string): void {
-        sessionStorage.setItem('Customer.Tab', JSON.stringify(tab));
-        this.setState({Tab: tab});
-    }
-    
-    componentDidMount() {
-        this.getCustomer();
-    }
-
-    componentWillUnmount() {
-    }
-
-    render() {
-        if (this.state.Customer == null) return null;
-        return (
-            <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
-                <div className="row">
-                    <div className="col">
-                        <h2>{this.state.Customer != null ? this.state.Customer.Name : ''}</h2>
-                    </div>
-                    <div className="col">
-                        <button className="btn btn-danger pull-right" hidden={this.state.Customer == null} onClick={() => this.deleteMeter().done(() => window.location.href = homePath + 'index.cshtml?name=PQViewCustomers')}>Delete Customer (Permanent)</button>
-                    </div>
+    return (
+        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+            <div className="row">
+                <div className="col">
+                    <h2>{customer != null ? customer.Name : ''}</h2>
                 </div>
-
-
-                <hr />
-                <ul className="nav nav-tabs">
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "customerInfo" ? " active" : "")} onClick={() => this.setTab('customerInfo')} data-toggle="tab" href="#customerInfo">Customer Info</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "additionalFields" ? " active" : "")} onClick={() => this.setTab('additionalFields')} data-toggle="tab">Additional Fields</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "meters" ? " active" : "")} onClick={() => this.setTab('meters')} data-toggle="tab" href="#meters">Assigned Meters</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (this.state.Tab == "notes" ? " active" : "")} onClick={() => this.setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
-                    </li>
-                </ul>
-             
-                <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                    <div className={"tab-pane " + (this.state.Tab == "customerInfo" ? " active" : "fade")} id="customerInfo">
-                        <CustomerInfoWindow Customer={this.state.Customer} stateSetter={(record) => this.setState({ Customer: record })}/>
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
-                        <AdditionalFieldsWindow ID={this.state.Customer.ID} Type='Customer' Tab={this.state.Tab}/>
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "meters" ? " active" : "fade")} id="meters">
-                        <CustomerMeterWindow Customer={this.state.Customer} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "notes" ? " active" : "fade")} id="notes" >
-                        <NoteWindow ID={this.props.CustomerID} Type='Customer' />
-                    </div>
-
-                </div>                
+                <div className="col">
+                    <button className="btn btn-danger pull-right" hidden={customer == null} onClick={() => setShowWarning(true)}>Delete Customer</button>
+                </div>
             </div>
-        )
-    }
-}
 
+
+            <hr />
+            <ul className="nav nav-tabs">
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "customerInfo" ? " active" : "")} onClick={() => setTab('customerInfo')} data-toggle="tab" href="#customerInfo">Customer Info</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "additionalFields" ? " active" : "")} onClick={() => setTab('additionalFields')} data-toggle="tab">Additional Fields</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "meters" ? " active" : "")} onClick={() => setTab('meters')} data-toggle="tab" href="#meters">Assigned Meters</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "notes" ? " active" : "")} onClick={() => setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
+                </li>
+            </ul>
+
+            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
+                <div className={"tab-pane " + (tab == "customerInfo" ? " active" : "fade")} id="customerInfo">
+                    <CustomerInfo Customer={customer} stateSetter={(record) => dispatch(CustomerSlice.DBAction({ verb: 'PATCH', record: record }))} />
+                </div>
+                <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
+                    <AdditionalFieldsWindow ID={customer.ID} Type='Customer' Tab={tab} />
+                </div>
+                <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
+                    <CustomerMeterWindow Customer={customer} />
+                </div>
+                <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" >
+                    <NoteWindow ID={props.CustomerID} Type='Customer' />
+                </div>
+            </div>
+            <Warning Title={'Confirm'} Show={showWarning} Message={'THis will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />
+        </div>
+    )
+
+}

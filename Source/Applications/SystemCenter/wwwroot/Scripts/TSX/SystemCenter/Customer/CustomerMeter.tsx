@@ -80,7 +80,7 @@ export default class CustomerMeterWindow extends React.Component<{ Customer: Sys
     getAllSites(): void {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/ExternalDB/PQView/Site/`,
+            url: `${homePath}api/OpenXDA/PQViewSite/`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,

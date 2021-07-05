@@ -23,90 +23,80 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '../global';
-import { AssetAttributes } from '../AssetAttribute/Asset';
-import FormTextArea from '../CommonComponents/FormTextArea';
-import FormInput from '../CommonComponents/FormInput';
-import { Input, TextArea } from '@gpa-gemstone/react-forms';
 declare var homePath: string;
 
-export default class CustomerInfoWindow extends React.Component<{ Customer: SystemCenter.Customer, stateSetter: (customer: SystemCenter.Customer) => void }, { Customer: SystemCenter.Customer}, {}> {
-    jqueryHandle: JQuery.jqXHR;
-    constructor(props, context) {
-        super(props, context);
-        this.state = {
-            Customer: this.props.Customer
-        }
-        this.valid = this.valid.bind(this);
-    }
+import CustomerForm from './CustomerForm';
+import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+
+interface IProps { Customer: SystemCenter.Customer, stateSetter: (customer: SystemCenter.Customer) => void }
 
 
-    componentDidMount() {
-    }
+export default function CustomerInfo(props: IProps) {
+    const [customer, setCustomer] = React.useState<SystemCenter.Customer>(props.Customer);
+    const [warnings, setWarning] = React.useState<string[]>([]);
+    const [errors, setError] = React.useState<string[]>([]);
+    const [hover, setHover] = React.useState<('None' | 'Clear' | 'Submit')>('None');
 
-    componentWillReceiveProps(nextProps): void {
-        this.setState({ Customer: nextProps.Customer})
-    }
+    React.useEffect(() => {
+        setCustomer(props.Customer)
+    },[props.Customer])
 
-    updateCustomer(): JQuery.jqXHR {
-        var customer = _.clone(this.state.Customer);
+    React.useEffect(() => {
+        let w = [];
+        if (customer.CustomerKey != props.Customer.CustomerKey)
+            w.push('Changes to Customer Key will be lost.')
+        if (customer.Name != props.Customer.Name)
+            w.push('Changes to Name will be lost.')
+        if (customer.Phone != props.Customer.Phone)
+            w.push('Changes to Phone Number will be lost.')
+        if (customer.Description != props.Customer.Description)
+            w.push('Changes to Description will be lost.')
+        setWarning(w);
+    }, [customer, props.Customer])
 
-       return $.ajax({
-            type: "PATCH",
-           url: `${homePath}api/SystemCenter/Customer/Update`,
-            contentType: "application/json; charset=utf-8",
-           data: JSON.stringify(this.state.Customer),
-            dataType: 'json',
-            cache: true,
-            async: true
-       }).done((LocationID: number) => {
-           this.props.stateSetter(customer);
-       });
-    }
-
-    valid(field: keyof (SystemCenter.Customer)): boolean {
-        if (field == 'CustomerKey')
-            return this.state.Customer.CustomerKey != null && this.state.Customer.CustomerKey.length > 0 && this.state.Customer.CustomerKey.length <= 25;
-        else if (field == 'Name')
-            return this.state.Customer.Name == null || this.state.Customer.Name.length <= 100;
-        else if (field == 'Phone')
-            return this.state.Customer.Phone == null || this.state.Customer.Phone.length <= 20;
-        else if (field == 'Description')
-            return this.state.Customer.Description == null || this.state.Customer.Description.length <= 200;
-        return false;
-    }
-
-    render() {
-        return (
-            <div className="card" style={{ marginBottom: 10 }}>
-                <div className="card-header">
-                    <div className="row">
-                        <div className="col">
-                            <h4>Customer Information:</h4>
-                        </div>
+    return (
+        <div className="card" style={{ marginBottom: 10 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Customer Information:</h4>
                     </div>
                 </div>
-                <div className="card-body">
-                    <div className="row">
-                        <div className="col">
-                            <Input<SystemCenter.Customer> Record={this.state.Customer} Field={'CustomerKey'} Feedback={'AccountName of less than 25 characters is required.'} Valid={this.valid} Setter={(record) => this.setState({Customer: record})} />
-                            <Input<SystemCenter.Customer> Record={this.state.Customer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={this.valid} Setter={(record) => this.setState({ Customer: record })} />
-                            <Input<SystemCenter.Customer> Record={this.state.Customer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={this.valid} Setter={(record) => this.setState({ Customer: record })} />
-                            <TextArea<SystemCenter.Customer> Rows={3} Record={this.state.Customer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={this.valid} Setter={(record) => this.setState({ Customer: record })} />
-                        </div>
-
-                    </div>
-                </div>
-                <div className="card-footer">
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-primary" onClick={() => this.updateCustomer()} hidden={this.state.Customer.ID == 0} disabled={this.state.Customer == this.props.Customer}>Update</button>
-                    </div>
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-default" onClick={() => this.setState({ Customer: this.props.Customer })} disabled={this.state.Customer == this.props.Customer}>Reset</button>
-                    </div>
-                </div>
-
-
             </div>
-        );
-    }
+            <div className="card-body">
+                <div className="row">
+                    <CustomerForm Customer={customer} stateSetter={setCustomer} setErrors={setError} />
+                </div>
+            </div>
+            <div className="card-footer">
+                <div className="btn-group mr-2">
+                    <button className={"btn btn-primary" + (warnings.length == 0 || errors.length > 0 ? ' disabled' : '')} onClick={() => {
+                        if (warnings.length > 0 && errors.length == 0)
+                            props.stateSetter(customer)
+                    }}
+                        onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')} data-tooltip={"Update"}
+                    >Update</button>
+                </div>
+                <ToolTip Show={hover == 'Submit' && (errors.length > 0)} Position={'top'} Theme={'dark'} Target={"Update"}>
+                    {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+                </ToolTip>
+                <div className="btn-group mr-2">
+                    <button className="btn btn-default" onClick={() => {
+                        if (warnings.length > 0)
+                            setCustomer(props.Customer)
+                    }
+                    } disabled={warnings.length == 0}
+                        onMouseEnter={() => setHover('Clear')} onMouseLeave={() => setHover('None')} data-tooltip={"Clr"}
+                    >Reset</button>
+                </div>
+                <ToolTip Show={hover == 'Clear' && (warnings.length > 0)} Position={'top'} Theme={'dark'} Target={"Clr"}>
+                    {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}
+                </ToolTip>
+            </div>
+
+
+        </div>
+    );
+
 }

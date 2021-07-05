@@ -344,7 +344,7 @@ namespace SystemCenter.Controllers.OpenXDA
         }
     }
 
-    [RoutePrefix("api/PQView/PQViewSite")]
+    [RoutePrefix("api/OpenXDA/PQViewSite")]
     public class PQViewSiteCotnroller : ModelController<Site> { }
        
 }
