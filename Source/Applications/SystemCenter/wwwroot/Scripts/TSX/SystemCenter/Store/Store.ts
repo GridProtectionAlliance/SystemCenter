@@ -26,21 +26,25 @@ import ValueListReducer from './ValueListSlice';
 import MeterReducer from './MeterSlice';
 import LocationReducer from './LocationSlice';
 import AssetReducer from './AssetSlice';
-import GenericSlice from './GenericSlice'
+import { GenericSlice }from '@gpa-gemstone/react-interactive'
+
 import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { OpenXDA as OXDA, SystemCenter as SC } from '../global';
 
-export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup', 'ValueListGroup', 'Name');
-export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList', 'ValueList', 'SortOrder');
-export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing', 'LocationDrawing', 'Name');
-export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', 'Setting','Name')
-export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType", "OpenXDA/AssetConnectionType", 'Name');
-export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType", "OpenXDA/AssetType", 'Name');
-export const PhaseSlice = new GenericSlice<OpenXDA.Types.Phase>("Phase", "OpenXDA/Phase", 'Name');
-export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementType>("MeasurementType", "OpenXDA/MeasurementType", 'Name');
-export const DataFileSlice = new GenericSlice<OXDA.DataFile>("DataFile", "OpenXDA/DataFile", "ProcessingEndTime", false);
-export const CompanyTypeSlice = new GenericSlice<SC.CompanyType>("CompanyType", "OpenXDA/CompanyType", "Name", false);
-export const CustomerSlice = new GenericSlice<SC.Customer>("Customer", "SystemCenter/Customer", "CustomerKey", false);
+
+declare var homePath: string;
+
+export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup', `${homePath}api/ValueListGroup`, 'Name');
+export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList', `${homePath}api/ValueList`, 'SortOrder');
+export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing', `${homePath}api/LocationDrawing`, 'Name');
+export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', `${homePath}api/Setting`,'Name')
+export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConnectionType>("AssetConnectionType", `${homePath}api/OpenXDA/AssetConnectionType`, 'Name');
+export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType", `${homePath}api/OpenXDA/AssetType`, 'Name');
+export const PhaseSlice = new GenericSlice<OpenXDA.Types.Phase>("Phase", `${homePath}api /OpenXDA/Phase`, 'Name');
+export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementType>("MeasurementType", `${homePath}api/OpenXDA/MeasurementType`, 'Name');
+export const DataFileSlice = new GenericSlice<OXDA.DataFile>("DataFile", `${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", false);
+export const CompanyTypeSlice = new GenericSlice<SC.CompanyType>("CompanyType", `${homePath}api/OpenXDA/CompanyType`, "Name", false);
+export const CustomerSlice = new GenericSlice<SC.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
 
 
 export default configureStore({
