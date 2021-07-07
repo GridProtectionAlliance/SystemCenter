@@ -21,6 +21,7 @@
 //
 //******************************************************************************************************
 
+using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Identity;
@@ -32,6 +33,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Security;
+using SystemCenter.Model;
 using SystemCenter.Model.Security;
 
 namespace SystemCenter
@@ -59,7 +61,6 @@ namespace SystemCenter
             {
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
-                    ConnectionString = connection.Connection.ConnectionString;
                     ChangedUserAccounts = new List<ChangedUser>();
                     FromAddress = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.FromAddress'");
                     EnableSSL = connection.ExecuteScalar<bool>("SELECT Value FROM Setting WHERE Name = 'Email.EnableSSL'");
@@ -75,29 +76,6 @@ namespace SystemCenter
             }
         }
 
-        public MetaDataUpdater(string connectionString)
-        {
-            try
-            {
-                ConnectionString = connectionString;
-                using (AdoDataConnection connection = new AdoDataConnection(connectionString, DBString))
-                {
-                    ChangedUserAccounts = new List<ChangedUser>();
-                    FromAddress = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.FromAddress'");
-                    EnableSSL = connection.ExecuteScalar<bool>("SELECT Value FROM Setting WHERE Name = 'Email.EnableSSL'");
-                    SMTPServer = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.SMTPServer'");
-                    AdminAddress = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.AdminAddress'");
-                    Username = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'Email.Username'");
-                    SecurePassword = connection.ExecuteScalar<SecureString>("SELECT Value FROM Setting WHERE Name = 'Email.Password'");
-                    Url = connection.ExecuteScalar<string>("SELECT Value FROM Setting WHERE Name = 'SystemCenter.Url'");
-                }
-            }
-            catch (Exception ex)
-            {
-                Log.Error(ex.Message, ex);
-            }
-        }
-
         #endregion
 
         #region [ Properties ]
@@ -109,23 +87,32 @@ namespace SystemCenter
         private SecureString SecurePassword { get; set; }
         private string AdminAddress { get; set; }
         private string Url { get; set; }
-        private string ConnectionString { get; set; }
-        private const string DBString = "AssemblyName={System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089}; ConnectionType=System.Data.SqlClient.SqlConnection; AdapterType=System.Data.SqlClient.SqlDataAdapter";
         private string ErrorPath { get; set; }
         #endregion
 
         #region [ Methods ]
         public void Update()
         {
-            using (AdoDataConnection connection = new AdoDataConnection(ConnectionString, DBString))
+            using (AdoDataConnection connection = new AdoDataConnection("securityProvider"))
+            using (AdoDataConnection connection2 = new AdoDataConnection("systemSettings"))
+
             {
                 IEnumerable<UserAccount> userAccounts = new TableOperations<UserAccount>(connection).QueryRecordsWhere("UseADAuthentication = 1");
 
                 foreach (UserAccount userAccount in userAccounts) {
                     try
                     {
+                        // Grab LdapPath From Configuration File
+                        ConfigurationFile configFile = ConfigurationFile.Current;
+                        CategorizedSettingsElementCollection securityProviderSettings = configFile.Settings["securityProvider"];
+                        securityProviderSettings.Add("LdapPath", "", "Specifies the LDAP path used to initialize the security provider.");
+
+
+                        string ldapPath = securityProviderSettings["LdapPath"].Value;
+
                         string accountName = UserInfo.SIDToAccountName(userAccount.Name);
-                        UserInfo userInfo = new UserInfo(accountName);
+                        UserInfo userInfo = new UserInfo(accountName, ldapPath);
+
                         bool changed = false;
 
                         ChangedUser changedUser = new ChangedUser()
@@ -157,8 +144,15 @@ namespace SystemCenter
                             {
                                 userAccount.Title = userInfo.Title;
                                 if (userInfo.Title != string.Empty)
-                                    userAccount.RoleID = connection.ExecuteScalar<int>($"SELECT TOP 1 ID FROM Role WHERE Description LIKE '%{userInfo.Title}%' ");
-
+                                {
+                                    AdditionalUserFieldValue additionalFieldValue = new TableOperations<AdditionalUserFieldValue>(connection).GetValue(userAccount.Name, "Role");
+                                    ValueList roleValue = new TableOperations<ValueList>(connection2).GetAltValue("Role", userInfo.Title, true);
+                                    if (roleValue != null && roleValue.Value != additionalFieldValue.Value)
+                                    {
+                                        additionalFieldValue.Value = roleValue.ID.ToString();
+                                        new TableOperations<AdditionalUserFieldValue>(connection).AddNewOrUpdateRecord(additionalFieldValue);
+                                    }
+                                }
                                 changedUser.NewTitle = userAccount.Title;
                                 changed = true;
                             }
@@ -178,7 +172,16 @@ namespace SystemCenter
                                 changedUser.NewDepartmentNumber = userAccount.DepartmentNumber;
 
                                 if (userAccount.DepartmentNumber != string.Empty)
-                                    userAccount.TSCID = connection.ExecuteScalar<int>($"SELECT TOP 1 ID FROM TSC WHERE DepartmentNumber LIKE '{departmentNumber.Substring(0, 6)}%' ");
+                                {
+                                    AdditionalUserFieldValue additionalFieldValue = new TableOperations<AdditionalUserFieldValue>(connection).GetValue(userAccount.Name, "TSC");
+                                    ValueList roleValue = new TableOperations<ValueList>(connection2).GetAltValue("TSC", userAccount.DepartmentNumber, true);
+                                    if (roleValue != null && roleValue.Value != additionalFieldValue.Value)
+                                    {
+                                        additionalFieldValue.Value = roleValue.ID.ToString();
+                                        new TableOperations<AdditionalUserFieldValue>(connection).AddNewOrUpdateRecord(additionalFieldValue);
+                                    }
+
+                                }
                                 changed = true;
                             }
 
