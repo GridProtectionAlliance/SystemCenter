@@ -191,7 +191,7 @@ namespace SystemCenter.Model.Security
 
                     CategorizedSettingsElementCollection systemSettings = configFile.Settings["systemSettings"];
                     systemSettings.Add("CompanyAcronym", "", "The acronym representing the company who owns this instance of the SystemCenter.");
-                    string companyAcronym = securityProviderSettings["CompanyAcronym"].Value;
+                    string companyAcronym = systemSettings["CompanyAcronym"].Value;
 
 
 
