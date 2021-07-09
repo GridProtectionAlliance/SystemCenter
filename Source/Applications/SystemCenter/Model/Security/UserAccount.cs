@@ -79,7 +79,7 @@ namespace SystemCenter.Model.Security
             if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
             try
             {
-                MetaDataUpdater metaData = new MetaDataUpdater();
+                UserAccountMetaDataUpdater metaData = new UserAccountMetaDataUpdater();
                 metaData.Update();
                 return Ok("Metadata updated");
             }

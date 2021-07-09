@@ -31,7 +31,7 @@ import { SystemCenter as SCGlobal } from '../global';
 import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
 import { useDispatch, useSelector } from 'react-redux';
 import { SettingSlice } from '../Store/Store';
-
+import moment from 'moment';
 
 const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
@@ -40,7 +40,7 @@ const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'TSC', key: 'TSC', type: 'string', isPivotField: false },
     { label: 'Sector', key: 'Sector', type: 'string', isPivotField: false },
     { label: 'IP', key: 'IP', type: 'string', isPivotField: false },
-    { label: 'Last Good Health', key: 'LastGood', type: 'datetime', isPivotField: false },
+    { label: 'Last Successful Connection', key: 'LastGood', type: 'datetime', isPivotField: false },
     { label: 'Bad Days', key: 'BadDays', type: 'number', isPivotField: false },
     { label: 'Status', key: 'Status', type: 'string', isPivotField: false },
     { label: 'Last Config Change', key: 'LastConfigChange', type: 'datetime', isPivotField: false },
@@ -169,26 +169,43 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<SCGlobal.DeviceHealthReport>
                     cols={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DownloadedFiles&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[key]}</a> },
-                        { key: 'OpenMIC', field: 'OpenMIC', label: 'OpenMIC ID', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${settings.find(s => s.Name == 'OpenMIC.Url').Value}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[key]}</a> },
-                        { key: 'Substation', field: 'Substation', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink').Value.replace('<AssetKey>', item.LocationKey) } target='_blank'>{item[key]}</a> },
-                        { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=Location&LocationID=${item.LocationID}&Tab=images`} target='_blank'>{item[key]}</a> },
-                        { key: 'TSC', field: 'TSC', label: 'TSC', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSCID}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[key]}</a> },
-                        { key: 'Sector', field: 'Sector', label: 'Sector', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.SectorID}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[key]}</a> },
-                        { key: 'IP', field: 'IP', label: 'IP', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => (item.OpenMIC != undefined ? <a href={`${settings.find(s => s.Name == 'OpenMIC.Url').Value}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[key]}</a> : item[key]) },
-                        { key: 'LastGood', field: 'LastGood', label: 'Last Good', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item,key,style) => moment(item[key]).format('MM/DD/YYYY') },
-                        { key: 'BadDays', field: 'BadDays', label: 'Bad Days', headerStyle: { width: '5%' }, rowStyle: { width: '5%' } },
-                        { key: 'Status', field: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Name', label: 'Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DownloadedFiles&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[key]}</a> },
+                        { key: 'OpenMIC', label: 'OpenMIC ID', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[key]}</a> },
+                        { key: 'Substation', label: 'Substn', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink')?.Value.replace('<AssetKey>', item.LocationKey) } target='_blank'>{item[key]}</a> },
+                        { key: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=Location&LocationID=${item.LocationID}&Tab=images`} target='_blank'>{item[key]}</a> },
+                        { key: 'TSC', label: 'TSC', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSCID}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[key]}</a> },
+                        { key: 'Sector', label: 'Sector', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.SectorID}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[key]}</a> },
+                        { key: 'IP', label: 'IP', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => (item.OpenMIC != undefined ? <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[key]}</a> : item[key]) },
                         {
-                            key: 'LastConfigChange', label: 'Last Config Change', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => {
-                                if (item[key] == undefined)
-                                    return '';
-                                else
-                                    return <a href={`${settings.find(s => s.Name == 'MiMD.Url').Value}/index.cshtml?name=Configuration&MeterID=${item.ID}`} target='_blank'>{moment(item[key]).format('MM/DD/YYYY')}</a>
+                            key: 'LastGood', label: 'Last Succ Conn', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, field, style) => {
+                                if (moment().diff(moment(item[field]), 'hours') > 4) style.backgroundColor = 'yellow';
+                                if (moment().diff(moment(item[field]), 'hours') > 24 ) style.backgroundColor = 'orange';
+                                else if (moment().diff(moment(item[field]), 'days') > 7) style.backgroundColor = 'red';
+
+                                return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic`} target='_blank'>{moment(item[key]).format('MM/DD/YYYY HH:mm')}</a>
                             }
                         },
-                        { key: 'Status', field: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'BadDays', label: 'Bad Days', headerStyle: { width: '5%' }, rowStyle: { width: '5%' } },
+                        {
+                            key: 'LastConfigChange', label: 'Last Conf Chg', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, field, style) => {
 
+                                if (item[key] == undefined)
+                                    return '';
+                                else {
+                                    if (moment().diff(moment(item[field]), 'hours') < 24) style.backgroundColor = 'red';
+                                    else if (moment().diff(moment(item[field]), 'days') < 7) style.backgroundColor = 'orange';
+                                    else if (moment().diff(moment(item[field]), 'days') < 30) style.backgroundColor = 'yellow';
+
+                                    return <a href={`${settings.find(s => s.Name == 'MiMD.Url')?.Value}/index.cshtml?name=Configuration&MeterID=${item.ID}`} target='_blank'>{moment(item[key]).format('MM/DD/YYYY')}</a>
+                                }
+                            }
+                        },
+                        {
+                            key: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => {
+
+                                return <a href= {`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic`} target='_blank'>Status</a>
+                            }
+                        },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                     ]}

@@ -220,6 +220,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controllers\ControllerHelpers.cs" />
     <Compile Include="Controllers\ExternalDB\ExternalDBController.cs" />
     <Compile Include="Controllers\ExternalDB\FawgController.cs" />
     <Compile Include="Controllers\ExternalDB\PQViewController.cs" />
@@ -228,7 +229,8 @@
     <Compile Include="Controllers\SystemCenter\AccessLogController.cs" />
     <Compile Include="Controllers\SystemCenter\RVHTController.cs" />
     <Compile Include="Controllers\SystemCenter\SystemCenterController.cs" />
-    <Compile Include="MetaDataUpdater.cs" />
+    <Compile Include="ScheduledTasks\OpenMICMeterStatisticOperation.cs" />
+    <Compile Include="ScheduledTasks\UserAccountMetaDataUpdater.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineSegmentController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDABreakerController.cs" />
@@ -521,11 +523,14 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterChannelScaling.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationDrawings.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceHealthReport.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceIssuesPage.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\DeviceIssuesPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DownloadedFiles.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceContacts.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceSectorContatcs.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\CustomerForm.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\OpenMICIssuesPage.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\MiMDIssuesPage.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\OpenXDAIssuesPage.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\LocationSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeterSlice.ts" />

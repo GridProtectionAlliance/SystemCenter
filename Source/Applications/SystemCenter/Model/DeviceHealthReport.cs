@@ -35,34 +35,36 @@ using System.Web.Http;
 namespace SystemCenter.Model
 {
 	[CustomView(@"
-    SELECT
-	    Meter.ID,
-	    Meter.Name,
+	SELECT
+		Meter.ID,
+		Meter.Name,
 		omic.Value as OpenMIC,
-	    Make + ' ' + Model as Model,
+		Make + ' ' + Model as Model,
 		Location.ID as LocationID,
-	    Location.Name as Substation,
+		Location.Name as Substation,
 		Location.LocationKey,
-	    vltsc.Value as TSC,
+		vltsc.Value as TSC,
 		vltsc.ID as TSCID,
-	    vltsector.Value as Sector,
+		vltsector.Value as Sector,
 		vltsector.ID as SectorID,
-	    afvip.Value as IP,
-	    CAST(GETDATE() as date) as LastGood,
-	    0 as BadDays,
-	    '' as Status,
-	    CAST(mimdstat.LastConfigFileChange as DATE) as LastConfigChange
-    FROM
-	    Meter JOIN
-	    Location ON Meter.LocationID = Location.ID LEFT JOIN
+		afvip.Value as IP,
+		micstat.LastSuccessfulConnection as LastGood,
+		0 as BadDays,
+		'' as Status,
+		CAST(mimdstat.LastConfigFileChange as DATE) as LastConfigChange
+	FROM
+		Meter JOIN
+		Location ON Meter.LocationID = Location.ID LEFT JOIN
 		AdditionalFieldValue omic ON omic.ParentTableID = Meter.ID AND omic.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='OpenMICAcronym') LEFT JOIN
-	    AdditionalFieldValue afvtsc ON afvtsc.ParentTableID = Meter.ID AND afvtsc.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='TSC') LEFT JOIN
-	    ValueList vltsc ON vltsc.ID = afvtsc.Value and vltsc.GroupID = (SELECT ID FROM ValueListGroup WHERE Name = 'TSC') LEFT JOIN
-	    AdditionalFieldValue afvsector ON afvsector.ParentTableID = Meter.ID AND afvsector.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='Sector') LEFT JOIN
-	    ValueList vltsector ON vltsector.ID = afvsector.Value and vltsector.GroupID = (SELECT ID FROM ValueListGroup WHERE Name = 'Sector') LEFT JOIN
-	    AdditionalFieldValue afvip ON afvip.ParentTableID = Meter.ID AND afvip.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='IP') OUTER APPLY (
-		    SELECT TOP 1 LastConfigFileChange FROM [SystemCenter.MiMDDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.MiMDDailyStatistic].Meter  ORDER BY Date DESC
-	    ) as mimdstat
+		AdditionalFieldValue afvtsc ON afvtsc.ParentTableID = Meter.ID AND afvtsc.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='TSC') LEFT JOIN
+		ValueList vltsc ON vltsc.ID = afvtsc.Value and vltsc.GroupID = (SELECT ID FROM ValueListGroup WHERE Name = 'TSC') LEFT JOIN
+		AdditionalFieldValue afvsector ON afvsector.ParentTableID = Meter.ID AND afvsector.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='Sector') LEFT JOIN
+		ValueList vltsector ON vltsector.ID = afvsector.Value and vltsector.GroupID = (SELECT ID FROM ValueListGroup WHERE Name = 'Sector') LEFT JOIN
+		AdditionalFieldValue afvip ON afvip.ParentTableID = Meter.ID AND afvip.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='IP') OUTER APPLY (
+			SELECT TOP 1 LastConfigFileChange FROM [SystemCenter.MiMDDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.MiMDDailyStatistic].Meter  ORDER BY Date DESC
+		) as mimdstat OUTER APPLY (
+			SELECT TOP 1 LastSuccessfulConnection FROM [SystemCenter.OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.OpenMICDailyStatistic].Meter  ORDER BY Date DESC
+		) as micstat
     "), SettingsCategory("systemSettings"), ViewOnly, AllowSearch]
 	public class DeviceHealthReport
 	{

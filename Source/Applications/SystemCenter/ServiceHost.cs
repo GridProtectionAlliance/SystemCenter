@@ -141,6 +141,11 @@ namespace SystemCenter
             ConfigurationFile configFile = ConfigurationFile.Current;
             CategorizedSettingsElementCollection systemSettings = configFile.Settings["systemSettings"];
             systemSettings.Add("DefaultCulture", "en-US", "Default culture to use for language, country/region and calendar formats.");
+            systemSettings.Add("CompanyName", "Grid Protection Alliance", "The name of the company who owns this instance of the SystemCenter.");
+            systemSettings.Add("CompanyAcronym", "GPA", "The acronym representing the company who owns this instance of the SystemCenter.");
+
+            systemSettings.Add("UserAccountMetaDataUpdater", (systemSettings["CompanyAcronym"].Value == "TVA" ? "0 0 * * *" : "never"), "Default frequency to run the user account meta-data updater");
+            systemSettings.Add("OpenMICStatisticOperation", (systemSettings["CompanyAcronym"].Value == "TVA" ? "* * * * *" : "never"), "Default frequency to run openmic statistics operation");
 
             // Attempt to set default culture
             string defaultCulture = systemSettings["DefaultCulture"].ValueAs("en-US");
@@ -198,6 +203,9 @@ namespace SystemCenter
 
         private void ServiceHelper_ServiceStarted(object sender, EventArgs e)
         {
+            ConfigurationFile configFile = ConfigurationFile.Current;
+            CategorizedSettingsElementCollection systemSettings = configFile.Settings["systemSettings"];
+
             ServiceHelperAppender serviceHelperAppender;
             RollingFileAppender debugLogAppender;
 
@@ -237,7 +245,12 @@ namespace SystemCenter
             // Set up heartbeat and client request handlers
             m_serviceHelper.AddScheduledProcess(ServiceHeartbeatHandler, "ServiceHeartbeat", "* * * * *");
             m_serviceHelper.AddScheduledProcess(ReloadConfigurationHandler, "ReloadConfiguration", "0 0 * * *");
-            m_serviceHelper.AddScheduledProcess(MetaDataUpdaterHandler, "MetaDataUpdater", "0 0 * * *");
+
+            if(systemSettings["UserAccountMetaDataUpdater"].Value != "never")
+                m_serviceHelper.AddScheduledProcess(UserAccountMetaDataUpdaterHandler, "UserAccountMetaDataUpdater", systemSettings["UserAccountMetaDataUpdater"].Value);
+            if (systemSettings["OpenMICStatisticOperation"].Value != "never")
+                m_serviceHelper.AddScheduledProcess(OpenMICStatisticOperationHandler, "OpenMICStatisticOperation", systemSettings["OpenMICStatisticOperation"].Value);
+
             m_serviceHelper.ClientRequestHandlers.Add(new ClientRequestHandler("ReloadSystemSettings", "Reloads system settings from the database", ReloadSystemSettingsRequestHandler));
             m_serviceHelper.ClientRequestHandlers.Add(new ClientRequestHandler("EngineStatus", "Displays status information about the XDA engine", EngineStatusHandler));
             m_serviceHelper.ClientRequestHandlers.Add(new ClientRequestHandler("MsgServiceMonitors", "Sends a message to all service monitors", MsgServiceMonitorsRequestHandler));
@@ -368,8 +381,6 @@ namespace SystemCenter
 
                 systemSettings.Add("DataProviderString", "AssemblyName={System.Data, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089}; ConnectionType=System.Data.SqlClient.SqlConnection; AdapterType=System.Data.SqlClient.SqlDataAdapter", "Configuration database ADO.NET data provider assembly type creation string used when ConfigurationType=Database");
                 systemSettings.Add("NodeID", "00000000-0000-0000-0000-000000000000", "Unique Node ID");
-                systemSettings.Add("CompanyName", "Grid Protection Alliance", "The name of the company who owns this instance of the openXDA.");
-                systemSettings.Add("CompanyAcronym", "GPA", "The acronym representing the company who owns this instance of the openXDA.");
                 systemSettings.Add("WebHostURL", "http://+:8989", "The web hosting URL for remote system management.");
                 systemSettings.Add("DefaultWebPage", "index.cshtml", "The default web page for the hosted web server.");
                 systemSettings.Add("DateFormat", "MM/dd/yyyy", "The default date format to use when rendering timestamps.");
@@ -517,9 +528,15 @@ namespace SystemCenter
             }
         }
 
-        private void MetaDataUpdaterHandler(string s, object[] args) {
-            MetaDataUpdater metaDataUpdater = new MetaDataUpdater();
+        private void UserAccountMetaDataUpdaterHandler(string s, object[] args) {
+            UserAccountMetaDataUpdater metaDataUpdater = new UserAccountMetaDataUpdater();
             metaDataUpdater.Update();
+        }
+
+        private void OpenMICStatisticOperationHandler(string s, object[] args)
+        {
+            OpenMICMeterStatisticOperation operation = new OpenMICMeterStatisticOperation();
+            operation.GetStatistics();
         }
 
         // Reloads system settings from the database.

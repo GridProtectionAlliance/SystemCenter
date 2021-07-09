@@ -35,6 +35,8 @@ import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
 
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 import ValueListGroupForm from './ValueListGroupForm';
+import { AsyncThunkFulfilledActionCreator } from '@reduxjs/toolkit/dist/createAsyncThunk';
+import { abort } from 'process';
 
 
 const ValueListGroups: SCGlobal.ByComponent = (props) => {
@@ -45,7 +47,7 @@ const ValueListGroups: SCGlobal.ByComponent = (props) => {
     const items: SCTyping.Types.ValueListItem[] = useSelector(ValueListSlice.Data);
     const itemStatus: SCGlobal.Status = useSelector(ValueListSlice.Status);
 
-    const sortKey: string = useSelector(ValueListGroupSlice.SortKey);
+    const sortKey = useSelector(ValueListGroupSlice.SortField);
     const ascending: boolean = useSelector(ValueListGroupSlice.Ascending);
     const emptyRecord: SCTyping.Types.ValueListGroup = {ID: 0, Name: '', Description: ''};
     let history = useHistory();
@@ -59,18 +61,21 @@ const ValueListGroups: SCGlobal.ByComponent = (props) => {
     const [record, setRecord] = React.useState<SCTyping.Types.ValueListGroup>(emptyRecord);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
-            dispatch(ValueListGroupSlice.Fetch());
+        if (status !== 'unintiated' && status !== 'changed') return function () { };
+        let handle = dispatch(ValueListGroupSlice.Fetch());
 
         return function () {
+            if (handle['abort'] != undefined) handle['abort']();
         }
     }, [dispatch, status]);
 
     React.useEffect(() => {
-        if (itemStatus == 'unintiated' || itemStatus == 'changed')
-            dispatch(ValueListSlice.Fetch());
+        if (itemStatus !== 'unintiated' && itemStatus !== 'changed') return function () { };
+
+        let handle = dispatch(ValueListSlice.Fetch());
 
         return function () {
+            if (handle['abort'] != undefined) handle['abort']();
         }
     }, [dispatch, itemStatus]);
 
@@ -131,7 +136,7 @@ const ValueListGroups: SCGlobal.ByComponent = (props) => {
                     onSort={(d) => {
                         if (d.colKey === "Scroll")
                             return;
-                        dispatch(ValueListGroupSlice.Sort({ SortKey: d.colKey, Ascending: d.ascending }));
+                        dispatch(ValueListGroupSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     onClick={handleSelect}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

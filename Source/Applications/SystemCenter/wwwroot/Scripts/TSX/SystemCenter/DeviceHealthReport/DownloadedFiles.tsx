@@ -34,7 +34,7 @@ function DownloadedFiles(props: { MeterID: number, MeterName: string }) {
     const dispatch = useDispatch();
     const files = useSelector(DataFileSlice.Data);
     const status = useSelector(DataFileSlice.Status);
-    const sortKey = useSelector(DataFileSlice.SortKey);
+    const sortKey = useSelector(DataFileSlice.SortField);
     const ascending = useSelector(DataFileSlice.Ascending);
     const meterID = useSelector(DataFileSlice.ParentID);
 
@@ -62,10 +62,10 @@ function DownloadedFiles(props: { MeterID: number, MeterName: string }) {
                 data={files}
                 sortKey={sortKey}
                 ascending={ascending}
-                onSort={({ colKey, ascending }) => {
+                onSort={({ colField, colKey, ascending }) => {
                     if (colKey === "Scroll")
                         return;
-                    dispatch(DataFileSlice.Sort({ SortKey: colKey, Ascending: ascending }));
+                    dispatch(DataFileSlice.Sort({ SortField: colField, Ascending: ascending }));
                 }}
                 onClick={() => { }}
                 theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

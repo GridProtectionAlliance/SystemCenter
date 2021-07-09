@@ -50,7 +50,7 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
     const [search, setSearch] = React.useState<Array<Search.IFilter<SCGlobal.Customer>>>([]);
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<SCGlobal.Customer>>>(SearchFields.Customer as Search.IField<SCGlobal.Customer>[]);
 
-    const [sortKey, setSortKey] = React.useState<string>('CustomerKey');
+    const [sortKey, setSortKey] = React.useState<keyof SCGlobal.Customer>('CustomerKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newCustomer, setNewCustomer] = React.useState<SCGlobal.Customer>(getNewCustomer());
 
@@ -58,7 +58,7 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
     const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        dispatch(CustomerSlice.DBSearch({ sortKey, ascending, filter: search }))
+        dispatch(CustomerSlice.DBSearch({ sortField: sortKey, ascending, filter: search }))
     }, [search, ascending, sortKey]);
 
     React.useEffect(() => {
@@ -165,7 +165,7 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
                             setAscending(!ascending);
                         else {
                             setAscending(true);
-                            setSortKey(d.colKey);
+                            setSortKey(d.colField);
                         }
                     }}
                     onClick={handleSelect}

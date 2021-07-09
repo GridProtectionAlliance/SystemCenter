@@ -40,7 +40,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
 
     const links: SystemCenter.Types.LocationDrawing[] = useSelector(LocationDrawingSlice.Data);
     const status: SCGlobal.Status = useSelector(LocationDrawingSlice.Status);
-    const sortKey: string = useSelector(LocationDrawingSlice.SortKey);
+    const sortKey = useSelector(LocationDrawingSlice.SortField);
     const ascending: boolean = useSelector(LocationDrawingSlice.Ascending);
     const parentID: number = useSelector(LocationDrawingSlice.ParentID);
     const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '' };
@@ -90,7 +90,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                         onSort={(d) => {
                             if (d.colKey === "EditDelete")
                                 return;
-                            dispatch(LocationDrawingSlice.Sort({ SortKey: d.colKey, Ascending: d.ascending }));
+                            dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
                         onClick={data => { }}
                         selected={() => false}

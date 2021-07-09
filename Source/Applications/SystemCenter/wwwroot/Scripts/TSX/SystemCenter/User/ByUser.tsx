@@ -60,7 +60,6 @@ const ByUser: SCGlobal.ByComponent = (props) => {
         return getData();
     }, [search, ascending, sortField]);
 
-
     React.useEffect(() => {
         let handle = getAdditionalUserFields();
 

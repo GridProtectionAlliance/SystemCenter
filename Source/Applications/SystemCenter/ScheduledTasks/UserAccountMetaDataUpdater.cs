@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  MetadataUpdater.cs - Gbtc
+//  UserAccountMetaDataUpdater.cs - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -38,7 +38,7 @@ using SystemCenter.Model.Security;
 
 namespace SystemCenter
 {
-    public class MetaDataUpdater
+    public class UserAccountMetaDataUpdater
     {
         #region [ Member ]
         public class ChangedUser { 
@@ -56,7 +56,7 @@ namespace SystemCenter
         #endregion
 
         #region [ Constructor ]
-        public MetaDataUpdater() {
+        public UserAccountMetaDataUpdater() {
             try
             {
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
@@ -281,7 +281,7 @@ namespace SystemCenter
         #endregion
 
         #region [ Static ]
-        private static readonly ILog Log = LogManager.GetLogger(typeof(MetaDataUpdater));
+        private static readonly ILog Log = LogManager.GetLogger(typeof(UserAccountMetaDataUpdater));
 
 
         #endregion
