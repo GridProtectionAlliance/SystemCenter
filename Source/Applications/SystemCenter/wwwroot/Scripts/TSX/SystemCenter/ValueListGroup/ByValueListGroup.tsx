@@ -62,21 +62,16 @@ const ValueListGroups: SCGlobal.ByComponent = (props) => {
 
     React.useEffect(() => {
         if (status !== 'unintiated' && status !== 'changed') return function () { };
-        let handle = dispatch(ValueListGroupSlice.Fetch());
 
-        return function () {
-            if (handle['abort'] != undefined) handle['abort']();
-        }
+        dispatch(ValueListGroupSlice.Fetch());
+
     }, [dispatch, status]);
 
     React.useEffect(() => {
         if (itemStatus !== 'unintiated' && itemStatus !== 'changed') return function () { };
 
-        let handle = dispatch(ValueListSlice.Fetch());
+       dispatch(ValueListSlice.Fetch());
 
-        return function () {
-            if (handle['abort'] != undefined) handle['abort']();
-        }
     }, [dispatch, itemStatus]);
 
 
