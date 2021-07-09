@@ -64,8 +64,6 @@ namespace SystemCenter.Model.Security
         public bool PhoneConfirmed { get; set; }
         public bool EmailConfirmed { get; set; }
         public bool Approved { get; set; }
-        public int? TSCID { get; set; }
-        public int? RoleID { get; set; }
         public string Title { get; set; }
         public string Department { get; set; }
         public string DepartmentNumber { get; set; }
@@ -181,6 +179,7 @@ namespace SystemCenter.Model.Security
         {
             if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
             using(AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection2 = new AdoDataConnection("systemSettings"))
             {
                 try
                 {
@@ -188,9 +187,13 @@ namespace SystemCenter.Model.Security
                     ConfigurationFile configFile = ConfigurationFile.Current;
                     CategorizedSettingsElementCollection securityProviderSettings = configFile.Settings["securityProvider"];
                     securityProviderSettings.Add("LdapPath", "", "Specifies the LDAP path used to initialize the security provider.");
-
-
                     string ldapPath = securityProviderSettings["LdapPath"].Value;
+
+                    CategorizedSettingsElementCollection systemSettings = configFile.Settings["systemSettings"];
+                    systemSettings.Add("CompanyAcronym", "", "The acronym representing the company who owns this instance of the SystemCenter.");
+                    string companyAcronym = systemSettings["CompanyAcronym"].Value;
+
+
 
                     UserInfo userInfo = new UserInfo(UserInfo.SIDToAccountName(userAccount.Name), ldapPath);
                     userAccount.Phone = userInfo.Telephone;
@@ -206,11 +209,31 @@ namespace SystemCenter.Model.Security
                     userAccount.Approved = true;
                     userAccount.Department = userInfo.Department;
                     userAccount.DepartmentNumber = userInfo.GetUserPropertyValue("departmentnumber");
-                    
-                    if (userInfo.Title != string.Empty)
-                        userAccount.RoleID = connection.ExecuteScalar<int>($"SELECT TOP 1 ID FROM Role WHERE Description LIKE '%{userInfo.Title}%' ");
-                    if (userAccount.DepartmentNumber != string.Empty)
-                        userAccount.TSCID = connection.ExecuteScalar<int>($"SELECT TOP 1 ID FROM TSC WHERE DepartmentNumber LIKE '%{userAccount.DepartmentNumber}%' ");
+
+                    if(companyAcronym == "TVA")
+                    {
+                        if (userInfo.Title != string.Empty)
+                        {
+                            AdditionalUserFieldValue additionalFieldValue = new TableOperations<AdditionalUserFieldValue>(connection).GetValue(userAccount.Name, "Role");
+                            ValueList roleValue = new TableOperations<ValueList>(connection2).GetAltValue("Role", userInfo.Title, true);
+                            if (roleValue != null && roleValue.Value != additionalFieldValue.Value) {
+                                additionalFieldValue.Value = roleValue.ID.ToString();
+                                new TableOperations<AdditionalUserFieldValue>(connection).AddNewOrUpdateRecord(additionalFieldValue);
+                            }
+                        }
+                        if (userAccount.DepartmentNumber != string.Empty)
+                        {
+                            AdditionalUserFieldValue additionalFieldValue = new TableOperations<AdditionalUserFieldValue>(connection).GetValue(userAccount.Name, "TSC");
+                            ValueList roleValue = new TableOperations<ValueList>(connection2).GetAltValue("TSC", userAccount.DepartmentNumber, true);
+                            if (roleValue != null && roleValue.Value != additionalFieldValue.Value)
+                            {
+                                additionalFieldValue.Value = roleValue.ID.ToString();
+                                new TableOperations<AdditionalUserFieldValue>(connection).AddNewOrUpdateRecord(additionalFieldValue);
+                            }
+
+                        }
+
+                    }
                     return Ok(userAccount);
                 }
                 catch (Exception ex)

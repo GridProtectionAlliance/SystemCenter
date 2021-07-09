@@ -533,7 +533,6 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\WarningModal.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ParameterSearch.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AddToGroup.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\GenericSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\ValueListGroupSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\ValueListSlice.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ByValueListGroup.tsx" />

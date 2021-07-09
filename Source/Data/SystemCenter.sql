@@ -74,8 +74,6 @@ CREATE TABLE UserAccount
     EmailConfirmed BIT NOT NULL DEFAULT 0,
     LockedOut BIT NOT NULL DEFAULT 0,
     Approved BIT NOT NULL DEFAULT 0,
-    TSCID INT NULL,
-    RoleID INT NULL,
     Title varchar(200) NULL,
     Department varchar(200) NULL,
     DepartmentNumber varchar(200) NULL,
