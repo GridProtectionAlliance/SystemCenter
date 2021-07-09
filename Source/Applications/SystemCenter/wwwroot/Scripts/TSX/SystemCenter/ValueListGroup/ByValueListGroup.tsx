@@ -35,9 +35,6 @@ import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
 
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 import ValueListGroupForm from './ValueListGroupForm';
-import { AsyncThunkFulfilledActionCreator } from '@reduxjs/toolkit/dist/createAsyncThunk';
-import { abort } from 'process';
-
 
 const ValueListGroups: SCGlobal.ByComponent = (props) => {
     const dispatch = useDispatch();
