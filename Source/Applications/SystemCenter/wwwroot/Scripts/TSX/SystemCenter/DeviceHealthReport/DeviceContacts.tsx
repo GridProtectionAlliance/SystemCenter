@@ -33,7 +33,7 @@ interface UserAccount extends SystemCenter.UserAccount {
 
 function DeviceContacts(props: {ID: number, Name: string, Field: 'TSC' | 'Sector' }) {
     const [data, setData] = React.useState<UserAccount[]>([]);
-    const [sortField, setSortField] = React.useState<keyof UserAccount>('LastName');
+    const [sortKey, setSortKey] = React.useState<string>('LastName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     React.useEffect(() => {
         let handle = $.ajax({
@@ -45,7 +45,7 @@ function DeviceContacts(props: {ID: number, Name: string, Field: 'TSC' | 'Sector
             async: true
         });
 
-        handle.done(d => setData(_.orderBy(d.map(datum => ({...datum, Selected: 1})), [sortField], [ascending])));
+        handle.done(d => setData(_.orderBy(d.map(datum => ({ ...datum, Selected: 1 })), [sortKey], [ascending])));
 
         return () => {
             if (handle.abort != undefined) handle.abort();
@@ -53,8 +53,8 @@ function DeviceContacts(props: {ID: number, Name: string, Field: 'TSC' | 'Sector
     }, [props.ID, props.Field]);
 
     React.useEffect(() => {
-        setData(_.orderBy(data, [sortField], [ascending]))
-    }, [sortField, ascending]);
+        setData(_.orderBy(data, [sortKey], [ascending]))
+    }, [sortKey, ascending]);
 
     if (props.ID == undefined) return null;
     return (
@@ -79,29 +79,32 @@ function DeviceContacts(props: {ID: number, Name: string, Field: 'TSC' | 'Sector
             
             <Table<UserAccount>
                 cols={[
-                    { key: 'Selected', label: '', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => item.Selected ? <span>{HeavyCheckMark}</span> : '' },
-                    { key: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                    { key: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                    { key: 'Email', label: 'Email', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => <a href={`mailto:${item[key]}`}>{ item[key]}</a>},
-                    { key: 'Title', label: 'Title', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                    { key: 'Department', label: 'Department', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                    { key: 'Phone', label: 'Phone', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'MobilePhone', label: 'Mobile Phone', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    { key: 'Selected', field: 'Selected', label: '', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => item.Selected ? <span>{HeavyCheckMark}</span> : '' },
+                    { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                    { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                    { key: 'Email', field: 'Email', label: 'Email', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => <a href={`mailto:${item[key]}`}>{ item[key]}</a>},
+                    { key: 'Title', field: 'Title', label: 'Title', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                    { key: 'Department', field: 'Department', label: 'Department', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                    { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'MobilePhone', field: 'MobilePhone', label: 'Mobile Phone', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                 ]}
                 tableClass="table table-hover"
                 data={data}
-                sortField={sortField}
+                sortKey={sortKey}
                 ascending={ascending}
-                onSort={({ col, ascending }) => {
-                    if(col != sortField)
-                        setSortField(col);
+                onSort={({ colKey, ascending }) => {
+                    if (colKey === "Scroll")
+                        return;
+
+                    if (colKey !== sortKey)
+                        setSortKey(colKey);
                     else
                         setAscending(ascending);
                 }}
                 onClick={(d, evt) => {
-                    if (d.col != "Email") {
+                    if (d.colKey !== "Email") {
                         let newData = [...data];
                         newData[d.index].Selected = !newData[d.index].Selected;
                         setData(newData);

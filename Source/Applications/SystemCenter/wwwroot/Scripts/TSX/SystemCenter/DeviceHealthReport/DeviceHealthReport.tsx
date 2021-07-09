@@ -55,7 +55,7 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
 
     const [data, setData] = React.useState<SCGlobal.DeviceHealthReport[]>([]);
 
-    const [sortField, setSortField] = React.useState<keyof SCGlobal.DeviceHealthReport>('Name');
+    const [sortKey, setSortKey] = React.useState<string>('Name');
     const [filterableList, setFilterableList] = React.useState<Search.IField<SCGlobal.DeviceHealthReport>[]>(defaultSearchcols);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
 
@@ -75,7 +75,7 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
             if (handle.abort != null)
                 handle.abort();
         }
-    }, [sortField, ascending, search]);
+    }, [sortKey, ascending, search]);
 
     React.useEffect(() => {
         let handle = getAdditionalFields();
@@ -101,7 +101,7 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
             url: `${homePath}api/DeviceHealthReport/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -169,15 +169,16 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<SCGlobal.DeviceHealthReport>
                     cols={[
-                        { key: 'Name', label: 'Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DownloadedFiles&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[key]}</a> },
-                        { key: 'OpenMIC', label: 'OpenMIC ID', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${settings.find(s => s.Name == 'OpenMIC.Url').Value}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[key]}</a> },
-                        { key: 'Substation', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink').Value.replace('<AssetKey>', item.LocationKey) } target='_blank'>{item[key]}</a> },
-                        { key: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=Location&LocationID=${item.LocationID}&Tab=images`} target='_blank'>{item[key]}</a> },
-                        { key: 'TSC', label: 'TSC', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSCID}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[key]}</a> },
-                        { key: 'Sector', label: 'Sector', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.SectorID}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[key]}</a> },
-                        { key: 'IP', label: 'IP', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => (item.OpenMIC != undefined ? <a href={`${settings.find(s => s.Name == 'OpenMIC.Url').Value}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[key]}</a> : item[key]) },
-                        { key: 'LastGood', label: 'Last Good', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item,key,style) => moment(item[key]).format('MM/DD/YYYY') },
-                        { key: 'BadDays', label: 'Bad Days', headerStyle: { width: '5%' }, rowStyle: { width: '5%' } },
+                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DownloadedFiles&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[key]}</a> },
+                        { key: 'OpenMIC', field: 'OpenMIC', label: 'OpenMIC ID', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${settings.find(s => s.Name == 'OpenMIC.Url').Value}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[key]}</a> },
+                        { key: 'Substation', field: 'Substation', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink').Value.replace('<AssetKey>', item.LocationKey) } target='_blank'>{item[key]}</a> },
+                        { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=Location&LocationID=${item.LocationID}&Tab=images`} target='_blank'>{item[key]}</a> },
+                        { key: 'TSC', field: 'TSC', label: 'TSC', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSCID}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[key]}</a> },
+                        { key: 'Sector', field: 'Sector', label: 'Sector', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.SectorID}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[key]}</a> },
+                        { key: 'IP', field: 'IP', label: 'IP', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => (item.OpenMIC != undefined ? <a href={`${settings.find(s => s.Name == 'OpenMIC.Url').Value}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[key]}</a> : item[key]) },
+                        { key: 'LastGood', field: 'LastGood', label: 'Last Good', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item,key,style) => moment(item[key]).format('MM/DD/YYYY') },
+                        { key: 'BadDays', field: 'BadDays', label: 'Bad Days', headerStyle: { width: '5%' }, rowStyle: { width: '5%' } },
+                        { key: 'Status', field: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         {
                             key: 'LastConfigChange', label: 'Last Config Change', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => {
                                 if (item[key] == undefined)
@@ -186,21 +187,24 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
                                     return <a href={`${settings.find(s => s.Name == 'MiMD.Url').Value}/index.cshtml?name=Configuration&MeterID=${item.ID}`} target='_blank'>{moment(item[key]).format('MM/DD/YYYY')}</a>
                             }
                         },
-                        { key: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Status', field: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
 
-                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortField={sortField}
+                    sortKey={sortKey}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField)
+                        if (d.colKey === "Scroll")
+                            return;
+
+                        if (d.colKey === sortKey)
                             setAscending(!ascending);
                         else {
                             setAscending(true);
-                            setSortField(d.col);
+                            setSortKey(d.colKey);
                         }
                         
                     }}

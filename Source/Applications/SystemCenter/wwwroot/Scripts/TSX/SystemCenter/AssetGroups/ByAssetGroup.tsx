@@ -57,7 +57,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<AssetGroup>>>([]);
     const [data, setData] = React.useState<Array<AssetGroup>>([]);
-    const [sortField, setSortField] = React.useState<keyof AssetGroup>('Name');
+    const [sortKey, setSortKey] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<AssetGroup>>>(defaultSearchcols);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
@@ -97,7 +97,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
                 handle.abort();
         };
 
-    }, [search, ascending, sortField]);
+    }, [search, ascending, sortKey]);
 
     
     function getAssetGroups(): JQueryXHR {
@@ -109,7 +109,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
             url: `${homePath}api/OpenXDA/AssetGroup/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -197,23 +197,26 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
                 <Table<AssetGroup>
                     cols={[
-                        { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Assets', label: 'Num. of Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Meters', label: 'Num. of Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Users', label: 'Num. of Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetGroups', label: 'Num. of Asset Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Assets', field: 'Assets', label: 'Num. of Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Meters', field: 'Meters', label: 'Num. of Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Users', field: 'Users', label: 'Num. of Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'AssetGroups', field: 'AssetGroups', label: 'Num. of Asset Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortField={sortField}
+                    sortKey={sortKey}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField)
+                        if (d.colKey === "Scroll")
+                            return;
+
+                        if (d.colKey === sortKey)
                             setAscending(!ascending);
                         else {
                             setAscending(true);
-                            setSortField(d.col);
+                            setSortKey(d.colKey);
                         }
                     }}
                     onClick={handleSelect}

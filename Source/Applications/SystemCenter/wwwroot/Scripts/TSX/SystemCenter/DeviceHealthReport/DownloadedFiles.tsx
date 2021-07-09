@@ -34,7 +34,7 @@ function DownloadedFiles(props: { MeterID: number, MeterName: string }) {
     const dispatch = useDispatch();
     const files = useSelector(DataFileSlice.Data);
     const status = useSelector(DataFileSlice.Status);
-    const sortField = useSelector(DataFileSlice.SortField);
+    const sortKey = useSelector(DataFileSlice.SortKey);
     const ascending = useSelector(DataFileSlice.Ascending);
     const meterID = useSelector(DataFileSlice.ParentID);
 
@@ -51,18 +51,22 @@ function DownloadedFiles(props: { MeterID: number, MeterName: string }) {
             <h3>Last 50 downloaded files for {props.MeterName}</h3>
             <Table<OpenXDA.DataFile>
                 cols={[
-                    { key: 'FilePath', label: 'File', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                    { key: 'DataStartTime', label: 'Date', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") },
-                    { key: 'ProcessingEndTime', label: 'Processed', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") },
-                    { key: 'FileSize', label: 'Size( kB)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    { key: 'FilePath', field: 'FilePath', label: 'File', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                    { key: 'DataStartTime', field: 'DataStartTime', label: 'Date', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") },
+                    { key: 'ProcessingEndTime', field: 'ProcessingEndTime', label: 'Processed', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") },
+                    { key: 'FileSize', field: 'FileSize', label: 'Size( kB)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                 ]}
                 tableClass="table table-hover"
                 data={files}
-                sortField={sortField}
+                sortKey={sortKey}
                 ascending={ascending}
-                onSort={({ col, ascending }) => dispatch(DataFileSlice.Sort({SortField: col, Ascending: ascending}))}
+                onSort={({ colKey, ascending }) => {
+                    if (colKey === "Scroll")
+                        return;
+                    dispatch(DataFileSlice.Sort({ SortKey: colKey, Ascending: ascending }));
+                }}
                 onClick={() => { }}
                 theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 160, width: '100%' }}

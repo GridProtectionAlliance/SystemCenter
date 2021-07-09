@@ -42,10 +42,10 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
     const dispatch = useDispatch();
     const companyTypes = useSelector(CompanyTypeSlice.Data) as SCGlobal.CompanyType[];
     const ctStatus = useSelector(CompanyTypeSlice.Status) as SCGlobal.Status;
-
+    
     const [search, setSearch] = React.useState<Array<Search.IFilter<SCGlobal.Company>>>([]);
     const [data, setData] = React.useState<Array<SCGlobal.Company>>([]);
-    const [sortField, setSortField] = React.useState<keyof SCGlobal.Company>('Name');
+    const [sortKey, setSortKey] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newCompany, setNewCompany] = React.useState<SCGlobal.Company>(getNewCompany());
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
@@ -55,7 +55,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
 
     React.useEffect(() => {
         return getData();
-    }, [search, ascending, sortField]);
+    }, [search, ascending, sortKey]);
 
     function getData() {
         let handle = getCompanys();
@@ -118,7 +118,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
             url: `${homePath}api/OpenXDA/Company/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: TransformSearchFields.Company(search), OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: TransformSearchFields.Company(search), OrderBy: sortKey, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -196,30 +196,32 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<SCGlobal.Company>
                     cols={[
-                        { key: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'CompanyTypeID', label: 'Type', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'CompanyTypeID', field: 'CompanyTypeID', label: 'Type', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         {
-                            key: 'CompanyID', label: 'CompanyID', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => {
+                            key: 'Company', label: 'Company', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => {
                                 const ct = companyTypes.find(ct => ct.ID == item.CompanyTypeID)
                                 if (ct == null)
                                     return "";
                                 return ct.Name
                                 }
                         },
-                        { key: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-
+                        { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortField={sortField}
+                    sortKey={sortKey}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.col == sortField)
+                        if (d.colKey === "Scroll")
+                            return;
+
+                        if (d.colKey === sortKey)
                             setAscending(!ascending);
                         else {
                             setAscending(true);
-                            setSortField(d.col);
+                            setSortKey(d.colKey);
                         }
                     }}
                     onClick={handleSelect}

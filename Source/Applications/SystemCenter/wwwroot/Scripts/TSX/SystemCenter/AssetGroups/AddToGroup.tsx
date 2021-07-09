@@ -33,10 +33,10 @@ interface Iprops<T> {
     Show: boolean,
     onComplete: (id: Array<any>) => JQueryXHR,
     setShow: (show: boolean) => void,
-    getData: (search: Array<Search.IFilter<T>>, ascending: boolean, sortField: keyof T) => JQueryXHR,
+    getData: (search: Array<Search.IFilter<T>>, ascending: boolean, sortKey: string) => JQueryXHR,
     type: ('Asset' | 'Meter' | 'Group'),
     PrimaryKey: keyof (T),
-    SortField: keyof T,
+    SortKey: string,
     Ascending: boolean
 }
 
@@ -46,10 +46,10 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
 
     const [selectedData, setSelectedData] = React.useState<Array<T>>([]);
 
-    const [sortFieldAll, setSortFieldAll] = React.useState<keyof T >(props.SortField);
+    const [sortKeyAll, setSortKeyAll] = React.useState<string>(props.SortKey);
     const [ascendingAll, setAscendingAll] = React.useState<boolean>(props.Ascending);
 
-    const [sortFieldSelected, setSortFieldSelected] = React.useState<keyof T>(props.SortField);
+    const [sortKeySelected, setSortKeySelected] = React.useState<string>(props.SortKey);
     const [ascendingSelected, setAscendingSelected] = React.useState<boolean>(props.Ascending);
 
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<T>>>(getSearchField());
@@ -72,7 +72,7 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
 
     React.useEffect(() => {
         setSearchState('Loading')
-        let handle = props.getData(search, ascendingAll, sortFieldAll);
+        let handle = props.getData(search, ascendingAll, sortKeyAll);
         handle.done(d => { setSearchState('Idle'); setData(JSON.parse(d)) });
         handle.fail(msg => setSearchState('Error'));
 
@@ -80,7 +80,7 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
             if (handle != undefined && handle.abort != null)
                 handle.abort();
         }
-    }, [search, sortFieldAll, ascendingAll]);
+    }, [search, sortKeyAll, ascendingAll]);
 
     React.useEffect(() => {
         setFilterableList(getSearchField());
@@ -146,32 +146,32 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
         switch (props.type) {
             case 'Asset':
                 return [
-                    { key: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetName' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetType' as keyof (T), label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'VoltageKV' as keyof (T), label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Meters' as keyof (T), label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Locations' as keyof (T), label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    { key: 'AssetKey', field: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetName', field: 'AssetName' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetType', field: 'AssetType' as keyof (T), label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'VoltageKV', field: 'VoltageKV' as keyof (T), label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Meters', field: 'Meters' as keyof (T), label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Locations', field: 'Locations' as keyof (T), label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ];
             case 'Meter':
                 return [
-                    { key: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Location' as keyof (T), label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'MappedAssets' as keyof (T), label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Make' as keyof (T), label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Model' as keyof (T), label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    { key: 'AssetKey', field: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Name', field: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Location', field: 'Location' as keyof (T), label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'MappedAssets', field: 'MappedAssets' as keyof (T), label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Make', field: 'Make' as keyof (T), label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Model', field: 'Model' as keyof (T), label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ];
             case 'Group':
                 return [
-                    { key: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Assets' as keyof (T), label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Meters' as keyof (T), label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Users' as keyof (T), label: 'Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetGroups' as keyof (T), label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    { key: 'Name', field: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Assets', field: 'Assets' as keyof (T), label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Meters', field: 'Meters' as keyof (T), label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Users', field: 'Users' as keyof (T), label: 'Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetGroups', field: 'AssetGroups' as keyof (T), label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ];
         }
         
@@ -181,22 +181,22 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
         switch (props.type) {
             case 'Asset':
                 return [
-                    { key: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetName' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetType' as keyof (T), label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    { key: 'AssetKey', field: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetName', field: 'AssetName' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetType', field: 'AssetType' as keyof (T), label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ];
             case 'Meter':
                 return [
-                    { key: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Location' as keyof (T), label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    { key: 'AssetKey', field: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Name', field: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Location', field: 'Location' as keyof (T), label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ];
             case 'Group':
                 return [
-                    { key: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    { key: 'Name', field: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ];
         }
         return [
@@ -298,14 +298,17 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
                         cols={getTableCollumns()}
                         tableClass="table table-hover"
                         data={data}
-                        sortField={sortFieldAll}
+                        sortKey={sortKeyAll}
                         ascending={ascendingAll}
                         onSort={(d) => {
-                            if (d.col == sortFieldAll)
+                            if (d.colKey === "Scroll")
+                                return;
+
+                            if (d.colKey === sortKeyAll)
                                 setAscendingAll(!ascendingAll);
                             else {
                                 setAscendingAll(true);
-                                setSortFieldAll(d.col);
+                                setSortKeyAll(d.colKey);
                             }
                         }}
                         onClick={(d) => { setSelectedData((l) => { let updated = _.cloneDeep(l); updated.push(d.row); return updated; }) }}
@@ -323,19 +326,19 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
                         cols={getSelectedCollumn()}
                         tableClass="table table-hover"
                         data={selectedData}
-                        sortField={sortFieldSelected}
+                        sortKey={sortKeySelected}
                         ascending={ascendingSelected}
                         onSort={(d) => {
-                            if (d.col == sortFieldSelected) {
-                                let ordered = _.orderBy(selectedData, [d.col], [(!ascendingSelected ? "asc" : "desc")]);
+                            if (d.colKey == sortKeySelected) {
+                                let ordered = _.orderBy(selectedData, [d.colKey], [(!ascendingSelected ? "asc" : "desc")]);
                                 setAscendingSelected(!ascendingSelected);
                                 setSelectedData(ordered);
                             }
                             else {
-                                let ordered = _.orderBy(selectedData, [d.col], ["asc"]);
+                                let ordered = _.orderBy(selectedData, [d.colKey], ["asc"]);
                                 setAscendingSelected(!ascendingSelected);
                                 setSelectedData(ordered);
-                                setSortFieldSelected(d.col);
+                                setSortKeySelected(d.colKey);
                             }
                         }}
                         onClick={() => { }}
@@ -361,7 +364,7 @@ interface IMeter {
 
 function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, type: ('Asset' | 'Meter' | 'Group'), Show: boolean, Close: () => void; }) {
 
-    function searchAsset(search: Search.IFilter<ITransmissionAsset>[], ascending: boolean, sortField: keyof ITransmissionAsset): JQueryXHR {
+    function searchAsset(search: Search.IFilter<ITransmissionAsset>[], ascending: boolean, sortKey: string): JQueryXHR {
         const defaults = [
             { label: 'Name', key: 'Name', type: 'string' },
         ];
@@ -373,13 +376,13 @@ function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, typ
             url: `${homePath}api/OpenXDA/Asset/SearchableListIncludingMeter`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
             cache: false,
             async: true
         });
     }
 
-    function searchMeters(search: Search.IFilter<IMeter>[], ascending: boolean, sortField: keyof IMeter): JQueryXHR {
+    function searchMeters(search: Search.IFilter<IMeter>[], ascending: boolean, sortKey: string): JQueryXHR {
         const defaults: Array<Search.IField<IMeter>> = [
             { label: 'AssetKey', key: 'AssetKey', type: 'string', isPivotField: false },
             { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
@@ -396,13 +399,13 @@ function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, typ
             url: `${homePath}api/OpenXDA/MeterList/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
             cache: false,
             async: true
         });
     }
 
-    function searchAssetGroups(search: Search.IFilter<OpenXDA.Types.AssetGroup>[], ascending: boolean, sortField: keyof OpenXDA.Types.AssetGroup): JQueryXHR {
+    function searchAssetGroups(search: Search.IFilter<OpenXDA.Types.AssetGroup>[], ascending: boolean, sortKey: string): JQueryXHR {
         let searches = search;
 
         return $.ajax({
@@ -410,7 +413,7 @@ function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, typ
             url: `${homePath}api/OpenXDA/AssetGroup/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
+            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
             cache: false,
             async: true
         });
@@ -418,11 +421,11 @@ function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, typ
     }
 
     if (props.type == 'Asset')
-        return <AddToAssetGroup<ITransmissionAsset> Show={props.Show} setShow={() => props.Close()} type='Asset' PrimaryKey='ID' getData={searchAsset} onComplete={props.onComplete} SortField='AssetKey' Ascending={true} />
+        return <AddToAssetGroup<ITransmissionAsset> Show={props.Show} setShow={() => props.Close()} type='Asset' PrimaryKey='ID' getData={searchAsset} onComplete={props.onComplete} SortKey='AssetKey' Ascending={true} />
     if (props.type == 'Meter')
-        return <AddToAssetGroup<IMeter> Show={props.Show} setShow={() => props.Close()} type='Meter' PrimaryKey='ID' getData={searchMeters} onComplete={props.onComplete} SortField='AssetKey' Ascending={true} />
+        return <AddToAssetGroup<IMeter> Show={props.Show} setShow={() => props.Close()} type='Meter' PrimaryKey='ID' getData={searchMeters} onComplete={props.onComplete} SortKey='AssetKey' Ascending={true} />
     if (props.type == 'Group')
-        return <AddToAssetGroup<OpenXDA.Types.AssetGroup> Show={props.Show} setShow={() => props.Close()} type='Group' PrimaryKey='ID' getData={searchAssetGroups} onComplete={props.onComplete} SortField='Name' Ascending={true}/>
+        return <AddToAssetGroup<OpenXDA.Types.AssetGroup> Show={props.Show} setShow={() => props.Close()} type='Group' PrimaryKey='ID' getData={searchAssetGroups} onComplete={props.onComplete} SortKey='Name' Ascending={true}/>
 }
 
 

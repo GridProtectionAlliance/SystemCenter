@@ -40,7 +40,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
 
     const links: SystemCenter.Types.LocationDrawing[] = useSelector(LocationDrawingSlice.Data);
     const status: SCGlobal.Status = useSelector(LocationDrawingSlice.Status);
-    const sortField: keyof SystemCenter.Types.LocationDrawing = useSelector(LocationDrawingSlice.SortField);
+    const sortKey: string = useSelector(LocationDrawingSlice.SortKey);
     const ascending: boolean = useSelector(LocationDrawingSlice.Ascending);
     const parentID: number = useSelector(LocationDrawingSlice.ParentID);
     const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '' };
@@ -67,11 +67,11 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
                     <Table<SystemCenter.Types.LocationDrawing>
                         cols={[
-                            { key: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'Link', label: 'Link', headerStyle: { width: '30%' }, rowStyle: { width: '30%' }, content: (item, key, style) => <a href={item[key] as string} target='_blank'>{item[key]}</a> },
-                            { key: 'Description', label: 'Description', headerStyle: { width: 'calc(30%)' }, rowStyle: { width: '30%' } },
+                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                            { key: 'Link', field: 'Link', label: 'Link', headerStyle: { width: '30%' }, rowStyle: { width: '30%' }, content: (item, key, style) => <a href={item[key] as string} target='_blank'>{item[key]}</a> },
+                            { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'calc(30%)' }, rowStyle: { width: '30%' } },
                             {
-                                key: null,
+                                key: 'EditDelete',
                                 label: '',
                                 headerStyle: { width: 300 },
                                 rowStyle: { width: 300 },
@@ -85,9 +85,13 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                         ]}
                         tableClass="table table-hover"
                         data={links}
-                        sortField={sortField}
+                        sortKey={sortKey}
                         ascending={ascending}
-                        onSort={(d) => dispatch(LocationDrawingSlice.Sort({ SortField: d.col, Ascending: d.ascending }))}
+                        onSort={(d) => {
+                            if (d.colKey === "EditDelete")
+                                return;
+                            dispatch(LocationDrawingSlice.Sort({ SortKey: d.colKey, Ascending: d.ascending }));
+                        }}
                         onClick={data => { }}
                         selected={() => false}
                     />
