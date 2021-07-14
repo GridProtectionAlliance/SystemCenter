@@ -57,6 +57,11 @@ export default function Page2(props: { LocationInfo: OpenXDA.Location, UpdateLoc
             error.push('Latitude is required.')
         if (props.LocationInfo.Longitude == null || !AssetAttributes.isRealNumber(props.LocationInfo.Longitude))
             error.push('Longitude is required.')
+        if (props.LocationInfo.Latitude != null && AssetAttributes.isRealNumber(props.LocationInfo.Latitude) && (props.LocationInfo.Latitude > 180 || props.LocationInfo.Latitude < -180)) 
+            error.push('Latitude needs to be between -180 and 180.')
+        if (props.LocationInfo.Longitude != null && AssetAttributes.isRealNumber(props.LocationInfo.Longitude) && (props.LocationInfo.Longitude > 180 || props.LocationInfo.Longitude < -180))
+            error.push('Longitude needs to be between -180 and 180.')
+
 
         props.SetError(error);
 
