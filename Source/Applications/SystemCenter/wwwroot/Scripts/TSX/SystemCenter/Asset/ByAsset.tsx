@@ -138,9 +138,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
 
     React.useEffect(() => {
         const errors = AssetAttributes.AssetError(newAsset, newAsset.AssetType);
-        if (newAsset.AssetKey == null || newAsset.AssetKey.length == 0)
-            errors.push('A AssetKey is required.')
-        else if (allAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(newAsset.AssetKey.toLowerCase()) > -1)
+        if (newAsset.AssetKey != null && allAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(newAsset.AssetKey.toLowerCase()) > -1)
             errors.push('AssetKey has to be unique.')
 
         setAssetErrors(errors);
