@@ -113,6 +113,10 @@ const ByLocation: SCGlobal.ByComponent = (props) => {
             errors.push('Latitude needs to be numeric.');
         if (newLocation.Longitude != null && !AssetAttributes.isRealNumber(newLocation.Longitude))
             errors.push('Longitude needs to be numeric.');
+        if (newLocation.Latitude != null && AssetAttributes.isRealNumber(newLocation.Latitude) && (newLocation.Latitude > 180 || newLocation.Latitude < -180))
+            errors.push('Latitude needs to be between -180 and 180.')
+        if (newLocation.Longitude != null && AssetAttributes.isRealNumber(newLocation.Longitude) && (newLocation.Longitude > 180 || newLocation.Longitude < -180))
+            errors.push('Longitude needs to be between -180 and 180.')
         if (!validAssetKey)
             errors.push('The Key has to be unique.');
 
@@ -222,9 +226,9 @@ const ByLocation: SCGlobal.ByComponent = (props) => {
         else if (field == 'ShortName')
             return newLocation.ShortName == null || newLocation.ShortName.length <= 50;
         else if (field == 'Latitude')
-            return newLocation.Latitude != null && AssetAttributes.isRealNumber(newLocation.Latitude);
+            return newLocation.Latitude != null && AssetAttributes.isRealNumber(newLocation.Latitude) && newLocation.Latitude < 180 && newLocation.Latitude > -180;
         else if (field == 'Longitude')
-            return newLocation.Longitude != null && AssetAttributes.isRealNumber(newLocation.Longitude);
+            return newLocation.Longitude != null && AssetAttributes.isRealNumber(newLocation.Longitude) && newLocation.Longitude < 180 && newLocation.Longitude > -180;
         else if (field == 'Description')
             return true;
         return false;
@@ -326,8 +330,8 @@ const ByLocation: SCGlobal.ByComponent = (props) => {
                         <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={setNewLocation} />
                     </div>
                     <div className="col">
-                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Latitude'} Feedback={'Latitude is a require numeric field.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Longitude'} Feedback={'Longitude is a require numeric field.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Latitude'} Feedback={'Latitude is a require numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Longitude'} Feedback={'Longitude is a require numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
                         <TextArea<OpenXDA.Types.Location> Rows={3} Record={newLocation} Field={'Description'} Valid={valid} Setter={setNewLocation} />
                     </div>
                 </div>
