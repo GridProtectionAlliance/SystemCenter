@@ -22,7 +22,6 @@
 //******************************************************************************************************
 
 import { configureStore } from '@reduxjs/toolkit';
-import ValueListReducer from './ValueListSlice';
 import MeterReducer from './MeterSlice';
 import LocationReducer from './LocationSlice';
 import AssetReducer from './AssetSlice';
