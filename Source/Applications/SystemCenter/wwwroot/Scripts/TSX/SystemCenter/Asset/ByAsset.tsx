@@ -47,8 +47,11 @@ declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Brea
 
 
 const defaultSearchcols: Array<Search.IField<Asset>> = [
-    { label: 'AssetKey', key: 'AssetKey', type: 'string', isPivotField: false },
+    { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
     { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false },
+    { label: 'Voltage (kV)', key: 'VoltageKV', type: 'number', isPivotField: false },
+    { label: 'Meters', key: 'Meters', type: 'integer', isPivotField: false },
+    { label: 'Substations', key: 'Locations', type: 'integer', isPivotField: false },
 ];
 
 
