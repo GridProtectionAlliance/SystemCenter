@@ -280,7 +280,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
                 {connectionsAvailable ?
                     <>
                         <div className="alert alert-info" role="alert">
-                            <p>Assets that are connected have to be located in the same SubStation.</p>
+                            <p>Assets that are connected have to be located in the same Substation.</p>
                             <p>
                                 If an Asset does not show up in the list it is not possible to add the selected connection type between the two Assets
                                 or they are not located in the same Substation.
