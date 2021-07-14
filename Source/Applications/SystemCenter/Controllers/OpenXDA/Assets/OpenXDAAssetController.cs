@@ -274,7 +274,7 @@ namespace SystemCenter.Controllers.OpenXDA
 		                    exec sp_executesql @CleanSQL
                         '
                         ELSE 
-                            SET @SQLStatement = '{view.Replace("'", "''")}'
+                            SET @SQLStatement = 'SELECT * FROM ({view.Replace("'", "''")}) pvt {whereClause.Replace("'", "''")}'
 
                         exec sp_executesql @SQLStatement";
 
