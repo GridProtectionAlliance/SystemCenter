@@ -268,7 +268,6 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpPost, Route("Add")]
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             try
@@ -283,7 +282,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
                         int result = new TableOperations<AssetGroup>(connection).AddNewRecord(newRecord);
 
-                        return Ok(new TableOperations<AssetAssetGroupView>(connection).QueryRecordWhere("Name = {0}", newRecord.Name));
+                        return Ok(new TableOperations<AssetGroupView>(connection).QueryRecordWhere("Name = {0}", newRecord.Name));
                             
 
                      }

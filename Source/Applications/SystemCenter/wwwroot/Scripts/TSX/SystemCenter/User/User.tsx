@@ -24,105 +24,185 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '../global';
-import UserInfoWindow from './UserInfo';
-import UserPermissionsWindow from './UserPermissions';
-import AdditionalUserFieldsWindow from './AdditionalUserFieldsWindow';
-
-import { TabSelector } from '@gpa-gemstone/react-interactive';
+import { useHistory } from "react-router-dom";
+import { User } from '@gpa-gemstone/common-pages';
+import { getFilledUser, getSecurityRoles, getSecurityRolesForUser, getSIDFromUserName, updateSecurityRolesForUser } from '../../../TS/Services/User';
 
 declare var homePath: string;
 
-export default class User extends React.Component<{ UserID: string }, { User: SystemCenter.UserAccount, Tab: string}, {}>{
-    constructor(props, context) {
-        super(props, context);
 
-        this.state = {
-            User: null,
-            Tab: this.getTab()
-        }
-    }
+export default function UserPage(props: { UserID: string })
+{
+    const history = useHistory();
 
-    getTab(): string {
-        if (sessionStorage.hasOwnProperty('User.Tab'))
-            return JSON.parse(sessionStorage.getItem('User.Tab'));
-        else
-            return 'userInfo';
-    }
-
-    getUser(): void {
-        if (this.props.UserID == undefined) return;
-       $.ajax({
+    function getUser(userID: string) {
+        return $.ajax({
             type: "GET",
-           url: `${homePath}api/SystemCenter/UserAccount/One/${this.props.UserID}`,
+            url: `${homePath}api/SystemCenter/UserAccount/One/${userID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-       }).done((data: SystemCenter.UserAccount) => this.setState({ User: data }));
+        })
     }
 
-    deleteUser(): JQuery.jqXHR {
+    function deleteUser(user: SystemCenter.UserAccount): JQuery.jqXHR {
         return $.ajax({
             type: "DELETE",
             url: `${homePath}api/SystemCenter/UserAccount/Delete`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(this.state.User),
+            data: JSON.stringify(user),
             dataType: 'json',
             cache: true,
             async: true
         });
     }
 
-    setTab(tab:string): void {
-        sessionStorage.setItem('User.Tab', JSON.stringify(tab));
-        this.setState({Tab: tab});
+    function updateUser(user: SystemCenter.UserAccount): JQuery.jqXHR {
+        
+        return $.ajax({
+            type: "PATCH",
+            url: `${homePath}api/SystemCenter/UserAccount/Update`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(user),
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+    }
+
+    function getAdditionalUserFields(): JQuery.jqXHR<SystemCenter.AdditionalUserField[]> {
+        return $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalUserField/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        });
+    }
+
+    function getFields(sortKey, ascending) {
+        return $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalUserField/${sortKey}/${(ascending ? '1' : '0')}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+    }
+
+    function getFieldValues(id: string) {
+        return  $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalUserFieldValue/${id}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+    }
+    function GetValueList() {
+        return $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueListGroup`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+    }
+
+    function getValueListGroup(group) {
+        return $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${group}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+
+    }
+
+    function addField(fld) {
+        return $.ajax({
+            type: "POST",
+            url: `${homePath}api/SystemCenter/AdditionalUserField/Add`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(fld),
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+    }
+
+    function addValues(d) {
+        return $.ajax({
+            type: "PATCH",
+            url: `${homePath}api/SystemCenter/AdditionalUserFieldValue/Array`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(d),
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+    }
+
+    function updateField(fld) {
+        return $.ajax({
+            type: "Patch",
+            url: `${homePath}api/SystemCenter/AdditionalUserField/Update`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(fld),
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+    }
+
+    function deleteField(fld) {
+        return $.ajax({
+            type: "DELETE",
+            url: `${homePath}api/SystemCenter/AdditionalUserField/Delete`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(fld),
+            dataType: 'json',
+            cache: true,
+            async: true
+        })
+    }
+
+    function ValidateFieldName(name: string) {
+
+        return Promise.resolve(true)
+    
     }
     
-    componentDidMount() {
-        this.getUser();
-    }
+    
 
-    componentWillUnmount() {
-    }
+    return <User
+        UserID={props.UserID}
+        OnDelete={() => history.push({ pathname: homePath + 'index.cshtml?name=Users', state: {} })}
+        GetUser={getUser}
+        DeleteUser={deleteUser}
+        UpdateUser={updateUser}
+        GetADinfo={getFilledUser}
+        GetSID={getSIDFromUserName}
+        GetAdditionalUserFields={getAdditionalUserFields}
+        GetAllRoles={() => getSecurityRoles<SystemCenter.SystemCeneterSecurityRoleName>('SystemCenter')}
+        GetActiveRoles={(id) => getSecurityRolesForUser(id, 'SystemCenter')}
+        SetRoles={(d) => updateSecurityRolesForUser('SystemCenter', d)}
+        GetFields={getFields}
+        GetFieldValues={getFieldValues}
+        GetValueListGroup={getValueListGroup}
+        GetValueLists={GetValueList}
+        AddField={addField}
+        AddOrUpdateValues={addValues}
+        DeleteField={deleteField}
+        UpdateField={updateField}
+        ValidateFieldName={ValidateFieldName}
 
-    render() {
-        if (this.state.User == null) return null;
-
-        const Tabs = [
-            { Id: "userInfo", Label: "User Info" },
-            { Id: "permissions", Label: "Permissions" },
-            { Id: "additionalFields", Label: "Additional Fields" }
-        ];
-
-        return (
-            <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
-                <div className="row">
-                    <div className="col">
-                        <h2>{this.state.User != null ? `${this.state.User.FirstName} ${this.state.User.LastName}`  : ''}</h2>
-                    </div>
-                    <div className="col">
-                        <button className="btn btn-danger pull-right" hidden={this.state.User == null} onClick={() => this.deleteUser().done(() => window.location.href = homePath + 'index.cshtml?name=Users')}>Delete User (Permanent)</button>
-                    </div>
-                </div>
-
-
-                <hr />
-                <TabSelector CurrentTab={this.state.Tab} SetTab={(t) => this.setTab(t)} Tabs={Tabs} />
-                             
-                <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                    <div className={"tab-pane " + (this.state.Tab == "userInfo" ? " active" : "fade")} id="userInfo">
-                        <UserInfoWindow User={this.state.User} stateSetter={(record) => this.setState({User: record})}/>
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "permissions" ? " active" : "fade")} id="permissions">
-                        <UserPermissionsWindow User={this.state.User} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields" style={{ maxHeight: window.innerHeight - 215 }}>
-                        <AdditionalUserFieldsWindow ID={this.props.UserID} Tab={this.state.Tab} />
-                    </div>
-
-                </div>                
-            </div>
-        )
-    }
+    />
 }
 
