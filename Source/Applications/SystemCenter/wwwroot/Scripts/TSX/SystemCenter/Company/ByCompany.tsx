@@ -197,9 +197,8 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
                 <Table<SCGlobal.Company>
                     cols={[
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'CompanyTypeID', field: 'CompanyTypeID', label: 'Type', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         {
-                            key: 'Company', label: 'Company', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => {
+                            key: 'Company', label: 'Company Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => {
                                 const ct = companyTypes.find(ct => ct.ID == item.CompanyTypeID)
                                 if (ct == null)
                                     return "";

@@ -98,7 +98,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (PostRoles == string.Empty || User.IsInRole(PostRoles))
             {
-                base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<Line>().Wait();
+                base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<int>().Wait();
                 Line lineRecord = record.ToObject<Line>();
 
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))

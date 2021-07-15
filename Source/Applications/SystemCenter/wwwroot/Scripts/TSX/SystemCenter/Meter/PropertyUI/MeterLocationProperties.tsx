@@ -67,9 +67,9 @@ const MeterLocationProperties = (props: IProps) => {
         else if (field == 'ShortName')
             return props.Location.ShortName == null || props.Location.ShortName.length <= 50;
         else if (field == 'Latitude')
-            return props.Location.Latitude != null && AssetAttributes.isRealNumber(props.Location.Latitude);
+            return props.Location.Latitude != null && AssetAttributes.isRealNumber(props.Location.Latitude) && props.Location.Latitude < 180 && props.Location.Latitude > -180;
         else if (field == 'Longitude')
-            return props.Location.Longitude != null && AssetAttributes.isRealNumber(props.Location.Longitude);
+            return props.Location.Longitude != null && AssetAttributes.isRealNumber(props.Location.Longitude) && props.Location.Longitude < 180 && props.Location.Longitude > -180;
         else if (field == 'Description')
             return true;
         return false;
@@ -90,8 +90,8 @@ const MeterLocationProperties = (props: IProps) => {
             </div>
             <div className="col">
                 <Input<OpenXDA.Location> Record={props.Location} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
-                <Input<OpenXDA.Location> Record={props.Location} Field={'Latitude'} Feedback={'Latitude is a required numeric field.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
-                <Input<OpenXDA.Location> Record={props.Location} Field={'Longitude'} Feedback={'Longitude is a required numeric field.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
+                <Input<OpenXDA.Location> Record={props.Location} Field={'Latitude'} Feedback={'Latitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
+                <Input<OpenXDA.Location> Record={props.Location} Field={'Longitude'} Feedback={'Longitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
                 <TextArea<OpenXDA.Location> Rows={3} Record={props.Location} Field={'Description'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
             </div>
         </div>

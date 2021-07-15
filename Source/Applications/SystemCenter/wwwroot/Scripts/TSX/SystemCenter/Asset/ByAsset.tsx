@@ -47,7 +47,11 @@ declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Brea
 
 
 const defaultSearchcols: Array<Search.IField<Asset>> = [
+    { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
     { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false },
+    { label: 'Voltage (kV)', key: 'VoltageKV', type: 'number', isPivotField: false },
+    { label: 'Meters', key: 'Meters', type: 'integer', isPivotField: false },
+    { label: 'Substations', key: 'Locations', type: 'integer', isPivotField: false },
 ];
 
 
@@ -137,9 +141,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
 
     React.useEffect(() => {
         const errors = AssetAttributes.AssetError(newAsset, newAsset.AssetType);
-        if (newAsset.AssetKey == null || newAsset.AssetKey.length == 0)
-            errors.push('A AssetKey is required.')
-        else if (allAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(newAsset.AssetKey.toLowerCase()) > -1)
+        if (newAsset.AssetKey != null && allAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(newAsset.AssetKey.toLowerCase()) > -1)
             errors.push('AssetKey has to be unique.')
 
         setAssetErrors(errors);
