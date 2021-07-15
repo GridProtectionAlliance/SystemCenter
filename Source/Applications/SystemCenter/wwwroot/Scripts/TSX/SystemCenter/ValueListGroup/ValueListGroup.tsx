@@ -25,16 +25,11 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter as SCTyping } from '@gpa-gemstone/application-typings';
-import { SystemCenter as SCGlobal } from '../global';
-import { useSelector, useDispatch } from 'react-redux';
-import store, { ValueListGroupSlice, ValueListSlice } from '../Store/Store';
+import { ValueListGroupSlice, ValueListSlice } from '../Store/Store';
 import { ValueList } from '@gpa-gemstone/common-pages'; 
 import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
-const useStoreDispatch = () => useDispatch<typeof store.dispatch>();
-
 
 export default function ValueListGroup (props: { GroupID: number }) {
     const history = useHistory();
@@ -43,7 +38,7 @@ export default function ValueListGroup (props: { GroupID: number }) {
         Id={props.GroupID}
         ValueListItemSlice={ValueListSlice}
         ValueListSlice={ValueListGroupSlice}
-        OnDelete={() => history.go(homePath + 'index.cshtml?name=ValueLists') }
+        OnDelete={() => history.push({ pathname: homePath + 'index.cshtml?name=ValueLists', state: {} })}
     />
 }
 

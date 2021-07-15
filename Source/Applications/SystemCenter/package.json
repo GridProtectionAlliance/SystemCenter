@@ -21,8 +21,8 @@
     "@types/react-redux": "7.1.18"
   },
   "dependencies": {
-    "@gpa-gemstone/application-typings": "0.0.14",
-    "@gpa-gemstone/common-pages": "0.0.5",
+    "@gpa-gemstone/application-typings": "0.0.17",
+    "@gpa-gemstone/common-pages": "0.0.6",
     "@gpa-gemstone/gpa-symbols": "0.0.12",
     "@gpa-gemstone/helper-functions": "0.0.7",
     "@gpa-gemstone/react-forms": "1.1.10",

@@ -36,7 +36,7 @@ const ByValueListGroups: SCGlobal.ByComponent = (props) => {
     let history = useHistory();
 
     function handleSelect(id: number) {
-        history.go(homePath + 'index.cshtml?name=ValueListGroup&GroupID=' + id)
+        history.push({ pathname:homePath + 'index.cshtml?name=ValueListGroup&GroupID=' + id, state: {} })
     }
 
     if (props.Roles.indexOf('Administrator') > -1 || props.Roles.indexOf('Transmission SME') > -1)
