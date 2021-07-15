@@ -288,7 +288,7 @@ export namespace AssetAttributes {
                 errors.push('Primary Voltage needs to be numeric.')
             if ((asset as OpenXDA.Transformer).SecondaryVoltageKV != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).SecondaryVoltageKV))
                 errors.push('Secondary Voltage needs to be numeric.')
-            if ((asset as OpenXDA.Transformer).TertiaryWinding != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).TertiaryWinding))
+            if ((asset as OpenXDA.Transformer).TertiaryVoltageKV != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).TertiaryVoltageKV))
                 errors.push('Tertiary Voltage needs to be numeric.')
             if ((asset as OpenXDA.Transformer).PrimaryWinding != null && !AssetAttributes.isRealNumber((asset as OpenXDA.Transformer).PrimaryWinding))
                 errors.push('Primary Winding needs to be numeric.')
