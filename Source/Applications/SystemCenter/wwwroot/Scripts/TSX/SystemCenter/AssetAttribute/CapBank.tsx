@@ -69,7 +69,7 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
         else if (field == 'LVKVAr')
             return props.Asset.LVKVAr != null && AssetAttributes.isRealNumber(props.Asset.LVKVAr);
         else if (field == 'LVKV')
-            return props.Asset.LVKV != null && AssetAttributes.isInteger(props.Asset.LVKV);
+            return props.Asset.LVKV != null && AssetAttributes.isRealNumber(props.Asset.LVKV);
         else if (field == 'LVNegReactanceTol')
             return props.Asset.LVNegReactanceTol != null && AssetAttributes.isRealNumber(props.Asset.LVNegReactanceTol);
         else if (field == 'LVPosReactanceTol')
