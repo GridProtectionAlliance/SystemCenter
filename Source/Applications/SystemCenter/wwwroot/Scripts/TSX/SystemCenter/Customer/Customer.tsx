@@ -122,7 +122,7 @@ export default function Customer(props: IProps) {
                     <NoteWindow ID={props.CustomerID} Type='Customer' />
                 </div>
             </div>
-            <Warning Title={'Confirm'} Show={showWarning} Message={'THis will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />
+            <Warning Title={'Confirm'} Show={showWarning} Message={'This will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />
         </div>
     )
 
