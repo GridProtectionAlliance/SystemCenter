@@ -29,7 +29,10 @@ import { GenericSlice }from '@gpa-gemstone/react-interactive'
 
 import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { OpenXDA as OXDA, SystemCenter as SC } from '../global';
-
+import NoteSlice from './NoteSlice';
+import UserSlice from './UserSlice';
+import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
+import SecurityRoleSlice from './SecurityRoleSlice';
 
 declare var homePath: string;
 
@@ -44,12 +47,19 @@ export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementTyp
 export const DataFileSlice = new GenericSlice<OXDA.DataFile>("DataFile", `${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", false);
 export const CompanyTypeSlice = new GenericSlice<SC.CompanyType>("CompanyType", `${homePath}api/OpenXDA/CompanyType`, "Name", false);
 export const CustomerSlice = new GenericSlice<SC.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
-
+export const AssetNoteSlice = new NoteSlice('Asset');
+export const MeterNoteSlice = new NoteSlice('Meter');
+export const UserNoteSlice = new NoteSlice('User');
+export const LocationNoteSlice = new NoteSlice('Location');
+export const CustomerNoteSlice = new NoteSlice('Customer');
+export const CompanyNoteSlice = new NoteSlice('Company');
+export const UserAccountSlice = new UserSlice('UserAccounts', `${homePath}api/SystemCenter/UserAccount`)
+export const UserAdditionalFieldSlice = new AdditionalUserFieldSlice('AdditionalUserFields', `${homePath}api/SystemCenter`);
+export const SCSecurityRoleSlice = new SecurityRoleSlice('SCSecurityRole', `${homePath}api/SystemCenter`);
 
 export default configureStore({
     reducer: {
         CompanyType: CompanyTypeSlice.Reducer,
-        //ValueList: ValueListReducer,
         MeasurementType: MeasurmentTypeSlice.Reducer,
         Phase: PhaseSlice.Reducer,
         AssetConnectionType: AssetConnectionTypeSlice.Reducer,
@@ -62,6 +72,16 @@ export default configureStore({
         Setting: SettingSlice.Reducer,
         AssetType: AssetTypeSlice.Reducer,
         DataFile: DataFileSlice.Reducer,
-        Customer: CustomerSlice.Reducer
+        Customer: CustomerSlice.Reducer,
+        AssetNote: AssetNoteSlice.Reducer,
+        MeterNote: MeterNoteSlice.Reducer,
+        UserNote: UserNoteSlice.Reducer,
+        LocationNote: LocationNoteSlice.Reducer,
+        CustomerNote: CustomerNoteSlice.Reducer,
+        CompanyNote: CompanyNoteSlice.Reducer,
+        UserAccounts: UserAccountSlice.Reducer,
+        AdditionalUserFields: UserAdditionalFieldSlice.Reducer,
+        SCSecurityRole: SCSecurityRoleSlice.Reducer
+
     }
 });

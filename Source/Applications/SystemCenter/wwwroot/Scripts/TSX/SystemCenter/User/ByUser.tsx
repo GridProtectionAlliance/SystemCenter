@@ -29,6 +29,7 @@ import { SystemCenter as SCGlobal } from '../global';
 import { getFilledUser, getNewUserAccount, getSIDFromUserName} from './../../../TS/Services/User';;
 import { ByUser } from '@gpa-gemstone/common-pages';
 import { Application } from '@gpa-gemstone/application-typings';
+import { ValueListGroupSlice, ValueListSlice, UserAccountSlice, UserAdditionalFieldSlice } from '../Store/Store';
 
 
 const ByUserPage: SCGlobal.ByComponent = (props) => {
@@ -85,14 +86,11 @@ const ByUserPage: SCGlobal.ByComponent = (props) => {
     if (props.Roles.indexOf('Administrator') < 0) return null;
 
     return <ByUser
-        AdduserAccount={addNewUserAccount}
-        GetNewUser={getNewUserAccount}
         OnUserSelect={(userid) => history.push({ pathname: homePath + 'index.cshtml', search: '?name=User&UserAccountID=' + userid, state: {} })}
-        GetAdditionalUserFields={getAdditionalUserFields}
-        GetValueList={GetValueList}
-        GetUsers={getUserAccounts}
-        GetADinfo={getFilledUser}
-        GetSID={getSIDFromUserName}
+        UserSlice={UserAccountSlice}
+        ValueListGroupSlice={ValueListGroupSlice}
+        ValueListItemSlice={ValueListSlice}
+        AdditionalFieldSlice={UserAdditionalFieldSlice}
     />
    
 }

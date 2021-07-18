@@ -24,6 +24,7 @@
 import * as React from 'react';
 import { OpenXDA } from '@gpa-gemstone/application-typings'
 import { Note } from '@gpa-gemstone/common-pages'
+import { AssetNoteSlice, CompanyNoteSlice, CustomerNoteSlice, LocationNoteSlice, MeterNoteSlice, UserNoteSlice } from '../Store/Store';
 
 declare var homePath: string;
 
@@ -51,27 +52,7 @@ const NoteWindow = (props: IProps) => {
         return () => { if (appHandle != null && appHandle.abort != null) appHandle.abort(); }
     }, []);
     
-    function getNotes(ascending: boolean, orderBy: string, id: number): JQuery.jqXHR<string> {
-        const filter = [
-            { FieldName: 'NoteTypeID', SearchText: "(SELECT ID FROM NoteType WHERE ReferenceTableName = '" + props.Type + "')", Operator: '=', Type: 'integer', isPivotColumn: false },
-            { FieldName: 'ReferenceTableID', SearchText: props.ID, Operator: '=', Type: 'integer', isPivotColumn: false },
-            { FieldName: 'NoteApplicationID', SearchText: "(SELECT ID From NoteApplication WHERE Name = 'SystemCenter')", Operator: '=', Type: 'integer', isPivotColumn: false },
-            { FieldName: 'NoteTagID', SearchText: "(SELECT ID From NoteTag WHERE Name = 'Configuration')", Operator: '=', Type: 'integer', isPivotColumn: false }
-        ]
-
-        let h = $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/Note/SearchableList`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Searches: filter, OrderBy: orderBy, Ascending: ascending }),
-            cache: false,
-            async: true
-        });
-
-        return h;
-    }
-
+  
     function getNoteType(): JQuery.jqXHR<OpenXDA.Types.NoteType[]> {
         let handle = $.ajax({
             type: "GET",
@@ -127,44 +108,22 @@ const NoteWindow = (props: IProps) => {
         return handle;
     }
 
-    function deleteNote(d: OpenXDA.Types.Note): JQuery.jqXHR<string>  {
-        return $.ajax({
-            type: "DELETE",
-            url: `${homePath}api/OpenXDA/Note/Delete`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(d),
-            cache: true,
-            async: true
-        })
-    }
-
-    function addNote(d: OpenXDA.Types.Note): JQuery.jqXHR<string>  {
-        return $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/Note/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({ ...d, Timestamp: moment().format('MM/DD/YYYY HH:mm'), UserAccount: undefined, ReferenceTableID: props.ID } as OpenXDA.Types.Note),
-            dataType: 'json',
-            cache: true,
-            async: true
-        })
-    }
-
-    function updateNote(d: OpenXDA.Types.Note): JQuery.jqXHR<string>  {
-        return $.ajax({
-            type: "Patch",
-            url: `${homePath}api/OpenXDA/Note/Update`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify({ ...d, Timestamp: moment().format('MM/DD/YYYY HH:mm') }),
-            dataType: 'json',
-            cache: true,
-            async: true
-        });
-    }
+    let slice;
+    if (props.Type == 'Asset')
+        slice = AssetNoteSlice;
+    if (props.Type == 'Meter')
+        slice = MeterNoteSlice;
+    if (props.Type == 'Location')
+        slice = LocationNoteSlice;
+    if (props.Type == 'Customer')
+        slice = CustomerNoteSlice;
+    if (props.Type == 'Company')
+        slice = CompanyNoteSlice;
+    if (props.Type == 'User')
+        slice = UserNoteSlice;
 
     return (
-        <Note MaxHeight={window.innerHeight - 215} ReferenceTableID={props.ID} NoteApplications={[noteApp]} NoteTags={[noteTag]} NoteTypes={[noteType]} GetNotes={getNotes}
-            DeleteNote={deleteNote} AddNote={addNote} UpdateNote={updateNote}
+        <Note MaxHeight={window.innerHeight - 215} ReferenceTableID={props.ID} NoteApplications={[noteApp]} NoteTags={[noteTag]} NoteTypes={[noteType]} NoteSlice={slice}
         />
     );
 }

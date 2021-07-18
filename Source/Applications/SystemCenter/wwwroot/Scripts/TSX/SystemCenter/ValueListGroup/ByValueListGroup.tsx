@@ -32,7 +32,6 @@ import { useHistory } from "react-router-dom";
 import { SystemCenter as SCGlobal } from '../global';
 
 const ByValueListGroups: SCGlobal.ByComponent = (props) => {
-    const dispatch = useDispatch();
     let history = useHistory();
 
     function handleSelect(id: number) {
@@ -41,8 +40,7 @@ const ByValueListGroups: SCGlobal.ByComponent = (props) => {
 
     if (props.Roles.indexOf('Administrator') > -1 || props.Roles.indexOf('Transmission SME') > -1)
         return <ByValueList OnValueListSelect={handleSelect} ValueListItemSlice={ValueListSlice} ValueListSlice={ValueListGroupSlice} />;
-    else
-        return null;
+    return null;
  
 }
 
