@@ -23,7 +23,6 @@
 
 import { configureStore } from '@reduxjs/toolkit';
 import MeterReducer from './MeterSlice';
-import LocationReducer from './LocationSlice';
 import AssetReducer from './AssetSlice';
 import { GenericSlice }from '@gpa-gemstone/react-interactive'
 
@@ -47,6 +46,8 @@ export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementTyp
 export const DataFileSlice = new GenericSlice<OXDA.DataFile>("DataFile", `${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", false);
 export const CompanyTypeSlice = new GenericSlice<SC.CompanyType>("CompanyType", `${homePath}api/OpenXDA/CompanyType`, "Name", false);
 export const CustomerSlice = new GenericSlice<SC.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
+export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location",`${homePath}api/OpenXDA/Location`, "LocationKey", true)
+
 export const AssetNoteSlice = new NoteSlice('Asset');
 export const MeterNoteSlice = new NoteSlice('Meter');
 export const UserNoteSlice = new NoteSlice('User');
@@ -65,7 +66,7 @@ export default configureStore({
         AssetConnectionType: AssetConnectionTypeSlice.Reducer,
         Meter: MeterReducer,
         Asset: AssetReducer,
-        Location: LocationReducer,
+        Location: LocationSlice.Reducer,
         ValueListGroup: ValueListGroupSlice.Reducer,
         ValueList: ValueListSlice.Reducer,
         LocationDrawing: LocationDrawingSlice.Reducer,

@@ -26,17 +26,17 @@ import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { useDispatch, useSelector } from 'react-redux';
-import { SelectLocations, SelectLocationStatus, FetchLocation } from '../Store/LocationSlice';
+import { LocationSlice } from '../Store/Store';
 import MeterLocationProperties from '../Meter/PropertyUI/MeterLocationProperties';
 
 export default function Page2(props: { LocationInfo: OpenXDA.Location, UpdateLocationInfo: (record: OpenXDA.Location) => void, SetError: (e: string[]) => void  }) {
     const dispatch = useDispatch();
-    const locations = useSelector(SelectLocations);
-    const lStatus = useSelector(SelectLocationStatus);
+    const locations = useSelector(LocationSlice.Data);
+    const lStatus = useSelector(LocationSlice.Status);
 
     React.useEffect(() => {
         if (lStatus === 'unintiated' || lStatus === 'changed') {
-            dispatch(FetchLocation());
+            dispatch(LocationSlice.Fetch());
         }
     }, []);
 

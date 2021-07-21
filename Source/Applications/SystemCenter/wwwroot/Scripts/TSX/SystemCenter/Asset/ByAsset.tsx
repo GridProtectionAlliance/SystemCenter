@@ -50,6 +50,7 @@ const defaultSearchcols: Array<Search.IField<Asset>> = [
     { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
     { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false },
     { label: 'Voltage (kV)', key: 'VoltageKV', type: 'number', isPivotField: false },
+    { label: 'Type', key: 'AssetType', type: 'enum', isPivotField: false },
     { label: 'Meters', key: 'Meters', type: 'integer', isPivotField: false },
     { label: 'Substations', key: 'Locations', type: 'integer', isPivotField: false },
 ];
@@ -269,7 +270,13 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
             <SearchBar<Asset> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Transmission Assets'}
                 GetEnum={(setOptions, field) => {
-                    let handle = null;
+                    let handle = null; 
+
+                    if (field.key == 'AssetType') {
+                        setOptions(assetTypes.map((t) => ({ Value: t.Name, Label: t.Name })))
+                            return () => { }
+                    }
+
                     if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
                         return () => { };
 

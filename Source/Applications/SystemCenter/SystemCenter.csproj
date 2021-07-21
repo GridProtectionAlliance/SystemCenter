@@ -528,7 +528,6 @@
     <None Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\OpenMICIssuesPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\MiMDIssuesPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\OpenXDAIssuesPage.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\LocationSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeterSlice.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\UserSlice.tsx" />

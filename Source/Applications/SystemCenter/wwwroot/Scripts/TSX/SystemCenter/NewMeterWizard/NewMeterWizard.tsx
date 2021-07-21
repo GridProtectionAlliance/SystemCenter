@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
-import { SelectLocationKeysLowerCase, SelectLocationStatus, FetchLocation } from '../Store/LocationSlice';
+import { LocationSlice } from '../Store/Store';
 
 import Page1 from './Page1';
 import Page2 from './Page2';
@@ -48,8 +48,7 @@ export default function NewMeterWizard(props: {}) {
 
     const meterKeys = useSelector(SelectMeterKeysLowerCase);
     const mStatus = useSelector(SelectMeterStatus);
-    const locationKeys = useSelector(SelectLocationKeysLowerCase);
-    const lStatus = useSelector(SelectLocationStatus);
+    const lStatus = useSelector(LocationSlice.Status);
 
     const [currentStep, setCurrentStep] = React.useState<number>(getCurrentStep());
     const [meterInfo, setMeterInfo] = React.useState<OpenXDA.Meter>(getMeterInfo());
@@ -68,15 +67,15 @@ export default function NewMeterWizard(props: {}) {
             return function () {
             }
         }
-    }, []);
+    }, [mStatus, dispatch]);
 
     React.useEffect(() => {
         if (lStatus === 'unintiated' || lStatus === 'changed') {
-            dispatch(FetchLocation());
+            dispatch(LocationSlice.Fetch());
             return function () {
             }
         }
-    }, []);
+    }, [lStatus, dispatch]);
 
     React.useEffect(() => {
         localStorage.setItem('NewMeterWizard.CurrentStep', currentStep.toString())

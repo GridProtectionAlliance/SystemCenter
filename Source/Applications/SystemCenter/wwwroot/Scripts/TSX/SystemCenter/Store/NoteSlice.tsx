@@ -55,14 +55,14 @@ export default class NoteSlice {
         this.Name = name + 'Note';
         this.APIPath = `${homePath}api/OpenXDA/Note`;
 
-        const fetch = createAsyncThunk(`${name}/Fetch${name}`, async (parentID: number, { getState }) => {
+        const fetch = createAsyncThunk(`${this.Name} / Fetch${this.Name}`, async (parentID: number, { getState }) => {
             const sortfield = ((getState() as any)[this.Name]).SortField
             const asc = ((getState() as any)[this.Name]).Ascending
             const handle = this.GetNotes(parentID, sortfield, asc);
             return await handle;
         });
 
-        const dBAction = createAsyncThunk(`${name}/DBAction${name}`, async (args: { verb: 'POST' | 'DELETE' | 'PATCH', record: OpenXDA.Types.Note }, {}) => {
+        const dBAction = createAsyncThunk(`${this.Name}/DBAction${this.Name}`, async (args: { verb: 'POST' | 'DELETE' | 'PATCH', record: OpenXDA.Types.Note }, {}) => {
             const handle = this.Action(args.verb, args.record);
             return await handle
         });

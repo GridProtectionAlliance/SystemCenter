@@ -140,7 +140,7 @@ public class OpenXDABreakerController : ModelController<Breaker>
     {
         if (PostRoles == string.Empty || User.IsInRole(PostRoles))
         {
-            base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<Breaker>().Wait();
+            base.Post(record).ExecuteAsync(new System.Threading.CancellationToken()).Result.Content.ReadAsAsync<int>().Wait();
             Breaker breakerRecord = record.ToObject<Breaker>();
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
