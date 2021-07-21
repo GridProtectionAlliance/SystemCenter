@@ -37,7 +37,7 @@ export default function CompanyForm(props: IProps) {
 
     React.useEffect(() => {
         let e = [];
-        if (props.Company.CompanyID == null || props.Company.CompanyID.match(/[0-9]{8}/) == null || props.Company.CompanyID.length > 8)
+        if (props.Company.CompanyID == null || props.Company.CompanyID.match(/[0-9, a-z, A-Z]{8}/) == null || props.Company.CompanyID.length > 8)
             e.push('CompanyID must be a 8 character alphanumeric Identifier.');
         if (props.Company.Name == null || props.Company.Name.length == 0)
             e.push('A name is required.');
