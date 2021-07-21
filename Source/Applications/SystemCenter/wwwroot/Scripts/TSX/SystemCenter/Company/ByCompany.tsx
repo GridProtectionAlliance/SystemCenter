@@ -231,7 +231,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={showNew} Title={'Edit Note'}
+            <Modal Show={showNew} Title={'New Company'}
                 ShowCancel={true}
                 CallBack={(conf) => { if (conf) addNewCompany(); setShowNew(false); }}
                 DisableConfirm={newCompanyErrors.length > 0}
