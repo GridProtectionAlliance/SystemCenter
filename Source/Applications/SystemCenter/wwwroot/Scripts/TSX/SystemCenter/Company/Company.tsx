@@ -34,7 +34,7 @@ import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-export default function Company (props: { CompanyID: number }) {
+function Company (props: { CompanyID: number }) {
     const [company, setCompany] = React.useState<SystemCenter.Company>(null);
     const [tab, setTab] = React.useState(getTab);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
@@ -82,7 +82,7 @@ export default function Company (props: { CompanyID: number }) {
         });
 
         handle.done(() => {
-            window.location.href = homePath + 'index.cshtml?name=PCompanies'
+            window.location.href = homePath + 'index.cshtml?name=Companies'
         })
 
         handle.then((d) => setLoadDelete(false))
@@ -140,3 +140,5 @@ export default function Company (props: { CompanyID: number }) {
         )
 }
 
+
+export default Company;
