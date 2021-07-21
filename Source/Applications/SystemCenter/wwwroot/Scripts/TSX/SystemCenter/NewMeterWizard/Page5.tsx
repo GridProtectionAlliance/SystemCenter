@@ -36,7 +36,7 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
     const allConnectionTypes = useSelector(AssetConnectionTypeSlice.Data);
 
     const [selectedTypeID, setSelectedTypeID] = React.useState<number>(0);
-    const [selectedAssetKey, setSelectedAssetKey] = React.useState<string>((props.Assets[1].AssetKey));
+    const [selectedAssetKey, setSelectedAssetKey] = React.useState<string>((props.Assets[0].AssetKey));
 
     const [showAssetConnection, setShowAssetConnection] = React.useState<boolean>(false);
 
@@ -61,7 +61,7 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
     }, [assetIndex, selectedAssetKey])
 
     React.useEffect(() => {
-        if (assetIndex == 0)
+        if (assetIndex == 0 && props.Assets.length < 1)
             setSelectedAssetKey(props.Assets[1].AssetKey)
         else
             setSelectedAssetKey(props.Assets[0].AssetKey)
