@@ -30,12 +30,15 @@ import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import CompanyInfoWindow from './CompanyInfo';
 import CompanyMeterWindow from './CompanyMeter';
+import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
 export default function Company (props: { CompanyID: number }) {
     const [company, setCompany] = React.useState<SystemCenter.Company>(null);
     const [tab, setTab] = React.useState(getTab);
+    const [showDelete, setShowDelete] = React.useState<boolean>(false);
+    const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         let promise = getCompany();
@@ -67,12 +70,8 @@ export default function Company (props: { CompanyID: number }) {
        });
     }
 
-    function deleteMeter(): JQuery.jqXHR {
-        let response = confirm("This will delete the Company Permanently");
-        if (!response)
-            return;
-
-        return $.ajax({
+    function deleteCompany(): JQuery.jqXHR {
+        let handle = $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Company/Delete`,
             contentType: "application/json; charset=utf-8",
@@ -81,6 +80,14 @@ export default function Company (props: { CompanyID: number }) {
             cache: true,
             async: true
         });
+
+        handle.done(() => {
+            window.location.href = homePath + 'index.cshtml?name=PCompanies'
+        })
+
+        handle.then((d) => setLoadDelete(false))
+
+        return handle;
     }
     
         if (company == null) return null;
@@ -91,7 +98,7 @@ export default function Company (props: { CompanyID: number }) {
                         <h2>{company != null ? company.Name : ''}</h2>
                     </div>
                     <div className="col">
-                        <button className="btn btn-danger pull-right" hidden={company == null} onClick={() => deleteMeter().done(() => window.location.href = homePath + 'index.cshtml?name=PCompanies')}>Delete Company (Permanent)</button>
+                        <button className="btn btn-danger pull-right" hidden={company == null} onClick={() => setShowDelete(true)}>Delete Company</button>
                     </div>
                 </div>
 
@@ -126,7 +133,9 @@ export default function Company (props: { CompanyID: number }) {
                         <NoteWindow ID={props.CompanyID} Type='Company' />
                     </div>
 
-                </div>                
+                </div>
+                <Warning Message={'This will permanently Delete this company and can not be undone.'} Show={showDelete} Title={'Delete Company ' + company.Name} CallBack={(conf) => { if (conf) deleteCompany(); setShowDelete(false); }} />
+                <LoadingScreen Show={loadDelete} />
             </div>
         )
 }
