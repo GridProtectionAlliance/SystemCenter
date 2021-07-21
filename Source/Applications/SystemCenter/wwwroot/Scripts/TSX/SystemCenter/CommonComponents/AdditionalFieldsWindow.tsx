@@ -474,7 +474,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 </ToolTip>
             </div>
             <Warning Show={showWarning} Title={'Delete ' + newField.FieldName}
-                Message={"This will delete the field '" + newField.FieldName + "' from all " + props.Type + "s and will also delete all information assigned to these fields."}
+                Message={"This will delete the field '" + newField.FieldName + "' from all " + props.Type + "ies and will also delete all information assigned to these fields."}
                 CallBack={(confirm: boolean) => { if (confirm) deleteField(newField); setShowWarning(false) }} />
 
             <Modal
