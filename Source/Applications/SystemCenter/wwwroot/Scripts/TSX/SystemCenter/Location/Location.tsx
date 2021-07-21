@@ -30,134 +30,138 @@ import LocationAssetWindow from './LocationAsset';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import { TabSelector } from '@gpa-gemstone/react-interactive';
+import { TabSelector, Warning, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import LocationImagesWindow from './LocationImages';
 import LocationDrawingsWindow from './LocationDrawings';
 
 declare var homePath: string;
 type tab = 'notes' | 'locationInfo' | 'additionalFields' | 'meters' | 'assets' | 'extDB' | 'images' | 'drawings'
-export default class Location extends React.Component<{ LocationID: number, Tab: tab }, { Location: OpenXDA.Location, Tab: tab }, {}>{
-    constructor(props, context) {
-        super(props, context);
 
-        this.state = {
-            Location: null,
-            Tab: this.getTab()
-        }
-    }
+interface IProps { LocationID: number, Tab: tab }
 
-    getTab(): tab {
-        if (this.props.Tab != undefined) return this.props.Tab;
+function Location(props: IProps) {
+    const [showDelete, setShowDelete] = React.useState<boolean>(false);
+    const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
+    const [location, setLocation] = React.useState<OpenXDA.Location>(null);
+    const [tab, setTab] = React.useState<tab>(getTab());
+
+    React.useEffect(() => {
+        sessionStorage.setItem('Location.Tab', JSON.stringify(tab));
+
+    }, [tab]);
+
+    React.useEffect(() => {
+        setTab(getTab());
+        return () => { sessionStorage.clear(); }
+    }, []);
+
+    React.useEffect(() => {
+        let handle = getLocation();
+        handle.then((data: OpenXDA.Location) => setLocation(data));
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+
+    }, [props.LocationID]);
+
+    function getTab(): tab {
+        if (props.Tab != undefined) return props.Tab;
         else if (sessionStorage.hasOwnProperty('Location.Tab'))
             return JSON.parse(sessionStorage.getItem('Location.Tab'));
         else
             return 'notes';
     }
 
-    getLocation(): void {
-        if (this.props.LocationID == undefined) return;
-        $.ajax({
+    function getLocation(): JQuery.jqXHR<OpenXDA.Location> {
+        if(props.LocationID == undefined) return null;
+        return $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Location/One/${this.props.LocationID}`,
+            url: `${homePath}api/OpenXDA/Location/One/${props.LocationID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-        }).done((data: OpenXDA.Location) => this.setState({ Location: data }));
+        })
     }
 
-    deleteLocation(): JQuery.jqXHR {
-
-
-        let response = confirm("This will delete the Substation Permanently");
-        if (!response)
-            return;
-
-        return $.ajax({
+    function deleteLocation(): JQuery.jqXHR {
+        let handle = $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Location/Delete`,
             contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(this.state.Location),
+            data: JSON.stringify(location),
             dataType: 'json',
             cache: true,
             async: true
         });
+
+        handle.done(() => {
+            window.location.href = homePath + 'index.cshtml?name=Locations'
+        })
+
+        handle.then((d) => setLoadDelete(false))
+
+        return handle;
     }
+     
+    if (location == null) return null;
 
-    setTab(tab: tab): void {
-        const ctrl = this;
-        sessionStorage.setItem('Location.Tab', JSON.stringify(tab));
-        ctrl.setState({ Tab: tab });
-    }
-
-    componentDidMount() {
-        this.getLocation();
-    }
-
-    componentWillUnmount() {
-        sessionStorage.clear();
-    }
-
+    const Tabs: { Id: tab, Label: string }[] = [
+        { Id: "notes", Label: "Notes" },
+        { Id: "locationInfo", Label: "Location Info" },
+        { Id: "additionalFields", Label: "Additional Fields" },
+        { Id: "meters", Label: "Meters" },
+        { Id: "assets", Label: "Assets" },
+        { Id: "extDB", Label: "External DB" },
+        { Id: "images", Label: "Images" },
+        { Id: "drawings", Label: "Drawings" },
+    ];
 
 
-    render() {
-        if (this.state.Location == null) return null;
-
-        const Tabs: { Id: tab, Label: string }[] = [
-            { Id: "notes", Label: "Notes" },
-            { Id: "locationInfo", Label: "Location Info" },
-            { Id: "additionalFields", Label: "Additional Fields" },
-            { Id: "meters", Label: "Meters" },
-            { Id: "assets", Label: "Assets" },
-            { Id: "extDB", Label: "External DB" },
-            { Id: "images", Label: "Images" },
-            { Id: "drawings", Label: "Drawings" },
-        ];
-
-
-        return (
-            <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
-                <div className="row">
-                    <div className="col">
-                        <h2>{this.state.Location != null ? this.state.Location.LocationKey : ''}</h2>
-                    </div>
-                    <div className="col">
-                        <button className="btn btn-danger pull-right" hidden={this.state.Location == null} onClick={() => this.deleteLocation().done(() => window.location.href = homePath + 'index.cshtml?name=Locations')}>Delete Location (Permanent)</button>
-                    </div>
+    return (
+        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+            <div className="row">
+                <div className="col">
+                    <h2>{location != null ? location.LocationKey : ''}</h2>
                 </div>
-
-                <hr />
-                <TabSelector CurrentTab={this.state.Tab} SetTab={(t: tab) => this.setTab(t)} Tabs={Tabs} />
-
-                <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
-                    <div className={"tab-pane " + (this.state.Tab == "notes" ? " active" : "fade")} id="notes">
-                        <NoteWindow ID={this.props.LocationID} Type='Location' />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "locationInfo" ? " active" : "fade")} id="locationInfo">
-                        <LocationInfoWindow Location={this.state.Location} stateSetter={(Location: OpenXDA.Location) => this.setState({ Location: Location })} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
-                        <AdditionalFieldsWindow ID={this.props.LocationID} Type='Location' Tab={this.state.Tab} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "meters" ? " active" : "fade")} id="meters">
-                        <LocationMeterWindow Location={this.state.Location} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "assets" ? " active" : "fade")} id="assets">
-                        <LocationAssetWindow Location={this.state.Location} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "extDB" ? " active" : "fade")} id="extDB">
-                        <ExternalDBUpdate ID={this.props.LocationID} Type='Location' Tab={this.state.Tab} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "images" ? " active" : "fade")} id="images">
-                        <LocationImagesWindow Location={this.state.Location} />
-                    </div>
-                    <div className={"tab-pane " + (this.state.Tab == "drawings" ? " active" : "fade")} id="drawings">
-                        <LocationDrawingsWindow Location={this.state.Location} />
-                    </div>
-
+                <div className="col">
+                    <button className="btn btn-danger pull-right" hidden={location == null} onClick={() => setShowDelete(true)}>Delete Location</button>
                 </div>
             </div>
-        )
-    }
-}
 
+            <hr />
+            <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={Tabs} />
+
+            <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
+                <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes">
+                    <NoteWindow ID={props.LocationID} Type='Location' />
+                </div>
+                <div className={"tab-pane " + (tab == "locationInfo" ? " active" : "fade")} id="locationInfo">
+                    <LocationInfoWindow Location={location} stateSetter={(l: OpenXDA.Location) => setLocation(l)} />
+                </div>
+                <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
+                    <AdditionalFieldsWindow ID={props.LocationID} Type='Location' Tab={tab} />
+                </div>
+                <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
+                    <LocationMeterWindow Location={location} />
+                </div>
+                <div className={"tab-pane " + (tab == "assets" ? " active" : "fade")} id="assets">
+                    <LocationAssetWindow Location={location} />
+                </div>
+                <div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
+                    <ExternalDBUpdate ID={props.LocationID} Type='Location' Tab={tab} />
+                </div>
+                <div className={"tab-pane " + (tab == "images" ? " active" : "fade")} id="images">
+                    <LocationImagesWindow Location={location} />
+                </div>
+                <div className={"tab-pane " + (tab == "drawings" ? " active" : "fade")} id="drawings">
+                    <LocationDrawingsWindow Location={location} />
+                </div>
+
+            </div>
+            <Warning Message={'This will permanently Delete this location and can not be undone.'} Show={showDelete} Title={'Delete Location ' + location.Name} CallBack={(conf) => { if (conf) deleteLocation(); setShowDelete(false); }} />
+            <LoadingScreen Show={loadDelete} />
+        </div>
+    )
+}
+  
+
+export default Location;
