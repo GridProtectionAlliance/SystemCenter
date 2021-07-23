@@ -185,7 +185,7 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
                 setShowModal(false);
                 if (c)
                     dispatch(CustomerSlice.DBAction({ verb: 'POST', record: newCustomer }));
-            }} ShowCancel={false} ShowX={true} DisableConfirm={errors.length > 0} ConfirmShowToolTip={errors.length > 0} ConfirmToolTipContent={errors.map(t => <p> {CrossMark} {t}</p>)} >
+            }} ShowCancel={false} ShowX={true} DisableConfirm={errors.length > 0} ConfirmShowToolTip={errors.length > 0} ConfirmToolTipContent={errors.map((t, i) => <p key={i}> {CrossMark} {t}</p>)} >
                 <div className="row">
                     <CustomerForm Customer={newCustomer} stateSetter={setNewCustomer} setErrors={setErrors} />
                 </div>
