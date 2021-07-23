@@ -239,8 +239,6 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-       
-        [HttpDelete, Route("Delete")]
         public override IHttpActionResult Delete(AssetGroupView record)
         {
             try
@@ -252,7 +250,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     {
                        
                         int id = record.ID;
-                        int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'AssetGroup', 'ID' = {id}'");
+                        int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'AssetGroup', 'ID = {id}'");
                         return Ok(result);
                     }
                 }
