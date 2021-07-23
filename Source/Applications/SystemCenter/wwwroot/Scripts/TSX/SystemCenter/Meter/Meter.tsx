@@ -130,7 +130,7 @@ function Meter(props: IProps) {
                     <h2>{meter.AssetKey}</h2>
                 </div>
                 <div className="col" style={{maxHeight: 50}}>
-                    <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete Meter (Permanent)</button>
+                    <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete Meter</button>
                 </div>
             </div>
 
