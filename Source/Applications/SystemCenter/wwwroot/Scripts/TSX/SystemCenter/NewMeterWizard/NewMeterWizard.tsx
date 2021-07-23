@@ -25,6 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { useDispatch, useSelector } from 'react-redux';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
 import { LocationSlice } from '../Store/Store';
 
@@ -322,4 +323,4 @@ export default function NewMeterWizard(props: {}) {
     );
 }
 
-const ErrorSymbol = () => <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
+const ErrorSymbol = () => CrossMark

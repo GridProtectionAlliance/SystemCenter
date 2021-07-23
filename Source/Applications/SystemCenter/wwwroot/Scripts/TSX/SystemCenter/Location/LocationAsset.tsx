@@ -37,7 +37,7 @@ import { FetchAsset, SelectAssets, SelectAssetStatus } from '../Store/AssetSlice
 import { AssetTypeSlice } from '../Store/Store';
 import { getAssetWithAdditionalFields, editExistingAsset, getAllAssets } from '../../../TS/Services/Asset';
 import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -349,7 +349,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
                 DisableConfirm={(assetErrors.length > 0) || (newEdit == 'Edit' && !assetChanged)}
                 ConfirmShowToolTip={(assetErrors.length > 0)}
                 ConfirmToolTipContent={
-                    assetErrors.map((e, i) => <p key={i}><ErrorSymbol /> {e}</p>)
+                    assetErrors.map((e, i) => <p key={i}>{ErrorSymbol()} {e}</p>)
                 }
             >
                 <div className="row" style={{ maxHeight: innerHeight - 300, overflow: 'auto' }}>
@@ -367,7 +367,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
                 
     );
 }
-const ErrorSymbol = () => <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
+const ErrorSymbol = () => CrossMark
 
 
 
