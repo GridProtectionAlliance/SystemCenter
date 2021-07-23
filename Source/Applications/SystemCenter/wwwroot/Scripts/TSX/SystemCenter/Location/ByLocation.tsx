@@ -26,6 +26,7 @@ import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
@@ -317,7 +318,7 @@ const ByLocation: SCGlobal.ByComponent = (props) => {
                 ConfirmShowToolTip={newLocationErrors.length > 0}
                 ConfirmToolTipContent={
                     newLocationErrors.map((t, i) => <p key={i}>
-                        <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> {t}
+                        {CrossMark} {t}
                     </p>)
                 }
                 DisableConfirm={newLocationErrors.length > 0}

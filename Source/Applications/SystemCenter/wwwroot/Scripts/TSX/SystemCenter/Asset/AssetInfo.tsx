@@ -36,6 +36,7 @@ import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import LineAttributes from '../AssetAttribute/Line';
 import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import TransformerAttributes from '../AssetAttribute/Transformer';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -343,7 +344,7 @@ function AssetInfoWindow(props: IProps) {
             <ToolTip Show={(errors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
                 {!hasChanged ? <p> No changes made.</p> : null}
                 {errors.map((t, i) => <p key={i}>
-                    <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> {t}
+                    {CrossMark} {t}
                 </p>)}
             </ToolTip>
             <div className="btn-group mr-2">

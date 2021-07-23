@@ -35,7 +35,7 @@ import AssetConnectionWindow from './AssetConnection';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import { getAssetTypes } from '../../../TS/Services/Asset';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
-import { TabSelector } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 declare var homePath: string;
 declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'Segments'
 
@@ -44,6 +44,8 @@ function Asset(props: { AssetID: number }) {
     const [asset, setAsset] = React.useState<OpenXDA.Asset>(null);
     const [tab, setTabState] = React.useState<string>(getTab());
     const [assetType, setAssetType] = React.useState<OpenXDA.AssetTypeName>(null);
+    const [showDelete, setShowDelete] = React.useState<boolean>(false);
+    const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
 
     function getTab(): Tab {
         if (sessionStorage.hasOwnProperty('Asset.Tab'))
@@ -78,12 +80,7 @@ function Asset(props: { AssetID: number }) {
     }
 
     function deleteAsset(): JQuery.jqXHR {
-
-        let response = confirm("This will delete the Asset Permanently");
-        if (!response)
-            return;
-
-        return $.ajax({
+        let handle = $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Asset/Delete`,
             contentType: "application/json; charset=utf-8",
@@ -91,10 +88,16 @@ function Asset(props: { AssetID: number }) {
             dataType: 'json',
             cache: true,
             async: true
-        }).done((msg) => {
+        });
+
+        handle.done((msg) => {
             sessionStorage.clear();
             history.push({ pathname: homePath + 'index.cshtml', search: '?name=Assets', state: {} });
         });
+
+        handle.then((d) => setLoadDelete(false))
+
+        return handle;
     }
 
     React.useEffect(() => {
@@ -137,7 +140,7 @@ function Asset(props: { AssetID: number }) {
                     <h2>{asset != null ? asset.AssetKey : ''}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" hidden={asset == null} onClick={() => deleteAsset()}>Delete Asset (Permanent)</button>
+                    <button className="btn btn-danger pull-right" hidden={asset == null} onClick={() => setShowDelete(true)}>Delete Asset</button>
                 </div>
             </div>
 
@@ -170,7 +173,9 @@ function Asset(props: { AssetID: number }) {
                 <div className={"tab-pane " + (tab == "Segments" ? " active" : "fade")} id="Segments">
                     <LineSegmentWindow ID={asset.ID}/>
                 </div>
-            </div>                
+            </div>
+            <Warning Message={'This will permanently Delete this Asset and can not be undone.'} Show={showDelete} Title={'Delete Asset ' + asset.AssetName} CallBack={(conf) => { if (conf) deleteAsset(); setShowDelete(false); }} />
+            <LoadingScreen Show={loadDelete} />
         </div>
     )
 }

@@ -216,7 +216,7 @@ namespace SystemCenter.Controllers
                         }
                     }
                 }
-                return Ok();
+                return Ok(1);
             }
             catch (Exception ex)
             {

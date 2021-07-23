@@ -24,6 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '../global';
+import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
 
 declare var homePath: string;
 
@@ -132,7 +133,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
                                     {sites.length > 0 ? sites.filter(s => s.DisplayName.toLowerCase().indexOf(searchTextAS.toLowerCase()) >= 0).map((site, i) => <tr key={i}><td>{site.DisplayName}</td><td><button className="btn btn-sm" onClick={(e) => {
                                         e.preventDefault();
                                         deleteCustommerAccess(site);
-                                    }}><span><i className="fa fa-times"></i></span></button></td></tr>) : null}
+                                    }}><span>{TrashCan}</span></button></td></tr>) : null}
                                 </tbody>
                             </table>
                         </div>

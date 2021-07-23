@@ -29,7 +29,7 @@ import { getAllAssets, getAssetTypes, getAssetWithAdditionalFields } from '../..
 import LineSegmentAttributes from './LineSegment';
 import { LoadingScreen, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table';
-import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
 
 declare var homePath: string;
@@ -221,7 +221,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                 ConfirmText={'Save'}
                 DisableConfirm={AssetAttributes.AssetError(newEditSegment, 'LineSegment').length > 0}
                 ConfirmShowToolTip={AssetAttributes.AssetError(newEditSegment, 'LineSegment').length > 0}
-                ConfirmToolTipContent={AssetAttributes.AssetError(newEditSegment, 'LineSegment').map((i, t) => <p key={i}> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> {t}</p>)}
+                ConfirmToolTipContent={AssetAttributes.AssetError(newEditSegment, 'LineSegment').map((t, i) => <p key={i}> {CrossMark} {t}</p>)}
             >
                 <div className="row">
                     <div className="col">

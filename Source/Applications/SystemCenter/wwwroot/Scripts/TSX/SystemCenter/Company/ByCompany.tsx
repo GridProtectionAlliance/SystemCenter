@@ -28,6 +28,7 @@ import { useHistory } from "react-router-dom";
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols'
 import CompanyForm from './CompanyForm';
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 import { useSelector, useDispatch } from 'react-redux';
@@ -238,8 +239,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
                 ShowX={true}
                 ConfirmShowToolTip={newCompanyErrors.length > 0}
                 ConfirmToolTipContent={
-                    newCompanyErrors.map((t, i) => <p key={i}> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
-                        {t} </p>)
+                    newCompanyErrors.map((t, i) => <p key={i}> {CrossMark} {t} </p>)
                 }>
                 <CompanyForm Company={newCompany} Setter={setNewCompany} setErrors={setNewCompanyErrors} />
             </Modal>

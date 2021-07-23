@@ -27,6 +27,7 @@ import { useHistory } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes } from '../../../TS/Services/Asset';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SystemCenter as SCGlobal } from '../global';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -351,9 +352,7 @@ const ByAsset: SCGlobal.ByComponent = (props) => {
                 DisableConfirm={assetErrors.length > 0}
                 ConfirmShowToolTip={assetErrors.length > 0}
                 ConfirmToolTipContent={
-                    assetErrors.map((t, i) =><p key={i}>
-                        <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> {t}
-                    </p>)
+                    assetErrors.map((t, i) => <p key={i}> {CrossMark} {t} </p>)
                 }
                 CallBack={(conf) => {
                     if (conf) {
