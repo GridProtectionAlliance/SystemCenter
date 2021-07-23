@@ -29,6 +29,8 @@ import { OpenXDA, SystemCenter } from '../global';
 import AddToGroupPopup from './AddToGroup';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
+import { cross } from 'd3';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -71,6 +73,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
     const [showAddMeter, setShowAddMeter] = React.useState<boolean>(false);
     const [showAddGroup, setShowAddGroup] = React.useState<boolean>(false);
 
+    const [assetGrpErrors, setAssetGrpErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         let handle2 = getAllAssetGroups();
@@ -99,7 +102,14 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
 
     }, [search, ascending, sortKey]);
 
-    
+    React.useEffect(() => {
+        let e = [];
+        if (newAssetGroup.Name == null || newAssetGroup.Name.length == 0)
+            e.push('A Name is required.');
+        else if (allAssetGroups.map(item => item.Name.toLowerCase()).indexOf(newAssetGroup.Name.toLowerCase()) > -1)
+            e.push('The Name has to be unique.');
+        setAssetGrpErrors(e);
+    }, [newAssetGroup]);
     function getAssetGroups(): JQueryXHR {
         setSearchState('Loading');
         let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
@@ -135,9 +145,44 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
             data: JSON.stringify(newAssetGroup),
             cache: false,
             async: true
-        }).done((newAssetGroup: OpenXDA.AssetGroup) => {
-            sessionStorage.clear();
-            history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + newAssetGroup.ID, state: {} })
+        }).done((d: OpenXDA.AssetGroup) => {
+            let handle1 = $.ajax({
+                type: "Post",
+                url: `${homePath}api/OpenXDA/AssetGroup/${d.ID}/AddAssets`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(newAssetGroup.AssetList),
+                cache: false,
+                async: true
+            });
+
+            let handle2 = $.ajax({
+                type: "Post",
+                url: `${homePath}api/OpenXDA/AssetGroup/${d.ID}/AddAssetGroups`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(newAssetGroup.AssetGroupList),
+                cache: false,
+                async: true
+            });
+
+            let handle3 = $.ajax({
+                type: "Post",
+                url: `${homePath}api/OpenXDA/AssetGroup/${d.ID}/AddMeters`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(newAssetGroup.MeterList),
+                cache: false,
+                async: true
+            });
+
+            Promise.all([handle1,handle2, handle3]).then((x) => {
+                sessionStorage.clear();
+                history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + d.ID, state: {} })
+            }, (msg) => {
+                if (msg.status == 500)
+                    alert(msg.responseJSON.ExceptionMessage)
+            });
         }).fail((msg) => {
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
@@ -152,7 +197,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
     function valid(field: keyof (OpenXDA.AssetGroup)): boolean {
         if (field == 'Name') {
             if (newAssetGroup.Name == null || newAssetGroup.Name.length == 0) return false;
-            return allAssetGroups.map(item => item.Name.toLowerCase()).indexOf(newAssetGroup.Name.toLowerCase()) < 0;
+                return allAssetGroups.map(item => item.Name.toLowerCase()).indexOf(newAssetGroup.Name.toLowerCase()) < 0;
         }
         return true;
     }
@@ -228,8 +273,11 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
             </div>
             </div>
             <Modal Size='xlg' Show={showNewGroup} Title={'Create a New AssetGroup'} ShowX={true}
-                CancelText={'Close'} CancelBtnClass={'btn-danger'} ConfirmBtnClass={'btn-success'} ConfirmText={'Add'}
+                ShowCancel={false} ConfirmBtnClass={'btn-success'} ConfirmText={'Add'}
                 CallBack={(conf) => { if (conf) addNewAssetGroup(); else setNewAssetGroup(_.cloneDeep(emptyAssetGroup)); setShowNewGroup(false); }}
+                DisableConfirm={assetGrpErrors.length > 0}
+                ConfirmShowToolTip={assetGrpErrors.length > 0}
+                ConfirmToolTipContent={assetGrpErrors.map((t, i) => <p key={i}> {CrossMark} {t} </p>)}
             >
                 <div className="row">
                     <div className="col">

@@ -61,8 +61,11 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
         if (result.length == 0)
             return () => { }
         let handle = props.onComplete(result);
-        handle.done(d => setResult([]))
 
+        if (handle !== null)
+            handle.done(d => setResult([]))
+        else
+            setResult([])
         return () => {
             if (handle != undefined && handle.abort != null)
                 handle.abort();
