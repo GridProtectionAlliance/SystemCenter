@@ -24,7 +24,7 @@
     "@gpa-gemstone/application-typings": "0.0.19",
     "@gpa-gemstone/common-pages": "0.0.7",
     "@gpa-gemstone/gpa-symbols": "0.0.12",
-    "@gpa-gemstone/helper-functions": "0.0.7",
+    "@gpa-gemstone/helper-functions": "0.0.8",
     "@gpa-gemstone/react-forms": "1.1.10",
     "@gpa-gemstone/react-interactive": "1.0.14",
     "@gpa-gemstone/react-table": "1.1.3",

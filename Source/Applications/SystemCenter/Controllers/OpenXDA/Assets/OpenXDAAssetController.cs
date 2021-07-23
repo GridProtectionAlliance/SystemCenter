@@ -641,20 +641,23 @@ namespace SystemCenter.Controllers.OpenXDA
                         CreateLineFromJToken(line, asset);
                         new TableOperations<Line>(connection).UpdateRecord(line);
 
-                        LineSegment lineSegment = new TableOperations<LineSegment>(connection).QueryRecordWhere("ID = {0}", asset["Segment"]["ID"].ToObject<int>());
-                        lineSegment.R0 = asset["Segment"]["R0"].ToObject<double>();
-                        lineSegment.X0 = asset["Segment"]["X0"].ToObject<double>();
-                        lineSegment.R1 = asset["Segment"]["R1"].ToObject<double>();
-                        lineSegment.X1 = asset["Segment"]["X1"].ToObject<double>();
-                        lineSegment.Length = asset["Segment"]["Length"].ToObject<double>();
-                        lineSegment.ThermalRating = asset["Segment"]["ThermalRating"].ToObject<double>();
+                        if (asset["Segement"] != null)
+                        {
+                            LineSegment lineSegment = new TableOperations<LineSegment>(connection).QueryRecordWhere("ID = {0}", asset["Segment"]["ID"].ToObject<int>());
+                            lineSegment.R0 = asset["Segment"]["R0"].ToObject<double>();
+                            lineSegment.X0 = asset["Segment"]["X0"].ToObject<double>();
+                            lineSegment.R1 = asset["Segment"]["R1"].ToObject<double>();
+                            lineSegment.X1 = asset["Segment"]["X1"].ToObject<double>();
+                            lineSegment.Length = asset["Segment"]["Length"].ToObject<double>();
+                            lineSegment.ThermalRating = asset["Segment"]["ThermalRating"].ToObject<double>();
 
-                        new TableOperations<LineSegment>(connection).UpdateRecord(lineSegment);
+                            new TableOperations<LineSegment>(connection).UpdateRecord(lineSegment);
+                        }
                     }
                     else if (assetType == "LineSegment")
                     {
                         LineSegment lineSegment = new TableOperations<LineSegment>(connection).QueryRecordWhere("ID = {0}", asset["ID"].ToObject<int>());
-                        CreateLineSegmentFromJToken(lineSegment, record);
+                        CreateLineSegmentFromJToken(lineSegment, asset);
                         new TableOperations<LineSegment>(connection).UpdateRecord(lineSegment);
                     }
                     else if (assetType == "Breaker")

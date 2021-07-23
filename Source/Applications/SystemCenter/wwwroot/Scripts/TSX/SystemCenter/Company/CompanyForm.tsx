@@ -25,7 +25,8 @@ import * as React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { SystemCenter } from '../global';
 import { Input, TextArea, Select } from '@gpa-gemstone/react-forms';
-import { CompanyTypeSlice } from '../Store/Store';
+import { CompanyTypeSlice, CompanySlice } from '../Store/Store';
+import { Application } from '@gpa-gemstone/application-typings';
 
 interface IProps { Company: SystemCenter.Company, Setter: (company: SystemCenter.Company) => void, setErrors?: (e: string[]) => void }
 
@@ -33,26 +34,37 @@ export default function CompanyForm(props: IProps) {
 
     const dispatch = useDispatch();
     const companyTypes = useSelector(CompanyTypeSlice.Data) as SystemCenter.CompanyType[];
+    const companies = useSelector(CompanySlice.Data) as SystemCenter.Company[];
+
     const ctStatus = useSelector(CompanyTypeSlice.Status) as SystemCenter.Status;
+    const cStatus = useSelector(CompanySlice.Status) as Application.Types.Status;
 
     React.useEffect(() => {
         let e = [];
-        if (props.Company.CompanyID == null || props.Company.CompanyID.match(/[0-9,a-z,A-Z]{8}/) == null || props.Company.CompanyID.length > 8)
+        if (props.Company.CompanyID == null || props.Company.CompanyID.match(/[0-9, a-z, A-Z]{8}/) == null || props.Company.CompanyID.length > 8)
             e.push('CompanyID must be a 8 character alphanumeric Identifier.');
+        if (props.Company.CompanyID !== null && props.Company.CompanyID.match(/[0-9, a-z, A-Z]{8}/) != null && props.Company.CompanyID.length == 8 && companies.findIndex(c => c.CompanyID == props.Company.CompanyID && c.ID != props.Company.ID) > -1)
+            e.push('CompanyID must be unique.')
         if (props.Company.Name == null || props.Company.Name.length == 0)
             e.push('A name is required.');
         if (props.Company.Name != null && props.Company.Name.length > 200)
             e.push('Company Name must be less than 200 characters.');
-
+        
         if (props.setErrors != undefined)
             props.setErrors(e);
     }, [props.Company]);
 
     React.useEffect(() => {
-        if (ctStatus != 'unintiated') return;
-
-        dispatch(CompanyTypeSlice.Fetch());
+        if (ctStatus == 'unintiated' || ctStatus == 'changed') 
+            dispatch(CompanyTypeSlice.Fetch());
     }, []);
+
+    React.useEffect(() => {
+        if (cStatus == 'unintiated' || cStatus == 'changed')
+            dispatch(CompanySlice.Fetch());
+    }, []);
+
+
 
     React.useEffect(() => {
         if (companyTypes.length == 0)
@@ -61,6 +73,7 @@ export default function CompanyForm(props: IProps) {
         if (props.Company.CompanyTypeID == 0)
             props.Setter({ ...props.Company, CompanyTypeID: companyTypes[0].ID })
     }, [companyTypes, props.Company])
+
 
     function Valid(field: keyof(SystemCenter.Company)): boolean {
         if (field == 'CompanyID')
