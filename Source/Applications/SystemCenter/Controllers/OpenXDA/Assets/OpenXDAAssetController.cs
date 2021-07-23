@@ -654,7 +654,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     else if (assetType == "LineSegment")
                     {
                         LineSegment lineSegment = new TableOperations<LineSegment>(connection).QueryRecordWhere("ID = {0}", asset["ID"].ToObject<int>());
-                        CreateLineSegmentFromJToken(lineSegment, record);
+                        CreateLineSegmentFromJToken(lineSegment, asset);
                         new TableOperations<LineSegment>(connection).UpdateRecord(lineSegment);
                     }
                     else if (assetType == "Breaker")
