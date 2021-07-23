@@ -28,6 +28,7 @@ import { AssetAttributes } from './Asset';
 import FormInput from '../CommonComponents/FormInput';
 import FormCheckBox from '../CommonComponents/FormCheckBox';
 import { Input } from '@gpa-gemstone/react-forms';
+import { IsInteger } from '@gpa-gemstone/helper-functions';
 
 function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.CapBank, UpdateState: (newEditAsset: OpenXDA.CapBank) => void }): JSX.Element {
 
@@ -219,8 +220,10 @@ class PreSwitchSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter:
             numbers = this.props.Record.CktSwitcher.trim().split(",");
 
         let nBanks = 1;
-        if (this.props.Record.NumberOfBanks != undefined)
+        if (this.props.Record.NumberOfBanks != undefined && IsInteger(this.props.Record.NumberOfBanks))
             nBanks = this.props.Record.NumberOfBanks;
+
+        
 
         if (numbers.length !== parseInt(nBanks.toString()))
             numbers = Array.from(Array(parseInt(nBanks.toString())), (e, i) => '0')
@@ -235,7 +238,7 @@ class PreSwitchSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter:
             numbers = input.trim().split(",");
          
         let nBanks = 1;
-        if (this.props.Record.NumberOfBanks != undefined)
+        if (this.props.Record.NumberOfBanks != undefined && IsInteger(this.props.Record.NumberOfBanks))
             nBanks = this.props.Record.NumberOfBanks;
 
         if (numbers.length !== parseInt(nBanks.toString()))
