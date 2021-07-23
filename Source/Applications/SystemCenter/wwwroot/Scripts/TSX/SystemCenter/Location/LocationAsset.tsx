@@ -37,6 +37,7 @@ import { FetchAsset, SelectAssets, SelectAssetStatus } from '../Store/AssetSlice
 import { AssetTypeSlice } from '../Store/Store';
 import { getAssetWithAdditionalFields, editExistingAsset, getAllAssets } from '../../../TS/Services/Asset';
 import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -280,11 +281,11 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
                                         getAssetWithAdditionalFields(asset.ID, assetType.Name).then(asset => { setEditasset(asset); setLStatus('idle'); }, () => setLStatus('error'));
                                         setNewEdit('Edit');
                                         setShowModal(true);
-                                    }}><span><i className="fa fa-pencil"></i></span></button>
+                                    }}><span>{Pencil}</span></button>
                                     <button className="btn btn-sm" onClick={(e) => {
                                         e.preventDefault();
                                         deleteAsset(asset);
-                                    }}><span><i className="fa fa-times"></i></span></button>
+                                    }}><span>{TrashCan}</span></button>
                                     </>
                             },
 
