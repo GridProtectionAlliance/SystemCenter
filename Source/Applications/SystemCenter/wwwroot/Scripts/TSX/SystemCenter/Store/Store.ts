@@ -46,6 +46,7 @@ export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementTyp
 export const DataFileSlice = new GenericSlice<OXDA.DataFile>("DataFile", `${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", false);
 export const CompanyTypeSlice = new GenericSlice<SC.CompanyType>("CompanyType", `${homePath}api/OpenXDA/CompanyType`, "Name", false);
 export const CustomerSlice = new GenericSlice<SC.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
+export const CompanySlice = new GenericSlice<SC.Company>("Company", `${homePath}api/OpenXDA/Company`, "CompanyID", false);
 export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location",`${homePath}api/OpenXDA/Location`, "LocationKey", true)
 
 export const AssetNoteSlice = new NoteSlice('Asset');
@@ -82,7 +83,8 @@ export default configureStore({
         CompanyNote: CompanyNoteSlice.Reducer,
         UserAccounts: UserAccountSlice.Reducer,
         AdditionalUserFields: UserAdditionalFieldSlice.Reducer,
-        SCSecurityRole: SCSecurityRoleSlice.Reducer
+        SCSecurityRole: SCSecurityRoleSlice.Reducer,
+        Company: CompanySlice.Reducer
 
     }
 });
