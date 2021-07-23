@@ -106,7 +106,7 @@ export namespace AssetAttributes {
                 /> : null}
             { !props.HideAssetType ?
                 <Select<OpenXDA.Asset> Record={props.Asset} Label={'Type'} Field={'AssetType'}
-                    Options={props.AssetTypes.filter(item => item.Name != 'LineSegment').map(type => ({ Value: type.Name, Label: type.Name }))}
+                    Options={props.AssetTypes.filter(item => item.Name != 'LineSegment' || props.Asset.AssetType == 'LineSegment').map(type => ({ Value: type.Name, Label: type.Name }))}
                     Setter={(asset) => {
                         changeAssetType(asset.AssetType)
                     }}
