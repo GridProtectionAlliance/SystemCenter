@@ -26,6 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import Table from '../CommonComponents/Table';
 import { useHistory } from "react-router-dom";
+import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
 
 declare var homePath: string;
 
@@ -131,7 +132,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
                                     <button className="btn btn-sm" onClick={(e) => {
                                         e.preventDefault();
                                         deleteLocation(asset);
-                                    }}><span><i className="fa fa-times"></i></span></button>
+                                    }}><span>{TrashCan}</span></button>
                                 </>
                             },
 
