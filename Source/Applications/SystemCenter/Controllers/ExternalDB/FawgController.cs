@@ -281,12 +281,12 @@ namespace SystemCenter.Controllers
                     ) > 0 AND
                     (
                         SELECT Value 
-                        FROM [SystemCenter.AdditionalFieldValue] AFV LEFT JOIN [SystemCenter.AdditionalField] AF ON AFV.AdditionalFieldID = AF.ID
+                        FROM [AdditionalFieldValue] AFV LEFT JOIN [AdditionalField] AF ON AFV.AdditionalFieldID = AF.ID
                         WHERE AF.ParentTable='LineSegment' and AF.FieldName = 'FromBus' AND AFV.ParentTableID = LineSegment.ID 
                     ) = '{Segment.FromBus}' AND 
                     (
                         SELECT Value
-                        FROM [SystemCenter.AdditionalFieldValue] AFV LEFT JOIN [SystemCenter.AdditionalField] AF ON AFV.AdditionalFieldID = AF.ID
+                        FROM [AdditionalFieldValue] AFV LEFT JOIN [AdditionalField] AF ON AFV.AdditionalFieldID = AF.ID
                         WHERE AF.ParentTable='LineSegment' and AF.FieldName = 'ToBus' AND AFV.ParentTableID = LineSegment.ID 
                     ) = '{Segment.ToBus}'") ?? -1;
 
