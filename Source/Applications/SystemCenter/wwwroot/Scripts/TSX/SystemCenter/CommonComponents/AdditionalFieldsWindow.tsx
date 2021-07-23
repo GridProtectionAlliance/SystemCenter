@@ -29,6 +29,7 @@ import { AssetAttributes } from '../AssetAttribute/Asset';
 import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
+import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
 
 declare var homePath: string;
 declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer'| 'Company' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' | 'Asset' | 'CapacitorBankRelay' | 'ValueListGroup'
@@ -421,8 +422,8 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                                     return <ValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
                                 }                            
                             },
-                        { key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span><i className="fa fa-pencil"></i></span></button> : '') },
-                        { key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span><i className="fa fa-times"></i></span></button> : '') },
+                        { key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span>{Pencil}</span></button> : '') },
+                        { key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '') },
 
                         ]}
                         tableClass="table table-hover"
