@@ -69,6 +69,11 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
         }
     }, []);
 
+    React.useEffect(() => {
+        if (cState == 'unintiated' || cState == 'changed')
+            dispatch(CustomerSlice.DBSearch({ sortField: sortKey, ascending, filter: search }))
+    }, [cState, dispatch]);
+
     function getNewCustomer(): SCGlobal.Customer {
         return {
             ID: 0,
