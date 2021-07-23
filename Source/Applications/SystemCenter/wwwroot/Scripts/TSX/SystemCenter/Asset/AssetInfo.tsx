@@ -87,7 +87,7 @@ function AssetInfoWindow(props: IProps) {
 
     React.useEffect(() => {
         const e = AssetAttributes.AssetError(editAsset, editAsset.AssetType);
-        if (allAssets.findIndex(a => a.AssetKey.toLowerCase() == editAsset.AssetKey.toLowerCase() && a.ID != editAsset.ID) > -1)
+        if (editAsset.AssetKey != undefined && allAssets.findIndex(a => a.AssetKey.toLowerCase() == editAsset.AssetKey.toLowerCase() && a.ID != editAsset.ID) > -1)
             e.push('The AssetKey has to be unique.');
 
         setErrors(e)
