@@ -95,7 +95,7 @@ namespace SystemCenter.Controllers.OpenXDA
                             if (n == 0)
                                 assetassetGroupTbl.AddNewRecord( new AssetAssetGroup() { AssetGroupID = assetGroupID, AssetID = assetID});
                         }
-                        return Ok();
+                        return Ok(1);
                     }
                 }
                 else
@@ -149,7 +149,7 @@ namespace SystemCenter.Controllers.OpenXDA
                             if (n == 0)
                                 meterassetGroupTbl.AddNewRecord(new MeterAssetGroup() { AssetGroupID = assetGroupID, MeterID = meterID });
                         }
-                        return Ok();
+                        return Ok(1);
                     }
                 }
                 else
@@ -225,7 +225,7 @@ namespace SystemCenter.Controllers.OpenXDA
                             if (n == 0)
                                 assetassetGroupTbl.AddNewRecord(new AssetGroupAssetGroup() { ParentAssetGroupID = assetGroupID, ChildAssetGroupID = childID });
                         }
-                        return Ok();
+                        return Ok(1);
                     }
                 }
                 else

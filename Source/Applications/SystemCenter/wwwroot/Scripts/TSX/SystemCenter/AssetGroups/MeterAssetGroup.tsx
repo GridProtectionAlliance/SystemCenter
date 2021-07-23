@@ -38,6 +38,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
     const [sortField, setSortField] = React.useState<string>('MeterName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
+    const [counter, setCounter] = React.useState<number>(0);
 
     React.useEffect(() => {
         return getData();
@@ -77,7 +78,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
             async: true
         });
 
-        handle.done((d) => { history.go(0); })
+        handle.done((d) => { setCounter((x) => x + 1) })
         return handle
     }
 
