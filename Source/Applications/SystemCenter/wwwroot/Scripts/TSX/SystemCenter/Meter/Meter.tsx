@@ -38,6 +38,7 @@ import MeterConfigurationHistoryWindow from './MeterConfigurationHistory';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Warning, LoadingScreen, TabSelector, Modal } from '@gpa-gemstone/react-interactive';
 import DataRescueWindow from './Advanced/MeterDataRescue';
+import DataMergeWindow from './Advanced/MeterDataMerge';
 import DataDeleteWindow from './Advanced/MeterDataDelete';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
  
@@ -52,6 +53,7 @@ function Meter(props: IProps) {
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const [dataRescueWindow, setDataRescueWindow] = React.useState<React.ReactElement>();
+    const [dataMergeWindow, setDataMergeWindow] = React.useState<React.ReactElement>();
     const [dataDeleteWindow, setDataDeleteWindow] = React.useState<React.ReactElement>();
 
     React.useEffect(() => {
@@ -127,13 +129,34 @@ function Meter(props: IProps) {
         setDataRescueWindow(newWindow());
     }
 
-    function showDataDeleteWindow() {
+    function showDataMergeWindow() {
         // Create a new key to reset state whenever
-        // the user navigates to data rescue
+        // the user navigates to data merge
         const guid = CreateGuid();
 
+        const returnToMeters = () => {
+            window.location.href = homePath + 'index.cshtml?name=Meters';
+        };
+
         const newWindow = () =>
-            <DataDeleteWindow key={guid} Meter={meter} />;
+            <DataMergeWindow key={guid} Meter={meter} OnMerge={returnToMeters} />;
+
+        setShowAdvanced(false);
+        setTab("dataMerge");
+        setDataMergeWindow(newWindow());
+    }
+
+    function showDataDeleteWindow() {
+        // Create a new key to reset state whenever
+        // the user navigates to data delete
+        const guid = CreateGuid();
+
+        const returnToMeters = () => {
+            window.location.href = homePath + 'index.cshtml?name=Meters';
+        };
+
+        const newWindow = () =>
+            <DataDeleteWindow key={guid} Meter={meter} OnDelete={returnToMeters} />;
 
         setShowAdvanced(false);
         setTab("dataDelete");
@@ -203,13 +226,16 @@ function Meter(props: IProps) {
                 <div className={"tab-pane " + (Tab == "dataRescue" ? " active" : "fade")} id="dataRescue">
                     {dataRescueWindow}
                 </div>
+                <div className={"tab-pane " + (Tab == "dataMerge" ? " active" : "fade")} id="dataMerge">
+                    {dataMergeWindow}
+                </div>
                 <div className={"tab-pane " + (Tab == "dataDelete" ? " active" : "fade")} id="dataDelete">
                     {dataDeleteWindow}
                 </div>
             </div>
             <Modal Title={'Advanced options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
                 <button className="btn btn-dark btn-block" onClick={showDataRescueWindow}>Data Rescue</button>
-                <button className="btn btn-dark btn-block">Merge Data</button>
+                <button className="btn btn-dark btn-block" onClick={showDataMergeWindow}>Merge Data</button>
                 <button className="btn btn-danger btn-block" onClick={showDataDeleteWindow}>Delete Data</button>
             </Modal>
             <Warning Message={'This will permanently Delete this meter and can not be undone.'} Show={showDelete} Title={'Delete Meter ' + meter.AssetKey} CallBack={(conf) => { if (conf) deleteMeter(); setShowDelete(false); }} />

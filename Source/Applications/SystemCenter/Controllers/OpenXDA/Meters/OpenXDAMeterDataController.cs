@@ -22,7 +22,9 @@
 //******************************************************************************************************
 
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
@@ -75,6 +77,88 @@ namespace SystemCenter.Controllers.OpenXDA.Meters
                 await DeleteTrendingDataAsync(meterID, startTime, endTime, cancellationToken);
                 DeleteFileBlobs(connection, meterID, startTime, endTime, cancellationToken);
             }
+        }
+
+        [HttpPost]
+        [Route("Merge")]
+        public void Merge([FromBody] JObject mergeParameters)
+        {
+            int fromMeterID = mergeParameters.Value<int>("fromMeterID");
+            int toMeterID = mergeParameters.Value<int>("toMeterID");
+
+            using (AdoDataConnection connection = CreateDbConnection())
+            {
+                DeleteDuplicateRecords(connection, "Event", new[] { "AssetID", "StartTime", "EndTime", "Samples" }, fromMeterID, toMeterID);
+                DeleteDuplicateRecords(connection, "MeterAlarmSummary", new[] { "AlarmTypeID", "Date" }, fromMeterID, toMeterID);
+                DeleteDuplicateRecords(connection, "MeterAssetGroup", new[] { "AssetGroupID" }, fromMeterID, toMeterID);
+                DeleteDuplicateRecords(connection, "MeterDataQualitySummary", new[] { "Date" }, fromMeterID, toMeterID);
+                DeleteDuplicateRecords(connection, "MeterFacility", new[] { "FacilityID" }, fromMeterID, toMeterID);
+                DeleteDuplicateRecords(connection, "PQMarkAggregate", new[] { "Year", "Month" }, fromMeterID, toMeterID);
+                DeleteDuplicateRecords(connection, "PQTrendStat", new[] { "PQMeasurementTypeID", "Date" }, fromMeterID, toMeterID);
+                DeleteDuplicateRecords(connection, "Report", new[] { "Year", "Month" }, fromMeterID, toMeterID);
+                DeleteDuplicateRecords(connection, "StepChangeStat", new[] { "StepChangeMeasurementID", "Date" }, fromMeterID, toMeterID);
+
+                DisableChannels(connection, fromMeterID);
+                MoveRecords(connection, "Channel", fromMeterID, toMeterID);
+                MoveRecords(connection, "Event", fromMeterID, toMeterID);
+                MoveRecords(connection, "FileGroup", fromMeterID, toMeterID);
+                MoveRecords(connection, "MeterAlarmSummary", fromMeterID, toMeterID);
+                MoveRecords(connection, "MeterAssetGroup", fromMeterID, toMeterID);
+                MoveRecords(connection, "MeterDataQualitySummary", fromMeterID, toMeterID);
+                MoveRecords(connection, "MeterFacility", fromMeterID, toMeterID);
+                MoveRecords(connection, "PQMarkAggregate", fromMeterID, toMeterID);
+                MoveRecords(connection, "PQTrendStat", fromMeterID, toMeterID);
+                MoveRecords(connection, "Report", fromMeterID, toMeterID);
+                MoveRecords(connection, "StepChangeStat", fromMeterID, toMeterID);
+
+                CascadeDelete(connection, "Meter", $"ID = {fromMeterID}");
+            }
+        }
+
+        private void DisableChannels(AdoDataConnection connection, int meterID)
+        {
+            const string QueryFormat =
+                "UPDATE Series " +
+                "SET SourceIndexes = 'NONE' " +
+                "WHERE ChannelID IN " +
+                "( " +
+                "    SELECT ID " +
+                "    FROM Channel " +
+                "    WHERE MeterID = {0} " +
+                ")";
+
+            connection.ExecuteNonQuery(QueryFormat, meterID);
+        }
+
+        private void MoveRecords(AdoDataConnection connection, string table, int fromMeterID, int toMeterID)
+        {
+            string queryFormat =
+                $"UPDATE {table} " +
+                $"SET MeterID = {{1}} " +
+                $"WHERE MeterID = {{0}}";
+
+            connection.ExecuteNonQuery(queryFormat, fromMeterID, toMeterID);
+        }
+
+        private void DeleteDuplicateRecords(AdoDataConnection connection, string table, IEnumerable<string> dupeFields, int fromMeterID, int toMeterID)
+        {
+            IEnumerable<string> conditionals = dupeFields
+                .Select(field => $"{field} = {table}.{field}");
+
+            string dupeCheck = string.Join(" AND ", conditionals);
+
+            string queryFormat =
+                $"DELETE FROM {table} " +
+                $"WHERE " +
+                $"    MeterID = {{1}} AND " +
+                $"    EXISTS " +
+                $"    ( " +
+                $"        SELECT * " +
+                $"        FROM {table} FromTable " +
+                $"        WHERE MeterID = {{0}} AND {dupeCheck} " +
+                $"    )";
+
+            connection.ExecuteNonQuery(queryFormat, fromMeterID, toMeterID);
         }
 
         private void DeleteEventData(AdoDataConnection connection, int meterID, DateTime startTime, DateTime endTime)

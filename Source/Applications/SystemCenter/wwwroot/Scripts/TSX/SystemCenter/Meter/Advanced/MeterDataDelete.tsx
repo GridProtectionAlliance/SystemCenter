@@ -49,6 +49,7 @@ function HandleError(e: unknown) {
 
 export default function DataDeleteWindow(props: {
     Meter: OpenXDA.Meter;
+    OnDelete: () => void;
 }) {
     const now = new Date();
 
@@ -116,6 +117,7 @@ export default function DataDeleteWindow(props: {
 
         (async () => {
             await deleteMeterData();
+            props.OnDelete();
         })();
     }
 
