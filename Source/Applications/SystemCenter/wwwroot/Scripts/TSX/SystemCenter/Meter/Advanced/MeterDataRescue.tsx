@@ -149,7 +149,6 @@ export default function DataRescueWindow(props: {
             url: `${homePath}api/OpenXDA/DataRescue/Delete/${editedOperation.ID}`,
             contentType: "application/json",
             dataType: "json",
-            data: JSON.stringify(editedOperation),
             cache: true,
             async: true
         });

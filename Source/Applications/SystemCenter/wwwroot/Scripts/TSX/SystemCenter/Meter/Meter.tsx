@@ -38,6 +38,7 @@ import MeterConfigurationHistoryWindow from './MeterConfigurationHistory';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Warning, LoadingScreen, TabSelector, Modal } from '@gpa-gemstone/react-interactive';
 import DataRescueWindow from './Advanced/MeterDataRescue';
+import DataDeleteWindow from './Advanced/MeterDataDelete';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
  
 declare var homePath: string;
@@ -51,6 +52,7 @@ function Meter(props: IProps) {
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const [dataRescueWindow, setDataRescueWindow] = React.useState<React.ReactElement>();
+    const [dataDeleteWindow, setDataDeleteWindow] = React.useState<React.ReactElement>();
 
     React.useEffect(() => {
         setTab(getTab());
@@ -125,6 +127,19 @@ function Meter(props: IProps) {
         setDataRescueWindow(newWindow());
     }
 
+    function showDataDeleteWindow() {
+        // Create a new key to reset state whenever
+        // the user navigates to data rescue
+        const guid = CreateGuid();
+
+        const newWindow = () =>
+            <DataDeleteWindow key={guid} Meter={meter} />;
+
+        setShowAdvanced(false);
+        setTab("dataDelete");
+        setDataDeleteWindow(newWindow());
+    }
+
     if (meter == null) return null;
 
     const Tabs = [
@@ -188,11 +203,14 @@ function Meter(props: IProps) {
                 <div className={"tab-pane " + (Tab == "dataRescue" ? " active" : "fade")} id="dataRescue">
                     {dataRescueWindow}
                 </div>
+                <div className={"tab-pane " + (Tab == "dataDelete" ? " active" : "fade")} id="dataDelete">
+                    {dataDeleteWindow}
+                </div>
             </div>
             <Modal Title={'Advanced options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
                 <button className="btn btn-dark btn-block" onClick={showDataRescueWindow}>Data Rescue</button>
                 <button className="btn btn-dark btn-block">Merge Data</button>
-                <button className="btn btn-danger btn-block">Delete Data</button>
+                <button className="btn btn-danger btn-block" onClick={showDataDeleteWindow}>Delete Data</button>
             </Modal>
             <Warning Message={'This will permanently Delete this meter and can not be undone.'} Show={showDelete} Title={'Delete Meter ' + meter.AssetKey} CallBack={(conf) => { if (conf) deleteMeter(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />

@@ -27,20 +27,22 @@ using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using GSF.Data;
-using log4net;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SystemCenter.WebClients;
 
 namespace SystemCenter.Controllers.OpenXDA.Meters
 {
     [RoutePrefix("api/OpenXDA/DataRescue")]
     public class OpenXDADataRescueController : ApiController
     {
+        #region [ Members ]
+
+        // Nested Types
+
         private class DataRescueOperation
         {
             public int ID { get; set; }
@@ -75,6 +77,27 @@ namespace SystemCenter.Controllers.OpenXDA.Meters
             public double Multiplier { get; set; }
             public double Adder { get; set; }
         }
+
+        #endregion
+
+        #region [ Constructors ]
+
+        public OpenXDADataRescueController()
+        {
+            XDANodeClient = new XDANodeClient(CreateDbConnection);
+            HIDSClient = new HIDSClient(CreateDbConnection);
+        }
+
+        #endregion
+
+        #region [ Properties ]
+
+        private XDANodeClient XDANodeClient { get; }
+        private HIDSClient HIDSClient { get; }
+
+        #endregion
+
+        #region [ Methods ]
 
         [Route("Operations")]
         public JArray GetOperations(int meterID)
@@ -185,7 +208,7 @@ namespace SystemCenter.Controllers.OpenXDA.Meters
         }
 
         [Route("SaveOperation")]
-        public async Task PostOperationAsync([FromBody] JObject jOperation, CancellationToken cancellationToken)
+        public async Task PostOperationAsync([FromBody] JObject jOperation, CancellationToken cancellationToken = default)
         {
             DataRescueOperation operation = jOperation.ToObject<DataRescueOperation>();
 
@@ -201,13 +224,13 @@ namespace SystemCenter.Controllers.OpenXDA.Meters
                     SetAffectedFiles(connection, operation);
 
                 PurgeStaleEventData(connection, operation);
-                await PurgeStaleTrendingDataAsync(connection, operation, cancellationToken);
+                await PurgeStaleTrendingDataAsync(operation, cancellationToken);
                 ReprocessAffectedFiles(connection, operation);
             }
         }
 
         [Route("Delete/{dataRescueOperationID}")]
-        public async Task DeleteOperationAsync(int dataRescueOperationID)
+        public async Task DeleteOperationAsync(int dataRescueOperationID, CancellationToken cancellationToken = default)
         {
             using (AdoDataConnection connection = CreateDbConnection())
             {
@@ -249,12 +272,12 @@ namespace SystemCenter.Controllers.OpenXDA.Meters
                 connection.ExecuteNonQuery(DeleteFormat, operation.ID);
 
                 PurgeStaleEventData(connection, operation);
-                await PurgeStaleTrendingDataAsync(connection, operation);
+                await PurgeStaleTrendingDataAsync(operation, cancellationToken);
                 ReprocessAffectedFiles(connection, operation);
 
                 string baseCriteria = $"ID = {dataRescueOperationID}";
                 CascadeDelete(connection, "DataRescueOperation", baseCriteria);
-                NotifyNodes("openXDA.Nodes.dll", "openXDA.Nodes.Types.Analysis.AnalysisNode", "PollTaskQueue");
+                XDANodeClient.NotifyNodes("openXDA.Nodes.dll", "openXDA.Nodes.Types.Analysis.AnalysisNode", "PollTaskQueue");
             }
         }
 
@@ -441,91 +464,15 @@ namespace SystemCenter.Controllers.OpenXDA.Meters
                 $")";
 
             CascadeDelete(connection, "Event", baseCriteria);
-            NotifyNodes("openXDA.Nodes.dll", "openXDA.Nodes.Types.FilePruning.FilePrunerNode", "PurgeOrphanData");
+            XDANodeClient.NotifyNodes("openXDA.Nodes.dll", "openXDA.Nodes.Types.FilePruning.FilePrunerNode", "PurgeOrphanData");
         }
 
-        private async Task PurgeStaleTrendingDataAsync(AdoDataConnection connection, DataRescueOperation operation, CancellationToken cancellationToken = default)
+        private async Task PurgeStaleTrendingDataAsync(DataRescueOperation operation, CancellationToken cancellationToken)
         {
-            IEnumerable<string> EnumerateChannelTags()
-            {
-                const string QueryFormat =
-                    "SELECT ID " +
-                    "FROM Channel " +
-                    "WHERE MeterID = {0}";
-
-                using (DataTable channelTable = connection.RetrieveData(QueryFormat, operation.MeterID))
-                {
-                    foreach (DataRow row in channelTable.Rows)
-                    {
-                        int channelID = row.ConvertField<int>("ID");
-                        yield return channelID.ToString("X8");
-                    }
-                }
-            }
-
-            Dictionary<string, string> hidsSettings = new Func<Dictionary<string, string>>(() =>
-            {
-                string GetValue(DataRow row) => row
-                    .ConvertField<string>("Value")
-                    .Trim();
-
-                const string Query =
-                    "SELECT Name, Value " +
-                    "FROM Setting " +
-                    "WHERE Name LIKE 'HIDS.%'";
-
-                using (DataTable settingsTable = connection.RetrieveData(Query))
-                {
-                    return settingsTable
-                        .AsEnumerable()
-                        .GroupBy(row => row.ConvertField<string>("Name"))
-                        .ToDictionary(grouping => grouping.Key, grouping => GetValue(grouping.First()));
-                }
-            })();
-
-            string QuerySetting(string name) =>
-                hidsSettings.TryGetValue(name, out string value) ? value.Trim() : null;
-
-            string host = QuerySetting("HIDS.Host");
-            string tokenID = QuerySetting("HIDS.TokenID") ?? "";
-            string bucket = QuerySetting("HIDS.PointBucket") ?? "point_bucket";
-            string organizationID = QuerySetting("HIDS.OrganizationID") ?? "gpa";
-
-            if (string.IsNullOrEmpty(host))
-                return;
-
-            string trimmedHost = host.TrimEnd('/');
-            string url = $"{trimmedHost}/api/v2/delete";
-
-            string encodedBucket = Uri.EscapeDataString(bucket);
-            string encodedOrganizationID = Uri.EscapeDataString(organizationID);
-            string query = $"bucket={encodedBucket}&org={encodedOrganizationID}";
-
-            void ConfigureRequest(HttpRequestMessage request)
-            {
-                DateTime ForceUTC(DateTime timestamp) =>
-                    DateTime.SpecifyKind(timestamp, DateTimeKind.Utc);
-
-                IEnumerable<string> conditionals = EnumerateChannelTags()
-                    .Select(tag => $"tag == \"{tag}\"");
-
-                DateTime start = ForceUTC(operation.StartTime);
-                DateTime end = ForceUTC(operation.EndTime);
-
-                JObject jBody = new JObject();
-                jBody["predicate"] = string.Join(" or ", conditionals);
-                jBody["start"] = JsonConvert.ToString(start);
-                jBody["stop"] = JsonConvert.ToString(end);
-
-                request.Method = HttpMethod.Post;
-                request.RequestUri = new Uri($"{url}?{query}");
-                request.Content = new StringContent(jBody.ToString(), new UTF8Encoding(false), "application/json");
-            }
-
-            HttpResponseMessage response = await SendWebRequestAsync(ConfigureRequest, cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
-                Log.Warn($"[DataRescue] InfluxDB server returned {(int)response.StatusCode} {response.StatusCode} in response to delete request.");
+            int meterID = operation.MeterID;
+            DateTime startTime = operation.StartTime;
+            DateTime endTime = operation.EndTime;
+            await HIDSClient.DeleteTrendingDataAsync(meterID, startTime, endTime, cancellationToken);
         }
 
         private void ReprocessAffectedFiles(AdoDataConnection connection, DataRescueOperation operation)
@@ -542,7 +489,7 @@ namespace SystemCenter.Controllers.OpenXDA.Meters
             int operationID = operation.ID;
             int meterID = operation.MeterID;
             connection.ExecuteNonQuery(QueryFormat, operationID, meterID);
-            NotifyNodes("openXDA.Nodes.dll", "openXDA.Nodes.Types.Analysis.AnalysisNode", "PollTaskQueue");
+            XDANodeClient.NotifyNodes("openXDA.Nodes.dll", "openXDA.Nodes.Types.Analysis.AnalysisNode", "PollTaskQueue");
         }
 
         private DataTable QueryOperations(AdoDataConnection connection, int meterID)
@@ -609,81 +556,14 @@ namespace SystemCenter.Controllers.OpenXDA.Meters
             }
         }
 
-        private void NotifyNodes(string assemblyName, string typeName, string action)
-        {
-            foreach (Action<HttpRequestMessage> webRequest in EnumerateWebRequests(assemblyName, typeName, action))
-                _ = SendWebRequestAsync(webRequest);
-        }
+        #endregion
 
-        private IEnumerable<Action<HttpRequestMessage>> EnumerateWebRequests(string assemblyName, string typeName, string action)
-        {
-            DataTable QueryHosts()
-            {
-                const string HostQueryFormat =
-                    "SELECT " +
-                    "    ActiveHost.RegistrationKey, " +
-                    "    ActiveHost.APIToken, " +
-                    "    ActiveHost.URL, " +
-                    "    Node.ID NodeID " +
-                    "FROM " +
-                    "    ActiveHost JOIN " +
-                    "    Node ON Node.HostRegistrationID = ActiveHost.ID JOIN " +
-                    "    NodeType ON Node.NodeTypeID = NodeType.ID " +
-                    "WHERE " +
-                    "    NodeType.AssemblyName = {0} AND " +
-                    "    NodeType.TypeName = {1}";
+        #region [ Static ]
 
-                using (AdoDataConnection connection = CreateDbConnection())
-                    return connection.RetrieveData(HostQueryFormat, assemblyName, typeName);
-            }
-
-            IEnumerable<DataRow> EnumerateHosts()
-            {
-                using (DataTable hosts = QueryHosts())
-                {
-                    foreach (DataRow host in hosts.Rows)
-                        yield return host;
-                }
-            }
-
-            foreach (DataRow host in EnumerateHosts())
-            {
-                string registrationKey = host.ConvertField<string>("RegistrationKey");
-                string apiToken = host.ConvertField<string>("APIToken");
-                string hostURL = host.ConvertField<string>("URL");
-                int nodeID = host.ConvertField<int>("NodeID");
-
-                yield return request =>
-                {
-                    string cleanHostURL = hostURL.Trim().TrimEnd('/');
-                    string fullURL = $"{cleanHostURL}/Node/{nodeID}/{action}";
-                    request.RequestUri = new Uri(fullURL);
-
-                    const string type = "XDA-Host";
-                    string decode = $"{registrationKey}:{apiToken}";
-                    Encoding utf8 = new UTF8Encoding(false);
-                    byte[] credentialData = utf8.GetBytes(decode);
-                    string credentials = Convert.ToBase64String(credentialData);
-                    request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue(type, credentials);
-                };
-            }
-        }
-
-        private async Task<HttpResponseMessage> SendWebRequestAsync(Action<HttpRequestMessage> configure, CancellationToken cancellationToken = default)
-        {
-            using (HttpRequestMessage request = new HttpRequestMessage())
-            {
-                configure(request);
-                return await HttpClient.SendAsync(request, cancellationToken);
-            }
-        }
-
+        // Static Methods
         private static AdoDataConnection CreateDbConnection() =>
             new AdoDataConnection("systemSettings");
 
-        private static HttpClient HttpClient { get; } =
-            new HttpClient();
-
-        private static readonly ILog Log = LogManager.GetLogger(typeof(OpenXDADataRescueController));
+        #endregion
     }
 }
