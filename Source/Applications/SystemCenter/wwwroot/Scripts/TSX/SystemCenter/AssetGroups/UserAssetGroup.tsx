@@ -27,7 +27,7 @@ import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { useHistory } from 'react-router-dom';
 import { isEqual } from 'lodash';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
 interface User { ID: number, UserAccountID: string, AssetGroupID: number, Dashboard: boolean, Email: boolean, Username: string, GroupName: string}
@@ -77,24 +77,24 @@ function UserAssetGroupWindow(props: { AssetGroupID: number}) {
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <Table
                         cols={[
-                            { key: 'Username', label: 'User Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'Username', field: 'Username', label: 'User Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
                         tableClass="table table-hover"
                         data={userList}
-                        sortField={sortField}
+                        sortKey={sortField}
                         ascending={ascending}
                         onSort={(d) => {
-                            if (d.col == sortField) {
-                                let ordered = _.orderBy(userList, [d.col], [(!ascending ? "asc" : "desc")]);
+                            if (d.colKey == sortField) {
+                                let ordered = _.orderBy(userList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
                                 setUserList(ordered);
                             }
                             else {
-                                let ordered = _.orderBy(userList, [d.col], ["asc"]);
+                                let ordered = _.orderBy(userList, [d.colKey], ["asc"]);
                                 setAscending(!ascending);
                                 setUserList(ordered);
-                                setSortField(d.col);
+                                setSortField(d.colKey);
                             }
                         }}
                         onClick={(data) => {}}

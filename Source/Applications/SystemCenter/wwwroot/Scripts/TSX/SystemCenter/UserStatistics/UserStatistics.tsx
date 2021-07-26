@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import * as d3 from 'd3';
 import { useHistory } from "react-router-dom";
@@ -154,23 +154,23 @@ const UserStatistics: SystemCenter.ByComponent = (props) => {
                         <div className="tab-pane  active">
                             <Table<AccesLogTable>
                                 cols={[
-                                    { key: 'UserName', label: 'User', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                                    { key: 'Logins', label: 'Logins for Period', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                                    { key: 'LastAccess', label: 'Last Access Time ', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                    { key: 'UserName', field: 'UserName', label: 'User', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                                    { key: 'Logins', field: 'Logins', label: 'Logins for Period', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                                    { key: 'LastAccess', field: 'LastAccess', label: 'Last Access Time ', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 ]}
                                 tableClass="table table-hover"
                                 data={tableData}
-                                sortField={sortField}
+                                sortKey={sortField}
                                 ascending={ascending}
                                 onSort={(d) => {
-                                    if (d.col == sortField) {
-                                        var ordered = _.orderBy(tableData, [d.col], [(!ascending ? "asc" : "desc")]);
+                                    if (d.colKey == sortField) {
+                                        var ordered = _.orderBy(tableData, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                         setTableData(ordered);
                                     }
                                     else {
-                                        var ordered = _.orderBy(tableData, [d.col], ["asc"]);
+                                        var ordered = _.orderBy(tableData, [d.colKey], ["asc"]);
                                         setTableData(ordered);
-                                        setSortField(d.col);
+                                        setSortField(d.colKey);
                                     }
                                     setAscending(!ascending);
 

@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
 
@@ -139,19 +139,19 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
                         ]}
                         tableClass="table table-hover"
                         data={locations}
-                        sortField={sortField}
+                        sortKey={sortField}
                         ascending={ascending}
                         onSort={(d) => {
-                            if (d.col == sortField) {
-                                var ordered = _.orderBy(locations, [d.col], [(!ascending ? "asc" : "desc")]);
+                            if (d.colKey == sortField) {
+                                var ordered = _.orderBy(locations, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
                                 setLocations(ordered);
                             }
                             else {
-                                var ordered = _.orderBy(locations, [d.col], ["asc"]);
+                                var ordered = _.orderBy(locations, [d.colKey], ["asc"]);
                                 setAscending(!ascending);
                                 setLocations(ordered);
-                                setSortField(d.col);
+                                setSortField(d.colField);
                             }
                         }}
                         onClick={handleSelect}

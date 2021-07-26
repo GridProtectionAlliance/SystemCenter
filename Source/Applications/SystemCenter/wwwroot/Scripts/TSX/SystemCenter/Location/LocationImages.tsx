@@ -26,8 +26,8 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import FormTextArea from '../CommonComponents/FormTextArea';
-import FormInput from '../CommonComponents/FormInput';
+import TextArea from '@gpa-gemstone/react-forms';
+import Input from '@gpa-gemstone/react-forms';
 declare var homePath: string;
 
 const LocationImagesWindow = (props: { Location: OpenXDA.Location }) => {

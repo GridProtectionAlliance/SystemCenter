@@ -27,8 +27,7 @@ import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { useHistory } from 'react-router-dom';
 import { isEqual } from 'lodash';
-import FormInput from '../CommonComponents/FormInput';
-import FormCheckBox from '../CommonComponents/FormCheckBox';
+import { Input, CheckBox } from '@gpa-gemstone/react-forms';
 
 declare var homePath: string;
 
@@ -70,14 +69,14 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.AssetGroup, StateSett
             <div className="card-body">
                 <div className="row" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <div className="col">
-                        <FormInput<OpenXDA.AssetGroup> Record={assetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique name of less than 50 characters is required.'} Valid={valid} Setter={setAssetGroup} Disabled={false} />
-                        <FormCheckBox<OpenXDA.AssetGroup> Record={assetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in Dashboard'} Setter={setAssetGroup} Disabled={false} />
+                        <Input<OpenXDA.AssetGroup> Record={assetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique name of less than 50 characters is required.'} Valid={valid} Setter={setAssetGroup} Disabled={false} />
+                        <CheckBox<OpenXDA.AssetGroup> Record={assetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in Dashboard'} Setter={setAssetGroup} Disabled={false} />
                     </div>
                     <div className="col">
-                        <FormInput<OpenXDA.AssetGroup> Record={assetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'}  Valid={() => true} Setter={setAssetGroup} Disabled={true} />
-                        <FormInput<OpenXDA.AssetGroup> Record={assetGroup} Field={'Meters'} Label={'Num. of Meters'} Valid={() => true} Setter={setAssetGroup} Disabled={true} />
-                        <FormInput<OpenXDA.AssetGroup> Record={assetGroup} Field={'Users'} Label={'Num. of Users'} Valid={() => true} Setter={setAssetGroup} Disabled={true} />
-                        <FormInput<OpenXDA.AssetGroup> Record={assetGroup} Field={'AssetGroups'} Label={'Num. of Asset Groups'} Valid={() => true} Setter={setAssetGroup} Disabled={true} />
+                        <Input<OpenXDA.AssetGroup> Record={assetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'}  Valid={() => true} Setter={setAssetGroup} Disabled={true} />
+                        <Input<OpenXDA.AssetGroup> Record={assetGroup} Field={'Meters'} Label={'Num. of Meters'} Valid={() => true} Setter={setAssetGroup} Disabled={true} />
+                        <Input<OpenXDA.AssetGroup> Record={assetGroup} Field={'Users'} Label={'Num. of Users'} Valid={() => true} Setter={setAssetGroup} Disabled={true} />
+                        <Input<OpenXDA.AssetGroup> Record={assetGroup} Field={'AssetGroups'} Label={'Num. of Asset Groups'} Valid={() => true} Setter={setAssetGroup} Disabled={true} />
                     </div>
                 </div>
             </div>

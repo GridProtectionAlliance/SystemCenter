@@ -436,18 +436,13 @@
     <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Line.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\CapBank.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Bus.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormValueListSelect.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\Asset.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetLocation.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetConnection.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetInfo.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetMeter.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsWindow.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormSelect.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\NoteWindow.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormCheckBox.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormInput.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormTextArea.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\ConfigurationHistory\ConfigurationHistory.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\Location.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationInfo.tsx" />
@@ -470,7 +465,6 @@
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterInfo.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\global.d.ts" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\SystemCenter.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\Table.tsx" />
     <None Include="wwwroot\Scripts\TS\Services\Asset.ts" />
     <None Include="wwwroot\Scripts\TS\PARParser.ts" />
     <None Include="wwwroot\Scripts\TS\CFGParser.ts" />
@@ -489,9 +483,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\ByUser.tsx" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FormDatePicker.tsx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\User.tsx" />
@@ -540,8 +531,6 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeterSlice.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\UserSlice.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\Store.ts" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\WarningModal.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\ParameterSearch.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AddToGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ByValueListGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroup.tsx" />
