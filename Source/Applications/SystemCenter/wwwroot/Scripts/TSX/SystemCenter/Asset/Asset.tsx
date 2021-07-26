@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings'
 import AssetInfoWindow from './AssetInfo';
 import AssetLocationWindow from './AssetLocation';
 import AssetMeterWindow from './AssetMeter';
@@ -41,9 +41,9 @@ declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connectio
 
 function Asset(props: { AssetID: number }) {
     let history = useHistory();
-    const [asset, setAsset] = React.useState<OpenXDA.Asset>(null);
+    const [asset, setAsset] = React.useState<OpenXDA.Types.Asset>(null);
     const [tab, setTabState] = React.useState<string>(getTab());
-    const [assetType, setAssetType] = React.useState<OpenXDA.AssetTypeName>(null);
+    const [assetType, setAssetType] = React.useState<OpenXDA.Types.AssetTypeName>(null);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
 
@@ -71,8 +71,8 @@ function Asset(props: { AssetID: number }) {
 
     }
 
-    function getAssetType(asset: OpenXDA.Asset): void {
-        getAssetTypes().done((assetTypes: Array<OpenXDA.AssetType>) => {
+    function getAssetType(asset: OpenXDA.Types.Asset): void {
+        getAssetTypes().done((assetTypes: Array<OpenXDA.Types.AssetType>) => {
             let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID'])
             setAssetType(assetType.Name);
             setAsset((cur) => ({ ...cur, AssetType: assetType.Name }));
@@ -104,7 +104,7 @@ function Asset(props: { AssetID: number }) {
         if (props.AssetID == undefined) return () => { };
         let handle = getAsset();
 
-        handle.done((data: OpenXDA.Asset) => {
+        handle.done((data: OpenXDA.Types.Asset) => {
             setAsset(data)
             getAssetType(data)
         });

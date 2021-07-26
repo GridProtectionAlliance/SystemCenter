@@ -24,13 +24,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import TextArea from '@gpa-gemstone/react-forms';
 import Input from '@gpa-gemstone/react-forms';
 declare var homePath: string;
 
-const LocationImagesWindow = (props: { Location: OpenXDA.Location }) => {
+const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
 
 
     const [images, setImages] = React.useState<string[]>([]);

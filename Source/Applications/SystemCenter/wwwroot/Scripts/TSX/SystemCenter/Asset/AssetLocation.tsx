@@ -23,20 +23,20 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import Table from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
 
 declare var homePath: string;
 
-function AssetLocationWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
+function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     let history = useHistory();
-    const [locations, setLocations] = React.useState<Array<OpenXDA.Location>>([]);
-    const [sortField, setSortField] = React.useState<keyof (OpenXDA.Location)>('LocationKey');
+    const [locations, setLocations] = React.useState<Array<OpenXDA.Types.Location>>([]);
+    const [sortField, setSortField] = React.useState<keyof (OpenXDA.Types.Location)>('LocationKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [allLocations, setAllLocations] = React.useState<Array<OpenXDA.Location>>([]);
-    const [newLocation, setNewLocation] = React.useState<OpenXDA.Location>();
+    const [allLocations, setAllLocations] = React.useState<Array<OpenXDA.Types.Location>>([]);
+    const [newLocation, setNewLocation] = React.useState<OpenXDA.Types.Location>();
     React.useEffect(() => {
         getData();
     }, [props.Asset]);
@@ -73,7 +73,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
     }
 
 
-    async function deleteLocation(location: OpenXDA.Location) {
+    async function deleteLocation(location: OpenXDA.Types.Location) {
         return $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Location/${location.ID}`,
@@ -81,7 +81,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
             dataType: 'json',
             cache: true,
             async: true
-        }).done((assets: Array<OpenXDA.Asset>) => {
+        }).done((assets: Array<OpenXDA.Types.Asset>) => {
             getData();
         }).fail((msg) => {
             if (msg.status == 500)
@@ -121,7 +121,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    <Table<OpenXDA.Location>
+                    <Table<OpenXDA.Types.Location>
                         cols={[
                             { key: 'LocationKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                             { key: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },

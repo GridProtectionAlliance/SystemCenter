@@ -36,7 +36,7 @@ const ByUserPage: SCGlobal.ByComponent = (props) => {
     let history = useHistory();
   
 
-    function getAdditionalUserFields(): JQuery.jqXHR<SCGlobal.AdditionalUserField[]> {
+    function getAdditionalUserFields(): JQuery.jqXHR<Application.Types.iAdditionalUserField[]> {
         return  $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalUserField/FieldName/0`,

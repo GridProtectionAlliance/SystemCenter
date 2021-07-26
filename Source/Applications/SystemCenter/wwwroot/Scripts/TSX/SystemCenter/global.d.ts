@@ -52,9 +52,6 @@ export namespace SystemCenter {
     interface CustomerAccess { ID: number, CustomerID: number, PQViewSiteID: number }
 
     interface UserAccount { ID: string, Name: string, Password: string, FirstName: string, LastName: string, DefaultNodeID?: string, Phone: string, PhoneConfirmed: boolean, Email: string, EmailConfirmed: boolean, LockedOut: boolean, Approved: boolean, UseADAuthentication: boolean, ChangePasswordOn: Date, CreatedOn?: Date, CreatedBy?: string, UpdatedOn?: Date, AccountName?: string, Title: string, Department: string, DepartmentNumber: string, MobilePhone: string, ReceiveNotifications: boolean}
-    interface AdditionalUserField { ID: number, FieldName: string, Type: string, IsSecure: boolean }
-    interface AdditionalUserFieldValue { ID: number, UserAccountID: string, AdditionalUserFieldID: number, Value: string }
-
 
     interface ApplicationRole<T> { ID: string, Name: T, Description: string, NodeID: string, CreatedOn: Date, CreatedBy: string, UpdatedOn: Date, UpdatedBy: string, Assigned?: boolean }
     interface ApplicationRoleUserAccount { ID: string, ApplicationRoleID: string, UserAccountID: string }
@@ -77,47 +74,20 @@ export namespace SystemCenter {
 
 // OpenXDA Models
 export namespace OpenXDA {
-    interface Location { ID: number, LocationKey: string, Name: string, Alias: string, Latitude: number, Longitude: number, Description: string, ShortName: string }
-    interface EDNAPoint { ID: number, BreakerID: number, Point: string }
     interface Meter { ID: number, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, LocationID: number, Description: string }
     interface Channel { ID: number, Meter: string, Asset: string, MeasurementType: string, MeasurementCharacteristic: string, Phase: string, Name: string, Adder: number, Multiplier: number, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, ConnectionPriority: number, Series: OpenXDA.Series[] }
     interface Series { ID: number, ChannelID: number, SeriesType: string, SourceIndexes: string }
 
     // Assets
-    interface Asset { ID: number, VoltageKV: number, AssetKey: string, Description: string, AssetName: string, AssetType: AssetTypeName, Spare:boolean, Channels: Array<OpenXDA.Channel> }
-    interface Breaker extends Asset { ThermalRating: number, Speed: number, TripTime: number, PickupTime: number, TripCoilCondition: number, EDNAPoint?: string, SpareBreakerID?: number }
-    interface Bus extends Asset { }
-    interface CapBank extends Asset {
-        NumberOfBanks: number, CapacitancePerBank: number, CktSwitcher: string, MaxKV: number, UnitKV: number, UnitKVAr: number, NegReactanceTol: number, PosReactanceTol: number,
-        Nparalell: number, Nseries: number, NSeriesGroup: number, NParalellGroup: number, Fused: boolean, VTratioBus: number, NumberLVCaps: number, NumberLVUnits: number, LVKVAr: number, LVKV: number,
-        LVNegReactanceTol: number, LVPosReactanceTol: number, LowerXFRRatio: number, Nshorted: number, BlownFuses: number, BlownGroups: number, RelayPTRatioPrimary: number, Rv: number,
-        Rh: number, Compensated: boolean, NLowerGroups: number, ShortedGroups: number, Sh: number, RelayPTRatioSecondary: number
-    }
-    interface CapBankRelay extends Asset { OnVoltageThreshhold: number, CapBankNumber: number  }
-    interface Line extends Asset { MaxFaultDistance: number, MinFaultDistance: number, Detail: LineDetail }
-    interface LineSegment extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number, IsEnd: boolean }
-    interface Transformer extends Asset { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, PrimaryVoltageKV: number, SecondaryVoltageKV: number, Tap: number, TertiaryVoltageKV: number, SecondaryWinding: number, PrimaryWinding: number, TertiaryWinding: number   }
-    interface LineDetail { R0: number, X0: number, R1: number, X1: number, ThermalRating: number, Length: number }
     // Links
-    interface AssetConnection { ID: number, AssetRelationshipTypeID: number, Parent: string, Child: string }
 
-    interface Phase { ID: number, Name: string, Description: string }
-    interface MeasurementType { ID: number, Name: string, Description: string }
-    interface MeasurementCharacteristic { ID: number, Name: string, Description: string }
-    interface AssetType { ID: number, Name: AssetTypeName, Description: string }
-    interface AssetConnectionType { ID: number, Name: string, Description: string, BiDirectional: boolean, JumpConnection: string, PassThrough: string }
-    interface NoteType { ID: number, Name: string, ReferenceTableName: string }
-
-    interface MeterConfiguration { ID: number, MeterID: number, DiffID: number, ConfigKey: string, ConfigText: string, RevisionMajor: number, RevisionMinor: number }
     interface DataFile { ID: number, FileGroupID: number, FilePath: string, FilePathHash: number, FileSize: number, CreationTime: string, LastWriteTime: string, LastAccessTime: string, MeterID: number, DataStartTime: string, ProcessingEndTime: string}
 
     // Types
-    type AssetTypeName = 'Line' | 'LineSegment' | 'Breaker' | 'Bus' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay'
 
     type DetailedAsset = (OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer | OpenXDA.CapBankRelay)
 
     // AssetGroups
-    interface AssetGroup { ID: number, Name: string, DisplayDashboard: boolean, AssetGroups: number, Meters: number, Assets: number, Users: number }
 
     // Data Rescue
     interface DataRescueOperation { ID: number, MeterID: number, StartTime: Date, EndTime: Date, TimeShift: number, TimeShiftUnits: string, ChannelAdjustments: DataRescueChannelAdjustment[] }

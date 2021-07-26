@@ -23,13 +23,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { useDispatch, useSelector } from 'react-redux';
 import { LocationSlice } from '../Store/Store';
 import MeterLocationProperties from '../Meter/PropertyUI/MeterLocationProperties';
 
-export default function Page2(props: { LocationInfo: OpenXDA.Location, UpdateLocationInfo: (record: OpenXDA.Location) => void, SetError: (e: string[]) => void  }) {
+export default function Page2(props: { LocationInfo: OpenXDA.Types.Location, UpdateLocationInfo: (record: OpenXDA.Types.Location) => void, SetError: (e: string[]) => void  }) {
     const dispatch = useDispatch();
     const locations = useSelector(LocationSlice.Data);
     const lStatus = useSelector(LocationSlice.Status);
@@ -75,7 +75,7 @@ export default function Page2(props: { LocationInfo: OpenXDA.Location, UpdateLoc
 
 
     return (
-        <MeterLocationProperties Meter={{LocationID: props.LocationInfo.ID == null ? '0' : props.LocationInfo.ID} as OpenXDA.Meter} Location={props.LocationInfo} SetLocation={props.UpdateLocationInfo} 
+        <MeterLocationProperties Meter={{LocationID: props.LocationInfo.ID == null ? '0' : props.LocationInfo.ID} as OpenXDA.Types.Meter} Location={props.LocationInfo} SetLocation={props.UpdateLocationInfo} 
             UpdateMeter={(m) => {
                 if (m.LocationID != 0 && m.LocationID != null)
                     getDifferentMeterLocation(m.LocationID)

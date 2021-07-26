@@ -22,7 +22,7 @@
 //******************************************************************************************************
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { cloneDeep } from 'lodash';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
@@ -30,10 +30,10 @@ import MeterLocationProperties from './PropertyUI/MeterLocationProperties';
 
 declare var homePath: string;
 
-interface IProps { Meter: OpenXDA.Meter, StateSetter: (meter: OpenXDA.Meter) => void }
+interface IProps { Meter: OpenXDA.Types.Meter, StateSetter: (meter: OpenXDA.Types.Meter) => void }
 
 const LocationWindow = (props: IProps) => {
-    const newLocation: OpenXDA.Location = {
+    const newLocation: OpenXDA.Types.Location = {
         ID: 0,
         LocationKey: null,
         Name: null,
@@ -43,10 +43,10 @@ const LocationWindow = (props: IProps) => {
         Longitude: null,
         Description: null,
     }
-    const [location, setLocation] = React.useState<OpenXDA.Location>(newLocation);
-    const [meter, setMeter] = React.useState<OpenXDA.Meter>(props.Meter);
+    const [location, setLocation] = React.useState<OpenXDA.Types.Location>(newLocation);
+    const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(props.Meter);
 
-    const [locationList, setLocationList] = React.useState<OpenXDA.Location[]>([]);
+    const [locationList, setLocationList] = React.useState<OpenXDA.Types.Location[]>([]);
    
     const [validKey, setValidKey] = React.useState<boolean>(true);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
@@ -89,7 +89,7 @@ const LocationWindow = (props: IProps) => {
 
     }, [location, locationList]);
 
-    function getAllLocations(): JQuery.jqXHR<OpenXDA.Location[]> {
+    function getAllLocations(): JQuery.jqXHR<OpenXDA.Types.Location[]> {
         if (sessionStorage.hasOwnProperty('SystemCenter.Locations')) {
             setLocationList(JSON.parse(sessionStorage.getItem('SystemCenter.Locations')));
             return null;
@@ -112,7 +112,7 @@ const LocationWindow = (props: IProps) => {
         return h;
     }
 
-    function getLocation(): JQuery.jqXHR<OpenXDA.Location> {
+    function getLocation(): JQuery.jqXHR<OpenXDA.Types.Location> {
         if (meter == null || meter.LocationID == null) return null;
 
         if (meter.LocationID == 0) {
@@ -128,7 +128,7 @@ const LocationWindow = (props: IProps) => {
             cache: true,
             async: true
         })
-        handle.done((d: OpenXDA.Location) => {
+        handle.done((d: OpenXDA.Types.Location) => {
             setLocation(d);
             setLocationList((lst) => {
                 let index = lst.findIndex(item => item.ID == d.ID);
@@ -142,7 +142,7 @@ const LocationWindow = (props: IProps) => {
         return handle;
     }
 
-    function valid(field: keyof OpenXDA.Location): boolean {
+    function valid(field: keyof OpenXDA.Types.Location): boolean {
         if (field == 'LocationKey')
             return location.LocationKey != null && location.LocationKey.length > 0 && location.LocationKey.length <= 50 && validKey;
         else if (field == 'Name')
@@ -174,7 +174,7 @@ const LocationWindow = (props: IProps) => {
             dataType: 'json',
             cache: true,
             async: true
-        }).done((location: OpenXDA.Location) => {
+        }).done((location: OpenXDA.Types.Location) => {
             setHasChanged(false);
             setLocation(location);
             props.StateSetter(cloneDeep(props.Meter));

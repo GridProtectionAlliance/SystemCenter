@@ -21,13 +21,13 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-import { OpenXDA } from "../../TSX/SystemCenter/global";
+import { OpenXDA } from "@gpa-gemstone/application-typings/";
 import * as _ from 'lodash';
 
 declare var homePath: string;
 
 
-function getSpareBreaker(breaker: OpenXDA.Breaker) {
+function getSpareBreaker(breaker: OpenXDA.Types.Breaker) {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/OpenXDA/Breaker/${breaker.ID}/SpareBreaker`,
@@ -38,7 +38,7 @@ function getSpareBreaker(breaker: OpenXDA.Breaker) {
     }).promise();
 }
 
-function getLocationForBreaker(breaker: OpenXDA.Breaker): Promise<OpenXDA.Location> {
+function getLocationForBreaker(breaker: OpenXDA.Types.Breaker): Promise<OpenXDA.Types.Location> {
     return new Promise((res, rej) => {
         $.ajax({
             type: "GET",
@@ -51,7 +51,7 @@ function getLocationForBreaker(breaker: OpenXDA.Breaker): Promise<OpenXDA.Locati
     });
 
 }
-function getSparesForLocation(location: OpenXDA.Location): Promise<Array<OpenXDA.Breaker>> {
+function getSparesForLocation(location: OpenXDA.Types.Location): Promise<Array<OpenXDA.Types.Breaker>> {
     return new Promise((res, rej) => {
         $.ajax({
             type: "GET",
@@ -64,7 +64,7 @@ function getSparesForLocation(location: OpenXDA.Location): Promise<Array<OpenXDA
     });
 }
 
-export async function getSpareBreakersForSubstation(breaker: OpenXDA.Breaker): Promise<Array<OpenXDA.Breaker>> {
+export async function getSpareBreakersForSubstation(breaker: OpenXDA.Types.Breaker): Promise<Array<OpenXDA.Types.Breaker>> {
     const location = await getLocationForBreaker(breaker);
     if (location == null) return [];
     const spares = await getSparesForLocation(location);
@@ -94,7 +94,7 @@ export function getAllAssets(): JQueryXHR{
         })
 }
 
-export function getAsset(assetID: number, assetType: OpenXDA.AssetTypeName): JQuery.jqXHR<OpenXDA.Asset> {
+export function getAsset(assetID: number, assetType: OpenXDA.Types.AssetTypeName): JQuery.jqXHR<OpenXDA.Types.Asset> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/OpenXDA/${assetType}/One/${assetID}`,
@@ -105,31 +105,31 @@ export function getAsset(assetID: number, assetType: OpenXDA.AssetTypeName): JQu
     });
 }
 
-export async function getAssetWithAdditionalFields(assetID: number, assetType: OpenXDA.AssetTypeName): Promise<OpenXDA.Asset> {
+export async function getAssetWithAdditionalFields(assetID: number, assetType: OpenXDA.Types.AssetTypeName): Promise<OpenXDA.Types.Asset> {
     var asset = await getAsset(assetID, assetType);
     asset.AssetType = assetType;
     asset.Channels = [];
 
     if (assetType == 'Breaker') {
-        const eDNAPoint = await getEDNAPoint(asset as OpenXDA.Breaker)
+        const eDNAPoint = await getEDNAPoint(asset as OpenXDA.Types.Breaker)
         if (eDNAPoint != null)
             asset['EDNAPoint'] = eDNAPoint.Point;
         else
             asset['EDNAPoint'] = null;
 
-        const spareBreaker = await await getSpareBreaker(asset as OpenXDA.Breaker)
+        const spareBreaker = await await getSpareBreaker(asset as OpenXDA.Types.Breaker)
         if (spareBreaker != null)
             asset['SpareBreakerID'] = spareBreaker.ID;
         else
             asset['SpareBreakerID'] = null;
     }   
     else if (assetType == 'Line')
-        asset['Detail'] = await getLineDetails(asset as OpenXDA.Line);
+        asset['Detail'] = await getLineDetails(asset as OpenXDA.Types.Line);
 
     return asset;
 }
 
-function getEDNAPoint(breaker: OpenXDA.Breaker): Promise<OpenXDA.EDNAPoint> {
+function getEDNAPoint(breaker: OpenXDA.Types.Breaker): Promise<OpenXDA.Types.EDNAPoint> {
     return new Promise((res, rej) => {
         $.ajax({
             type: "GET",
@@ -142,7 +142,7 @@ function getEDNAPoint(breaker: OpenXDA.Breaker): Promise<OpenXDA.EDNAPoint> {
     });
 }
 
-function getLineDetails(line: OpenXDA.Line): Promise<OpenXDA.LineDetail> {
+function getLineDetails(line: OpenXDA.Types.Line): Promise<OpenXDA.Types.LineDetail> {
     return new Promise((res, rej) => {
         $.ajax({
             type: "GET",
@@ -156,7 +156,7 @@ function getLineDetails(line: OpenXDA.Line): Promise<OpenXDA.LineDetail> {
 }
 
 
-export function editExistingAsset(asset: OpenXDA.Asset): Promise<OpenXDA.Asset> {
+export function editExistingAsset(asset: OpenXDA.Types.Asset): Promise<OpenXDA.Types.Asset> {
     return new Promise((res, rej) => {
         $.ajax({
             type: "POST",
