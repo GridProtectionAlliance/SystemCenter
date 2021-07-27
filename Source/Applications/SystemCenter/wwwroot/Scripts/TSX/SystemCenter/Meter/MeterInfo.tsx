@@ -24,17 +24,17 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { LoadingScreen, Search, ToolTip } from '@gpa-gemstone/react-interactive';
 import MeterProperties from './PropertyUI/MeterProperties';
 
 declare var homePath: string;
 
-interface IProps { Meter: OpenXDA.Meter, StateSetter: (meter: OpenXDA.Meter) => void }
+interface IProps { Meter: OpenXDA.Types.Meter, StateSetter: (meter: OpenXDA.Types.Meter) => void }
 
 const MeterInforWindow = (props: IProps) => {
-    const [meter, setMeter] = React.useState<OpenXDA.Meter>(props.Meter);
+    const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(props.Meter);
     const [loading, setLoading] = React.useState<boolean>(false);
     const [assetKeyValid, setAssetKeyValid] = React.useState<boolean>(true);
     const [assetKey, setAssetKey] = React.useState<string>(props.Meter.AssetKey);
@@ -58,7 +58,7 @@ const MeterInforWindow = (props: IProps) => {
   
     function updateMeter(): void {
         setLoading(true);
-        let updatedMeter: OpenXDA.Meter = _.clone(meter);
+        let updatedMeter: OpenXDA.Types.Meter = _.clone(meter);
         $.ajax({
             type: "PATCH",
             url: `${homePath}api/OpenXDA/Meter/Update`,
@@ -82,7 +82,7 @@ const MeterInforWindow = (props: IProps) => {
             url: `${homePath}api/OpenXDA/MeterList/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: [{ FieldName: 'AssetKey', Operator: "=", SearchText: assetKey, Type: 'string' } as Search.IFilter<OpenXDA.Meter>], OrderBy: "AssetKey", Ascending: true }),
+            data: JSON.stringify({ Searches: [{ FieldName: 'AssetKey', Operator: "=", SearchText: assetKey, Type: 'string' } as Search.IFilter<OpenXDA.Types.Meter>], OrderBy: "AssetKey", Ascending: true }),
             cache: false,
             async: true
         });
@@ -103,7 +103,7 @@ const MeterInforWindow = (props: IProps) => {
         return h;
     }
 
-    function valid(field: keyof(OpenXDA.Meter)): boolean {
+    function valid(field: keyof(OpenXDA.Types.Meter)): boolean {
         if (field == 'AssetKey')
             return meter.AssetKey != null && meter.AssetKey.length > 0 && meter.AssetKey.length <= 50 && assetKeyValid;
         else if (field == 'Name')

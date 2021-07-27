@@ -25,7 +25,7 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
 
 import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
@@ -47,7 +47,7 @@ const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
 
 ];
 
-const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
+const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     let history = useHistory();
     let dispatch = useDispatch();
 

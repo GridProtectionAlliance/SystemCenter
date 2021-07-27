@@ -25,8 +25,7 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { SystemCenter as SCGlobal } from '../global';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
@@ -40,19 +39,19 @@ import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
-const ByCustomer: SCGlobal.ByComponent = (props) => {
+const ByCustomer: Application.Types.iByComponent = (props) => {
     let dispatch = useDispatch();
     let history = useHistory();
 
     const cState = useSelector(CustomerSlice.SearchStatus);
     const data = useSelector(CustomerSlice.SearchResults);
 
-    const [search, setSearch] = React.useState<Array<Search.IFilter<SCGlobal.Customer>>>([]);
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<SCGlobal.Customer>>>(SearchFields.Customer as Search.IField<SCGlobal.Customer>[]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.Customer>>>([]);
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<OpenXDA.Types.Customer>>>(SearchFields.Customer as Search.IField<OpenXDA.Types.Customer>[]);
 
-    const [sortKey, setSortKey] = React.useState<keyof SCGlobal.Customer>('CustomerKey');
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.Customer>('CustomerKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [newCustomer, setNewCustomer] = React.useState<SCGlobal.Customer>(getNewCustomer());
+    const [newCustomer, setNewCustomer] = React.useState<OpenXDA.Types.Customer>(getNewCustomer());
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -74,7 +73,7 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
             dispatch(CustomerSlice.DBSearch({ sortField: sortKey, ascending, filter: search }))
     }, [cState, dispatch]);
 
-    function getNewCustomer(): SCGlobal.Customer {
+    function getNewCustomer(): OpenXDA.Types.Customer {
         return {
             ID: 0,
             CustomerKey: null,
@@ -103,8 +102,8 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
         }
 
         handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
-            let ordered = _.orderBy((SearchFields.Customer as Search.IField<SCGlobal.Customer>[]).concat(d.map(item => (
-                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<SCGlobal.Customer>
+            let ordered = _.orderBy((SearchFields.Customer as Search.IField<OpenXDA.Types.Customer>[]).concat(d.map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<OpenXDA.Types.Customer>
             ))), ['label'], ["asc"]);
             setFilterableList(ordered)
         });
@@ -118,7 +117,7 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<SCGlobal.Customer> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Customer as Search.IField<SCGlobal.Customer>} Width={'50%'} Label={'Search'}
+            <SearchBar<OpenXDA.Types.Customer> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Customer as Search.IField<OpenXDA.Types.Customer>} Width={'50%'} Label={'Search'}
                 ShowLoading={cState == 'loading'} ResultNote={cState == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Customers'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
@@ -150,7 +149,7 @@ const ByCustomer: SCGlobal.ByComponent = (props) => {
                 </li>
             </SearchBar>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<SCGlobal.Customer>
+                <Table<OpenXDA.Types.Customer>
                     cols={[
                         { key: 'CustomerKey', field: 'CustomerKey', label: 'Account Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },

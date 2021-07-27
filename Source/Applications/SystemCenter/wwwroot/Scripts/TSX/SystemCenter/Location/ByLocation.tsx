@@ -27,8 +27,7 @@ import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { SystemCenter as SCGlobal } from '../global';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
@@ -43,7 +42,7 @@ interface Location {
 }
 
 
-const ByLocation: SCGlobal.ByComponent = (props) => {
+const ByLocation: Application.Types.iByComponent = (props) => {
     let history = useHistory();
     const [search, setSearch] = React.useState<Array<Search.IFilter<Location>>>([]);
     const [data, setData] = React.useState<Array<Location>>([]);

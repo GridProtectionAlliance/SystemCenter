@@ -23,20 +23,19 @@
 
 import * as React from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { SystemCenter } from '../global';
 import { Input, TextArea, Select } from '@gpa-gemstone/react-forms';
 import { CompanyTypeSlice, CompanySlice } from '../Store/Store';
-import { Application } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
-interface IProps { Company: SystemCenter.Company, Setter: (company: SystemCenter.Company) => void, setErrors?: (e: string[]) => void }
+interface IProps { Company: OpenXDA.Types.Company, Setter: (company: OpenXDA.Types.Company) => void, setErrors?: (e: string[]) => void }
 
 export default function CompanyForm(props: IProps) {
 
     const dispatch = useDispatch();
-    const companyTypes = useSelector(CompanyTypeSlice.Data) as SystemCenter.CompanyType[];
-    const companies = useSelector(CompanySlice.Data) as SystemCenter.Company[];
+    const companyTypes = useSelector(CompanyTypeSlice.Data) as OpenXDA.Types.CompanyType[];
+    const companies = useSelector(CompanySlice.Data) as OpenXDA.Types.Company[];
 
-    const ctStatus = useSelector(CompanyTypeSlice.Status) as SystemCenter.Status;
+    const ctStatus = useSelector(CompanyTypeSlice.Status) as Application.Types.Status;
     const cStatus = useSelector(CompanySlice.Status) as Application.Types.Status;
 
     React.useEffect(() => {
@@ -75,7 +74,7 @@ export default function CompanyForm(props: IProps) {
     }, [companyTypes, props.Company])
 
 
-    function Valid(field: keyof(SystemCenter.Company)): boolean {
+    function Valid(field: keyof(OpenXDA.Types.Company)): boolean {
         if (field == 'CompanyID')
             return props.Company.CompanyID != null && props.Company.CompanyID.match(/[0-9,a-z,A-Z]{8}/) != null && props.Company.CompanyID.length < 9;
         else if (field == 'Name')
@@ -88,10 +87,10 @@ export default function CompanyForm(props: IProps) {
 
     return (
         <form>
-            <Select<SystemCenter.Company> Record={props.Company} Label={'Company Type'} Field="CompanyTypeID" Options={companyTypes.map(ct => ({Value: ct.ID.toString(), Label: ct.Name}))} Setter={props.Setter} />
-            <Input<SystemCenter.Company> Record={props.Company} Field={'Name'} Feedback={'Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
-            <Input<SystemCenter.Company> Record={props.Company} Field={'CompanyID'} Feedback={'CompanyID must be 8 alphanumeric characters.'} Valid={Valid} Setter={props.Setter} />
-            <TextArea<SystemCenter.Company> Rows={3} Record={props.Company} Field={'Description'} Valid={Valid} Setter={props.Setter} />
+            <Select<OpenXDA.Types.Company> Record={props.Company} Label={'Company Type'} Field="CompanyTypeID" Options={companyTypes.map(ct => ({Value: ct.ID.toString(), Label: ct.Name}))} Setter={props.Setter} />
+            <Input<OpenXDA.Types.Company> Record={props.Company} Field={'Name'} Feedback={'Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Input<OpenXDA.Types.Company> Record={props.Company} Field={'CompanyID'} Feedback={'CompanyID must be 8 alphanumeric characters.'} Valid={Valid} Setter={props.Setter} />
+            <TextArea<OpenXDA.Types.Company> Rows={3} Record={props.Company} Field={'Description'} Valid={Valid} Setter={props.Setter} />
         </form>
 
         );

@@ -24,7 +24,8 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import { Warning, LoadingScreen } from '@gpa-gemstone/react-interactive';
-import { OpenXDA } from '../../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { OpenXDA as OpenXDAGlobal } from '../../global';
 import { toNumber } from 'lodash';
 
 declare let homePath: string;
@@ -50,11 +51,11 @@ function HandleError(e: unknown) {
 }
 
 export default function DataRescueWindow(props: {
-    Meter: OpenXDA.Meter;
+    Meter: OpenXDA.Types.Meter;
 }) {
-    const [operations, setOperations] = React.useState<OpenXDA.DataRescueOperation[]>();
+    const [operations, setOperations] = React.useState<OpenXDAGlobal.DataRescueOperation[]>();
 
-    const [editedOperation, setEditedOperation] = React.useState<OpenXDA.DataRescueOperation>();
+    const [editedOperation, setEditedOperation] = React.useState<OpenXDAGlobal.DataRescueOperation>();
     const [affectedFileCount, setAffectedFileCount] = React.useState<number>(0);
     const [isValid, setIsValid] = React.useState<boolean>(true);
 
@@ -93,7 +94,7 @@ export default function DataRescueWindow(props: {
         });
 
         return operations.map(op => {
-            const operation: OpenXDA.DataRescueOperation = {
+            const operation: OpenXDAGlobal.DataRescueOperation = {
                 ID: op.ID,
                 MeterID: op.MeterID,
                 StartTime: new Date(op.StartTime),
@@ -178,14 +179,14 @@ export default function DataRescueWindow(props: {
     React.useEffect(editedOperationChanged, [editedOperation]);
 
     function handleTimeRangeChanged(startTime: Date, endTime: Date) {
-        const newOperation: OpenXDA.DataRescueOperation = { ...editedOperation };
+        const newOperation: OpenXDAGlobal.DataRescueOperation = { ...editedOperation };
         newOperation.StartTime = startTime;
         newOperation.EndTime = endTime;
         setEditedOperation(newOperation);
     }
 
     function handleTimeShiftChanged(shift: number, units: string) {
-        const newOperation: OpenXDA.DataRescueOperation = { ...editedOperation };
+        const newOperation: OpenXDAGlobal.DataRescueOperation = { ...editedOperation };
         newOperation.TimeShift = shift;
         newOperation.TimeShiftUnits = units;
         setEditedOperation(newOperation);
@@ -213,7 +214,7 @@ export default function DataRescueWindow(props: {
         }
 
         if (update) {
-            const adjustment: OpenXDA.DataRescueChannelAdjustment = { ...channelAdjustments[index] };
+            const adjustment: OpenXDAGlobal.DataRescueChannelAdjustment = { ...channelAdjustments[index] };
             adjustment.Adder = adder;
             adjustment.Multiplier = multiplier;
             channelAdjustments[index] = adjustment;
@@ -222,7 +223,7 @@ export default function DataRescueWindow(props: {
         if (remove)
             channelAdjustments.splice(index, 1);
 
-        const newOperation: OpenXDA.DataRescueOperation = { ...editedOperation };
+        const newOperation: OpenXDAGlobal.DataRescueOperation = { ...editedOperation };
         newOperation.ChannelAdjustments = channelAdjustments;
         setEditedOperation(newOperation);
     }
@@ -321,9 +322,9 @@ export default function DataRescueWindow(props: {
 }
 
 function DataRescueBody(props: {
-    Operations: OpenXDA.DataRescueOperation[];
-    EditedOperation: OpenXDA.DataRescueOperation;
-    OnOperationSelected: (operation: OpenXDA.DataRescueOperation) => void;
+    Operations: OpenXDAGlobal.DataRescueOperation[];
+    EditedOperation: OpenXDAGlobal.DataRescueOperation;
+    OnOperationSelected: (operation: OpenXDAGlobal.DataRescueOperation) => void;
     OnTimeRangeChanged: (start: Date, end: Date) => void;
     OnTimeShiftChanged: (shift: number, units: string) => void;
     OnChannelAdjusted: (channelID: number, adder: number, multiplier: number) => void;
@@ -355,7 +356,7 @@ function DataRescueBody(props: {
 }
 
 function DataRescueFooter(props: {
-    EditedOperation: OpenXDA.DataRescueOperation;
+    EditedOperation: OpenXDAGlobal.DataRescueOperation;
     IsFormValid: boolean;
     OnStartNew: () => void;
     OnRescue: () => void;
@@ -378,13 +379,13 @@ function DataRescueFooter(props: {
 }
 
 function DataRescueTable(props: {
-    DataRescueOperations: OpenXDA.DataRescueOperation[];
-    RowClick: (row: OpenXDA.DataRescueOperation) => void;
+    DataRescueOperations: OpenXDAGlobal.DataRescueOperation[];
+    RowClick: (row: OpenXDAGlobal.DataRescueOperation) => void;
 }) {
-    const renderStartTime = (item: OpenXDA.DataRescueOperation) => <>{item.StartTime.toISOString()}</>;
-    const renderEndTime = (item: OpenXDA.DataRescueOperation) => <>{item.EndTime.toISOString()}</>;
-    const renderTimeShift = (item: OpenXDA.DataRescueOperation) => <>{item.TimeShift} {item.TimeShiftUnits}</>;
-    const renderChannelAdjustments = (item: OpenXDA.DataRescueOperation) => <>{item.ChannelAdjustments.length}</>;
+    const renderStartTime = (item: OpenXDAGlobal.DataRescueOperation) => <>{item.StartTime.toISOString()}</>;
+    const renderEndTime = (item: OpenXDAGlobal.DataRescueOperation) => <>{item.EndTime.toISOString()}</>;
+    const renderTimeShift = (item: OpenXDAGlobal.DataRescueOperation) => <>{item.TimeShift} {item.TimeShiftUnits}</>;
+    const renderChannelAdjustments = (item: OpenXDAGlobal.DataRescueOperation) => <>{item.ChannelAdjustments.length}</>;
 
     return (
         <Table
@@ -410,7 +411,7 @@ function DataRescueTable(props: {
 }
 
 function DataRescueOperationEditor(props: {
-    DataRescueOperation: OpenXDA.DataRescueOperation;
+    DataRescueOperation: OpenXDAGlobal.DataRescueOperation;
     OnTimeRangeChanged: (start: Date, end: Date) => void;
     OnTimeShiftChanged: (shift: number, units: string) => void;
     OnChannelAdjusted: (channelID: number, adder: number, multiplier: number) => void;
@@ -524,19 +525,19 @@ function DataRescueOperationEditor(props: {
 
 function ChannelAdjustmentTable(props: {
     MeterID: number;
-    ChannelAdjustments: OpenXDA.DataRescueChannelAdjustment[];
+    ChannelAdjustments: OpenXDAGlobal.DataRescueChannelAdjustment[];
     OnAdjusted: (channelID: number, adder: number, multiplier: number) => void;
     OnValidationChanged: (isValid: boolean) => void;
 }) {
-    const [channels, setChannels] = React.useState<OpenXDA.Channel[]>();
+    const [channels, setChannels] = React.useState<OpenXDA.Types.Channel[]>();
     const [errorCount, setErrorCount] = React.useState<number>(0);
     const previousErrorCount = UsePrevious(errorCount);
 
-    const channelAdjustments: OpenXDA.DataRescueChannelAdjustment[] = ((adjustments) => {
+    const channelAdjustments: OpenXDAGlobal.DataRescueChannelAdjustment[] = ((adjustments) => {
         if (channels === undefined)
             return [];
 
-        const lookup: { [channelID: number]: OpenXDA.DataRescueChannelAdjustment } = {};
+        const lookup: { [channelID: number]: OpenXDAGlobal.DataRescueChannelAdjustment } = {};
 
         for (const adjustment of adjustments)
             lookup[adjustment.ChannelID] = adjustment;
@@ -567,7 +568,7 @@ function ChannelAdjustmentTable(props: {
             async: true
         });
 
-        return channels.map(channel => channel as OpenXDA.Channel);
+        return channels.map(channel => channel as OpenXDA.Types.Channel);
     }
 
     function channelsChanged() {
@@ -600,7 +601,7 @@ function ChannelAdjustmentTable(props: {
             setErrorCount(errorCount + 1);
     }
 
-    function renderAdderInput(row: OpenXDA.DataRescueChannelAdjustment) {
+    function renderAdderInput(row: OpenXDAGlobal.DataRescueChannelAdjustment) {
         function handleChanged(adder: number) {
             props.OnAdjusted(row.ChannelID, adder, row.Multiplier);
         }
@@ -616,7 +617,7 @@ function ChannelAdjustmentTable(props: {
         );
     }
 
-    function renderMultiplierInput(row: OpenXDA.DataRescueChannelAdjustment) {
+    function renderMultiplierInput(row: OpenXDAGlobal.DataRescueChannelAdjustment) {
         function handleChanged(multiplier: number) {
             props.OnAdjusted(row.ChannelID, row.Adder, multiplier);
         }

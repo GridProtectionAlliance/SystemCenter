@@ -23,6 +23,7 @@
 
 import { SystemCenter } from "../../TSX/SystemCenter/global";
 import { SystemCenter as SCTypings } from '@gpa-gemstone/application-typings';
+import { Application } from '@gpa-gemstone/application-typings'
 import * as _ from 'lodash';
 declare var homePath: string;
 
@@ -52,7 +53,7 @@ export function getIsUser(sid: string): JQuery.jqXHR<boolean> {
 
 }
 
-export function getFilledUser(userAccount: SystemCenter.UserAccount): JQuery.jqXHR<SystemCenter.UserAccount> {
+export function getFilledUser(userAccount: Application.Types.iUserAccount): JQuery.jqXHR<Application.Types.iUserAccount> {
     return $.ajax({
         type: "POST",
         url: `${homePath}api/SystemCenter/UserAccount/FilledUserAccount`,
@@ -76,7 +77,7 @@ export function getRoles(): JQuery.jqXHR<Array<SystemCenter.Role>> {
     });
 }
 
-export function getSecurityRoles<T>(applicationName: 'SystemCenter' | 'OpenXDA'): JQuery.jqXHR<Array<SystemCenter.ApplicationRole<T>>> {
+export function getSecurityRoles<T>(applicationName: 'SystemCenter' | 'OpenXDA'): JQuery.jqXHR<Array<Application.Types.iApplicationRole<T>>> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/${applicationName}/ApplicationRole`,
@@ -87,7 +88,7 @@ export function getSecurityRoles<T>(applicationName: 'SystemCenter' | 'OpenXDA')
     });
 }
 
-export function updateSecurityRolesForUser(applicationName: 'SystemCenter' | 'OpenXDA', data: Array<SystemCenter.ApplicationRoleUserAccount>): JQuery.jqXHR<string> {
+export function updateSecurityRolesForUser(applicationName: 'SystemCenter' | 'OpenXDA', data: Array<Application.Types.iApplicationRoleUserAccount>): JQuery.jqXHR<string> {
     return $.ajax({
         type: "PATCH",
         url: `${homePath}api/${applicationName}/ApplicationRoleUserAccount/UpdateArray`,
@@ -100,7 +101,7 @@ export function updateSecurityRolesForUser(applicationName: 'SystemCenter' | 'Op
 }
 
 
-export function getSecurityRolesForUser(id: string, applicationName: 'SystemCenter' | 'OpenXDA'): JQuery.jqXHR<Array<SystemCenter.ApplicationRoleUserAccount>> {
+export function getSecurityRolesForUser(id: string, applicationName: 'SystemCenter' | 'OpenXDA'): JQuery.jqXHR<Array<Application.Types.iApplicationRoleUserAccount>> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/${applicationName}/ApplicationRoleUserAccount/${id}`,
@@ -122,7 +123,7 @@ export function getTSCs(): JQuery.jqXHR<Array<SCTypings.Types.ValueListItem>> {
     });
 }
 
-export function validUserAccountField(user: SystemCenter.UserAccount,field: keyof (SystemCenter.UserAccount)): boolean {
+export function validUserAccountField(user: Application.Types.iUserAccount,field: keyof (Application.Types.iUserAccount)): boolean {
     if (field == 'AccountName')
         return user.Name != null && user.Name.length > 0 && user.Name.length <= 200;
     if (field == 'Name')
@@ -137,16 +138,12 @@ export function validUserAccountField(user: SystemCenter.UserAccount,field: keyo
         return user.Phone == null || user.Phone.length <= 200;
     else if (field == 'Email')
         return user.Email == null || user.Email.length <= 200;
-    else if (field == 'Title')
-        return user.Title == null || user.Title.length <= 200;
-    else if (field == 'MobilePhone')
-        return user.MobilePhone == null || user.MobilePhone.length <= 200;
 
     return false;
 
 }
 
-export function getNewUserAccount(): JQuery.jqXHR<SystemCenter.UserAccount> {
+export function getNewUserAccount(): JQuery.jqXHR<Application.Types.iUserAccount> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/SystemCenter/UserAccount/New`,
@@ -158,7 +155,7 @@ export function getNewUserAccount(): JQuery.jqXHR<SystemCenter.UserAccount> {
 }
 
 
-export function GetAccessLogAggregates(database: SystemCenter.AttachedDatabases, days: number) {
+export function GetAccessLogAggregates(database: Application.Types.AttachedDatabases, days: number) {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/${database}/AccessLog/Aggregates/${days}`,
@@ -170,7 +167,7 @@ export function GetAccessLogAggregates(database: SystemCenter.AttachedDatabases,
 
 }
 
-export function GetAccessLogTable(database: SystemCenter.AttachedDatabases, days: number) {
+export function GetAccessLogTable(database: Application.Types.AttachedDatabases, days: number) {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/${database}/AccessLog/Table/${days}`,

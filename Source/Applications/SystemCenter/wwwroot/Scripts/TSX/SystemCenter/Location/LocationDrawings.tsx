@@ -26,7 +26,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
 import Table from '@gpa-gemstone/react-table';
 import { useSelector, useDispatch } from 'react-redux';
@@ -39,7 +39,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
     const dispatch = useDispatch();
 
     const links: SystemCenter.Types.LocationDrawing[] = useSelector(LocationDrawingSlice.Data);
-    const status: SCGlobal.Status = useSelector(LocationDrawingSlice.Status);
+    const status: Application.Types.Status = useSelector(LocationDrawingSlice.Status);
     const sortKey = useSelector(LocationDrawingSlice.SortField);
     const ascending: boolean = useSelector(LocationDrawingSlice.Ascending);
     const parentID: number = useSelector(LocationDrawingSlice.ParentID);

@@ -23,16 +23,16 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import Table from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
 
-function AssetMeterWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
+function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     let history = useHistory();
-    const [meters, setMeters] = React.useState<Array<OpenXDA.Meter>>([]);
-    const [sortField, setSortField] = React.useState<keyof(OpenXDA.Meter)>('AssetKey');
+    const [meters, setMeters] = React.useState<Array<OpenXDA.Types.Meter>>([]);
+    const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
     React.useEffect(() => {
@@ -65,7 +65,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    <Table<OpenXDA.Meter>
+                    <Table<OpenXDA.Types.Meter>
                         cols={[
                             { key: 'AssetKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                             { key: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },

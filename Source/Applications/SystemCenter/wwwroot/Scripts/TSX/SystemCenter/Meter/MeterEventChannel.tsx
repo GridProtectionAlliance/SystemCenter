@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter } from '../global'
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
 import { forEach, toNumber } from 'lodash';
@@ -46,9 +46,9 @@ const MeterEventChannelWindow = (props: IProps) => {
 
     const [assets, setAssets] = React.useState<OpenXDA.Types.Asset[]>([]);
 
-    const pStatus = useSelector(PhaseSlice.Status) as SystemCenter.Status;
-    const mtStatus = useSelector(MeasurmentTypeSlice.Status) as SystemCenter.Status;
-    const [status, setStatus] = React.useState<SystemCenter.Status>('idle')
+    const pStatus = useSelector(PhaseSlice.Status) as Application.Types.Status;
+    const mtStatus = useSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
+    const [status, setStatus] = React.useState<Application.Types.Status>('idle')
     const [trigger, setTrigger] = React.useState<number>(0);
 
     const [errors, setErrors] = React.useState<string[]>([]);

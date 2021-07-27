@@ -23,16 +23,16 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useHistory } from 'react-router-dom';
 declare var homePath: string;
 declare var ace: any;
 
 function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: string }) {
     const history = useHistory();
-    const [meterConfiguration, setMeterConfiguration] = React.useState<OpenXDA.MeterConfiguration>(null);
+    const [meterConfiguration, setMeterConfiguration] = React.useState<OpenXDA.Types.MeterConfiguration>(null);
     const [tab, setTab] = React.useState<'configuration' | 'filesProcessed'>('configuration');
-    const [filesProcessed, setFilesProcessed] = React.useState<Array<OpenXDA.DataFile>>([]);
+    const [filesProcessed, setFilesProcessed] = React.useState<Array<OpenXDA.Types.DataFile>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
     React.useLayoutEffect(() => getData(), [props.MeterConfigurationID]);
 
@@ -64,11 +64,11 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
             dataType: 'json',
             cache: false,
             async: true
-        }).done((data: Array<OpenXDA.DataFile>) => setFilesProcessed( data));
+        }).done((data: Array<OpenXDA.Types.DataFile>) => setFilesProcessed( data));
     }
 
     function saveEdit(): void{
-        let newRecord: OpenXDA.MeterConfiguration = _.clone(meterConfiguration);
+        let newRecord: OpenXDA.Types.MeterConfiguration = _.clone(meterConfiguration);
         newRecord.ID = 0;
         newRecord.ConfigText = ace.edit('template').getValue();
         newRecord.DiffID = null;
@@ -80,11 +80,11 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
             data: JSON.stringify(newRecord),
             cache: false,
             async: true
-        }).done((data: OpenXDA.MeterConfiguration) => history.push({ pathname: `${homePath}index.cshtml`, search: `?name=ConfigurationHistory&MeterKey=${props.MeterKey}&MeterConfigurationID=${data.ID}`, state: {} }));
+        }).done((data: OpenXDA.Types.MeterConfiguration) => history.push({ pathname: `${homePath}index.cshtml`, search: `?name=ConfigurationHistory&MeterKey=${props.MeterKey}&MeterConfigurationID=${data.ID}`, state: {} }));
     }
 
 
-    function initializeAce(record: OpenXDA.MeterConfiguration) {
+    function initializeAce(record: OpenXDA.Types.MeterConfiguration) {
         let editor = ace.edit("template");
         editor.getSession().setMode("ace/mode/xml");
         editor.setFontSize("14px");

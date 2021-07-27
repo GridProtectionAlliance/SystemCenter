@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import {SystemCenter, OpenXDA } from '../global';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAllAssets, getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import LineSegmentAttributes from './LineSegment';
@@ -35,17 +35,17 @@ import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
 declare var homePath: string;
 
 function LineSegmentWindow(props: { ID: number }): JSX.Element {
-    const [segments, setSegments] = React.useState<Array<OpenXDA.LineSegment>>([]);
+    const [segments, setSegments] = React.useState<Array<OpenXDA.Types.LineSegment>>([]);
 
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [showFawg, setShowFawg] = React.useState<boolean>(false);
     const [showWarning, setshowWarning] = React.useState<boolean>(false);
     const [showLoading, setShowLoading] = React.useState<boolean>(false);
 
-    const [newEditSegment, setNewEditSegment] = React.useState<OpenXDA.Asset>(AssetAttributes.getNewAsset('LineSegment') as OpenXDA.LineSegment);
-    const [newEdit, setNewEdit] = React.useState<SystemCenter.NewEdit>('New');
-    const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.AssetType>>([]);
-    const [allAssets, setAllAssets] = React.useState<Array<OpenXDA.Asset>>([]);
+    const [newEditSegment, setNewEditSegment] = React.useState<OpenXDA.Types.Asset>(AssetAttributes.getNewAsset('LineSegment') as OpenXDA.Types.LineSegment);
+    const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('New');
+    const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.Types.AssetType>>([]);
+    const [allAssets, setAllAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
 
     React.useEffect(() => {
         getData();
@@ -55,8 +55,8 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
     function getData(): void {
         getSegments();
 
-        getAllAssets().done((assets: Array<OpenXDA.Asset>) => {
-            getAssetTypes().done((assetTypes: Array<OpenXDA.AssetType>) => {
+        getAllAssets().done((assets: Array<OpenXDA.Types.Asset>) => {
+            getAssetTypes().done((assetTypes: Array<OpenXDA.Types.AssetType>) => {
                 let dat = assetTypes.filter(item => item.Name == 'LineSegment')
                 setAssetTypes(dat);
                 setAllAssets(assets.filter(item => item['AssetTypeID'] == dat[0].ID));
@@ -75,7 +75,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
             dataType: 'json',
             cache: false,
             async: true
-       }).done((data: Array<OpenXDA.LineSegment>) => {
+       }).done((data: Array<OpenXDA.Types.LineSegment>) => {
            setSegments(data);
        });
     }
@@ -154,7 +154,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                    <Table<OpenXDA.LineSegment>
+                    <Table<OpenXDA.Types.LineSegment>
                         cols={[
                             { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'Length', field: 'Length', label: 'Length (miles)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -214,7 +214,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                         addNewSegment();
                     if (confirm && newEdit == 'New' && newEditSegment.ID != 0)
                         addExistingSegment();
-                    setNewEditSegment(AssetAttributes.getNewAsset('LineSegment') as OpenXDA.LineSegment);
+                    setNewEditSegment(AssetAttributes.getNewAsset('LineSegment') as OpenXDA.Types.LineSegment);
                     setShowAdd(false);
                 }}
                 CancelText={'Close'}
@@ -234,7 +234,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                         }} HideAssetType={true} HideSelectAsset={false} />
                     </div>
                     <div className="col">
-                        <LineSegmentAttributes Asset={newEditSegment as OpenXDA.LineSegment} NewEdit={newEdit} UpdateState={setNewEditSegment} />
+                        <LineSegmentAttributes Asset={newEditSegment as OpenXDA.Types.LineSegment} NewEdit={newEdit} UpdateState={setNewEditSegment} />
                     </div>
                 </div>
             </Modal>

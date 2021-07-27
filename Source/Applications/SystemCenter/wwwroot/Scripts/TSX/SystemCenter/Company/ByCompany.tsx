@@ -25,8 +25,7 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { SystemCenter as SCGlobal } from '../global';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols'
 import CompanyForm from './CompanyForm';
@@ -37,20 +36,20 @@ import { CompanyTypeSlice } from '../Store/Store';
 declare var homePath: string;
 
 
-const ByCompany: SCGlobal.ByComponent = (props) => {
+const ByCompany: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
     const dispatch = useDispatch();
-    const companyTypes = useSelector(CompanyTypeSlice.Data) as SCGlobal.CompanyType[];
-    const ctStatus = useSelector(CompanyTypeSlice.Status) as SCGlobal.Status;
+    const companyTypes = useSelector(CompanyTypeSlice.Data) as OpenXDA.Types.CompanyType[];
+    const ctStatus = useSelector(CompanyTypeSlice.Status) as Application.Types.Status;
     
-    const [search, setSearch] = React.useState<Array<Search.IFilter<SCGlobal.Company>>>([]);
-    const [data, setData] = React.useState<Array<SCGlobal.Company>>([]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.Company>>>([]);
+    const [data, setData] = React.useState<Array<OpenXDA.Types.Company>>([]);
     const [sortKey, setSortKey] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [newCompany, setNewCompany] = React.useState<SCGlobal.Company>(getNewCompany());
+    const [newCompany, setNewCompany] = React.useState<OpenXDA.Types.Company>(getNewCompany());
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<SCGlobal.Company>>>(SearchFields.Company as Search.IField<SCGlobal.Company>[]);
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<OpenXDA.Types.Company>>>(SearchFields.Company as Search.IField<OpenXDA.Types.Company>[]);
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [newCompanyErrors, setNewCompanyErrors] = React.useState<string[]>([]);
 
@@ -62,7 +61,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
         let handle = getCompanys();
         handle.done((data: string) => {
             setSearchState('Idle');
-            setData(JSON.parse(data) as SCGlobal.Company[]);
+            setData(JSON.parse(data) as OpenXDA.Types.Company[]);
 
         }).fail((d) => setSearchState('Error'));
         return function cleanup() {
@@ -102,7 +101,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
         }
 
         handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
-            let ordered = _.orderBy((SearchFields.Company as Search.IField<SCGlobal.Company>[]).concat(d.map(item => (
+            let ordered = _.orderBy((SearchFields.Company as Search.IField<OpenXDA.Types.Company>[]).concat(d.map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Location>
             ))), ['label'], ["asc"]);
             setFilterableList(ordered)
@@ -125,7 +124,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
         });
     }
 
-    function getNewCompany(): SCGlobal.Company {
+    function getNewCompany(): OpenXDA.Types.Company {
         return {
             ID: 0,
             CompanyTypeID: 0,
@@ -155,7 +154,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
     
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<SCGlobal.Company> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Company as Search.IField<SCGlobal.Company>} Width={'50%'} Label={'Search'}
+            <SearchBar<OpenXDA.Types.Company> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Company as Search.IField<OpenXDA.Types.Company>} Width={'50%'} Label={'Search'}
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Companys'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
@@ -195,7 +194,7 @@ const ByCompany: SCGlobal.ByComponent = (props) => {
             </SearchBar>
             
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<SCGlobal.Company>
+                <Table<OpenXDA.Types.Company>
                     cols={[
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         {

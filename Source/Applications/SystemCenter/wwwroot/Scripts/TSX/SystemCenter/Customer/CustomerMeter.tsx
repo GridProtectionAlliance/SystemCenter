@@ -24,10 +24,11 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter, PQView } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings'
 
 declare var homePath: string;
 
-export default class CustomerMeterWindow extends React.Component<{ Customer: SystemCenter.Customer }, { Sites: Array<SystemCenter.CustomerAccess>, AllSites: Array<PQView.Site>, SearchText: string, SelectedSites: Array<number> }, {}>{
+export default class CustomerMeterWindow extends React.Component<{ Customer: OpenXDA.Types.Customer }, { Sites: Array<OpenXDA.Types.CustomerAccess>, AllSites: Array<PQView.Site>, SearchText: string, SelectedSites: Array<number> }, {}>{
     constructor(props, context) {
         super(props, context);
         this.state = {
@@ -54,7 +55,7 @@ export default class CustomerMeterWindow extends React.Component<{ Customer: Sys
             dataType: 'json',
             cache: true,
             async: true
-        }).done((sites: Array<SystemCenter.CustomerAccess>) => this.setState({ Sites:  sites}));
+        }).done((sites: Array<OpenXDA.Types.CustomerAccess>) => this.setState({ Sites:  sites}));
     }
 
     addSites(): void {
@@ -63,7 +64,7 @@ export default class CustomerMeterWindow extends React.Component<{ Customer: Sys
             url: `${homePath}api/SystemCenter/CustomerAccess/AddMultiple`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(this.state.SelectedSites.map(ss => { return { ID: 0, CustomerID: this.props.Customer.ID, PQViewSiteID: parseInt(ss.toString()) } as SystemCenter.CustomerAccess})),
+            data: JSON.stringify(this.state.SelectedSites.map(ss => { return { ID: 0, CustomerID: this.props.Customer.ID, PQViewSiteID: parseInt(ss.toString()) } as OpenXDA.Types.CustomerAccess})),
             cache: false,
             async: true
         }).done(() => {
@@ -92,7 +93,7 @@ export default class CustomerMeterWindow extends React.Component<{ Customer: Sys
 
 
 
-    deleteCustommerAccess(record: SystemCenter.CustomerAccess): void {
+    deleteCustommerAccess(record: OpenXDA.Types.CustomerAccess): void {
         $.ajax({
             type: "DELETE",
             url: `${homePath}api/SystemCenter/CustomerAccess/Delete`,

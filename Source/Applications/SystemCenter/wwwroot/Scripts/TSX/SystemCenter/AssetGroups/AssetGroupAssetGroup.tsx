@@ -24,7 +24,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import AddToGroupPopup from './AddToGroup';
@@ -34,7 +34,7 @@ declare var homePath: string;
 
 function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
     let history = useHistory();
-    const [groupList, setGroupList] = React.useState<Array<OpenXDA.AssetGroup>>([]);
+    const [groupList, setGroupList] = React.useState<Array<OpenXDA.Types.AssetGroup>>([]);
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
@@ -57,7 +57,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
             async: true
         });
 
-        handle.done((data: Array<OpenXDA.AssetGroup>) => setGroupList(data));
+        handle.done((data: Array<OpenXDA.Types.AssetGroup>) => setGroupList(data));
       
         return function cleanup() {
             if (handle.abort != null)

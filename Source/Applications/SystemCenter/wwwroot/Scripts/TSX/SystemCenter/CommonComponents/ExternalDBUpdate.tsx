@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import {SystemCenter } from '../global';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 declare var homePath: string;
 
@@ -34,8 +34,8 @@ function ExternalDataBaseWindow(props: {
     Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | 'Line' | 'Breaker' | 'Bus' | 'LineSegment' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay',
     Tab: string
 }): JSX.Element {
-    const [externalDB, setexternalDB] = React.useState<Array<SystemCenter.ExternalDB>>([]);
-    const [externalDBFields, setFields] = React.useState<Array<SystemCenter.ExternalDBField>>([]);
+    const [externalDB, setexternalDB] = React.useState<Array<SystemCenter.Types.ExternalDB>>([]);
+    const [externalDBFields, setFields] = React.useState<Array<SystemCenter.Types.ExternalDBField>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
     const [currentDB, setCurrentDB] = React.useState<string>("");
 
@@ -59,7 +59,7 @@ function ExternalDataBaseWindow(props: {
        })
 
         handle
-            .done((data: Array<SystemCenter.ExternalDB>) => {
+            .done((data: Array<SystemCenter.Types.ExternalDB>) => {
             setStatus('idle')
             setexternalDB(data);
         })
@@ -81,7 +81,7 @@ function ExternalDataBaseWindow(props: {
             async: true
         })
 
-        handle.done((data: Array<SystemCenter.ExternalDBField>) => {
+        handle.done((data: Array<SystemCenter.Types.ExternalDBField>) => {
             setFields(data)
             setStatus('idle')
             setChanged(true)
@@ -104,7 +104,7 @@ function ExternalDataBaseWindow(props: {
         setChanged(false)
     }
 
-    function checkUpdate(data: Array<SystemCenter.ExternalDBField>): void {
+    function checkUpdate(data: Array<SystemCenter.Types.ExternalDBField>): void {
         if (data.length < 1) {
                 cancelUpdate();
         }
@@ -237,9 +237,9 @@ function TableRowInput(props: { ParentTableID: number, ExternalDB: string, updat
     );
 }
 
-function TableRowField(props: { ParentTableID: number, Field: SystemCenter.ExternalDBField, Values: Array<SystemCenter.ExternalDBField>, Setter: (values: Array<SystemCenter.ExternalDBField>) => void}) {
-    var values: Array<SystemCenter.ExternalDBField> = _.clone(props.Values);
-    var value: SystemCenter.ExternalDBField = values.find(value => value.AdditionalFieldID == props.Field.AdditionalFieldID && value.OpenXDAParentTableID == props.Field.OpenXDAParentTableID && value.isXDAField == props.Field.isXDAField);
+function TableRowField(props: { ParentTableID: number, Field: SystemCenter.Types.ExternalDBField, Values: Array<SystemCenter.Types.ExternalDBField>, Setter: (values: Array<SystemCenter.Types.ExternalDBField>) => void}) {
+    var values: Array<SystemCenter.Types.ExternalDBField> = _.clone(props.Values);
+    var value: SystemCenter.Types.ExternalDBField = values.find(value => value.AdditionalFieldID == props.Field.AdditionalFieldID && value.OpenXDAParentTableID == props.Field.OpenXDAParentTableID && value.isXDAField == props.Field.isXDAField);
 
     function removeField() {
         values = values.filter(fld => !(fld.AdditionalFieldID == props.Field.AdditionalFieldID && fld.OpenXDAParentTableID == props.Field.OpenXDAParentTableID && fld.isXDAField == props.Field.isXDAField))

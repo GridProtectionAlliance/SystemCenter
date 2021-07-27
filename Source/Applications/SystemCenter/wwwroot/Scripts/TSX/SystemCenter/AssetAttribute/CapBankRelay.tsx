@@ -23,12 +23,12 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '../global';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from './Asset';
 import { Input } from '@gpa-gemstone/react-forms';
 
-function CapBankRelayAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.CapBankRelay, UpdateState: (newEditAsset: OpenXDA.CapBankRelay) => void }): JSX.Element {
-    function valid(field: keyof (OpenXDA.CapBankRelay)): boolean {
+function CapBankRelayAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.CapBankRelay, UpdateState: (newEditAsset: OpenXDA.Types.CapBankRelay) => void }): JSX.Element {
+    function valid(field: keyof (OpenXDA.Types.CapBankRelay)): boolean {
         if (field == 'OnVoltageThreshhold')
             return props.Asset.OnVoltageThreshhold != null && AssetAttributes.isRealNumber(props.Asset.OnVoltageThreshhold);
         if (field == 'CapBankNumber')
@@ -36,8 +36,8 @@ function CapBankRelayAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: O
         return true;
     }
     return <>
-        <Input<OpenXDA.CapBankRelay> Record={props.Asset} Field={'OnVoltageThreshhold'} Label={'Relay On Voltage Threshhold (pu)'} Feedback={'Relay On Voltage Threshhold (pu) requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-        <Input<OpenXDA.CapBankRelay> Record={props.Asset} Field={'CapBankNumber'} Label={'Protected CapBank'} Feedback={'Protected CapBank is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+        <Input<OpenXDA.Types.CapBankRelay> Record={props.Asset} Field={'OnVoltageThreshhold'} Label={'Relay On Voltage Threshhold (pu)'} Feedback={'Relay On Voltage Threshhold (pu) requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+        <Input<OpenXDA.Types.CapBankRelay> Record={props.Asset} Field={'CapBankNumber'} Label={'Protected CapBank'} Feedback={'Protected CapBank is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
     </>;
 
 }

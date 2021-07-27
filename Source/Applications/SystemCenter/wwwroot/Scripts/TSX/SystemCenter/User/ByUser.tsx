@@ -25,14 +25,13 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { SystemCenter as SCGlobal } from '../global';
 import { getFilledUser, getNewUserAccount, getSIDFromUserName} from './../../../TS/Services/User';;
 import { ByUser } from '@gpa-gemstone/common-pages';
 import { Application } from '@gpa-gemstone/application-typings';
 import { ValueListGroupSlice, ValueListSlice, UserAccountSlice, UserAdditionalFieldSlice } from '../Store/Store';
 
 
-const ByUserPage: SCGlobal.ByComponent = (props) => {
+const ByUserPage: Application.Types.iByComponent = (props) => {
     let history = useHistory();
   
 
@@ -47,7 +46,7 @@ const ByUserPage: SCGlobal.ByComponent = (props) => {
     }
 
 
-    function getUserAccounts(searches, sortField, ascending): JQuery.jqXHR<Array<SCGlobal.UserAccount>> {
+    function getUserAccounts(searches, sortField, ascending): JQuery.jqXHR<Array<Application.Types.iUserAccount>> {
         return $.ajax({
             type: "Post",
             url: `${homePath}api/SystemCenter/UserAccount/SearchableList`,
@@ -59,7 +58,7 @@ const ByUserPage: SCGlobal.ByComponent = (props) => {
         });
     }
 
-    function addNewUserAccount(user: SCGlobal.UserAccount) {
+    function addNewUserAccount(user: Application.Types.iUserAccount) {
         return $.ajax({
             type: "POST",
             url: `${homePath}api/SystemCenter/UserAccount/Add`,

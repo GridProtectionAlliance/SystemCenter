@@ -22,16 +22,15 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { SystemCenter as SC } from '../global';
 import { Setting } from '@gpa-gemstone/common-pages';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Search } from '@gpa-gemstone/react-interactive';
 import { SettingSlice } from '../Store/Store';
 import { useDispatch } from 'react-redux';
 
 declare var homePath: string;
 
-const BySetting: SC.ByComponent = (props) => {
+const BySetting: Application.Types.iByComponent = (props) => {
     const dispatch = useDispatch();
 
     return <Setting SettingsSlice={SettingSlice} />

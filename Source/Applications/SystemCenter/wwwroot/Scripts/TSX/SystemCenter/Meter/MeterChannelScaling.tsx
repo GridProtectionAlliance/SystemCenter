@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { toNumber } from 'lodash';
 
 declare let homePath: string;
@@ -38,14 +38,14 @@ enum ChannelScalingType {
 
 class ChannelScalingWrapper {
     private _ScalingType: ChannelScalingType;
-    private _Channel: OpenXDA.Channel;
-    private MeasurementType: OpenXDA.MeasurementType;
-    private MeasurementCharacteristic: OpenXDA.MeasurementCharacteristic;
-    private Phase: OpenXDA.Phase;
+    private _Channel: OpenXDA.Types.Channel;
+    private MeasurementType: OpenXDA.Types.MeasurementType;
+    private MeasurementCharacteristic: OpenXDA.Types.MeasurementCharacteristic;
+    private Phase: OpenXDA.Types.Phase;
     private _ReplacedMultiplier: number;
     private _AdjustedMultiplier: number;
 
-    constructor(channel: OpenXDA.Channel, measurementType: OpenXDA.MeasurementType, measurementCharacteristic: OpenXDA.MeasurementCharacteristic, phase: OpenXDA.Phase) {
+    constructor(channel: OpenXDA.Types.Channel, measurementType: OpenXDA.Types.MeasurementType, measurementCharacteristic: OpenXDA.Types.MeasurementCharacteristic, phase: OpenXDA.Types.Phase) {
         this._Channel = channel;
         this.MeasurementType = measurementType;
         this.MeasurementCharacteristic = measurementCharacteristic;
@@ -288,7 +288,7 @@ class ChannelScalingWrapper {
     }
 }
 
-export default class ChannelScalingWindow extends React.Component<{ Meter: OpenXDA.Meter, IsVisible: boolean }, { VoltageMultiplier: number, CurrentMultiplier: number, Wrappers: ChannelScalingWrapper[], ScalingTypes: ChannelScalingType[] }, {}>{
+export default class ChannelScalingWindow extends React.Component<{ Meter: OpenXDA.Types.Meter, IsVisible: boolean }, { VoltageMultiplier: number, CurrentMultiplier: number, Wrappers: ChannelScalingWrapper[], ScalingTypes: ChannelScalingType[] }, {}>{
     constructor(props, context) {
         super(props, context);
         this.state = {
@@ -343,10 +343,10 @@ export default class ChannelScalingWindow extends React.Component<{ Meter: OpenX
 
     async initializeWrappers(): Promise<void> {
         const promises: [
-            Promise<OpenXDA.Channel[]>,
-            Promise<OpenXDA.MeasurementType[]>,
-            Promise<OpenXDA.MeasurementCharacteristic[]>,
-            Promise<OpenXDA.Phase[]>
+            Promise<OpenXDA.Types.Channel[]>,
+            Promise<OpenXDA.Types.MeasurementType[]>,
+            Promise<OpenXDA.Types.MeasurementCharacteristic[]>,
+            Promise<OpenXDA.Types.Phase[]>
         ] = [
             this.queryChannels(),
             this.queryMeasurementTypes(),
@@ -378,7 +378,7 @@ export default class ChannelScalingWindow extends React.Component<{ Meter: OpenX
         });
     }
 
-    async queryChannels(): Promise<Array<OpenXDA.Channel>> {
+    async queryChannels(): Promise<Array<OpenXDA.Types.Channel>> {
         const channels = await $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Meter/${this.props.Meter.ID}/Channels`,
@@ -388,14 +388,14 @@ export default class ChannelScalingWindow extends React.Component<{ Meter: OpenX
             async: true
         });
 
-        return channels.map(channel => channel as OpenXDA.Channel);
+        return channels.map(channel => channel as OpenXDA.Types.Channel);
     }
 
-    async queryMeasurementTypes(): Promise<Array<OpenXDA.MeasurementType>> {
+    async queryMeasurementTypes(): Promise<Array<OpenXDA.Types.MeasurementType>> {
         if (sessionStorage.hasOwnProperty("OpenXDA.MeasurementTypes"))
             return JSON.parse(sessionStorage.getItem("OpenXDA.MeasurementTypes"));
 
-        const measurementTypes: Array<OpenXDA.MeasurementType> = await $.ajax({
+        const measurementTypes: Array<OpenXDA.Types.MeasurementType> = await $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/MeasurementType`,
             contentType: "application/json; charset=utf-8",
@@ -408,11 +408,11 @@ export default class ChannelScalingWindow extends React.Component<{ Meter: OpenX
         return measurementTypes;
     }
 
-    async queryMeasurementCharacteristics(): Promise<Array<OpenXDA.MeasurementCharacteristic>> {
+    async queryMeasurementCharacteristics(): Promise<Array<OpenXDA.Types.MeasurementCharacteristic>> {
         if (sessionStorage.hasOwnProperty("OpenXDA.MeasurementCharacteristics"))
             return JSON.parse(sessionStorage.getItem("OpenXDA.MeasurementCharacteristics"));
 
-        const measurementCharacteristics: Array<OpenXDA.MeasurementCharacteristic> = await $.ajax({
+        const measurementCharacteristics: Array<OpenXDA.Types.MeasurementCharacteristic> = await $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/MeasurementCharacteristic`,
             contentType: "application/json; charset=utf-8",
@@ -425,11 +425,11 @@ export default class ChannelScalingWindow extends React.Component<{ Meter: OpenX
         return measurementCharacteristics;
     }
 
-    async queryPhases(): Promise<Array<OpenXDA.Phase>> {
+    async queryPhases(): Promise<Array<OpenXDA.Types.Phase>> {
         if (sessionStorage.hasOwnProperty("OpenXDA.Phases"))
             return JSON.parse(sessionStorage.getItem("OpenXDA.Phases"));
 
-        const phases: Array<OpenXDA.Phase> = await $.ajax({
+        const phases: Array<OpenXDA.Types.Phase> = await $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Phase`,
             contentType: "application/json; charset=utf-8",

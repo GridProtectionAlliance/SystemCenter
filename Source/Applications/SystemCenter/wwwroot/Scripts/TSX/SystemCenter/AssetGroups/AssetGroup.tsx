@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 
 import { useHistory } from 'react-router-dom';
 import AssetgroupInfoWindow from './AssetGroupInfo';
@@ -38,8 +38,8 @@ declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup' | 'user'
 
 function AssetGroup(props: { AssetGroupID: number }) {
     let history = useHistory();
-    const [assetGroup, setAssetGroup] = React.useState<OpenXDA.AssetGroup>(null);
-    const [allAssetGroups, setAllAssetGroups] = React.useState<Array<OpenXDA.AssetGroup>>([]);
+    const [assetGroup, setAssetGroup] = React.useState<OpenXDA.Types.AssetGroup>(null);
+    const [allAssetGroups, setAllAssetGroups] = React.useState<Array<OpenXDA.Types.AssetGroup>>([]);
     const [tab, setTabState] = React.useState<string>(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
@@ -67,7 +67,7 @@ function AssetGroup(props: { AssetGroupID: number }) {
             async: true
        })
 
-        handle.done((data: OpenXDA.AssetGroup) => {
+        handle.done((data: OpenXDA.Types.AssetGroup) => {
            setAssetGroup(data)
         });
 

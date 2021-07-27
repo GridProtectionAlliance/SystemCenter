@@ -26,9 +26,8 @@ import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes } from '../../../TS/Services/Asset';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
-import { SystemCenter as SCGlobal } from '../global';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import CapBankAttributes from '../AssetAttribute/CapBank';
 import BusAttributes from '../AssetAttribute/Bus';
@@ -62,7 +61,7 @@ interface Asset {
 }
 declare var homePath: string;
 
-const ByAsset: SCGlobal.ByComponent = (props) => {
+const ByAsset: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<Asset>>>([]);

@@ -24,7 +24,7 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import { Search, SearchBar, Warning } from '@gpa-gemstone/react-interactive';
-import { OpenXDA } from '../../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 
 declare let homePath: string;
 
@@ -46,7 +46,7 @@ const searchColumns: Array<Search.IField<Meter>> = [
 ];
 
 export default function DataMergeWindow(props: {
-    Meter: OpenXDA.Meter;
+    Meter: OpenXDA.Types.Meter;
     OnMerge: () => void;
 }) {
     const [meters, setMeters] = React.useState<Meter[]>([]);

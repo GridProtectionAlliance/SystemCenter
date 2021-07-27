@@ -38,25 +38,7 @@ declare global {
 }
 
 export namespace SystemCenter {
-    type Status = 'loading' | 'idle' | 'error' | 'changed' | 'unintiated';
-
-    interface ByComponent { (props: { Roles: Array<SystemCeneterSecurityRoleName> }): JSX.Element; }
-    interface ExternalDB { name: string, lastupdate: Date }
-    interface ExternalDBField { DisplayName: string, FieldValueID: number, OpenXDAParentTableID: number, AdditionalFieldID: number, Value: string, FieldName: string, PreviousValue: string, Error: boolean, Message: string, isXDAField: boolean, Changed: boolean}
-
-    interface Company { ID: number, CompanyTypeID: number, CompanyID: string, Name: string, Description: string }
-    interface CompanyMeter { ID: number, CompanyID: number, MeterID: number, DisplayName: string, Enabled: boolean }
-    interface CompanyType { ID: number, Name: string, Description: string }
-
-    interface Customer { ID: number, CustomerKey: string, Name: string, Phone: string, Description: string }
-    interface CustomerAccess { ID: number, CustomerID: number, PQViewSiteID: number }
-
-    interface UserAccount { ID: string, Name: string, Password: string, FirstName: string, LastName: string, DefaultNodeID?: string, Phone: string, PhoneConfirmed: boolean, Email: string, EmailConfirmed: boolean, LockedOut: boolean, Approved: boolean, UseADAuthentication: boolean, ChangePasswordOn: Date, CreatedOn?: Date, CreatedBy?: string, UpdatedOn?: Date, AccountName?: string, Title: string, Department: string, DepartmentNumber: string, MobilePhone: string, ReceiveNotifications: boolean}
-
-    interface ApplicationRole<T> { ID: string, Name: T, Description: string, NodeID: string, CreatedOn: Date, CreatedBy: string, UpdatedOn: Date, UpdatedBy: string, Assigned?: boolean }
-    interface ApplicationRoleUserAccount { ID: string, ApplicationRoleID: string, UserAccountID: string }
-    interface SecurityGroup { ID: string, Name: string, Description: string, CreatedOn: Date, CreatedBy: string, UpdatedOn: Date }
-    interface ApplicationRoleSecurityGroup { ID: string, ApplicationRoleID: string, SecurityGroupID: string }
+        
     interface TSC { ID: number, Name: string, Description: string, DepartmentNumber: string }
     interface Role { ID: number, Name: string, Description: string }
 
@@ -64,30 +46,11 @@ export namespace SystemCenter {
         ID: number, OpenMIC: string, Name: string, Model: string, LocationID: number, LocationKey: string, Substation: string, TSCID: number, TSC: string,
         SectorID: number, Sector: string, IP: string, LastGood: string, BadDays: number, Status: string, LastConfigChange: string
     }
-
-    type NewEdit = 'New' | 'Edit'
-   
-    type SystemCeneterSecurityRoleName = 'Administrator' | 'Transmission SME' | 'PQ Data Viewer';
-    type OpenXDASecurityRoleName = 'Administrator' | 'DataPusher' | 'Developer' | 'Viewer' | 'Engineer';
-    type AttachedDatabases = 'SystemCenter' | 'OpenXDA'
 }
 
 // OpenXDA Models
 export namespace OpenXDA {
-    interface Meter { ID: number, AssetKey: string, Alias: string, Make: string, Model: string, Name: string, ShortName: string, TimeZone: string, LocationID: number, Description: string }
-    interface Channel { ID: number, Meter: string, Asset: string, MeasurementType: string, MeasurementCharacteristic: string, Phase: string, Name: string, Adder: number, Multiplier: number, SamplesPerHour: number, PerUnitValue: number, HarmonicGroup: number, Description: string, Enabled: boolean, ConnectionPriority: number, Series: OpenXDA.Series[] }
-    interface Series { ID: number, ChannelID: number, SeriesType: string, SourceIndexes: string }
 
-    // Assets
-    // Links
-
-    interface DataFile { ID: number, FileGroupID: number, FilePath: string, FilePathHash: number, FileSize: number, CreationTime: string, LastWriteTime: string, LastAccessTime: string, MeterID: number, DataStartTime: string, ProcessingEndTime: string}
-
-    // Types
-
-    type DetailedAsset = (OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer | OpenXDA.CapBankRelay)
-
-    // AssetGroups
 
     // Data Rescue
     interface DataRescueOperation { ID: number, MeterID: number, StartTime: Date, EndTime: Date, TimeShift: number, TimeShiftUnits: string, ChannelAdjustments: DataRescueChannelAdjustment[] }

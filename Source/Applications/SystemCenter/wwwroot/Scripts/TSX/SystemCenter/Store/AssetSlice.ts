@@ -24,7 +24,7 @@
 
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { SystemCenter, OpenXDA } from '../global';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
 export const FetchAsset = createAsyncThunk('Asset/FetchAsset', async (_, { dispatch }) => {
     return await GetAsset();
@@ -33,9 +33,9 @@ export const FetchAsset = createAsyncThunk('Asset/FetchAsset', async (_, { dispa
 export const AssetSlice = createSlice({
     name: 'Asset',
     initialState: {
-        Status: 'unintiated' as SystemCenter.Status,
+        Status: 'unintiated' as Application.Types.Status,
         Error: null,
-        Data: [] as OpenXDA.Asset[]
+        Data: [] as OpenXDA.Types.Asset[]
     },
     reducers: {
     },
@@ -60,11 +60,11 @@ export const AssetSlice = createSlice({
 
 export const { } = AssetSlice.actions;
 export default AssetSlice.reducer;
-export const SelectAssets = (state) => state.Asset.Data as OpenXDA.Asset[];
-export const SelectAssetStatus = (state) => state.Asset.Status as SystemCenter.Status;
+export const SelectAssets = (state) => state.Asset.Data as OpenXDA.Types.Asset[];
+export const SelectAssetStatus = (state) => state.Asset.Status as Application.Types.Status;
 export const SelectAssetKeysLowerCase = (state) => state.Asset.Data.map(a => a.AssetKey.toLowerCase()) as string[];
 
-function GetAsset(): JQuery.jqXHR<OpenXDA.Asset[]> {
+function GetAsset(): JQuery.jqXHR<OpenXDA.Types.Asset[]> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/OpenXDA/Asset`,

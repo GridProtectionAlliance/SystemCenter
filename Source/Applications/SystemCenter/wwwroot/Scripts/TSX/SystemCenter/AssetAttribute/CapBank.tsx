@@ -23,12 +23,12 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '../global';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from './Asset';
 import { Input } from '@gpa-gemstone/react-forms';
 import { IsInteger } from '@gpa-gemstone/helper-functions';
 
-function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.CapBank, UpdateState: (newEditAsset: OpenXDA.CapBank) => void }): JSX.Element {
+function CapBankAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.CapBank, UpdateState: (newEditAsset: OpenXDA.Types.CapBank) => void }): JSX.Element {
 
     React.useEffect(() => {
         if (props.Asset.Fused == undefined || props.Asset.Compensated == undefined || props.Asset.CktSwitcher == undefined || props.Asset.CktSwitcher.length == 0)
@@ -36,7 +36,7 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
 
     }, [props.Asset])
 
-    function valid(field: keyof (OpenXDA.CapBank)): boolean {
+    function valid(field: keyof (OpenXDA.Types.CapBank)): boolean {
         if (field == 'NumberOfBanks')
             return props.Asset.NumberOfBanks != null && AssetAttributes.isInteger(props.Asset.NumberOfBanks);
         else if (field == 'CapacitancePerBank')
@@ -102,59 +102,59 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
         <>
             <DesignSelect Record={props.Asset} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
-            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'NumberOfBanks'} Label={'Number Of Banks'} Feedback={'Number Of Banks is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'NumberOfBanks'} Label={'Number Of Banks'} Feedback={'Number Of Banks is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
             <PreSwitchSelect Record={props.Asset} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             
-            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'CapacitancePerBank'} Label={'Capacitor Step Size (kVAR)'} Feedback={'Capacitor Step Size requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'CapacitancePerBank'} Label={'Capacitor Step Size (kVAR)'} Feedback={'Capacitor Step Size requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
-            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'MaxKV'} Label={'Maximum Operating Voltage (kV)'} Feedback={'Maximum Operating Voltage requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'UnitKV'} Label={'Rated Voltage of a Unit (kV)'} Feedback={'Rated Voltage of a Unit requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'MaxKV'} Label={'Maximum Operating Voltage (kV)'} Feedback={'Maximum Operating Voltage requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'UnitKV'} Label={'Rated Voltage of a Unit (kV)'} Feedback={'Rated Voltage of a Unit requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
-            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'UnitKVAr'} Label={'Rating of a Unit (kVAR)'} Feedback={'Rating of a Unit requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'PosReactanceTol'} Label={'pos. Reactance Tolerance of a Unit (%)'} Feedback={'pos. Reactance Tolerance requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'NegReactanceTol'} Label={'neg. Reactance Tolerance of a Unit (%)'} Feedback={'neg. Reactance Tolerance of a Unit (%) requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'UnitKVAr'} Label={'Rating of a Unit (kVAR)'} Feedback={'Rating of a Unit requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'PosReactanceTol'} Label={'pos. Reactance Tolerance of a Unit (%)'} Feedback={'pos. Reactance Tolerance requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'NegReactanceTol'} Label={'neg. Reactance Tolerance of a Unit (%)'} Feedback={'neg. Reactance Tolerance of a Unit (%) requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
-            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'Nparalell'} Label={(props.Asset.Fused ? 'Num. of Units per group' : 'Num. of Parallel Strings')} Feedback={(props.Asset.Fused ? 'Num. of Caps. per group' : 'Num. of Parallel Strings') + ' is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'Nseries'} Label={(props.Asset.Fused ? 'Num. of Series Groups per Phase' : 'Num. Units in each String')} Feedback={(props.Asset.Fused ? 'Num. of Series Groups per Phase' : 'Num. Units in each String') + ' is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'Nparalell'} Label={(props.Asset.Fused ? 'Num. of Units per group' : 'Num. of Parallel Strings')} Feedback={(props.Asset.Fused ? 'Num. of Caps. per group' : 'Num. of Parallel Strings') + ' is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'Nseries'} Label={(props.Asset.Fused ? 'Num. of Series Groups per Phase' : 'Num. Units in each String')} Feedback={(props.Asset.Fused ? 'Num. of Series Groups per Phase' : 'Num. Units in each String') + ' is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             
           
             {(props.Asset.Fused ? 
                 <>
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'LowerXFRRatio'} Label={'Midgroup VT Ratio'} Feedback={'Midgroup VT Ratio requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'LowerXFRRatio'} Label={'Midgroup VT Ratio'} Feedback={'Midgroup VT Ratio requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
 
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'Nshorted'} Label={'Initial guess of shorted elements'} Feedback={'Initial guess of shorted elements requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'BlownFuses'} Label={'Initial Guess of blown fuses per group'} Feedback={'Initial Guess of blown fuses per group requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'BlownGroups'} Label={'Initial guess of Groups with blown Fuse'} Feedback={'Initial guess of Groups with blown Fuse requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'Nshorted'} Label={'Initial guess of shorted elements'} Feedback={'Initial guess of shorted elements requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'BlownFuses'} Label={'Initial Guess of blown fuses per group'} Feedback={'Initial Guess of blown fuses per group requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'BlownGroups'} Label={'Initial guess of Groups with blown Fuse'} Feedback={'Initial guess of Groups with blown Fuse requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
                 </> : <>
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'NSeriesGroup'} Label={'Num. of Series Groups in each Unit'} Feedback={'Num. of Series Groups in each Unit is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'NParalellGroup'} Label={'Num. of Elements in each Group'} Feedback={'Num. of Elements in each Group is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'NSeriesGroup'} Label={'Num. of Series Groups in each Unit'} Feedback={'Num. of Series Groups in each Unit is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'NParalellGroup'} Label={'Num. of Elements in each Group'} Feedback={'Num. of Elements in each Group is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
                     {(props.Asset.Compensated ? 
                         <>
-                            <DoubleInput<OpenXDA.CapBank> Record={props.Asset} Field2={'RelayPTRatioSecondary'} Field1={'RelayPTRatioPrimary'} Label={'Relay PT Ratio (primary - secondary V)'} Feedback={'Relay PT ratio  is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0}/>
-                            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'Rh'} Label={'Vt Input Resistor (Ohm)'} Feedback={'Vt input resistor requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'Sh'} Label={'Vt Input Resistor Wattage (W)'} Feedback={'Vt input resistor wattage requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                            <DoubleInput<OpenXDA.Types.CapBank> Record={props.Asset} Field2={'RelayPTRatioSecondary'} Field1={'RelayPTRatioPrimary'} Label={'Relay PT Ratio (primary - secondary V)'} Feedback={'Relay PT ratio  is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0}/>
+                            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'Rh'} Label={'Vt Input Resistor (Ohm)'} Feedback={'Vt input resistor requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'Sh'} Label={'Vt Input Resistor Wattage (W)'} Feedback={'Vt input resistor wattage requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
                         </>
                     : 
                         <>
-                            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'Rv'} Label={'Voltage Divider output R (Ohm)'} Feedback={'Voltage Divider output R requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                            <Input<OpenXDA.CapBank> Record={props.Asset} Field={'Rh'} Label={'Voltage Divider input R (Ohm)'} Feedback={'Voltage Divider input R requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'Rv'} Label={'Voltage Divider output R (Ohm)'} Feedback={'Voltage Divider output R requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                            <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'Rh'} Label={'Voltage Divider input R (Ohm)'} Feedback={'Voltage Divider input R requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
                         </>
                     )}
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'VTratioBus'} Label={'Bus VT Ratio'} Feedback={'Bus VT Ratio requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'NumberLVCaps'} Label={'Num.of Relay Caps'} Feedback={'Num. of Relay Caps is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'NumberLVUnits'} Label={'Num. of Elements per Relay Cap'} Feedback={'Num. of Elements per Relay Cap is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'LVKVAr'} Label={'Low Voltage Cap size (kVAR)'} Feedback={'Low Voltage Cap size requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'LVKV'} Label={'Low Voltage Cap rating (V)'} Feedback={'Low Voltage Cap rating is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'LVNegReactanceTol'} Label={'neg. Reactance Tolerance of LV Unit (%)'} Feedback={'neg. Reactance Tolerance of LV Unit requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'LVPosReactanceTol'} Label={'pos. Reactance Tolerance of LV Unit (%)'} Feedback={'pos. Reactance Tolerance of LV Unit requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'VTratioBus'} Label={'Bus VT Ratio'} Feedback={'Bus VT Ratio requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'NumberLVCaps'} Label={'Num.of Relay Caps'} Feedback={'Num. of Relay Caps is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'NumberLVUnits'} Label={'Num. of Elements per Relay Cap'} Feedback={'Num. of Elements per Relay Cap is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'LVKVAr'} Label={'Low Voltage Cap size (kVAR)'} Feedback={'Low Voltage Cap size requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'LVKV'} Label={'Low Voltage Cap rating (V)'} Feedback={'Low Voltage Cap rating is a required integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'LVNegReactanceTol'} Label={'neg. Reactance Tolerance of LV Unit (%)'} Feedback={'neg. Reactance Tolerance of LV Unit requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'LVPosReactanceTol'} Label={'pos. Reactance Tolerance of LV Unit (%)'} Feedback={'pos. Reactance Tolerance of LV Unit requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
 
-                    <Input<OpenXDA.CapBank> Record={props.Asset} Field={'Nshorted'} Label={'Initial guess of shorted elements'} Feedback={'Initial guess of shorted elements requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'Nshorted'} Label={'Initial guess of shorted elements'} Feedback={'Initial guess of shorted elements requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
                     
                 </>)}
 
@@ -167,10 +167,10 @@ function CapBankAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXD
 
 export default CapBankAttributes;
 
-class DesignSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter: (record: OpenXDA.CapBank) => void, Disabled?: boolean}, {}, {}>{
+class DesignSelect extends React.Component<{ Record: OpenXDA.Types.CapBank, Setter: (record: OpenXDA.Types.CapBank) => void, Disabled?: boolean}, {}, {}>{
 
     computBools(selection: string) {
-        var record: OpenXDA.CapBank = _.clone(this.props.Record);
+        var record: OpenXDA.Types.CapBank = _.clone(this.props.Record);
 
         if (selection == '0') {
             record.Compensated = true;
@@ -188,7 +188,7 @@ class DesignSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter: (r
         this.props.Setter(record);
     }
 
-    computeSelection(record: OpenXDA.CapBank): string {
+    computeSelection(record: OpenXDA.Types.CapBank): string {
         if (record.Compensated) 
             return "0";
         else if (!record.Fused) 
@@ -207,7 +207,7 @@ class DesignSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter: (r
     }
 }
 
-class PreSwitchSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter: (record: OpenXDA.CapBank) => void, Disabled?: boolean }, { preSwitch: boolean[] }, {}>{
+class PreSwitchSelect extends React.Component<{ Record: OpenXDA.Types.CapBank, Setter: (record: OpenXDA.Types.CapBank) => void, Disabled?: boolean }, { preSwitch: boolean[] }, {}>{
 
     constructor(props, context) {
         super(props, context);
@@ -251,7 +251,7 @@ class PreSwitchSelect extends React.Component<{ Record: OpenXDA.CapBank, Setter:
             this.updateValues(this.props.Record.CktSwitcher)
         }
         if (!_.isEqual(prevstate,this.state)) {
-            var record: OpenXDA.CapBank = _.clone(this.props.Record);
+            var record: OpenXDA.Types.CapBank = _.clone(this.props.Record);
 
             record.CktSwitcher = this.state.preSwitch.map(item => (item ? "1" : "0")).join(",");
            

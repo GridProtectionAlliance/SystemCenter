@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { Warning } from '@gpa-gemstone/react-interactive';
-import { OpenXDA } from '../../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 
 declare let homePath: string;
 
@@ -48,7 +48,7 @@ function HandleError(e: unknown) {
 }
 
 export default function DataDeleteWindow(props: {
-    Meter: OpenXDA.Meter;
+    Meter: OpenXDA.Types.Meter;
     OnDelete: () => void;
 }) {
     const now = new Date();
