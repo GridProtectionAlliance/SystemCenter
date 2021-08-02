@@ -30,7 +30,7 @@ import { SystemCenter as SCGlobal } from '../global';
 
 import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
 import { useDispatch, useSelector } from 'react-redux';
-import { SettingSlice } from '../Store/Store';
+import { SystemCenterSettingSlice } from '../Store/Store';
 import moment from 'moment';
 
 const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
@@ -61,8 +61,8 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
 
     const [ascending, setAscending] = React.useState<boolean>(true);
 
-    const settings = useSelector(SettingSlice.Data);
-    const settingStatus = useSelector(SettingSlice.Status);
+    const settings = useSelector(SystemCenterSettingSlice.Data);
+    const settingStatus = useSelector(SystemCenterSettingSlice.Status);
 
     React.useEffect(() => {
         let handle = getMeters();
@@ -86,8 +86,8 @@ const DeviceHealthReport: SCGlobal.ByComponent = (props) => {
     }, []);
 
     React.useEffect(() => {
-        if (settingStatus == 'unintiated')
-            dispatch(SettingSlice.Fetch());
+        if (settingStatus == 'unintiated' || settingStatus == 'changed')
+            dispatch(SystemCenterSettingSlice.Fetch());
     }, [settingStatus]);
 
 

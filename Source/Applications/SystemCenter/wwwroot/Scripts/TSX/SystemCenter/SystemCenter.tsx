@@ -30,7 +30,7 @@ import { createBrowserHistory } from "history"
 import { SystemCenter } from './global';
 import { SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
 import { Provider, useDispatch, useSelector } from 'react-redux';
-import store, { SettingSlice } from './Store/Store';
+import store, { SystemCenterSettingSlice } from './Store/Store';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -57,7 +57,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const AssetGroup = React.lazy(() => import(/* webpackChunkName: "AssetGroup" */ './AssetGroups/AssetGroup'));
     const ByCompany = React.lazy(() => import(/* webpackChunkName: "ByCompany" */ './Company/ByCompany'));
     const Company = React.lazy(() => import(/* webpackChunkName: "Company" */ './Company/Company'));
-    const BySetting = React.lazy(() => import(/* webpackChunkName: "ByCompany" */ './Settings/BySetting'));
+    const BySettings = React.lazy(() => import(/* webpackChunkName: "ByCompany" */ './Settings/BySetting'));
     const ByValueListGroup = React.lazy(() => import(/* webpackChunkName: "ByValueListGroup" */ './ValueListGroup/ByValueListGroup'));
     const ValueListGroup = React.lazy(() => import(/* webpackChunkName: "ValueListGroup" */ './ValueListGroup/ValueListGroup'));
     const DownloadedFiles = React.lazy(() => import(/* webpackChunkName: "DownloadedFiles" */ './DeviceHealthReport/DownloadedFiles'));
@@ -67,7 +67,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
 
     const [roles, setRoles] = React.useState<Array<SystemCenter.SystemCeneterSecurityRoleName>>([]);
-    const [ignored, forceUpdate] = React.useReducer((x:number) => x + 1, 0); // integer state for resize renders
+    const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
 
     React.useEffect(() => {
         let handle = getRoles();
@@ -83,12 +83,12 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
     }, []);
 
-    const settings: SCTypes.Types.Setting[] = useSelector(SettingSlice.Data);
-    const settingsStatus: SystemCenter.Status = useSelector(SettingSlice.Status);
+    const settings: SCTypes.Types.Setting[] = useSelector(SystemCenterSettingSlice.Data);
+    const settingsStatus: SystemCenter.Status = useSelector(SystemCenterSettingSlice.Status);
 
     React.useEffect(() => {
         if (settingsStatus == 'unintiated' || settingsStatus == 'changed')
-            dispatch(SettingSlice.Fetch());
+            dispatch(SystemCenterSettingSlice.Fetch());
 
         return function () {
         }
@@ -169,11 +169,15 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ValueLists"} to={controllerViewPath + "?name=ValueLists"}>Value Lists</NavLink>
                                 </li>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings"} to={controllerViewPath + "?name=Settings"}>Settings</NavLink>
-
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=SystemCenter"} to={controllerViewPath + "?name=Settings&System=SystemCenter"}>SystemCenter</NavLink>
                                 </li>
-
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=OpenXDA"} to={controllerViewPath + "?name=Settings&System=OpenXDA"}>OpenXDA</NavLink>
+                                </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=MiMD"} to={controllerViewPath + "?name=Settings&System=MiMD"}>MiMD</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -238,7 +242,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "ValueListGroup")
                                     return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} />
                                 else if (qs['?name'] == "Settings")
-                                    return <BySetting Roles={roles} />
+                                    return <BySettings Roles={roles} System={qs.System as 'SystemCenter'|'OpenXDA'|'MiMD'} />
                                 else if (qs['?name'] == "DeviceHealthReport") {
                                     return <DeviceHealthReport Roles={roles} />
                                 }

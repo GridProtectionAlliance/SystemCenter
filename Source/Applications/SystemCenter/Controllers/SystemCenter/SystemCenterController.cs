@@ -54,7 +54,7 @@ namespace SystemCenter.Controllers
     public class ValueListGroupController : ModelController<ValueListGroup> { }
 
     [RoutePrefix("api/SystemCenter/Customer")]
-    public class CustomerController : ModelController<Customer> 
+    public class CustomerController : ModelController<Customer>
     {
         public override IHttpActionResult Post([FromBody] JObject record)
         {
@@ -166,6 +166,21 @@ namespace SystemCenter.Controllers
 
     [RoutePrefix("api/Setting")]
     public class SettingController : ModelController<Setting> { }
+
+    [AllowSearch]
+    [DeleteRoles("Administrator")]
+    [PatchRoles("Administrator")]
+    [PostRoles("Administrator")]
+    [TableName("MiMD.Setting")]
+    [UseEscapedName]
+    public class MiMDSetting: openXDA.Model.Setting {};
+
+
+    [RoutePrefix("api/OpenXDA/Setting")]
+    public class OpenXDASettingController : ModelController<openXDA.Model.Setting> { }
+
+    [RoutePrefix("api/MiMD/Setting")]
+    public class MiMDSettingController : ModelController<MiMDSetting> { }
 
     [RoutePrefix("api/SystemCenter/Statistics/MiMD")]
     public class MiMDDailyStatisticController : ModelController<MiMDDailyStatistic>
