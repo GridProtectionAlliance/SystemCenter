@@ -26,62 +26,12 @@ import Table from '../CommonComponents/Table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter as SCGlobal } from '../global';
-import { getFilledUser, getNewUserAccount, getSIDFromUserName} from './../../../TS/Services/User';;
 import { ByUser } from '@gpa-gemstone/common-pages';
-import { Application } from '@gpa-gemstone/application-typings';
 import { ValueListGroupSlice, ValueListSlice, UserAccountSlice, UserAdditionalFieldSlice } from '../Store/Store';
 
 
 const ByUserPage: SCGlobal.ByComponent = (props) => {
     let history = useHistory();
-  
-
-    function getAdditionalUserFields(): JQuery.jqXHR<SCGlobal.AdditionalUserField[]> {
-        return  $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalUserField/FieldName/0`,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            async: true
-        });
-    }
-
-
-    function getUserAccounts(searches, sortField, ascending): JQuery.jqXHR<Array<SCGlobal.UserAccount>> {
-        return $.ajax({
-            type: "Post",
-            url: `${homePath}api/SystemCenter/UserAccount/SearchableList`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortField, Ascending: ascending }),
-            cache: false,
-            async: true
-        });
-    }
-
-    function addNewUserAccount(user: SCGlobal.UserAccount) {
-        return $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/UserAccount/Add`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify(user),
-            cache: false,
-            async: true
-        });
-
-    }
-
-    function GetValueList(group: string) {
-        return $.ajax({
-            type: "GET",
-            url: `${homePath}api/ValueListGroup`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        })
-    }
 
     if (props.Roles.indexOf('Administrator') < 0) return null;
 
