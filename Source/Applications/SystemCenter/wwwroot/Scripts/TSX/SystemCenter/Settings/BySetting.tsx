@@ -23,37 +23,26 @@
 
 import * as React from 'react';
 import { Setting } from '@gpa-gemstone/common-pages';
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Search } from '@gpa-gemstone/react-interactive';
 import { SettingSlice } from '../Store/Store';
 import { useDispatch } from 'react-redux';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 
 declare var homePath: string;
 
-const BySetting: Application.Types.iByComponent = (props) => {
-    const dispatch = useDispatch();
+interface BySettingsComponent { (props: { Roles: Array<Application.Types.SecurityRoleName>, System: 'SystemCenter'|'OpenXDA'|'MiMD' }): JSX.Element; }
 
-    return <Setting SettingsSlice={SettingSlice} />
-    null;
-    /*<Setting<SystemCenter.Types.Setting>
-        getNewSetting={() => ({ Name: '', DefaultValue: '', Value: '', ID: 0 })}
-        searchSetting={SearchSettings}
-        addSetting={(setting) => dispatch(SettingSlice.DBAction({verb: 'POST', record: setting})) as any}
-        deleteSetting={(setting) => dispatch(SettingSlice.DBAction({ verb: 'DELETE', record: setting })) as any}
-        updateSetting={(setting) => dispatch(SettingSlice.DBAction({ verb: 'PATCH', record: setting })) as any}
-    />
-    */
-    function SearchSettings(search: Search.IFilter<SystemCenter.Types.Setting>[], ascending: boolean, sortField: string) {
-        return $.ajax({
-            type: "Post",
-            url: `${homePath}api/Setting/SearchableList`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Searches: search, OrderBy: sortField, Ascending: ascending }),
-            cache: false,
-            async: true
-        });
-    }
+const BySetting: BySettingsComponent = (props) => {
+
+    let slice = SystemCenterSettingSlice
+
+    if (props.System == 'OpenXDA')
+        slice = OpenXDASettingSlice;
+    if (props.System == 'MiMD')
+        slice = MiMDSettingSlice;
+    
+    return <Setting SettingsSlice={slice} />
 
 }
 
