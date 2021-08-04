@@ -25,7 +25,6 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '../global';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import CompanyInfoWindow from './CompanyInfo';

@@ -27,7 +27,6 @@ import { BrowserRouter as Router, Route, NavLink, Switch } from 'react-router-do
 
 import queryString from "querystring";
 import { createBrowserHistory } from "history"
-import { SystemCenter } from './global';
 import { Application, SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import store, { SystemCenterSettingSlice } from './Store/Store';
