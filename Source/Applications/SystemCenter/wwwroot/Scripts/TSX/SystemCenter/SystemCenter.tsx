@@ -66,7 +66,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const DeviceIssuesPage = React.lazy(() => import(/* webpackChunkName: "DeviceIssuesPage" */ './DeviceIssuesPage/DeviceIssuesPage'));
 
 
-    const [roles, setRoles] = React.useState<Array<SystemCenter.SystemCeneterSecurityRoleName>>([]);
+    const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
 
     React.useEffect(() => {
@@ -84,7 +84,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     }, []);
 
     const settings: SCTypes.Types.Setting[] = useSelector(SystemCenterSettingSlice.Data);
-    const settingsStatus: SystemCenter.Status = useSelector(SystemCenterSettingSlice.Status);
+    const settingsStatus: Application.Types.Status = useSelector(SystemCenterSettingSlice.Status);
 
     React.useEffect(() => {
         if (settingsStatus == 'unintiated' || settingsStatus == 'changed')

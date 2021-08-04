@@ -23,15 +23,13 @@
 
 import * as React from 'react';
 import { Setting } from '@gpa-gemstone/common-pages';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Search } from '@gpa-gemstone/react-interactive';
-import { SettingSlice } from '../Store/Store';
+import { MiMDSettingSlice, OpenXDASettingSlice, SystemCenterSettingSlice } from '../Store/Store';
 import { useDispatch } from 'react-redux';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 
 declare var homePath: string;
 
-interface BySettingsComponent { (props: { Roles: Array<Application.Types.SecurityRoleName>, System: 'SystemCenter'|'OpenXDA'|'MiMD' }): JSX.Element; }
+interface BySettingsComponent { (props: { Roles: Array<Application.Types.SecurityRoleName>, System: 'SystemCenter' | 'OpenXDA' | 'MiMD' }): JSX.Element; }
 
 const BySetting: BySettingsComponent = (props) => {
 
@@ -41,7 +39,7 @@ const BySetting: BySettingsComponent = (props) => {
         slice = OpenXDASettingSlice;
     if (props.System == 'MiMD')
         slice = MiMDSettingSlice;
-    
+
     return <Setting SettingsSlice={slice} />
 
 }

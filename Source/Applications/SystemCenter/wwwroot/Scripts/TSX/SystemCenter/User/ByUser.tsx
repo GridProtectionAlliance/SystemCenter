@@ -25,14 +25,14 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { SystemCenter as SCGlobal } from '../global';
 import { getFilledUser, getNewUserAccount, getSIDFromUserName} from './../../../TS/Services/User';;
 import { ByUser } from '@gpa-gemstone/common-pages';
+import { Application } from '@gpa-gemstone/application-typings';
 import { ValueListGroupSlice, ValueListSlice, UserAccountSlice, UserAdditionalFieldSlice } from '../Store/Store';
 
 
 const ByUserPage: Application.Types.iByComponent = (props) => {
-
+    let history = useHistory();
 
     if (props.Roles.indexOf('Administrator') < 0) return null;
 
