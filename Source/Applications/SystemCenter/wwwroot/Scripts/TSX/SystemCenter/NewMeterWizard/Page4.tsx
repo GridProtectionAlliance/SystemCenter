@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -39,17 +39,17 @@ import { Modal } from '@gpa-gemstone/react-interactive';
 declare var homePath: string;
 
 interface Page4Props {
-    Assets: Array<OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer | OpenXDA.CapBankRelay>,
-    Channels: OpenXDA.Channel[],
-    AssetConnections: Array<OpenXDA.AssetConnection>,
-    UpdateChannels: (record: OpenXDA.Channel[]) => void,
-    UpdateAssets: (record: OpenXDA.Asset[]) => void,
-    UpdateAssetConnections: (record: OpenXDA.AssetConnection[]) => void,
+    Assets: Array<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay>,
+    Channels: OpenXDA.Types.Channel[],
+    AssetConnections: Array<OpenXDA.Types.AssetConnection>,
+    UpdateChannels: (record: OpenXDA.Types.Channel[]) => void,
+    UpdateAssets: (record: OpenXDA.Types.Asset[]) => void,
+    UpdateAssetConnections: (record: OpenXDA.Types.AssetConnection[]) => void,
     SetError: (e: string[]) => void
 
 }
 
-type AssetType = OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer | OpenXDA.CapBankRelay;
+type AssetType = OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay;
 
 export default function Page4(props: Page4Props) {
     const dispatch = useDispatch();
@@ -89,8 +89,8 @@ export default function Page4(props: Page4Props) {
     React.useEffect(() => {
         if (newEditAsset.AssetType == 'Breaker') {
             let handle = getEDNAPoint(newEditAsset.ID);
-            handle.done((ednaPoint: OpenXDA.EDNAPoint) => {
-                let record = { ...newEditAsset as OpenXDA.Breaker };
+            handle.done((ednaPoint: OpenXDA.Types.EDNAPoint) => {
+                let record = { ...newEditAsset as OpenXDA.Types.Breaker };
                 if (ednaPoint != undefined) {
                     record.EDNAPoint = ednaPoint.Point
                     setNewEditAsset(record);
@@ -103,8 +103,8 @@ export default function Page4(props: Page4Props) {
         }
         else if (newEditAsset.AssetType == 'Line'){
             let handle = getLineSegment(newEditAsset.ID);
-            handle.done((lineSegment: OpenXDA.LineDetail) => {
-                let record = _.clone(newEditAsset as OpenXDA.Line);
+            handle.done((lineSegment: OpenXDA.Types.LineDetail) => {
+                let record = _.clone(newEditAsset as OpenXDA.Types.Line);
                 if (lineSegment != undefined) {
                     record.Detail = lineSegment
                 }
@@ -133,9 +133,9 @@ export default function Page4(props: Page4Props) {
 
     function deleteAsset(index: number) {
         let list = _.clone(props.Assets);
-        let record: Array<OpenXDA.Asset> = list.splice(index, 1);
-        let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(props.AssetConnections);
-        let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
+        let record: Array<OpenXDA.Types.Asset> = list.splice(index, 1);
+        let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
+        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
 
         $.each(channels, (index, channel) => {
             if (channel.Asset == record[0].AssetKey)
@@ -167,14 +167,14 @@ export default function Page4(props: Page4Props) {
             dataType: 'json',
             cache: true,
             async: true
-        }).done((asset: OpenXDA.Asset) => {
+        }).done((asset: OpenXDA.Types.Asset) => {
             asset.AssetType = assetType.Name;
             asset.Channels = [];
             setNewEditAsset(asset);
         });
     }
 
-    function getLineSegment(lineID: number): JQuery.jqXHR<OpenXDA.LineSegment> {
+    function getLineSegment(lineID: number): JQuery.jqXHR<OpenXDA.Types.LineSegment> {
         return $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Line/${lineID}/LineSegment`,
@@ -185,7 +185,7 @@ export default function Page4(props: Page4Props) {
         });
     }
 
-    function getEDNAPoint(breakerID: number): JQuery.jqXHR<OpenXDA.EDNAPoint> {
+    function getEDNAPoint(breakerID: number): JQuery.jqXHR<OpenXDA.Types.EDNAPoint> {
         return $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Breaker/${breakerID}/EDNAPoint`,
@@ -200,17 +200,17 @@ export default function Page4(props: Page4Props) {
 
     function showAttributes(): JSX.Element {
         if (newEditAsset.AssetType == 'Breaker')
-            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Breaker} UpdateState={setNewEditAsset} />;
+            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Breaker} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'Bus')
             return <BusAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset}/>;
         else if (newEditAsset.AssetType == 'CapacitorBank')
-            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.CapBank} UpdateState={setNewEditAsset} />;
+            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBank} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'CapacitorBankRelay')
-            return <CapBankRelayAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.CapBankRelay} UpdateState={setNewEditAsset} />;
+            return <CapBankRelayAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBankRelay} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'Line')
-            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Line} UpdateState={setNewEditAsset} />;
+            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'Transformer')
-            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Transformer} UpdateState={setNewEditAsset} />;
+            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset} />;
     }
 
 
@@ -245,7 +245,7 @@ export default function Page4(props: Page4Props) {
                                 </thead>
                                 <tbody>
                                     {
-                                        props.Assets.map((asset: OpenXDA.Asset, index, array) => {
+                                        props.Assets.map((asset: OpenXDA.Types.Asset, index, array) => {
                                             return (
                                                 <tr key={index}>
                                                     <td style={{ width: '10%' }}>{(asset.ID == 0 ? 'New' : 'Existing')}</td>
@@ -283,9 +283,9 @@ export default function Page4(props: Page4Props) {
                             return;
                         }
                         
-                        let record: OpenXDA.Asset = _.clone(newEditAsset);
+                        let record: OpenXDA.Types.Asset = _.clone(newEditAsset);
                         let list = _.clone(props.Assets);
-                        let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
+                        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
 
                         $.each(channels, (index, channel) => {
                             if (channel.Asset == record.AssetKey)
@@ -326,7 +326,7 @@ export default function Page4(props: Page4Props) {
 
                                 <label>Associated Channels</label>
                                 <select multiple style={{ height: innerHeight - 330, width: '100%' }} onChange={(evt) => {
-                                    let asset = _.clone(newEditAsset as OpenXDA.Asset);
+                                    let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                     asset.Channels = ($(evt.target).val() as Array<string>).map(a => props.Channels.find(ch => ch.ID == parseInt(a)))
                                     setNewEditAsset(asset);
                                     let channels = _.clone(props.Channels);
@@ -343,7 +343,7 @@ export default function Page4(props: Page4Props) {
 
                                 <label>Associated Channels Bus Side</label>
                                 <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
-                                    let asset = _.clone(newEditAsset as OpenXDA.Asset);
+                                    let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
                                     let channels = _.clone(props.Channels);
                                     channels = channels.map(ch => ({ ...ch, ConnectionPriority: (selectedID.indexOf(ch.ID) == -1 ? ch.ConnectionPriority : 0) }));
@@ -359,7 +359,7 @@ export default function Page4(props: Page4Props) {
                                 </select>
                                 <label>Associated Channels Line/XFR Side</label>
                                 <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
-                                    let asset = _.clone(newEditAsset as OpenXDA.Asset);
+                                    let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
                                     let channels = _.clone(props.Channels);
                                     channels = channels.map(ch => ({ ...ch, ConnectionPriority: (selectedID.indexOf(ch.ID) == -1 ? ch.ConnectionPriority : 1) }));
@@ -379,7 +379,7 @@ export default function Page4(props: Page4Props) {
 
                                 <label>Associated Channels Primary Side</label>
                                 <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
-                                    let asset = _.clone(newEditAsset as OpenXDA.Asset);
+                                    let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
                                     let channels = _.clone(props.Channels);
                                     channels = channels.map(ch => ({ ...ch, ConnectionPriority: (selectedID.indexOf(ch.ID) == -1 ? ch.ConnectionPriority : 0) }));
@@ -395,7 +395,7 @@ export default function Page4(props: Page4Props) {
                                 </select>
                                 <label>Associated Channels Secondary Side</label>
                                 <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
-                                    let asset = _.clone(newEditAsset as OpenXDA.Asset);
+                                    let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
                                     let channels = _.clone(props.Channels);
                                     channels = channels.map(ch => ({ ...ch, ConnectionPriority: (selectedID.indexOf(ch.ID) == -1 ? ch.ConnectionPriority : 1) }));
@@ -411,7 +411,7 @@ export default function Page4(props: Page4Props) {
                                 </select>
                                 <label>Associated Channels Tertiary Side</label>
                                 <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
-                                    let asset = _.clone(newEditAsset as OpenXDA.Asset);
+                                    let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
                                     const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
                                     let channels = _.clone(props.Channels);
                                     channels = channels.map(ch => ({ ...ch, ConnectionPriority: (selectedID.indexOf(ch.ID) == -1 ? ch.ConnectionPriority : 2) }));

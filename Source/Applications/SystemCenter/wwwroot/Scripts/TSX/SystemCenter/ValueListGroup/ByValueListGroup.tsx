@@ -27,11 +27,11 @@ import * as React from 'react';
 import { useDispatch } from 'react-redux';
 import { ValueListGroupSlice, ValueListSlice } from '../Store/Store';
 import { ByValueList } from '@gpa-gemstone/common-pages';
+import { Application } from '@gpa-gemstone/application-typings'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { SystemCenter as SCGlobal } from '../global';
 
-const ByValueListGroups: SCGlobal.ByComponent = (props) => {
+const ByValueListGroups: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
     function handleSelect(id: number) {

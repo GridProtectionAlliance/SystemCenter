@@ -22,8 +22,8 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { OpenXDA, SystemCenter } from '../global';
-function BusAttributes(props: { NewEdit: SystemCenter.NewEdit, Asset: OpenXDA.Bus, UpdateState: (newEditAsset: OpenXDA.Bus) => void }): JSX.Element {
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+function BusAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Bus, UpdateState: (newEditAsset: OpenXDA.Types.Bus) => void }): JSX.Element {
     return <span>No Additional Attributes</span>;
 }
 

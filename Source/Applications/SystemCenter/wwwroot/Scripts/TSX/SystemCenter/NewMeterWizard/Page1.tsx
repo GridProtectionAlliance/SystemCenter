@@ -23,14 +23,14 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
 import MeterProperties from '../Meter/PropertyUI/MeterProperties';
 
 declare var homePath: string;
 
-export default function Page1(props: { MeterInfo: OpenXDA.Meter, UpdateMeterInfo: (record: OpenXDA.Meter) => void , SetError: (e: string[]) => void}) {
+export default function Page1(props: { MeterInfo: OpenXDA.Types.Meter, UpdateMeterInfo: (record: OpenXDA.Types.Meter) => void , SetError: (e: string[]) => void}) {
     const dispatch = useDispatch();
     const meterKeys = useSelector(SelectMeterKeysLowerCase);
     const mStatus = useSelector(SelectMeterStatus);
@@ -66,7 +66,7 @@ export default function Page1(props: { MeterInfo: OpenXDA.Meter, UpdateMeterInfo
         props.SetError(error);
     }, [props.MeterInfo, meterKeys])
 
-    function valid(field: keyof (OpenXDA.Meter)): boolean {
+    function valid(field: keyof (OpenXDA.Types.Meter)): boolean {
         if (field == 'AssetKey')
             return props.MeterInfo.AssetKey != null && meterKeys.indexOf(props.MeterInfo.AssetKey.toLowerCase()) < 0 &&props.MeterInfo.AssetKey.length > 0 && props.MeterInfo.AssetKey.length <= 50;
         else if (field == 'Name')

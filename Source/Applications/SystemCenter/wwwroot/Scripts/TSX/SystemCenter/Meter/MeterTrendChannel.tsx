@@ -23,12 +23,12 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { toNumber } from 'lodash';
 
 declare var homePath: string;
 
-export default class MeterTrendChannelWindow extends React.Component<{ Meter: OpenXDA.Meter, IsVisible: boolean }, { Channels: Array<OpenXDA.Channel>, Phases: Array<OpenXDA.Phase>, MeasurementTypes: Array<OpenXDA.MeasurementType>, MeasurementCharacteristics: Array<OpenXDA.MeasurementCharacteristic>, AllAssets: Array<OpenXDA.Asset> }, {}>{
+export default class MeterTrendChannelWindow extends React.Component<{ Meter: OpenXDA.Types.Meter, IsVisible: boolean }, { Channels: Array<OpenXDA.Types.Channel>, Phases: Array<OpenXDA.Types.Phase>, MeasurementTypes: Array<OpenXDA.Types.MeasurementType>, MeasurementCharacteristics: Array<OpenXDA.Types.MeasurementCharacteristic>, AllAssets: Array<OpenXDA.Types.Asset> }, {}>{
     constructor(props, context) {
         super(props, context);
         this.state = {
@@ -93,7 +93,7 @@ export default class MeterTrendChannelWindow extends React.Component<{ Meter: Op
             cache: true,
             async: true
         }).done((channels: Array<any>) => {
-            let makeChannels = channels.map(channel => channel as OpenXDA.Channel)
+            let makeChannels = channels.map(channel => channel as OpenXDA.Types.Channel)
             this.setState({ Channels:  makeChannels})
         });
     }
@@ -127,7 +127,7 @@ export default class MeterTrendChannelWindow extends React.Component<{ Meter: Op
                 dataType: 'json',
                 cache: true,
                 async: true
-            }).done((assets: Array<OpenXDA.Asset>) => {
+            }).done((assets: Array<OpenXDA.Types.Asset>) => {
                 this.setState({ AllAssets: assets })
             });
     }
@@ -145,7 +145,7 @@ export default class MeterTrendChannelWindow extends React.Component<{ Meter: Op
                 dataType: 'json',
                 cache: true,
                 async: true
-            }).done((phases: Array<OpenXDA.Phase>) => {
+            }).done((phases: Array<OpenXDA.Types.Phase>) => {
                 this.setState({ Phases: phases })
                 sessionStorage.setItem('NewMeterWizard.Phases', JSON.stringify(phases));
             });
@@ -162,7 +162,7 @@ export default class MeterTrendChannelWindow extends React.Component<{ Meter: Op
                 dataType: 'json',
                 cache: true,
                 async: true
-            }).done((measurementTypes: Array<OpenXDA.MeasurementType>) => {
+            }).done((measurementTypes: Array<OpenXDA.Types.MeasurementType>) => {
                 this.setState({ MeasurementTypes: measurementTypes })
                 sessionStorage.setItem('OpenXDA.MeasurementTypes', JSON.stringify(measurementTypes));
             });
@@ -179,15 +179,15 @@ export default class MeterTrendChannelWindow extends React.Component<{ Meter: Op
                 dataType: 'json',
                 cache: true,
                 async: true
-            }).done((measurementCharacteristics: Array<OpenXDA.MeasurementCharacteristic>) => {
+            }).done((measurementCharacteristics: Array<OpenXDA.Types.MeasurementCharacteristic>) => {
                 this.setState({ MeasurementCharacteristics: measurementCharacteristics })
                 sessionStorage.setItem('OpenXDA.MeasurementCharacteristics', JSON.stringify(measurementCharacteristics));
             });
     }
 
     deleteChannel(index: number): void {
-        let channels: Array<OpenXDA.Channel> = _.clone(this.state.Channels);
-        let record: OpenXDA.Channel = channels.splice(index, 1)[0];
+        let channels: Array<OpenXDA.Types.Channel> = _.clone(this.state.Channels);
+        let record: OpenXDA.Types.Channel = channels.splice(index, 1)[0];
         this.setState({ Channels: channels });
     }
 
@@ -275,8 +275,8 @@ export default class MeterTrendChannelWindow extends React.Component<{ Meter: Op
                 <div className="card-footer">
                     <div className="btn-group mr-2">
                         <button className="btn btn-primary pull-right" onClick={() => {
-                            let channel: OpenXDA.Channel = { ID: 0, Meter: this.props.Meter.AssetKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'RMS', Phase: 'AN', Name: 'VAN RMS', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN RMS', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Maximum', SourceIndexes: '' }, { ID: 0, ChannelID: 0, SeriesType: 'Minimum', SourceIndexes: '' }, { ID: 0, ChannelID: 0, SeriesType: 'Average', SourceIndexes: '' }] } as OpenXDA.Channel
-                            let channels: Array<OpenXDA.Channel> = _.clone(this.state.Channels);
+                            let channel: OpenXDA.Types.Channel = { ID: 0, Meter: this.props.Meter.AssetKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'RMS', Phase: 'AN', Name: 'VAN RMS', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN RMS', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Maximum', SourceIndexes: '' }, { ID: 0, ChannelID: 0, SeriesType: 'Minimum', SourceIndexes: '' }, { ID: 0, ChannelID: 0, SeriesType: 'Average', SourceIndexes: '' }] } as OpenXDA.Types.Channel
+                            let channels: Array<OpenXDA.Types.Channel> = _.clone(this.state.Channels);
                             channels.push(channel);
                             this.setState({ Channels: channels });
                         }}>Add Channel</button>

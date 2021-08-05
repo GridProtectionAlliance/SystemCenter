@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '../global';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import CFGParser from '../../../TS/CFGParser';
 import { useDispatch, useSelector } from 'react-redux';
 
@@ -34,13 +34,13 @@ import { Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA.Channel>, UpdateChannels: (record: OpenXDA.Channel[]) => void, UpdateAssets: (record: OpenXDA.Asset[]) => void, SetError: (e: string[]) => void  }) {
+export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA.Types.Channel>, UpdateChannels: (record: OpenXDA.Types.Channel[]) => void, UpdateAssets: (record: OpenXDA.Types.Asset[]) => void, SetError: (e: string[]) => void  }) {
     const fileInput = React.useRef(null);
     const dispatch = useDispatch();
     const measurementTypes = useSelector(MeasurmentTypeSlice.Data);
-    const mtStatus = useSelector(MeasurmentTypeSlice.Status) as SystemCenter.Status;
+    const mtStatus = useSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
     const phases = useSelector(PhaseSlice.Data);
-    const phStatus = useSelector(PhaseSlice.Status) as SystemCenter.Status;
+    const phStatus = useSelector(PhaseSlice.Status) as Application.Types.Status;
     const [showCFGError, setShowCFGError] = React.useState<boolean>(false);
     const [showSpareWarning, setShowSpareWarning] = React.useState<boolean>(false);
 
@@ -104,16 +104,16 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
     }
 
     function deleteChannel(id: number): void {
-        let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
+        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
         let index = channels.findIndex(ch => ch.ID == id);
         if (index == -1)
             return;
-        let record: OpenXDA.Channel = channels.splice(index, 1)[0];
+        let record: OpenXDA.Types.Channel = channels.splice(index, 1)[0];
         props.UpdateChannels(channels);
 
         if (record.Asset == '') return;
 
-        let assets:Array<OpenXDA.Asset> = JSON.parse(localStorage.getItem('NewMeterWizard.Assets'));
+        let assets:Array<OpenXDA.Types.Asset> = JSON.parse(localStorage.getItem('NewMeterWizard.Assets'));
 
         if (assets != null && assets.length > 0) {
             let asset = assets.find(a => a.AssetKey == record.Asset)
@@ -139,7 +139,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
         }
     }
 
-    function editChannel(channel: OpenXDA.Channel) {
+    function editChannel(channel: OpenXDA.Types.Channel) {
         let index = props.Channels.findIndex(ch => ch.ID == channel.ID);
         let updated = _.cloneDeep(props.Channels)
         if (index > -1)
@@ -151,8 +151,8 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
     }
 
     function clearSpareChannels() {
-        let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
-        let assets: Array<OpenXDA.Asset> = JSON.parse(localStorage.getItem('NewMeterWizard.Assets'));
+        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
+        let assets: Array<OpenXDA.Types.Asset> = JSON.parse(localStorage.getItem('NewMeterWizard.Assets'));
 
         if (assets != null && assets.length > 0) {
 
@@ -174,7 +174,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
         props.UpdateChannels(channels.filter(c => !IsSpare(c)));
     }
 
-    function IsSpare(ch: OpenXDA.Channel): boolean {
+    function IsSpare(ch: OpenXDA.Types.Channel): boolean {
         const regex = new RegExp('\(A[0-9]+\)Analog Channel [0-9]+');
 
         return ch.Description.toLowerCase() == 'spare' || (regex.test(ch.Description) && ch.MeasurementType == 'Digital') ;
@@ -188,14 +188,14 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
             <div className="row">
                 <div className="col-2">
                     <button className="btn btn-primary" onClick={() => {
-                        let channels: Array<OpenXDA.Channel> = [
-                            { ID: 0, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series], ConnectionPriority: 0 } as OpenXDA.Channel,
-                            { ID: 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'VBN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage BN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series], ConnectionPriority: 0 } as OpenXDA.Channel,
-                            { ID: 2, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'VCN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage CN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series], ConnectionPriority: 0 } as OpenXDA.Channel,
-                            { ID: 3, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'IA', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current A', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series], ConnectionPriority: 0 } as OpenXDA.Channel,
-                            { ID: 4, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'IB', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current B', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series], ConnectionPriority: 0 } as OpenXDA.Channel,
-                            { ID: 5, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'IC', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current C', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series], ConnectionPriority: 0 } as OpenXDA.Channel,
-                            { ID: 6, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'RES', Name: 'IR', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current RES', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series], ConnectionPriority: 0 } as OpenXDA.Channel,
+                        let channels: Array<OpenXDA.Types.Channel> = [
+                            { ID: 0, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'VBN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage BN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 2, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'VCN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage CN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 3, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'IA', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current A', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 4, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'IB', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current B', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 5, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'IC', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current C', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 6, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'RES', Name: 'IR', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current RES', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
 
                         ]
                         props.UpdateChannels(channels);
@@ -215,8 +215,8 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                 </div>
                 <div className="col-2">
                     <button className="btn btn-primary pull-right" onClick={() => {
-                        let channel: OpenXDA.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Series], ConnectionPriority: 0 } as OpenXDA.Channel
-                        let channels: Array<OpenXDA.Channel> = _.clone(props.Channels);
+                        let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel
+                        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
                         channels.push(channel);
                         props.UpdateChannels(channels);
                     }}>Add Channel</button>
@@ -224,28 +224,28 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
 
             </div>
             <div style={{ width: '100%', maxHeight: innerHeight - 380, padding: 30 }}>
-                <Table<OpenXDA.Channel> cols={[
+                <Table<OpenXDA.Types.Channel> cols={[
                     {
-                        key: 'Series', label: 'Channel', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Series> Field={'SourceIndexes'}
+                        key: 'Series', label: 'Channel', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Types.Series> Field={'SourceIndexes'}
                             Record={item.Series[0]} Setter={(series) => {
                             item.Series[0].SourceIndexes = series.SourceIndexes;
                             editChannel(item)
                         }} Label={''} Valid={() => true}/>
                     },
                     {
-                        key: 'Name', label: 'Name', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (item) => <Input<OpenXDA.Channel> Field={'Name'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
+                        key: 'Name', label: 'Name', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Name'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
                     },
                     {
-                        key: 'Description', label: 'Desc', headerStyle: { width: '33%' }, rowStyle: { width: '33%' }, content: (item) => <Input<OpenXDA.Channel> Field={'Description'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
+                        key: 'Description', label: 'Desc', headerStyle: { width: '33%' }, rowStyle: { width: '33%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Description'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
                     },
                     {
-                        key: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={(measurementTypes as OpenXDA.MeasurementType[]).map((t) => ({ Value: t.Name, Label: t.Name }))} />
+                        key: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={(measurementTypes as OpenXDA.Types.MeasurementType[]).map((t) => ({ Value: t.Name, Label: t.Name }))} />
                     },
                     {
-                        key: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={(phases as OpenXDA.Phase[]).map((t) => ({ Value: t.Name, Label: t.Name }))} />
+                        key: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={(phases as OpenXDA.Types.Phase[]).map((t) => ({ Value: t.Name, Label: t.Name }))} />
                     },
-                    { key: 'Adder', label: 'Adder', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Channel> Field={'Adder'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
-                    { key: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Channel> Field={'Multiplier'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
+                    { key: 'Adder', label: 'Adder', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
+                    { key: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
                     { key: 'DeleteButton', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%', paddingTop: 36, paddingBottom: 36 }, content: (item) => <button className="btn btn-sm" onClick={(e) => deleteChannel(item.ID)}><span><i className="fa fa-times"></i></span></button> },
                     
                 ]}

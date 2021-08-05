@@ -23,13 +23,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '../global';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
+import { OpenXDA } from '@gpa-gemstone/application-typings'
 
 declare var homePath: string;
 
-export default function CompanyMeterWindow(props: { Company: SystemCenter.Company }){
-    const [sites, setSites] = React.useState<SystemCenter.CompanyMeter[]>([]);
+export default function CompanyMeterWindow(props: { Company: OpenXDA.Types.Company }){
+    const [sites, setSites] = React.useState<OpenXDA.Types.CompanyMeter[]>([]);
     const [allSites, setAllSites] = React.useState<any[]>([]);
     const [searchText, setSearchText] = React.useState<string>('');
     const [searchTextAS, setSearchTextAS] = React.useState<string>('');
@@ -39,7 +39,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
 
     React.useEffect(() => {
         let promise1 = getSites();
-        promise1.done((sites: Array<SystemCenter.CompanyMeter>) => setSites(sites));
+        promise1.done((sites: Array<OpenXDA.Types.CompanyMeter>) => setSites(sites));
         let promise2 = getAllSites();
         promise2.done((sites: Array<any>) => setAllSites(_.orderBy(sites, ['AssetKey'], ['asc'])));
 
@@ -49,7 +49,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
         }
     }, [updated]);
 
-    function getSites(): JQuery.jqXHR<SystemCenter.CompanyMeter[]> {
+    function getSites(): JQuery.jqXHR<OpenXDA.Types.CompanyMeter[]> {
         return $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/CompanyMeter/${props.Company.ID}`,
@@ -66,7 +66,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
             url: `${homePath}api/OpenXDA/CompanyMeter/AddMultiple`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(selectedSites.map(ss => ({ ID: 0, CompanyID: props.Company.ID, MeterID: parseInt(ss.ID.toString()), DisplayName : ss.Name, Enabled: true }) as SystemCenter.CompanyMeter)),
+            data: JSON.stringify(selectedSites.map(ss => ({ ID: 0, CompanyID: props.Company.ID, MeterID: parseInt(ss.ID.toString()), DisplayName : ss.Name, Enabled: true }) as OpenXDA.Types.CompanyMeter)),
             cache: false,
             async: true
         }).done(() => {
@@ -91,7 +91,7 @@ export default function CompanyMeterWindow(props: { Company: SystemCenter.Compan
         });
     }
 
-    function deleteCustommerAccess(record: SystemCenter.CompanyMeter): void {
+    function deleteCustommerAccess(record: OpenXDA.Types.CompanyMeter): void {
         $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/CompanyMeter/Delete`,

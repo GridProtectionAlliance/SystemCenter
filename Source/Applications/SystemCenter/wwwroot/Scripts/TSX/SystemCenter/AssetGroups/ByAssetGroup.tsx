@@ -25,7 +25,7 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { OpenXDA, SystemCenter } from '../global';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import AddToGroupPopup from './AddToGroup';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
@@ -54,7 +54,7 @@ const emptyAssetGroup: extendedAssetGroup = { ID: -1, Name: '', DisplayDashboard
 
 declare var homePath: string;
 
-const ByAssetGroup: SystemCenter.ByComponent = (props) => {
+const ByAssetGroup: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<AssetGroup>>>([]);
@@ -145,7 +145,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
             data: JSON.stringify(newAssetGroup),
             cache: false,
             async: true
-        }).done((d: OpenXDA.AssetGroup) => {
+        }).done((d: OpenXDA.Types.AssetGroup) => {
             let handle1 = $.ajax({
                 type: "Post",
                 url: `${homePath}api/OpenXDA/AssetGroup/${d.ID}/AddAssets`,
@@ -194,7 +194,7 @@ const ByAssetGroup: SystemCenter.ByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + item.row.ID, state: {} })
     }
 
-    function valid(field: keyof (OpenXDA.AssetGroup)): boolean {
+    function valid(field: keyof (OpenXDA.Types.AssetGroup)): boolean {
         if (field == 'Name') {
             if (newAssetGroup.Name == null || newAssetGroup.Name.length == 0) return false;
                 return allAssetGroups.map(item => item.Name.toLowerCase()).indexOf(newAssetGroup.Name.toLowerCase()) < 0;

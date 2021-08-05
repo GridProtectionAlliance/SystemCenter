@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '../global';
+import { OpenXDA, Application } from '@gpa-gemstone/application-typings' 
 import Table from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
@@ -42,19 +42,19 @@ import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 declare var homePath: string;
 
 
-function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element{
+function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.Element{
     let history = useHistory();
     let dispatch = useDispatch();
 
-    const [data, setData] = React.useState<Array<OpenXDA.Asset>>([]);
+    const [data, setData] = React.useState<Array<OpenXDA.Types.Asset>>([]);
     const [sortKey, setSortKey] = React.useState<string>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [trigger, setTrigger] = React.useState<number>(0);
 
-    const [newEditAsset, setNewEditAsset] = React.useState<OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer>(AssetAttributes.getNewAsset('Line'));
-    const [editAsset, setEditasset] = React.useState<OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer>(AssetAttributes.getNewAsset('Line'));
+    const [newEditAsset, setNewEditAsset] = React.useState<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer>(AssetAttributes.getNewAsset('Line'));
+    const [editAsset, setEditasset] = React.useState<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer>(AssetAttributes.getNewAsset('Line'));
 
-    const [newEdit, setNewEdit] = React.useState<SystemCenter.NewEdit>('New');
+    const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('New');
 
     const [assetErrors, setAssetErrors] = React.useState<string[]>([]);
     const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -95,7 +95,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
 
     React.useEffect(() => { setNewEditAsset(editAsset) }, [editAsset]);
 
-    function getAssets(): JQuery.jqXHR<OpenXDA.Asset[]> {
+    function getAssets(): JQuery.jqXHR<OpenXDA.Types.Asset[]> {
         setLStatus('loading');
 
         return $.ajax({
@@ -156,7 +156,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
 
     }
 
-    async function deleteAsset(asset: OpenXDA.Asset) {
+    async function deleteAsset(asset: OpenXDA.Types.Asset) {
         setLStatus('loading')
       return  $.ajax({
             type: "DELETE",
@@ -181,15 +181,15 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
 
     function showAttributes(): JSX.Element {
         if (newEditAsset.AssetType == 'Breaker')
-            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Breaker} UpdateState={setNewEditAsset} ShowSpare={true} />;
+            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Breaker} UpdateState={setNewEditAsset} ShowSpare={true} />;
         else if (newEditAsset.AssetType == 'Bus')
             return <BusAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'CapacitorBank')
-            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.CapBank} UpdateState={setNewEditAsset} />;
+            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBank} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'Line')
-            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Line} UpdateState={setNewEditAsset} />;
+            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'Transformer')
-            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Transformer} UpdateState={setNewEditAsset} />;
+            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset} />;
     }
 
     function handleSelect(item, event) {
@@ -267,7 +267,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Location }): JSX.Element
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    <Table<OpenXDA.Asset>
+                    <Table<OpenXDA.Types.Asset>
                         cols={[
                             { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                             { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },

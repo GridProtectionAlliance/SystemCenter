@@ -24,9 +24,9 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useHistory } from 'react-router-dom';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table';
 import AddToGroupPopup from './AddToGroup';
 
 declare var homePath: string;
@@ -34,7 +34,7 @@ declare var homePath: string;
 
 function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
     let history = useHistory();
-    const [groupList, setGroupList] = React.useState<Array<OpenXDA.AssetGroup>>([]);
+    const [groupList, setGroupList] = React.useState<Array<OpenXDA.Types.AssetGroup>>([]);
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
@@ -57,7 +57,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
             async: true
         });
 
-        handle.done((data: Array<OpenXDA.AssetGroup>) => setGroupList(data));
+        handle.done((data: Array<OpenXDA.Types.AssetGroup>) => setGroupList(data));
       
         return function cleanup() {
             if (handle.abort != null)
@@ -96,28 +96,28 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <Table
                         cols={[
-                            { key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Assets', label: 'Num. of Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Meters', label: 'Num. of Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Users', label: 'Num. of Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssetGroups', label: 'Num. of Asset Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'Assets', field: 'Assets', label: 'Num. of Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'Meters', field: 'Meters', label: 'Num. of Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'Users', field: 'Users', label: 'Num. of Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'AssetGroups', field: 'AssetGroups', label: 'Num. of Asset Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
                         tableClass="table table-hover"
                         data={groupList}
-                        sortField={sortField}
+                        sortKey={sortField}
                         ascending={ascending}
                         onSort={(d) => {
-                            if (d.col == sortField) {
-                                let ordered = _.orderBy(groupList, [d.col], [(!ascending ? "asc" : "desc")]);
+                            if (d.colKey == sortField) {
+                                let ordered = _.orderBy(groupList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
                                 setGroupList(ordered);
                             }
                             else {
-                                let ordered = _.orderBy(groupList, [d.col], ["asc"]);
+                                let ordered = _.orderBy(groupList, [d.colKey], ["asc"]);
                                 setAscending(!ascending);
                                 setGroupList(ordered);
-                                setSortField(d.col);
+                                setSortField(d.colKey);
                             }
                         }}
                         onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + data.row.ID, state: {} })}}

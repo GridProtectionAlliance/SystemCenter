@@ -24,7 +24,7 @@
 
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { SystemCenter, OpenXDA } from '../global';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
 export const FetchMeter = createAsyncThunk('Meter/FetchMeter', async (_, { dispatch }) => {
     return await GetMeter();
@@ -33,9 +33,9 @@ export const FetchMeter = createAsyncThunk('Meter/FetchMeter', async (_, { dispa
 export const MeterSlice = createSlice({
     name: 'Meter',
     initialState: {
-        Status: 'unintiated' as SystemCenter.Status,
+        Status: 'unintiated' as Application.Types.Status,
         Error: null,
-        Data: [] as OpenXDA.Meter[]
+        Data: [] as OpenXDA.Types.Meter[]
     },
     reducers: {
     },
@@ -60,11 +60,11 @@ export const MeterSlice = createSlice({
 
 export const { } = MeterSlice.actions;
 export default MeterSlice.reducer;
-export const SelectMeters = (state) => state.Meter.Data as OpenXDA.Meter[];
-export const SelectMeterStatus = (state) => state.Meter.Status as SystemCenter.Status;
+export const SelectMeters = (state) => state.Meter.Data as OpenXDA.Types.Meter[];
+export const SelectMeterStatus = (state) => state.Meter.Status as Application.Types.Status;
 export const SelectMeterKeysLowerCase = (state) => state.Meter.Data.map(a => a.AssetKey.toLowerCase()) as string[];
 
-function GetMeter(): JQuery.jqXHR<OpenXDA.Meter[]> {
+function GetMeter(): JQuery.jqXHR<OpenXDA.Types.Meter[]> {
     return $.ajax({
         type: "GET",
         url: `${homePath}api/OpenXDA/Meter`,

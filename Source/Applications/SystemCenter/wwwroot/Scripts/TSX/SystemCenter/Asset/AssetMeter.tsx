@@ -23,16 +23,16 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
-import Table from '../CommonComponents/Table';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
+import Table from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
 
-function AssetMeterWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
+function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     let history = useHistory();
-    const [meters, setMeters] = React.useState<Array<OpenXDA.Meter>>([]);
-    const [sortField, setSortField] = React.useState<keyof(OpenXDA.Meter)>('AssetKey');
+    const [meters, setMeters] = React.useState<Array<OpenXDA.Types.Meter>>([]);
+    const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
     React.useEffect(() => {
@@ -65,7 +65,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    <Table<OpenXDA.Meter>
+                    <Table<OpenXDA.Types.Meter>
                         cols={[
                             { key: 'AssetKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                             { key: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
@@ -75,19 +75,19 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Asset }): JSX.Element{
                         ]}
                         tableClass="table table-hover"
                         data={meters}
-                        sortField={sortField}
+                        sortKey={sortField}
                         ascending={ascending}
                         onSort={(d) => {
-                            if (d.col == sortField) {
-                                var ordered = _.orderBy(meters, [d.col], [(!ascending ? "asc" : "desc")]);
+                            if (d.colKey == sortField) {
+                                var ordered = _.orderBy(meters, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
                                 setMeters(ordered);
                             }
                             else {
-                                var ordered = _.orderBy(meters, [d.col], ["asc"]);
+                                var ordered = _.orderBy(meters, [d.colKey], ["asc"]);
                                 setAscending(!ascending);
                                 setMeters(ordered);
-                                setSortField(d.col);
+                                setSortField(d.colField);
                             }
                         }}
                         onClick={handleSelect}

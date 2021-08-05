@@ -24,11 +24,11 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '../global';
 import CompanyForm from './CompanyForm';
 declare var homePath: string;
+import { OpenXDA } from '@gpa-gemstone/application-typings'
 
-export default class CompanyInfoWindow extends React.Component<{ Company: SystemCenter.Company, stateSetter: (company: SystemCenter.Company) => void }, { Company: SystemCenter.Company}, {}> {
+export default class CompanyInfoWindow extends React.Component<{ Company: OpenXDA.Types.Company, stateSetter: (company: OpenXDA.Types.Company) => void }, { Company: OpenXDA.Types.Company}, {}> {
     jqueryHandle: JQuery.jqXHR;
     constructor(props, context) {
         super(props, context);

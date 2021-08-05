@@ -25,7 +25,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useDispatch, useSelector } from 'react-redux';
 import { DataFileSlice } from '../Store/Store';
 import Table from '@gpa-gemstone/react-table';
@@ -49,7 +49,7 @@ function DownloadedFiles(props: { MeterID: number, MeterName: string }) {
     return (
         <div style={{ width: '100%', height: 'calc( 100% - 90px)' }}>
             <h3>Last 50 downloaded files for {props.MeterName}</h3>
-            <Table<OpenXDA.DataFile>
+            <Table<OpenXDA.Types.DataFile>
                 cols={[
                     { key: 'FilePath', field: 'FilePath', label: 'File', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                     { key: 'DataStartTime', field: 'DataStartTime', label: 'Date', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") },

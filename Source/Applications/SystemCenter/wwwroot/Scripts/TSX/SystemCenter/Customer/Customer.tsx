@@ -23,7 +23,6 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '../global';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import CustomerInfo from './CustomerInfo';
@@ -31,6 +30,7 @@ import CustomerMeterWindow from './CustomerMeter';
 import { useSelector, useDispatch } from 'react-redux';
 import { CustomerSlice } from '../Store/Store';
 import { Warning } from '@gpa-gemstone/react-interactive';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 
 declare var homePath: string;
 
@@ -39,8 +39,8 @@ export default function Customer(props: IProps) {
     const dispatch = useDispatch();
 
     const [tab, setTab] = React.useState<string>(getTab());
-    const customer = useSelector((state) => CustomerSlice.Datum(state, props.CustomerID)) as SystemCenter.Customer;
-    const cStatus = useSelector(CustomerSlice.Status) as SystemCenter.Status;
+    const customer = useSelector((state) => CustomerSlice.Datum(state, props.CustomerID)) as OpenXDA.Types.Customer;
+    const cStatus = useSelector(CustomerSlice.Status) as Application.Types.Status;
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
     React.useEffect(() => {

@@ -22,11 +22,11 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table';
+import { Application } from '@gpa-gemstone/application-typings'
 import * as _ from 'lodash';
 import * as d3 from 'd3';
 import { useHistory } from "react-router-dom";
-import { SystemCenter } from '../global';
 import { GetAccessLogAggregates, GetAccessLogTable, } from './../../../TS/Services/User';
 declare var homePath: string;
 
@@ -41,7 +41,7 @@ interface AccesLogTable {
     LastAccess: string
 }
 
-const UserStatistics: SystemCenter.ByComponent = (props) => {
+const UserStatistics: Application.Types.iByComponent = (props) => {
     let history = useHistory();
     let svgWidth = window.innerWidth - 250 - 30;
     let svgHeight = (window.innerHeight - 75) * .33;
@@ -55,7 +55,7 @@ const UserStatistics: SystemCenter.ByComponent = (props) => {
     const [days, setDays] = React.useState<number>(30);
     const [x, setX] = React.useState<d3.ScaleTime<number, number>>(null);
     const [Y, setY] = React.useState<d3.ScaleLinear<number, number>>(null);
-    const [tab, setTab] = React.useState<SystemCenter.AttachedDatabases>('SystemCenter');
+    const [tab, setTab] = React.useState<Application.Types.AttachedDatabases>('SystemCenter');
     const [tableData, setTableData] = React.useState<Array<AccesLogTable>>([]);
     const [sortField, setSortField] = React.useState<string>('Logins');
     const [ascending, setAscending] = React.useState<boolean>(false);
@@ -64,14 +64,14 @@ const UserStatistics: SystemCenter.ByComponent = (props) => {
         GetData(days, tab);
     }, []);
 
-    async function GetData(d: number, t: SystemCenter.AttachedDatabases) {
+    async function GetData(d: number, t: Application.Types.AttachedDatabases) {
         let sca = await GetAccessLogAggregates("SystemCenter", d);
         let xdaa = await GetAccessLogAggregates("OpenXDA", d);
         DrawChart(sca, xdaa);
         GetTableData(t)
     }
 
-    async function GetTableData(db: SystemCenter.AttachedDatabases ) {
+    async function GetTableData(db: Application.Types.AttachedDatabases ) {
         let table = await GetAccessLogTable(db, days);
         var ordered = _.orderBy(table, [sortField], [(ascending ? "asc" : "desc")])
         setTableData(ordered);
@@ -154,23 +154,23 @@ const UserStatistics: SystemCenter.ByComponent = (props) => {
                         <div className="tab-pane  active">
                             <Table<AccesLogTable>
                                 cols={[
-                                    { key: 'UserName', label: 'User', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                                    { key: 'Logins', label: 'Logins for Period', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                                    { key: 'LastAccess', label: 'Last Access Time ', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                    { key: 'UserName', field: 'UserName', label: 'User', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                                    { key: 'Logins', field: 'Logins', label: 'Logins for Period', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                                    { key: 'LastAccess', field: 'LastAccess', label: 'Last Access Time ', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 ]}
                                 tableClass="table table-hover"
                                 data={tableData}
-                                sortField={sortField}
+                                sortKey={sortField}
                                 ascending={ascending}
                                 onSort={(d) => {
-                                    if (d.col == sortField) {
-                                        var ordered = _.orderBy(tableData, [d.col], [(!ascending ? "asc" : "desc")]);
+                                    if (d.colKey == sortField) {
+                                        var ordered = _.orderBy(tableData, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                         setTableData(ordered);
                                     }
                                     else {
-                                        var ordered = _.orderBy(tableData, [d.col], ["asc"]);
+                                        var ordered = _.orderBy(tableData, [d.colKey], ["asc"]);
                                         setTableData(ordered);
-                                        setSortField(d.col);
+                                        setSortField(d.colKey);
                                     }
                                     setAscending(!ascending);
 

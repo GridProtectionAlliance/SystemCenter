@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 
 import { useHistory } from 'react-router-dom';
 import AssetgroupInfoWindow from './AssetGroupInfo';
@@ -31,17 +31,18 @@ import AssetAssetGroupWindow from './AssetAssetGroup';
 import MeterAssetGroupWindow from './MeterAssetGroup';
 import UserAssetGroupWindow from './UserAssetGroup';
 import AssetGroupAssetGroupWindow from './AssetGroupAssetGroup';
-import Warning from '../CommonComponents/WarningModal';
-import { TabSelector } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup' | 'user' 
 
 function AssetGroup(props: { AssetGroupID: number }) {
     let history = useHistory();
-    const [assetGroup, setAssetGroup] = React.useState<OpenXDA.AssetGroup>(null);
-    const [allAssetGroups, setAllAssetGroups] = React.useState<Array<OpenXDA.AssetGroup>>([]);
+    const [assetGroup, setAssetGroup] = React.useState<OpenXDA.Types.AssetGroup>(null);
+    const [allAssetGroups, setAllAssetGroups] = React.useState<Array<OpenXDA.Types.AssetGroup>>([]);
     const [tab, setTabState] = React.useState<string>(getTab());
+    const [showDelete, setShowDelete] = React.useState<boolean>(false);
+    const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     
 
     function getTab(): Tab {
@@ -66,7 +67,7 @@ function AssetGroup(props: { AssetGroupID: number }) {
             async: true
        })
 
-        handle.done((data: OpenXDA.AssetGroup) => {
+        handle.done((data: OpenXDA.Types.AssetGroup) => {
            setAssetGroup(data)
         });
 
@@ -108,7 +109,7 @@ function AssetGroup(props: { AssetGroupID: number }) {
 
     function deleteAssetGroup(): JQuery.jqXHR {
 
-        return $.ajax({
+        let handle = $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/AssetGroup/Delete`,
             contentType: "application/json; charset=utf-8",
@@ -116,10 +117,14 @@ function AssetGroup(props: { AssetGroupID: number }) {
             dataType: 'json',
             cache: true,
             async: true
-        }).done((msg) => {
+        });
+        
+        handle.done((msg) => {
             sessionStorage.clear();
             history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroups', state: {} });
         });
+
+        handle.then((d) => setLoadDelete(false))
 
         return null;
 
@@ -143,11 +148,9 @@ function AssetGroup(props: { AssetGroupID: number }) {
                     <h2>{assetGroup.Name}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" onClick={() => $('#deleteModal').show()}>Delete Asset Group</button>
+                    <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete Asset Group</button>
                 </div>
             </div>
-            <Warning Id={'deleteModal'} Title={'Warning'} Confirm={'Delete'} Deny={'Cancel'} Content={'This will permanently delete this Asset Group. Are you sure you want to continue?'} Action={(result) => { if (result) deleteAssetGroup(); }}/>
-
             <hr />
             <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
             
@@ -167,7 +170,9 @@ function AssetGroup(props: { AssetGroupID: number }) {
                 <div className={"tab-pane " + (tab == "assetgroup" ? " active" : "fade")} id="assetgroup">
                     <AssetGroupAssetGroupWindow AssetGroupID={props.AssetGroupID} />
                 </div>
-            </div>                
+            </div>
+            <Warning Message={'This will permanently delete this Asset Group and cannot be undone'} Show={showDelete} Title={'deleteModal ' + assetGroup.Name} CallBack={(conf) => { if (conf) deleteAssetGroup(); setShowDelete(false); }} />
+            <LoadingScreen Show={loadDelete} />
         </div>
     )
 }

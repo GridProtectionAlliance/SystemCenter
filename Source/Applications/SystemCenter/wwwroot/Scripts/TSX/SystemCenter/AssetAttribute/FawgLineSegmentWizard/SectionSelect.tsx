@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import {OpenXDA } from '../../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import Table from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Select } from '@gpa-gemstone/react-forms';
@@ -51,7 +51,7 @@ export interface FawgSection {
     NameTo: string
 }
 
-export interface FawgSegment extends OpenXDA.LineSegment {
+export interface FawgSegment extends OpenXDA.Types.LineSegment {
     FromBus: number,
     ToBus: number,
     LocationFromID: number,
@@ -74,7 +74,7 @@ interface FawgTap {
 }
 
 function SectionSelect(props: IProps): JSX.Element {
-    const [locations, setLocations] = React.useState<OpenXDA.Location[]>([]);
+    const [locations, setLocations] = React.useState<OpenXDA.Types.Location[]>([]);
 
     React.useEffect(() => {
         ProcessSegments();
@@ -86,7 +86,7 @@ function SectionSelect(props: IProps): JSX.Element {
         return () => { if (handle != null && handle.abort != null) handle.abort();}
     }, [props.LineID])
 
-    function getLocations(): JQuery.jqXHR<OpenXDA.Location> {
+    function getLocations(): JQuery.jqXHR<OpenXDA.Types.Location> {
         return $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Asset/${props.LineID}/Locations`,

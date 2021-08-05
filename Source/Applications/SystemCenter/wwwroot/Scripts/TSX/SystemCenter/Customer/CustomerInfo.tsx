@@ -22,18 +22,18 @@
 //******************************************************************************************************
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '../global';
 declare var homePath: string;
 
 import CustomerForm from './CustomerForm';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { OpenXDA } from '@gpa-gemstone/application-typings'
 
-interface IProps { Customer: SystemCenter.Customer, stateSetter: (customer: SystemCenter.Customer) => void }
+interface IProps { Customer: OpenXDA.Types.Customer, stateSetter: (customer: OpenXDA.Types.Customer) => void }
 
 
 export default function CustomerInfo(props: IProps) {
-    const [customer, setCustomer] = React.useState<SystemCenter.Customer>(props.Customer);
+    const [customer, setCustomer] = React.useState<OpenXDA.Types.Customer>(props.Customer);
     const [warnings, setWarning] = React.useState<string[]>([]);
     const [errors, setError] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('None' | 'Clear' | 'Submit')>('None');

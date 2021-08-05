@@ -23,12 +23,12 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useDispatch, useSelector } from 'react-redux';
 import { AssetConnectionTypeSlice } from '../Store/Store';
 import { Modal, Search } from '@gpa-gemstone/react-interactive';
 
-export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnections: Array<OpenXDA.AssetConnection>, UpdateAssetConnections: (record: OpenXDA.AssetConnection[]) => void }) {
+export default function Page5(props: { Assets: Array<OpenXDA.Types.Asset>, AssetConnections: Array<OpenXDA.Types.AssetConnection>, UpdateAssetConnections: (record: OpenXDA.Types.AssetConnection[]) => void }) {
 
     const dispatch = useDispatch();
     const assetConnectionTypes = useSelector(AssetConnectionTypeSlice.SearchResults);
@@ -52,7 +52,7 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
     
 
     React.useEffect(() => {
-        const filter: Search.IFilter<OpenXDA.AssetConnection>[] = [
+        const filter: Search.IFilter<OpenXDA.Types.AssetConnection>[] = [
             { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${props.Assets[assetIndex].AssetType}')`, Operator: 'IN', Type: 'number', isPivotColumn: false },
             { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${props.Assets.find(a => a.AssetKey == selectedAssetKey).AssetType}')`, Operator: 'IN', Type: 'number', isPivotColumn: false }
         ]
@@ -93,10 +93,10 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
         }
     }
 
-    function deleteAssetConnection(ac: OpenXDA.AssetConnection): void {
-        let list: Array<OpenXDA.AssetConnection> = _.clone(props.AssetConnections);
+    function deleteAssetConnection(ac: OpenXDA.Types.AssetConnection): void {
+        let list: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
         let index = list.findIndex(a => a == ac);
-        let record: Array<OpenXDA.AssetConnection> = list.splice(index, 1);
+        let record: Array<OpenXDA.Types.AssetConnection> = list.splice(index, 1);
         props.UpdateAssetConnections(list);
     }
 
@@ -129,7 +129,7 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
                                 </thead>
                                 <tbody>
                                     {
-                                        props.AssetConnections.filter( ac => ac.Parent == currentAsset.AssetKey  || ac.Child == currentAsset.AssetKey).map((ac: OpenXDA.AssetConnection, index, array) => {
+                                        props.AssetConnections.filter( ac => ac.Parent == currentAsset.AssetKey  || ac.Child == currentAsset.AssetKey).map((ac: OpenXDA.Types.AssetConnection, index, array) => {
                                             let connectionAsset;
                                             if (ac.Parent == currentAsset.AssetKey) {
                                                 connectionAsset = props.Assets.find(asset => asset.AssetKey == ac.Child);
@@ -171,7 +171,7 @@ export default function Page5(props: { Assets: Array<OpenXDA.Asset>, AssetConnec
 
                     let childConnection = selectedAssetKey;
                     let connectionType = selectedTypeID;
-                    let assetConnections: Array<OpenXDA.AssetConnection> = _.clone(props.AssetConnections);
+                    let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
                     assetConnections.push({ ID: 0, AssetRelationshipTypeID: connectionType, Parent: currentAsset.AssetKey, Child: childConnection });
                     props.UpdateAssetConnections(assetConnections);
 

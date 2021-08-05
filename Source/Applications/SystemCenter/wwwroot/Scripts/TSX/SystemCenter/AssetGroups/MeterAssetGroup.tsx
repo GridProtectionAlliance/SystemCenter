@@ -26,7 +26,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { useHistory } from 'react-router-dom';
-import Table from '../CommonComponents/Table';
+import Table from '@gpa-gemstone/react-table';
 import AddToGroupPopup from './AddToGroup';
 
 declare var homePath: string;
@@ -96,25 +96,25 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <Table
                         cols={[
-                            { key: 'MeterName', label: 'Meter', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                            { key: 'MeterName', field: 'MeterName', label: 'Meter', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
                         tableClass="table table-hover"
                         data={meterList}
-                        sortField={sortField}
+                        sortKey={sortField}
                         ascending={ascending}
                         onSort={(d) => {
-                            if (d.col == sortField) {
-                                let ordered = _.orderBy(meterList, [d.col], [(!ascending ? "asc" : "desc")]);
+                            if (d.colKey == sortField) {
+                                let ordered = _.orderBy(meterList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
                                 setMeterList(ordered);
                             }
                             else {
-                                let ordered = _.orderBy(meterList, [d.col], ["asc"]);
+                                let ordered = _.orderBy(meterList, [d.colKey], ["asc"]);
                                 setAscending(!ascending);
                                 setMeterList(ordered);
-                                setSortField(d.col);
+                                setSortField(d.colKey);
                             }
                         }}
                         onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + data.row.MeterID, state: {} }) }}

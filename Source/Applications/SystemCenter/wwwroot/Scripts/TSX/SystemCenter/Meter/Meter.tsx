@@ -26,7 +26,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import MeterLocationWindow from '../Meter/MeterLocation';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import MeterInfoWindow from './MeterInfo';
 import MeterEventChannelWindow from '../Meter/MeterEventChannel';
 import MeterTrendChannelWindow from '../Meter/MeterTrendChannel';
@@ -47,7 +47,7 @@ declare var homePath: string;
 interface IProps { MeterID: number }
 
 function Meter(props: IProps) {
-    const [meter, setMeter] = React.useState<OpenXDA.Meter>(null);
+    const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(null);
     const [Tab, setTab] = React.useState<string>(null);
     const [showAdvanced, setShowAdvanced] = React.useState<boolean>(false);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
@@ -69,7 +69,7 @@ function Meter(props: IProps) {
 
     React.useEffect(() => {
         let handle = getMeter();
-        handle.then((data: OpenXDA.Meter) => setMeter(data));
+        handle.then((data: OpenXDA.Types.Meter) => setMeter(data));
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
 
     }, [props.MeterID]);
@@ -81,7 +81,7 @@ function Meter(props: IProps) {
             return 'notes';
     }
 
-    function getMeter(): JQuery.jqXHR<OpenXDA.Meter> {
+    function getMeter(): JQuery.jqXHR<OpenXDA.Types.Meter> {
         if (props.MeterID == undefined) return null;
         return $.ajax({
             type: "GET",
@@ -197,13 +197,13 @@ function Meter(props: IProps) {
                     <NoteWindow ID={props.MeterID} Type='Meter' />
                 </div>
                 <div className={"tab-pane " + (Tab == "meterInfo" ? " active" : "fade")} id="meterInfo" style={{ maxHeight: window.innerHeight - 215 }}>
-                    <MeterInfoWindow Meter={meter} StateSetter={(meter: OpenXDA.Meter) => setMeter(meter)} />
+                    <MeterInfoWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} />
                 </div>
                 <div className={"tab-pane " + (Tab == "additionalFields" ? " active" : "fade")} id="additionalFields" style={{ maxHeight: window.innerHeight - 215 }}>
                     <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={Tab} />
                 </div>
                 <div className={"tab-pane " + (Tab == "substation" ? " active" : "fade")} id="substation" style={{ maxHeight: window.innerHeight - 215 }}>
-                    <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Meter) => setMeter(meter)} />
+                    <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} />
                 </div>
                 <div className={"tab-pane " + (Tab == "eventChannels" ? " active" : "fade")} id="eventChannels">
                     <MeterEventChannelWindow Meter={meter} IsVisible={Tab === "eventChannels"} />

@@ -26,8 +26,9 @@ import * as _ from 'lodash';
 import { SystemCenter } from '../global';
 import Table from '@gpa-gemstone/react-table';
 import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { Application } from '@gpa-gemstone/application-typings'
 
-interface UserAccount extends SystemCenter.UserAccount {
+interface UserAccount extends Application.Types.iUserAccount {
     Selected: boolean
 }
 
@@ -83,10 +84,7 @@ function DeviceContacts(props: {ID: number, Name: string, Field: 'TSC' | 'Sector
                     { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                     { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                     { key: 'Email', field: 'Email', label: 'Email', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => <a href={`mailto:${item[key]}`}>{ item[key]}</a>},
-                    { key: 'Title', field: 'Title', label: 'Title', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                    { key: 'Department', field: 'Department', label: 'Department', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                     { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'MobilePhone', field: 'MobilePhone', label: 'Mobile Phone', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                 ]}

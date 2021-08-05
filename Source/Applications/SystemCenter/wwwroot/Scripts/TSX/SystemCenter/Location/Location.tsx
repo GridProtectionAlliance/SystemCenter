@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings'
 import LocationInfoWindow from './LocationInfo';
 import LocationMeterWindow from './LocationMeter';
 import LocationAssetWindow from './LocationAsset';
@@ -42,7 +42,7 @@ interface IProps { LocationID: number, Tab: tab }
 function Location(props: IProps) {
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
-    const [location, setLocation] = React.useState<OpenXDA.Location>(null);
+    const [location, setLocation] = React.useState<OpenXDA.Types.Location>(null);
     const [tab, setTab] = React.useState<tab>(getTab());
 
     React.useEffect(() => {
@@ -57,7 +57,7 @@ function Location(props: IProps) {
 
     React.useEffect(() => {
         let handle = getLocation();
-        handle.then((data: OpenXDA.Location) => setLocation(data));
+        handle.then((data: OpenXDA.Types.Location) => setLocation(data));
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
 
     }, [props.LocationID]);
@@ -70,7 +70,7 @@ function Location(props: IProps) {
             return 'notes';
     }
 
-    function getLocation(): JQuery.jqXHR<OpenXDA.Location> {
+    function getLocation(): JQuery.jqXHR<OpenXDA.Types.Location> {
         if(props.LocationID == undefined) return null;
         return $.ajax({
             type: "GET",
@@ -135,7 +135,7 @@ function Location(props: IProps) {
                     <NoteWindow ID={props.LocationID} Type='Location' />
                 </div>
                 <div className={"tab-pane " + (tab == "locationInfo" ? " active" : "fade")} id="locationInfo">
-                    <LocationInfoWindow Location={location} stateSetter={(l: OpenXDA.Location) => setLocation(l)} />
+                    <LocationInfoWindow Location={location} stateSetter={(l: OpenXDA.Types.Location) => setLocation(l)} />
                 </div>
                 <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
                     <AdditionalFieldsWindow ID={props.LocationID} Type='Location' Tab={tab} />

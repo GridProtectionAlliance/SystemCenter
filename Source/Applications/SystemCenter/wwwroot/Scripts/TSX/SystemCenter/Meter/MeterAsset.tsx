@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '../global';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
 import BusAttributes from '../AssetAttribute/Bus';
 import BreakerAttributes from '../AssetAttribute/Breaker';
@@ -38,17 +38,17 @@ import { Warning, Modal, LoadingScreen } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-interface IProps { Meter: OpenXDA.Meter }
+interface IProps { Meter: OpenXDA.Types.Meter }
 
 const MeterAssetWindow = (props: IProps) => {
 
-    const [meterAssets, setMeterAssets] = React.useState < Array<OpenXDA.DetailedAsset>>([]);
-    const [newEditAsset, setNewEditAsset] = React.useState<OpenXDA.DetailedAsset>(AssetAttributes.getNewAsset('Line'));
-    const [allAssets, setAllAssets] = React.useState<OpenXDA.Asset[]>([]);
-    const [assetTypes, setAssetTypes] = React.useState<OpenXDA.AssetType[]>([]);
-    const [newEdit, setNewEdit] = React.useState<SystemCenter.NewEdit>('New');
+    const [meterAssets, setMeterAssets] = React.useState < Array<OpenXDA.Types.DetailedAsset>>([]);
+    const [newEditAsset, setNewEditAsset] = React.useState<OpenXDA.Types.DetailedAsset>(AssetAttributes.getNewAsset('Line'));
+    const [allAssets, setAllAssets] = React.useState<OpenXDA.Types.Asset[]>([]);
+    const [assetTypes, setAssetTypes] = React.useState<OpenXDA.Types.AssetType[]>([]);
+    const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('New');
     const [activeAssetID, setActiveAssetID] = React.useState<number>(0);
-    const [activeAssetType, setActiveAssetType] = React.useState<OpenXDA.AssetTypeName>('Line');
+    const [activeAssetType, setActiveAssetType] = React.useState<OpenXDA.Types.AssetTypeName>('Line');
 
     const [showEditNew, setShoweditNew] = React.useState<boolean>(false);
     const [showDeleteWarning, setShowDeleteWarning] = React.useState<boolean>(false);
@@ -61,7 +61,7 @@ const MeterAssetWindow = (props: IProps) => {
 
     React.useEffect(() => {
         let h = getAssetTypes()
-        h.done((data: Array<OpenXDA.AssetType>) => {
+        h.done((data: Array<OpenXDA.Types.AssetType>) => {
             setAssetTypes(data);
         });
 
@@ -70,7 +70,7 @@ const MeterAssetWindow = (props: IProps) => {
 
     React.useEffect(() => {
         let h = getAllAssets()
-        h.done((data: Array<OpenXDA.Asset>) => {
+        h.done((data: Array<OpenXDA.Types.Asset>) => {
             setAllAssets(data);
         });
 
@@ -79,7 +79,7 @@ const MeterAssetWindow = (props: IProps) => {
 
     React.useEffect(() => {
         let h = getAllAssets()
-        h.done((data: Array<OpenXDA.Asset>) => {
+        h.done((data: Array<OpenXDA.Types.Asset>) => {
             setAllAssets(data);
         });
 
@@ -88,7 +88,7 @@ const MeterAssetWindow = (props: IProps) => {
 
     React.useEffect(() => {
         let h = getMeterAssets();
-        h.done((data: Array<OpenXDA.Asset>) => {
+        h.done((data: Array<OpenXDA.Types.Asset>) => {
             setMeterAssets(data);
         });
 
@@ -127,7 +127,7 @@ const MeterAssetWindow = (props: IProps) => {
             dataType: 'json',
             cache: true,
             async: true
-        }).done((assets: Array<OpenXDA.Asset>) => {
+        }).done((assets: Array<OpenXDA.Types.Asset>) => {
             setSortKey('AssetKey');
             forceAssetReload((x) => x + 1);
             setShowLoading(false);
@@ -152,7 +152,7 @@ const MeterAssetWindow = (props: IProps) => {
                 <div className="row" style={{ margin: -20 }}>
                     <div className="col" style={{ padding: 20 }}>
                         <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
-                            <Table<OpenXDA.Asset>
+                            <Table<OpenXDA.Types.Asset>
                                 cols={[
                                     { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'calc(20%-16px)' }, rowStyle: { width: 'calc(20%-16px)' } },
                                     { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'calc(30%-16px)' }, rowStyle: { width: 'calc(30%-16px)' } },
@@ -245,15 +245,15 @@ const MeterAssetWindow = (props: IProps) => {
 
     function showAttributes(): JSX.Element {
         if (newEditAsset.AssetType == 'Breaker')
-            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Breaker} UpdateState={setNewEditAsset} ShowSpare={true} />;
+            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Breaker} UpdateState={setNewEditAsset} ShowSpare={true} />;
         else if (newEditAsset.AssetType == 'Bus')
             return <BusAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'CapacitorBank')
-            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.CapBank} UpdateState={setNewEditAsset} />;
+            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBank} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'Line')
-            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Line} UpdateState={setNewEditAsset} />;
+            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'Transformer')
-            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Transformer} UpdateState={setNewEditAsset} />;
+            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset} />;
     }
 }
 

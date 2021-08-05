@@ -25,8 +25,7 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { SystemCenter as SCGlobal} from '../global';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
 
@@ -44,7 +43,7 @@ const defaultSearchcols: Array<Search.IField<Meter>> = [
     { label: 'Number of Assets', key: 'MappedAssets', type: 'number', isPivotField: false },
 ];
 
-const ByMeter: SCGlobal.ByComponent = (props) => {
+const ByMeter: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<Meter>>>([]);

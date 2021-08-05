@@ -26,7 +26,7 @@ import MeterReducer from './MeterSlice';
 import AssetReducer from './AssetSlice';
 import { GenericSlice }from '@gpa-gemstone/react-interactive'
 
-import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { OpenXDA as OXDA, SystemCenter as SC } from '../global';
 import NoteSlice from './NoteSlice';
 import UserSlice from './UserSlice';
@@ -47,10 +47,10 @@ export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConn
 export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType", `${homePath}api/OpenXDA/AssetType`, 'Name');
 export const PhaseSlice = new GenericSlice<OpenXDA.Types.Phase>("Phase", `${homePath}api/OpenXDA/Phase`, 'Name');
 export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementType>("MeasurementType", `${homePath}api/OpenXDA/MeasurementType`, 'Name');
-export const DataFileSlice = new GenericSlice<OXDA.DataFile>("DataFile", `${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", false);
-export const CompanyTypeSlice = new GenericSlice<SC.CompanyType>("CompanyType", `${homePath}api/OpenXDA/CompanyType`, "Name", false);
-export const CustomerSlice = new GenericSlice<SC.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
-export const CompanySlice = new GenericSlice<SC.Company>("Company", `${homePath}api/OpenXDA/Company`, "CompanyID", false);
+export const DataFileSlice = new GenericSlice<OpenXDA.Types.DataFile>("DataFile", `${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", false);
+export const CompanyTypeSlice = new GenericSlice<OpenXDA.Types.CompanyType>("CompanyType", `${homePath}api/OpenXDA/CompanyType`, "Name", false);
+export const CustomerSlice = new GenericSlice<OpenXDA.Types.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
+export const CompanySlice = new GenericSlice<OpenXDA.Types.Company>("Company", `${homePath}api/OpenXDA/Company`, "CompanyID", false);
 export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location",`${homePath}api/OpenXDA/Location`, "LocationKey", true)
 
 export const AssetNoteSlice = new NoteSlice('Asset');

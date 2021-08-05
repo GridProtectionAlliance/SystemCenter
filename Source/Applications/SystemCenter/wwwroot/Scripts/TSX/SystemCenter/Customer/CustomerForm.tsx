@@ -22,7 +22,7 @@
 //******************************************************************************************************
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '../global';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { useSelector, useDispatch } from 'react-redux';
 import { CustomerSlice } from '../Store/Store';
 
@@ -30,15 +30,15 @@ import { CustomerSlice } from '../Store/Store';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 declare var homePath: string;
 
-interface IProps { Customer: SystemCenter.Customer, stateSetter: (customer: SystemCenter.Customer) => void, setErrors?: (e: string[]) => void }
+interface IProps { Customer: OpenXDA.Types.Customer, stateSetter: (customer: OpenXDA.Types.Customer) => void, setErrors?: (e: string[]) => void }
 
 
 export default function CustomerForm(props: IProps) {
     const dispatch = useDispatch();
 
     const [errors, setErrors] = React.useState<string[]>([]);
-    const allCustomerKeys = useSelector(CustomerSlice.Data) as SystemCenter.Customer[];
-    const acStatus = useSelector(CustomerSlice.Status) as SystemCenter.Status;
+    const allCustomerKeys = useSelector(CustomerSlice.Data) as OpenXDA.Types.Customer[];
+    const acStatus = useSelector(CustomerSlice.Status) as Application.Types.Status;
 
     React.useEffect(() => {
         if (acStatus == 'changed' || acStatus == 'unintiated')
@@ -67,7 +67,7 @@ export default function CustomerForm(props: IProps) {
             props.setErrors(errors);
     }, [props.setErrors, errors])
 
-    function valid(field: keyof(SystemCenter.Customer)): boolean {
+    function valid(field: keyof(OpenXDA.Types.Customer)): boolean {
         if (field == 'CustomerKey')
             return props.Customer.CustomerKey != null && props.Customer.CustomerKey.length > 0 && props.Customer.CustomerKey.length <= 25;
         else if (field == 'Name')
@@ -82,10 +82,10 @@ export default function CustomerForm(props: IProps) {
     
     return (<div className="row" style={{marginLeft: 0}}>
         <div className="col">
-            <Input<SystemCenter.Customer> Record={props.Customer} Field={'CustomerKey'} Feedback={'CustomerKey of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
-            <Input<SystemCenter.Customer> Record={props.Customer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
-            <Input<SystemCenter.Customer> Record={props.Customer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
-            <TextArea<SystemCenter.Customer> Rows={3} Record={props.Customer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Feedback={'CustomerKey of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <TextArea<OpenXDA.Types.Customer> Rows={3} Record={props.Customer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
         </div>
 
     </div>)

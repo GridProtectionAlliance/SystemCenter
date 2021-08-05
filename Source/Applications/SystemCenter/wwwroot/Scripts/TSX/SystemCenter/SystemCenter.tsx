@@ -27,8 +27,7 @@ import { BrowserRouter as Router, Route, NavLink, Switch } from 'react-router-do
 
 import queryString from "querystring";
 import { createBrowserHistory } from "history"
-import { SystemCenter } from './global';
-import { SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
+import { Application, SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import store, { SystemCenterSettingSlice } from './Store/Store';
 
@@ -66,7 +65,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const DeviceIssuesPage = React.lazy(() => import(/* webpackChunkName: "DeviceIssuesPage" */ './DeviceIssuesPage/DeviceIssuesPage'));
 
 
-    const [roles, setRoles] = React.useState<Array<SystemCenter.SystemCeneterSecurityRoleName>>([]);
+    const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
 
     React.useEffect(() => {
@@ -84,7 +83,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     }, []);
 
     const settings: SCTypes.Types.Setting[] = useSelector(SystemCenterSettingSlice.Data);
-    const settingsStatus: SystemCenter.Status = useSelector(SystemCenterSettingSlice.Status);
+    const settingsStatus: Application.Types.Status = useSelector(SystemCenterSettingSlice.Status);
 
     React.useEffect(() => {
         if (settingsStatus == 'unintiated' || settingsStatus == 'changed')
@@ -96,7 +95,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     }, [dispatch, settingsStatus]);
 
 
-    function getRoles(): JQuery.jqXHR<Array<SystemCenter.SystemCeneterSecurityRoleName>> {
+    function getRoles(): JQuery.jqXHR<Array<Application.Types.SecurityRoleName>> {
        return $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/SecurityRoles`,

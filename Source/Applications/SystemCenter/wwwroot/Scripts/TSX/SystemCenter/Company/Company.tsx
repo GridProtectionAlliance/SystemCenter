@@ -25,24 +25,24 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '../global';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import CompanyInfoWindow from './CompanyInfo';
 import CompanyMeterWindow from './CompanyMeter';
 import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive';
+import { OpenXDA } from '@gpa-gemstone/application-typings'
 
 declare var homePath: string;
 
 function Company (props: { CompanyID: number }) {
-    const [company, setCompany] = React.useState<SystemCenter.Company>(null);
+    const [company, setCompany] = React.useState<OpenXDA.Types.Company>(null);
     const [tab, setTab] = React.useState(getTab);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         let promise = getCompany();
-        promise.done((data: SystemCenter.Company) => setCompany(data));
+        promise.done((data: OpenXDA.Types.Company) => setCompany(data));
         return () => {
             if (promise.abort != undefined) promise.abort();
         };
@@ -59,7 +59,7 @@ function Company (props: { CompanyID: number }) {
             return 'companyInfo';
     }
 
-    function getCompany(): JQuery.jqXHR<SystemCenter.Company> {
+    function getCompany(): JQuery.jqXHR<OpenXDA.Types.Company> {
        return $.ajax({
             type: "GET",
            url: `${homePath}api/OpenXDA/Company/One/${props.CompanyID}`,

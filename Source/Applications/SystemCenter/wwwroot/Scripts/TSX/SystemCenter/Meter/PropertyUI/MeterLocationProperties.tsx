@@ -24,18 +24,18 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '../../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings'
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../../AssetAttribute/Asset';
 
 declare var homePath: string;
 
 interface IProps {
-    Meter: OpenXDA.Meter,
-    UpdateMeter: (meter: OpenXDA.Meter) => void,
-    Locationlist: OpenXDA.Location[],
-    Location: OpenXDA.Location,
-    SetLocation: (loc: OpenXDA.Location) => void,
+    Meter: OpenXDA.Types.Meter,
+    UpdateMeter: (meter: OpenXDA.Types.Meter) => void,
+    Locationlist: OpenXDA.Types.Location[],
+    Location: OpenXDA.Types.Location,
+    SetLocation: (loc: OpenXDA.Types.Location) => void,
     DisableLocation: boolean
 }
 
@@ -57,7 +57,7 @@ const MeterLocationProperties = (props: IProps) => {
     }, [props.Location, props.Locationlist]);
 
  
-    function valid(field: keyof OpenXDA.Location): boolean {
+    function valid(field: keyof OpenXDA.Types.Location): boolean {
         if (field == 'LocationKey')
             return props.Location.LocationKey != null && props.Location.LocationKey.length > 0 && props.Location.LocationKey.length <= 50 && validKey;
         else if (field == 'Name')
@@ -81,18 +81,18 @@ const MeterLocationProperties = (props: IProps) => {
     return (
         <div className="row">
             <div className="col">
-                <Select<OpenXDA.Meter> Record={props.Meter} Field={'LocationID'} Label={'Select location'} Setter={(m) => props.UpdateMeter(m)}
+                <Select<OpenXDA.Types.Meter> Record={props.Meter} Field={'LocationID'} Label={'Select location'} Setter={(m) => props.UpdateMeter(m)}
                     Options={props.Locationlist.map(item => ({ Label: item.LocationKey, Value: item.ID.toString() }))} EmptyOption={true} EmptyLabel={'Add New'} />
 
-                <Input<OpenXDA.Location> Record={props.Location} Field={'LocationKey'} Label={'Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation} />
-                <Input<OpenXDA.Location> Record={props.Location} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
-                <Input<OpenXDA.Location> Record={props.Location} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
+                <Input<OpenXDA.Types.Location> Record={props.Location} Field={'LocationKey'} Label={'Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation} />
+                <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
+                <Input<OpenXDA.Types.Location> Record={props.Location} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
             </div>
             <div className="col">
-                <Input<OpenXDA.Location> Record={props.Location} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
-                <Input<OpenXDA.Location> Record={props.Location} Field={'Latitude'} Feedback={'Latitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
-                <Input<OpenXDA.Location> Record={props.Location} Field={'Longitude'} Feedback={'Longitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
-                <TextArea<OpenXDA.Location> Rows={3} Record={props.Location} Field={'Description'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
+                <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
+                <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Latitude'} Feedback={'Latitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
+                <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Longitude'} Feedback={'Longitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
+                <TextArea<OpenXDA.Types.Location> Rows={3} Record={props.Location} Field={'Description'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
             </div>
         </div>
                 

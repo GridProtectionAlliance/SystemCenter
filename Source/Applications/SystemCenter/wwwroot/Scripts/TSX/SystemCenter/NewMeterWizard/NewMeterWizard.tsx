@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useDispatch, useSelector } from 'react-redux';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
@@ -37,11 +37,11 @@ import Page5 from './Page5';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 
 export interface AssetLists {
-    Breakers: Array<OpenXDA.Breaker>,
-    Buses: Array<OpenXDA.Breaker>,
-    CapBanks: Array<OpenXDA.CapBank>,
-    Lines: Array<OpenXDA.Line>,
-    Transformers: Array<OpenXDA.Transformer>
+    Breakers: Array<OpenXDA.Types.Breaker>,
+    Buses: Array<OpenXDA.Types.Breaker>,
+    CapBanks: Array<OpenXDA.Types.CapBank>,
+    Lines: Array<OpenXDA.Types.Line>,
+    Transformers: Array<OpenXDA.Types.Transformer>
 }
 
 export default function NewMeterWizard(props: {}) {
@@ -52,11 +52,11 @@ export default function NewMeterWizard(props: {}) {
     const lStatus = useSelector(LocationSlice.Status);
 
     const [currentStep, setCurrentStep] = React.useState<number>(getCurrentStep());
-    const [meterInfo, setMeterInfo] = React.useState<OpenXDA.Meter>(getMeterInfo());
-    const [locationInfo, setLocationInfo] = React.useState<OpenXDA.Location>(getLocationInfo());
-    const [channels, setChannels] = React.useState<OpenXDA.Channel[]>(getChannels());
-    const [assets, setAssets] = React.useState<OpenXDA.Asset[]>(getAssets());
-    const [assetConnections, setAssetConnections] = React.useState<OpenXDA.AssetConnection[]>(getAssetConnections());
+    const [meterInfo, setMeterInfo] = React.useState<OpenXDA.Types.Meter>(getMeterInfo());
+    const [locationInfo, setLocationInfo] = React.useState<OpenXDA.Types.Location>(getLocationInfo());
+    const [channels, setChannels] = React.useState<OpenXDA.Types.Channel[]>(getChannels());
+    const [assets, setAssets] = React.useState<OpenXDA.Types.Asset[]>(getAssets());
+    const [assetConnections, setAssetConnections] = React.useState<OpenXDA.Types.AssetConnection[]>(getAssetConnections());
 
     const [error, setError] = React.useState<string[]>([]);
     const [hoverNext, setHoverNext] = React.useState<boolean>(false);
@@ -114,7 +114,7 @@ export default function NewMeterWizard(props: {}) {
 
     }
 
-    function getMeterInfo(): OpenXDA.Meter {
+    function getMeterInfo(): OpenXDA.Types.Meter {
         if (localStorage.hasOwnProperty('NewMeterWizard.MeterInfo'))
             return JSON.parse(localStorage.getItem('NewMeterWizard.MeterInfo'))
         else
@@ -132,7 +132,7 @@ export default function NewMeterWizard(props: {}) {
             }
     }
 
-    function getLocationInfo(): OpenXDA.Location {
+    function getLocationInfo(): OpenXDA.Types.Location {
         if (localStorage.hasOwnProperty('NewMeterWizard.LocationInfo'))
             return JSON.parse(localStorage.getItem('NewMeterWizard.LocationInfo'))
         else
@@ -148,14 +148,14 @@ export default function NewMeterWizard(props: {}) {
             }
     }
 
-    function getChannels(): Array<OpenXDA.Channel> {
+    function getChannels(): Array<OpenXDA.Types.Channel> {
         if (localStorage.hasOwnProperty('NewMeterWizard.Channels'))
             return JSON.parse(localStorage.getItem('NewMeterWizard.Channels'))
         else
             return [];
     }
 
-    function getAssets(): Array<OpenXDA.Breaker | OpenXDA.Bus | OpenXDA.CapBank | OpenXDA.Line | OpenXDA.Transformer>
+    function getAssets(): Array<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer>
     {
         if (localStorage.hasOwnProperty('NewMeterWizard.Assets'))
             return JSON.parse(localStorage.getItem('NewMeterWizard.Assets'))
@@ -163,7 +163,7 @@ export default function NewMeterWizard(props: {}) {
             return [];
     }
 
-    function getAssetConnections(): Array<OpenXDA.AssetConnection> {
+    function getAssetConnections(): Array<OpenXDA.Types.AssetConnection> {
         if (localStorage.hasOwnProperty('NewMeterWizard.AssetConnections'))
             return JSON.parse(localStorage.getItem('NewMeterWizard.AssetConnections'))
         else

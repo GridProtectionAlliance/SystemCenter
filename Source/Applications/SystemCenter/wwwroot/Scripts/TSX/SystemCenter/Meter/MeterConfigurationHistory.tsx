@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
@@ -33,7 +33,7 @@ declare interface MeterConfiguration {
     FilesProcessed: number,
     LastProcessedTime: string
 }
-function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Meter }) {
+function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) {
     const history = useHistory();
     const [meterConfigurations, setMeterConfigurations] = React.useState<Array<MeterConfiguration>>([]);
 
