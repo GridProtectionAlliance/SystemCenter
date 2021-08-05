@@ -1,3 +1,4 @@
+![model](https://www.gridprotectionalliance.org/images/products/productTitles75/SystemCenter.png)
 # SystemCenter
 Manager tool for managing configuration and metadata for OpenXDA, PQDashboard, OpenMIC, any future disturbance product, and other external processes (ie: Maximo, PQView, etc ). 
 
