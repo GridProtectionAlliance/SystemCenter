@@ -31,8 +31,7 @@ import { LoadingScreen, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
-
-declare var homePath: string;
+import moment from 'moment';
 
 function LineSegmentWindow(props: { ID: number }): JSX.Element {
     const [segments, setSegments] = React.useState<Array<OpenXDA.Types.LineSegment>>([]);

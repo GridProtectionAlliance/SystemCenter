@@ -28,13 +28,6 @@ declare global {
     interface String {
         countOccurrences: (chars: string) => number
     }
-
-    namespace moment {
-        function utc(timestamp: string): any;
-    }
-    function moment(inp?: any, format?: any, strict?: boolean): any;
-    function moment(inp?: any, format?: any, language?: string, strict?: boolean): any;
-
 }
 
 export namespace SystemCenter {
@@ -46,6 +39,11 @@ export namespace SystemCenter {
         ID: number, OpenMIC: string, Name: string, Model: string, LocationID: number, LocationKey: string, Substation: string, TSCID: number, TSC: string,
         SectorID: number, Sector: string, IP: string, LastGood: string, BadDays: number, Status: string, LastConfigChange: string
     }
+
+    interface OpenMICDailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulConnection: string, LastUnsuccessfulConnection: string, LastUnsuccessfulConnectionExplanation: string, TotalConnections: number, TotalUnsuccessfulConnections: number, TotalSuccessfulConnections: number }
+    interface MiMDDailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulFileProcessed: string, LastUnsuccessfulFileProcessed: string, LastUnsuccessfulFileProcessedExplanation: string, TotalFilesProcessed: number, TotalUnsuccessfulFilesProcessed: number, TotalSuccessfulFilesProcessed: number, ConfigChanges: number, DiagnosticAlarms: number, ComplianceIssues: number, LastConfigFileChange: string }
+    interface OpenXDADailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulFileProcessed: string, LastUnsuccessfulFileProcessed: string, LastUnsuccessfulFileProcessedExplanation: string, TotalFilesProcessed: number, TotalUnsuccessfulFilesProcessed: number, TotalSuccessfulFilesProcessed: number, TotalEmailsSent: number, AverageDownloadLatency: number, AverageProcessingStartLatency: number, AverageProcessingEndLatency: number, AverageEmailLatency: number, AverageTotalProcessingLatency: number, AverageTotalEmailLatency: number }
+
 }
 
 // OpenXDA Models

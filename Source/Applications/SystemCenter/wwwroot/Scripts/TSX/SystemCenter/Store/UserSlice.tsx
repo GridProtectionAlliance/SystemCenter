@@ -25,8 +25,6 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { Search } from '@gpa-gemstone/react-interactive';
 import { ActionCreatorWithoutPayload, ActionCreatorWithPayload, ActionReducerMapBuilder, AsyncThunk, createAsyncThunk, createSlice, Draft, PayloadAction, Slice } from '@reduxjs/toolkit';
 import _ from 'lodash';
-
-declare var homePath: string;
 type UserValidation = 'Resolving' | 'Valid' | 'Invalid' | 'Unknown';
 
 interface UserState {
@@ -149,7 +147,7 @@ export default class UserAccountSlice {
                         Approved: true,
                         ID: 'new',
                         EmailConfirmed: false,
-                        ChangePasswordOn: moment().format('YYYY-MM-DD'),
+                        ChangePasswordOn: new Date(),
                         Email: '',
                         Name: '',
                         Password: '',

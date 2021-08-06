@@ -29,6 +29,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useDispatch, useSelector } from 'react-redux';
 import { DataFileSlice } from '../Store/Store';
 import Table from '@gpa-gemstone/react-table';
+import moment from 'moment';
 
 function DownloadedFiles(props: { MeterID: number, MeterName: string }) {
     const dispatch = useDispatch();

@@ -28,7 +28,7 @@ import * as _ from 'lodash';
 import * as d3 from 'd3';
 import { useHistory } from "react-router-dom";
 import { GetAccessLogAggregates, GetAccessLogTable, } from './../../../TS/Services/User';
-declare var homePath: string;
+import moment from 'moment';
 
 interface Aggregate {
     Date: string,

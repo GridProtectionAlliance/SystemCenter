@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-declare var homePath: string;
+import moment from 'moment';
 
 
 

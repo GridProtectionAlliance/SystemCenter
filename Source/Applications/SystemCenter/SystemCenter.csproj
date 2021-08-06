@@ -225,6 +225,7 @@
     <Compile Include="Controllers\ExternalDB\FawgController.cs" />
     <Compile Include="Controllers\ExternalDB\PQViewController.cs" />
     <Compile Include="Controllers\ExternalDB\MaximoController.cs" />
+    <Compile Include="Controllers\OpenMIC\OpenMICController.cs" />
     <Compile Include="Controllers\OpenXDA\AssetGroups\OpenXDAAssetGroupsController.cs" />
     <Compile Include="Controllers\OpenXDA\Meters\OpenXDADataRescueController.cs" />
     <Compile Include="Controllers\OpenXDA\Meters\OpenXDAMeterDataController.cs" />
@@ -527,6 +528,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Advanced\MeterDataRescue.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Advanced\MeterDataDelete.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Advanced\MeterDataMerge.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\Reason.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeterSlice.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\UserSlice.tsx" />
