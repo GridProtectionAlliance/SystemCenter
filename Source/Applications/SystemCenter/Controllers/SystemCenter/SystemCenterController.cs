@@ -182,39 +182,6 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/MiMD/Setting")]
     public class MiMDSettingController : ModelController<MiMDSetting> { }
 
-    [RoutePrefix("api/SystemCenter/Statistics/MiMD")]
-    public class MiMDDailyStatisticController : ModelController<MiMDDailyStatistic>
-    {
-        [HttpGet, Route("Last/{meter}")]
-        public IHttpActionResult GetLast(string meter)
-        {
-            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
-            {
-
-                try
-                {
-                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                    {
-                        IEnumerable<MiMDDailyStatistic> result = new TableOperations<MiMDDailyStatistic>(connection).QueryRecordsWhere("Meter = {0}", meter);
-                        MiMDDailyStatistic statistic = null;
-                        if (result.Any()) statistic = result.OrderBy(x => x.Date).Last();
-                        return Ok(statistic);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    return InternalServerError(ex);
-                }
-
-            }
-            else
-            {
-                return Unauthorized();
-            }
-
-        }
-
-    }
 
     [RoutePrefix("api/SystemCenter/AdditionalField")]
     public class AdditionalFieldController : ModelController<AdditionalField>
@@ -355,5 +322,62 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/LocationDrawing")]
     public class LocationDrawingController : ModelController<LocationDrawing> { }
 
+    [RoutePrefix("api/SystemCenter/Statistics/OpenMIC")]
+    public class OpenMICDailyStatisticController : ModelController<OpenMICDailyStatistic> {
+        public OpenMICDailyStatisticController() {
+            ParentKey = "Meter";
+        }
+
+    }
+
+    [RoutePrefix("api/SystemCenter/Statistics/MiMD")]
+    public class MiMDDailyStatisticController : ModelController<MiMDDailyStatistic>
+    {
+        public MiMDDailyStatisticController()
+        {
+            ParentKey = "Meter";
+        }
+
+        [HttpGet, Route("Last/{meter}")]
+        public IHttpActionResult GetLast(string meter)
+        {
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+            {
+
+                try
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        IEnumerable<MiMDDailyStatistic> result = new TableOperations<MiMDDailyStatistic>(connection).QueryRecordsWhere("Meter = {0}", meter);
+                        MiMDDailyStatistic statistic = null;
+                        if (result.Any()) statistic = result.OrderBy(x => x.Date).Last();
+                        return Ok(statistic);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
+        }
+
+    }
+
+
+    [RoutePrefix("api/SystemCenter/Statistics/OpenXDA")]
+    public class OpenXDADailyStatisticController : ModelController<OpenXDADailyStatistic>
+    {
+        public OpenXDADailyStatisticController()
+        {
+            ParentKey = "Meter";
+        }
+
+    }
 
 }

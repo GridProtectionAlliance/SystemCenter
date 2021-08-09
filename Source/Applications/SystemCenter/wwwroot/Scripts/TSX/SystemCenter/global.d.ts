@@ -37,7 +37,8 @@ export namespace SystemCenter {
 
     interface DeviceHealthReport {
         ID: number, OpenMIC: string, Name: string, Model: string, LocationID: number, LocationKey: string, Substation: string, TSCID: number, TSC: string,
-        SectorID: number, Sector: string, IP: string, LastGood: string, BadDays: number, Status: string, LastConfigChange: string
+        SectorID: number, Sector: string, IP: string, LastGood: string, BadDays: number, MiMDBadDays: number, XDABadDays: number, MICBadDays: number, XDAStatus: string,
+        MICStatus: string, MiMDStatus: string, LastConfigChange: string
     }
 
     interface OpenMICDailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulConnection: string, LastUnsuccessfulConnection: string, LastUnsuccessfulConnectionExplanation: string, TotalConnections: number, TotalUnsuccessfulConnections: number, TotalSuccessfulConnections: number }

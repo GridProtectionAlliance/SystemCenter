@@ -43,6 +43,7 @@ using System.Threading.Tasks;
 using SystemCenter.Controllers;
 using SystemCenter.Model;
 using SystemCenter.Model.Security;
+using Setting = SystemCenter.Model.Setting;
 
 namespace SystemCenter
 {
@@ -88,15 +89,22 @@ namespace SystemCenter
 
                         Meter meter = new TableOperations<Meter>(connection).QueryRecordWhere("ID = {0}", value.ParentTableID);
 
+                        int warningLevel = int.Parse(new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'OpenMIC.WarningLevel'")?.Value ?? "50");
+                        int errorLevel = int.Parse(new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'OpenMIC.ErrorLevel'")?.Value ?? "100");
+
                         openXDA.Model.Setting defaultTimeZone = new TableOperations<openXDA.Model.Setting>(connection).QueryRecordWhere("Name = 'System.DefaultMeterTimeZone'");
                         if (meter.TimeZone == null) meter.TimeZone = defaultTimeZone.Value;
 
                         string date = TimeZoneInfo.ConvertTimeFromUtc(statistic["EndTime"]?.ToObject<DateTime>() ?? DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(meter.TimeZone)).ToString("MM/dd/yyyy");
                         OpenMICDailyStatistic stat = new TableOperations<OpenMICDailyStatistic>(connection).QueryRecordWhere("Meter = {0} AND Date = {1}", meter.AssetKey, date);
 
-                        if (stat == null) stat = new OpenMICDailyStatistic();
-                        stat.Meter = meter.AssetKey;
-                        stat.Date = date;
+                        if (stat == null)
+                        {
+                            stat = new OpenMICDailyStatistic();
+                            stat.Meter = meter.AssetKey;
+                            stat.Date = date;
+                            stat.BadDays = new TableOperations<OpenMICDailyStatistic>(connection).QueryRecords("[DATE] DESC", new RecordRestriction("Meter = {0}", meter.AssetKey)).FirstOrDefault()?.BadDays ?? 0;
+                        }
 
                         DateTime? lastSuccess = statistic["LastSuccessfulConnection"].Value<DateTime?>();
                         if (lastSuccess != null)
@@ -113,6 +121,18 @@ namespace SystemCenter
                         stat.TotalSuccessfulConnections = statistic["TotalSuccessfulConnections"]?.ToObject<int>() ?? 0;
                         stat.TotalUnsuccessfulConnections = statistic["TotalUnsuccessfulConnections"]?.ToObject<int>() ?? 0;
                         stat.TotalConnections = stat.TotalSuccessfulConnections + stat.TotalUnsuccessfulConnections;
+
+                        if ( stat.Status == "Error") { } // do nothing if alreaedy an error for the day
+                        else if (stat.TotalUnsuccessfulConnections > errorLevel)
+                        {
+                            stat.Status = "Error";
+                            stat.BadDays++;
+
+                        }
+                        else if (stat.Status == "Warning") { } // do nothing else if already a warning for the day
+                        else if (stat.TotalUnsuccessfulConnections > warningLevel) {
+                            stat.Status = "Warning";
+                        }
 
                         new TableOperations<OpenMICDailyStatistic>(connection).AddNewOrUpdateRecord(stat);
                     }

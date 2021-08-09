@@ -25,6 +25,7 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Threading;
 using GSF.Web.Model;
+using openXDA.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -49,8 +50,13 @@ namespace SystemCenter.Model
 		vltsector.ID as SectorID,
 		afvip.Value as IP,
 		micstat.LastSuccessfulConnection as LastGood,
-		0 as BadDays,
-		'' as Status,
+		bds.BadDays,
+		mimdstat.BadDays as MiMDBadDays,
+		micstat.BadDays as MICBadDays,
+		xdastat.BadDays as XDABadDays,
+		mimdstat.[Status] as MiMDStatus,
+		micstat.[Status] as MICStatus,
+		xdastat.[Status] as XDAStatus,
 		CAST(mimdstat.LastConfigFileChange as DATE) as LastConfigChange
 	FROM
 		Meter JOIN
@@ -61,10 +67,17 @@ namespace SystemCenter.Model
 		AdditionalFieldValue afvsector ON afvsector.ParentTableID = Meter.ID AND afvsector.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='Sector') LEFT JOIN
 		ValueList vltsector ON vltsector.ID = afvsector.Value and vltsector.GroupID = (SELECT ID FROM ValueListGroup WHERE Name = 'Sector') LEFT JOIN
 		AdditionalFieldValue afvip ON afvip.ParentTableID = Meter.ID AND afvip.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='IP') OUTER APPLY (
-			SELECT TOP 1 LastConfigFileChange FROM [SystemCenter.MiMDDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.MiMDDailyStatistic].Meter  ORDER BY Date DESC
+			SELECT TOP 1 LastConfigFileChange,BadDays, [Status] FROM [SystemCenter.MiMDDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.MiMDDailyStatistic].Meter  ORDER BY Date DESC
 		) as mimdstat OUTER APPLY (
-			SELECT TOP 1 LastSuccessfulConnection FROM [SystemCenter.OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.OpenMICDailyStatistic].Meter  ORDER BY Date DESC
-		) as micstat
+			SELECT TOP 1 LastSuccessfulConnection,BadDays, [Status] FROM [SystemCenter.OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.OpenMICDailyStatistic].Meter  ORDER BY Date DESC
+		) as micstat  OUTER APPLY (
+			SELECT TOP 1 BadDays, [Status] FROM [SystemCenter.OpenXDADailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.OpenXDADailyStatistic].Meter  ORDER BY Date DESC
+		) as xdastat OUTER APPLY (
+			SELECT MAX(BadDays) as BadDays FROM (
+			SELECT TOP 1 BadDays FROM [SystemCenter.OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.OpenMICDailyStatistic].Meter  ORDER BY Date DESC UNION
+			SELECT TOP 1 BadDays FROM [SystemCenter.OpenXDADailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.OpenXDADailyStatistic].Meter  ORDER BY Date DESC UNION
+			SELECT TOP 1 BadDays FROM [SystemCenter.MiMDDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.MiMDDailyStatistic].Meter  ORDER BY Date DESC ) t
+		) as bds 
     "), SettingsCategory("systemSettings"), ViewOnly, AllowSearch]
 	public class DeviceHealthReport
 	{
@@ -82,7 +95,14 @@ namespace SystemCenter.Model
 		public string IP { get; set; }
 		public DateTime LastGood { get; set; }
 		public int BadDays { get; set; }
-		public string Status { get; set; }
+		public int MiMDBadDays { get; set; }
+		public int MICBadDays { get; set; }
+		public int XDABadDays { get; set; }
+
+		public string MiMDStatus { get; set; }
+		public string MICStatus { get; set; }
+		public string XDAStatus { get; set; }
+
 		public DateTime LastConfigChange { get; set; }
 
 	}
