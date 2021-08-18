@@ -26,8 +26,7 @@ import MeterReducer from './MeterSlice';
 import AssetReducer from './AssetSlice';
 import { GenericSlice }from '@gpa-gemstone/react-interactive'
 
-import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
-import { OpenXDA as OXDA, SystemCenter as SC } from '../global';
+import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import NoteSlice from './NoteSlice';
 import UserSlice from './UserSlice';
 import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
