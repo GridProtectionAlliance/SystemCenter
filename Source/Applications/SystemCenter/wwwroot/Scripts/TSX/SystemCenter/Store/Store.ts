@@ -46,6 +46,8 @@ export const AssetConnectionTypeSlice = new GenericSlice<OpenXDA.Types.AssetConn
 export const AssetTypeSlice = new GenericSlice<OpenXDA.Types.AssetType>("AssetType", `${homePath}api/OpenXDA/AssetType`, 'Name');
 export const PhaseSlice = new GenericSlice<OpenXDA.Types.Phase>("Phase", `${homePath}api/OpenXDA/Phase`, 'Name');
 export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementType>("MeasurementType", `${homePath}api/OpenXDA/MeasurementType`, 'Name');
+export const MeasurementCharacteristicSlice = new GenericSlice<OpenXDA.Types.MeasurementCharacteristic>("MeasurementCharacteristic", `${homePath}api/OpenXDA/MeasurementCharacteristic`, 'Name');
+
 export const DataFileSlice = new GenericSlice<OpenXDA.Types.DataFile>("DataFile", `${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", false);
 export const CompanyTypeSlice = new GenericSlice<OpenXDA.Types.CompanyType>("CompanyType", `${homePath}api/OpenXDA/CompanyType`, "Name", false);
 export const CustomerSlice = new GenericSlice<OpenXDA.Types.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
@@ -89,7 +91,8 @@ export default configureStore({
         UserAccounts: UserAccountSlice.Reducer,
         AdditionalUserFields: UserAdditionalFieldSlice.Reducer,
         SCSecurityRole: SCSecurityRoleSlice.Reducer,
-        Company: CompanySlice.Reducer
+        Company: CompanySlice.Reducer,
+        MeasurementCharacteristic: MeasurementCharacteristicSlice.Reducer
 
     }
 });
