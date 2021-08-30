@@ -458,7 +458,7 @@ namespace SystemCenter.Controllers.OpenXDA.Meters
             string baseCriteria =
                 $"FileGroupID IN " +
                 $"( " +
-                $"    SELECT ID " +
+                $"    SELECT FileGroupID " +
                 $"    FROM DataRescueFileGroup " +
                 $"    WHERE DataRescueOperationID = {operation.ID} " +
                 $")";
