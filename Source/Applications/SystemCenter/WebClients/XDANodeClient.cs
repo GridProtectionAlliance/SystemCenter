@@ -83,6 +83,8 @@ namespace SystemCenter.WebClients
 
                 yield return request =>
                 {
+                    request.Method = HttpMethod.Post;
+
                     string cleanHostURL = hostURL.Trim().TrimEnd('/');
                     string fullURL = $"{cleanHostURL}/Node/{nodeID}/{action}";
                     request.RequestUri = new Uri(fullURL);
