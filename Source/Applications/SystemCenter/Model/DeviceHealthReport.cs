@@ -67,16 +67,16 @@ namespace SystemCenter.Model
 		AdditionalFieldValue afvsector ON afvsector.ParentTableID = Meter.ID AND afvsector.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='Sector') LEFT JOIN
 		ValueList vltsector ON vltsector.ID = afvsector.Value and vltsector.GroupID = (SELECT ID FROM ValueListGroup WHERE Name = 'Sector') LEFT JOIN
 		AdditionalFieldValue afvip ON afvip.ParentTableID = Meter.ID AND afvip.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='IP') OUTER APPLY (
-			SELECT TOP 1 LastConfigFileChange,BadDays, [Status] FROM [SystemCenter.MiMDDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.MiMDDailyStatistic].Meter  ORDER BY Date DESC
+			SELECT TOP 1 LastConfigFileChange,BadDays, [Status] FROM [MiMDDailyStatistic]  WHERE  Meter.AssetKey = [MiMDDailyStatistic].Meter  ORDER BY Date DESC
 		) as mimdstat OUTER APPLY (
-			SELECT TOP 1 LastSuccessfulConnection,BadDays, [Status] FROM [SystemCenter.OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.OpenMICDailyStatistic].Meter  ORDER BY Date DESC
+			SELECT TOP 1 LastSuccessfulConnection,BadDays, [Status] FROM [OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [OpenMICDailyStatistic].Meter  ORDER BY Date DESC
 		) as micstat  OUTER APPLY (
-			SELECT TOP 1 BadDays, [Status] FROM [SystemCenter.OpenXDADailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.OpenXDADailyStatistic].Meter  ORDER BY Date DESC
+			SELECT TOP 1 BadDays, [Status] FROM [OpenXDADailyStatistic]  WHERE  Meter.AssetKey = [OpenXDADailyStatistic].Meter  ORDER BY Date DESC
 		) as xdastat OUTER APPLY (
 			SELECT MAX(BadDays) as BadDays FROM (
-			SELECT TOP 1 BadDays FROM [SystemCenter.OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.OpenMICDailyStatistic].Meter  ORDER BY Date DESC UNION
-			SELECT TOP 1 BadDays FROM [SystemCenter.OpenXDADailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.OpenXDADailyStatistic].Meter  ORDER BY Date DESC UNION
-			SELECT TOP 1 BadDays FROM [SystemCenter.MiMDDailyStatistic]  WHERE  Meter.AssetKey = [SystemCenter.MiMDDailyStatistic].Meter  ORDER BY Date DESC ) t
+			SELECT TOP 1 BadDays FROM [OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [OpenMICDailyStatistic].Meter  ORDER BY Date DESC UNION
+			SELECT TOP 1 BadDays FROM [OpenXDADailyStatistic]  WHERE  Meter.AssetKey = [OpenXDADailyStatistic].Meter  ORDER BY Date DESC UNION
+			SELECT TOP 1 BadDays FROM [MiMDDailyStatistic]  WHERE  Meter.AssetKey = [MiMDDailyStatistic].Meter  ORDER BY Date DESC ) t
 		) as bds 
     "), SettingsCategory("systemSettings"), ViewOnly, AllowSearch]
 	public class DeviceHealthReport

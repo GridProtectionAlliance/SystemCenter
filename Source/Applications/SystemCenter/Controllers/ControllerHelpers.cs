@@ -153,12 +153,21 @@ namespace SystemCenter.Controllers
 
                 try
                 {
+                    //Log.Info($"Querying settings table - {TableOperations<Setting>.GetTableName()}");
+
                     string url = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Url'")?.Value ?? "";
                     string credential = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Credential'")?.Value ?? "";
                     string password = new TableOperations<Setting>(connection).QueryRecordWhere($"Name = '{application}.Password'")?.Value ?? "";
 
+                   // Log.Info($"Url value is  {url}");
+                    //Log.Info($"Credential value is  {credential}");
+
                     string token = GenerateAntiForgeryToken(application);
+                    //Log.Info($"Token value is  {token}");
+
                     string result = Get(url, requestURI, credential, password, token);
+                    //Log.Info($"Result value is  {result}");
+
                     return JsonConvert.DeserializeObject<T>(result);
                 }
                 catch (Exception ex)

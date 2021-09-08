@@ -71,80 +71,101 @@ namespace SystemCenter
         #region [ Methods ]
         public void GetStatistics()
         {
-            if (Running) return;
+            try
+            {
+                Log.Info("Beginning OpenMIC Statistic operation");
+                
+                if (Running) return;
 
-            Running = true;
-            IEnumerable<string> devices = GetOpenMICMeters();
+                Running = true;
+                IEnumerable<string> devices = GetOpenMICMeters();
+                if(devices == null)
+                    Log.Info("Null devices record recieved from OpenMIC.");
+                else if (!devices.Any())
+                    Log.Info("Empty devices record recieved from OpenMIC.");
 
-            foreach (string device in devices) {
-                try
+                foreach (string device in devices)
                 {
-                    JObject statistic = GetOpenMICStatistic(device);
-                    if (statistic == null) continue;
-                    using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                    try
                     {
-                        AdditionalField field = new TableOperations<AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Meter' AND FieldName = 'OpenMICAcronym'"); 
-                        AdditionalFieldValue value = new TableOperations<AdditionalFieldValue>(connection).QueryRecordWhere("AdditionalFieldID = {0} AND Value = {1}", field.ID, device);
-                        if (value == null) continue;
+                        //Log.Info($"Querying {device} for the OpenMIC Statistic operation");
 
-                        Meter meter = new TableOperations<Meter>(connection).QueryRecordWhere("ID = {0}", value.ParentTableID);
-
-                        int warningLevel = int.Parse(new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'OpenMIC.WarningLevel'")?.Value ?? "50");
-                        int errorLevel = int.Parse(new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'OpenMIC.ErrorLevel'")?.Value ?? "100");
-
-                        openXDA.Model.Setting defaultTimeZone = new TableOperations<openXDA.Model.Setting>(connection).QueryRecordWhere("Name = 'System.DefaultMeterTimeZone'");
-                        if (meter.TimeZone == null) meter.TimeZone = defaultTimeZone.Value;
-
-                        string date = TimeZoneInfo.ConvertTimeFromUtc(statistic["EndTime"]?.ToObject<DateTime>() ?? DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(meter.TimeZone)).ToString("MM/dd/yyyy");
-                        OpenMICDailyStatistic stat = new TableOperations<OpenMICDailyStatistic>(connection).QueryRecordWhere("Meter = {0} AND Date = {1}", meter.AssetKey, date);
-
-                        if (stat == null)
+                        JObject statistic = GetOpenMICStatistic(device);
+                        if (statistic == null) continue;
+                        using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                         {
-                            stat = new OpenMICDailyStatistic();
-                            stat.Meter = meter.AssetKey;
-                            stat.Date = date;
-                            stat.BadDays = new TableOperations<OpenMICDailyStatistic>(connection).QueryRecords("[DATE] DESC", new RecordRestriction("Meter = {0}", meter.AssetKey)).FirstOrDefault()?.BadDays ?? 0;
+                            AdditionalField field = new TableOperations<AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Meter' AND FieldName = 'OpenMICAcronym'");
+                            AdditionalFieldValue value = new TableOperations<AdditionalFieldValue>(connection).QueryRecordWhere("AdditionalFieldID = {0} AND Value = {1}", field.ID, device);
+                            if (value == null) continue;
+
+                            Meter meter = new TableOperations<Meter>(connection).QueryRecordWhere("ID = {0}", value.ParentTableID);
+
+                            int warningLevel = int.Parse(new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'OpenMIC.WarningLevel'")?.Value ?? "50");
+                            int errorLevel = int.Parse(new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'OpenMIC.ErrorLevel'")?.Value ?? "100");
+
+                            openXDA.Model.Setting defaultTimeZone = new TableOperations<openXDA.Model.Setting>(connection).QueryRecordWhere("Name = 'System.DefaultMeterTimeZone'");
+                            if (meter.TimeZone == null) meter.TimeZone = defaultTimeZone.Value;
+
+                            string date = TimeZoneInfo.ConvertTimeFromUtc(statistic["EndTime"]?.ToObject<DateTime>() ?? DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(meter.TimeZone)).ToString("MM/dd/yyyy");
+                            OpenMICDailyStatistic stat = new TableOperations<OpenMICDailyStatistic>(connection).QueryRecordWhere("Meter = {0} AND Date = {1}", meter.AssetKey, date);
+
+                            if (stat == null)
+                            {
+                                stat = new OpenMICDailyStatistic();
+                                stat.Meter = meter.AssetKey;
+                                stat.Date = date;
+                                stat.BadDays = new TableOperations<OpenMICDailyStatistic>(connection).QueryRecords("[DATE] DESC", new RecordRestriction("Meter = {0}", meter.AssetKey)).FirstOrDefault()?.BadDays ?? 0;
+                            }
+
+                            DateTime? lastSuccess = statistic["LastSuccessfulConnection"].Value<DateTime?>();
+                            if (lastSuccess != null)
+                                lastSuccess = TimeZoneInfo.ConvertTimeFromUtc((DateTime)lastSuccess, TimeZoneInfo.FindSystemTimeZoneById(meter.TimeZone));
+
+                            stat.LastSuccessfulConnection = lastSuccess;
+
+                            DateTime? lastUnsuccess = statistic["LastUnsuccessfulConnection"].Value<DateTime?>();
+                            if (lastUnsuccess != null)
+                                lastUnsuccess = TimeZoneInfo.ConvertTimeFromUtc((DateTime)lastUnsuccess, TimeZoneInfo.FindSystemTimeZoneById(meter.TimeZone));
+
+                            stat.LastUnsuccessfulConnection = lastUnsuccess;
+                            stat.LastUnsuccessfulConnectionExplanation = statistic["LastUnsuccessfulConnectionExplanation "]?.ToString();
+                            stat.TotalSuccessfulConnections = statistic["TotalSuccessfulConnections"]?.ToObject<int>() ?? 0;
+                            stat.TotalUnsuccessfulConnections = statistic["TotalUnsuccessfulConnections"]?.ToObject<int>() ?? 0;
+                            stat.TotalConnections = stat.TotalSuccessfulConnections + stat.TotalUnsuccessfulConnections;
+
+                            if (stat.Status == "Error") { } // do nothing if alreaedy an error for the day
+                            else if (stat.TotalUnsuccessfulConnections > errorLevel)
+                            {
+                                stat.Status = "Error";
+                                stat.BadDays++;
+
+                            }
+                            else if (stat.Status == "Warning") { } // do nothing else if already a warning for the day
+                            else if (stat.TotalUnsuccessfulConnections > warningLevel)
+                            {
+                                stat.Status = "Warning";
+                            }
+
+                            new TableOperations<OpenMICDailyStatistic>(connection).AddNewOrUpdateRecord(stat);
                         }
 
-                        DateTime? lastSuccess = statistic["LastSuccessfulConnection"].Value<DateTime?>();
-                        if (lastSuccess != null)
-                            lastSuccess = TimeZoneInfo.ConvertTimeFromUtc((DateTime)lastSuccess, TimeZoneInfo.FindSystemTimeZoneById(meter.TimeZone));
-
-                        stat.LastSuccessfulConnection = lastSuccess;
-
-                        DateTime? lastUnsuccess = statistic["LastUnsuccessfulConnection"].Value<DateTime?>();
-                        if (lastUnsuccess != null)
-                            lastUnsuccess = TimeZoneInfo.ConvertTimeFromUtc((DateTime)lastUnsuccess, TimeZoneInfo.FindSystemTimeZoneById(meter.TimeZone));
-
-                        stat.LastUnsuccessfulConnection = lastUnsuccess;
-                        stat.LastUnsuccessfulConnectionExplanation = statistic["LastUnsuccessfulConnectionExplanation "]?.ToString();
-                        stat.TotalSuccessfulConnections = statistic["TotalSuccessfulConnections"]?.ToObject<int>() ?? 0;
-                        stat.TotalUnsuccessfulConnections = statistic["TotalUnsuccessfulConnections"]?.ToObject<int>() ?? 0;
-                        stat.TotalConnections = stat.TotalSuccessfulConnections + stat.TotalUnsuccessfulConnections;
-
-                        if ( stat.Status == "Error") { } // do nothing if alreaedy an error for the day
-                        else if (stat.TotalUnsuccessfulConnections > errorLevel)
-                        {
-                            stat.Status = "Error";
-                            stat.BadDays++;
-
-                        }
-                        else if (stat.Status == "Warning") { } // do nothing else if already a warning for the day
-                        else if (stat.TotalUnsuccessfulConnections > warningLevel) {
-                            stat.Status = "Warning";
-                        }
-
-                        new TableOperations<OpenMICDailyStatistic>(connection).AddNewOrUpdateRecord(stat);
                     }
-
+                    catch (Exception ex)
+                    {
+                        Log.Error(ex.Message + "\n" + ex.StackTrace, ex);
+                    }
                 }
-                catch (Exception ex) {
-                        Log.Error(ex.Message, ex);
 
-                }
             }
+            catch (Exception ex) {
+                Log.Error(ex.Message + "\n" + ex.StackTrace, ex);
 
-            Running = false;
+            }
+            finally
+            {
+                Running = false;
+
+            }
         }
 
         private IEnumerable<string> GetOpenMICMeters() {
