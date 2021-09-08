@@ -29,7 +29,7 @@ import { AssetAttributes } from '../AssetAttribute/Asset';
 import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
-import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
+import { HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
 
 declare var homePath: string;
 declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer'| 'Company' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' | 'Asset' | 'CapacitorBankRelay' | 'ValueListGroup'
@@ -50,7 +50,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     const [sortKey, setSortKey] = React.useState<string>('FieldName');
     const [ascending, setAscending] = React.useState<boolean>(false);
 
-    const [newField, setNewField] = React.useState<SystemCenter.Types.AdditionalField>({ ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
+    const [newField, setNewField] = React.useState<SystemCenter.Types.AdditionalField>({ ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false, Searchable: false });
 
     const [state, setState] = React.useState<'idle' | 'loading' | 'error'>('idle');
 
@@ -61,7 +61,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
 
     const [newFieldNameValid, setNewFieldNameValid] = React.useState<boolean>(true);
 
-    const EmptyField: SystemCenter.Types.AdditionalField = { ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false };
+    const EmptyField: SystemCenter.Types.AdditionalField = { ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false, Searchable: false };
 
     React.useEffect(() => {
         return getData();
@@ -87,7 +87,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         let valueListHandle = getValueLists();
         let extDBHandle = getExternalDataBase();
         let extTBLHandle = getExternalDataBaseTables();
-        setNewField({ ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false });
+        setNewField({ ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false, Searchable: false });
         Promise.all([fieldHandle, fieldValueHandle, valueListHandle, extDBHandle, extTBLHandle])
             .then(() => { setState('idle') }, () => { setState('error') })
 
@@ -415,6 +415,12 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                             { key: 'ExternalDB', field: 'ExternalDB', label: 'Ext DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             {
+                                key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
+                                    return item.Searchable ? HeavyCheckMark : ''
+                                }
+                            },
+
+                            {
                                 key: 'IsSecure', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
                                     let index: number = additionalFieldValues.findIndex(value => value.AdditionalFieldID == item.ID);
                                     if (!edit)
@@ -422,8 +428,9 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                                     return <ValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
                                 }                            
                             },
-                        { key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span>{Pencil}</span></button> : '') },
-                        { key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '') },
+
+                            { key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span>{Pencil}</span></button> : '') },
+                            { key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '') },
 
                         ]}
                         tableClass="table table-hover"
@@ -519,6 +526,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                         Setter={setNewField} />
                 </div>
                 <Input<SystemCenter.Types.AdditionalField> Disabled={newField.ExternalDB == null || newField.ExternalDB.length == 0} Record={newField} Field='ExternalDBTableKey' Valid={(field) => true} Label="External Database Table Key" Setter={setNewField} />
+                <CheckBox<SystemCenter.Types.AdditionalField> Record={newField} Field='Searchable' Label="Searchable" Setter={setNewField} />
                 <CheckBox<SystemCenter.Types.AdditionalField> Record={newField} Field='IsSecure' Label="Secure Data" Setter={setNewField} />
             </Modal>
             <ToolTip Zindex={9999} Show={hover == 'ExternalDB' && (newField.ExternalDB == null || newField.ExternalDB.length == 0)} Position={'bottom'} Theme={'dark'} Target={"ExternalDB"}>
