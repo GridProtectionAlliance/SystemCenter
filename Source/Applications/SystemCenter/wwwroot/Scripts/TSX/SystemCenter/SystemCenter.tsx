@@ -108,7 +108,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
 
     if (Object.keys(queryString.parse(history.location.search)).length == 0)
-        history.push({ pathname: homePath + 'index.cshtml', search: 'name=Meters' })
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meters' })
 
     return (
         <Router>
