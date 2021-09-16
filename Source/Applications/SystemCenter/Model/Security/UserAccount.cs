@@ -436,6 +436,8 @@ namespace SystemCenter.Model.Security
 
         public override IHttpActionResult Post([FromBody] JObject record)
         {
+            if (record["ID"].Value<string>() == "new")
+                record["ID"] = System.Guid.NewGuid();
             UserAccount newRecord = record.ToObject<UserAccount>();
             if (newRecord.UseADAuthentication)
                 newRecord.Name = UserInfo.UserNameToSID(newRecord.Name);

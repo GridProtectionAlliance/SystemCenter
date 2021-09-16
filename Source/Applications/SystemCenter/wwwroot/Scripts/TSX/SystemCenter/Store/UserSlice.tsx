@@ -25,6 +25,8 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { Search } from '@gpa-gemstone/react-interactive';
 import { ActionCreatorWithoutPayload, ActionCreatorWithPayload, ActionReducerMapBuilder, AsyncThunk, createAsyncThunk, createSlice, Draft, PayloadAction, Slice } from '@reduxjs/toolkit';
 import _ from 'lodash';
+import moment from 'moment';
+
 type UserValidation = 'Resolving' | 'Valid' | 'Invalid' | 'Unknown';
 
 interface UserState {
@@ -147,7 +149,7 @@ export default class UserAccountSlice {
                         Approved: true,
                         ID: 'new',
                         EmailConfirmed: false,
-                        ChangePasswordOn: new Date(),
+                        ChangePasswordOn: moment().add(1,'year').format('YYYY-MM-DD'),
                         Email: '',
                         Name: '',
                         Password: '',
@@ -162,7 +164,13 @@ export default class UserAccountSlice {
 
                 builder.addCase(fetch.fulfilled, (state, action) => {
                     state.Status = 'idle';
-                    state.Data = JSON.parse(action.payload) as Application.Types.iUserAccount[];
+                    let data = JSON.parse(action.payload) as Application.Types.iUserAccount[];
+                    data.forEach((value, index, array) => {
+                        if (value.ChangePasswordOn != null)
+                            value.ChangePasswordOn = moment(value.ChangePasswordOn).format('YYYY-MM-DD');
+                    });
+                    state.Data = data;
+
                 });
                 builder.addCase(fetch.pending, (state, action) => {
                     state.ParentID = (action.meta.arg == null ? 0 : action.meta.arg as number);
@@ -185,7 +193,14 @@ export default class UserAccountSlice {
 
                 builder.addCase(dBSearch.fulfilled, (state, action) => {
                     state.SearchStatus = 'idle';
-                    state.SearchResults = JSON.parse(action.payload) as Application.Types.iUserAccount[];
+
+                    let data = JSON.parse(action.payload) as Application.Types.iUserAccount[];
+                    data.forEach((value, index, array) => {
+                        if(value.ChangePasswordOn != null)
+                            value.ChangePasswordOn = moment(value.ChangePasswordOn).format('YYYY-MM-DD');
+                    });
+
+                    state.SearchResults = data;
 
                     let sortfield = action.meta.arg.sortfield;
                     let asc = action.meta.arg.ascending;
@@ -231,6 +246,9 @@ export default class UserAccountSlice {
                 builder.addCase(loadUser.fulfilled, (state, action) => {
                     state.Status = 'idle';
                     state.CurrentAccount = action.payload;
+                    if (state.CurrentAccount.ChangePasswordOn != null)
+                        state.CurrentAccount.ChangePasswordOn = moment(state.CurrentAccount.ChangePasswordOn).format('YYYY-MM-DD');
+
                     state.ADStatus = 'Unknown'
                 });
                 builder.addCase(loadUser.pending, (state, action) => {
