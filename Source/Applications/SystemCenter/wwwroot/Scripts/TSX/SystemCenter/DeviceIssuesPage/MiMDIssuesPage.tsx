@@ -31,11 +31,17 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import Reason from './Reason';
 import moment from 'moment';
+import { useDispatch, useSelector } from 'react-redux';
+import { SystemCenterSettingSlice } from '../Store/Store';
 
 function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
+    let dispatch = useDispatch();
+
     const [data, setData] = React.useState<SC.MiMDDailyStatistic[]>([]);
     const [sortField, setSortField] = React.useState<keyof SC.MiMDDailyStatistic>('Date');
     const [ascending, setAscending] = React.useState<boolean>(false);
+    const settings = useSelector(SystemCenterSettingSlice.Data);
+    const settingStatus = useSelector(SystemCenterSettingSlice.Status);
 
     React.useEffect(() => {
         let handle = $.ajax({
@@ -52,6 +58,11 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             if (handle.abort != undefined) handle.abort();
         }
     }, [props.Meter]);
+
+    React.useEffect(() => {
+        if (settingStatus == 'unintiated' || settingStatus == 'changed')
+            dispatch(SystemCenterSettingSlice.Fetch());
+    }, [settingStatus]);
 
     return <div className="card" style={{ marginBottom: 10 }}>
         <div className="card-header">
@@ -72,9 +83,9 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     { key: 'TotalSuccessfulFilesProcessed', label: 'Total Unsucc', field: 'TotalSuccessfulFilesProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
                     { key: 'TotalUnsuccessfulFilesProcessed', label: 'Total Succ', field: 'TotalUnsuccessfulFilesProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
                     { key: 'ConfigChanges', label: 'Config Changes', field: 'ConfigChanges', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'LastConfigFileChange', label: 'Last Change', field: 'LastConfigFileChange', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'DiagnosticAlarms', label: 'Diagnostic Alarms', field: 'DiagnosticAlarms', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'ComplianceIssues', label: 'Compliance Issues', field: 'ComplianceIssues', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
+                    { key: 'LastConfigFileChange', label: 'Last Change', field: 'LastConfigFileChange', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `?name=Configuration&MeterID=${props.Meter.ID}` }>{item.ConfigChanges}</a> },
+                    { key: 'DiagnosticAlarms', label: 'Diagnostic Alarms', field: 'DiagnosticAlarms', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `?name=Diagnostic&MeterID=${props.Meter.ID}`}>{item.DiagnosticAlarms}</a> },
+                    { key: 'ComplianceIssues', label: 'Compliance Issues', field: 'ComplianceIssues', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `?name=Compliance&MeterID=${props.Meter.ID}`}>{item.ComplianceIssues}</a> },
 
 
                 ]}

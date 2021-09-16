@@ -30,7 +30,7 @@ import MiMDIssuesPage from './MiMDIssuesPage';
 import OpenXDAIssuesPage from './OpenXDAIssuesPage';
 
 type DeviceIssuesPageTab = 'notes' | 'openmic' | 'mimd' | 'xda'
-function DeviceIssuesPage(props: {MeterID: number, Tab? : DeviceIssuesPageTab}) {
+function DeviceIssuesPage(props: {MeterID: number, OpenMICAcronym: string, Tab? : DeviceIssuesPageTab}) {
     const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(null);
     const [tab, setTab] = React.useState<DeviceIssuesPageTab>(props?.Tab ?? 'notes');
 
@@ -80,7 +80,7 @@ function DeviceIssuesPage(props: {MeterID: number, Tab? : DeviceIssuesPageTab}) 
                     <NoteWindow ID={props.MeterID} Type='Meter' />
                 </div>
                 <div className={"tab-pane " + (tab == "openmic" ? " active" : "fade")} id="openmic" style={{ maxHeight: window.innerHeight - 215 }}>
-                    <OpenMICIssuesPage Meter={meter}/>
+                    <OpenMICIssuesPage Meter={meter} OpenMICAcronym={props.OpenMICAcronym}/>
                 </div>
                 <div className={"tab-pane " + (tab == "mimd" ? " active" : "fade")} id="mimd" style={{ maxHeight: window.innerHeight - 215 }}>
                     <MiMDIssuesPage Meter={meter} />

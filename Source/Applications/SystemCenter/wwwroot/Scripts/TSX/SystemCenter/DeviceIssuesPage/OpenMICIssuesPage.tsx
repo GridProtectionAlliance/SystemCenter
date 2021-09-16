@@ -31,11 +31,17 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import Reason from './Reason';
 import moment from 'moment';
+import { useDispatch, useSelector } from 'react-redux';
+import { SystemCenterSettingSlice } from '../Store/Store';
 
-function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
+function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: string }) {
+    let dispatch = useDispatch();
+
     const [data, setData] = React.useState<SC.OpenMICDailyStatistic[]>([]);
     const [sortField, setSortField] = React.useState<keyof SC.OpenMICDailyStatistic>('Date');
     const [ascending, setAscending] = React.useState<boolean>(false);
+    const settings = useSelector(SystemCenterSettingSlice.Data);
+    const settingStatus = useSelector(SystemCenterSettingSlice.Status);
 
     React.useEffect(() => {
         let handle = $.ajax({
@@ -56,6 +62,11 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     React.useEffect(() => {
         setData(orderBy(data, [sortField], [ascending ? "asc" : "desc"]))
     }, [sortField, ascending]);
+
+    React.useEffect(() => {
+        if (settingStatus == 'unintiated' || settingStatus == 'changed')
+            dispatch(SystemCenterSettingSlice.Fetch());
+    }, [settingStatus]);
 
     return <div className="card" style={{ marginBottom: 10 }}>
         <div className="card-header">
@@ -93,7 +104,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         setSortField(d.colField);
                     }
                 }}
-                onClick={() => { }}
+                onClick={() => window.open(`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/status.cshtml?Acronym=${props.OpenMICAcronym}`, '_blanks')}
                 //theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 //tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%' }}
                 //rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
