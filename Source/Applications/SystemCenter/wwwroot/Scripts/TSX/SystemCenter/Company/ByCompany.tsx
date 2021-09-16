@@ -101,7 +101,7 @@ const ByCompany: Application.Types.iByComponent = (props) => {
         }
 
         handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
-            let ordered = _.orderBy((SearchFields.Company as Search.IField<OpenXDA.Types.Company>[]).concat(d.map(item => (
+            let ordered = _.orderBy((SearchFields.Company as Search.IField<OpenXDA.Types.Company>[]).concat(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Location>
             ))), ['label'], ["asc"]);
             setFilterableList(ordered)

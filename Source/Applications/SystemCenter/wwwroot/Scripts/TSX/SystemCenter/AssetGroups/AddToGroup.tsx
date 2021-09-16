@@ -255,7 +255,7 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
         handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
 
             setFilterableList(lst => {
-                let ordered = _.orderBy(lst.concat(d.map(item => (
+                let ordered = _.orderBy(lst.concat(d.filter(item => item.Searchable).map(item => (
                     { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}]${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<T>
                 ))), ['label'], ["asc"]);
                 return ordered;

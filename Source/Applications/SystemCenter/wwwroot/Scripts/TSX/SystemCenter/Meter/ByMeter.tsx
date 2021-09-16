@@ -117,7 +117,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
         }
 
         handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
-            let ordered = _.orderBy(defaultSearchcols.concat(d.map(item => (
+            let ordered = _.orderBy(defaultSearchcols.concat(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Meter>
             ))), ['label'], ["asc"]);
             setFilterableList(ordered)

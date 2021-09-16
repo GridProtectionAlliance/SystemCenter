@@ -102,7 +102,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
         }
 
         handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
-            let ordered = _.orderBy((SearchFields.Customer as Search.IField<OpenXDA.Types.Customer>[]).concat(d.map(item => (
+            let ordered = _.orderBy((SearchFields.Customer as Search.IField<OpenXDA.Types.Customer>[]).concat(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<OpenXDA.Types.Customer>
             ))), ['label'], ["asc"]);
             setFilterableList(ordered)

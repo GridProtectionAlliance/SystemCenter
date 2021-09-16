@@ -189,7 +189,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
         }
 
         handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
-            let ordered = _.orderBy((SearchFields.Location as Search.IField<Location>[]).concat(d.map(item => (
+            let ordered = _.orderBy((SearchFields.Location as Search.IField<Location>[]).concat(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Location>
             ))), ['label'], ["asc"]);
             setFilterableList(ordered)
