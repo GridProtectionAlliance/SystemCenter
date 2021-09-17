@@ -26,11 +26,10 @@ import _ from 'lodash';
 import Table from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { LoadingIcon, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
+import { TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useSelector, useDispatch } from 'react-redux';
 import { AssetConnectionTypeSlice } from '../Store/Store';
-import { getAsset } from '../../../TS/Services/Asset';
 
 interface AssetConnection {
     AssetRelationShipTypeID: number,

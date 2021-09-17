@@ -220,7 +220,7 @@ const MeterAssetWindow = (props: IProps) => {
                                             UpdateState={setNewEditAsset}
                                             GetDifferentAsset={(assetID) => {
                                                 setActiveAssetID(assetID);
-                                                setActiveAssetType(allAssets.find(a => a.ID == assetID).AssetType)
+                                                setActiveAssetType(assetTypes.find(at => at.ID == (allAssets as any).find(a => a.ID == assetID).AssetTypeID).Name)
                                             }} HideSelectAsset={false} HideAssetType={false} />
                                     </div>
                                     <div className="col">

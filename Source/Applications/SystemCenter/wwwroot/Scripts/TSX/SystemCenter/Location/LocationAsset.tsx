@@ -35,7 +35,7 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import { useSelector, useDispatch } from 'react-redux';
 import { FetchAsset, SelectAssets, SelectAssetStatus } from '../Store/AssetSlice';
 import { AssetTypeSlice } from '../Store/Store';
-import { getAssetWithAdditionalFields, editExistingAsset, getAllAssets } from '../../../TS/Services/Asset';
+import { getAssetWithAdditionalFields, editExistingAsset } from '../../../TS/Services/Asset';
 import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 
