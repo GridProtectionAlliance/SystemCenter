@@ -203,7 +203,7 @@ namespace SystemCenter.Controllers
 
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
-                    IEnumerable<AdditionalField> records = new TableOperations<AdditionalField>(connection).QueryRecords(orderByExpression, new RecordRestriction("Searchable = 1 AND ParentTable = {0}", openXDAParentTable));
+                    IEnumerable<AdditionalField> records = new TableOperations<AdditionalField>(connection).QueryRecords(orderByExpression, new RecordRestriction( "ParentTable = {0}", openXDAParentTable));
                     if (!User.IsInRole("Administrator"))
                     {
                         records = records.Where(x => !x.IsSecure);
