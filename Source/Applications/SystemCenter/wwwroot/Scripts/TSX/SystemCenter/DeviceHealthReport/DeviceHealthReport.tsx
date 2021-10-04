@@ -141,7 +141,9 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     }
 
     function trimString(text: string, maxLength: number) {
-        if (text.length > maxLength)
+        if (text == undefined)
+            return '';
+        else if (text.length > maxLength)
             return <span title={text}>{text.substring(0, maxLength - 1)}...</span>
         else
             return text;
