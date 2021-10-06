@@ -219,7 +219,7 @@ export default function DataMergeWindow(props: {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Delete Data:</h4>
+                        <h4>Merge Data:</h4>
                     </div>
                 </div>
             </div>
@@ -268,7 +268,7 @@ export default function DataMergeWindow(props: {
             </div>
         </div>
         <Warning
-            Message={`Merging with ${mergeMeterName} (${mergeMeterKey}). This cannot be undone.`}
+            Message={`Merging ${props.Meter.Name} (${props.Meter.AssetKey}) with ${mergeMeterName} (${mergeMeterKey}). This cannot be undone.`}
             Title={"Merging data"}
             CallBack={merge}
             Show={showMergeWarning} />
