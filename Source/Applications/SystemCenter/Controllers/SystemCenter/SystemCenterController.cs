@@ -164,6 +164,14 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/ExternalDBTables")]
     public class ExtDBTablesController : ModelController<extDBTables> { }
 
+    [AllowSearch]
+    [GetRoles("Administrator, Transmission SME")]
+    [PatchRoles("Administrator, Transmission SME")]
+    [PostRoles("Administrator, Transmission SME")]
+    [TableName("extDBTables")]
+    [UseEscapedName]
+    public class extDBTables : SystemCenter.Model.extDBTables { }
+
     [RoutePrefix("api/Setting")]
     public class SettingController : ModelController<Setting> { }
 
