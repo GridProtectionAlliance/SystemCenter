@@ -43,7 +43,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ByLocation = React.lazy(() => import(/* webpackChunkName: "ByLocation" */ './Location/ByLocation'));
     const ByAsset = React.lazy(() => import(/* webpackChunkName: "ByAsset" */ './Asset/ByAsset'));
     const ByCustomer = React.lazy(() => import(/* webpackChunkName: "ByCustomer" */ './Customer/ByCustomer'));
-    const ByExternalDB = React.lazy(() => import(/* webpackChunkname: "ByExternalDB" */ './ByExternalDB/ByExternalDB'))
+    const ByExternalDB = React.lazy(() => import(/* webpackChunkname: "ByExternalDB" */ './ExternalDB/ByExternalDB'))
+    const ExternalDB = React.lazy(() => import(/* webpackChunkname: "ExternalDB" */ './ExternalDB/ExternalDB'))
     const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/ByUser'));
     const UserStatistics = React.lazy(() => import(/* webpackChunkName: "UserStatistics" */ './UserStatistics/UserStatistics'));
     const Customer = React.lazy(() => import(/* webpackChunkName: "Customer" */ './Customer/Customer'));
@@ -221,6 +222,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ByCompany Roles={roles} />
                                 else if (qs['?name'] == "ByExternalDB")
                                     return <ByExternalDB Roles={roles} />
+                                else if (qs['?name'] == "ExternalDB")
+                                    return <ExternalDB ID={parseInt(qs.ID as string)} />
                                 else if (qs['?name'] == "User")
                                     return <User UserID={qs.UserAccountID as string} />
                                 else if (qs['?name'] == "UserStatistics")
