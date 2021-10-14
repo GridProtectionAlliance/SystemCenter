@@ -31,17 +31,18 @@ import ExternalDBWindow from './ExternalDBInfo';
 import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive';
 import { OpenXDA } from '@gpa-gemstone/application-typings'
 
+interface ExternalDataBase { ID: number, TableName: string, ExternalDB: string }
 declare var homePath: string;
 
 function ExternalDB(props: { ID: number }) {
-    const [eDB, setExternalDB] = React.useState<OpenXDA.Types.ExternalDataBase>(null);
+    const [eDB, setExternalDB] = React.useState<ExternalDataBase>(null);
     const [tab, setTab] = React.useState(getTab);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         let promise = getExternalDB()
-        promise.done((data: OpenXDA.Types.ExternalDataBase) => setExternalDB(data));
+        promise.done((data: ExternalDataBase) => setExternalDB(data));
         return () => {
             if (promise.abort != undefined) promise.abort();
         };
@@ -58,7 +59,7 @@ function ExternalDB(props: { ID: number }) {
             return 'companyInfo';
     }
 
-    function getExternalDB(): JQuery.jqXHR<OpenXDA.Types.ExternalDataBase> {
+    function getExternalDB(): JQuery.jqXHR<ExternalDataBase> {
         return $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/ExternalDBTables/One/${props.ID}`,
