@@ -40,7 +40,9 @@ export namespace SearchFields {
     ];
 
     export const ValueListGroup = [
-        { label: 'Name', key: 'Name', type: 'string', isPivotField: false }
+        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+        { label: 'Description/Comments', key: 'Description', type: 'string', isPivotField: false },
+
     ];
 
     

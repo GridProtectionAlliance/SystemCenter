@@ -25,20 +25,71 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { ValueListGroupSlice, ValueListSlice } from '../Store/Store';
-import { ValueList } from '@gpa-gemstone/common-pages'; 
-import { useHistory } from "react-router-dom";
+import ValueListGroupInfo from './ValueListGroupInfo';
+import ValueListGroupItems from './ValueListGroupItem';
+import { useSelector, useDispatch } from 'react-redux';
+import { ValueListGroupSlice } from '../Store/Store';
 
 declare var homePath: string;
 
-export default function ValueListGroup (props: { GroupID: number }) {
-    const history = useHistory();
+export default function ValueListGroup(props: { GroupID: number }) {
+    const dispatch = useDispatch();
+    const record = useSelector((state) => ValueListGroupSlice.Datum(state, props.GroupID));
 
-    return <ValueList
-        Id={props.GroupID}
-        ValueListItemSlice={ValueListSlice}
-        ValueListSlice={ValueListGroupSlice}
-        OnDelete={() => history.push({ pathname: homePath + 'index.cshtml?name=ValueLists', state: {} })}
-    />
+    const data = useSelector(ValueListGroupSlice.Data);
+    const valueListGroupStatus = useSelector(ValueListGroupSlice.Status);
+
+    const [tab, setTab] = React.useState<'items' | 'info'>('items');
+
+
+    React.useEffect(() => {
+        if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
+            dispatch(ValueListGroupSlice.Fetch());
+
+        return function () {
+        }
+    }, [dispatch, valueListGroupStatus]);
+
+    React.useEffect(() => {
+        sessionStorage.setItem('ValueListGroup.Tab', JSON.stringify(tab));
+    }, [tab]);
+
+
+    if (record == null) return null;
+    return (
+        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+            <div className="row">
+                <div className="col">
+                    <h2>{record.Name}</h2>
+                </div>
+                <div className="col">
+                    <button className="btn btn-danger pull-right" hidden={record == null} onClick={() => {
+                        dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record }))
+                        window.location.href = homePath + 'index.cshtml?name=ValueListGroups';
+                    }}>Delete Value List Group (Permanent)</button>
+                </div>
+            </div>
+
+
+            <hr />
+            <ul className="nav nav-tabs">
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "info" ? " active" : "")} onClick={() => setTab('info')} data-toggle="tab" href="#info">Value List Group Info</a>
+                </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "items" ? " active" : "")} onClick={() => setTab('items')} data-toggle="tab" href="#items">List Items</a>
+                </li>
+            </ul>
+
+            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
+                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
+                    <ValueListGroupInfo Record={record} />
+                </div>
+                <div className={"tab-pane " + (tab == "items" ? " active" : "fade")} id="items">
+                    <ValueListGroupItems Record={record} />
+                </div>
+            </div>
+        </div>
+    )
 }
 
