@@ -21,6 +21,8 @@
 //
 //******************************************************************************************************
 
+import type { Application } from '@gpa-gemstone/application-typings';
+
 // System Center Models
 declare global {
     var homePath: string;
@@ -31,7 +33,7 @@ declare global {
 }
 
 export namespace SystemCenter {
-        
+    interface UserAccount extends Application.Types.iUserAccount { Title: string, MobilePhone: string, ReceiveNotifications: boolean}
     interface TSC { ID: number, Name: string, Description: string, DepartmentNumber: string }
     interface Role { ID: number, Name: string, Description: string }
 

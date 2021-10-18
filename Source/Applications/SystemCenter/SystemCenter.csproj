@@ -538,6 +538,10 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ByValueListGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\AdditionalUserFieldSlice.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\SecurityRoleSlice.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\AdditionalUserFieldsWindow.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\UserForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\UserInfo.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\UserPermissions.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupForm.tsx" />
