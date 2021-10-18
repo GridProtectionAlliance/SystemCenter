@@ -22,10 +22,9 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Setting } from '@gpa-gemstone/common-pages';
 import { MiMDSettingSlice, OpenXDASettingSlice, SystemCenterSettingSlice } from '../Store/Store';
-import { useDispatch } from 'react-redux';
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application } from '@gpa-gemstone/application-typings';
+import Setting from './Setting';
 
 declare var homePath: string;
 
