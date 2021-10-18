@@ -23,14 +23,17 @@
 
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.PQDIF.Logical;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Web.Http;
 using SystemCenter.Model;
+using Channel = openXDA.Model.Channel;
 
 namespace SystemCenter.Controllers
 {
@@ -378,6 +381,58 @@ namespace SystemCenter.Controllers
             ParentKey = "Meter";
         }
 
+    }
+
+    [RoutePrefix("api/SystemCenter/PQDIFFile")]
+    public class PQDiffFileController: ApiController { 
+        [HttpPost, Route("{meterKey}")]
+        public IHttpActionResult Post([FromUri] string meterKey)
+        {
+            //string file = Request.Content.ReadAsStringAsync().Result;
+            //byte[] bytes = System.Text.Encoding.UTF8.GetBytes(file);
+            byte[] bytes = Request.Content.ReadAsByteArrayAsync().Result;
+
+            ContainerRecord containerRecord;
+            using (Stream stream = new MemoryStream(bytes))
+            using (LogicalParser parser = new LogicalParser(stream))
+            {
+                containerRecord = parser.ContainerRecord;
+                while(parser.HasNextObservationRecord())
+                    parser.NextObservationRecord();
+
+                if (parser.DataSourceRecords.Count == 0)
+                    return BadRequest("File contained no useable channel definitions");
+
+                IEnumerable<ChannelDefinition> channelDefinitions = parser.DataSourceRecords.First().ChannelDefinitions.Where(cd => cd.QuantityTypeID == QuantityType.WaveForm && cd.SeriesDefinitions.Where(ser => ser.QuantityCharacteristicID == QuantityCharacteristic.Instantaneous && ser.QuantityUnits != QuantityUnits.Seconds).Any() && (cd.QuantityMeasured == QuantityMeasured.Voltage || cd.QuantityMeasured == QuantityMeasured.Current));
+
+                var channels = channelDefinitions.Select(cd => new {
+                    ID = 0,
+                    Meter = meterKey,
+                    Asset = "",
+                    MeasurementType = cd.QuantityMeasured.ToString(),
+                    MeasurementCharacteristic = "Instantaneous",
+                    Phase = cd.Phase.ToString(),
+                    Name = cd.ChannelName,
+                    SamplesPerHour = 0,
+                    PerUnitValue = 1,
+                    HarmonicGroup = 0,
+                    Description = cd.DataSource.DataSourceLocation + " - " + cd.ChannelName,
+                    Enabled = true,
+                    Adder = 0,
+                    Multiplier = 1,
+                    Series = new [] { 
+                        new {
+                            ID = 0,
+                            ChannelID = 0,
+                            SeriesType = "Values",
+                            SourceIndexes = ""
+                        }
+                    }
+                });
+
+                return Ok(channels);
+            }
+        }
     }
 
 }

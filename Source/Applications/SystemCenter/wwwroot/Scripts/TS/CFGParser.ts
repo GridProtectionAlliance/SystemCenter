@@ -37,7 +37,7 @@ export default class CFGParser {
         this.Channels = this.Analogs.concat(this.Digitals);
     }
 
-    parsePhase(value: string): string {
+    private parsePhase(value: string): string {
         if (value.toLowerCase().indexOf('a') >= 0 && value.toLowerCase().indexOf('b') >= 0)
             return 'AB';
         else if (value.toLowerCase().indexOf('b') >= 0 && value.toLowerCase().indexOf('c') >= 0)
@@ -58,7 +58,7 @@ export default class CFGParser {
             return 'None';
     }
 
-    parseType(value: string): string {
+    private parseType(value: string): string {
         if (value.toLowerCase().indexOf('v') >= 0)
             return 'Voltage';
         else

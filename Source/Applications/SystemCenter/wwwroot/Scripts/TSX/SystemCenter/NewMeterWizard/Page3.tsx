@@ -23,24 +23,19 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA, PqDiff } from '@gpa-gemstone/application-typings';
 import CFGParser from '../../../TS/CFGParser';
-import { useDispatch, useSelector } from 'react-redux';
 
-import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store';
 import Table from '@gpa-gemstone/react-table'
 import { Input, Select } from '@gpa-gemstone/react-forms';
 import { Warning } from '@gpa-gemstone/react-interactive';
+import PARParser from '../../../TS/PARParser';
+import PQDIFParser from '../../../TS/PQDIFParser';
 
 declare var homePath: string;
 
 export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA.Types.Channel>, UpdateChannels: (record: OpenXDA.Types.Channel[]) => void, UpdateAssets: (record: OpenXDA.Types.Asset[]) => void, SetError: (e: string[]) => void  }) {
     const fileInput = React.useRef(null);
-    const dispatch = useDispatch();
-    const measurementTypes = useSelector(MeasurmentTypeSlice.Data);
-    const mtStatus = useSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
-    const phases = useSelector(PhaseSlice.Data);
-    const phStatus = useSelector(PhaseSlice.Status) as Application.Types.Status;
     const [showCFGError, setShowCFGError] = React.useState<boolean>(false);
     const [showSpareWarning, setShowSpareWarning] = React.useState<boolean>(false);
 
@@ -57,22 +52,6 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
     }, [])
 
     React.useEffect(() => {
-        if (mtStatus === 'unintiated' || mtStatus === 'changed') {
-            dispatch(MeasurmentTypeSlice.Fetch());
-            return function () {
-            }
-        }
-    }, [dispatch, mtStatus]);
-
-    React.useEffect(() => {
-        if (phStatus === 'unintiated' || phStatus === 'changed') {
-            dispatch(PhaseSlice.Fetch());
-            return function () {
-            }
-        }
-    }, [dispatch, phStatus]);
-
-    React.useEffect(() => {
         let e = [];
         if (props.Channels.length == 0)
             e.push('At Least 1 Channel has to be set up.');
@@ -82,38 +61,58 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
     function readSingleFile(evt: React.ChangeEvent<HTMLInputElement>) {
         //Retrieve the first (and only!) File from the FileList object
         var f = evt.target.files[0];
-        if (f) {
-            var r = new FileReader();
+
+        if (!f) {
+        }
+        if (f.name.toLowerCase().indexOf('.cfg') >= 0) {
+            let r = new FileReader();
             r.onload = (e) => {
-                var contents = e.target.result as string;
 
-                var parser;
+                let contents = e.target.result as string;
 
-                if (f.name.indexOf('.cfg') >= 0) {
-                    parser = new CFGParser(contents, props.MeterKey);
-                    props.UpdateChannels(parser.Channels);
-                    clearAssetsChannels();
-
-                }
-                else
-                    setShowCFGError(true);
-                   
+                let parser = new CFGParser(contents, props.MeterKey);
+                props.UpdateChannels(parser.Channels);
+                clearAssetsChannels();
             }
             r.readAsText(f);
         }
+        else if (f.name.toLowerCase().indexOf('.par') >= 0) {
+            let r = new FileReader();
+            r.onload = (e) => {
+
+                let contents = e.target.result as string;
+                let parser = new PARParser(contents, props.MeterKey);
+                props.UpdateChannels(parser.Channels);
+                clearAssetsChannels();
+            }
+            r.readAsText(f);
+        }
+        else if (f.name.toLowerCase().indexOf('.pqd') >= 0) {
+            let r = new FileReader();
+            r.onload = async (e) => {
+
+                let contents = e.target.result as ArrayBuffer;
+                let parser = new PQDIFParser(contents, props.MeterKey);
+                await parser.LoadChannels();
+                props.UpdateChannels(parser.Channels);
+                clearAssetsChannels();
+
+            }
+            r.readAsArrayBuffer(f);
+
+        }
+        else
+            setShowCFGError(true);
     }
 
-    function deleteChannel(id: number): void {
+    function deleteChannel(index:number): void {
         let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
-        let index = channels.findIndex(ch => ch.ID == id);
-        if (index == -1)
-            return;
         let record: OpenXDA.Types.Channel = channels.splice(index, 1)[0];
         props.UpdateChannels(channels);
 
         if (record.Asset == '') return;
 
-        let assets:Array<OpenXDA.Types.Asset> = JSON.parse(localStorage.getItem('NewMeterWizard.Assets'));
+        let assets: Array<OpenXDA.Types.Asset> = JSON.parse(localStorage.getItem('NewMeterWizard.Assets'));
 
         if (assets != null && assets.length > 0) {
             let asset = assets.find(a => a.AssetKey == record.Asset)
@@ -122,7 +121,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
             let channelIndex = asset.Channels.findIndex(c => c.ID = record.ID);
             if (channelIndex < 0) return;
 
-            asset.Channels.splice(channelIndex,1)
+            asset.Channels.splice(channelIndex, 1)
             props.UpdateAssets(assets);
 
         }
@@ -205,14 +204,18 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                 <div className="col-6">
                     <div className="form-group" style={{ width: '100%' }}>
                         <div className="custom-file">
-                            <input type="file" className="custom-file-input" ref={fileInput} accept=".cfg,.par" />
-                            <label className="custom-file-label">Choose a comtrade standard cfg file if applicable</label>
+                            <input type="file" className="custom-file-input" ref={fileInput} accept=".cfg,.par,.pqd" />
+                            <label className="custom-file-label">Choose cfg, par or pqd file.</label>
                         </div>
                     </div>
                 </div>
-                <div className="col-2">
+                <div className="col-1">
                     <button className="btn btn-primary pull-right" disabled={NSpare == 0} onClick={() => setShowSpareWarning(true)}>Remove Spare</button>
                 </div>
+                <div className="col-1">
+                    <button className="btn btn-primary pull-right" disabled={props.Channels.length == 0} onClick={() => props.UpdateChannels([])}>Clear Channels</button>
+                </div>
+
                 <div className="col-2">
                     <button className="btn btn-primary pull-right" onClick={() => {
                         let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel
@@ -239,14 +242,14 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                         key: 'Description', label: 'Desc', headerStyle: { width: '33%' }, rowStyle: { width: '33%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Description'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
                     },
                     {
-                        key: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={(measurementTypes as OpenXDA.Types.MeasurementType[]).map((t) => ({ Value: t.Name, Label: t.Name }))} />
+                        key: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementTypes.map((t) => ({ Value: t, Label: t }))} />
                     },
                     {
-                        key: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={(phases as OpenXDA.Types.Phase[]).map((t) => ({ Value: t.Name, Label: t.Name }))} />
+                        key: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.Phases.map((t) => ({ Value: t, Label: t }))} />
                     },
                     { key: 'Adder', label: 'Adder', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
                     { key: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
-                    { key: 'DeleteButton', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%', paddingTop: 36, paddingBottom: 36 }, content: (item) => <button className="btn btn-sm" onClick={(e) => deleteChannel(item.ID)}><span><i className="fa fa-times"></i></span></button> },
+                    { key: 'DeleteButton', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%', paddingTop: 36, paddingBottom: 36 }, content: (item, field, key, style, index) => <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span><i className="fa fa-times"></i></span></button> },
                     
                 ]}
                     tableClass="table table-hover"
@@ -261,7 +264,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                     selected={(item) => false}
                 />
             </div>
-            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={'File is not of type cfg. Please only use comtrade standard cfg files.'} CallBack={() => setShowCFGError(false)} />
+            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={'File is not of type cfg, par, or pqd. Please only use cfg, par, or pqd files.'} CallBack={() => setShowCFGError(false)} />
             <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare channels. This will remove ${NSpare} Channels from the Configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
 
         </>
