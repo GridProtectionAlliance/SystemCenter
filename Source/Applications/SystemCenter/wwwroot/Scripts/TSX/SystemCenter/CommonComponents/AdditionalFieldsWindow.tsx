@@ -32,7 +32,7 @@ import Table from '@gpa-gemstone/react-table';
 import { HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
 
 declare var homePath: string;
-declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer'| 'Company' | 'Line' | 'Bus' | 'Breaker' | 'Transformer' | 'LineSegment' | 'CapacitorBank' | 'Asset' | 'CapacitorBankRelay' | 'ValueListGroup'
+declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer' | 'Company' | 'ValueListGroup' | 'Asset' | OpenXDA.Types.AssetTypeName
 interface IProps { ID: number, Type: AdditionalFieldType, Tab: string }
 
 function AdditionalFieldsWindow(props: IProps): JSX.Element {

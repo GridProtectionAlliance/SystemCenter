@@ -37,6 +37,7 @@ import LineAttributes from '../AssetAttribute/Line';
 import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import DERAttributes from '../AssetAttribute/DER';
 
 declare var homePath: string;
 
@@ -115,6 +116,8 @@ function AssetInfoWindow(props: IProps) {
             return <TransformerAttributes NewEdit={'Edit'} Asset={editAsset as OpenXDA.Types.Transformer} UpdateState={setEditAsset} />;
         else if (asset.AssetType == 'LineSegment')
             return <LineSegmentAttributes NewEdit={'Edit'} Asset={editAsset as OpenXDA.Types.LineSegment} UpdateState={setEditAsset} />;
+        else if (asset.AssetType == 'DER')
+            return <DERAttributes NewEdit={'Edit'} Asset={editAsset as OpenXDA.Types.DER} UpdateState={setEditAsset} />;
 
     }
 
@@ -272,6 +275,12 @@ function AssetInfoWindow(props: IProps) {
 
             }
             
+        }
+        if (asset.AssetType == 'DER') {
+            if ((asset as OpenXDA.Types.DER).FullRatedOutputCurrent != (editAsset as OpenXDA.Types.DER).FullRatedOutputCurrent)
+                result.push('Full Rated Output Current')
+            if ((asset as OpenXDA.Types.DER).VoltageLevel != (editAsset as OpenXDA.Types.DER).VoltageLevel)
+                result.push('Voltage Level')
         }
 
         return result;

@@ -405,8 +405,8 @@ namespace SystemCenter.Controllers
 
                 IEnumerable<ChannelDefinition> channelDefinitions = parser.DataSourceRecords.First().ChannelDefinitions.Where(cd => cd.QuantityTypeID == QuantityType.WaveForm && cd.SeriesDefinitions.Where(ser => ser.QuantityCharacteristicID == QuantityCharacteristic.Instantaneous && ser.QuantityUnits != QuantityUnits.Seconds).Any() && (cd.QuantityMeasured == QuantityMeasured.Voltage || cd.QuantityMeasured == QuantityMeasured.Current));
 
-                var channels = channelDefinitions.Select(cd => new {
-                    ID = 0,
+                var channels = channelDefinitions.Select((cd,index) => new {
+                    ID = index + 1 ,
                     Meter = meterKey,
                     Asset = "",
                     MeasurementType = cd.QuantityMeasured.ToString(),

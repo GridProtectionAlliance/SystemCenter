@@ -122,6 +122,9 @@ namespace SystemCenter.Controllers.OpenXDA
                                         (new TableOperations<Transformer>(connection)).AddNewRecord(asset.ToObject<Transformer>());
                                     else if (assetType == "CapacitorBankRelay")
                                         (new TableOperations<CapBankRelay>(connection)).AddNewRecord(asset.ToObject<CapBankRelay>());
+                                    else if (assetType == "DER")
+                                        (new TableOperations<DER>(connection)).AddNewRecord(asset.ToObject<DER>());
+
                                     else
                                         (new TableOperations<Asset>(connection)).AddNewRecord(asset.ToObject<Asset>());
                                 }
@@ -169,6 +172,13 @@ namespace SystemCenter.Controllers.OpenXDA
                                 string sourceIndex = Series[0]["SourceIndexes"].ToString();
                                 if (assetKey == string.Empty) continue;
 
+                                Phase ph = new TableOperations<Phase>(connection).QueryRecordWhere("Name = {0}", phase);
+                                if(ph == null)
+                                {
+                                    ph = new Phase() {ID=0, Name = phase, Description = phase };
+                                    new TableOperations<Phase>(connection).AddNewRecord(ph);
+                                }
+                                    
                                 connection.ExecuteNonQuery($@"INSERT INTO Channel
                                     (
                                         AssetID,

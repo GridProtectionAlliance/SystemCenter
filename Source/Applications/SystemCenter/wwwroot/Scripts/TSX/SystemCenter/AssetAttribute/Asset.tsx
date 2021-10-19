@@ -191,6 +191,13 @@ export namespace AssetAttributes {
             record.Length = null;
             return record
         }
+        else if (type == 'DER') {
+            let record = asset as OpenXDA.Types.DER;
+            record.FullRatedOutputCurrent = 0;
+            record.VoltageLevel = 'Low';
+            return record
+        }
+
         else {
             let record = asset as OpenXDA.Types.Transformer;
             record.R0 = null;
