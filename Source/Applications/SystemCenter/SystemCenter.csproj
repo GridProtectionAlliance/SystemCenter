@@ -509,7 +509,10 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyMeter.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\SearchFields.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\NoteSlice.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ByExternalDB\ByExternalDB.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ByExternalDB.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDB.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBInfo.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterTrendChannel.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\PropertyUI\MeterProperties.tsx" />
