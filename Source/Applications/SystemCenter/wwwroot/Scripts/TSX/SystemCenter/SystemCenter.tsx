@@ -40,6 +40,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
     const history = createBrowserHistory();
     const ByMeter = React.lazy(() => import(/*webpackChunkName: "ByMeter"*/'./Meter/ByMeter'));
+    const BySecurityGroup = React.lazy(() => import(/*webpackChunkName: "BySecurityGroup"*/'./SecurityGroup/BySecurityGroup'));
     const ByLocation = React.lazy(() => import(/* webpackChunkName: "ByLocation" */ './Location/ByLocation'));
     const ByAsset = React.lazy(() => import(/* webpackChunkName: "ByAsset" */ './Asset/ByAsset'));
     const ByCustomer = React.lazy(() => import(/* webpackChunkName: "ByCustomer" */ './Customer/ByCustomer'));
@@ -51,6 +52,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const NewMeterWizard = React.lazy(() => import( /* webpackChunkName: "NewMeterWizard" */ './NewMeterWizard/NewMeterWizard'));
     const ConfigurationHistory = React.lazy(() => import(/* webpackChunkName: "ConfigurationHistory" */ './ConfigurationHistory/ConfigurationHistory'));
     const Meter = React.lazy(() => import(/* webpackChunkName: "Meter" */ './Meter/Meter'));
+    const SecurityGroup = React.lazy(() => import(/* webpackChunkName: "SecurityGroup" */ './SecurityGroup/SecurityGroup'));
     const Location = React.lazy(() => import(/* webpackChunkName: "Location" */ './Location/Location'));
     const ByAssetGroup = React.lazy(() => import(/* webpackChunkName: "ByAssetGroup" */ './AssetGroups/ByAssetGroup'));
     const AssetGroup = React.lazy(() => import(/* webpackChunkName: "AssetGroup" */ './AssetGroups/AssetGroup'));
@@ -177,6 +179,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=MiMD"} to={controllerViewPath + "?name=Settings&System=MiMD"}>MiMD</NavLink>
                                 </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=BySecurityGroup"} to={controllerViewPath + "?name=BySecurityGroup"}>SecurityGroup</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -214,6 +219,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ByAssetGroup Roles={roles} />
                                 else if (qs['?name'] == "Users")
                                     return <ByUser Roles={roles} />
+                                else if (qs['?name'] == "SecurityGroup")
+                                    return <BySecurityGroup Roles={roles} />
                                 else if (qs['?name'] == "Companies")
                                     return <ByCompany Roles={roles} />
                                 else if (qs['?name'] == "User")
