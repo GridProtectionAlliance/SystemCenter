@@ -179,9 +179,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=MiMD"} to={controllerViewPath + "?name=Settings&System=MiMD"}>MiMD</NavLink>
                                 </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=SecurityGroup"} to={controllerViewPath + "?name=SecurityGroup"}>SecurityGroup</NavLink>
-                                </li>
                             </ul>
 
                             <hr />
@@ -193,7 +190,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Users"} to={controllerViewPath + "?name=Users"}>Users</NavLink>
-
+                                </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=SecurityGroup"} to={controllerViewPath + "?name=SecurityGroup"}>SecurityGroup</NavLink>
                                 </li>
                             </ul>
                         </div>
