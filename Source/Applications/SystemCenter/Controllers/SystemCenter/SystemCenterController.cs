@@ -24,6 +24,7 @@
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.PQDIF.Logical;
+using GSF.Security.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using System;
@@ -166,6 +167,12 @@ namespace SystemCenter.Controllers
 
     [RoutePrefix("api/SystemCenter/ExternalDBTables")]
     public class ExtDBTablesController : ModelController<extDBTables> { }
+
+    [RoutePrefix("api/Security/SecurityGroups")]
+    public class SecurityGroupController : ModelController<SecurityGroup> { }
+
+    [AllowSearch]
+    public class SecurityGroup : GSF.Security.Model.SecurityGroup { }
 
     [RoutePrefix("api/Setting")]
     public class SettingController : ModelController<Setting> { }
