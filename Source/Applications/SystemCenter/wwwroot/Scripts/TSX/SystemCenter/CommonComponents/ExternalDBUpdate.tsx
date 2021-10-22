@@ -31,7 +31,7 @@ import moment from 'moment';
 
 function ExternalDataBaseWindow(props: {
     ID: number,
-    Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | 'Line' | 'Breaker' | 'Bus' | 'LineSegment' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay',
+    Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | 'Line' | 'Breaker' | 'Bus' | 'LineSegment' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay' | 'DER',
     Tab: string
 }): JSX.Element {
     const [externalDB, setexternalDB] = React.useState<Array<SystemCenter.Types.ExternalDB>>([]);
