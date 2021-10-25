@@ -88,6 +88,8 @@ namespace SystemCenter.Controllers.OpenXDA
         }
 
     }
+    [RoutePrefix("api/OpenXDA/ExternalDBTables")]
+    public class ExtDBTablesController : ModelController<SystemCenter.Model.extDBTables> { }
 
     [RoutePrefix("api/OpenXDA/Bus")]
     public class OpenXDABusController : ModelController<Bus> 
