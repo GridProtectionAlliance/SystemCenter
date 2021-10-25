@@ -25,9 +25,11 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Modal, Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import ExternalDBForm from './ExternalDBForm';
 
 interface ExternalDB {
     ID: number, TableName: string, ExternalDB: string
@@ -45,11 +47,13 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     const [search, setSearch] = React.useState<Array<Search.IFilter<ExternalDB>>>([]);
     const [data, setData] = React.useState<Array<ExternalDB>>([]);
 
+    const [newExternalDB, setNewExternalDB] = React.useState<OpenXDA.Types.ExternalDataBase>(getNewExternalDB());
     const [sortKey, setSortKey] = React.useState<string>('TableName');
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<ExternalDB>>>(defaultSearchcols);
     const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
-
+    const [showNew, setShowNew] = React.useState<boolean>(false);
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [newExternalDatabaseErrors, setNewExternalDatabaseErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         let handle = getExternalDB();
@@ -64,13 +68,49 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
         }
     }, [sortKey, ascending, search]);
 
+    function getNewExternalDB(): OpenXDA.Types.ExternalDataBase {
+        return {
+            ID: 0,
+            TableName: null,
+            ExternalDB: 'Maximo',
+            Query: ''
+        }
+    }
+
+    function getData() {
+        let handle = getExternalDB();
+        handle.done((data: string) => {
+            setSearchState('Idle');
+            setData(JSON.parse(data) as OpenXDA.Types.ExternalDataBase[]);
+
+        }).fail((d) => setSearchState('Error'));
+        return function cleanup() {
+            if (handle.abort != null)
+                handle.abort();
+        }
+
+    }
+
+    function addNewExternalDatabase() {
+        $.ajax({
+            type: "Post",
+            url: `${homePath}api/OpenXDA/ExternalDBTables/Add`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify(newExternalDB),
+            cache: false,
+            async: true
+        }).done((data) => getData());
+
+    }
+
     function getExternalDB(): JQuery.jqXHR<string> {
         setSearchState('Loading');
         let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
 
         return $.ajax({
             type: "Post",
-            url: `${homePath}api/SystemCenter/ExternalDBTables/SearchableList`,
+            url: `${homePath}api/OpenXDA/ExternalDBTables/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
@@ -113,6 +153,18 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 }}
 
             >
+                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                        <form>
+                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => {
+                                event.preventDefault()
+                                setNewExternalDB(getNewExternalDB());
+                                setShowNew(true);
+                            }}>Add External Database Table</button>
+                        </form>
+                    </fieldset>
+                </li>
             </SearchBar>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table
@@ -145,24 +197,17 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <div className="modal" id="extDBModal">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">External Database Table</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <ExternalDBUpdate ID={-1} Type='Meter' Tab="" />
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
+            <Modal Show={showNew} Title={'New External DataBase'}
+                ShowCancel={true}
+                CallBack={(conf) => { if (conf) addNewExternalDatabase(); setShowNew(false); }}
+                DisableConfirm={newExternalDatabaseErrors.length > 0}
+                ShowX={true}
+                ConfirmShowToolTip={newExternalDatabaseErrors.length > 0}
+                ConfirmToolTipContent={
+                    newExternalDatabaseErrors.map((t, i) => <p key={i}> {CrossMark} {t} </p>)
+                }>
+                <ExternalDBForm ExternalDB={newExternalDB} Setter={setNewExternalDB} setErrors={setNewExternalDatabaseErrors} />
+            </Modal>
         </div>
     )
 }
