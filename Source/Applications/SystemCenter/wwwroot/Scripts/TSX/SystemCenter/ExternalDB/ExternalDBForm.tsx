@@ -61,7 +61,7 @@ export default function ExternalDBForm(props: IProps) {
 
     return (
         <form>
-            <Input<OpenXDA.Types.ExternalDataBase> Record={props.ExternalDB} Field={'TableName'} Feedback={'Table Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Input<OpenXDA.Types.ExternalDataBase> Record={props.ExternalDB} Field={'TableName'} Label={'Name'} Feedback={'Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
             <Select<OpenXDA.Types.ExternalDataBase> Record={props.ExternalDB} Field={'ExternalDB'} Options={Options} Setter={props.Setter} />
         </form>
 
