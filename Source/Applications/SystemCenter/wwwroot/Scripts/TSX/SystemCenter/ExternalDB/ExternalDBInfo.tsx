@@ -46,7 +46,7 @@ export default class ExternalDBWindow extends React.Component<{ ExternalDB: Open
     }
 
     updateExternalDB(): JQuery.jqXHR {
-        var company = _.clone(this.state.ExternalDB);
+        var externalDBs = _.clone(this.state.ExternalDB);
 
         return $.ajax({
             type: "PATCH",
@@ -57,7 +57,7 @@ export default class ExternalDBWindow extends React.Component<{ ExternalDB: Open
             cache: true,
             async: true
         }).done((LocationID: number) => {
-            this.props.stateSetter(company);
+            this.props.stateSetter(externalDBs);
         });
     }
 
@@ -67,7 +67,7 @@ export default class ExternalDBWindow extends React.Component<{ ExternalDB: Open
                 <div className="card-header">
                     <div className="row">
                         <div className="col">
-                            <h4>Company Information:</h4>
+                            <h4>External Database Info:</h4>
                         </div>
                     </div>
                 </div>

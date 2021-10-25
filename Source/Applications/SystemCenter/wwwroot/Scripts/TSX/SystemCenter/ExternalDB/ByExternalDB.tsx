@@ -81,7 +81,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDB&ID=' + item.row.ID, state: {} })
     }
-    const standardSearch: Search.IField<ExternalDB> = { label: 'TableName', key: 'TableName', type: 'string', isPivotField: false };
+    const standardSearch: Search.IField<ExternalDB> = { label: 'Name', key: 'TableName', type: 'string', isPivotField: false };
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
@@ -117,7 +117,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table
                     cols={[
-                        { key: 'TableName', field: 'TableName', label: 'Table Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'TableName', field: 'TableName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'ExternalDB', field: 'ExternalDB', label: 'External Database', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
                     ]}
@@ -149,7 +149,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h4 className="modal-title">Meter External Database Fields</h4>
+                            <h4 className="modal-title">External Database Table</h4>
                             <button type="button" className="close" data-dismiss="modal">&times;</button>
                         </div>
                         <div className="modal-body">

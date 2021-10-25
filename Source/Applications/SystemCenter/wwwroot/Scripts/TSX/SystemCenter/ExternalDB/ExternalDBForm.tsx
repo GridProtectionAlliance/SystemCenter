@@ -22,43 +22,33 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Input, TextArea, Select } from '@gpa-gemstone/react-forms';
-import { CompanyTypeSlice, CompanySlice } from '../Store/Store';
+import { Input, Select} from '@gpa-gemstone/react-forms';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
-interface IProps { ExternalDB: OpenXDA.Types.ExternalDataBase, Setter: (eDB: OpenXDA.Types.ExternalDataBase) => void, setErrors?: (e: string[]) => void }
+interface IProps { ExternalDB: OpenXDA.Types.ExternalDataBase, Setter: (externalDBTable: OpenXDA.Types.ExternalDataBase) => void, setErrors?: (e: string[]) => void }
 
 export default function ExternalDBForm(props: IProps) {
-
-    const dispatch = useDispatch();
-    const companyTypes = useSelector(CompanyTypeSlice.Data) as OpenXDA.Types.CompanyType[];
-    const companies = useSelector(CompanySlice.Data) as OpenXDA.Types.Company[];
-
-    const ctStatus = useSelector(CompanyTypeSlice.Status) as Application.Types.Status;
-    const cStatus = useSelector(CompanySlice.Status) as Application.Types.Status;
+    let Options = [{
+        Value: "Maximo",
+        Label: "Maximo"
+        }, {
+        Value: "PQView",
+        Label: "PQView"
+        }, {
+        Value: "Fawg",
+        Label: "Fawg"
+        }]
 
     React.useEffect(() => {
         let e = [];
         if (props.ExternalDB.TableName == null || props.ExternalDB.TableName.length == 0)
-            e.push('A name is required.');
+            e.push('External Database Table Name must be greater than 0 characters.');
         if (props.ExternalDB.TableName != null && props.ExternalDB.TableName.length > 200)
             e.push('External Database Table Name must be less than 200 characters.');
 
         if (props.setErrors != undefined)
             props.setErrors(e);
     }, [props.ExternalDB]);
-
-    React.useEffect(() => {
-        if (ctStatus == 'unintiated' || ctStatus == 'changed')
-            dispatch(CompanyTypeSlice.Fetch());
-    }, []);
-
-    React.useEffect(() => {
-        if (cStatus == 'unintiated' || cStatus == 'changed')
-            dispatch(CompanySlice.Fetch());
-    }, []);
-
 
     function Valid(field: keyof (OpenXDA.Types.ExternalDataBase)): boolean {
         if (field == 'TableName')
@@ -72,7 +62,7 @@ export default function ExternalDBForm(props: IProps) {
     return (
         <form>
             <Input<OpenXDA.Types.ExternalDataBase> Record={props.ExternalDB} Field={'TableName'} Feedback={'Table Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
-            <Input<OpenXDA.Types.ExternalDataBase> Record={props.ExternalDB} Field={'ExternalDB'} Feedback={'External Database must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Select<OpenXDA.Types.ExternalDataBase> Record={props.ExternalDB} Field={'ExternalDB'} Options={Options} Setter={props.Setter} />
         </form>
 
     );
