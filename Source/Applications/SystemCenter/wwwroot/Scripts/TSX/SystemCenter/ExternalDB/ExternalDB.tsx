@@ -30,6 +30,7 @@ import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import ExternalDBWindow from './ExternalDBInfo';
 import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive';
 import { OpenXDA } from '@gpa-gemstone/application-typings'
+import QueryWindow from './QueryWindow';
 
 interface ExternalDataBase { ID: number, TableName: string, ExternalDB: string, Query: string }
 declare var homePath: string;
@@ -62,7 +63,7 @@ function ExternalDB(props: { ID: number }) {
     function getExternalDB(): JQuery.jqXHR<ExternalDataBase> {
         return $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/ExternalDBTables/One/${props.ID}`,
+            url: `${homePath}api/OpenXDA/ExternalDBTables/One/${props.ID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -73,7 +74,7 @@ function ExternalDB(props: { ID: number }) {
     function deleteExternalDBTable(): JQuery.jqXHR {
         let handle = $.ajax({
             type: "DELETE",
-            url: `${homePath}api/OpenXDA/ExternalDB/Delete`,
+            url: `${homePath}api/OpenXDA/ExternalDBTables/Delete`,
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(externalDBTable),
             dataType: 'json',
@@ -106,10 +107,7 @@ function ExternalDB(props: { ID: number }) {
             <hr />
             <ul className="nav nav-tabs">
                 <li className="nav-item">
-                    <a className={"nav-link" + (tab == "ExternalDBInfo" ? " active" : "")} onClick={() => setTab('ExternalDBInfo')} data-toggle="tab" href="#ExternalDBInfo">External Database Info</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "notes" ? " active" : "")} onClick={() => setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
+                    <a className={"nav-link" + (tab == "ExternalDBInfo" ? " active" : "")} onClick={() => setTab('ExternalDBInfo')} data-toggle="tab" href="#ExternalDBInfo">External Database Information</a>
                 </li>
                 <li className="nav-item">
                     <a className={"nav-link" + (tab == "query" ? " active" : "")} onClick={() => setTab('query')} data-toggle="tab" href="#query">Query</a>
@@ -120,14 +118,11 @@ function ExternalDB(props: { ID: number }) {
                 <div className={"tab-pane " + (tab == "ExternalDBInfo" ? " active" : "fade")} id="ExternalDBInfo">
                     <ExternalDBWindow ExternalDB={externalDBTable} stateSetter={setExternalDB} />
                 </div>
-                <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" >
-                    <NoteWindow ID={props.ID} Type='Company' />
-                </div>
                 <div className={"tab-pane " + (tab == "query" ? "active" : "fade")} id="query" >
-                    <ExternalDBWindow ExternalDB={externalDBTable} stateSetter={setExternalDB} />
+                    <QueryWindow ExternalDB={externalDBTable} stateSetter={setExternalDB} />
                 </div>
             </div>
-            <Warning Message={'This will permanently Delete the ' + externalDBTable.ExternalDB + ' Table and can not be undone.'} Show={showDelete} Title={'Delete External Database ' + externalDBTable.TableName} CallBack={(conf) => { if (conf) deleteExternalDBTable(); setShowDelete(false); }} />
+            <Warning Message={'This will permanently Delete the ' + externalDBTable.ExternalDB + ' Table and can not be undone.'} Show={showDelete} Title={'Delete External Database Table' + externalDBTable.TableName} CallBack={(conf) => { if (conf) deleteExternalDBTable(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
     )
