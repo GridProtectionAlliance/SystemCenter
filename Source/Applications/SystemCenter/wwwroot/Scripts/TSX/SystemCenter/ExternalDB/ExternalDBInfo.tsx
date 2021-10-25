@@ -49,8 +49,8 @@ export default class ExternalDBWindow extends React.Component<{ ExternalDB: Open
         var externalDBs = _.clone(this.state.ExternalDB);
 
         return $.ajax({
-            type: "PATCH",
-            url: `${homePath}api/SystemCenter/ExternalDBTables/Update`,
+            type: "Patch",
+            url: `${homePath}api/OpenXDA/ExternalDBTables/Update`,
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify(this.state.ExternalDB),
             dataType: 'json',
@@ -67,7 +67,7 @@ export default class ExternalDBWindow extends React.Component<{ ExternalDB: Open
                 <div className="card-header">
                     <div className="row">
                         <div className="col">
-                            <h4>External Database Info:</h4>
+                            <h4>External Database Information:</h4>
                         </div>
                     </div>
                 </div>
