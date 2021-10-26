@@ -121,6 +121,16 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDB&ID=' + item.row.ID, state: {} })
     }
+
+    function nameExists(newDB: ExternalDB) {
+        for (let i = 0; i < data.length; i++) {
+            if (newDB.TableName === data[i].TableName) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     const standardSearch: Search.IField<ExternalDB> = { label: 'Name', key: 'TableName', type: 'string', isPivotField: false };
 
     return (
@@ -199,7 +209,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
 
             <Modal Show={showNew} Title={'New External DataBase'}
                 ShowCancel={true}
-                CallBack={(conf) => { if (conf) addNewExternalDatabase(); setShowNew(false); }}
+                CallBack={(conf) => { if (!nameExists(newExternalDB) && conf) addNewExternalDatabase(); setShowNew(false); }}
                 DisableConfirm={newExternalDatabaseErrors.length > 0}
                 ShowX={true}
                 ConfirmShowToolTip={newExternalDatabaseErrors.length > 0}
