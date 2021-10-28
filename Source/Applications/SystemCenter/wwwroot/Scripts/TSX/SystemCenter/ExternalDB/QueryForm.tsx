@@ -46,7 +46,7 @@ export default function ExternalDBForm(props: IProps) {
 
     return (
         <form>
-            <TextArea<OpenXDA.Types.ExternalDataBase> Rows={10} Record={props.ExternalDB} Field={'Query'} Feedback={'Query must be greater than 0 characters.'} Valid={Valid} Setter={props.Setter} />
+            <TextArea<OpenXDA.Types.ExternalDataBase> Rows={10} Record={props.ExternalDB} Field={'Query'} Feedback={props.ExternalDB.Query == null ? 'Query must be greater than 0 characters.' : 'Query must be less than 200 characters'} Valid={Valid} Setter={props.Setter} />
         </form>
 
     );
