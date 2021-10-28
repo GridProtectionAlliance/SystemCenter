@@ -116,7 +116,7 @@ function ExternalDB(props: { ID: number }) {
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "ExternalDBInfo" ? " active" : "fade")} id="ExternalDBInfo">
-                    <ExternalDBWindow ExternalDB={externalDBTable} stateSetter={setExternalDB} />
+                    <ExternalDBWindow ExternalDBTables={externalDBTable} stateSetter={setExternalDB} />
                 </div>
                 <div className={"tab-pane " + (tab == "query" ? "active" : "fade")} id="query" >
                     <QueryWindow ExternalDB={externalDBTable} stateSetter={setExternalDB} />
