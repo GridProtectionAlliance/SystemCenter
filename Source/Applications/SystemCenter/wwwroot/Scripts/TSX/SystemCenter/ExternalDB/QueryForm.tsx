@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { Input, Select } from '@gpa-gemstone/react-forms';
+import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
 interface IProps { ExternalDB: OpenXDA.Types.ExternalDataBase, Setter: (externalDBTable: OpenXDA.Types.ExternalDataBase) => void, setErrors?: (e: string[]) => void }
@@ -31,11 +31,8 @@ export default function ExternalDBForm(props: IProps) {
 
     React.useEffect(() => {
         let e = [];
-        if (props.ExternalDB.Query == null || props.ExternalDB.Query.length == 0)
-            e.push('Query must be greater than 0 characters.');
         if (props.ExternalDB.Query != null && props.ExternalDB.Query.length > 200)
             e.push('Query must be less than 200 characters.');
-
         if (props.setErrors != undefined)
             props.setErrors(e);
     }, [props.ExternalDB]);
@@ -49,7 +46,7 @@ export default function ExternalDBForm(props: IProps) {
 
     return (
         <form>
-            <Input<OpenXDA.Types.ExternalDataBase> Record={props.ExternalDB} Field={'Query'} Feedback={'Query must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <TextArea<OpenXDA.Types.ExternalDataBase> Rows={10} Record={props.ExternalDB} Field={'Query'} Feedback={'Query must be greater than 0 characters.'} Valid={Valid} Setter={props.Setter} />
         </form>
 
     );
