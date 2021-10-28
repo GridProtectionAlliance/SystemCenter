@@ -530,6 +530,8 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Advanced\MeterDataDelete.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Advanced\MeterDataMerge.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\Reason.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataOperations.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataReaders.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\Setting.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeterSlice.ts" />

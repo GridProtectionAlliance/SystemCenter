@@ -38,6 +38,11 @@ using SystemCenter.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
+    [RoutePrefix("api/OpenXDA/DataOperation")]
+    public class DataOperationController : ModelController<DataOperation> { }
+    [RoutePrefix("api/OpenXDA/DataReader")]
+    public class DataReaderController : ModelController<DataReader> { }
+
 
     [RoutePrefix("api/OpenXDA/AssetType")]
     public class AssetTypeController : ModelController<AssetTypes> {}
