@@ -42,9 +42,9 @@ export default function ExternalDBForm(props: IProps) {
     React.useEffect(() => {
         let e = [];
         if (props.ExternalDB.TableName == null || props.ExternalDB.TableName.length == 0)
-            e.push('External Database Table Name must be greater than 0 characters.');
+            e.push('A valid Name is required.');
         if (props.ExternalDB.TableName != null && props.ExternalDB.TableName.length > 200)
-            e.push('External Database Table Name must be less than 200 characters.');
+            e.push('Name must be less than 200 characters.');
 
         if (props.setErrors != undefined)
             props.setErrors(e);
@@ -60,7 +60,7 @@ export default function ExternalDBForm(props: IProps) {
 
     return (
         <form>
-            <Input<OpenXDA.Types.ExternalDataBase> Record={props.ExternalDB} Field={'TableName'} Label={'Name'} Feedback={'Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Input<OpenXDA.Types.ExternalDataBase> Record={props.ExternalDB} Field={'TableName'} Label={'Name'} Feedback={props.ExternalDB.TableName == null ? 'Name must be greater than 0 characters.' : 'Name must be less than 200 characters'} Valid={Valid} Setter={props.Setter} />
             <Select<OpenXDA.Types.ExternalDataBase> Record={props.ExternalDB} Field={'ExternalDB'} Label={'External Database'} Options={Options} Setter={props.Setter} />
         </form>
 
