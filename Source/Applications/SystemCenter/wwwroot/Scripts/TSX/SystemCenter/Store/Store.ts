@@ -52,7 +52,8 @@ export const DataFileSlice = new GenericSlice<OpenXDA.Types.DataFile>("DataFile"
 export const CompanyTypeSlice = new GenericSlice<OpenXDA.Types.CompanyType>("CompanyType", `${homePath}api/OpenXDA/CompanyType`, "Name", false);
 export const CustomerSlice = new GenericSlice<OpenXDA.Types.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
 export const CompanySlice = new GenericSlice<OpenXDA.Types.Company>("Company", `${homePath}api/OpenXDA/Company`, "CompanyID", false);
-export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location",`${homePath}api/OpenXDA/Location`, "LocationKey", true)
+export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location", `${homePath}api/OpenXDA/Location`, "LocationKey", true);
+export const ExternalDataBaseTableSlice = new GenericSlice<SystemCenter.Types.ExternalDataBaseTable>("extDBTables", `${homePath}api/OpenXDA/ExternalDBTables`, 'TableName', true);
 
 export const AssetNoteSlice = new NoteSlice('Asset');
 export const MeterNoteSlice = new NoteSlice('Meter');
@@ -92,7 +93,8 @@ export default configureStore({
         AdditionalUserFields: UserAdditionalFieldSlice.Reducer,
         SCSecurityRole: SCSecurityRoleSlice.Reducer,
         Company: CompanySlice.Reducer,
-        MeasurementCharacteristic: MeasurementCharacteristicSlice.Reducer
+        MeasurementCharacteristic: MeasurementCharacteristicSlice.Reducer,
+        ExternalDBTables: ExternalDataBaseTableSlice.Reducer
 
     }
 });
