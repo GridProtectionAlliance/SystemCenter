@@ -122,7 +122,7 @@ function ExternalDB(props: { ID: number }) {
                     <QueryWindow ExternalDB={externalDBTable} stateSetter={setExternalDB} />
                 </div>
             </div>
-            <Warning Message={'This will permanently Delete the ' + externalDBTable.ExternalDB + ' Table and can not be undone.'} Show={showDelete} Title={'Delete External Database Table' + externalDBTable.TableName} CallBack={(conf) => { if (conf) deleteExternalDBTable(); setShowDelete(false); }} />
+            <Warning Message={'This will permanently Delete the ' + externalDBTable.ExternalDB + ' Table and can not be undone.'} Show={showDelete} Title={'Delete External Database Table ' + externalDBTable.TableName} CallBack={(conf) => { if (conf) deleteExternalDBTable(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
     )
