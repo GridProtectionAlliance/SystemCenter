@@ -23,11 +23,16 @@
 
 import * as React from 'react';
 import { Input, Select} from '@gpa-gemstone/react-forms';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { ExternalDBTablesSlice } from '../Store/Store';
+import { useSelector } from 'react-redux';
 
-interface IProps { ExternalDB: OpenXDA.Types.ExternalDataBase, Setter: (externalDBTable: OpenXDA.Types.ExternalDataBase) => void, setErrors?: (e: string[]) => void }
+interface IProps { ExternalDB: SystemCenter.Types.ExternalDataBaseTable, Setter: (externalDBTable: SystemCenter.Types.ExternalDataBaseTable) => void, setErrors?: (e: string[]) => void }
 
 export default function ExternalDBForm(props: IProps) {
+
+    const data = useSelector(ExternalDBTablesSlice.Data) as SystemCenter.Types.ExternalDataBaseTable[];
+
     let Options = [{
         Value: "Maximo",
         Label: "Maximo"
@@ -45,12 +50,13 @@ export default function ExternalDBForm(props: IProps) {
             e.push('A valid Name is required.');
         if (props.ExternalDB.TableName != null && props.ExternalDB.TableName.length > 200)
             e.push('Name must be less than 200 characters.');
-
+        if (props.ExternalDB.TableName != null && data.map(eDBTables => eDBTables.TableName.toLowerCase()).indexOf(props.ExternalDB.TableName.toLowerCase()) > -1)
+            e.push('Name must be unique.');
         if (props.setErrors != undefined)
             props.setErrors(e);
     }, [props.ExternalDB]);
 
-    function Valid(field: keyof (OpenXDA.Types.ExternalDataBase)): boolean {
+    function Valid(field: keyof (SystemCenter.Types.ExternalDataBaseTable)): boolean {
         if (field == 'TableName')
             return props.ExternalDB.TableName != null && props.ExternalDB.TableName.length > 0 && props.ExternalDB.TableName.length <= 200;
         else if (field == 'ExternalDB')
@@ -60,8 +66,8 @@ export default function ExternalDBForm(props: IProps) {
 
     return (
         <form>
-            <Input<OpenXDA.Types.ExternalDataBase> Record={props.ExternalDB} Field={'TableName'} Label={'Name'} Feedback={props.ExternalDB.TableName == null ? 'Name must be greater than 0 characters.' : 'Name must be less than 200 characters'} Valid={Valid} Setter={props.Setter} />
-            <Select<OpenXDA.Types.ExternalDataBase> Record={props.ExternalDB} Field={'ExternalDB'} Label={'External Database'} Options={Options} Setter={props.Setter} />
+            <Input<SystemCenter.Types.ExternalDataBaseTable> Record={props.ExternalDB} Field={'TableName'} Label={'Name'} Feedback={"A unique Name of less than 200 characters is required."} Valid={Valid} Setter={props.Setter} />
+            <Select<SystemCenter.Types.ExternalDataBaseTable> Record={props.ExternalDB} Field={'ExternalDB'} Label={'External Database'} Options={Options} Setter={props.Setter} />
         </form>
 
     );
