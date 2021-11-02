@@ -26,22 +26,27 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import ExternalDBForm from './ExternalDBForm';
 declare var homePath: string;
-import { OpenXDA } from '@gpa-gemstone/application-typings'
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { useSelector } from 'react-redux';
+import { ExternalDBTablesSlice } from '../Store/Store';
 
 interface IProps {
-    ExternalDBTables: OpenXDA.Types.ExternalDataBase,
-    stateSetter: (eDBTable: OpenXDA.Types.ExternalDataBase) => void
+    ExternalDBTables: SystemCenter.Types.ExternalDataBaseTable,
+    stateSetter: (eDBTable: SystemCenter.Types.ExternalDataBaseTable) => void
 }
 
 export default function ExternalDBWindow(props: IProps) {
 
-    const [extDBTable, setExtDBTable] = React.useState<OpenXDA.Types.ExternalDataBase>(props.ExternalDBTables)
+    const [extDBTable, setExtDBTable] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(props.ExternalDBTables)
     const [status, setStatus] = React.useState<'error' | 'idle' | 'loading'>('idle');
     const [updateFlag, setUpdateFlag] = React.useState<number>(0);
     const [errors, setErrors] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
+
+    const data = useSelector(ExternalDBTablesSlice.Data) as SystemCenter.Types.ExternalDataBaseTable[];
+
 
     React.useEffect(() => { setExtDBTable(extDBTable); }, [extDBTable]);
 
@@ -61,11 +66,13 @@ export default function ExternalDBWindow(props: IProps) {
         setErrors(e)
     }, [extDBTable]);
 
-    function ExternalDatabaseError(eDBTable: OpenXDA.Types.ExternalDataBase): string[] {
+    function ExternalDatabaseError(eDBTable: SystemCenter.Types.ExternalDataBaseTable): string[] {
         let errors = [];
 
         if (eDBTable.TableName == null || eDBTable.TableName.length == 0)
             errors.push("A valid Name is required.")
+        if (extDBTable.TableName != null && data.map(eDBTable => eDBTable.TableName.toLowerCase()).indexOf(extDBTable.TableName.toLowerCase()) > -1)
+            errors.push('Name must be unique.');
         return errors;
     }
 
@@ -105,7 +112,7 @@ export default function ExternalDBWindow(props: IProps) {
             </div>
         </div>
 
-    function editExistingExternalDBTable(eDBTable: OpenXDA.Types.ExternalDataBase): Promise<OpenXDA.Types.ExternalDataBase> {
+    function editExistingExternalDBTable(eDBTable: SystemCenter.Types.ExternalDataBaseTable): Promise<SystemCenter.Types.ExternalDataBaseTable> {
         return new Promise((res, rej) => {
             $.ajax({
                 type: "POST",
@@ -160,7 +167,7 @@ export default function ExternalDBWindow(props: IProps) {
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className={"btn btn-primary" + (errors.length == 0 ? '' : ' disabled')} type='submit' onClick={() => { if (errors.length == 0) SaveChanges(), setUpdateFlag((x) => x + 1) }} data-tooltip='submit' hidden={extDBTable.ID == 0} onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                        <button className={"btn btn-primary" + (errors.length != 0 || changedFields().length == 0 ? ' disabled' : '')} type='submit' onClick={() => { if (errors.length == 0) SaveChanges(), setUpdateFlag((x) => x + 1) }} data-tooltip='submit' hidden={extDBTable.ID == 0} onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                     </div>
                     <ToolTip Show={(errors.length > 0 || changedFields().length == 0) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
                         {changedFields().length == 0 ? <p> No changes made.</p> : null}
@@ -169,7 +176,7 @@ export default function ExternalDBWindow(props: IProps) {
                         </p>)}
                     </ToolTip>
                     <div className="btn-group mr-2">
-                        <button className={"btn btn-default" + (changedFields().length == 0 ? '' : ' disabled')} data-tooltip="clear" onClick={() => setExtDBTable(props.ExternalDBTables)} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
+                        <button className={"btn btn-default" + (changedFields().length == 0 ? ' disabled' : '')} data-tooltip="clear" onClick={() => setExtDBTable(props.ExternalDBTables)} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                     </div>
                     <ToolTip Show={changedFields().length != 0 && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
                         {changedFields().map((t, i) => <p key={i}> {Warning} Changes to {t} will be discarded.</p>)}
