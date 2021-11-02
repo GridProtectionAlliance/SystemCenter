@@ -50,7 +50,7 @@ export default function ExternalDBForm(props: IProps) {
             e.push('A valid Name is required.');
         if (props.ExternalDB.TableName != null && props.ExternalDB.TableName.length > 200)
             e.push('Name must be less than 200 characters.');
-        if (props.ExternalDB.TableName != null && data.map(eDBTables => eDBTables.TableName.toLowerCase()).indexOf(props.ExternalDB.TableName.toLowerCase()) > -1)
+        if (props.ExternalDB.TableName != null && data.map(eDBTables => eDBTables.ID != props.ExternalDB.ID && eDBTables.TableName.toLowerCase()).indexOf(props.ExternalDB.TableName.toLowerCase()) > -1)
             e.push('Name must be unique.');
         if (props.setErrors != undefined)
             props.setErrors(e);
