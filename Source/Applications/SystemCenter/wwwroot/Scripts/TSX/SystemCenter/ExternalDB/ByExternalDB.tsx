@@ -26,14 +26,11 @@ import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Modal, Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBForm from './ExternalDBForm';
 import { useDispatch, useSelector } from 'react-redux';
 import { ExternalDBTablesSlice } from '../Store/Store';
-import { createAsyncThunk } from '@reduxjs/toolkit';
-import { post } from 'jquery';
 
 declare var homePath: string;
 
@@ -46,12 +43,10 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
     const [newExternalDB, setNewExternalDB] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(getNewExternalDB());
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<SystemCenter.Types.ExternalDataBaseTable>>>(defaultSearchcols);
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [newExternalDatabaseErrors, setNewExternalDatabaseErrors] = React.useState<string[]>([]);
 
     const dispatch = useDispatch();
-    const data = useSelector(ExternalDBTablesSlice.Data) as SystemCenter.Types.ExternalDataBaseTable[];
     const extDBStatus = useSelector(ExternalDBTablesSlice.Status) as Application.Types.Status;
     const searchResults = useSelector(ExternalDBTablesSlice.SearchResults);
     const searchState = useSelector(ExternalDBTablesSlice.SearchStatus);
@@ -86,7 +81,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <SearchBar<SystemCenter.Types.ExternalDataBaseTable>
-                CollumnList={filterableList}
+                CollumnList={defaultSearchcols}
                 SetFilter={(flds) => dispatch(ExternalDBTablesSlice.DBSearch({ filter: flds, ascending: ascending, sortField: sortKey}))}
                 Direction={'left'}
                 defaultCollumn={standardSearch}
