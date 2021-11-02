@@ -30,13 +30,14 @@ import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Modal, Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBForm from './ExternalDBForm';
+import { useDispatch, useSelector } from 'react-redux';
+import { ExternalDBTablesSlice } from '../Store/Store';
+import { createAsyncThunk } from '@reduxjs/toolkit';
+import { post } from 'jquery';
 
-interface ExternalDB {
-    ID: number, TableName: string, ExternalDB: string
-}
 declare var homePath: string;
 
-const defaultSearchcols: Array<Search.IField<ExternalDB>> = [
+const defaultSearchcols: Array<Search.IField<SystemCenter.Types.ExternalDataBaseTable>> = [
     { label: 'TableName', key: 'TableName', type: 'string', isPivotField: false },
     { label: 'ExternalDB', key: 'ExternalDB', type: 'string', isPivotField: false },
 ];
@@ -44,31 +45,30 @@ const defaultSearchcols: Array<Search.IField<ExternalDB>> = [
 const ByExternalDB: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
-    const [search, setSearch] = React.useState<Array<Search.IFilter<ExternalDB>>>([]);
-    const [data, setData] = React.useState<Array<ExternalDB>>([]);
-
-    const [newExternalDB, setNewExternalDB] = React.useState<OpenXDA.Types.ExternalDataBase>(getNewExternalDB());
-    const [sortKey, setSortKey] = React.useState<string>('TableName');
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<ExternalDB>>>(defaultSearchcols);
-    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
+    const [newExternalDB, setNewExternalDB] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(getNewExternalDB());
+    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<SystemCenter.Types.ExternalDataBaseTable>>>(defaultSearchcols);
     const [showNew, setShowNew] = React.useState<boolean>(false);
-    const [ascending, setAscending] = React.useState<boolean>(true);
     const [newExternalDatabaseErrors, setNewExternalDatabaseErrors] = React.useState<string[]>([]);
 
+    const dispatch = useDispatch();
+    const data = useSelector(ExternalDBTablesSlice.Data) as SystemCenter.Types.ExternalDataBaseTable[];
+    const extDBStatus = useSelector(ExternalDBTablesSlice.Status) as Application.Types.Status;
+    const searchResults = useSelector(ExternalDBTablesSlice.SearchResults);
+    const searchState = useSelector(ExternalDBTablesSlice.SearchStatus);
+    const sortKey = useSelector(ExternalDBTablesSlice.SortField);
+    const ascending = useSelector(ExternalDBTablesSlice.Ascending);
+
     React.useEffect(() => {
-        let handle = getExternalDB();
-        handle.done((dt: string) => {
-            setSearchState('Idle');
-            setData(JSON.parse(dt) as Array<ExternalDB>);
-        }).fail((d) => setSearchState('Error'));
-
-        return function cleanup() {
-            if (handle.abort != null)
-                handle.abort();
+        if (extDBStatus === 'unintiated' || extDBStatus === 'changed') {
+            dispatch(ExternalDBTablesSlice.Fetch());
+            return function () {
+            }
         }
-    }, [sortKey, ascending, search]);
+    }, [dispatch, extDBStatus]);
 
-    function getNewExternalDB(): OpenXDA.Types.ExternalDataBase {
+
+
+    function getNewExternalDB(): SystemCenter.Types.ExternalDataBaseTable {
         return {
             ID: 0,
             TableName: null,
@@ -77,73 +77,23 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
         }
     }
 
-    function getData() {
-        let handle = getExternalDB();
-        handle.done((data: string) => {
-            setSearchState('Idle');
-            setData(JSON.parse(data) as OpenXDA.Types.ExternalDataBase[]);
-
-        }).fail((d) => setSearchState('Error'));
-        return function cleanup() {
-            if (handle.abort != null)
-                handle.abort();
-        }
-
-    }
-
-    function addNewExternalDatabase() {
-        $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/ExternalDBTables/Add`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify(newExternalDB),
-            cache: false,
-            async: true
-        }).done((data) => getData());
-
-    }
-
-    function getExternalDB(): JQuery.jqXHR<string> {
-        setSearchState('Loading');
-        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
-
-        return $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/ExternalDBTables/SearchableList`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
-            cache: false,
-            async: true
-        });
-    }
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDB&ID=' + item.row.ID, state: {} })
     }
 
-    function nameExists(newDB: ExternalDB) {
-        for (let i = 0; i < data.length; i++) {
-            if (newDB.TableName === data[i].TableName) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    const standardSearch: Search.IField<ExternalDB> = { label: 'Name', key: 'TableName', type: 'string', isPivotField: false };
+    const standardSearch: Search.IField<SystemCenter.Types.ExternalDataBaseTable> = { label: 'Name', key: 'TableName', type: 'string', isPivotField: false };
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<ExternalDB>
+            <SearchBar<SystemCenter.Types.ExternalDataBaseTable>
                 CollumnList={filterableList}
-                SetFilter={(flds) => setSearch(flds)}
+                SetFilter={(flds) => dispatch(ExternalDBTablesSlice.DBSearch({ filter: flds, ascending: ascending, sortField: sortKey}))}
                 Direction={'left'}
                 defaultCollumn={standardSearch}
                 Width={'50%'}
                 Label={'Search'}
-                ShowLoading={searchState == 'Loading'}
-                ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' External Database Table(s)'}
+                ShowLoading={searchState == 'loading'}
+                ResultNote={searchState == 'error' ? 'Could not complete Search' : 'Found ' + searchResults.length + ' External Database Table(s)'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
                     if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
@@ -184,7 +134,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
                     ]}
                     tableClass="table table-hover"
-                    data={data}
+                    data={searchResults}
                     sortKey={sortKey}
                     ascending={ascending}
                     onSort={(d) => {
@@ -192,10 +142,9 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                             return;
 
                         if (d.colKey === sortKey)
-                            setAscending(!ascending);
+                            dispatch(ExternalDBTablesSlice.Sort({ SortField: sortKey, Ascending: !ascending }));
                         else {
-                            setAscending(true);
-                            setSortKey(d.colKey);
+                            dispatch(ExternalDBTablesSlice.Sort({ SortField: d.colField, Ascending: true }));
                         }
 
                     }}
@@ -209,7 +158,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
 
             <Modal Show={showNew} Title={'New External DataBase'}
                 ShowCancel={true}
-                CallBack={(conf) => { if (!nameExists(newExternalDB) && conf) addNewExternalDatabase(); setShowNew(false); }}
+                CallBack={(conf) => { if(conf) dispatch(ExternalDBTablesSlice.DBAction({ verb: 'POST', record: newExternalDB })); setShowNew(false); }}
                 DisableConfirm={newExternalDatabaseErrors.length > 0}
                 ShowX={true}
                 ConfirmShowToolTip={newExternalDatabaseErrors.length > 0}
