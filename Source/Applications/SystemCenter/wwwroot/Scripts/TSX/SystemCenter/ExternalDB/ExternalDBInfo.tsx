@@ -61,21 +61,6 @@ export default function ExternalDBWindow(props: IProps) {
         }
     }, [updateFlag]);
 
-    React.useEffect(() => {
-        const e = ExternalDatabaseError(extDBTable);
-        setErrors(e)
-    }, [extDBTable]);
-
-    function ExternalDatabaseError(eDBTable: SystemCenter.Types.ExternalDataBaseTable): string[] {
-        let errors = [];
-
-        if (eDBTable.TableName == null || eDBTable.TableName.length == 0)
-            errors.push("A valid Name is required.")
-        if (extDBTable.TableName != null && data.map(eDBTable => eDBTable.TableName.toLowerCase()).indexOf(extDBTable.TableName.toLowerCase()) > -1)
-            errors.push('Name must be unique.');
-        return errors;
-    }
-
     if (status == 'loading')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -163,7 +148,7 @@ export default function ExternalDBWindow(props: IProps) {
                     </div>
                 </div>
                 <div className="card-body">
-                    <ExternalDBForm ExternalDB={extDBTable} Setter={(record) => setExtDBTable(record)} />
+                    <ExternalDBForm ExternalDB={extDBTable} Setter={(record) => setExtDBTable(record)} setErrors={setErrors} />
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
