@@ -35,7 +35,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
+using System.Net.Http;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Web.Http;
 using SystemCenter.Controllers;
 
@@ -69,6 +71,9 @@ namespace SystemCenter.Model.Security
         public string DepartmentNumber { get; set; }
         public string MobilePhone { get; set; }
         public bool ReceiveNotifications { get; set; }
+
+        [NonRecordField]
+        public new string AccountName { get; set;  }
     }
 
     [RoutePrefix("api/SystemCenter/UserAccount")]
@@ -268,16 +273,16 @@ namespace SystemCenter.Model.Security
 
         }
 
-
         public override IHttpActionResult GetSearchableList([FromBody] PostData postData)
         {
-            if (!AllowSearch || (GetRoles != string.Empty && !User.IsInRole(GetRoles)))
+
+            if (!User.IsInRole(GetRoles))
                 return Unauthorized();
 
             try
             {
 
-                string whereClause = BuildWhereClause(postData.Searches);
+                string whereClause = BuildWhereClause(postData.Searches.Where(item => item.FieldName != "AccountName"));
 
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
@@ -285,91 +290,102 @@ namespace SystemCenter.Model.Security
 
                     string sql = "";
 
-                    if (SearchSettings == null && CustomView == String.Empty)
-                        sql = $@" SELECT * FROM {tableName} {whereClause}
-                            ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")} ";
+                    string pivotCollums = "(" + String.Join(",", postData.Searches.Where(item => item.isPivotColumn).Select(search => "'" + search.FieldName + "'")) + ")";
 
-                    else if (SearchSettings == null)
-                        sql = $@" SELECT* FROM({CustomView}) T1 
-                         {whereClause}
-                        ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}";
+                    if (pivotCollums == "()")
+                        pivotCollums = "('')";
 
-                    else
-                    {
-                        string pivotCollums = "(" + String.Join(",", postData.Searches.Where(item => item.isPivotColumn).Select(search => "'" + search.FieldName + "'")) + ")";
+                    string collumnCondition = SearchSettings.Condition;
+                    if (collumnCondition != String.Empty)
+                        collumnCondition = $"AF.{collumnCondition} AND ";
+                    collumnCondition = collumnCondition + $"{SearchSettings.FieldKeyField} IN {pivotCollums}";
 
-                        if (pivotCollums == "()")
-                            pivotCollums = "('')";
+                    string joinCondition = $"af.FieldName IN {pivotCollums.Replace("'", "''")} AND ";
+                    joinCondition = joinCondition + SearchSettings.Condition.Replace("'", "''");
+                    if (SearchSettings.Condition != String.Empty)
+                        joinCondition = $"{joinCondition} AND ";
+                    joinCondition = joinCondition + $"SRC.{PrimaryKeyField} = AF.{SearchSettings.PrimaryKeyField}";
+                       
+                    sql = $@"
+                    DECLARE @PivotColumns NVARCHAR(MAX) = N''
+                    SELECT @PivotColumns = @PivotColumns + '[AFV_' + [Key] + '],'
+                        FROM (Select DISTINCT {SearchSettings.FieldKeyField} AS [Key] FROM {SearchSettings.AdditionalFieldTable} AS AF WHERE {collumnCondition}  ) AS [Fields]
 
-                        string collumnCondition = SearchSettings.Condition;
-                        if (collumnCondition != String.Empty)
-                            collumnCondition = collumnCondition + " AND ";
-                        collumnCondition = collumnCondition + $"{SearchSettings.FieldKeyField} IN {pivotCollums}";
+                    DECLARE @SQLStatement NVARCHAR(MAX) = N'
+                        SELECT * INTO #Tbl FROM (
+                        SELECT 
+                            SRC.*,
+                            ''AFV_'' + AF.{SearchSettings.FieldKeyField} AS AFFieldKey,
+	                        AF.{SearchSettings.ValueField} AS AFValue
+                        FROM  {tableName} SRC LEFT JOIN 
+                            {SearchSettings.AdditionalFieldTable} AF ON {joinCondition}
+                        ) as FullTbl ' + (SELECT CASE WHEN Len(@PivotColumns) > 0 THEN 'PIVOT (
+                            Max(FullTbl.AFValue) FOR FullTbl.AFFieldKey IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT' ELSE '' END) + ' 
+                        {whereClause.Replace("'", "''")};
 
-                        string joinCondition = $"af.FieldName IN {pivotCollums.Replace("'", "''")} AND ";
-                        joinCondition = joinCondition + SearchSettings.Condition.Replace("'", "''");
-                        if (SearchSettings.Condition != String.Empty)
-                            joinCondition = joinCondition + " AND ";
-                        joinCondition = joinCondition + $"SRC.{PrimaryKeyField} = AF.{SearchSettings.PrimaryKeyField}";
+                        DECLARE @NoNPivotColumns NVARCHAR(MAX) = N''''
+                            SELECT @NoNPivotColumns = @NoNPivotColumns + ''[''+ name + ''],''
+                                FROM tempdb.sys.columns WHERE  object_id = Object_id(''tempdb..#Tbl'') AND name NOT LIKE ''AFV%''; 
+		                DECLARE @CleanSQL NVARCHAR(MAX) = N''SELECT '' + SUBSTRING(@NoNPivotColumns,0, LEN(@NoNPivotColumns)) + ''FROM #Tbl ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}''
 
-                        if (CustomView == String.Empty)
-                            sql = $@"
-                            DECLARE @PivotColumns NVARCHAR(MAX) = N''
-                            SELECT @PivotColumns = @PivotColumns + '[AFV_' + [Key] + '],'
-                                FROM (Select DISTINCT {SearchSettings.FieldKeyField} AS [Key] FROM {SearchSettings.AdditionalFieldTable} AS AF WHERE {collumnCondition}  ) AS [Fields]
-
-                            DECLARE @SQLStatement NVARCHAR(MAX) = N'
-                                SELECT * INTO #Tbl FROM (
-                                SELECT 
-                                    SRC.*,
-                                    ''AFV_'' + AF.{SearchSettings.FieldKeyField} AS AFFieldKey,
-	                                AF.{SearchSettings.ValueField} AS AFValue
-                                FROM  {tableName} SRC LEFT JOIN 
-                                    {SearchSettings.AdditionalFieldTable} AF ON {joinCondition}
-                                ) as FullTbl ' + (SELECT CASE WHEN Len(@PivotColumns) > 0 THEN 'PIVOT (
-                                    Max(FullTbl.AFValue) FOR FullTbl.AFFieldKey IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT' ELSE '' END) + ' 
-                                {whereClause.Replace("'", "''")}
-                                ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")};
-
-                                DECLARE @NoNPivotColumns NVARCHAR(MAX) = N''''
-                                    SELECT @NoNPivotColumns = @NoNPivotColumns + ''[''+ name + ''],''
-                                        FROM tempdb.sys.columns WHERE  object_id = Object_id(''tempdb..#Tbl'') AND name NOT LIKE ''AFV%''; 
-		                        DECLARE @CleanSQL NVARCHAR(MAX) = N''SELECT '' + SUBSTRING(@NoNPivotColumns,0, LEN(@NoNPivotColumns)) + ''FROM #Tbl''
-
-		                        exec sp_executesql @CleanSQL
-                            '
-                            exec sp_executesql @SQLStatement";
-                        else
-                            sql = $@"
-                            DECLARE @PivotColumns NVARCHAR(MAX) = N''
-                            SELECT @PivotColumns = @PivotColumns + '[AFV_' + [Key] + '],'
-                                FROM (Select DISTINCT {SearchSettings.FieldKeyField} AS [Key] FROM {SearchSettings.AdditionalFieldTable} WHERE {collumnCondition}  ) AS [Fields]
-
-                            DECLARE @SQLStatement NVARCHAR(MAX) = N'
-                                SELECT * INTO #Tbl FROM (
-                                SELECT 
-                                    SRC.*,
-                                    ''AFV_'' + AF.{SearchSettings.FieldKeyField} AS AFFieldKey,
-	                                AF.{SearchSettings.ValueField} AS AFValue
-                                FROM ({CustomView.Replace("'", "''")}) SRC LEFT JOIN 
-                                    {SearchSettings.AdditionalFieldTable} AF ON {joinCondition}
-                                ) as FullTbl ' + (SELECT CASE WHEN Len(@PivotColumns) > 0 THEN 'PIVOT (
-                                    Max(FullTbl.AFValue) FOR FullTbl.AFFieldKey IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT' ELSE '' END) + ' 
-                                {whereClause.Replace("'", "''")}
-                                ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")};
-
-                                DECLARE @NoNPivotColumns NVARCHAR(MAX) = N''''
-                                    SELECT @NoNPivotColumns = @NoNPivotColumns + ''[''+ name + ''],''
-                                        FROM tempdb.sys.columns WHERE  object_id = Object_id(''tempdb..#Tbl'') AND name NOT LIKE ''AFV%''; 
-		                        DECLARE @CleanSQL NVARCHAR(MAX) = N''SELECT '' + SUBSTRING(@NoNPivotColumns,0, LEN(@NoNPivotColumns)) + ''FROM #Tbl''
-
-		                        exec sp_executesql @CleanSQL
-                            '
-                            exec sp_executesql @SQLStatement";
-                    }
+		                exec sp_executesql @CleanSQL
+                    '
+                    exec sp_executesql @SQLStatement";
+                      
+                    
                     DataTable table = connection.RetrieveData(sql, "");
 
-                    return Ok(JsonConvert.SerializeObject(table));
+                    //Determine Windows UserName
+                    // Grab LdapPath From Configuration File
+                    ConfigurationFile configFile = ConfigurationFile.Current;
+                    CategorizedSettingsElementCollection securityProviderSettings = configFile.Settings["securityProvider"];
+                    securityProviderSettings.Add("LdapPath", "", "Specifies the LDAP path used to initialize the security provider.");
+                    string ldapPath = securityProviderSettings["LdapPath"].Value;
+
+                    CategorizedSettingsElementCollection systemSettings = configFile.Settings["systemSettings"];
+                    systemSettings.Add("CompanyAcronym", "", "The acronym representing the company who owns this instance of the SystemCenter.");
+                    string companyAcronym = systemSettings["CompanyAcronym"].Value;
+
+
+
+
+                    IEnumerable<UserAccount> records = table.Select().Select(row => new TableOperations<UserAccount>(connection).LoadRecord(row)).Select(item => {
+                        if (!item.UseADAuthentication)
+                            item.AccountName = item.Name;
+                        else
+                            item.AccountName = UserInfo.SIDToAccountName(item.Name);
+                        return item;
+                    });
+
+                    if (postData.Searches.Any(item => item.FieldName == "AccountName"))
+                    {
+                        postData.Searches.Where(item => item.FieldName == "AccountName").ToList().ForEach(search =>
+                        {
+                            if (search.Operator == "=")
+                            {
+                                Regex regex = new Regex($"^{search.SearchText}$");
+                                records = records.Where(userAccount => regex.IsMatch(userAccount.AccountName.ToLower()));
+                            }
+                            else if (search.Operator == "LIKE")
+                            {
+                                Regex regex = new Regex($"^{search.SearchText}$");
+                                records = records.Where(userAccount => regex.IsMatch(userAccount.AccountName.ToLower()));
+                            }
+                            else
+                            {
+                                Regex regex = new Regex($"^{search.SearchText}$");
+                                records = records.Where(userAccount => !regex.IsMatch(userAccount.AccountName.ToLower()));
+                            }
+                            
+                        });
+                    }
+
+                    if (postData.OrderBy == "AccountName" && postData.Ascending)
+                        records = records.OrderBy(u => u.AccountName);
+                    if (postData.OrderBy == "AccountName" && !postData.Ascending)
+                        records = records.OrderByDescending(u => u.AccountName);
+
+                    return Ok(JsonConvert.SerializeObject(records));
                 }
             }
             catch (Exception ex)

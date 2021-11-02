@@ -33,6 +33,7 @@ import { useHistory } from "react-router-dom";
 import { ValueListSlice, ValueListGroupSlice, UserAdditionalFieldSlice, UserAccountSlice } from '../Store/Store';
 
 const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
+    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
     { label: 'First Name', key: 'FirstName', type: 'string', isPivotField: false },
     { label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false },
     { label: 'Location', key: 'Location', type: 'string', isPivotField: false },
@@ -154,7 +155,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<Application.Types.iUserAccount>
                     cols={[
-                        { key: 'Name', field: 'Name', label: 'User Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'Name', field: 'AccountName', label: 'User Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
