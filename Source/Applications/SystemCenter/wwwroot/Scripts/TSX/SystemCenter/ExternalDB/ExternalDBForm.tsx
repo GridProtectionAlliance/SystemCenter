@@ -57,12 +57,9 @@ export default function ExternalDBForm(props: IProps) {
     }, [props.ExternalDB]);
 
     function Valid(field: keyof (SystemCenter.Types.ExternalDataBaseTable)): boolean {
-        if (field == 'TableName') {
-            if (props.ExternalDB.TableName != null && data.map(eDBTables => eDBTables.ID != props.ExternalDB.ID && eDBTables.TableName.toLowerCase()).indexOf(props.ExternalDB.TableName.toLowerCase()) > -1)
-                return false
-            else
-                return props.ExternalDB.TableName != null && props.ExternalDB.TableName.length > 0 && props.ExternalDB.TableName.length <= 200;
-        }
+        if (field == 'TableName') 
+            return props.ExternalDB.TableName != null && props.ExternalDB.TableName.length > 0 && props.ExternalDB.TableName.length <= 200 &&
+                data.map(eDBTables => eDBTables.ID != props.ExternalDB.ID && eDBTables.TableName.toLowerCase()).indexOf(props.ExternalDB.TableName.toLowerCase()) == -1
         else if (field == 'ExternalDB')
             return props.ExternalDB.ExternalDB != null && props.ExternalDB.ExternalDB.length > 0 && props.ExternalDB.ExternalDB.length <= 200;
         return false;
