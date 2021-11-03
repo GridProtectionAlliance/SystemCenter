@@ -94,6 +94,16 @@ const ByUser: Application.Types.iByComponent = (props) => {
     }, [dispatch]);
 
     React.useEffect(() => {
+        if (searchStatus == 'unintiated' || searchStatus == 'changed')
+            dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: search }));
+    }, [searchStatus])
+
+    React.useEffect(() => {
+        if (userStatus === 'unintiated' || userStatus === 'changed') 
+            dispatch(UserAccountSlice.Fetch());        
+    }, [userStatus]);
+
+    React.useEffect(() => {
         if (valueListItemStatus === 'unintiated' || valueListItemStatus === 'changed')
             dispatch(ValueListSlice.Fetch());
     }, [dispatch, valueListItemStatus]);
