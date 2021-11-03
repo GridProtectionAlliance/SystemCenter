@@ -50,6 +50,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     const extDBStatus = useSelector(ExternalDBTablesSlice.Status) as Application.Types.Status;
     const searchResults = useSelector(ExternalDBTablesSlice.SearchResults);
     const searchState = useSelector(ExternalDBTablesSlice.SearchStatus);
+    const searchFilters = useSelector(ExternalDBTablesSlice.SearchFilters);
     const sortKey = useSelector(ExternalDBTablesSlice.SortField);
     const ascending = useSelector(ExternalDBTablesSlice.Ascending);
 
@@ -61,6 +62,10 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
         }
     }, [dispatch, extDBStatus]);
 
+    React.useEffect(() => {
+        if (searchState === 'unintiated' || searchState === 'changed') 
+            dispatch(ExternalDBTablesSlice.DBSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey }));
+    }, [dispatch, searchState]);
 
 
     function getNewExternalDB(): SystemCenter.Types.ExternalDataBaseTable {
