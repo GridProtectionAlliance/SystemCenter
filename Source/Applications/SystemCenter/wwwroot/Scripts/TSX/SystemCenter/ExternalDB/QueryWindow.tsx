@@ -24,50 +24,24 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import ExternalDBForm from './ExternalDBForm';
 declare var homePath: string;
 import { SystemCenter } from '@gpa-gemstone/application-typings'
 import { TextArea } from '@gpa-gemstone/react-forms';
+import { useDispatch } from 'react-redux';
+import { ExternalDBTablesSlice } from '../Store/Store';
 
 interface IProps {
     ExternalDB: SystemCenter.Types.ExternalDataBaseTable;
-    stateSetter: (externalDB: SystemCenter.Types.ExternalDataBaseTable) => void
-    setErrors?: (e: string[]) => void
 }
 
 export default function QueryWindow(props: IProps) {
 
     const [extDBTable, setExtDBTable] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(props.ExternalDB)
+    const dispatch = useDispatch();
 
     React.useEffect(() => {
-        let e = [];
-        if (props.ExternalDB.Query != null && props.ExternalDB.Query.length > 200)
-            e.push('Query must be less than 200 characters.');
-        if (props.setErrors != undefined)
-            props.setErrors(e);
+        setExtDBTable(props.ExternalDB)
     }, [props.ExternalDB]);
-
-    function updateExternalDatabase(): JQuery.jqXHR {
-        var externalDB = _.clone(extDBTable);
-
-       return $.ajax({
-            type: "PATCH",
-           url: `${homePath}api/OpenXDA/ExternalDBTables/Update`,
-            contentType: "application/json; charset=utf-8",
-           data: JSON.stringify(extDBTable),
-            dataType: 'json',
-            cache: true,
-            async: true
-       }).done((LocationID: number) => {
-           props.stateSetter(externalDB);
-       });
-    }
-
-    function Valid(field: keyof (SystemCenter.Types.ExternalDataBaseTable)): boolean {
-        if (field == 'Query')
-            return props.ExternalDB.Query != null && props.ExternalDB.Query.length > 0 && props.ExternalDB.Query.length <= 200;
-        return false;
-    }
 
         return (
             <div className="card" style={{ marginBottom: 10 }}>
@@ -80,15 +54,15 @@ export default function QueryWindow(props: IProps) {
                 </div>
                 <div className="card-body">
                     <form>
-                        <TextArea<SystemCenter.Types.ExternalDataBaseTable> Rows={10} Record={props.ExternalDB} Field={'Query'} Feedback={props.ExternalDB.Query == null ? 'Query must be greater than 0 characters.' : 'Query must be less than 200 characters'} Valid={Valid} Setter={props.stateSetter} />
+                        <TextArea<SystemCenter.Types.ExternalDataBaseTable> Rows={10} Record={extDBTable} Field={'Query'} Valid={() => true} Setter={setExtDBTable} />
                     </form>
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className="btn btn-primary" onClick={() => updateExternalDatabase()} hidden={extDBTable.ID == 0} disabled={extDBTable == props.ExternalDB}>Save Changes</button>
+                        <button className="btn btn-primary" onClick={() => dispatch(ExternalDBTablesSlice.DBAction({ verb: "PATCH", record: extDBTable }))} hidden={extDBTable.ID == 0} disabled={extDBTable == props.ExternalDB}>Save Changes</button>
                     </div>
                     <div className="btn-group mr-2">
-                        <button className="btn btn-default" onClick={() => setExtDBTable(props.ExternalDB)} disabled={extDBTable == props.ExternalDB}>Clear Changes</button>
+                        <button className="btn btn-default" onClick={() => setExtDBTable(props.ExternalDB)} disabled={extDBTable.Query == props.ExternalDB.Query}>Clear Changes</button>
                     </div>
                 </div>
             </div>
