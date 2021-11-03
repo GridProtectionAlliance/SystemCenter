@@ -25,41 +25,26 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import ExternalDBForm from './ExternalDBForm';
-declare var homePath: string;
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
+import { SystemCenter } from '@gpa-gemstone/application-typings'
 import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { ExternalDBTablesSlice } from '../Store/Store';
 
 interface IProps {
     ExternalDBTables: SystemCenter.Types.ExternalDataBaseTable,
-    stateSetter: (eDBTable: SystemCenter.Types.ExternalDataBaseTable) => void
 }
 
 export default function ExternalDBWindow(props: IProps) {
 
     const [extDBTable, setExtDBTable] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(props.ExternalDBTables)
-    const [status, setStatus] = React.useState<'error' | 'idle' | 'loading'>('idle');
-    const [updateFlag, setUpdateFlag] = React.useState<number>(0);
     const [errors, setErrors] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-    const data = useSelector(ExternalDBTablesSlice.Data) as SystemCenter.Types.ExternalDataBaseTable[];
-
+    const dispatch = useDispatch();
+    const status = useSelector(ExternalDBTablesSlice.Status);
 
     React.useEffect(() => { setExtDBTable(extDBTable); }, [extDBTable]);
-
-    React.useEffect(() => {
-        const handle = updateExternalDB()
-        handle.then(() => {
-            props.stateSetter(extDBTable);
-            setStatus('idle');
-        }, () => setStatus('error'))
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        }
-    }, [updateFlag]);
 
     if (status == 'loading')
         return <div className="card" style={{ marginBottom: 10 }}>
@@ -96,33 +81,6 @@ export default function ExternalDBWindow(props: IProps) {
                 </div>
             </div>
         </div>
-
-    function editExistingExternalDBTable(eDBTable: SystemCenter.Types.ExternalDataBaseTable): Promise<SystemCenter.Types.ExternalDataBaseTable> {
-        return new Promise((res, rej) => {
-            $.ajax({
-                type: "POST",
-                url: `${homePath}api/OpenXDA/ExternalDBTables/Edit`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                data: JSON.stringify({ ExternalDBTables: eDBTable }),
-                cache: false,
-                async: true
-            }).done(d => res(d)).fail(e => rej(e))
-        });
-    }
-
-    function updateExternalDB(): JQuery.jqXHR {
-        setStatus('loading')
-        return $.ajax({
-            type: "Patch",
-            url: `${homePath}api/OpenXDA/ExternalDBTables/Update`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(extDBTable),
-            dataType: 'json',
-            cache: true,
-            async: true
-        })
-    }
  
     function changedFields(): string[] {
         const result = [];
@@ -131,11 +89,6 @@ export default function ExternalDBWindow(props: IProps) {
         if (extDBTable.ExternalDB != props.ExternalDBTables.ExternalDB)
             result.push('External Database')
         return result;
-    }
-
-    function SaveChanges() {
-        setStatus('loading');
-        editExistingExternalDBTable(extDBTable).then((d) => props.stateSetter(_.cloneDeep(props.ExternalDBTables)), (d) => setStatus('error'))
     }
 
         return (
@@ -152,7 +105,10 @@ export default function ExternalDBWindow(props: IProps) {
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className={"btn btn-primary" + (errors.length != 0 || changedFields().length == 0 ? ' disabled' : '')} type='submit' onClick={() => { if (errors.length == 0) SaveChanges(), setUpdateFlag((x) => x + 1) }} data-tooltip='submit' hidden={extDBTable.ID == 0} onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                        <button className={"btn btn-primary" + (errors.length != 0 || changedFields().length == 0 ? ' disabled' : '')}
+                            type='submit' onClick={() => { if (errors.length == 0) dispatch(ExternalDBTablesSlice.DBAction({ verb: 'PATCH', record: extDBTable }))}}
+                            data-tooltip='submit' hidden={extDBTable.ID == 0}
+                            onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                     </div>
                     <ToolTip Show={(errors.length > 0 || changedFields().length == 0) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
                         {changedFields().length == 0 ? <p> No changes made.</p> : null}
@@ -161,7 +117,9 @@ export default function ExternalDBWindow(props: IProps) {
                         </p>)}
                     </ToolTip>
                     <div className="btn-group mr-2">
-                        <button className={"btn btn-default" + (changedFields().length == 0 ? ' disabled' : '')} data-tooltip="clear" onClick={() => setExtDBTable(props.ExternalDBTables)} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
+                        <button className={"btn btn-default" + (changedFields().length == 0 ? ' disabled' : '')}
+                            data-tooltip="clear" onClick={() => setExtDBTable(props.ExternalDBTables)}
+                            onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                     </div>
                     <ToolTip Show={changedFields().length != 0 && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
                         {changedFields().map((t, i) => <p key={i}> {Warning} Changes to {t} will be discarded.</p>)}
