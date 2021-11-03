@@ -35,7 +35,7 @@ import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 declare var homePath: string;
 
 function ExternalDB(props: { ID: number }) {
-    const [externalDBTable, setExternalDB] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(null);
+
     const [tab, setTab] = React.useState(getTab);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
 
@@ -49,10 +49,6 @@ function ExternalDB(props: { ID: number }) {
     }, [dispatch, extDBStatus]);
 
     React.useEffect(() => {
-        setExternalDB(datum);
-    }, []);
-
-    React.useEffect(() => {
         sessionStorage.setItem('ExternalDB.Tab', JSON.stringify(tab));
     }, [tab]);
 
@@ -63,15 +59,15 @@ function ExternalDB(props: { ID: number }) {
             return 'ExternalDBInfo';
     }
 
-    if (externalDBTable == null) return null;
+    if (datum == null) return null;
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
                 <div className="col">
-                    <h2>{externalDBTable != null ? externalDBTable.TableName : ''}</h2>
+                    <h2>{datum.TableName}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" hidden={externalDBTable == null} onClick={() => setShowDelete(true)}>Delete External DB Table</button>
+                    <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete External DB Table</button>
                 </div>
             </div>
 
@@ -88,16 +84,16 @@ function ExternalDB(props: { ID: number }) {
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "ExternalDBInfo" ? " active" : "fade")} id="ExternalDBInfo">
-                    <ExternalDBWindow ExternalDBTables={externalDBTable} stateSetter={setExternalDB} />
+                    <ExternalDBWindow ExternalDBTables={datum} />
                 </div>
                 <div className={"tab-pane " + (tab == "query" ? "active" : "fade")} id="query" >
-                    <QueryWindow ExternalDB={externalDBTable} stateSetter={setExternalDB} />
+                    <QueryWindow ExternalDB={datum} />
                 </div>
             </div>
-            <Warning Message={'This will permanently Delete the ' + externalDBTable.ExternalDB + ' Table and can not be undone.'} Show={showDelete} Title={'Delete External Database Table ' + externalDBTable.TableName}
+            <Warning Message={'This will permanently Delete the ' + datum.ExternalDB + ' Table and can not be undone.'} Show={showDelete} Title={'Delete External Database Table ' + datum.TableName}
                 CallBack={(conf) => {
                     if (conf)
-                        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record: externalDBTable }));
+                        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record: datum }));
                     window.location.href = homePath + 'index.cshtml?name=ByExternalDB';
                     setShowDelete(false);
                 }} />
