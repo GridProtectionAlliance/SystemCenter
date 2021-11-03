@@ -194,12 +194,6 @@ namespace SystemCenter.Model.Security
                     securityProviderSettings.Add("LdapPath", "", "Specifies the LDAP path used to initialize the security provider.");
                     string ldapPath = securityProviderSettings["LdapPath"].Value;
 
-                    CategorizedSettingsElementCollection systemSettings = configFile.Settings["systemSettings"];
-                    systemSettings.Add("CompanyAcronym", "", "The acronym representing the company who owns this instance of the SystemCenter.");
-                    string companyAcronym = systemSettings["CompanyAcronym"].Value;
-
-
-
                     UserInfo userInfo = new UserInfo(UserInfo.SIDToAccountName(userAccount.Name), ldapPath);
                     userAccount.Phone = userInfo.Telephone;
                     userAccount.MobilePhone = userInfo.GetUserPropertyValue("mobile");
@@ -214,31 +208,7 @@ namespace SystemCenter.Model.Security
                     userAccount.Approved = true;
                     userAccount.Department = userInfo.Department;
                     userAccount.DepartmentNumber = userInfo.GetUserPropertyValue("departmentnumber");
-
-                    if(companyAcronym == "TVA")
-                    {
-                        if (userInfo.Title != string.Empty)
-                        {
-                            AdditionalUserFieldValue additionalFieldValue = new TableOperations<AdditionalUserFieldValue>(connection).GetValue(userAccount.Name, "Role");
-                            ValueList roleValue = new TableOperations<ValueList>(connection2).GetAltValue("Role", userInfo.Title, true);
-                            if (roleValue != null && roleValue.Value != additionalFieldValue.Value) {
-                                additionalFieldValue.Value = roleValue.ID.ToString();
-                                new TableOperations<AdditionalUserFieldValue>(connection).AddNewOrUpdateRecord(additionalFieldValue);
-                            }
-                        }
-                        if (userAccount.DepartmentNumber != string.Empty)
-                        {
-                            AdditionalUserFieldValue additionalFieldValue = new TableOperations<AdditionalUserFieldValue>(connection).GetValue(userAccount.Name, "TSC");
-                            ValueList roleValue = new TableOperations<ValueList>(connection2).GetAltValue("TSC", userAccount.DepartmentNumber, true);
-                            if (roleValue != null && roleValue.Value != additionalFieldValue.Value)
-                            {
-                                additionalFieldValue.Value = roleValue.ID.ToString();
-                                new TableOperations<AdditionalUserFieldValue>(connection).AddNewOrUpdateRecord(additionalFieldValue);
-                            }
-
-                        }
-
-                    }
+                    
                     return Ok(userAccount);
                 }
                 catch (Exception ex)
@@ -452,17 +422,67 @@ namespace SystemCenter.Model.Security
 
         public override IHttpActionResult Post([FromBody] JObject record)
         {
-            if (record["ID"].Value<string>() == "new")
-                record["ID"] = System.Guid.NewGuid();
-            UserAccount newRecord = record.ToObject<UserAccount>();
-            if (newRecord.UseADAuthentication)
-                newRecord.Name = UserInfo.UserNameToSID(newRecord.Name);
-            newRecord.CreatedOn = DateTime.UtcNow;
-            newRecord.UpdatedOn = DateTime.UtcNow;
-            newRecord.CreatedBy = User.Identity.Name;
-            newRecord.UpdatedBy = User.Identity.Name;
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
 
-            return base.Post(JObject.FromObject(newRecord));
+                if (record["ID"].Value<string>() == "new")
+                    record["ID"] = System.Guid.NewGuid();
+                UserAccount newRecord = record.ToObject<UserAccount>();
+                if (newRecord.UseADAuthentication)
+                    newRecord.Name = UserInfo.UserNameToSID(newRecord.Name);
+                newRecord.CreatedOn = DateTime.UtcNow;
+                newRecord.UpdatedOn = DateTime.UtcNow;
+                newRecord.CreatedBy = User.Identity.Name;
+                newRecord.UpdatedBy = User.Identity.Name;
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    int result = new TableOperations<UserAccount>(connection).AddNewRecord(newRecord);
+                    ConfigurationFile configFile = ConfigurationFile.Current;
+                    CategorizedSettingsElementCollection systemSettings = configFile.Settings["systemSettings"];
+                    systemSettings.Add("CompanyAcronym", "", "The acronym representing the company who owns this instance of the SystemCenter.");
+                    string companyAcronym = systemSettings["CompanyAcronym"].Value;
+
+
+                    using (AdoDataConnection connection2 = new AdoDataConnection("systemSettings"))
+                    {
+                        if (companyAcronym == "TVA")
+                        {
+                            if (newRecord.Title != string.Empty)
+                            {
+                                AdditionalUserFieldValue additionalFieldValue = new TableOperations<AdditionalUserFieldValue>(connection).GetValue(newRecord.Name, "Role");
+                                ValueList roleValue = new TableOperations<ValueList>(connection2).GetAltValue("Role", newRecord.Title, true);
+                                if (roleValue != null && roleValue.Value != additionalFieldValue.Value)
+                                {
+                                    additionalFieldValue.Value = roleValue.ID.ToString();
+                                    new TableOperations<AdditionalUserFieldValue>(connection).AddNewOrUpdateRecord(additionalFieldValue);
+                                }
+                            }
+                            if (newRecord.DepartmentNumber != string.Empty)
+                            {
+                                AdditionalUserFieldValue additionalFieldValue = new TableOperations<AdditionalUserFieldValue>(connection).GetValue(newRecord.Name, "TSC");
+                                ValueList roleValue = new TableOperations<ValueList>(connection2).GetAltValue("TSC", newRecord.DepartmentNumber, true);
+                                if (roleValue != null && roleValue.Value != additionalFieldValue.Value)
+                                {
+                                    additionalFieldValue.Value = roleValue.ID.ToString();
+                                    new TableOperations<AdditionalUserFieldValue>(connection).AddNewOrUpdateRecord(additionalFieldValue);
+                                }
+
+                            }
+                        }
+                    }
+
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+
         }
 
     }
