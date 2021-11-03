@@ -25,8 +25,8 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { Modal, Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBForm from './ExternalDBForm';
 import { useDispatch, useSelector } from 'react-redux';
