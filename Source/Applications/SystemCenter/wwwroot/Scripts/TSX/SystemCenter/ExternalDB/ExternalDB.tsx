@@ -25,32 +25,35 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import NoteWindow from '../CommonComponents/NoteWindow';
-import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import ExternalDBWindow from './ExternalDBInfo';
 import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive';
-import { OpenXDA } from '@gpa-gemstone/application-typings'
 import QueryWindow from './QueryWindow';
+import { useDispatch, useSelector } from 'react-redux';
+import { ExternalDBTablesSlice } from '../Store/Store';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 
-interface ExternalDataBase { ID: number, TableName: string, ExternalDB: string, Query: string }
 declare var homePath: string;
 
 function ExternalDB(props: { ID: number }) {
-    const [externalDBTable, setExternalDB] = React.useState<ExternalDataBase>(null);
+    const [externalDBTable, setExternalDB] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(null);
     const [tab, setTab] = React.useState(getTab);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
-    const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
+
+    const dispatch = useDispatch();
+    const extDBStatus = useSelector(ExternalDBTablesSlice.Status) as Application.Types.Status;
+    const datum = useSelector((state) => ExternalDBTablesSlice.Datum(state, props.ID))
 
     React.useEffect(() => {
-        let promise = getExternalDB()
-        promise.done((data: ExternalDataBase) => setExternalDB(data));
-        return () => {
-            if (promise.abort != undefined) promise.abort();
-        };
+        if (extDBStatus === 'unintiated' || extDBStatus === 'changed') 
+            dispatch(ExternalDBTablesSlice.Fetch());
+    }, [dispatch, extDBStatus]);
+
+    React.useEffect(() => {
+        setExternalDB(datum);
     }, []);
 
     React.useEffect(() => {
-        sessionStorage.setItem('Company.Tab', JSON.stringify(tab));
+        sessionStorage.setItem('ExternalDB.Tab', JSON.stringify(tab));
     }, [tab]);
 
     function getTab(): string {
@@ -58,37 +61,6 @@ function ExternalDB(props: { ID: number }) {
             return JSON.parse(sessionStorage.getItem('ExternalDB.Tab'));
         else
             return 'ExternalDBInfo';
-    }
-
-    function getExternalDB(): JQuery.jqXHR<ExternalDataBase> {
-        return $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/ExternalDBTables/One/${props.ID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-    }
-
-    function deleteExternalDBTable(): JQuery.jqXHR {
-        let handle = $.ajax({
-            type: "DELETE",
-            url: `${homePath}api/OpenXDA/ExternalDBTables/Delete`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(externalDBTable),
-            dataType: 'json',
-            cache: true,
-            async: true
-        });
-
-        handle.done(() => {
-            window.location.href = homePath + 'index.cshtml?name=ByExternalDB'
-        })
-
-        handle.then((d) => setLoadDelete(false))
-
-        return handle;
     }
 
     if (externalDBTable == null) return null;
@@ -122,8 +94,14 @@ function ExternalDB(props: { ID: number }) {
                     <QueryWindow ExternalDB={externalDBTable} stateSetter={setExternalDB} />
                 </div>
             </div>
-            <Warning Message={'This will permanently Delete the ' + externalDBTable.ExternalDB + ' Table and can not be undone.'} Show={showDelete} Title={'Delete External Database Table ' + externalDBTable.TableName} CallBack={(conf) => { if (conf) deleteExternalDBTable(); setShowDelete(false); }} />
-            <LoadingScreen Show={loadDelete} />
+            <Warning Message={'This will permanently Delete the ' + externalDBTable.ExternalDB + ' Table and can not be undone.'} Show={showDelete} Title={'Delete External Database Table ' + externalDBTable.TableName}
+                CallBack={(conf) => {
+                    if (conf)
+                        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record: externalDBTable }));
+                    window.location.href = homePath + 'index.cshtml?name=ByExternalDB';
+                    setShowDelete(false);
+                }} />
+            <LoadingScreen Show={false} />
         </div>
     )
 }
