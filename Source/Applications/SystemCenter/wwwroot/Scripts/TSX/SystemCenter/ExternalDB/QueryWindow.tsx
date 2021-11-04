@@ -47,7 +47,7 @@ export default function QueryWindow(props: IProps) {
                 <div className="card-header">
                     <div className="row">
                         <div className="col">
-                            <h4>Query Information:</h4>
+                            <h4>Query:</h4>
                         </div>
                     </div>
                 </div>
