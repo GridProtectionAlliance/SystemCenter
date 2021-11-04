@@ -30,7 +30,7 @@ import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive';
 import QueryWindow from './QueryWindow';
 import { useDispatch, useSelector } from 'react-redux';
 import { ExternalDBTablesSlice } from '../Store/Store';
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application } from '@gpa-gemstone/application-typings';
 
 declare var homePath: string;
 
