@@ -31,7 +31,7 @@
     "@gpa-gemstone/gpa-symbols": "0.0.13",
     "@gpa-gemstone/helper-functions": "0.0.9",
     "@gpa-gemstone/react-forms": "1.1.13",
-    "@gpa-gemstone/react-interactive": "1.0.24",
+    "@gpa-gemstone/react-interactive": "1.0.25",
     "@gpa-gemstone/react-table": "1.2.5",
     "@reduxjs/toolkit": "1.6.0",
     "assert": "2.0.0",

@@ -64,7 +64,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (searchState === 'unintiated' || searchState === 'changed') 
-            dispatch(ExternalDBTablesSlice.DBSearch({ filter: searchFilters, ascending: ascending, sortfield: sortKey }));
+            dispatch(ExternalDBTablesSlice.DBSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey }));
     }, [dispatch, searchState]);
 
     React.useEffect(() => {
