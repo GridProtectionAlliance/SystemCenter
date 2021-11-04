@@ -1,5 +1,5 @@
 //******************************************************************************************************
-//  CompanyForm.tsx - Gbtc
+//  ExternalDBForm.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,7 +16,7 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  10/20/2020 - Billy Ernest
+//  11/4/2021 - Samuel Robinson
 //       Generated original version of source code.
 //
 //******************************************************************************************************
