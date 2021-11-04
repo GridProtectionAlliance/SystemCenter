@@ -246,86 +246,23 @@ namespace SystemCenter.Model.Security
         public override IHttpActionResult GetSearchableList([FromBody] PostData postData)
         {
 
-            if (!User.IsInRole(GetRoles))
+            if (!GetAuthCheck())
                 return Unauthorized();
 
             try
             {
+                PostData searchParam = new ModelController<UserAccount>.PostData()
+                {
+                    Ascending = postData.Ascending,
+                    OrderBy = postData.OrderBy == "AccountName" ? "Name" : postData.OrderBy,
+                    Searches = postData.Searches.Where(item => item.FieldName != "AccountName")
+                };
 
-                string whereClause = BuildWhereClause(postData.Searches.Where(item => item.FieldName != "AccountName"));
+                DataTable table = GetSearchResults(searchParam);
 
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    string tableName = TableOperations<UserAccount>.GetTableName();
-
-                    string sql = "";
-
-                    string pivotCollums = "(" + String.Join(",", postData.Searches.Where(item => item.isPivotColumn).Select(search => "'" + search.FieldName + "'")) + ")";
-
-                    if (pivotCollums == "()")
-                        pivotCollums = "('')";
-
-                    string collumnCondition = SearchSettings.Condition;
-                    if (collumnCondition != String.Empty)
-                        collumnCondition = $"AF.{collumnCondition} AND ";
-                    collumnCondition = collumnCondition + $"{SearchSettings.FieldKeyField} IN {pivotCollums}";
-
-                    string joinCondition = $"af.FieldName IN {pivotCollums.Replace("'", "''")} AND ";
-                    joinCondition = joinCondition + SearchSettings.Condition.Replace("'", "''");
-                    if (SearchSettings.Condition != String.Empty)
-                        joinCondition = $"{joinCondition} AND ";
-                    joinCondition = joinCondition + $"SRC.{PrimaryKeyField} = AF.{SearchSettings.PrimaryKeyField}";
-                       
-                    sql = $@"
-                    DECLARE @PivotColumns NVARCHAR(MAX) = N''
-                    SELECT @PivotColumns = @PivotColumns + '[AFV_' + [Key] + '],'
-                        FROM (Select DISTINCT {SearchSettings.FieldKeyField} AS [Key] FROM {SearchSettings.AdditionalFieldTable} AS AF WHERE {collumnCondition}  ) AS [Fields]
-
-                    DECLARE @SQLStatement NVARCHAR(MAX) = N'
-                        SELECT * INTO #Tbl FROM (
-                        SELECT 
-                            SRC.*,
-                            ''AFV_'' + AF.{SearchSettings.FieldKeyField} AS AFFieldKey,
-	                        AF.{SearchSettings.ValueField} AS AFValue
-                        FROM  {tableName} SRC LEFT JOIN 
-                            {SearchSettings.AdditionalFieldTable} AF ON {joinCondition}
-                        ) as FullTbl ' + (SELECT CASE WHEN Len(@PivotColumns) > 0 THEN 'PIVOT (
-                            Max(FullTbl.AFValue) FOR FullTbl.AFFieldKey IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT' ELSE '' END) + ' 
-                        {whereClause.Replace("'", "''")};
-
-                        DECLARE @NoNPivotColumns NVARCHAR(MAX) = N''''
-                            SELECT @NoNPivotColumns = @NoNPivotColumns + ''[''+ name + ''],''
-                                FROM tempdb.sys.columns WHERE  object_id = Object_id(''tempdb..#Tbl'') AND name NOT LIKE ''AFV%''; 
-		                DECLARE @CleanSQL NVARCHAR(MAX) = N''SELECT '' + SUBSTRING(@NoNPivotColumns,0, LEN(@NoNPivotColumns)) + ''FROM #Tbl ORDER BY { postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}''
-
-		                exec sp_executesql @CleanSQL
-                    '
-                    exec sp_executesql @SQLStatement";
-                      
-                    
-                    DataTable table = connection.RetrieveData(sql, "");
-
-                    //Determine Windows UserName
-                    // Grab LdapPath From Configuration File
-                    ConfigurationFile configFile = ConfigurationFile.Current;
-                    CategorizedSettingsElementCollection securityProviderSettings = configFile.Settings["securityProvider"];
-                    securityProviderSettings.Add("LdapPath", "", "Specifies the LDAP path used to initialize the security provider.");
-                    string ldapPath = securityProviderSettings["LdapPath"].Value;
-
-                    CategorizedSettingsElementCollection systemSettings = configFile.Settings["systemSettings"];
-                    systemSettings.Add("CompanyAcronym", "", "The acronym representing the company who owns this instance of the SystemCenter.");
-                    string companyAcronym = systemSettings["CompanyAcronym"].Value;
-
-
-
-
-                    IEnumerable<UserAccount> records = table.Select().Select(row => new TableOperations<UserAccount>(connection).LoadRecord(row)).Select(item => {
-                        if (!item.UseADAuthentication)
-                            item.AccountName = item.Name;
-                        else
-                            item.AccountName = UserInfo.SIDToAccountName(item.Name);
-                        return item;
-                    });
+                    IEnumerable<UserAccount> records = table.Select().Select(row => new TableOperations<UserAccount>(connection).LoadRecord(row));
 
                     if (postData.Searches.Any(item => item.FieldName == "AccountName"))
                     {
