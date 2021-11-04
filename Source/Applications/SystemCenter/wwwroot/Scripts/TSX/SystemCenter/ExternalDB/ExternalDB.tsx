@@ -75,7 +75,7 @@ function ExternalDB(props: { ID: number }) {
             <hr />
             <ul className="nav nav-tabs">
                 <li className="nav-item">
-                    <a className={"nav-link" + (tab == "ExternalDBInfo" ? " active" : "")} onClick={() => setTab('ExternalDBInfo')} data-toggle="tab" href="#ExternalDBInfo">External Database Table Information</a>
+                    <a className={"nav-link" + (tab == "ExternalDBInfo" ? " active" : "")} onClick={() => setTab('ExternalDBInfo')} data-toggle="tab" href="#ExternalDBInfo">Table Information</a>
                 </li>
                 <li className="nav-item">
                     <a className={"nav-link" + (tab == "query" ? " active" : "")} onClick={() => setTab('query')} data-toggle="tab" href="#query">Query</a>
