@@ -41,8 +41,14 @@ const defaultSearchcols: Array<Search.IField<SystemCenter.Types.ExternalDataBase
 
 const ByExternalDB: Application.Types.iByComponent = (props) => {
     let history = useHistory();
+    const blankExternalDB = {
+        ID: 0,
+        TableName: null,
+        ExternalDB: 'Maximo',
+        Query: ''
+    }
 
-    const [newExternalDB, setNewExternalDB] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(getNewExternalDB());
+    const [newExternalDB, setNewExternalDB] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(blankExternalDB);
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [newExternalDatabaseErrors, setNewExternalDatabaseErrors] = React.useState<string[]>([]);
     const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.ExternalDataBaseTable>('TableName');
@@ -55,9 +61,8 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     const searchFilters = useSelector(ExternalDBTablesSlice.SearchFilters);
 
     React.useEffect(() => {
-        if (extDBStatus === 'unintiated' || extDBStatus === 'changed') {
+        if (extDBStatus === 'unintiated' || extDBStatus === 'changed')
             dispatch(ExternalDBTablesSlice.Fetch());
-        }
     }, [dispatch, extDBStatus]);
 
     React.useEffect(() => {
@@ -67,17 +72,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         dispatch(ExternalDBTablesSlice.DBSearch({ sortField: sortKey, ascending, filter: searchFilters }))
-    }, [searchFilters, ascending, sortKey]);
-
-
-    function getNewExternalDB(): SystemCenter.Types.ExternalDataBaseTable {
-        return {
-            ID: 0,
-            TableName: null,
-            ExternalDB: 'Maximo',
-            Query: ''
-        }
-    }
+    }, [ascending, sortKey]);
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDB&ID=' + item.row.ID, state: {} })
@@ -121,7 +116,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                         <form>
                             <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => {
                                 event.preventDefault()
-                                setNewExternalDB(getNewExternalDB());
+                                setNewExternalDB(blankExternalDB);
                                 setShowNew(true);
                             }}>Add External Database Table</button>
                         </form>
