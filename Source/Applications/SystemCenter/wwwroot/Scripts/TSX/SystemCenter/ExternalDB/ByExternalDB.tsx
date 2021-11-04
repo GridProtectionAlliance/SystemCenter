@@ -45,14 +45,14 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     const [newExternalDB, setNewExternalDB] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(getNewExternalDB());
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [newExternalDatabaseErrors, setNewExternalDatabaseErrors] = React.useState<string[]>([]);
+    const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.ExternalDataBaseTable>('TableName');
+    const [ascending, setAscending] = React.useState<boolean>(true);
 
     const dispatch = useDispatch();
     const extDBStatus = useSelector(ExternalDBTablesSlice.Status) as Application.Types.Status;
     const searchResults = useSelector(ExternalDBTablesSlice.SearchResults);
     const searchState = useSelector(ExternalDBTablesSlice.SearchStatus);
     const searchFilters = useSelector(ExternalDBTablesSlice.SearchFilters);
-    const sortKey = useSelector(ExternalDBTablesSlice.SortField);
-    const ascending = useSelector(ExternalDBTablesSlice.Ascending);
 
     React.useEffect(() => {
         if (extDBStatus === 'unintiated' || extDBStatus === 'changed') {
@@ -64,8 +64,12 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (searchState === 'unintiated' || searchState === 'changed') 
-            dispatch(ExternalDBTablesSlice.DBSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey }));
+            dispatch(ExternalDBTablesSlice.DBSearch({ filter: searchFilters, ascending: ascending, sortfield: sortKey }));
     }, [dispatch, searchState]);
+
+    React.useEffect(() => {
+        dispatch(ExternalDBTablesSlice.DBSearch({ sortField: sortKey, ascending, filter: searchFilters }))
+    }, [searchFilters, ascending, sortKey]);
 
 
     function getNewExternalDB(): SystemCenter.Types.ExternalDataBaseTable {
@@ -142,11 +146,11 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                             return;
 
                         if (d.colKey === sortKey)
-                            dispatch(ExternalDBTablesSlice.Sort({ SortField: sortKey, Ascending: !ascending }));
+                            setAscending(!ascending);
                         else {
-                            dispatch(ExternalDBTablesSlice.Sort({ SortField: d.colField, Ascending: true }));
+                            setAscending(true);
+                            setSortKey(d.colField);
                         }
-
                     }}
                     onClick={handleSelect}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
