@@ -57,8 +57,6 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (extDBStatus === 'unintiated' || extDBStatus === 'changed') {
             dispatch(ExternalDBTablesSlice.Fetch());
-            return function () {
-            }
         }
     }, [dispatch, extDBStatus]);
 
