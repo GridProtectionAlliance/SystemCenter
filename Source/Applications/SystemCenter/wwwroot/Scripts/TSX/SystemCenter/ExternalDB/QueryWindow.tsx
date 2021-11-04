@@ -24,7 +24,6 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-declare var homePath: string;
 import { SystemCenter } from '@gpa-gemstone/application-typings'
 import { TextArea } from '@gpa-gemstone/react-forms';
 import { useDispatch } from 'react-redux';

@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { Input, Select} from '@gpa-gemstone/react-forms';
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { ExternalDBTablesSlice } from '../Store/Store';
 import { useSelector } from 'react-redux';
 
