@@ -71,9 +71,6 @@ namespace SystemCenter.Model.Security
         public string DepartmentNumber { get; set; }
         public string MobilePhone { get; set; }
         public bool ReceiveNotifications { get; set; }
-
-        [NonRecordField]
-        public new string AccountName { get; set;  }
     }
 
     [RoutePrefix("api/SystemCenter/UserAccount")]

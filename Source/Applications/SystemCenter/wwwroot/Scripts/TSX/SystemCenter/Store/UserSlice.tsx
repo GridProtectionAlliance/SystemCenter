@@ -249,7 +249,7 @@ export default class UserAccountSlice {
                     if (state.CurrentAccount.ChangePasswordOn != null)
                         state.CurrentAccount.ChangePasswordOn = moment(state.CurrentAccount.ChangePasswordOn).format('YYYY-MM-DD');
 
-                    state.ADStatus = 'Unknown'
+                    state.ADStatus = 'Valid'
                 });
                 builder.addCase(loadUser.pending, (state, action) => {
                     state.Status = 'loading';

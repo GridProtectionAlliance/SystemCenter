@@ -65,7 +65,7 @@ function UserForm(props: IProps) {
     }, [props.UserAccount, userValidation])
 
     function validUserAccountField(user: Application.Types.iUserAccount, field: keyof (Application.Types.iUserAccount)): boolean {
-        if (field === 'Name')
+        if (field === 'Name' || field == 'AccountName')
             return user.Name != null && user.Name.length > 0 && user.Name.length <= 200;
         else if (field === 'Password')
             return user.Password == null || user.Password.length <= 200;
@@ -89,7 +89,7 @@ function UserForm(props: IProps) {
             <form>
                 <div className="row">
                     <div className="col">
-                        <Input<Application.Types.iUserAccount> Record={props.UserAccount} Disabled={props.Edit} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={field => validUserAccountField(props.UserAccount, field)} Setter={(record) => {
+                        <Input<Application.Types.iUserAccount> Record={props.UserAccount} Disabled={props.Edit} Label={'Name'} Field={(props.Edit && props.UserAccount.UseADAuthentication? 'AccountName' : 'Name')} Feedback={'A Name of less than 200 characters is required.'} Valid={field => validUserAccountField(props.UserAccount, field)} Setter={(record) => {
                             setUpdatedAD(false);
                             props.Setter(record);
                         }} />
