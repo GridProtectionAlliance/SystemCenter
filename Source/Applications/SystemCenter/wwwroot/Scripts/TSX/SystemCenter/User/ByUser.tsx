@@ -31,6 +31,7 @@ import UserForm from './UserForm';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory } from "react-router-dom";
 import { ValueListSlice, ValueListGroupSlice, UserAdditionalFieldSlice, UserAccountSlice } from '../Store/Store';
+import { UserValidation } from '@gpa-gemstone/common-pages/lib/SliceInterfaces';
 
 const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
@@ -51,12 +52,13 @@ const ByUser: Application.Types.iByComponent = (props) => {
     const data: Application.Types.iUserAccount[] = useSelector(UserAccountSlice.SearchResults);
     const userStatus: Application.Types.Status = useSelector(UserAccountSlice.Status);
     const searchStatus: Application.Types.Status = useSelector(UserAccountSlice.SearchStatus);
+    const allUsers: Application.Types.iUserAccount[] = useSelector(UserAccountSlice.Data);
 
     const sortField: keyof Application.Types.iUserAccount = useSelector(UserAccountSlice.SortField);
     const ascending: boolean = useSelector(UserAccountSlice.Ascending);
 
     const currentUserAccount: Application.Types.iUserAccount = useSelector(UserAccountSlice.CurrentUser);
-
+    const adStatus: UserValidation = useSelector(UserAccountSlice.ADValidation);
     const adlFields: Application.Types.iAdditionalUserField[] = useSelector(UserAdditionalFieldSlice.Fields)
     const adlFieldStatus: Application.Types.Status = useSelector(UserAdditionalFieldSlice.FieldStatus)
 
@@ -131,6 +133,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <ServerErrorIcon Show={true} Label={'A Server Error Occured. Please Reload the Application'} />
         </div>;
 
+    const userAlreadyExists = currentUserAccount != null && currentUserAccount.UseADAuthentication? allUsers.findIndex(u => currentUserAccount.AccountName == u.AccountName) > -1 && (adStatus == 'Valid' || adStatus == 'Unknown') : false;
+
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <LoadingScreen Show={pageStatus === 'loading'} />
@@ -200,9 +204,12 @@ const ByUser: Application.Types.iByComponent = (props) => {
                     dispatch(UserAccountSlice.SetNewUser());
                     setShowModal(false);
                 }}
-                ConfirmShowToolTip={userError.length > 0}
-                ConfirmToolTipContent={userError.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
-                DisableConfirm={userError.length > 0}
+                ConfirmShowToolTip={userError.length > 0 || userAlreadyExists}
+                ConfirmToolTipContent={<>
+                    {userError.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+                    {userAlreadyExists? <p>{CrossMark} This User already exists.</p> : null}
+                </>}
+                DisableConfirm={userError.length > 0 || userAlreadyExists}
             >
                 {currentUserAccount !== undefined ? <UserForm
                     UserAccount={currentUserAccount} Setter={(u) => dispatch(UserAccountSlice.SetCurrentUser(u))}
