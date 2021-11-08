@@ -35,6 +35,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { AssetTypeSlice } from '../Store/Store';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
 import { Modal } from '@gpa-gemstone/react-interactive';
+import DERAttributes from '../AssetAttribute/DER';
 
 declare var homePath: string;
 
@@ -211,6 +212,9 @@ export default function Page4(props: Page4Props) {
             return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'Transformer')
             return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'DER')
+            return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} />;
+
     }
 
 
@@ -315,7 +319,20 @@ export default function Page4(props: Page4Props) {
                     <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
                         <div className="col">
                             <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
-                                UpdateState={setNewEditAsset}
+                                UpdateState={(record) => {
+                                    if (record.AssetType == newEditAsset.AssetType)
+                                        setNewEditAsset(record);
+                                    else {
+                                        let newRecord = AssetAttributes.getNewAsset(record.AssetType);
+                                        newRecord.AssetKey = record.AssetKey;
+                                        newRecord.AssetName = record.AssetName;
+                                        newRecord.VoltageKV = record.VoltageKV;
+                                        newRecord.Description = record.Description;
+                                        newRecord.Channels = record.Channels;
+                                        setNewEditAsset(newRecord);
+                                    }
+                                    
+                                }}
                                 GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={false} />
                         </div>
                         <div className="col">

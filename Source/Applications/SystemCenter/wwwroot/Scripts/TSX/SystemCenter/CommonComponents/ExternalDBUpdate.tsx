@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import moment from 'moment';
 
@@ -31,7 +31,7 @@ import moment from 'moment';
 
 function ExternalDataBaseWindow(props: {
     ID: number,
-    Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | 'Line' | 'Breaker' | 'Bus' | 'LineSegment' | 'CapacitorBank' | 'Transformer' | 'CapacitorBankRelay' | 'DER',
+    Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | OpenXDA.Types.AssetTypeName,
     Tab: string
 }): JSX.Element {
     const [externalDB, setexternalDB] = React.useState<Array<SystemCenter.Types.ExternalDB>>([]);

@@ -38,6 +38,11 @@ using SystemCenter.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
+    [RoutePrefix("api/OpenXDA/DataOperation")]
+    public class DataOperationController : ModelController<DataOperation> { }
+    [RoutePrefix("api/OpenXDA/DataReader")]
+    public class DataReaderController : ModelController<DataReader> { }
+
 
     [RoutePrefix("api/OpenXDA/AssetType")]
     public class AssetTypeController : ModelController<AssetTypes> {}
@@ -245,6 +250,47 @@ namespace SystemCenter.Controllers.OpenXDA
 
         }
     }
+
+
+    [RoutePrefix("api/OpenXDA/DER")]
+    public class OpenXDADERController : ModelController<DER>
+    {
+        [HttpGet, Route("extDataBases")]
+        public IHttpActionResult GetExternalDB()
+        {
+            try
+            {
+                if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+                {
+                    string afTbl = TableOperations<AdditionalField>.GetTableName();
+                    string afvTbl = TableOperations<AdditionalFieldValue>.GetTableName();
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        string query = $@"SELECT MIN(UpdatedOn) AS lastUpdate, {afTbl}.ExternalDB AS name  
+                                                    FROM 
+                                                    {afTbl} LEFT JOIN {afvTbl} ON {afTbl}.ID = {afvTbl}.AdditionalFieldID
+                                                    WHERE 
+                                                        {afTbl}.ParentTable = 'DER'
+                                                        AND {afTbl}.ExternalDB IS NOT NULL AND {afTbl}.ExternalDB <> ''
+                                                    GROUP BY {afTbl}.ExternalDB";
+
+                        DataTable table = connection.RetrieveData(query);
+
+                        return Ok(table);
+                    }
+                }
+                else
+                    return Unauthorized();
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+        }
+    }
+
 
     [RoutePrefix("api/OpenXDA/NoteType")]
     public class NoteTypeController : ModelController<NoteType> {}

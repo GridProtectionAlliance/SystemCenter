@@ -35,6 +35,7 @@ import { getAssetTypes, getAllAssets, getAssetWithAdditionalFields, editExisting
 import Table from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Warning, Modal, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import DERAttributes from '../AssetAttribute/DER';
 
 declare var homePath: string;
 
@@ -254,6 +255,9 @@ const MeterAssetWindow = (props: IProps) => {
             return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'Transformer')
             return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'DER')
+            return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} />;
+
     }
 }
 

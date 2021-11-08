@@ -123,7 +123,7 @@ export function getTSCs(): JQuery.jqXHR<Array<SCTypings.Types.ValueListItem>> {
     });
 }
 
-export function validUserAccountField(user: Application.Types.iUserAccount,field: keyof (Application.Types.iUserAccount)): boolean {
+export function validUserAccountField(user: SystemCenter.UserAccount, field: keyof (SystemCenter.UserAccount)): boolean {
     if (field == 'AccountName')
         return user.Name != null && user.Name.length > 0 && user.Name.length <= 200;
     if (field == 'Name')

@@ -21,6 +21,8 @@
 //
 //******************************************************************************************************
 
+import type { Application } from '@gpa-gemstone/application-typings';
+
 // System Center Models
 declare global {
     var homePath: string;
@@ -31,7 +33,7 @@ declare global {
 }
 
 export namespace SystemCenter {
-        
+    interface UserAccount extends Application.Types.iUserAccount { Title: string, MobilePhone: string, ReceiveNotifications: boolean}
     interface TSC { ID: number, Name: string, Description: string, DepartmentNumber: string }
     interface Role { ID: number, Name: string, Description: string }
 
@@ -44,6 +46,8 @@ export namespace SystemCenter {
     interface OpenMICDailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulConnection: string, LastUnsuccessfulConnection: string, LastUnsuccessfulConnectionExplanation: string, TotalConnections: number, TotalUnsuccessfulConnections: number, TotalSuccessfulConnections: number }
     interface MiMDDailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulFileProcessed: string, LastUnsuccessfulFileProcessed: string, LastUnsuccessfulFileProcessedExplanation: string, TotalFilesProcessed: number, TotalUnsuccessfulFilesProcessed: number, TotalSuccessfulFilesProcessed: number, ConfigChanges: number, DiagnosticAlarms: number, ComplianceIssues: number, LastConfigFileChange: string }
     interface OpenXDADailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulFileProcessed: string, LastUnsuccessfulFileProcessed: string, LastUnsuccessfulFileProcessedExplanation: string, TotalFilesProcessed: number, TotalUnsuccessfulFilesProcessed: number, TotalSuccessfulFilesProcessed: number, TotalEmailsSent: number, AverageDownloadLatency: number, AverageProcessingStartLatency: number, AverageProcessingEndLatency: number, AverageEmailLatency: number, AverageTotalProcessingLatency: number, AverageTotalEmailLatency: number }
+
+    interface BySettingsComponent { (props: { Roles: Array<Application.Types.SecurityRoleName>, System: 'SystemCenter' | 'OpenXDA' | 'MiMD' }): JSX.Element; }
 
 }
 
