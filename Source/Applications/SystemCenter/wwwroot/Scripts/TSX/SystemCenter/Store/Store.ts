@@ -97,7 +97,7 @@ export default configureStore({
         Company: CompanySlice.Reducer,
         MeasurementCharacteristic: MeasurementCharacteristicSlice.Reducer,
         DataOperation: DataOperationSlice.Reducer,
-        DataReader: DataReaderSlice.Reducer
+        DataReader: DataReaderSlice.Reducer,
         ExternalDataBaseTable: ExternalDBTablesSlice.Reducer
     }
 });
