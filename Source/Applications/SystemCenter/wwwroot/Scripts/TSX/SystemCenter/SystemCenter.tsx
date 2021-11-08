@@ -43,6 +43,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ByLocation = React.lazy(() => import(/* webpackChunkName: "ByLocation" */ './Location/ByLocation'));
     const ByAsset = React.lazy(() => import(/* webpackChunkName: "ByAsset" */ './Asset/ByAsset'));
     const ByCustomer = React.lazy(() => import(/* webpackChunkName: "ByCustomer" */ './Customer/ByCustomer'));
+    const ByExternalDB = React.lazy(() => import(/* webpackChunkname: "ByExternalDB" */ './ExternalDB/ByExternalDB'))
+    const ExternalDB = React.lazy(() => import(/* webpackChunkname: "ExternalDB" */ './ExternalDB/ExternalDB'))
     const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/ByUser'));
     const UserStatistics = React.lazy(() => import(/* webpackChunkName: "UserStatistics" */ './UserStatistics/UserStatistics'));
     const Customer = React.lazy(() => import(/* webpackChunkName: "Customer" */ './Customer/Customer'));
@@ -147,7 +149,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item" hidden={settings.find(s => s.Name == 'SystemCenter.ShowDeviceHealthReport')?.Value != "1" }>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DeviceHealthReport"} to={controllerViewPath + "?name=DeviceHealthReport"}>Device Health Report</NavLink>
                                 </li>
-
                             </ul>
 
                             <hr />
@@ -161,6 +162,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=PQViewSites"} to={controllerViewPath + "?name=PQViewSites"}>PQView Sites</NavLink>
+                                </li>
+                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ByExternalDB"} to={controllerViewPath + "?name=ByExternalDB"}>External Databases</NavLink>
                                 </li>
                             </ul>
 
@@ -225,6 +229,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ByUser Roles={roles} />
                                 else if (qs['?name'] == "Companies")
                                     return <ByCompany Roles={roles} />
+                                else if (qs['?name'] == "ByExternalDB")
+                                    return <ByExternalDB Roles={roles} />
+                                else if (qs['?name'] == "ExternalDB")
+                                    return <ExternalDB ID={parseInt(qs.ID as string)} />
                                 else if (qs['?name'] == "User")
                                     return <User UserID={qs.UserAccountID as string} />
                                 else if (qs['?name'] == "UserStatistics")

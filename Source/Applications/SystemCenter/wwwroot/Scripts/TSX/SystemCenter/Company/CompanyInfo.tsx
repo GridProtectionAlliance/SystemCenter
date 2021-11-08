@@ -76,10 +76,10 @@ export default class CompanyInfoWindow extends React.Component<{ Company: OpenXD
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className="btn btn-primary" onClick={() => this.updateCompany()} hidden={this.state.Company.ID == 0} disabled={this.state.Company == this.props.Company}>Update</button>
+                        <button className="btn btn-primary" onClick={() => this.updateCompany()} hidden={this.state.Company.ID == 0} disabled={this.state.Company == this.props.Company}>Save Changes</button>
                     </div>
                     <div className="btn-group mr-2">
-                        <button className="btn btn-default" onClick={() => this.setState({ Company: this.props.Company })} disabled={this.state.Company == this.props.Company}>Reset</button>
+                        <button className="btn btn-default" onClick={() => this.setState({ Company: this.props.Company })} disabled={this.state.Company == this.props.Company}>Clear Changes</button>
                     </div>
                 </div>
 
