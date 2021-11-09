@@ -67,7 +67,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const DeviceIssuesPage = React.lazy(() => import(/* webpackChunkName: "DeviceIssuesPage" */ './DeviceIssuesPage/DeviceIssuesPage'));
     const DataOperations = React.lazy(() => import(/* webpackChunkName: "DataOperations" */ './Settings/DataOperations'));
     const DataReaders = React.lazy(() => import(/* webpackChunkName: "DataReaders" */ './Settings/DataReaders'));
-
+    const ByApplicationNode = React.lazy(() => import(/* webpackChunkName: "DataReaders" */ './ApplicationManagment/ApplicationNode'));
 
     const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
@@ -190,6 +190,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=MiMD"} to={controllerViewPath + "?name=Settings&System=MiMD"}>MiMD</NavLink>
                                 </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ApplicationNodes"} to={controllerViewPath + "?name=ApplicationNodes"}>SSO Applications</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -263,7 +266,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <DataOperations Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
                                 else if (qs['?name'] == "DataReaders")
                                     return <DataReaders Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
-
+                                else if (qs['?name'] == "ApplicationNodes")
+                                    return <ByApplicationNode Roles={roles} />
                                 else if (qs['?name'] == "DeviceHealthReport") {
                                     return <DeviceHealthReport Roles={roles} />
                                 }
