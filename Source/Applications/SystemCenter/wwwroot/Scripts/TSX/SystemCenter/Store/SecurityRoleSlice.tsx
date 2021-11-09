@@ -20,10 +20,9 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
+import { Application } from '@gpa-gemstone/application-typings'
 
-import { Search } from '@gpa-gemstone/react-interactive';
-import { ActionCreatorWithoutPayload, ActionCreatorWithPayload, ActionReducerMapBuilder, AsyncThunk, createAsyncThunk, createSlice, Draft, PayloadAction, Slice } from '@reduxjs/toolkit';
+import { AsyncThunk, createAsyncThunk, createSlice, Slice } from '@reduxjs/toolkit';
 import _ from 'lodash';
 
 declare var homePath: string;

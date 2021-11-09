@@ -26,7 +26,7 @@ import MeterReducer from './MeterSlice';
 import AssetReducer from './AssetSlice';
 import { GenericSlice }from '@gpa-gemstone/react-interactive'
 
-import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
+import { SystemCenter, OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import NoteSlice from './NoteSlice';
 import UserSlice from './UserSlice';
 import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
@@ -56,6 +56,7 @@ export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location"
 export const DataOperationSlice = new GenericSlice<OpenXDA.Types.DataOperation>("DataOperation", `${homePath}api/OpenXDA/DataOperation`, "LoadOrder")
 export const DataReaderSlice = new GenericSlice<OpenXDA.Types.DataReader>("DataReader", `${homePath}api/OpenXDA/DataReader`, "LoadOrder")
 export const ExternalDBTablesSlice = new GenericSlice<SystemCenter.Types.ExternalDataBaseTable>("ExternalDataBaseTable", `${homePath}api/OpenXDA/ExternalDBTables`, "TableName", false);
+export const ApplicationNodeSlice = new GenericSlice<Application.Types.iApplicationNode>("ApplicationNode", `${homePath}api/OpenXDA/ApplicationNode`, "Name", false);
 
 export const AssetNoteSlice = new NoteSlice('Asset');
 export const MeterNoteSlice = new NoteSlice('Meter');
@@ -98,6 +99,7 @@ export default configureStore({
         MeasurementCharacteristic: MeasurementCharacteristicSlice.Reducer,
         DataOperation: DataOperationSlice.Reducer,
         DataReader: DataReaderSlice.Reducer,
-        ExternalDataBaseTable: ExternalDBTablesSlice.Reducer
+        ExternalDataBaseTable: ExternalDBTablesSlice.Reducer,
+        ApplicationNode: ApplicationNodeSlice.Reducer
     }
 });
