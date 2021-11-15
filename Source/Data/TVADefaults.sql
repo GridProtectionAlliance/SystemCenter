@@ -1111,6 +1111,103 @@ INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable
 ('LineSegment', 'ToBus','','','')
 GO
 
+DROP VIEW [dbo].[SEBrowser.EventSearchEventView]
+GO
+
+DROP VIEW [dbo].[SEBrowser.EventSearchWorstDisturbanceView]
+GO
+
+CREATE VIEW [dbo].[SEBrowser.EventSearchEventView] AS
+	SELECT
+		Event.ID AS EventID,
+		FORMAT(Event.StartTime,'MM/dd/yyyy <br> HH:mm:ss.fffffff') AS Time,
+		Meter.AssetKey AS [Meter Key],
+		Meter.Name AS [Meter],
+		Meter.Alias AS [Meter Alias],
+		Meter.ShortName AS [Meter ShortName],
+		Meter.Make AS [Meter Make],
+		Meter.Model AS [Meter Model],
+		Meter.TimeZone AS [Meter TimeZone],
+		Meter.Description AS [Meter Desc],
+		(
+			SELECT TOP 1 Value 
+			FROM AdditionalFieldValue 
+			WHERE ParentTableID = Meter.ID AND 
+			AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE FieldName = 'Meter Sector' AND ParentTable = 'Meter')
+		) AS [Meter Sector],
+		(
+			SELECT TOP 1 Value 
+			FROM AdditionalFieldValue 
+			WHERE ParentTableID = Meter.ID AND 
+			AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE FieldName = 'Firmware Version' AND ParentTable = 'Meter')
+		) AS [Meter Firmware],
+		(
+			SELECT TOP 1 Value 
+			FROM AdditionalFieldValue 
+			WHERE ParentTableID = Meter.ID AND 
+			AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE FieldName = 'Connection Type' AND ParentTable = 'Meter')
+		) AS [Meter Con Type],
+		Location.Name AS [Station],
+		Location.LocationKey AS [Station Key],
+		Location.ShortName AS [Station ShortName],
+		Location.Alias AS [Station Alias],
+		Location.Description AS [Station Desc],
+		(
+			SELECT TOP 1 Value 
+			FROM AdditionalFieldValue 
+			WHERE ParentTableID = Meter.ID AND 
+			AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE FieldName = 'TSC' AND ParentTable = 'Meter')
+		) AS [Meter TSC],
+		Asset.AssetName AS [Asset],
+		AssetType.Name AS [Asset Type],
+		Asset.VoltageKV AS [Nom Voltage (kV)],
+		Asset.Description AS [Asset Desc],
+		COALESCE((
+			SELECT TOP 1 Value 
+				FROM AdditionalFieldValue 
+				WHERE ParentTableID = Asset.ID AND 
+				AdditionalFieldID IN (SELECT ID FROM AdditionalField WHERE 
+				(FieldName = 'TVA Model No' AND ParentTable = 'Breaker') OR
+				(FieldName = 'TVA Model No' AND ParentTable = 'CapBank') OR
+				(FieldName = 'TVA Model No Phase A' AND ParentTable = 'Transformer') OR
+				(FieldName = 'TVA Model No Phase B' AND ParentTable = 'Transformer') OR
+				(FieldName = 'TVA Model No Phase C' AND ParentTable = 'Transformer')
+				)
+		), '') AS [Asset Model],
+		COALESCE(
+		(
+			SELECT TOP 1 Value 
+				FROM AdditionalFieldValue 
+				WHERE ParentTableID = Asset.ID AND 
+				AdditionalFieldID IN (SELECT ID FROM AdditionalField WHERE 
+				(FieldName = 'Manufacturer' AND ParentTable = 'Breaker') OR
+				(FieldName = 'Manufacturer' AND ParentTable = 'CapBank') OR
+				(FieldName = 'Manufacturer Phase A' AND ParentTable = 'Transformer') OR
+				(FieldName = 'Manufacturer Phase B' AND ParentTable = 'Transformer') OR
+				(FieldName = 'Manufacturer Phase C' AND ParentTable = 'Transformer')
+				)
+		), '') AS [Asset Manuf],
+
+		EventType.Name AS [Event Type]
+	FROM Event LEFT JOIN 
+		EventType ON Event.EventTypeID = EventType.ID LEFT JOIN
+		Meter ON Meter.ID = Event.MeterID LEFT JOIN 
+		Location ON Meter.LocationID = Location.ID LEFT JOIN
+		Asset ON Asset.ID = Event.AssetID LEFT JOIN
+		AssetType ON Asset.AssetTypeID = AssetType.ID
+GO
+
+CREATE VIEW [dbo].[SEBrowser.EventSearchWorstDisturbanceView] AS
+	SELECT
+		Disturbance.ID AS DisturbanceID,
+		Phase.Name AS [Phase],
+		Disturbance.DurationCycles AS [Duration (cycles)],
+		Disturbance.DurationSeconds AS [Duration (sec)],
+		Disturbance.PerUnitMagnitude AS [MagDurMagnitude],
+		Disturbance.DurationSeconds AS [MagDurDuration]
+	FROM Disturbance LEFT JOIN
+		Phase ON Disturbance.PhaseID = Phase.ID
+GO
 -- The Following Needs to be run on openXDA for now until integration into openXDA DB is complete --
 --CREATE VIEW [SystemCenter.AdditionalField] AS
 --	SELECT
