@@ -25,7 +25,7 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { SearchBar, Search, Modal, Warning } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal} from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols'
 import { useSelector, useDispatch } from 'react-redux';
 import { ApplicationCategorySlice } from '../Store/Store';
