@@ -186,8 +186,6 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete Setting'} Message={'This will Delete this Setting from the System. This can have unintended consequences and cause the System to crash. Are you sure you want to continue?'}
-                Show={showWarning} CallBack={(conf) => { if (conf) dispatch(ApplicationCategorySlice.DBAction({ verb: 'DELETE', record: editNewApplicationCategory })); setShowWarning(false); }} />
         </div>
     )
 }
