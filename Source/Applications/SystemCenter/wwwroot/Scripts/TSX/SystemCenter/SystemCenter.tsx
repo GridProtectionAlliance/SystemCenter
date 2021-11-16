@@ -30,6 +30,7 @@ import { createBrowserHistory } from "history"
 import { Application, SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import store, { SystemCenterSettingSlice } from './Store/Store';
+import ApplicationCategory from './ApplicationCategory/ApplicationCategory';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -63,6 +64,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const DeviceHealthReport = React.lazy(() => import(/* webpackChunkName: "DeviceHealthReport" */ './DeviceHealthReport/DeviceHealthReport'));
     const DeviceContacts = React.lazy(() => import(/* webpackChunkName: "DeviceContacts" */ './DeviceHealthReport/DeviceContacts'));
     const DeviceIssuesPage = React.lazy(() => import(/* webpackChunkName: "DeviceIssuesPage" */ './DeviceIssuesPage/DeviceIssuesPage'));
+    const ByApplicationCategory = React.lazy(() => import(/* webpackChunkName: "ByApplicationCategory" */ './ApplicationCategory/ByApplicationCategory'));
 
 
     const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
@@ -160,6 +162,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=PQViewSites"} to={controllerViewPath + "?name=PQViewSites"}>PQView Sites</NavLink>
                                 </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ByApplicationCategory"} to={controllerViewPath + "?name=ByApplicationCategory"}>Application Categories</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -218,6 +223,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ByCompany Roles={roles} />
                                 else if (qs['?name'] == "User")
                                     return <User UserID={qs.UserAccountID as string} />
+                                else if (qs['?name'] == "ByApplicationCategory")
+                                    return <ByApplicationCategory Roles={roles} />
+                                else if (qs['?name'] == "ApplicationCategory")
+                                    return <ApplicationCategory ID={parseInt(qs.ID as string)} />
                                 else if (qs['?name'] == "UserStatistics")
                                     return <UserStatistics Roles={roles} />
                                 else if (qs['?name'] == "Meter")
