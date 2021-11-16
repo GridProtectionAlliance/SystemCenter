@@ -28,7 +28,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { ApplicationCategorySlice } from '../Store/Store';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Input } from '@gpa-gemstone/react-forms';
-import ApplicationCategoryWindow from './ApplicationCategoryWindow';
+import ApplicationCategoryInfo from './ApplicationCategoryInfo';
 
 declare var homePath: string;
 
@@ -48,14 +48,6 @@ function ApplicationCategory(props: { ID: number }) {
     }, [acStatus]);
 
     if (applicationCategory == null) return null;
-
-    function Valid(field: keyof (ApplicationCategory)): boolean {
-        if (field == 'Name')
-            return applicationCategory.Name != null && applicationCategory.Name.length > 0 && applicationCategory.Name.length < 200;
-        if (field == 'SortOrder')
-            return applicationCategory.SortOrder % 1 == 0 && applicationCategory.SortOrder > 0 && applicationCategory.SortOrder != null;
-        return false;
-    }
 
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
@@ -77,7 +69,7 @@ function ApplicationCategory(props: { ID: number }) {
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "Name" ? " active" : "fade")} id="Name">
-                    <ApplicationCategoryWindow ApplicationCat={applicationCategory} stateSetter={(record) => dispatch(ApplicationCategorySlice.DBAction({verb: 'PATCH', record: record}))} />
+                    <ApplicationCategoryInfo ApplicationCat={applicationCategory} stateSetter={(record) => dispatch(ApplicationCategorySlice.DBAction({verb: 'PATCH', record: record}))} />
                 </div>
             </div>
 
