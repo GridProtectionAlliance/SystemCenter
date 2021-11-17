@@ -56,9 +56,7 @@ export default function ApplicationCategoryInfo(props: IProps) {
                 </div>
             </div>
             <div className="card-body">
-                <div className="row">
                     <ApplicationCategoryForm ApplicationCat={applicationCategory} stateSetter={setApplicationCategory} setErrors={setErrors} />
-                </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
