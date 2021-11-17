@@ -62,11 +62,9 @@ export default function ApplicationCategoryForm(props: IProps) {
     }
 
     return (
-        <div className="row" style={{ marginLeft: 0 }}>
             <div className="col">
                 <Input<ApplicationCategory> Record={props.ApplicationCat} Field={'Name'} Label={'Name'} Feedback={'A unique Name is required.'} Valid={Valid} Setter={(record) => props.stateSetter(record)} />
                 <Input<ApplicationCategory> Record={props.ApplicationCat} Field={'SortOrder'} Label={'Sort Order'} Feedback={'A valid Sort Order is required.'} Valid={Valid} Setter={(record) => props.stateSetter(record)} />
             </div>
-        </div>
         )
 }
