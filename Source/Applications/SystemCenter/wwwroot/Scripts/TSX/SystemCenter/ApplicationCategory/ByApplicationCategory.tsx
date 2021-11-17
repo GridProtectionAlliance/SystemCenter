@@ -45,14 +45,10 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
     const emptyApplicationCategory = { ID: 0, Name: '', SortOrder: 0 };
     const [editNewApplicationCategory, setEditNewApplicationCategory] = React.useState<ApplicationCategory>(emptyApplicationCategory);
     const [sortField, setSortField] = React.useState<keyof ApplicationCategory>('Name');
-    const [ascending, setAscending] = React.useState<boolean>(true);
-    const [sortKey, setSortKey] = React.useState<string>('Name');
+    const [ascending, setAscending] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
-    const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
 
-    const [hasChanged, setHasChanged] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
-    const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
     const search: Search.IFilter<ApplicationCategory>[] = useSelector(ApplicationCategorySlice.SearchFilters);
     const status: Application.Types.Status = useSelector(ApplicationCategorySlice.Status);
@@ -73,11 +69,8 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
     }, [dispatch, status]);
 
     React.useEffect(() => {
-        if (searchStatus === 'unintiated' || status === 'changed')
             dispatch(ApplicationCategorySlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [dispatch, searchStatus, ascending, sortField, search]);
-
-    React.useEffect(() => { setHasChanged(false) }, [showModal]);
+    }, [dispatch, ascending, sortField]);
 
     React.useEffect(() => {
         const e: string[] = [];
@@ -129,23 +122,22 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
                 <Table<ApplicationCategory>
                     cols={[
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '50%' }, rowStyle: { width: '15%' } },
-                        { key: 'SortOrder', field: 'SortOrder', label: 'SortOrder', headerStyle: { width: '50%' }, rowStyle: { width: '15%' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                        { key: 'SortOrder', field: 'SortOrder', label: 'Sort Order', headerStyle: { width: '50%' }, rowStyle: { width: '15%' } },
+                        { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortKey={sortKey}
+                    sortKey={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.colKey === "Scroll")
+                        if (d.colKey === 'scroll' || d.colField === undefined)
                             return;
-
-                        if (d.colKey === sortKey)
+                        if (d.colField === sortField)
                             setAscending(!ascending);
                         else {
                             setAscending(true);
-                            setSortKey(d.colKey);
-                        }
+                            setSortField(d.colField);
+                        }   
                     }}
                     onClick={handleSelect}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -155,18 +147,14 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Title={editNew === 'Edit' ? editNewApplicationCategory.Name + ' - Application Category' : 'Add New Category'}
-                Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
+            <Modal Title={'Add New Category'}
+                Show={showModal} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Save'}
                 CallBack={(conf, isBtn) => {
-                    if (conf && editNew === 'New' && errors.length == 0)
+                    if (conf && errors.length == 0)
                         dispatch(ApplicationCategorySlice.DBAction({ verb: 'POST', record: editNewApplicationCategory }))
-                    if (conf && editNew === 'Edit')
-                        dispatch(ApplicationCategorySlice.DBAction({ verb: 'PATCH', record: editNewApplicationCategory }))
-                    if (!conf && isBtn)
-                        setShowWarning(true);
                     setShowModal(false);
                 }}
-                DisableConfirm={(editNew === 'Edit' && !hasChanged) || errors.length > 0}
+                DisableConfirm={ errors.length > 0}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={
                     errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)
@@ -176,12 +164,12 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
                     <div className="col">
                         <Input<ApplicationCategory> Record={editNewApplicationCategory} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'}
                             Valid={Valid}
-                            Setter={(record) => { setEditNewApplicationCategory(record); setHasChanged(true); }}
+                            Setter={(record) => { setEditNewApplicationCategory(record);}}
                         />
                         <Input<ApplicationCategory> Record={editNewApplicationCategory} Field={'SortOrder'} Label='SortOrder' Feedback={'A SortOrder value is required.'}
                             Type={'number'}
                             Valid={Valid}
-                            Setter={(record) => { setEditNewApplicationCategory(record); setHasChanged(true); }}
+                            Setter={(record) => { setEditNewApplicationCategory(record);}}
                         />
                     </div>
                 </div>
