@@ -68,7 +68,7 @@ function Applications(props: IProps) {
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
 
     React.useEffect(() => {
-        dispatch(PQApplicationsSlice.DBSearch({ filter: search, sortField, ascending }));
+        dispatch(PQApplicationsSlice.Sort({ SortField: sortField, Ascending: ascending }));
     }, [ascending, sortField]);
 
     return (
