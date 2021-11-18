@@ -65,9 +65,7 @@ export default function CustomerInfo(props: IProps) {
                 </div>
             </div>
             <div className="card-body">
-                <div className="row">
-                    <CustomerForm Customer={customer} stateSetter={setCustomer} setErrors={setError} />
-                </div>
+                <CustomerForm Customer={customer} stateSetter={setCustomer} setErrors={setError} />
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
