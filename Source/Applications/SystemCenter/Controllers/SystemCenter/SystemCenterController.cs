@@ -188,6 +188,9 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/OpenXDA/ApplicationCategory")]
     public class ApplicationCategoryController : ModelController<openXDA.Model.ApplicationCategories.ApplicationCategory> { }
 
+    [RoutePrefix("api/OpenXDA/PQApplications")]
+    public class PQApplicationsController : ModelController<openXDA.Model.ApplicationCategories.PQApplications> { }
+
     [RoutePrefix("api/SystemCenter/AdditionalField")]
     public class AdditionalFieldController : ModelController<AdditionalField>
     {
