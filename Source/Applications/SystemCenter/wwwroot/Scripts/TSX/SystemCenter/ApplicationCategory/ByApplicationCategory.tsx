@@ -66,11 +66,16 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (status === 'unintiated' || status === 'changed')
             dispatch(ApplicationCategorySlice.Fetch());
-    }, [dispatch, status]);
+    }, [status]);
 
     React.useEffect(() => {
+        if (searchStatus === 'unintiated' || searchStatus === 'changed')
             dispatch(ApplicationCategorySlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [dispatch, ascending, sortField]);
+    }, [searchStatus]);
+
+    React.useEffect(() => {
+        dispatch(ApplicationCategorySlice.DBSearch({ filter: search, sortField, ascending }));
+    }, [ascending, sortField]);
 
     React.useEffect(() => {
         const e: string[] = [];
