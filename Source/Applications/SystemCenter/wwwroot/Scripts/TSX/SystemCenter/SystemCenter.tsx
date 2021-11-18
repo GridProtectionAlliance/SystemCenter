@@ -226,7 +226,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "ByApplicationCategory")
                                     return <ByApplicationCategory Roles={roles} />
                                 else if (qs['?name'] == "ApplicationCategory")
-                                    return <ApplicationCategory ID={parseInt(qs.ID as string)} />
+                                    return <ApplicationCategory ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "UserStatistics")
                                     return <UserStatistics Roles={roles} />
                                 else if (qs['?name'] == "Meter")
