@@ -159,8 +159,8 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
                 ];
             case 'Meter':
                 return [
-                    { key: 'AssetKey', field: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Name', field: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetKey', field: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Location', field: 'Location' as keyof (T), label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'MappedAssets', field: 'MappedAssets' as keyof (T), label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Make', field: 'Make' as keyof (T), label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -191,8 +191,8 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
                 ];
             case 'Meter':
                 return [
-                    { key: 'AssetKey', field: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Name', field: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetKey', field: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Location', field: 'Location' as keyof (T), label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ];
