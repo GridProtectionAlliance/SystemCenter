@@ -54,6 +54,7 @@ const ByCompany: Application.Types.iByComponent = (props) => {
     const [newCompanyErrors, setNewCompanyErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
+    if(sortKey != "Company")
         return getData();
     }, [search, ascending, sortKey]);
 
@@ -205,6 +206,7 @@ const ByCompany: Application.Types.iByComponent = (props) => {
                                 return ct.Name
                                 }
                         },
+                        { key: 'CompanyID', field: 'CompanyID', label: 'CompanyID', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
