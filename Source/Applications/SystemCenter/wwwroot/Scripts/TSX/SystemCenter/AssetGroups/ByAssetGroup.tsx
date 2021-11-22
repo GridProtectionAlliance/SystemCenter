@@ -40,6 +40,7 @@ const defaultSearchcols: Array<Search.IField<AssetGroup>> = [
     { label: 'Number of Meter', key: 'Meters', type: 'integer', isPivotField: false },
     { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer', isPivotField: false },
     { label: 'Number of Users', key: 'Users', type: 'integer', isPivotField: false },
+    { label: 'Number of Asset Groups', key: 'AssetGroups', type: 'integer', isPivotField: false },
     { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean', isPivotField: false },
         
 ];
