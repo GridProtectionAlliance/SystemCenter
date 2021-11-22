@@ -60,12 +60,16 @@ function Setting(props: IProps) {
     React.useEffect(() => {
         if (status === 'unintiated' || status === 'changed')
             dispatch(props.SettingsSlice.Fetch());
-    }, [dispatch, status]);
+    }, [status]);
 
     React.useEffect(() => {
         if (searchStatus === 'unintiated' || status === 'changed')
             dispatch(props.SettingsSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [dispatch, searchStatus, ascending, sortField, search]);
+    }, [searchStatus]);
+
+    React.useEffect(() => {
+        dispatch(props.SettingsSlice.DBSearch({ filter: search, sortField, ascending }));
+    }, [ascending, sortField]);
 
     React.useEffect(() => { setHasChanged(false) }, [showModal]);
 
@@ -133,10 +137,6 @@ function Setting(props: IProps) {
                                 setAscending(true);
                                 setSortField(d.colField);
                             }
-                            if (d.colField === sortField)
-                                dispatch(props.SettingsSlice.DBSearch({ filter: search, sortField, ascending: true }));
-                            else
-                                dispatch(props.SettingsSlice.DBSearch({ filter: search, sortField: d.colField, ascending }));
                         }}
                         onClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
