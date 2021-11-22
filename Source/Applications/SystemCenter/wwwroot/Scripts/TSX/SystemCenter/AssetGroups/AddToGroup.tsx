@@ -273,7 +273,7 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
             <div className="row">
                 <div className="col">
                     <SearchBar<T> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={getStandardSearch()} Width={'50%'} Label={'Search'}
-                        ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + getTypeLabel()}
+                        ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' ' + getTypeLabel()}
                         GetEnum={(setOptions, field) => {
                             let handle = null;
                             if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
