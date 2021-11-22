@@ -330,8 +330,8 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                         <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={setNewLocation} />
                     </div>
                     <div className="col">
-                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Latitude'} Feedback={'Latitude is a require numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Longitude'} Feedback={'Longitude is a require numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Latitude'} Feedback={'Latitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Longitude'} Feedback={'Longitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
                         <TextArea<OpenXDA.Types.Location> Rows={3} Record={newLocation} Field={'Description'} Valid={valid} Setter={setNewLocation} />
                     </div>
                 </div>
