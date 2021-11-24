@@ -21,7 +21,8 @@
 //
 //******************************************************************************************************
 
-import { Application } from "@gpa-gemstone/application-typings";
+import { Application, SystemCenter } from "@gpa-gemstone/application-typings";
+import { ValueList } from "@gpa-gemstone/common-pages";
 import { Pencil, TrashCan } from "@gpa-gemstone/gpa-symbols";
 import { Input, Select } from "@gpa-gemstone/react-forms";
 import { Modal, Search, ToolTip, Warning } from "@gpa-gemstone/react-interactive";
@@ -40,7 +41,6 @@ export interface PQApplications {
     SortOrder: number;
 }
 interface IProps { ID: number, Tab: string }
-interface Option { Value: string, Label: string }
 
 function Applications(props: IProps) {
 
@@ -52,13 +52,13 @@ function Applications(props: IProps) {
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
     const [ascending, setAscending] = React.useState<boolean>(false);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
-    const [Options, setOptions] = React.useState<Option[]>();
+    const [Options, setOptions] = React.useState<SystemCenter.Types.ValueListItem[]>([]);
+    const [EmptyApplication, setEmptyApplication] = React.useState<PQApplications>({ ID: 0, Name: '', URL: '', Image: '', CategoryID: props.ID, SortOrder: 0 })
 
     const data: PQApplications[] = useSelector(PQApplicationsSlice.Data);
     const status: Application.Types.Status = useSelector(PQApplicationsSlice.Status);
     const parentID: number = useSelector(PQApplicationsSlice.ParentID);
 
-    const EmptyApplication: PQApplications = { ID: 0, Name: '', URL: '', Image: '', CategoryID: props.ID, SortOrder: 0 };
     const [newPQApplications, setNewPQApplications] = React.useState<PQApplications>(EmptyApplication);
 
 
@@ -74,8 +74,16 @@ function Applications(props: IProps) {
     }, [ascending, sortField]);
 
     React.useEffect(() => {
-        getTileImages();
+        let handle = getTileImages();
+        return () => {
+            if (handle.abort != null) handle.abort();
+        }
     }, []);
+
+    React.useEffect(() => {
+        if (Options.length > 0) 
+            setEmptyApplication({ ID: 0, Name: '', URL: '', Image: Options[0].Value, CategoryID: props.ID, SortOrder: 0 })
+    }, [Options]);
 
     function getTileImages() {
         let handle = $.ajax({
@@ -86,10 +94,9 @@ function Applications(props: IProps) {
             cache: true,
             async: true
         });
-        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.AltValue }))))
+        handle.done(d => setOptions(d))
+        return handle;
     }
-    
-
 
     return (
         <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
@@ -162,7 +169,7 @@ function Applications(props: IProps) {
                             Valid={field => true}
                             Setter={(record) => { setNewPQApplications(record); setHasChanged(true); }}
                         />
-                        <Select<PQApplications> Record={newPQApplications} Field={'Image'} Label='Image' Options={Options}
+                        <Select<PQApplications> Record={newPQApplications} Field={'Image'} Label='Image' Options={Options.map((item => ({ Value: item.Value, Label: item.AltValue })))}
                             Setter={(record) => { setNewPQApplications(record); setHasChanged(true); }}
                         />
                     </div>
