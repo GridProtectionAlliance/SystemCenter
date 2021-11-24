@@ -23,7 +23,7 @@
 
 import { Application } from "@gpa-gemstone/application-typings";
 import { Pencil, TrashCan } from "@gpa-gemstone/gpa-symbols";
-import { Input } from "@gpa-gemstone/react-forms";
+import { Input, Select } from "@gpa-gemstone/react-forms";
 import { Modal, Search, ToolTip, Warning } from "@gpa-gemstone/react-interactive";
 import Table from "@gpa-gemstone/react-table";
 import React from "react";
@@ -40,6 +40,7 @@ export interface PQApplications {
     SortOrder: number;
 }
 interface IProps { ID: number, Tab: string }
+interface Option { Value: string, Label: string }
 
 function Applications(props: IProps) {
 
@@ -51,14 +52,15 @@ function Applications(props: IProps) {
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
     const [ascending, setAscending] = React.useState<boolean>(false);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
+    const [Options, setOptions] = React.useState<Option[]>();
 
-    const search: Search.IFilter<PQApplications>[] = useSelector(PQApplicationsSlice.SearchFilters);
     const data: PQApplications[] = useSelector(PQApplicationsSlice.Data);
     const status: Application.Types.Status = useSelector(PQApplicationsSlice.Status);
     const parentID: number = useSelector(PQApplicationsSlice.ParentID);
 
     const EmptyApplication: PQApplications = { ID: 0, Name: '', URL: '', Image: '', CategoryID: props.ID, SortOrder: 0 };
     const [newPQApplications, setNewPQApplications] = React.useState<PQApplications>(EmptyApplication);
+
 
     React.useEffect(() => {
         if (status === 'unintiated' || status === 'changed' || props.ID != parentID)
@@ -70,6 +72,24 @@ function Applications(props: IProps) {
     React.useEffect(() => {
         dispatch(PQApplicationsSlice.Sort({ SortField: sortField, Ascending: ascending }));
     }, [ascending, sortField]);
+
+    React.useEffect(() => {
+        getTileImages();
+    }, []);
+
+    function getTileImages() {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/TileImages`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.AltValue }))))
+    }
+    
+
 
     return (
         <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
@@ -142,8 +162,7 @@ function Applications(props: IProps) {
                             Valid={field => true}
                             Setter={(record) => { setNewPQApplications(record); setHasChanged(true); }}
                         />
-                        <Input<PQApplications> Record={newPQApplications} Field={'Image'} Label='Image' Feedback={'Image is required.'}
-                            Valid={field => true}
+                        <Select<PQApplications> Record={newPQApplications} Field={'Image'} Label='Image' Options={Options}
                             Setter={(record) => { setNewPQApplications(record); setHasChanged(true); }}
                         />
                     </div>
