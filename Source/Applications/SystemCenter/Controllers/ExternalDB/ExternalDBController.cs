@@ -31,13 +31,16 @@ using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Reflection;
+using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
-using Oracle;
 using Oracle.ManagedDataAccess.Client;
 using SystemCenter.Model;
 
 namespace SystemCenter.Controllers
 {
+    [RoutePrefix("api/ExternalDBTables")]
+    public class ExternalDBTablesController : ModelController<extDBTables> {}
+
     [RoutePrefix("api/ExternalDB/")]
     public abstract class ExternalDBController<T> : ApiController where T : class, new()
     {

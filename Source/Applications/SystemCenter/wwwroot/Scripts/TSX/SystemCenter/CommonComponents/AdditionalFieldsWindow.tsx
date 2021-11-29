@@ -175,7 +175,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
 
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/ExternalDBTables/TableName/0`,
+            url: `${homePath}api/ExternalDBTables/TableName/0`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,

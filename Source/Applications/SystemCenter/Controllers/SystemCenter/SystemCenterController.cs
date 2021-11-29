@@ -167,6 +167,7 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/Setting")]
     public class SettingController : ModelController<Setting> { }
 
+
     [AllowSearch]
     [DeleteRoles("Administrator")]
     [PatchRoles("Administrator")]
