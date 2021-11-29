@@ -28,8 +28,9 @@ import NoteWindow from '../CommonComponents/NoteWindow';
 import OpenMICIssuesPage from './OpenMICIssuesPage';
 import MiMDIssuesPage from './MiMDIssuesPage';
 import OpenXDAIssuesPage from './OpenXDAIssuesPage';
+import DownloadedFilesPage from './DownloadedFilesPage';
 
-type DeviceIssuesPageTab = 'notes' | 'openmic' | 'mimd' | 'xda'
+type DeviceIssuesPageTab = 'notes' | 'openmic' | 'mimd' | 'xda' | 'files'
 function DeviceIssuesPage(props: {MeterID: number, OpenMICAcronym: string, Tab? : DeviceIssuesPageTab}) {
     const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(null);
     const [tab, setTab] = React.useState<DeviceIssuesPageTab>(props?.Tab ?? 'notes');
@@ -63,6 +64,8 @@ function DeviceIssuesPage(props: {MeterID: number, OpenMICAcronym: string, Tab? 
         { Id: "openmic", Label: "OpenMIC" },
         { Id: "mimd", Label: "MiMD" },
         { Id: "xda", Label: "OpenXDA" },
+        { Id: "files", Label: "Last 50 Downloaded Files" },
+
     ];
 
     return (
@@ -88,6 +91,10 @@ function DeviceIssuesPage(props: {MeterID: number, OpenMICAcronym: string, Tab? 
                 <div className={"tab-pane " + (tab == "xda" ? " active" : "fade")} id="xda" style={{ maxHeight: window.innerHeight - 215 }}>
                     <OpenXDAIssuesPage Meter={meter} />
                 </div>
+                <div className={"tab-pane " + (tab == "files" ? " active" : "fade")} id="files" style={{ maxHeight: window.innerHeight - 215 }}>
+                    <DownloadedFilesPage Meter={meter} />
+                </div>
+
             </div>
         </div>
        

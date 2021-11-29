@@ -36,7 +36,7 @@ import { HeavyCheckMark, CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
 
 const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-    { label: 'Substation', key: 'Substation', type: 'string', isPivotField: false },
+    { label: 'Substation', key: 'LocationKey', type: 'string', isPivotField: false },
     { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
     { label: 'TSC', key: 'TSC', type: 'string', isPivotField: false },
     { label: 'Sector', key: 'Sector', type: 'string', isPivotField: false },
@@ -179,9 +179,9 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<SCGlobal.DeviceHealthReport>
                     cols={[
-                        { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=DownloadedFiles&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[field]}</a> },
+                        { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[field]}</a> },
                         { key: 'OpenMIC', label: 'OpenMIC ID', field: 'OpenMIC', headerStyle: { width: 120 }, rowStyle: { width: 120 }, content: (item, key, field, style) => <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{trimString(item.OpenMIC,10)}</a> },
-                        { key: 'Substation', label: 'Substn', field: 'Substation', headerStyle: { width: 100 }, rowStyle: { width: 100 }, content: (item, key, field, style) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink')?.Value.replace('<AssetKey>', item.LocationKey)} target='_blank'>{item.LocationKey}</a> },
+                        { key: 'LocationKey', label: 'Substn', field: 'LocationKey', headerStyle: { width: 100 }, rowStyle: { width: 100 }, content: (item, key, field, style) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink')?.Value.replace('<AssetKey>', item.LocationKey)} target='_blank'>{item.LocationKey}</a> },
                         { key: 'Model', label: 'Model', field: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=Location&LocationID=${item.LocationID}&Tab=images`} target='_blank'>{item[field]}</a> },
                         { key: 'TSC', label: 'TSC', field: 'TSC', headerStyle: { width: 50 }, rowStyle: { width: 50 }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSCID}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[field]}</a> },
                         { key: 'Sector', label: 'Sector', field: 'Sector', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.SectorID}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[field]}</a> },

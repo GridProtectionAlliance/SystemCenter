@@ -511,6 +511,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyMeter.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\SearchFields.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\NoteSlice.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\DownloadedFilesPage.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ByExternalDB.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDB.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBForm.tsx" />
