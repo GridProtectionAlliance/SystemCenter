@@ -56,6 +56,9 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/ValueListGroup")]
     public class ValueListGroupController : ModelController<ValueListGroup> { }
 
+    [RoutePrefix("api/OpenXDA/DBCleanup")]
+    public class DBCleanupController : ModelController<openXDA.Model.DBCleanup> { }
+
     [RoutePrefix("api/SystemCenter/Customer")]
     public class CustomerController : ModelController<Customer>
     {
