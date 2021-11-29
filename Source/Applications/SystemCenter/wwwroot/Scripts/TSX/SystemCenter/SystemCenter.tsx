@@ -63,7 +63,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const DeviceHealthReport = React.lazy(() => import(/* webpackChunkName: "DeviceHealthReport" */ './DeviceHealthReport/DeviceHealthReport'));
     const DeviceContacts = React.lazy(() => import(/* webpackChunkName: "DeviceContacts" */ './DeviceHealthReport/DeviceContacts'));
     const DeviceIssuesPage = React.lazy(() => import(/* webpackChunkName: "DeviceIssuesPage" */ './DeviceIssuesPage/DeviceIssuesPage'));
-
+    const DBCleanup = React.lazy(() => import(/* webpackChunkName: "DBCleanup" */ './DB/DBCleanup'));
 
     const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
@@ -177,6 +177,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=MiMD"} to={controllerViewPath + "?name=Settings&System=MiMD"}>MiMD</NavLink>
                                 </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DBCleanup"} to={controllerViewPath + "?name=DBCleanup"}>DB Cleanup</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -210,6 +213,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ByLocation Roles={roles} />                            
                                 else if (qs['?name'] == "Assets")
                                     return <ByAsset Roles={roles} />
+                                else if (qs['?name'] == "DBCleanup")
+                                    return <DBCleanup Roles={roles} />
                                 else if (qs['?name'] == "AssetGroups")
                                     return <ByAssetGroup Roles={roles} />
                                 else if (qs['?name'] == "Users")
