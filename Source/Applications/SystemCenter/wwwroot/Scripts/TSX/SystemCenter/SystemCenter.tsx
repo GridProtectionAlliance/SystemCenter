@@ -65,7 +65,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const DeviceContacts = React.lazy(() => import(/* webpackChunkName: "DeviceContacts" */ './DeviceHealthReport/DeviceContacts'));
     const DeviceIssuesPage = React.lazy(() => import(/* webpackChunkName: "DeviceIssuesPage" */ './DeviceIssuesPage/DeviceIssuesPage'));
     const ByApplicationCategory = React.lazy(() => import(/* webpackChunkName: "ByApplicationCategory" */ './ApplicationCategory/ByApplicationCategory'));
-
+    const DBCleanup = React.lazy(() => import(/* webpackChunkName: "DBCleanup" */ './DB/DBCleanup'));
 
     const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
@@ -182,6 +182,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=MiMD"} to={controllerViewPath + "?name=Settings&System=MiMD"}>MiMD</NavLink>
                                 </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DBCleanup"} to={controllerViewPath + "?name=DBCleanup"}>DBCleanup</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -225,6 +228,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <User UserID={qs.UserAccountID as string} />
                                 else if (qs['?name'] == "ByApplicationCategory")
                                     return <ByApplicationCategory Roles={roles} />
+                                else if (qs['?name'] == "DBCleanup")
+                                    return <DBCleanup Roles={roles} />
                                 else if (qs['?name'] == "ApplicationCategory")
                                     return <ApplicationCategory ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "UserStatistics")
