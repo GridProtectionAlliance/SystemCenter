@@ -189,10 +189,10 @@ namespace SystemCenter.Controllers
     public class MiMDSettingController : ModelController<MiMDSetting> { }
 
     [RoutePrefix("api/OpenXDA/ApplicationCategory")]
-    public class ApplicationCategoryController : ModelController<openXDA.Model.ApplicationCategories.ApplicationCategory> { }
+    public class ApplicationCategoryController : ModelController<openXDA.Model.ApplicationCategory> { }
 
     [RoutePrefix("api/OpenXDA/PQApplications")]
-    public class PQApplicationsController : ModelController<openXDA.Model.ApplicationCategories.PQApplications> { }
+    public class PQApplicationsController : ModelController<openXDA.Model.PQApplications> { }
 
     [RoutePrefix("api/SystemCenter/AdditionalField")]
     public class AdditionalFieldController : ModelController<AdditionalField>
