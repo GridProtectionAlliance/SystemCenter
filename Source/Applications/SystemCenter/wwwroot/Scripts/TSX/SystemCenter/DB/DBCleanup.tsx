@@ -45,6 +45,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
 
     const searchStatus = useSelector(DBCleanupSlice.SearchStatus);
     const data: DBCleanup[] = useSelector(DBCleanupSlice.SearchResults);
+    const allDBCleanup: DBCleanup[] = useSelector(DBCleanupSlice.Data);
 
     const [sortField, setSortField] = React.useState<keyof DBCleanup>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -81,8 +82,10 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
             e.push("A Schedule is required.");
         if (editNewDBCleanup.Name == null || editNewDBCleanup.Name.length === 0)
             e.push("A Name is required.");
+        if (editNewDBCleanup.Name != null && editNewDBCleanup.Name.length > 0 && allDBCleanup.findIndex(s => s.Name.toLowerCase() === editNewDBCleanup.Name.toLowerCase() && s.ID !== editNewDBCleanup.ID) > -1)
+            e.push('Name must be unique.')
         if (editNewDBCleanup.SQLCommand == null || editNewDBCleanup.SQLCommand.length === 0)
-            e.push("A SQLCommand is required.");
+            e.push("A SQL Command is required.");
         setErrors(e)
     }, [editNewDBCleanup])
 
@@ -168,12 +171,12 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                             Valid={field => editNewDBCleanup.Name != null && editNewDBCleanup.Name.length > 0}
                             Setter={(record) => { setEditNewDBCleanup(record); setHasChanged(true); }}
                         />
-                        <TextArea<DBCleanup> Rows={4} Record={editNewDBCleanup} Field={'SQLCommand'} Label='SQLCommand' Feedback={'An SQLCommand is required.'}
-                            Valid={field => editNewDBCleanup.SQLCommand != null && editNewDBCleanup.SQLCommand.length > 0}
-                            Setter={(record) => { setEditNewDBCleanup(record); setHasChanged(true); }}
-                        />
                         <TextArea<DBCleanup> Rows={1} Record={editNewDBCleanup} Field={'Schedule'} Label='Schedule' Feedback={'A Schedule is required.'}
                             Valid={field => editNewDBCleanup.Schedule != null && editNewDBCleanup.Schedule.length > 0}
+                            Setter={(record) => { setEditNewDBCleanup(record); setHasChanged(true); }}
+                        />
+                        <TextArea<DBCleanup> Rows={4} Record={editNewDBCleanup} Field={'SQLCommand'} Label='SQL Command' Feedback={'An SQL Command is required.'}
+                            Valid={field => editNewDBCleanup.SQLCommand != null && editNewDBCleanup.SQLCommand.length > 0}
                             Setter={(record) => { setEditNewDBCleanup(record); setHasChanged(true); }}
                         />
                     </div>
