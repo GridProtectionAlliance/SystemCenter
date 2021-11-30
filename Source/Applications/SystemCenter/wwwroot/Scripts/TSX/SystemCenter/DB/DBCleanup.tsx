@@ -32,6 +32,7 @@ import { DBCleanupSlice } from '../Store/Store';
 
 export interface DBCleanup {
     ID: number;
+    Name: string;
     SQLCommand: string;
     Schedule: string;
 }
@@ -45,10 +46,10 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
     const searchStatus = useSelector(DBCleanupSlice.SearchStatus);
     const data: DBCleanup[] = useSelector(DBCleanupSlice.SearchResults);
 
-    const [sortField, setSortField] = React.useState<keyof DBCleanup>('SQLCommand');
+    const [sortField, setSortField] = React.useState<keyof DBCleanup>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
-    const emptyDBCleanup = { ID: 0, SQLCommand: '', Schedule: ''};
+    const emptyDBCleanup = { ID: 0, Name: '', SQLCommand: '', Schedule: ''};
     const [editNewDBCleanup, setEditNewDBCleanup] = React.useState<DBCleanup>(emptyDBCleanup);
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
 
@@ -77,14 +78,16 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         const e: string[] = [];
         if (editNewDBCleanup.Schedule == null || editNewDBCleanup.Schedule.length === 0)
-            e.push("Schedule is required.");
+            e.push("A Schedule is required.");
+        if (editNewDBCleanup.Name == null || editNewDBCleanup.Name.length === 0)
+            e.push("A Name is required.");
         if (editNewDBCleanup.SQLCommand == null || editNewDBCleanup.SQLCommand.length === 0)
-            e.push("An SQLCommand is required.");
+            e.push("A SQLCommand is required.");
         setErrors(e)
     }, [editNewDBCleanup])
 
     const searchFields: Search.IField<DBCleanup>[] = [
-        { key: 'SQLCommand', label: 'SQLCommand', type: 'string', isPivotField: false },
+        { key: 'Name', label: 'Name', type: 'string', isPivotField: false },
         { key: 'Schedule', label: 'Schedule', type: 'string', isPivotField: false },
     ]
 
@@ -93,7 +96,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
             <LoadingScreen Show={status === 'loading'} />
             <div style={{ width: '100%', height: '100%' }}>
                 <SearchBar<DBCleanup> CollumnList={searchFields} SetFilter={(flds) => dispatch(DBCleanupSlice.DBSearch({ filter: flds, sortField, ascending }))}
-                    Direction={'left'} defaultCollumn={{ key: 'SQLCommand', label: 'SQLCommand', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
+                    Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' DB Cleanup(s)'}
                     GetEnum={() => {
                         return () => { }
@@ -112,7 +115,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                     <Table<DBCleanup>
                         cols={[
-                            { key: 'SQLCommand', field: 'SQLCommand', label: 'SQLCommand', headerStyle: { width: '50%' }, rowStyle: { width: '10%' } },
+                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '50%' }, rowStyle: { width: '10%' } },
                             { key: 'Schedule', field: 'Schedule', label: 'Schedule', headerStyle: { width: '50%' }, rowStyle: { width: '10%' } },
                             { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
@@ -142,7 +145,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                     />
                 </div>
             </div>
-            <Modal Title={editNew === 'Edit' ? editNewDBCleanup.SQLCommand + ' - DB Cleanup' : 'Add New DB Cleanup'}
+            <Modal Title={editNew === 'Edit' ? editNewDBCleanup.Name + ' - DB Cleanup' : 'Add New DB Cleanup'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
@@ -161,6 +164,10 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
             >
                 <div className="row">
                     <div className="col">
+                        <TextArea<DBCleanup> Rows={1} Record={editNewDBCleanup} Field={'Name'} Label='Name' Feedback={'A Name is required.'}
+                            Valid={field => editNewDBCleanup.Name != null && editNewDBCleanup.Name.length > 0}
+                            Setter={(record) => { setEditNewDBCleanup(record); setHasChanged(true); }}
+                        />
                         <TextArea<DBCleanup> Rows={4} Record={editNewDBCleanup} Field={'SQLCommand'} Label='SQLCommand' Feedback={'An SQLCommand is required.'}
                             Valid={field => editNewDBCleanup.SQLCommand != null && editNewDBCleanup.SQLCommand.length > 0}
                             Setter={(record) => { setEditNewDBCleanup(record); setHasChanged(true); }}
