@@ -112,7 +112,12 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
         switch (props.type) {
             case 'Asset':
                 return [
-                    { label: 'Name', key: 'Name', type: 'string', isPivotField: false},
+                    { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
+                    { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false },
+                    { label: 'Voltage (kV)', key: 'VoltageKV', type: 'number', isPivotField: false },
+                    { label: 'Type', key: 'AssetType', type: 'enum', isPivotField: false },
+                    { label: 'Meters', key: 'Meters', type: 'integer', isPivotField: false },
+                    { label: 'Substations', key: 'Locations', type: 'integer', isPivotField: false },
                 ];
             case 'Meter':
                 return [
