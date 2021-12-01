@@ -387,7 +387,10 @@ namespace SystemCenter.Controllers.OpenXDA
 
     [RoutePrefix("api/OpenXDA/ApplicationNode")]
     public class ApplicationNodeController : ModelController<ApplicationNode> { }
-       
+
+    [RoutePrefix("api/OpenXDA/MeterDataQualitySummary")]
+    public class MeterDataQualitySummaryController : ModelController<MeterDataQualitySummary> { }
+
 }
 
 

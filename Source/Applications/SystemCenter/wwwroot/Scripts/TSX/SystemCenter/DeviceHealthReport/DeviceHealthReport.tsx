@@ -252,6 +252,20 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=xda`} target='_blank'>{HeavyCheckMark}</a>;
                             }
                         },
+                        {
+                            key: 'DQStatus', label: 'DQ', field: 'DQStatus', headerStyle: { width: 50 }, rowStyle: { width: 50, textAlign: 'center' }, content: (item, key, field, style) => {
+                                if (item.DQStatus == 'Error') {
+                                    style.backgroundColor = 'palevioletred';
+                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=xda`} target='_blank' >{CrossMark}</a>;
+                                }
+                                else if (item.DQStatus == 'Warning') {
+                                    style.backgroundColor = 'antiquewhite';
+                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=dq`} target='_blank' >{Warning}</a>;
+                                }
+                                else
+                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=dq`} target='_blank'>{HeavyCheckMark}</a>;
+                            }
+                        },
 
                         { key: 'Scroll', label: '', headerStyle: { width: 21, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
