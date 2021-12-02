@@ -274,7 +274,7 @@ namespace SystemCenter.Controllers.OpenXDA
 		                    exec sp_executesql @CleanSQL
                         '
                         ELSE 
-                            SET @SQLStatement = 'SELECT * FROM ({view.Replace("'", "''")}) pvt {whereClause.Replace("'", "''")}'
+                            SET @SQLStatement = 'SELECT * FROM ({view.Replace("'", "''")}) pvt {whereClause.Replace("'", "''")} ORDER BY { searches.OrderBy} {(searches.Ascending ? "ASC" : "DESC")}'
 
                         exec sp_executesql @SQLStatement";
 
