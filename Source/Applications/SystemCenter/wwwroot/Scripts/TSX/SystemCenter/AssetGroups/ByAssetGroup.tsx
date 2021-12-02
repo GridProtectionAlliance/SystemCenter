@@ -41,8 +41,7 @@ const defaultSearchcols: Array<Search.IField<AssetGroup>> = [
     { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer', isPivotField: false },
     { label: 'Number of Users', key: 'Users', type: 'integer', isPivotField: false },
     { label: 'Number of Asset Groups', key: 'AssetGroups', type: 'integer', isPivotField: false },
-    { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean', isPivotField: false },
-        
+    { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean', isPivotField: false },     
 ];
 
 interface AssetGroup {
@@ -248,6 +247,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                         { key: 'Meters', field: 'Meters', label: 'Num. of Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Users', field: 'Users', label: 'Num. of Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'AssetGroups', field: 'AssetGroups', label: 'Num. of Asset Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'DisplayDashboard', field: 'DisplayDashboard', label: 'Show in PQ Dashboard', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"
