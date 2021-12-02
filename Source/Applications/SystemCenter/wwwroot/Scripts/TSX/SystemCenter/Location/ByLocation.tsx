@@ -59,7 +59,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
 
-    React.useEffect(() => {
+    function getData() {
         let handle = getLocations();
         handle.done((dt: string) => {
             setSearchState('Idle');
@@ -70,6 +70,9 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             if (handle.abort != null)
                 handle.abort();
         }
+    }
+    React.useEffect(() => {
+         return getData()
     }, [sortKey, ascending, search]);
 
    
@@ -207,8 +210,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             data: JSON.stringify(newLocation),
             cache: false,
             async: true
-        })
-            //.done((data) => getData());
+        }).done((data) => getData());
 
     }
 
