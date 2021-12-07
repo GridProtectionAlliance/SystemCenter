@@ -60,6 +60,10 @@ export const DBCleanupSlice = new GenericSlice<DBCleanup>("DBCleanup", `${homePa
 export const ApplicationCategorySlice = new GenericSlice<ApplicationCategory>("PQApplicationCategory", `${homePath}api/OpenXDA/ApplicationCategory`, "Name", true);
 export const PQApplicationsSlice = new GenericSlice<PQApplications>("PQApplications", `${homePath}api/OpenXDA/PQApplications`, "Name", true);
 
+export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("AssetGroup", `${homePath}api/OpenXDA/AssetGroup`, "Name", true);
+export const ByAssetSlice = new GenericSlice<SystemCenter.Types.DetailedAsset>("ByAsset", `${homePath}api/OpenXDA/ByAsset`, "AssetName", true);
+export const ByMeterSlice = new GenericSlice<SystemCenter.Types.DetailedMeter>("ByMeter", `${homePath}api/OpenXDA/MeterList`, "Name", true);
+
 
 export const AssetNoteSlice = new NoteSlice('Asset');
 export const MeterNoteSlice = new NoteSlice('Meter');
@@ -74,6 +78,9 @@ export const SCSecurityRoleSlice = new SecurityRoleSlice('SCSecurityRole', `${ho
 export default configureStore({
     reducer: {
         CompanyType: CompanyTypeSlice.Reducer,
+        AssetGroup: AssetGroupSlice.Reducer,
+        ByAsset: ByAssetSlice.Reducer,
+        ByMeter: ByMeterSlice.Reducer,
         MeasurementType: MeasurmentTypeSlice.Reducer,
         Phase: PhaseSlice.Reducer,
         AssetConnectionType: AssetConnectionTypeSlice.Reducer,
