@@ -1,7 +1,8 @@
+﻿  
 ﻿//******************************************************************************************************
-//  AddToGroup.tsx - Gbtc
+//  EventSearchbarFitlerModal.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,269 +17,148 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  10/14/2020 - C. Lackner
+//  10/05/2021 - C. Lackner
 //       Generated original version of source code.
 //
 //******************************************************************************************************
+import React from 'react';
+import 'moment';
+import _ from 'lodash';
+import { useDispatch, useSelector } from 'react-redux';
+import { GenericSlice, Search, SearchBar } from '@gpa-gemstone/react-interactive';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
+import Table, { Column } from '@gpa-gemstone/react-table';
+import { ascending } from 'd3';
 
+interface S {ID: number}
 
-import * as React from 'react';
-import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
-import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
-
-declare var homePath: string;
-interface Iprops<T> {
-    Show: boolean,
-    onComplete: (id: Array<any>) => JQueryXHR,
-    setShow: (show: boolean) => void,
-    getData: (search: Array<Search.IFilter<T>>, ascending: boolean, sortKey: string) => JQueryXHR,
-    type: ('Asset' | 'Meter' | 'Group'),
-    PrimaryKey: keyof (T),
-    SortKey: string,
-    Ascending: boolean
+interface IProps<T extends S> {
+    Data: T[],
+    Type: ('Meter' | 'Asset' | 'Asset Group'),
+    SetData: (d: T[]) => void,
+    Slice: GenericSlice<T>,
+    TableColumns: Column<T>[]
+    InitialSortKey: keyof T
+    StandardSearch: Search.IField<T>
+    DefaultFilterList: Search.IField<T>[]
 }
 
-function AddToAssetGroup<T>(props: Iprops<T>) {
-    const [search, setSearch] = React.useState<Array<Search.IFilter<T>>>([]);
-    const [data, setData] = React.useState<Array<T>>([]);
+function AddToGroup<T extends S>(props: IProps<T>) {
+    const dispatch = useDispatch();
+    const status = useSelector(props.Slice.Status);
+    const list = useSelector(props.Slice.SearchResults) as T[];
+    const filters = useSelector(props.Slice.SearchFilters) as Search.IFilter<T>[];
 
-    const [selectedData, setSelectedData] = React.useState<Array<T>>([]);
-
-    const [sortKeyAll, setSortKeyAll] = React.useState<string>(props.SortKey);
-    const [ascendingAll, setAscendingAll] = React.useState<boolean>(props.Ascending);
-
-    const [sortKeySelected, setSortKeySelected] = React.useState<string>(props.SortKey);
-    const [ascendingSelected, setAscendingSelected] = React.useState<boolean>(props.Ascending);
-
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<T>>>(getSearchField());
-    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
-
-    const [result, setResult] = React.useState<Array<any>>([]);
+    const [filterableList, setFilterableList] = React.useState<Search.IField<T>[]>(props.DefaultFilterList as Search.IField<T>[]);
+    const [sortKey, setSortKey] = React.useState<keyof T>(props.InitialSortKey);
+    const [asc, setAsc] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        if (result.length == 0)
-            return () => { }
-        let handle = props.onComplete(result);
+        if (status == 'changed' || status == 'unintiated')
+            dispatch(props.Slice.Fetch());
+    }, [status]);
 
-        if (handle !== null)
-            handle.done(d => setResult([]))
-        else
-            setResult([])
-        return () => {
-            if (handle != undefined && handle.abort != null)
-                handle.abort();
-        }
-
-    }, [result]);
-
+    // #ToDo: Move default Fields into gpa-gemstone to match SystemCenter and SEBrowser
     React.useEffect(() => {
-        setSearchState('Loading')
-        let handle = props.getData(search, ascendingAll, sortKeyAll);
-        handle.done(d => { setSearchState('Idle'); setData(JSON.parse(d)) });
-        handle.fail(msg => setSearchState('Error'));
+        let handle = null;
+        let handleLine = null;
+        let handleBreaker = null;
+        let handleCapBank = null;
+        let handleTransformer = null;
+        let handleBus = null;
 
-        return () => {
-            if (handle != undefined && handle.abort != null)
-                handle.abort();
-        }
-    }, [search, sortKeyAll, ascendingAll]);
-
-    React.useEffect(() => {
-        setFilterableList(getSearchField());
-
-        let handles = [];
-
-        if (props.type == 'Asset')
-            handles.push(getAdditionalFields('Line'));
-        if (props.type == 'Asset')
-            handles.push(getAdditionalFields('Breaker'));
-        if (props.type == 'Asset')
-            handles.push(getAdditionalFields('CapBank'));
-        if (props.type == 'Asset')
-            handles.push(getAdditionalFields('Transformer'));
-        if (props.type == 'Asset')
-            handles.push(getAdditionalFields('Bus'));
-        if (props.type == 'Meter')
-            handles.push(getAdditionalFields('Meter'));
-        return () => {
-            handles.forEach(h => { if (h.abort != null) h.abort();})
-        }
-    }, []);
-
-
-    function getSearchField(): Array<Search.IField<T>> {
-        switch (props.type) {
-            case 'Asset':
-                return [
-                    { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
-                    { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false },
-                    { label: 'Voltage (kV)', key: 'VoltageKV', type: 'number', isPivotField: false },
-                    { label: 'Type', key: 'AssetType', type: 'enum', isPivotField: false },
-                    { label: 'Meters', key: 'Meters', type: 'integer', isPivotField: false },
-                    { label: 'Substations', key: 'Locations', type: 'integer', isPivotField: false },
-                ];
-            case 'Meter':
-                return [
-                    { label: 'AssetKey', key: 'AssetKey', type: 'string', isPivotField: false },
-                    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-                    { label: 'Location', key: 'Location', type: 'string', isPivotField: false },
-                    { label: 'Make', key: 'Make', type: 'string', isPivotField: false },
-                    { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
-                    { label: 'Number of Assets', key: 'MappedAssets', type: 'number', isPivotField: false },
-                ];
-            case 'Group':
-                return [
-                    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-                    { label: 'Number of Meter', key: 'Meters', type: 'integer', isPivotField: false },
-                    { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer', isPivotField: false },
-                    { label: 'Number of Users', key: 'Users', type: 'integer', isPivotField: false },
-                    { label: 'SubGroups', key: 'AssetGroups', type: 'integer', isPivotField: false },
-                    { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean', isPivotField: false },
-                ];
-        }
-    }
-
-    function getStandardSearch(): Search.IField<T> {
-        switch (props.type) {
-            case 'Asset':
-                return { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
-            case 'Meter':
-                return { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
-            case 'Group':
-                return { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
-        }
-    }
-
-    function getTableCollumns() {
-        switch (props.type) {
-            case 'Asset':
-                return [
-                    { key: 'AssetKey', field: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetName', field: 'AssetName' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetType', field: 'AssetType' as keyof (T), label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'VoltageKV', field: 'VoltageKV' as keyof (T), label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Meters', field: 'Meters' as keyof (T), label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Locations', field: 'Locations' as keyof (T), label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ];
-            case 'Meter':
-                return [
-                    { key: 'Name', field: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetKey', field: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Location', field: 'Location' as keyof (T), label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'MappedAssets', field: 'MappedAssets' as keyof (T), label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Make', field: 'Make' as keyof (T), label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Model', field: 'Model' as keyof (T), label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ];
-            case 'Group':
-                return [
-                    { key: 'Name', field: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Assets', field: 'Assets' as keyof (T), label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Meters', field: 'Meters' as keyof (T), label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Users', field: 'Users' as keyof (T), label: 'Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetGroups', field: 'AssetGroups' as keyof (T), label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ];
-        }
-        
-    }
-
-    function getSelectedCollumn() {
-        switch (props.type) {
-            case 'Asset':
-                return [
-                    { key: 'AssetKey', field: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetName', field: 'AssetName' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetType', field: 'AssetType' as keyof (T), label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ];
-            case 'Meter':
-                return [
-                    { key: 'Name', field: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetKey', field: 'AssetKey' as keyof (T), label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Location', field: 'Location' as keyof (T), label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ];
-            case 'Group':
-                return [
-                    { key: 'Name', field: 'Name' as keyof (T), label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ];
-        }
-        return [
-            
-        ]
-    }
-
-    function reset() {
-        setSelectedData([]);
-    }
-
-    function getTitle() {
-        switch (props.type) {
-            case ('Asset'):
-                return 'Add Transmission Assets'
-            case ('Meter'):
-                return 'Add Meters'
-            case ('Group'):
-                return 'Add Asset Groups'
-        }
-        
-    }
-
-    function getTypeLabel() {
-        switch (props.type) {
-            case ('Asset'):
-                return 'Transmission Assets'
-            case ('Meter'):
-                return 'Meters'
-            case ('Group'):
-                return 'Asset Groups'
+        if (props.Type == 'Meter')
+            handle = getAdditionalFields('Meter');
+        if (props.Type == 'Asset') {
+            handleLine = getAdditionalFields('Line');
+            handleBreaker = getAdditionalFields('Breaker');
+            handleCapBank = getAdditionalFields('CapBank');
+            handleTransformer = getAdditionalFields('Transformer');
+            handleBus = getAdditionalFields('Bus');
         }
 
-    }
+        setFilterableList(props.DefaultFilterList as Search.IField<T>[]);
 
-    function getAdditionalFields(Type: string): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${Type}/FieldName/0`,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            async: true
-        });
+        if (props.Type == 'Asset') {
+            return () => {
+                if (handleLine.abort != null) handleLine.abort();
+                if (handleBreaker.abort != null) handleBreaker.abort();
+                if (handleCapBank.abort != null) handleCapBank.abort();
+                if (handleTransformer.abort != null) handleTransformer.abort();
+                if (handleBus.abort != null) handleBus.abort();
+            }
+        }
 
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+
+    }, [props.Type]);
+
+    function getAdditionalFields(table: string): JQuery.jqXHR<SystemCenter.Types.AdditionalField[]> {
         function ConvertType(type: string) {
             if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
                 return { type: type }
             return {
                 type: 'enum', enum: [{ Label: type, Value: type }]
             }
-        }
-
-        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
-
-            setFilterableList(lst => {
-                let ordered = _.orderBy(lst.concat(d.filter(item => item.Searchable).map(item => (
-                    { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}]${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<T>
-                ))), ['label'], ["asc"]);
-                return ordered;
-            }
-            )
+        };
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/openXDA/AdditionalField/ParentTable/${table}/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
         });
 
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+            setFilterableList(defaults => {
+                return _.orderBy(defaults.concat(d.filter(item => item.Searchable).map(item => (
+                    { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<T>
+                ))), ['label'], ["asc"]);
+            })
+        });
         return handle;
     }
 
+    React.useEffect(() => {
+        Search(filters);
+        props.SetData(props.Data);
 
-    return (<>
-        <Modal Show={props.Show} Title={getTitle()} ShowX={true} Size={'xlg'} CallBack={(conf) => { props.setShow(false); reset(); if (conf) setResult(selectedData.map(item => item[props.PrimaryKey])); }}>
-            <div className="row">
-                <div className="col">
-                    <SearchBar<T> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={getStandardSearch()} Width={'50%'} Label={'Search'}
-                        ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' ' + getTypeLabel()}
+    }, [sortKey, asc]);
+
+    function Search(flds: Search.IFilter<T>[]) {
+        if (props.Type == 'Meter')
+            dispatch(props.Slice.DBSearch({ filter: flds, sortField: sortKey, ascending: asc }));
+        if (props.Type == 'Asset')
+            dispatch(props.Slice.DBSearch({ filter: flds, sortField: sortKey, ascending: asc }));
+        if (props.Type == 'Asset Group')
+            dispatch(props.Slice.DBSearch({ filter: flds, sortField: sortKey, ascending: asc }));
+
+    }
+
+    function GetCount(): number {
+        return list.length;
+    }
+
+    function AddCurrentList() {
+        let updatedData: any[];
+        updatedData = (props.Data as any[]).concat(list);
+        props.SetData(_.uniqBy((updatedData as T[]), (d) => d.ID));
+    }
+
+    return (
+        <>
+            <div className='row'>
+                <div className='col-12'>
+                    <SearchBar<T>
+                        CollumnList={filterableList}
+                        SetFilter={Search}
+                        Direction={'left'}
+                        defaultCollumn={props.StandardSearch}
+                        Width={'50%'}
+                        Label={'Search'}
+                        ShowLoading={status == 'loading'}
+                        ResultNote={status == 'error' ?
+                            'Could not complete Search' : 'Found ' + GetCount() + ' ' + props.Type + '(s)'}
                         GetEnum={(setOptions, field) => {
                             let handle = null;
                             if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
@@ -293,149 +173,77 @@ function AddToAssetGroup<T>(props: Iprops<T>) {
                                 async: true
                             });
 
-                            handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+                            handle.done(d => setOptions(d.map(item => ({ Value: item.ID, Label: item.Value }))))
                             return () => { if (handle != null && handle.abort == null) handle.abort(); }
                         }}
 
                     >
+                        <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Quick Selects:</legend>
+                                <form>
+                                    <div className="form-group">
+                                        <div className="btn btn-primary" onClick={(event) => { event.preventDefault(); AddCurrentList(); }}>Add Current List to Asset Group</div>
+                                    </div>
+                                </form>
+                            </fieldset>
+                        </li>
                     </SearchBar>
                 </div>
-            </div>
-            <div className="row">
-                <div className="col" style={{ width: '60%' }}>
-                    <Table<T>
-                        cols={getTableCollumns()}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortKeyAll}
-                        ascending={ascendingAll}
-                        onSort={(d) => {
-                            if (d.colKey === "Scroll")
-                                return;
-
-                            if (d.colKey === sortKeyAll)
-                                setAscendingAll(!ascendingAll);
-                            else {
-                                setAscendingAll(true);
-                                setSortKeyAll(d.colKey);
-                            }
-                        }}
-                        onClick={(d) => { setSelectedData((l) => { let updated = _.cloneDeep(l); updated.push(d.row); return updated; }) }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: '400px', width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                    />
-                </div>
-                <div className="col" style={{ width: '40%' }}>
-                    <div style={{ width: '100%' }}>
-                        <h3> Selected Assets </h3>
+                <div className='row'>
+                    <div className='col-6'>
+                        <Table<T>
+                            cols={props.TableColumns}
+                            tableClass="table table-hover"
+                            data={list as T[]}
+                            sortKey={sortKey as string}
+                            ascending={asc}
+                            onSort={(d) => {
+                                if (d.colKey === "Scroll")
+                                    return;
+                                if (d.colKey === sortKey)
+                                    setAsc(!asc);
+                                else {
+                                    setAsc(true);
+                                    setSortKey(d.colField);
+                                }
+                            }}
+                            onClick={(d) => props.SetData([...props.Data.filter(item => item.ID != d.row.ID), d.row])}
+                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 450, width: '100%' }}
+                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            selected={(item) => false}
+                        />
                     </div>
-                    <Table
-                        cols={getSelectedCollumn()}
-                        tableClass="table table-hover"
-                        data={selectedData}
-                        sortKey={sortKeySelected}
-                        ascending={ascendingSelected}
-                        onSort={(d) => {
-                            if (d.colKey == sortKeySelected) {
-                                let ordered = _.orderBy(selectedData, [d.colKey], [(!ascendingSelected ? "asc" : "desc")]);
-                                setAscendingSelected(!ascendingSelected);
-                                setSelectedData(ordered);
-                            }
-                            else {
-                                let ordered = _.orderBy(selectedData, [d.colKey], ["asc"]);
-                                setAscendingSelected(!ascendingSelected);
-                                setSelectedData(ordered);
-                                setSortKeySelected(d.colKey);
-                            }
-                        }}
-                        onClick={() => { }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: '400px', width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                    />
+                    <div className='col-6'>
+                        <Table<T>
+                            cols={props.TableColumns}
+                            tableClass="table table-hover"
+                            data={props.Data}
+                            sortKey={sortKey as string}
+                            ascending={asc}
+                            onSort={(d) => {
+                                if (d.colKey === "Scroll")
+                                    return;
+                                if (d.colKey === sortKey)
+                                    setAsc(!asc);
+                                else {
+                                    setAsc(true);
+                                    setSortKey(d.colField);
+                                }
+                            }}
+                            onClick={(d) => props.SetData(props.Data.filter(item => item.ID != d.row.ID))}
+                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 450, width: '100%' }}
+                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            selected={(item) => false}
+                        />
+                    </div>
                 </div>
             </div>
-        </Modal>
-        </>)
-
-}
-
-interface ITransmissionAsset {
-    ID: number, AssetKey: string, AssetName: string, AssetType: string, VoltageKV: number, Meters: number, Locations: string
-}
-interface IMeter {
-    ID: number, AssetKey: string, Name: string, Location: string, MappedAssets: number, Make: string, Model: string
+        </>
+    );
 }
 
 
-function AddToGroupPopup(props: { onComplete: (id: Array<any>) => JQueryXHR, type: ('Asset' | 'Meter' | 'Group'), Show: boolean, Close: () => void; }) {
-
-    function searchAsset(search: Search.IFilter<ITransmissionAsset>[], ascending: boolean, sortKey: string): JQueryXHR {
-        const defaults = [
-            { label: 'Name', key: 'Name', type: 'string' },
-        ];
-
-        let searches = search.map(s => { if (defaults.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
-
-        return $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/Asset/SearchableListIncludingMeter`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
-            cache: false,
-            async: true
-        });
-    }
-
-    function searchMeters(search: Search.IFilter<IMeter>[], ascending: boolean, sortKey: string): JQueryXHR {
-        const defaults: Array<Search.IField<IMeter>> = [
-            { label: 'AssetKey', key: 'AssetKey', type: 'string', isPivotField: false },
-            { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-            { label: 'Location', key: 'Location', type: 'string', isPivotField: false},
-            { label: 'Make', key: 'Make', type: 'string', isPivotField: false },
-            { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
-            { label: 'Number of Assets', key: 'MappedAssets', type: 'number', isPivotField: false },
-        ];
-
-        let searches = search.map(s => { if (defaults.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
-
-        return $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/MeterList/SearchableList`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
-            cache: false,
-            async: true
-        });
-    }
-
-    function searchAssetGroups(search: Search.IFilter<OpenXDA.Types.AssetGroup>[], ascending: boolean, sortKey: string): JQueryXHR {
-        let searches = search;
-
-        return $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/AssetGroup/SearchableList`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
-            cache: false,
-            async: true
-        });
-
-    }
-
-    if (props.type == 'Asset')
-        return <AddToAssetGroup<ITransmissionAsset> Show={props.Show} setShow={() => props.Close()} type='Asset' PrimaryKey='ID' getData={searchAsset} onComplete={props.onComplete} SortKey='AssetKey' Ascending={true} />
-    if (props.type == 'Meter')
-        return <AddToAssetGroup<IMeter> Show={props.Show} setShow={() => props.Close()} type='Meter' PrimaryKey='ID' getData={searchMeters} onComplete={props.onComplete} SortKey='AssetKey' Ascending={true} />
-    if (props.type == 'Group')
-        return <AddToAssetGroup<OpenXDA.Types.AssetGroup> Show={props.Show} setShow={() => props.Close()} type='Group' PrimaryKey='ID' getData={searchAssetGroups} onComplete={props.onComplete} SortKey='Name' Ascending={true}/>
-}
-
-
-export default AddToGroupPopup;
+export default AddToGroup;
