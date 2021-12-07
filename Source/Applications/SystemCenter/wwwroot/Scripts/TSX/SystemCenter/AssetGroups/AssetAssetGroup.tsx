@@ -26,15 +26,16 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
-import AddToGroupPopup from './AddToGroup';
+import AddToGroup from './AddToGroup';
+import { ByAssetSlice } from '../Store/Store';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { Modal } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
-interface Asset { ID: number, AssetName: string, LongAssetName: string, AssetID: number, AssetGroupID: number, AssetType: string, AssetLocation: string }
-
 
 function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     let history = useHistory();
-    const [assetList, setAssetList] = React.useState<Array<Asset>>([]);
+    const [assetList, setAssetList] = React.useState<Array<SystemCenter.Types.DetailedAsset>>([]);
     const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
@@ -57,7 +58,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             async: true
         });
 
-        handle.done((data: Array<Asset>) => setAssetList(data));
+        handle.done((data: Array<SystemCenter.Types.DetailedAsset>) => setAssetList(data));
       
         return function cleanup() {
             if (handle.abort != null)
@@ -95,10 +96,9 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <Table
                         cols={[
-                            { key: 'AssetName', field: 'AssetName', label: 'AssetKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'LongAssetName', field: 'LongAssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'AssetName', field: 'AssetKey', label: 'AssetKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'LongAssetName', field: 'AssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssetLocation', field: 'AssetLocation', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
                             
                         ]}
@@ -122,7 +122,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setSortKey(d.colKey);
                             }
                         }}
-                        onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.AssetID, state: {} }) }}
+                        onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.ID, state: {} }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 590, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -130,18 +130,29 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                         />
                     </div>
             </div>
-            
             <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Transmission Asset</button>
                 </div>
             </div>
-
             </div>
-            <AddToGroupPopup type='Asset' onComplete={AddAsset} Show={showAdd} Close={() => setShowAdd(false)} />
-        </>
-        
-    );
+            <Modal Show={showAdd} Size={'xlg'} ShowX={true} ShowCancel={false} ConfirmBtnClass={'btn-danger'} ConfirmText={'Close'} Title={'Add Transmission Asset'} CallBack={() => setShowAdd(false)}>
+            <AddToGroup<SystemCenter.Types.DetailedAsset> Type='Asset' Slice={ByAssetSlice} InitialSortKey={'AssetName' as keyof SystemCenter.Types.DetailedAsset} Data={assetList} SetData={(d) => setAssetList(d)} StandardSearch={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
+                TableColumns={[
+                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                ]}
+                DefaultFilterList={[
+                    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+                ]} />
+            </Modal>
+            </>
+    )
 }
 
 
