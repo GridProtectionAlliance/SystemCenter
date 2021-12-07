@@ -27,14 +27,17 @@ import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
-import AddToGroupPopup from './AddToGroup';
+import AddToGroup from './AddToGroup';
+import { ByMeterSlice } from '../Store/Store';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { Modal } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 interface Meter { ID: number, MeterName: string, MeterID: number, AssetGroupID: number, Location: string }
 
 function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
     let history = useHistory();
-    const [meterList, setMeterList] = React.useState<Array<Meter>>([]);
+    const [meterList, setMeterList] = React.useState<Array<SystemCenter.Types.DetailedMeter>>([]);
     const [sortField, setSortField] = React.useState<string>('MeterName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
@@ -57,7 +60,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
             async: true
         });
 
-        handle.done((data: Array<Meter>) => setMeterList(data));
+        handle.done((data: Array<SystemCenter.Types.DetailedMeter>) => setMeterList(data));
       
         return function cleanup() {
             if (handle.abort != null)
@@ -96,7 +99,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <Table
                         cols={[
-                            { key: 'MeterName', field: 'MeterName', label: 'Meter', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'MeterName', field: 'Name', label: 'Meter', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
@@ -117,7 +120,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setSortField(d.colKey);
                             }
                         }}
-                        onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + data.row.MeterID, state: {} }) }}
+                        onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + data.row.ID, state: {} }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -133,7 +136,26 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
 
             </div>
-            <AddToGroupPopup type='Meter' onComplete={AddMeter} Show={showAdd} Close={() => setShowAdd(false)} />
+            <Modal Show={showAdd} Size={'xlg'} ShowX={true} ShowCancel={false} ConfirmBtnClass={'btn-danger'} ConfirmText={'Close'} Title={''} CallBack={() => setShowAdd(false)}>
+            <AddToGroup<SystemCenter.Types.DetailedMeter> Type='Meter' Slice={ByMeterSlice} Data={meterList} SetData={(d) => setMeterList(d)} InitialSortKey={'Name' as keyof SystemCenter.Types.DetailedMeter} StandardSearch={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
+                TableColumns={[
+                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'MappedAssets', field: 'MappedAssets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                ]}
+                DefaultFilterList={[
+                    { label: 'AssetKey', key: 'AssetKey', type: 'string', isPivotField: false },
+                    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+                    { label: 'Location', key: 'Location', type: 'string', isPivotField: false },
+                    { label: 'Make', key: 'Make', type: 'string', isPivotField: false },
+                    { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
+                    { label: 'Number of Assets', key: 'MappedAssets', type: 'number', isPivotField: false },
+                    ]} />
+            </Modal>
         </>
     );
 }
