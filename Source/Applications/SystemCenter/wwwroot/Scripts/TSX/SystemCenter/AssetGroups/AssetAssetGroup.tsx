@@ -137,7 +137,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
             </div>
             <Modal Show={showAdd} Size={'xlg'} ShowX={true} ShowCancel={false} ConfirmBtnClass={'btn-danger'} ConfirmText={'Close'} Title={'Add Transmission Asset'} CallBack={() => setShowAdd(false)}>
-            <AddToGroup<SystemCenter.Types.DetailedAsset> Type='Asset' Slice={ByAssetSlice} InitialSortKey={'AssetName' as keyof SystemCenter.Types.DetailedAsset} Data={assetList} SetData={(d) => setAssetList(d)} StandardSearch={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
+                <AddToGroup<SystemCenter.Types.DetailedAsset> Type='Asset' Slice={ByAssetSlice} InitialSortKey={'AssetName' as keyof SystemCenter.Types.DetailedAsset} Data={assetList} SetData={(d) => setAssetList(d)} StandardSearch={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
                 TableColumns={[
                     { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
