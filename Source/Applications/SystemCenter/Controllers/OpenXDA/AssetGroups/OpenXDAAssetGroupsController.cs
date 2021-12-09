@@ -129,7 +129,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     try
                     {
-                        IEnumerable<MeterAssetGroupView> records = new TableOperations<MeterAssetGroupView>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
+                        IEnumerable<MeterAsset> records = new TableOperations<MeterAsset>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
 
                         return Ok(records);
                     }
