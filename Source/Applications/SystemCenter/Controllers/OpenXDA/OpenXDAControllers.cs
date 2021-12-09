@@ -45,6 +45,12 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/Phase")]
     public class PhaseController:ModelController<Phase> {}
 
+    [RoutePrefix("api/OpenXDA/ByAsset")]
+    public class OpenXDAByAssetController : ModelController<DetailedAsset> { }
+
+    [RoutePrefix("api/OpenXDA/ByMeter")]
+    public class OpenXDAByMeterController : ModelController<DetailedMeter> { }
+
     [RoutePrefix("api/OpenXDA/MeasurementType")]
     public class MeasurementTypeController:ModelController<MeasurementType> {}
 
