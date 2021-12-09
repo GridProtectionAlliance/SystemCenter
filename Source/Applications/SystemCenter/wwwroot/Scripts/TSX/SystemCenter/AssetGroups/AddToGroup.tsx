@@ -53,6 +53,9 @@ function AddToGroup<T extends S>(props: IProps<T>) {
     const [sortKey, setSortKey] = React.useState<keyof T>(props.InitialSortKey);
     const [asc, setAsc] = React.useState<boolean>(false);
 
+    const [sortKeySelected, setSortKeySelected] = React.useState<keyof T>(props.InitialSortKey);
+    const [ascSelected, setAscSelected] = React.useState<boolean>(false);
+
     React.useEffect(() => {
         if (status == 'changed' || status == 'unintiated')
             dispatch(props.Slice.Fetch());
@@ -121,23 +124,16 @@ function AddToGroup<T extends S>(props: IProps<T>) {
 
     React.useEffect(() => {
         Search(filters);
-        props.SetData(props.Data);
+    }, [filters, sortKey, asc]);
 
-    }, [sortKey, asc]);
+    React.useEffect(() => {
+            props.SetData(_.orderBy(props.Data, [sortKeySelected], [ascSelected ? "asc" : "desc"]))
+    }, [ascSelected, sortKeySelected]);
 
     function Search(flds: Search.IFilter<T>[]) {
-        if (props.Type == 'Meter')
-            dispatch(props.Slice.DBSearch({ filter: flds, sortField: sortKey, ascending: asc }));
-        if (props.Type == 'Asset')
-            dispatch(props.Slice.DBSearch({ filter: flds, sortField: sortKey, ascending: asc }));
-        if (props.Type == 'Asset Group')
-            dispatch(props.Slice.DBSearch({ filter: flds, sortField: sortKey, ascending: asc }));
-
+        dispatch(props.Slice.DBSearch({ filter: flds, sortField: props.InitialSortKey, ascending: asc }));
     }
 
-    function GetCount(): number {
-        return list.length;
-    }
 
     function AddCurrentList() {
         let updatedData: any[];
@@ -158,7 +154,7 @@ function AddToGroup<T extends S>(props: IProps<T>) {
                         Label={'Search'}
                         ShowLoading={status == 'loading'}
                         ResultNote={status == 'error' ?
-                            'Could not complete Search' : 'Found ' + GetCount() + ' ' + props.Type + '(s)'}
+                            'Could not complete Search' : 'Found ' + list.length + ' ' + props.Type + '(s)'}
                         GetEnum={(setOptions, field) => {
                             let handle = null;
                             if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
@@ -184,6 +180,9 @@ function AddToGroup<T extends S>(props: IProps<T>) {
                                 <form>
                                     <div className="form-group">
                                         <div className="btn btn-primary" onClick={(event) => { event.preventDefault(); AddCurrentList(); }}>Add Current List to Asset Group</div>
+                                    </div>
+                                    <div className="form-group">
+                                        <div className="btn btn-danger" onClick={(event) => { event.preventDefault(); props.SetData([]) }}>Remove All</div>
                                     </div>
                                 </form>
                             </fieldset>
@@ -220,16 +219,16 @@ function AddToGroup<T extends S>(props: IProps<T>) {
                             cols={props.TableColumns}
                             tableClass="table table-hover"
                             data={props.Data}
-                            sortKey={sortKey as string}
-                            ascending={asc}
+                            sortKey={sortKeySelected as string}
+                            ascending={ascSelected}
                             onSort={(d) => {
                                 if (d.colKey === "Scroll")
                                     return;
-                                if (d.colKey === sortKey)
-                                    setAsc(!asc);
+                                if (d.colKey === sortKeySelected)
+                                    setAscSelected(!ascSelected);
                                 else {
-                                    setAsc(true);
-                                    setSortKey(d.colField);
+                                    setAscSelected(true);
+                                    setSortKeySelected(d.colField);
                                 }
                             }}
                             onClick={(d) => props.SetData(props.Data.filter(item => item.ID != d.row.ID))}
