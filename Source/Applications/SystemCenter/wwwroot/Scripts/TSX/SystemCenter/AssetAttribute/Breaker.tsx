@@ -43,6 +43,7 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
         else if (field == 'EDNAPoint') return true;
         else if (field == 'Spare') return true;
         else if (field == 'SpareBreakerID') return true;
+        else if (field == 'AirGapResistor') return true;
         return false;
     }
     const [spares, setSpares] = React.useState<Array<OpenXDA.Types.Breaker>>([]);
@@ -62,7 +63,7 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
             <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'PickupTime'} Label={'Pickup Time Limit'} Feedback={'Pickup Time is an integer field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition Limit'} Feedback={'Trip Coil Condition is an numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'EDNAPoint'} Label={'EDNA Point'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-
+            <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'AirGapResistor'} Label={'Air Gap Resistor'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             {props.ShowSpare ?
                 <>
                     <div className="alert alert-info" role="alert">

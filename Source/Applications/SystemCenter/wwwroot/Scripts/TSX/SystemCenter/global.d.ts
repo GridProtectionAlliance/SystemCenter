@@ -39,13 +39,16 @@ export namespace SystemCenter {
 
     interface DeviceHealthReport {
         ID: number, OpenMIC: string, Name: string, Model: string, LocationID: number, LocationKey: string, Substation: string, TSCID: number, TSC: string,
-        SectorID: number, Sector: string, IP: string, LastGood: string, BadDays: number, MiMDBadDays: number, XDABadDays: number, MICBadDays: number, XDAStatus: string,
-        MICStatus: string, MiMDStatus: string, LastConfigChange: string
+        SectorID: number, Sector: string, IP: string, LastGood: string, BadDays: number, MiMDBadDays: number, XDABadDays: number, MICBadDays: number, XDAStatus: 'Error' | 'Warning' | '',
+        MICStatus: 'Error' | 'Warning' | '', MiMDStatus: 'Error' | 'Warning' | '', LastConfigChange: string, DQStatus: 'Error' | 'Warning' | ''
     }
 
     interface OpenMICDailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulConnection: string, LastUnsuccessfulConnection: string, LastUnsuccessfulConnectionExplanation: string, TotalConnections: number, TotalUnsuccessfulConnections: number, TotalSuccessfulConnections: number }
     interface MiMDDailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulFileProcessed: string, LastUnsuccessfulFileProcessed: string, LastUnsuccessfulFileProcessedExplanation: string, TotalFilesProcessed: number, TotalUnsuccessfulFilesProcessed: number, TotalSuccessfulFilesProcessed: number, ConfigChanges: number, DiagnosticAlarms: number, ComplianceIssues: number, LastConfigFileChange: string }
     interface OpenXDADailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulFileProcessed: string, LastUnsuccessfulFileProcessed: string, LastUnsuccessfulFileProcessedExplanation: string, TotalFilesProcessed: number, TotalUnsuccessfulFilesProcessed: number, TotalSuccessfulFilesProcessed: number, TotalEmailsSent: number, AverageDownloadLatency: number, AverageProcessingStartLatency: number, AverageProcessingEndLatency: number, AverageEmailLatency: number, AverageTotalProcessingLatency: number, AverageTotalEmailLatency: number }
+    interface MeterDataQualitySummary { ID: number, Date: string, MeterID: number, ExpectedPoints: number, GoodPoints: number, LatchedPoints: number, UnreasonablePoints: number, NoncongruentPoints: number, DuplicatePoints: number }
+
+    interface BySettingsComponent { (props: { Roles: Array<Application.Types.SecurityRoleName>, System: 'SystemCenter' | 'OpenXDA' | 'MiMD' }): JSX.Element; }
 
 }
 

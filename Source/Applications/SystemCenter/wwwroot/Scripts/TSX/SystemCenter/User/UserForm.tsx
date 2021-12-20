@@ -39,6 +39,8 @@ function UserForm(props: IProps) {
 
     const [updatedAD, setUpdatedAD] = React.useState<boolean>(false);
     const userValidation = useSelector(UserAccountSlice.ADValidation);
+    const allUsers: Application.Types.iUserAccount[] = useSelector(UserAccountSlice.Data);
+    const userStatus: Application.Types.Status = useSelector(UserAccountSlice.Status);
 
     const [userError, setUserError] = React.useState<string[]>([]);
 
@@ -46,6 +48,11 @@ function UserForm(props: IProps) {
         if (userValidation === 'Valid' && !props.Edit && updatedAD === false)
             dispatch(UserAccountSlice.ADUpdate());
     }, [userValidation, updatedAD])
+
+    React.useEffect(() => {
+        if (userStatus === 'unintiated' || userStatus === 'changed')
+            dispatch(UserAccountSlice.Fetch());
+    }, [userStatus]);
 
     React.useEffect(() => {
         if (props.SetErrors !== undefined)
@@ -60,13 +67,14 @@ function UserForm(props: IProps) {
             e.push('An AccountName is required.')
         if (props.UserAccount.UseADAuthentication && userValidation !== 'Valid')
             e.push('The user could not be validated by the AD.')
-
+        if (!props.UserAccount.UseADAuthentication && props.UserAccount.Name !== null && allUsers.findIndex(u => u.Name.toLowerCase() == props.UserAccount.Name.toLowerCase() && u.ID !== props.UserAccount.ID) > -1)
+            e.push('The AccountName needs to be unique.')
         setUserError(e);
     }, [props.UserAccount, userValidation])
 
     function validUserAccountField(user: Application.Types.iUserAccount, field: keyof (Application.Types.iUserAccount)): boolean {
-        if (field === 'Name')
-            return user.Name != null && user.Name.length > 0 && user.Name.length <= 200;
+        if (field === 'Name' || field == 'AccountName')
+            return user.Name != null && user.Name.length > 0 && user.Name.length <= 200 && (user.UseADAuthentication || allUsers.findIndex(u => u.Name.toLowerCase() == user.Name.toLowerCase() && u.ID !== user.ID) == -1);
         else if (field === 'Password')
             return user.Password == null || user.Password.length <= 200;
         else if (field === 'FirstName')
@@ -89,7 +97,7 @@ function UserForm(props: IProps) {
             <form>
                 <div className="row">
                     <div className="col">
-                        <Input<Application.Types.iUserAccount> Record={props.UserAccount} Disabled={props.Edit} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={field => validUserAccountField(props.UserAccount, field)} Setter={(record) => {
+                        <Input<Application.Types.iUserAccount> Record={props.UserAccount} Disabled={props.Edit} Label={'Name'} Field={(props.Edit && props.UserAccount.UseADAuthentication? 'AccountName' : 'Name')} Feedback={'A Name of less than 200 characters is required.'} Valid={field => validUserAccountField(props.UserAccount, field)} Setter={(record) => {
                             setUpdatedAD(false);
                             props.Setter(record);
                         }} />

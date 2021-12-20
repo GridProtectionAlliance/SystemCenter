@@ -863,6 +863,7 @@ namespace SystemCenter.Controllers.OpenXDA
             breaker.PickupTime = record["PickupTime"].ToObject<int>();
             breaker.TripCoilCondition = record["TripCoilCondition"].ToObject<double>();
             breaker.Spare = record["Spare"].ToObject<bool>();
+            breaker.AirGapResistor = record["AirGapResistor"].ToObject<bool>();
         }
 
         private void CreateBusFromJToken(Bus bus, JToken record)

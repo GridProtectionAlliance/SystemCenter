@@ -38,6 +38,11 @@ using SystemCenter.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
+    [RoutePrefix("api/OpenXDA/DataOperation")]
+    public class DataOperationController : ModelController<DataOperation> { }
+    [RoutePrefix("api/OpenXDA/DataReader")]
+    public class DataReaderController : ModelController<DataReader> { }
+
 
     [RoutePrefix("api/OpenXDA/AssetType")]
     public class AssetTypeController : ModelController<AssetTypes> {}
@@ -94,6 +99,8 @@ namespace SystemCenter.Controllers.OpenXDA
         }
 
     }
+    [RoutePrefix("api/OpenXDA/ExternalDBTables")]
+    public class ExtDBTablesController : ModelController<SystemCenter.Model.extDBTables> { }
 
     [RoutePrefix("api/OpenXDA/Bus")]
     public class OpenXDABusController : ModelController<Bus> 
@@ -383,7 +390,13 @@ namespace SystemCenter.Controllers.OpenXDA
 
     [RoutePrefix("api/OpenXDA/PQViewSite")]
     public class PQViewSiteCotnroller : ModelController<Site> { }
-       
+
+    [RoutePrefix("api/OpenXDA/ApplicationNode")]
+    public class ApplicationNodeController : ModelController<ApplicationNode> { }
+
+    [RoutePrefix("api/OpenXDA/MeterDataQualitySummary")]
+    public class MeterDataQualitySummaryController : ModelController<MeterDataQualitySummary> { }
+
 }
 
 

@@ -36,7 +36,7 @@ using System.Web.Http;
 namespace SystemCenter.Model
 {
 	[CustomView(@"
-	SELECT
+	SELECT 
 		Meter.ID,
 		Meter.Name,
 		omic.Value as OpenMIC,
@@ -57,9 +57,10 @@ namespace SystemCenter.Model
 		mimdstat.[Status] as MiMDStatus,
 		micstat.[Status] as MICStatus,
 		xdastat.[Status] as XDAStatus,
+		dqstat.[Status] as DQStatus,
 		CAST(mimdstat.LastConfigFileChange as DATE) as LastConfigChange
 	FROM
-		Meter JOIN
+		Meter  JOIN
 		Location ON Meter.LocationID = Location.ID LEFT JOIN
 		AdditionalFieldValue omic ON omic.ParentTableID = Meter.ID AND omic.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='OpenMICAcronym') LEFT JOIN
 		AdditionalFieldValue afvtsc ON afvtsc.ParentTableID = Meter.ID AND afvtsc.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='TSC') LEFT JOIN
@@ -67,18 +68,27 @@ namespace SystemCenter.Model
 		AdditionalFieldValue afvsector ON afvsector.ParentTableID = Meter.ID AND afvsector.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='Sector') LEFT JOIN
 		ValueList vltsector ON vltsector.ID = afvsector.Value and vltsector.GroupID = (SELECT ID FROM ValueListGroup WHERE Name = 'Sector') LEFT JOIN
 		AdditionalFieldValue afvip ON afvip.ParentTableID = Meter.ID AND afvip.AdditionalFieldID = (SELECT ID FROM AdditionalField WHERE ParentTable = 'Meter' AND FieldName ='IP') OUTER APPLY (
-			SELECT TOP 1 LastConfigFileChange,BadDays, [Status] FROM [MiMDDailyStatistic]  WHERE  Meter.AssetKey = [MiMDDailyStatistic].Meter  ORDER BY Date DESC
+			SELECT TOP 1 LastConfigFileChange,BadDays, [Status] FROM [MiMDDailyStatistic]  WHERE  Meter.AssetKey = [MiMDDailyStatistic].Meter  ORDER BY [MiMDDailyStatistic].Date DESC
 		) as mimdstat OUTER APPLY (
-			SELECT TOP 1 LastSuccessfulConnection,BadDays, [Status] FROM [OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [OpenMICDailyStatistic].Meter  ORDER BY Date DESC
+			SELECT TOP 1 LastSuccessfulConnection,BadDays, [Status] FROM [OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [OpenMICDailyStatistic].Meter  ORDER BY [OpenMICDailyStatistic].Date DESC
 		) as micstat  OUTER APPLY (
-			SELECT TOP 1 BadDays, [Status] FROM [OpenXDADailyStatistic]  WHERE  Meter.AssetKey = [OpenXDADailyStatistic].Meter  ORDER BY Date DESC
-		) as xdastat OUTER APPLY (
+			SELECT TOP 1 BadDays, [Status] FROM [OpenXDADailyStatistic]  WHERE  Meter.AssetKey = [OpenXDADailyStatistic].Meter  ORDER BY [OpenXDADailyStatistic].Date DESC
+		) as xdastat OUTER APPLY  (
+		SELECT 
+			TOP 1 
+			CASE
+				WHEN (LatchedPoints + UnreasonablePoints+ NoncongruentPoints) > (SELECT CAST(COALESCE(Value,'100') as INT) FROM [SystemCenter.Setting] WHERE Name = 'OpenXDA.ErrorLevel') THEN 'Error'
+				WHEN (LatchedPoints + UnreasonablePoints+ NoncongruentPoints) > (SELECT CAST(COALESCE(Value,'50') as INT) FROM [SystemCenter.Setting] WHERE Name = 'OpenXDA.WarningLevel') THEN 'Warning'
+				ELSE ''
+			END	as [Status]
+		  FROM MeterDataQualitySummary where meterid = Meter.ID order by Date desc
+		) as dqstat OUTER APPLY(
 			SELECT MAX(BadDays) as BadDays FROM (
-			SELECT TOP 1 BadDays FROM [OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [OpenMICDailyStatistic].Meter  ORDER BY Date DESC UNION
-			SELECT TOP 1 BadDays FROM [OpenXDADailyStatistic]  WHERE  Meter.AssetKey = [OpenXDADailyStatistic].Meter  ORDER BY Date DESC UNION
-			SELECT TOP 1 BadDays FROM [MiMDDailyStatistic]  WHERE  Meter.AssetKey = [MiMDDailyStatistic].Meter  ORDER BY Date DESC ) t
-		) as bds 
-    "), SettingsCategory("systemSettings"), ViewOnly, AllowSearch]
+			SELECT TOP 1 BadDays FROM [OpenMICDailyStatistic]  WHERE  Meter.AssetKey = [OpenMICDailyStatistic].Meter  ORDER BY [OpenMICDailyStatistic].Date DESC UNION
+			SELECT TOP 1 BadDays FROM [OpenXDADailyStatistic]  WHERE  Meter.AssetKey = [OpenXDADailyStatistic].Meter  ORDER BY [OpenXDADailyStatistic].Date DESC UNION
+			SELECT TOP 1 BadDays FROM [MiMDDailyStatistic]  WHERE  Meter.AssetKey = [MiMDDailyStatistic].Meter  ORDER BY [MiMDDailyStatistic].Date DESC ) t
+		) as bds     
+	"), SettingsCategory("systemSettings"), ViewOnly, AllowSearch]
 	public class DeviceHealthReport
 	{
 		public int ID { get; set; }

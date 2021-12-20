@@ -25,12 +25,11 @@ import * as React from 'react';
 import { MiMDSettingSlice, OpenXDASettingSlice, SystemCenterSettingSlice } from '../Store/Store';
 import { Application } from '@gpa-gemstone/application-typings';
 import Setting from './Setting';
+import { SystemCenter } from '../global';
 
 declare var homePath: string;
 
-interface BySettingsComponent { (props: { Roles: Array<Application.Types.SecurityRoleName>, System: 'SystemCenter' | 'OpenXDA' | 'MiMD' }): JSX.Element; }
-
-const BySetting: BySettingsComponent = (props) => {
+const BySetting: SystemCenter.BySettingsComponent = (props) => {
 
     let slice = SystemCenterSettingSlice
 
