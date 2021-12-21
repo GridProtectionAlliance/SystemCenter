@@ -551,7 +551,6 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeterSlice.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\UserSlice.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\Store.ts" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AddToGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ByValueListGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\AdditionalUserFieldSlice.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\SecurityRoleSlice.tsx" />
