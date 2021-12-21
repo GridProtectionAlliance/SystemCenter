@@ -40,7 +40,7 @@ import { Search, Modal, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react
 import Table from '@gpa-gemstone/react-table'
 import { useDispatch, useSelector } from 'react-redux';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
-import { ByAssetSlice } from '../Store/Store';
+import { AssetTypeSlice, ByAssetSlice } from '../Store/Store';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 
 
@@ -61,31 +61,31 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
     const [showNewModal, setShowNewModal] = React.useState<boolean>(false);
 
-    const [assetTypes, setAssetTypes] = React.useState<Array<OpenXDA.Types.AssetType>>([]);
     const [extDBtab, setextDBTab] = React.useState<string>(getextDBTab());
 
     const [assetErrors, setAssetErrors] = React.useState<string[]>([]);
     const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle')
 
+    const assetType = useSelector(AssetTypeSlice.Data);
+    const assetTypeStatus = useSelector(AssetTypeSlice.Status);
     const allAssets = useSelector(SelectAssets);
     const aStatus = useSelector(SelectAssetStatus);
     const dispatch = useDispatch();
 
     React.useEffect(() => {
-        let handle = getAssetTypes();
-        handle.done(ats => {
-            setAssetTypes(ats)
-            let asset = AssetAttributes.getNewAsset('Line');
-            asset['AssetTypeID'] = ats.find(ats => ats.Name == 'Line').ID;
-            setNewAsset(asset);
+        let handle = null;
+        if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
+            handle = dispatch(AssetTypeSlice.Fetch());
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [assetTypeStatus])
 
-        });
-
-        return function cleanup() {
-            if (handle.abort != null)
-                handle.abort();
-        }
-    }, [])
+    React.useEffect(() => {
+        if (assetType.length == 0)
+            return;
+        let asset = AssetAttributes.getNewAsset('Line');
+        asset['AssetTypeID'] = assetType.find(ats => ats.Name == 'Line').ID;
+        setNewAsset(asset);
+    }, [assetType])
 
     React.useEffect(() => {
         if (aStatus === 'unintiated' || aStatus === 'changed') {
@@ -123,7 +123,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
         handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
 
             let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
-                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<SystemCenter.Types.DetailedAsset>
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedAsset>
                 )), ['label'], ["asc"]);
                 setFields(ordered);
         });
@@ -185,7 +185,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             let handle = null;
 
             if (field.key == 'AssetType') {
-                setOptions(assetTypes.map((t) => ({ Value: t.Name, Label: t.Name })))
+                setOptions(assetType.map((t) => ({ Value: t.Name, Label: t.Name })))
                 return () => { }
             }
 
@@ -288,7 +288,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                     }
                     
                     const asset = AssetAttributes.getNewAsset('Line');
-                    asset['AssetTypeID'] = assetTypes.find(ats => ats.Name == 'Line').ID;
+                    asset['AssetTypeID'] = assetType.find(ats => ats.Name == 'Line').ID;
                     setNewAsset(asset);
                     
                     setShowNewModal(false);
@@ -296,7 +296,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             >
                 <div className="row" style={{ maxHeight: innerHeight - 300, overflow: 'auto' }}>
                     <div className="col">
-                        <AssetAttributes.AssetAttributeFields Asset={newAsset} NewEdit={'New'} AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} HideAssetType={false} />
+                        <AssetAttributes.AssetAttributeFields Asset={newAsset} NewEdit={'New'} AssetTypes={assetType} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} HideAssetType={false} />
                     </div>
                     <div className="col">
                         {showAttributes()}
