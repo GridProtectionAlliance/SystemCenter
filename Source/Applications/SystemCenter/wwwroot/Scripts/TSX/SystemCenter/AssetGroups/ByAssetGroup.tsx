@@ -26,11 +26,13 @@ import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
-import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
+import { Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
-import AddToGroup from './AddToGroup';
-import { AssetGroupSlice, ByAssetSlice, ByMeterSlice } from '../Store/Store';
+import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { AssetGroupSlice, ByAssetSlice, ByLocationSlice, ByMeterSlice } from '../Store/Store';
+import { DefaultSearch, DefaultSelects } from '@gpa-gemstone/common-pages';
+import { useDispatch, useSelector } from 'react-redux';
+import AssetGroup from './AssetGroup';
 
 declare var homePath: string;
 
@@ -56,48 +58,33 @@ declare var homePath: string;
 
 const ByAssetGroup: Application.Types.iByComponent = (props) => {
     let history = useHistory();
+    const dispatch = useDispatch();
+    const data = useSelector(AssetGroupSlice.SearchResults);
+    const sortKey = useSelector(AssetGroupSlice.SortField);
+    const ascending = useSelector(AssetGroupSlice.Ascending);
+    const searchStatus = useSelector(AssetGroupSlice.SearchStatus);
+    const searchFields = useSelector(AssetGroupSlice.SearchFilters)
+    const status = useSelector(AssetGroupSlice.Status);
+    const allAssetGroups = useSelector(AssetGroupSlice.Data);
 
-    const [search, setSearch] = React.useState<Array<Search.IFilter<AssetGroup>>>([]);
     const [showFilter, setFilter] = React.useState<('None' | 'Meter' | 'Asset' | 'Asset Group' | 'Station')>('None');
-    const [data, setData] = React.useState<Array<AssetGroup>>([]);
-    const [sortKey, setSortKey] = React.useState<string>('Name');
-    const [ascending, setAscending] = React.useState<boolean>(true);
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<AssetGroup>>>(defaultSearchcols);
-    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
-
-
     const [newAssetGroup, setNewAssetGroup] = React.useState<extendedAssetGroup>(_.cloneDeep(emptyAssetGroup));
-    const [allAssetGroups, setAllAssetGroups] = React.useState<Array<AssetGroup>>([]);
     const [showNewGroup, setShowNewGroup] = React.useState<boolean>(false);
-
     const [assetGrpErrors, setAssetGrpErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        let handle2 = getAllAssetGroups();
-        handle2.done(aas => setAllAssetGroups(aas));
-
-
-        return function cleanup() {
-
-            if (handle2.abort != null)
-                handle2.abort();
-        }
-    }, []);
+        let handle = null;
+        if (status == 'changed' || status == 'unintiated')
+            handle = dispatch(AssetGroupSlice.Fetch());
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [status])
 
     React.useEffect(() => {
-        let handle = getAssetGroups();
-
-        handle.done((data: string) => {
-            setSearchState('Idle');
-            setData(JSON.parse(data) as AssetGroup[])
-        }).fail((d) => setSearchState('Error'));
-        
-        return () => {
-            if (handle.abort != null)
-                handle.abort();
-        };
-
-    }, [search, ascending, sortKey]);
+        let handle = null;
+        if (searchStatus == 'changed' || searchStatus == 'unintiated')
+            handle = dispatch(AssetGroupSlice.DBSearch({ filter: searchFields }));
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [searchStatus])
 
     React.useEffect(() => {
         let e = [];
@@ -107,30 +94,63 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
             e.push('The Name has to be unique.');
         setAssetGrpErrors(e);
     }, [newAssetGroup]);
-    function getAssetGroups(): JQueryXHR {
-        setSearchState('Loading');
-        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
 
-        return $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/AssetGroup/SearchableList`,
+    function getAdditionalMeterFields(setFields) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Meter/FieldName/0`,
             contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
             cache: false,
             async: true
         });
+
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
+        }
+
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedMeter>
+            )), ['label'], ["asc"]);
+            setFields(ordered)
+        });
+
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
     }
 
-    function getAllAssetGroups(): JQueryXHR {
-        return $.ajax({
+    function getAdditionalAssetFields(setFields) {
+        let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/AssetGroup`,
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Asset/FieldName/0`,
             contentType: "application/json; charset=utf-8",
-            dataType: 'json',
             cache: false,
             async: true
-        })
+        });
+
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
+        }
+
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+
+            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedAsset>
+            )), ['label'], ["asc"]);
+            setFields(ordered);
+        });
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
     }
 
     function addNewAssetGroup() {
@@ -199,43 +219,42 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
         return true;
     }
 
-    const standardSearch: Search.IField<AssetGroup> = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
+    function getEnum(setOptions, field) {
+        let handle = null;
+        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+            return () => { };
+
+        handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        }
+    }
+
     return (
         <>
-        <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<AssetGroup> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
-                ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Locations'}
-                GetEnum={(setOptions, field) => {
-                    let handle = null;
-                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
-                        return () => { };
-
-                    handle = $.ajax({
-                        type: "GET",
-                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-                        contentType: "application/json; charset=utf-8",
-                        dataType: 'json',
-                        cache: true,
-                        async: true
-                    });
-
-                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
-                }}
-
-            >
+            <div style={{ width: '100%', height: '100%' }}>
+                <DefaultSearch.AssetGroup Slice={AssetGroupSlice} GetEnum={getEnum} GetAddlFields={() => { return () => {}}}>
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
                                     <div className="form-group">
-                                    <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowNewGroup(true); }}>Add New Asset Group</button>
+                                    <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
+                                        onClick={(event) => { event.preventDefault(); setShowNewGroup(true); }}>Add New Asset Group</button>
                                     </div>
                                 </form>
                             </fieldset>
-                        </li>
-                </SearchBar>
-
+                    </li>
+                </DefaultSearch.AssetGroup>
             <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
                 <Table<AssetGroup>
                     cols={[
@@ -244,7 +263,10 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                         { key: 'Meters', field: 'Meters', label: 'Num. of Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Users', field: 'Users', label: 'Num. of Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'AssetGroups', field: 'AssetGroups', label: 'Num. of Asset Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'DisplayDashboard', field: 'DisplayDashboard', label: 'Show in PQ Dashboard', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            {
+                                key: 'DisplayDashboard', field: 'DisplayDashboard', label: 'Show in PQ Dashboard', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                content: (item) => (item.DisplayDashboard ? HeavyCheckMark : null)
+                            },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"
@@ -254,12 +276,10 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                     onSort={(d) => {
                         if (d.colKey === "Scroll")
                             return;
-
                         if (d.colKey === sortKey)
-                            setAscending(!ascending);
+                            dispatch(AssetGroupSlice.Sort({ SortField: sortKey, Ascending: ascending }));
                         else {
-                            setAscending(true);
-                            setSortKey(d.colKey);
+                            dispatch(AssetGroupSlice.Sort({ SortField: d.colField as keyof OpenXDA.Types.AssetGroup, Ascending: true }));
                         }
                     }}
                     onClick={handleSelect}
@@ -298,76 +318,85 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                     </div>
                 </div>
             </Modal>
-            <Modal Show={showFilter != 'None'} Size={'xlg'} ShowX={true} ShowCancel={false} ConfirmBtnClass={'btn-danger'} ConfirmText={'Close'} Title={"Add " + showFilter + " to " + newAssetGroup.Name} CallBack={() => setFilter('None')}>
-                {showFilter == 'Asset' ?
-                    <AddToGroup<SystemCenter.Types.DetailedAsset> Slice={ByAssetSlice} Type='Asset' Data={newAssetGroup.AssetList} InitialSortKey={'AssetName'} StandardSearch={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
-                    TableColumns={[
-                        { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    DefaultFilterList={[
-                        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-                    ]}
-                     SetData={(d) => setNewAssetGroup((grp) => {
+
+            <DefaultSelects.Meter
+                Slice={ByMeterSlice}
+                Selection={newAssetGroup.MeterList}
+                OnClose={(selected, conf) => {
+                    setFilter('None')
+                    if (!conf) return
+                    setNewAssetGroup((grp) => {
                         let updated = _.cloneDeep(grp);
-                        updated.AssetList = d;
-                        updated.Assets = updated.AssetList.length;
-                        return updated;
-                    })} />: null}
-                {showFilter == 'Meter' ?
-                    <AddToGroup<SystemCenter.Types.DetailedMeter> Slice={ByMeterSlice} Type='Meter' Data={newAssetGroup.MeterList} InitialSortKey={'Name'} StandardSearch={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
-                    TableColumns={[
-                        { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'MappedAssets', field: 'MappedAssets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    DefaultFilterList={[
-                        { label: 'AssetKey', key: 'AssetKey', type: 'string', isPivotField: false },
-                        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-                        { label: 'Location', key: 'Location', type: 'string', isPivotField: false },
-                        { label: 'Make', key: 'Make', type: 'string', isPivotField: false },
-                        { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
-                        { label: 'Number of Assets', key: 'MappedAssets', type: 'number', isPivotField: false },
-                    ]}
-                    SetData={(d) => setNewAssetGroup((grp) => {
-                        let updated = _.cloneDeep(grp);
-                        updated.MeterList = d;
+                        updated.MeterList = selected;
                         updated.Meters = updated.MeterList.length;
                         return updated;
-                    })} /> : null}
-                {showFilter == 'Asset Group' ?
-                    <AddToGroup<OpenXDA.Types.AssetGroup> Slice={AssetGroupSlice} Type='Asset Group' Data={newAssetGroup.AssetGroupList} InitialSortKey={'Name'} StandardSearch={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
-                    TableColumns={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Users', field: 'Users', label: 'Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetGroups', field: 'AssetGroups', label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    DefaultFilterList={[
-                        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-                        { label: 'Number of Meter', key: 'Meters', type: 'integer', isPivotField: false },
-                        { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer', isPivotField: false },
-                        { label: 'Number of Users', key: 'Users', type: 'integer', isPivotField: false },
-                        { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean', isPivotField: false },
-                    ]}
-                    SetData={(d) => setNewAssetGroup((grp) => {
+                    })
+                }}
+                Show={showFilter == 'Meter'}
+                Type={'multiple'}
+                Columns={[
+                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'MappedAssets', field: 'MappedAssets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                ]}
+                Title={"Add Meters to " + (newAssetGroup.Name == undefined || newAssetGroup.Name.length == 0 ? "Asset Group" : newAssetGroup.Name)}
+                GetEnum={getEnum}
+                GetAddlFields={getAdditionalMeterFields} />
+            <DefaultSelects.Asset
+                Slice={ByAssetSlice}
+                Selection={newAssetGroup.AssetList}
+                OnClose={(selected, conf) => {
+                    setFilter('None')
+                    if (!conf) return
+                    setNewAssetGroup((grp) => {
                         let updated = _.cloneDeep(grp);
-                        updated.AssetGroupList = d;
+                        updated.AssetList = selected;
+                        updated.Assets = updated.AssetList.length;
+                        return updated;
+                    })
+                }}
+                Show={showFilter == 'Asset'}
+                Type={'multiple'}
+                Columns={[{ key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }]}
+                Title={"Add Transmission Assets to " + (newAssetGroup.Name == undefined || newAssetGroup.Name.length == 0 ? "Asset Group" : newAssetGroup.Name)}
+                GetEnum={getEnum}
+                GetAddlFields={getAdditionalAssetFields} />
+
+            <DefaultSelects.AssetGroup
+                Slice={AssetGroupSlice}
+                Selection={newAssetGroup.AssetGroupList}
+                OnClose={(selected, conf) => {
+                    setFilter('None')
+                    if (!conf) return
+                    setNewAssetGroup((grp) => {
+                        let updated = _.cloneDeep(grp);
+                        updated.AssetGroupList = selected;
                         updated.AssetGroups = updated.AssetGroupList.length;
                         return updated;
-                    })} /> : null}
-            </Modal>
+                    })
+                }}
+                Show={showFilter == 'Asset Group'}
+                Type={'multiple'}
+                Columns={[
+                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Users', field: 'Users', label: 'Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetGroups', field: 'AssetGroups', label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                ]}
+                Title={"Add Asset Groups to " + (newAssetGroup.Name == undefined || newAssetGroup.Name.length == 0 ? "Asset Group" : newAssetGroup.Name)}
+                GetEnum={getEnum}
+                GetAddlFields={() => () => { }} />
     
         </>
     )
