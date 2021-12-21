@@ -55,7 +55,7 @@ export const DataFileSlice = new GenericSlice<OpenXDA.Types.DataFile>("DataFile"
 export const CompanyTypeSlice = new GenericSlice<OpenXDA.Types.CompanyType>("CompanyType", `${homePath}api/OpenXDA/CompanyType`, "Name", false);
 export const CustomerSlice = new GenericSlice<OpenXDA.Types.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
 export const CompanySlice = new GenericSlice<OpenXDA.Types.Company>("Company", `${homePath}api/OpenXDA/Company`, "CompanyID", false);
-export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location",`${homePath}api/OpenXDA/Location`, "LocationKey", true)
+export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location", `${homePath}api/OpenXDA/Location`, "LocationKey", true)
 export const DataOperationSlice = new GenericSlice<OpenXDA.Types.DataOperation>("DataOperation", `${homePath}api/OpenXDA/DataOperation`, "LoadOrder")
 export const DataReaderSlice = new GenericSlice<OpenXDA.Types.DataReader>("DataReader", `${homePath}api/OpenXDA/DataReader`, "LoadOrder")
 export const ExternalDBTablesSlice = new GenericSlice<SystemCenter.Types.ExternalDataBaseTable>("ExternalDataBaseTable", `${homePath}api/OpenXDA/ExternalDBTables`, "TableName", false);
@@ -66,6 +66,7 @@ export const PQApplicationsSlice = new GenericSlice<PQApplications>("PQApplicati
 
 export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("AssetGroup", `${homePath}api/OpenXDA/AssetGroup`, "Name", true);
 export const ByAssetSlice = new GenericSlice<SystemCenter.Types.DetailedAsset>("ByAsset", `${homePath}api/OpenXDA/ByAsset`, "AssetName", true);
+export const ByLocationSlice = new GenericSlice<SystemCenter.Types.DetailedLocation>("ByLocation", `${homePath}api/OpenXDA/ByLocation`, "LocationKey", true);
 export const ByMeterSlice = new GenericSlice<SystemCenter.Types.DetailedMeter>("ByMeter", `${homePath}api/OpenXDA/ByMeter`, "Name", true);
 
 export const AssetNoteSlice = new NoteSlice('Asset');
@@ -84,6 +85,7 @@ export default configureStore({
         AssetGroup: AssetGroupSlice.Reducer,
         ByAsset: ByAssetSlice.Reducer,
         ByMeter: ByMeterSlice.Reducer,
+        ByLocation: ByLocationSlice.Reducer,
         MeasurementType: MeasurmentTypeSlice.Reducer,
         Phase: PhaseSlice.Reducer,
         AssetConnectionType: AssetConnectionTypeSlice.Reducer,
@@ -113,7 +115,7 @@ export default configureStore({
         DataOperation: DataOperationSlice.Reducer,
         DataReader: DataReaderSlice.Reducer,
         ExternalDataBaseTable: ExternalDBTablesSlice.Reducer,
-        ApplicationNode: ApplicationNodeSlice.Reducer
+        ApplicationNode: ApplicationNodeSlice.Reducer,
         PQApplicationCategory: ApplicationCategorySlice.Reducer,
         PQApplications: PQApplicationsSlice.Reducer,
         DBCleanup: DBCleanupSlice.Reducer
