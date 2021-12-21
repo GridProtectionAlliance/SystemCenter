@@ -24,16 +24,14 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
 import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
-import AddToGroup from './AddToGroup';
 import { ByMeterSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { Search } from '@gpa-gemstone/react-interactive';
+import { DefaultSelects } from '@gpa-gemstone/common-pages';
 
 declare var homePath: string;
-interface Meter { ID: number, MeterName: string, MeterID: number, AssetGroupID: number, Location: string }
 
 function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
     let history = useHistory();
@@ -41,7 +39,6 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
     const [sortField, setSortField] = React.useState<string>('MeterName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
-    const [counter, setCounter] = React.useState<number>(0);
 
     React.useEffect(() => {
         return getData();
@@ -68,21 +65,53 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
         }
     }
 
-    
+    function getEnum(setOptions, field) {
+        let handle = null;
+        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+            return () => { };
 
-    function AddMeter(toAdd) {
-        let handle = $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddMeters`,
+        handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(toAdd),
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        }
+    }
+
+    function getAdditionalMeterFields(setFields) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Meter/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
             cache: false,
             async: true
         });
 
-        handle.done((d) => { setCounter((x) => x + 1) })
-        return handle
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
+        }
+
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedMeter>
+            )), ['label'], ["asc"]);
+            setFields(ordered)
+        });
+
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
     }
 
     return (
@@ -136,9 +165,17 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
 
             </div>
-            <Modal Show={showAdd} Size={'xlg'} ShowX={true} ShowCancel={false} ConfirmBtnClass={'btn-danger'} ConfirmText={'Close'} Title={''} CallBack={() => setShowAdd(false)}>
-            <AddToGroup<SystemCenter.Types.DetailedMeter> Type='Meter' Slice={ByMeterSlice} Data={meterList} SetData={(d) => setMeterList(d)} InitialSortKey={'Name' as keyof SystemCenter.Types.DetailedMeter} StandardSearch={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
-                TableColumns={[
+            <DefaultSelects.Meter
+                Slice={ByMeterSlice}
+                Selection={meterList}
+                OnClose={(selected, conf) => {
+                    setShowAdd(false)
+                    if (!conf) return
+                    setMeterList(selected);
+                }}
+                Show={showAdd}
+                Type={'multiple'}
+                Columns={[
                     { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -147,15 +184,9 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                     { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ]}
-                DefaultFilterList={[
-                    { label: 'AssetKey', key: 'AssetKey', type: 'string', isPivotField: false },
-                    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-                    { label: 'Location', key: 'Location', type: 'string', isPivotField: false },
-                    { label: 'Make', key: 'Make', type: 'string', isPivotField: false },
-                    { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
-                    { label: 'Number of Assets', key: 'MappedAssets', type: 'number', isPivotField: false },
-                    ]} />
-            </Modal>
+                Title={"Add Meters to Asset Group"}
+                GetEnum={getEnum}
+                GetAddlFields={getAdditionalMeterFields} />
         </>
     );
 }

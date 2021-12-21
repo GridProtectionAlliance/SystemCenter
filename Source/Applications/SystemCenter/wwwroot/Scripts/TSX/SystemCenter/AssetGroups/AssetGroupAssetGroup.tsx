@@ -27,9 +27,8 @@ import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
-import AddToGroup from './AddToGroup';
 import { AssetGroupSlice } from '../Store/Store';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { DefaultSelects } from '@gpa-gemstone/common-pages';
 
 declare var homePath: string;
 
@@ -67,22 +66,25 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
         }
     }
 
-    function AddGroups(toAdd) {
-        let handle = $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddAssetGroups`,
+    function getEnum(setOptions, field) {
+        let handle = null;
+        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+            return () => { };
+
+        handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(toAdd),
-            cache: false,
+            cache: true,
             async: true
         });
 
-        handle.done((d) => { setCounter((x) => x + 1) })
-        return handle
+        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        }
     }
-
-
 
     return (
         <>
@@ -133,25 +135,28 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
             <div className="card-footer">
                     <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Asset Group</button>
-            </div>
-                <Modal Show={showAdd} Size={'xlg'} ShowX={true} ShowCancel={false} ConfirmBtnClass={'btn-danger'} ConfirmText={'Close'} Title={''} CallBack={() => setShowAdd(false)}>
-                    <AddToGroup<OpenXDA.Types.AssetGroup> Type='Asset Group' Slice={AssetGroupSlice} Data={groupList} SetData={(d) => setGroupList(d)} InitialSortKey={'Name' as keyof OpenXDA.Types.AssetGroup} StandardSearch={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
-                    DefaultFilterList={[
-                        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-                        { label: 'Number of Meter', key: 'Meters', type: 'integer', isPivotField: false },
-                        { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer', isPivotField: false },
-                        { label: 'Number of Users', key: 'Users', type: 'integer', isPivotField: false },
-                        { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean', isPivotField: false },
-                    ]}
-                    TableColumns={[
+                </div>
+                <DefaultSelects.AssetGroup
+                    Slice={AssetGroupSlice}
+                    Selection={groupList}
+                    OnClose={(selected, conf) => {
+                        setShowAdd(false)
+                        if (!conf) return
+                        setGroupList(selected);
+                    }}
+                    Show={showAdd}
+                    Type={'multiple'}
+                    Columns={[
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Users', field: 'Users', label: 'Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'AssetGroups', field: 'AssetGroups', label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]} />
-                </Modal>
+                    ]}
+                    Title={"Add Asset Groups to Asset Group"}
+                    GetEnum={getEnum}
+                    GetAddlFields={() => () => { }} />
             </div>
             </>
     );
