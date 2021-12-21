@@ -27,70 +27,20 @@ import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Search } from '@gpa-gemstone/react-interactive';
+import { DefaultSearch } from '@gpa-gemstone/common-pages';
+import { ByMeterSlice } from '../Store/Store';
+import { useDispatch, useSelector } from 'react-redux';
 
-interface Meter {
-    ID: number, AssetKey: string, Name: string, Location: string, MappedAssets: number, Make: string, Model: string 
-}
 declare var homePath: string;
-
-const defaultSearchcols: Array<Search.IField<Meter>> = [
-    { label: 'AssetKey', key: 'AssetKey', type: 'string', isPivotField: false },
-    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-    { label: 'Location', key: 'Location', type: 'string', isPivotField: false },
-    { label: 'Make', key: 'Make', type: 'string', isPivotField: false },
-    { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
-    { label: 'Number of Assets', key: 'MappedAssets', type: 'number', isPivotField: false },
-];
 
 const ByMeter: Application.Types.iByComponent = (props) => {
     let history = useHistory();
+    const dispatch = useDispatch();
 
-    const [search, setSearch] = React.useState<Array<Search.IFilter<Meter>>>([]);
-    const [data, setData] = React.useState<Array<Meter>>([]);
-
-    const [sortKey, setSortKey] = React.useState<string>('AssetKey');
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Meter>>>(defaultSearchcols);
-    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
-
-    const [ascending, setAscending] = React.useState<boolean>(true);
-
-    React.useEffect(() => {
-        let handle = getMeters();
-        handle.done((dt: string) => {
-            setSearchState('Idle');
-            setData(JSON.parse(dt) as Array<Meter>);
-        }).fail((d) => setSearchState('Error'));
-
-        return function cleanup() {
-            if (handle.abort != null)
-                handle.abort();
-        }
-    }, [sortKey, ascending, search]);
-
-    React.useEffect(() => {
-        let handle = getAdditionalFields();
-
-        return () => {
-            if (handle.abort != null) handle.abort();
-        }
-    }, []);
-
-
-    function getMeters(): JQuery.jqXHR<string>{
-        setSearchState('Loading');
-        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
-
-        return $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/MeterList/SearchableList`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Searches: searches, OrderBy: sortKey, Ascending: ascending }),
-            cache: false,
-            async: true
-        });
-    }
+    const data = useSelector(ByMeterSlice.SearchResults);
+    const ascending = useSelector(ByMeterSlice.Ascending);
+    const sortKey = useSelector(ByMeterSlice.SortField);
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID, state: {} })
@@ -99,7 +49,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard', state: {} })
     }
 
-    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
+    function getAdditionalFields(setFields) {
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Meter/FieldName/0`,
@@ -117,48 +67,41 @@ const ByMeter: Application.Types.iByComponent = (props) => {
         }
 
         handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
-            let ordered = _.orderBy(defaultSearchcols.concat(d.filter(item => item.Searchable).map(item => (
-                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Meter>
-            ))), ['label'], ["asc"]);
-            setFilterableList(ordered)
+            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedMeter>
+            )), ['label'], ["asc"]);
+            setFields(ordered)
         });
 
-        return handle;
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
     }
 
+    function getEnum(setOptions, field) {
+        let handle = null;
+        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+            return () => { };
 
-    const standardSearch: Search.IField<Meter> = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
+        handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setOptions(d.map(item => ({ Value: item.ID, Label: item.Value }))))
+        return () => {
+            if (handle != null && handle.abort == null)
+                handle.abort();
+        }
+    }
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<Meter>
-                CollumnList={filterableList}
-                SetFilter={(flds) => setSearch(flds)}
-                Direction={'left'}
-                defaultCollumn={standardSearch}
-                Width={'50%'}
-                Label={'Search'}
-                ShowLoading={searchState == 'Loading'}
-                ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Meters'}
-                GetEnum={(setOptions, field) => {
-                    let handle = null;
-                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
-                        return () => { };
-
-                    handle = $.ajax({
-                        type: "GET",
-                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-                        contentType: "application/json; charset=utf-8",
-                        dataType: 'json',
-                        cache: true,
-                        async: true
-                    });
-
-                    handle.done(d => setOptions(d.map(item => ({ Value: item.ID, Label: item.Value }))))
-                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
-                }}
-
-            >
+            <DefaultSearch.Meter Slice={ByMeterSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} >
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>
@@ -177,9 +120,9 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                         </form>
                     </fieldset>
                 </li>
-            </SearchBar>
+            </DefaultSearch.Meter>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table
+                <Table<SystemCenter.Types.DetailedMeter>
                     cols={[
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
@@ -199,12 +142,10 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                             return;
 
                         if (d.colKey === sortKey)
-                            setAscending(!ascending);
+                            dispatch(ByMeterSlice.Sort({ SortField: sortKey, Ascending: ascending }));
                         else {
-                            setAscending(true);
-                            setSortKey(d.colKey);
+                            dispatch(ByMeterSlice.Sort({ SortField: d.colField as keyof SystemCenter.Types.DetailedMeter, Ascending: true }));
                         }
-                        
                     }}
                     onClick={handleSelect}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
