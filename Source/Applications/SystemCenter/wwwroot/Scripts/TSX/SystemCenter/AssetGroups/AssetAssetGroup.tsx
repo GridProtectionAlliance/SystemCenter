@@ -26,10 +26,10 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
-import AddToGroup from './AddToGroup';
 import { ByAssetSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { Search } from '@gpa-gemstone/react-interactive';
+import { DefaultSelects } from '@gpa-gemstone/common-pages';
 
 declare var homePath: string;
 
@@ -66,19 +66,53 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
         }
     }
 
-    function AddAsset(toAdd) {
-        let handle = $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddAssets`,
+    function getEnum(setOptions, field) {
+        let handle = null;
+        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+            return () => { };
+
+        handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(toAdd),
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        }
+    }
+
+    function getAdditionalAssetFields(setFields) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Asset/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
             cache: false,
             async: true
         });
 
-        handle.done((d) => { setCounter((x) => x + 1) })
-        return handle
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
+        }
+
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+
+            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedAsset>
+            )), ['label'], ["asc"]);
+            setFields(ordered);
+        });
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
     }
 
     return (
@@ -136,9 +170,17 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                 </div>
             </div>
             </div>
-            <Modal Show={showAdd} Size={'xlg'} ShowX={true} ShowCancel={false} ConfirmBtnClass={'btn-danger'} ConfirmText={'Close'} Title={'Add Transmission Asset'} CallBack={() => setShowAdd(false)}>
-                <AddToGroup<SystemCenter.Types.DetailedAsset> Type='Asset' Slice={ByAssetSlice} InitialSortKey={'AssetName' as keyof SystemCenter.Types.DetailedAsset} Data={assetList} SetData={(d) => setAssetList(d)} StandardSearch={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }}
-                TableColumns={[
+            <DefaultSelects.Asset
+                Slice={ByAssetSlice}
+                Selection={assetList}
+                OnClose={(selected, conf) => {
+                    setShowAdd(false);
+                    if (!conf) return
+                    setAssetList(selected);
+                }}
+                Show={showAdd}
+                Type={'multiple'}
+                Columns={[
                     { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -147,10 +189,9 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                     { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ]}
-                DefaultFilterList={[
-                    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-                ]} />
-            </Modal>
+                Title={"Add Transmission Assets to Asset Group"}
+                GetEnum={getEnum}
+                GetAddlFields={getAdditionalAssetFields} />
             </>
     )
 }
