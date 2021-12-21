@@ -30,9 +30,9 @@ import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search, Modal } from '@gpa-gemstone/react-interactive';
-import { Input } from '@gpa-gemstone/react-forms';
+import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
-import { ByLocationSlice, LocationSlice } from '../Store/Store';
+import { ByLocationSlice } from '../Store/Store';
 import { useDispatch, useSelector } from 'react-redux';
 
 declare var homePath: string;
@@ -43,9 +43,12 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     const data = useSelector(ByLocationSlice.SearchResults);
     const ascending = useSelector(ByLocationSlice.Ascending);
     const sortKey = useSelector(ByLocationSlice.SortField);
+    const searchFields = useSelector(ByLocationSlice.SearchFilters);
+    const allKeys = useSelector(ByLocationSlice.Data);
+    const searchStatus = useSelector(ByLocationSlice.SearchStatus);
+    const status = useSelector(ByLocationSlice.Status);
     const [newLocation, setNewLocation] = React.useState<SystemCenter.Types.DetailedLocation>(getNewLocation());
     const [newLocationErrors, setNewLocationErrors] = React.useState<string[]>([]);
-    const [validAssetKey, setValidAssetKey] = React.useState<boolean>(true);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
 
@@ -73,12 +76,26 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             errors.push('Latitude needs to be between -180 and 180.')
         if (newLocation.Longitude != null && AssetAttributes.isRealNumber(newLocation.Longitude) && (newLocation.Longitude > 180 || newLocation.Longitude < -180))
             errors.push('Longitude needs to be between -180 and 180.')
-        if (!validAssetKey)
+        if (allKeys.findIndex((item) => item.LocationKey == newLocation.LocationKey) > -1)
             errors.push('The Key has to be unique.');
 
         setNewLocationErrors(errors);
 
-    }, [newLocation, validAssetKey]);
+    }, [newLocation, allKeys]);
+
+    React.useEffect(() => {
+        let handle = null;
+        if (status == 'changed' || status == 'unintiated')
+            handle = dispatch(ByLocationSlice.Fetch());
+        return () => { if (handle != null && handle.abort != null) handle.abort();}
+    }, [status])
+
+    React.useEffect(() => {
+        let handle = null;
+        if (searchStatus == 'changed' || searchStatus == 'unintiated')
+            handle = dispatch(ByLocationSlice.DBSearch({filter: searchFields}));
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [searchStatus])
 
     function getNewLocation() {
         return {
@@ -151,7 +168,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
 
     function valid(field: keyof (SystemCenter.Types.DetailedLocation)): boolean {
         if (field == 'LocationKey')
-            return newLocation.LocationKey != null && validAssetKey;
+            return newLocation.LocationKey != null && allKeys.findIndex((item) => item.LocationKey == newLocation.LocationKey) == -1;
         else if (field == 'Name')
             return newLocation.Name != null && newLocation.Name.length > 0 && newLocation.Name.length <= 200;
         else if (field == 'Alias')
@@ -162,8 +179,8 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             return newLocation.Latitude != null && AssetAttributes.isRealNumber(newLocation.Latitude) && newLocation.Latitude < 180 && newLocation.Latitude > -180;
         else if (field == 'Longitude')
             return newLocation.Longitude != null && AssetAttributes.isRealNumber(newLocation.Longitude) && newLocation.Longitude < 180 && newLocation.Longitude > -180;
-        /*else if (field == 'Description')
-            return true;*/
+        else if (field == 'Description')
+            return true;
         return false;
     }
 
@@ -223,7 +240,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                 ShowX={true}
                 CallBack={(conf) => {
                     if (conf)
-                        dispatch(ByLocationSlice.DBAction({ verb: "PATCH", record: newLocation }))
+                        dispatch(ByLocationSlice.DBAction({ verb: "POST", record: newLocation }))
                     setShowNew(false);
                 }}
                 ConfirmShowToolTip={newLocationErrors.length > 0}
@@ -244,6 +261,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                     <div className="col">
                         <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'Latitude'} Feedback={'Latitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
                         <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'Longitude'} Feedback={'Longitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
+                        <TextArea<SystemCenter.Types.DetailedLocation> Rows={3} Record={newLocation} Field={'Description'} Valid={valid} Setter={setNewLocation} />
                     </div>
                 </div>
             </Modal>
