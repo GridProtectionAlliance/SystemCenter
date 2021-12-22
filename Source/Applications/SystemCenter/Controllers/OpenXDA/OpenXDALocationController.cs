@@ -47,7 +47,7 @@ using Setting = SystemCenter.Model.Setting;
 namespace SystemCenter.Controllers.OpenXDA
 {
     [RoutePrefix("api/OpenXDA/ByLocation")]
-    public class ByLocationController : ModelController<DetailedLocation> {
+    public class ByLocationController : DetailedLocationController<DetailedLocation> {
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             try
@@ -83,29 +83,6 @@ namespace SystemCenter.Controllers.OpenXDA
                 return InternalServerError(ex);
             }
         }
-
-        public override IHttpActionResult GetSearchableList([FromBody] PostData postData)
-        {
-            if (GetAuthCheck() && !AllowSearch)
-                return Unauthorized();
-
-            try
-            {
-                PostData searchParam = new ModelController<DetailedLocation>.PostData()
-                {
-                    Ascending = postData.Ascending,
-                    OrderBy = postData.OrderBy,
-                    Searches = postData.Searches.Where(item => item.FieldName != "Meter" && item.FieldName != "Asset" )
-                };
-                DataTable table = GetSearchResults(searchParam);
-                return Ok(JsonConvert.SerializeObject(table));
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
     }
 
 
