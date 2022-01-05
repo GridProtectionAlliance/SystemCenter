@@ -30,6 +30,7 @@ import { createBrowserHistory } from "history"
 import { Application, SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import store, { SystemCenterSettingSlice } from './Store/Store';
+import ApplicationCategory from './ApplicationCategory/ApplicationCategory';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -68,6 +69,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const DataOperations = React.lazy(() => import(/* webpackChunkName: "DataOperations" */ './Settings/DataOperations'));
     const DataReaders = React.lazy(() => import(/* webpackChunkName: "DataReaders" */ './Settings/DataReaders'));
     const ByApplicationNode = React.lazy(() => import(/* webpackChunkName: "DataReaders" */ './ApplicationManagment/ApplicationNode'));
+    const ByApplicationCategory = React.lazy(() => import(/* webpackChunkName: "ByApplicationCategory" */ './ApplicationCategory/ByApplicationCategory'));
+    const DBCleanup = React.lazy(() => import(/* webpackChunkName: "DBCleanup" */ './DB/DBCleanup'));
 
     const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
@@ -166,6 +169,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ByExternalDB"} to={controllerViewPath + "?name=ByExternalDB"}>External Databases</NavLink>
                                 </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ByApplicationCategory"} to={controllerViewPath + "?name=ByApplicationCategory"}>Application Categories</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -192,6 +198,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ApplicationNodes"} to={controllerViewPath + "?name=ApplicationNodes"}>SSO Applications</NavLink>
+                                </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DBCleanup"} to={controllerViewPath + "?name=DBCleanup"}>DB Cleanup</NavLink>
                                 </li>
                             </ul>
 
@@ -238,6 +247,12 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ExternalDB ID={parseInt(qs.ID as string)} />
                                 else if (qs['?name'] == "User")
                                     return <User UserID={qs.UserAccountID as string} />
+                                else if (qs['?name'] == "ByApplicationCategory")
+                                    return <ByApplicationCategory Roles={roles} />
+                                else if (qs['?name'] == "DBCleanup")
+                                    return <DBCleanup Roles={roles} />
+                                else if (qs['?name'] == "ApplicationCategory")
+                                    return <ApplicationCategory ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "UserStatistics")
                                     return <UserStatistics Roles={roles} />
                                 else if (qs['?name'] == "Meter")

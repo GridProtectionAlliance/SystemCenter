@@ -27,7 +27,8 @@ import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
-import AddToGroupPopup from './AddToGroup';
+import { AssetGroupSlice } from '../Store/Store';
+import { DefaultSelects } from '@gpa-gemstone/common-pages';
 
 declare var homePath: string;
 
@@ -65,22 +66,25 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
         }
     }
 
-    function AddGroups(toAdd) {
-        let handle = $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddAssetGroups`,
+    function getEnum(setOptions, field) {
+        let handle = null;
+        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+            return () => { };
+
+        handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(toAdd),
-            cache: false,
+            cache: true,
             async: true
         });
 
-        handle.done((d) => { setCounter((x) => x + 1) })
-        return handle
+        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        }
     }
-
-
 
     return (
         <>
@@ -132,7 +136,27 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
             <div className="card-footer">
                     <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Asset Group</button>
                 </div>
-                <AddToGroupPopup type='Group' onComplete={AddGroups} Show={showAdd} Close={() => setShowAdd(false)} />
+                <DefaultSelects.AssetGroup
+                    Slice={AssetGroupSlice}
+                    Selection={groupList}
+                    OnClose={(selected, conf) => {
+                        setShowAdd(false)
+                        if (!conf) return
+                        setGroupList(selected);
+                    }}
+                    Show={showAdd}
+                    Type={'multiple'}
+                    Columns={[
+                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Users', field: 'Users', label: 'Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'AssetGroups', field: 'AssetGroups', label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    ]}
+                    Title={"Add Asset Groups to Asset Group"}
+                    GetEnum={getEnum}
+                    GetAddlFields={() => () => { }} />
             </div>
             </>
     );

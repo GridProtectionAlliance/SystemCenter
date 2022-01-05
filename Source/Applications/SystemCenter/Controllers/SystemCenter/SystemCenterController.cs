@@ -56,6 +56,9 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/ValueListGroup")]
     public class ValueListGroupController : ModelController<ValueListGroup> { }
 
+    [RoutePrefix("api/OpenXDA/DBCleanup")]
+    public class DBCleanupController : ModelController<openXDA.Model.DBCleanup> { }
+
     [RoutePrefix("api/SystemCenter/Customer")]
     public class CustomerController : ModelController<Customer>
     {
@@ -183,6 +186,11 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/MiMD/Setting")]
     public class MiMDSettingController : ModelController<MiMDSetting> { }
 
+    [RoutePrefix("api/OpenXDA/ApplicationCategory")]
+    public class ApplicationCategoryController : ModelController<openXDA.Model.ApplicationCategory> { }
+
+    [RoutePrefix("api/OpenXDA/PQApplications")]
+    public class PQApplicationsController : ModelController<openXDA.Model.PQApplications> { }
 
     [RoutePrefix("api/SystemCenter/AdditionalField")]
     public class AdditionalFieldController : ModelController<AdditionalField>

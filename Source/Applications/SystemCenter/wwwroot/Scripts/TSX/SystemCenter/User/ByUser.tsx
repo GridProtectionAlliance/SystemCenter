@@ -54,8 +54,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
     const searchStatus: Application.Types.Status = useSelector(UserAccountSlice.SearchStatus);
     const allUsers: Application.Types.iUserAccount[] = useSelector(UserAccountSlice.Data);
 
-    const sortField: keyof Application.Types.iUserAccount = useSelector(UserAccountSlice.SortField);
-    const ascending: boolean = useSelector(UserAccountSlice.Ascending);
+    const [sortField, setSortField] = React.useState<keyof Application.Types.iUserAccount>('Name');
+    const [ascending, setAscending] = React.useState<boolean>(true);
 
     const currentUserAccount: Application.Types.iUserAccount = useSelector(UserAccountSlice.CurrentUser);
     const adStatus: UserValidation = useSelector(UserAccountSlice.ADValidation);
@@ -86,6 +86,11 @@ const ByUser: Application.Types.iByComponent = (props) => {
     }, [userStatus, adlFieldStatus, valueListItemStatus, valueListGroupStatus])
 
     React.useEffect(() => {
+        if (searchStatus === 'unintiated' || searchStatus === 'changed')
+            dispatch(UserAccountSlice.DBSearch({ filter: search, sortField, ascending }));
+    }, [searchStatus]);
+
+    React.useEffect(() => {
         if (adlFieldStatus === 'unintiated' || adlFieldStatus === 'changed')
             dispatch(UserAdditionalFieldSlice.FetchField());
     }, [dispatch, adlFieldStatus]);
@@ -93,7 +98,11 @@ const ByUser: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: search }));
         dispatch(UserAccountSlice.SetNewUser());
-    }, [dispatch]);
+    }, [dispatch, ascending, sortField]);
+
+    React.useEffect(() => {
+        dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: search }));
+    }, [ascending, sortField]);
 
     React.useEffect(() => {
         if (searchStatus == 'unintiated' || searchStatus == 'changed')
@@ -140,7 +149,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <LoadingScreen Show={pageStatus === 'loading'} />
             <SearchBar<Application.Types.iUserAccount> CollumnList={filterableList} SetFilter={(flds) => dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: flds }))}
                 Direction={'left'} defaultCollumn={{ label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' UserAccounts'}
+                ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' User Accounts'}
                 GetEnum={(setOptions, field) => {
 
                     if (field.type !== 'enum' || field.enum === undefined || field.enum.length !== 1)
@@ -181,14 +190,14 @@ const ByUser: Application.Types.iByComponent = (props) => {
                     sortKey={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.colField === undefined)
+                        if (d.colKey === 'scroll' || d.colField == undefined)
                             return;
-                        if (d.colField !== sortField)
-                            dispatch(UserAccountSlice.DBSearch({ sortField, ascending: !ascending, filter: search }))
-                        else
-                            dispatch(UserAccountSlice.DBSearch({ sortField: d.colField, ascending: true, filter: search }))
-
-
+                        if (d.colField === sortField)
+                            setAscending(!ascending);
+                        else {
+                            setAscending(true);
+                            setSortField(d.colField);
+                        }
                     }}
                     onClick={(d) => history.push({pathname: homePath + 'index.cshtml', search: '?name=User&UserAccountID=' + d.row.ID, state: { } })}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

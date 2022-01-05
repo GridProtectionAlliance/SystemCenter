@@ -46,6 +46,49 @@ using Setting = SystemCenter.Model.Setting;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
+    [RoutePrefix("api/OpenXDA/ByLocation")]
+    public class ByLocationController : DetailedLocationController<DetailedLocation> {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        DetailedLocation newRecord = record.ToObject<DetailedLocation>();
+                        Location location = new Location() { 
+                            Alias = newRecord.Alias,
+                            Name = newRecord.Name,
+                            LocationKey = newRecord.LocationKey,
+                            Latitude = newRecord.Latitude,
+                            Longitude = newRecord.Longitude,
+                            Description = newRecord.Description,
+                            ShortName = newRecord.ShortName
+                        };
+                        int result = new TableOperations<Location>(connection).AddNewRecord(location);
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
+
+
+
+
     [RoutePrefix("api/OpenXDA/Location")]
     public class OpenXDALocationController : ModelController<Location>
     {

@@ -25,73 +25,32 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
-import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
+import { Search, Modal } from '@gpa-gemstone/react-interactive';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
+import { DefaultSearch } from '@gpa-gemstone/common-pages';
+import { ByLocationSlice } from '../Store/Store';
+import { useDispatch, useSelector } from 'react-redux';
 
 declare var homePath: string;
 
-
-interface Location {
-    ID: number, LocationKey: string, Name: string, Assets: number, Meters: number
-}
-
-
 const ByLocation: Application.Types.iByComponent = (props) => {
     let history = useHistory();
-    const [search, setSearch] = React.useState<Array<Search.IFilter<Location>>>([]);
-    const [data, setData] = React.useState<Array<Location>>([]);
-
-    const [newLocation, setNewLocation] = React.useState<OpenXDA.Types.Location>(getNewLocation());
+    const dispatch = useDispatch();
+    const data = useSelector(ByLocationSlice.SearchResults);
+    const ascending = useSelector(ByLocationSlice.Ascending);
+    const sortKey = useSelector(ByLocationSlice.SortField);
+    const searchFields = useSelector(ByLocationSlice.SearchFilters);
+    const allKeys = useSelector(ByLocationSlice.Data);
+    const searchStatus = useSelector(ByLocationSlice.SearchStatus);
+    const status = useSelector(ByLocationSlice.Status);
+    const [newLocation, setNewLocation] = React.useState<SystemCenter.Types.DetailedLocation>(getNewLocation());
     const [newLocationErrors, setNewLocationErrors] = React.useState<string[]>([]);
-    const [validAssetKey, setValidAssetKey] = React.useState<boolean>(true);
-
-    const [sortKey, setSortKey] = React.useState<string>('LocationKey');
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<Location>>>(SearchFields.Location as Search.IField<Location>[]);
-    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
-
-    const [ascending, setAscending] = React.useState<boolean>(true);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
-
-    React.useEffect(() => {
-        let handle = getLocations();
-        handle.done((dt: string) => {
-            setSearchState('Idle');
-            setData(JSON.parse(dt) as Array<Location>);
-        }).fail((d) => setSearchState('Error'));
-
-        return function cleanup() {
-            if (handle.abort != null)
-                handle.abort();
-        }
-    }, [sortKey, ascending, search]);
-
-   
-    React.useEffect(() => {
-        setNewLocation(getNewLocation());
-    }, []);
-
-    React.useEffect(() => {
-        let handle = getAdditionalFields();
-
-        return () => {
-            if (handle.abort != null) handle.abort();
-        }
-    }, []);
-
-    React.useEffect(() => {
-        let handle = CheckAssetKey();
-
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        }
-    }, [newLocation]);
 
     React.useEffect(() => {
         let errors = [];
@@ -117,13 +76,26 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             errors.push('Latitude needs to be between -180 and 180.')
         if (newLocation.Longitude != null && AssetAttributes.isRealNumber(newLocation.Longitude) && (newLocation.Longitude > 180 || newLocation.Longitude < -180))
             errors.push('Longitude needs to be between -180 and 180.')
-        if (!validAssetKey)
+        if (allKeys.findIndex((item) => item.LocationKey == newLocation.LocationKey) > -1)
             errors.push('The Key has to be unique.');
 
         setNewLocationErrors(errors);
 
-    }, [newLocation, validAssetKey]);
+    }, [newLocation, allKeys]);
 
+    React.useEffect(() => {
+        let handle = null;
+        if (status == 'changed' || status == 'unintiated')
+            handle = dispatch(ByLocationSlice.Fetch());
+        return () => { if (handle != null && handle.abort != null) handle.abort();}
+    }, [status])
+
+    React.useEffect(() => {
+        let handle = null;
+        if (searchStatus == 'changed' || searchStatus == 'unintiated')
+            handle = dispatch(ByLocationSlice.DBSearch({filter: searchFields}));
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [searchStatus])
 
     function getNewLocation() {
         return {
@@ -134,44 +106,13 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             Description: null,
             Latitude: null,
             Longitude: null,
-            ShortName: null
+            ShortName: null,
+            Meters: 0,
+            Assets: 0
         }
     }
 
-    function CheckAssetKey(): JQuery.jqXHR<string> {
-        if (newLocation.LocationKey == null || newLocation.LocationKey.length == 0) {
-            setValidAssetKey(true);
-            return null;
-        }
-        const h = $.ajax({
-            type: "Post",
-            url: `${homePath}api/openXDA/Location/SearchableList`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Searches: [{ FieldName: 'LocationKey', SearchText: newLocation.LocationKey, Operator: '=', Type: 'string', isPivotColumn: false }], OrderBy: 'ID', Ascending: false }),
-            cache: false,
-            async: true
-        });
-
-        h.then((d) => { setValidAssetKey((JSON.parse(d) as Array<Location>).length == 0) });
-        return h;
-    }
-   
-    function getLocations(): JQuery.jqXHR<string> {
-        setSearchState('Loading');
-
-        return $.ajax({
-            type: "Post",
-            url: `${homePath}api/openXDA/Location/SearchableListIncludingMeter`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Searches: TransformSearchFields.Location(search), OrderBy: sortKey, Ascending: ascending }),
-            cache: false,
-            async: true
-        });
-    }
-
-    function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
+    function getAdditionalFields(setFields) {
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Location/FieldName/0`,
@@ -189,36 +130,45 @@ const ByLocation: Application.Types.iByComponent = (props) => {
         }
 
         handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
-            let ordered = _.orderBy((SearchFields.Location as Search.IField<Location>[]).concat(d.filter(item => item.Searchable).map(item => (
-                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Location>
-            ))), ['label'], ["asc"]);
-            setFilterableList(ordered)
+            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedLocation>
+            )), ['label'], ["asc"]);
+            setFields(ordered)
         });
 
-        return handle;
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
     }
 
-    function addNewLocation() {
-        $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/Location/Add`,
+    function getEnum(setOptions, field) {
+        let handle = null;
+        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+            return () => { };
+
+        handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(newLocation),
-            cache: false,
+            cache: true,
             async: true
-        })
-            //.done((data) => getData());
+        });
 
+        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+        return () => {
+            if (handle != null && handle.abort == null)
+                handle.abort();
+        }
     }
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Location&LocationID=' + item.row.ID, state: {} })
     }
 
-    function valid(field: keyof (OpenXDA.Types.Location)): boolean {
+    function valid(field: keyof (SystemCenter.Types.DetailedLocation)): boolean {
         if (field == 'LocationKey')
-            return newLocation.LocationKey != null && validAssetKey;
+            return newLocation.LocationKey != null && allKeys.findIndex((item) => item.LocationKey == newLocation.LocationKey) == -1;
         else if (field == 'Name')
             return newLocation.Name != null && newLocation.Name.length > 0 && newLocation.Name.length <= 200;
         else if (field == 'Alias')
@@ -237,45 +187,25 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
 
-            <SearchBar<Location> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Location as Search.IField<Location>} Width={'50%'} Label={'Search'}
-                ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Locations'}
-                GetEnum={(setOptions, field) => {
-                    let handle = null;
-                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
-                        return () => { };
-
-                    handle = $.ajax({
-                        type: "GET",
-                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-                        contentType: "application/json; charset=utf-8",
-                        dataType: 'json',
-                        cache: true,
-                        async: true
-                    });
-
-                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
-                }}
-
-            >
+            <DefaultSearch.Location Slice={ByLocationSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields}>
    
             <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <form>
-                            <div className="form-group">
-                                <div className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowNew(true); }}>Add Substation</div>
+                        <div className="form-group">
+                            <div className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowNew(true); }}>Add Substation</div>
                         </div>
                         <div className="form-group">
-                                <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
+                            <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
                         </div>
                     </form>
                 </fieldset>
             </li>
-            </SearchBar>
+            </DefaultSearch.Location>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<Location>
+                <Table<SystemCenter.Types.DetailedLocation>
                     cols={[
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'LocationKey', field: 'LocationKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
@@ -293,10 +223,9 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                             return;
 
                         if (d.colKey === sortKey)
-                            setAscending(!ascending);
+                            dispatch(ByLocationSlice.Sort({ SortField: sortKey, Ascending: ascending }));
                         else {
-                            setAscending(true);
-                            setSortKey(d.colKey);
+                            dispatch(ByLocationSlice.Sort({ SortField: d.colField as keyof SystemCenter.Types.DetailedLocation, Ascending: true }));
                         }
                     }}
                     onClick={handleSelect}
@@ -311,7 +240,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                 ShowX={true}
                 CallBack={(conf) => {
                     if (conf)
-                        addNewLocation()
+                        dispatch(ByLocationSlice.DBAction({ verb: "POST", record: newLocation }))
                     setShowNew(false);
                 }}
                 ConfirmShowToolTip={newLocationErrors.length > 0}
@@ -324,15 +253,15 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             >
                 <div className="row">
                     <div className="col">
-                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'LocationKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'LocationKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={setNewLocation} />
                     </div>
                     <div className="col">
-                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Latitude'} Feedback={'Latitude is a require numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<OpenXDA.Types.Location> Record={newLocation} Field={'Longitude'} Feedback={'Longitude is a require numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
-                        <TextArea<OpenXDA.Types.Location> Rows={3} Record={newLocation} Field={'Description'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'Latitude'} Feedback={'Latitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'Longitude'} Feedback={'Longitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
+                        <TextArea<SystemCenter.Types.DetailedLocation> Rows={3} Record={newLocation} Field={'Description'} Valid={valid} Setter={setNewLocation} />
                     </div>
                 </div>
             </Modal>

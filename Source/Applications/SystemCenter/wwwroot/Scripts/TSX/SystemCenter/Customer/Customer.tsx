@@ -80,6 +80,8 @@ export default function Customer(props: IProps) {
     if (cStatus == 'error')
         return null;
 
+    if (customer == null)
+        return null
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
