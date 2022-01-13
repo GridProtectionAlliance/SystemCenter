@@ -71,11 +71,15 @@ namespace SystemCenter
         #region [ Methods ]
         public void GetStatistics()
         {
+            if (Running)
+            {
+                Log.Info("OpenMIC Statistic operation already running...");
+                return;
+            }
+
             try
             {
                 Log.Info("Beginning OpenMIC Statistic operation");
-                
-                if (Running) return;
 
                 Running = true;
                 IEnumerable<string> devices = GetOpenMICMeters();
@@ -88,22 +92,47 @@ namespace SystemCenter
                 {
                     try
                     {
-                        //Log.Info($"Querying {device} for the OpenMIC Statistic operation");
+                        Log.Info($"Querying {device} for the OpenMIC Statistic operation");
 
                         JObject statistic = GetOpenMICStatistic(device);
-                        if (statistic == null) continue;
+                        if (statistic == null) {
+                            Log.Info($"No statistics from openMIC for {device}");
+                            continue; 
+                        }
+
                         using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                         {
                             AdditionalField field = new TableOperations<AdditionalField>(connection).QueryRecordWhere("ParentTable = 'Meter' AND FieldName = 'OpenMICAcronym'");
+                            if (field == null)
+                            {
+                                Log.Info($"No Field exists for OpenMICAcronym");
+                                continue;
+                            }
+
                             AdditionalFieldValue value = new TableOperations<AdditionalFieldValue>(connection).QueryRecordWhere("AdditionalFieldID = {0} AND Value = {1}", field.ID, device);
-                            if (value == null) continue;
+                            if (value == null)
+                            {
+                                Log.Info($"No additional value exists for {device}");
+                                continue;
+                            }
 
                             Meter meter = new TableOperations<Meter>(connection).QueryRecordWhere("ID = {0}", value.ParentTableID);
+                            if (meter == null)
+                            {
+                                Log.Info($"No meter exists for {device}");
+                                continue;
+                            }
 
                             int warningLevel = int.Parse(new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'OpenMIC.WarningLevel'")?.Value ?? "50");
                             int errorLevel = int.Parse(new TableOperations<Setting>(connection).QueryRecordWhere("Name = 'OpenMIC.ErrorLevel'")?.Value ?? "100");
 
                             openXDA.Model.Setting defaultTimeZone = new TableOperations<openXDA.Model.Setting>(connection).QueryRecordWhere("Name = 'System.DefaultMeterTimeZone'");
+                            if (defaultTimeZone == null)
+                            {
+                                Log.Info($"No setting exists for default time zone, using UTC");
+                                defaultTimeZone = new openXDA.Model.Setting() { Value = "UTC" };
+                            }
+
                             if (meter.TimeZone == null) meter.TimeZone = defaultTimeZone.Value;
 
                             string date = TimeZoneInfo.ConvertTimeFromUtc(statistic["EndTime"]?.ToObject<DateTime>() ?? DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(meter.TimeZone)).ToString("MM/dd/yyyy");
@@ -128,7 +157,7 @@ namespace SystemCenter
                                 lastUnsuccess = TimeZoneInfo.ConvertTimeFromUtc((DateTime)lastUnsuccess, TimeZoneInfo.FindSystemTimeZoneById(meter.TimeZone));
 
                             stat.LastUnsuccessfulConnection = lastUnsuccess;
-                            stat.LastUnsuccessfulConnectionExplanation = statistic["LastUnsuccessfulConnectionExplanation "]?.ToString();
+                            stat.LastUnsuccessfulConnectionExplanation = statistic["LastUnsuccessfulConnectionExplanation"]?.ToString();
                             stat.TotalSuccessfulConnections = statistic["TotalSuccessfulConnections"]?.ToObject<int>() ?? 0;
                             stat.TotalUnsuccessfulConnections = statistic["TotalUnsuccessfulConnections"]?.ToObject<int>() ?? 0;
                             stat.TotalConnections = stat.TotalSuccessfulConnections + stat.TotalUnsuccessfulConnections;
