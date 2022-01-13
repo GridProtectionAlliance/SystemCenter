@@ -31,6 +31,7 @@ using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -175,6 +176,7 @@ namespace SystemCenter
                                 stat.Status = "Warning";
                             }
 
+                            Log.Info($"Updating statistic record for {device} - Last Successful Connection: {stat.LastSuccessfulConnection} / Daily Connections: {stat.TotalConnections}");
                             new TableOperations<OpenMICDailyStatistic>(connection).AddNewOrUpdateRecord(stat);
                         }
 
@@ -198,7 +200,22 @@ namespace SystemCenter
         }
 
         private IEnumerable<string> GetOpenMICMeters() {
-            return ControllerHelpers.Get<IEnumerable<string>>("OpenMIC", "api/Operations/Meters");
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                DataTable table = connection.RetrieveData(@"
+                    SELECT AdditionalFieldValue.Value
+                    FROM
+                        AdditionalFieldValue JOIN
+                        AdditionalField ON AdditionalFieldValue.AdditionalFieldID = AdditionalField.ID
+                    WHERE
+                        AdditionalField.ParentTable = 'Meter' AND
+                        AdditionalField.FieldName = 'OpenMICAcronym' 
+
+                    ");
+
+                return table.Select().Select(x => x["Value"].ToString());
+            }
+            //return ControllerHelpers.Get<IEnumerable<string>>("OpenMIC", "api/Operations/Meters");
         }
 
         private JObject GetOpenMICStatistic(string meter)
