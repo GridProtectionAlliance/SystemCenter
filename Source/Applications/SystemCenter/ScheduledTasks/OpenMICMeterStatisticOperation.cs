@@ -137,6 +137,10 @@ namespace SystemCenter
                             if (meter.TimeZone == null) meter.TimeZone = defaultTimeZone.Value;
 
                             string date = TimeZoneInfo.ConvertTimeFromUtc(statistic["EndTime"]?.ToObject<DateTime>() ?? DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(meter.TimeZone)).ToString("MM/dd/yyyy");
+                            if (date == "01/01/0001") {
+                                date = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, TimeZoneInfo.FindSystemTimeZoneById(meter.TimeZone)).ToString("MM/dd/yyyy");
+                            }
+
                             OpenMICDailyStatistic stat = new TableOperations<OpenMICDailyStatistic>(connection).QueryRecordWhere("Meter = {0} AND Date = {1}", meter.AssetKey, date);
 
                             if (stat == null)
@@ -176,8 +180,9 @@ namespace SystemCenter
                                 stat.Status = "Warning";
                             }
 
-                            Log.Info($"Updating statistic record for {device} - Last Successful Connection: {stat.LastSuccessfulConnection} / Daily Connections: {stat.TotalConnections}");
+                            Log.Info($"Updating statistic record for {device} - Date: {stat.Date} / ID: {stat.ID} / Last Successful Connection: {stat.LastSuccessfulConnection} / Daily Connections: {stat.TotalConnections}");
                             new TableOperations<OpenMICDailyStatistic>(connection).AddNewOrUpdateRecord(stat);
+                            Log.Info($"Loaded record for {device} with no exceptions");
                         }
 
                     }
