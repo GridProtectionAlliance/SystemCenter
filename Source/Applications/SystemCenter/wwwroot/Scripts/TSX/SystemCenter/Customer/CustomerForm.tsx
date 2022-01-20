@@ -27,7 +27,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { CustomerSlice } from '../Store/Store';
 
 
-import { Input, TextArea } from '@gpa-gemstone/react-forms';
+import { CheckBox, Input, TextArea } from '@gpa-gemstone/react-forms';
 declare var homePath: string;
 
 interface IProps { Customer: OpenXDA.Types.Customer, stateSetter: (customer: OpenXDA.Types.Customer) => void, setErrors?: (e: string[]) => void }
@@ -86,6 +86,7 @@ export default function CustomerForm(props: IProps) {
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <TextArea<OpenXDA.Types.Customer> Rows={3} Record={props.Customer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <CheckBox Record={props.Customer} Field={'LSCVS'} Setter={(record) => props.stateSetter(record)} Label={'LSCVS'} />
         </div>
 
     </div>)
