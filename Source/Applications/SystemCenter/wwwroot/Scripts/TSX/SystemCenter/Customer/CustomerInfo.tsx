@@ -52,6 +52,8 @@ export default function CustomerInfo(props: IProps) {
             w.push('Changes to Phone Number will be lost.')
         if (customer.Description != props.Customer.Description)
             w.push('Changes to Description will be lost.')
+        if (customer.LSCVS != props.Customer.LSCVS)
+            w.push('Changes to LSCVS will be lost.')
         setWarning(w);
     }, [customer, props.Customer])
 
