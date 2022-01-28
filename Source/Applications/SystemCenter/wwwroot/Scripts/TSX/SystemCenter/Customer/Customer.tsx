@@ -31,6 +31,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { CustomerSlice } from '../Store/Store';
 import { Warning } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
+import MDMKeys from './MDMKeys';
 
 declare var homePath: string;
 
@@ -106,6 +107,9 @@ export default function Customer(props: IProps) {
                 <li className="nav-item">
                     <a className={"nav-link" + (tab == "notes" ? " active" : "")} onClick={() => setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
                 </li>
+                <li className="nav-item">
+                    <a className={"nav-link" + (tab == "mdmkeys" ? " active" : "")} onClick={() => setTab('mdmkeys')} data-toggle="tab" href="#mdmkeys">MDM Keys</a>
+                </li>
             </ul>
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
@@ -120,6 +124,9 @@ export default function Customer(props: IProps) {
                 </div>
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" >
                     <NoteWindow ID={props.CustomerID} Type='Customer' />
+                </div>
+                <div className={"tab-pane " + (tab == "mdmkeys" ? " active" : "fade")} id="mdmkeys" >
+                    <MDMKeys CustomerID={customer.ID} />
                 </div>
             </div>
             <Warning Title={'Confirm'} Show={showWarning} Message={'This will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />
