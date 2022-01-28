@@ -82,7 +82,7 @@ export default function CustomerForm(props: IProps) {
     
     return (<div className="row" style={{marginLeft: 0}}>
         <div className="col">
-            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Feedback={'CustomerKey of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Label={'Customer Key'} Feedback={'CustomerKey of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <TextArea<OpenXDA.Types.Customer> Rows={3} Record={props.Customer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
