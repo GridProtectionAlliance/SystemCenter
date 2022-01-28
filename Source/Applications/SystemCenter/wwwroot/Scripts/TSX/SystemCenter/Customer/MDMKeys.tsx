@@ -22,6 +22,8 @@
 //******************************************************************************************************
 
 import { Application, OpenXDA, SystemCenter } from "@gpa-gemstone/application-typings";
+import { CrossMark } from "@gpa-gemstone/gpa-symbols";
+import { Input } from "@gpa-gemstone/react-forms";
 import { Modal, Search } from "@gpa-gemstone/react-interactive";
 import Table from "@gpa-gemstone/react-table";
 import React from "react";
@@ -39,19 +41,39 @@ function MDMKeys(props: IProps) {
     const parentID: number = useSelector(LSCVSAccountSlice.ParentID);
     const dispatch = useDispatch();
 
+
+    const emptyLSCVS = { ID: 0, AccountID: '', CustomerID: props.CustomerID };
     const [ascending, setAscending] = React.useState<boolean>(false);
+    const [newLSCVSAccount, setNewLSCVSAccount] = React.useState<SystemCenter.Types.LSCVSAccount>(emptyLSCVS)
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.LSCVSAccount>('AccountID');
+    const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        if (status === 'unintiated' || status === 'changed' || status === 'idle' || parentID != props.CustomerID)
+        if (status === 'unintiated' || status === 'changed' || parentID != props.CustomerID)
             dispatch(LSCVSAccountSlice.Fetch(props.CustomerID));
     }, [status, props.CustomerID, parentID]);
 
     React.useEffect(() => {
-        if (searchStatus === 'unintiated' || status === 'changed' || status === 'idle')
+        if (searchStatus === 'unintiated' || status === 'changed')
             dispatch(LSCVSAccountSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [searchStatus]);
+    }, [searchStatus, status]);
+
+    React.useEffect(() => {
+            dispatch(LSCVSAccountSlice.DBSearch({ filter: search, sortField, ascending }));
+    }, [ascending]);
+
+    React.useEffect(() => {
+        const e: string[] = [];
+        if (newLSCVSAccount.AccountID == null || newLSCVSAccount.AccountID.length === 0)
+            e.push('An Account ID is required.')
+        setErrors(e);
+    }, [newLSCVSAccount])
+
+    function Valid(field: keyof (SystemCenter.Types.LSCVSAccount)) {
+        if (field == 'AccountID')
+            return newLSCVSAccount.AccountID != null && newLSCVSAccount.AccountID.length > 0 && newLSCVSAccount.AccountID.length < 50;
+    }
 
     return (
         <>
@@ -68,7 +90,7 @@ function MDMKeys(props: IProps) {
                         <Table<SystemCenter.Types.LSCVSAccount>
                             cols={[
                                 { key: 'AccountID', field: 'AccountID', label: 'Account IDs', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                                { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                             ]}
                             tableClass="table table-hover"
                             data={data}
@@ -92,6 +114,27 @@ function MDMKeys(props: IProps) {
                         />
                     </div>
                 </div>
+                <div className="card-footer">
+                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Account ID</button>
+                </div>
+                <Modal Title={'Add an Account ID'}
+                    Show={showAdd} Size={'lg'}
+                    ShowX={true}
+                    CallBack={(conf, isBtn) => {
+                        if (conf && errors.length == 0)
+                            dispatch(LSCVSAccountSlice.DBAction({ verb: 'POST', record: newLSCVSAccount }))
+                        setShowAdd(false);
+                    }}
+                    DisableConfirm={errors.length > 0}
+                    ConfirmShowToolTip={errors.length > 0}
+                    ConfirmToolTipContent={
+                        errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)
+                    }
+                >
+                    <form>
+                        <Input<SystemCenter.Types.LSCVSAccount> Record={newLSCVSAccount} Field={'AccountID'} Label={'Account ID'} Setter={setNewLSCVSAccount} Valid={Valid} Feedback={"A Valid Account ID is needed."} />
+                    </form>
+                </Modal>
             </div>
         </>
     );
