@@ -57,6 +57,7 @@ export const DataOperationSlice = new GenericSlice<OpenXDA.Types.DataOperation>(
 export const DataReaderSlice = new GenericSlice<OpenXDA.Types.DataReader>("DataReader", `${homePath}api/OpenXDA/DataReader`, "LoadOrder")
 export const ExternalDBTablesSlice = new GenericSlice<SystemCenter.Types.ExternalDataBaseTable>("ExternalDataBaseTable", `${homePath}api/OpenXDA/ExternalDBTables`, "TableName", false);
 export const ApplicationNodeSlice = new GenericSlice<Application.Types.iApplicationNode>("ApplicationNode", `${homePath}api/OpenXDA/ApplicationNode`, "Name", false);
+export const LSCVSAccountSlice = new GenericSlice<SystemCenter.Types.LSCVSAccount>("LSCVSAccount", `${homePath}api/LSCVSAccount`, "AccountID", false);
 
 export const AssetNoteSlice = new NoteSlice('Asset');
 export const MeterNoteSlice = new NoteSlice('Meter');
@@ -70,6 +71,7 @@ export const SCSecurityRoleSlice = new SecurityRoleSlice('SCSecurityRole', `${ho
 
 export default configureStore({
     reducer: {
+        LSCVSAccount: LSCVSAccountSlice.Reducer,
         CompanyType: CompanyTypeSlice.Reducer,
         MeasurementType: MeasurmentTypeSlice.Reducer,
         Phase: PhaseSlice.Reducer,
