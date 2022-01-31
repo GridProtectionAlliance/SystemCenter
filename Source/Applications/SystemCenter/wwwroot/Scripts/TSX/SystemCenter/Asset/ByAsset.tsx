@@ -76,7 +76,6 @@ const ByAsset: Application.Types.iByComponent = (props) => {
         let handle = null;
         if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
             handle = dispatch(AssetTypeSlice.Fetch());
-        return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, [assetTypeStatus])
 
     React.useEffect(() => {
