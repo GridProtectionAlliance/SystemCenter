@@ -27,11 +27,11 @@
   },
   "dependencies": {
     "@gpa-gemstone/application-typings": "0.0.44",
-    "@gpa-gemstone/common-pages": "0.0.28",
+    "@gpa-gemstone/common-pages": "0.0.29",
     "@gpa-gemstone/gpa-symbols": "0.0.18",
     "@gpa-gemstone/helper-functions": "0.0.14",
     "@gpa-gemstone/react-forms": "1.1.20",
-    "@gpa-gemstone/react-interactive": "1.0.38",
+    "@gpa-gemstone/react-interactive": "1.0.39",
     "@gpa-gemstone/react-table": "1.2.10",
     "@reduxjs/toolkit": "1.6.0",
     "assert": "2.0.0",
