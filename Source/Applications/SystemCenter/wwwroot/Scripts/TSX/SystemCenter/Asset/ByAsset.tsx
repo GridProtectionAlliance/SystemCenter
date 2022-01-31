@@ -42,6 +42,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
 import { AssetTypeSlice, ByAssetSlice } from '../Store/Store';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
+import DERAttributes from '../AssetAttribute/DER';
 
 
 
@@ -173,6 +174,8 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             return <LineSegmentAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.LineSegment} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'Transformer')
             return <TransformerAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.Transformer} UpdateState={setNewAsset} />;
+        else if (newAsset.AssetType == 'DER')
+            return <DERAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.DER} UpdateState={setNewAsset} />;
     }
 
 
