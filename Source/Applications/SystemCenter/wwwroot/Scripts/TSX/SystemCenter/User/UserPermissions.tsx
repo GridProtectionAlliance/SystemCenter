@@ -98,7 +98,7 @@ function UserPermission(props: IProps) {
                                     <legend className="w-auto" style={{ fontSize: 'large' }}>{node.Name}:</legend>
                                     <form>
                                         {
-                                            workingRoles.get(node.ID).map((scr, i, array) => <CheckBox<Application.Types.iApplicationRole<Application.Types.SecurityRoleName>> key={scr.ID} Record={scr} Field='Assigned' Label={scr.Name} Setter={(record) => {
+                                            workingRoles.get(node.ID)?.map((scr, i, array) => <CheckBox<Application.Types.iApplicationRole<Application.Types.SecurityRoleName>> key={scr.ID} Record={scr} Field='Assigned' Label={scr.Name} Setter={(record) => {
                                                 scr.Assigned = record.Assigned;
                                                 const newArray = _.clone(array);
                                                 setWorkingRoles((r) => { const u = _.cloneDeep(r); u.set(record.NodeID, newArray); return u; });
