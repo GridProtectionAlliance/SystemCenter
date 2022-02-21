@@ -420,6 +420,7 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationImages.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Menu\Style.css" />
     <Content Include="XDA.ico" />
     <Content Include="wwwroot\Users.cshtml" />
     <Content Include="wwwroot\ValueListGroups.cshtml" />
@@ -449,6 +450,7 @@
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationInfo.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationAsset.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationMeter.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Menu\Page.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Meter.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterConfigurationHistory.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterEventChannel.tsx" />
@@ -538,6 +540,10 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Advanced\MeterDataDelete.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Advanced\MeterDataMerge.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\Reason.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Menu\Application.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Menu\Context.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Menu\Icons.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Menu\Section.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataOperations.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataReaders.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\Setting.tsx" />

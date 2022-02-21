@@ -28,7 +28,7 @@ import { ValueListSlice } from '../Store/Store';
 
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
 
@@ -48,7 +48,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
     const [ascending, setAscending] = React.useState<boolean>(true);
 
     const emptyRecord = { ID: 0, Name: '', Description: '' };
-    let history = useHistory();
+    let history = useNavigate();
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<SystemCenter.Types.ValueListGroup>>>([]);
     const [newRecord, setNewRecord] = React.useState<SystemCenter.Types.ValueListGroup>(emptyRecord);
@@ -84,7 +84,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
 
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ValueListGroup&GroupID=' + item.row.ID, state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=ValueListGroup&GroupID=' + item.row.ID })
     }
 
 

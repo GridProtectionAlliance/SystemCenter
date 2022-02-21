@@ -24,7 +24,7 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
@@ -44,7 +44,7 @@ const defaultSearchcols: Array<Search.IField<Meter>> = [
 ];
 
 const ByMeter: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let history = useNavigate();
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<Meter>>>([]);
     const [data, setData] = React.useState<Array<Meter>>([]);
@@ -93,10 +93,10 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID, state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID })
     }
     function goNewMeterWizard() {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard', state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard' })
     }
 
     function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {

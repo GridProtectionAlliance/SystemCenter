@@ -24,7 +24,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import AddToGroupPopup from './AddToGroup';
 
@@ -33,7 +33,7 @@ interface Asset { ID: number, AssetName: string, LongAssetName: string, AssetID:
 
 
 function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
-    let history = useHistory();
+    let history = useNavigate();
     const [assetList, setAssetList] = React.useState<Array<Asset>>([]);
     const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -122,7 +122,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setSortKey(d.colKey);
                             }
                         }}
-                        onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.AssetID, state: {} }) }}
+                        onClick={(data) => { history({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.AssetID }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 590, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

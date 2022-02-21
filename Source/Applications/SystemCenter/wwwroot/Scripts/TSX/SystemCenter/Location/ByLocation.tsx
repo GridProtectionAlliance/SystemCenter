@@ -24,7 +24,7 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
@@ -43,7 +43,7 @@ interface Location {
 
 
 const ByLocation: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let history = useNavigate();
     const [search, setSearch] = React.useState<Array<Search.IFilter<Location>>>([]);
     const [data, setData] = React.useState<Array<Location>>([]);
 
@@ -213,7 +213,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Location&LocationID=' + item.row.ID, state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=Location&LocationID=' + item.row.ID })
     }
 
     function valid(field: keyof (OpenXDA.Types.Location)): boolean {

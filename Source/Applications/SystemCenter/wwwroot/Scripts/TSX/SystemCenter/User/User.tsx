@@ -30,14 +30,14 @@ import AdditionalField from './AdditionalUserFieldsWindow'
 import { useDispatch, useSelector } from 'react-redux';
 import { CheckBox } from '@gpa-gemstone/react-forms';
 import { UserAccountSlice } from '../Store/Store';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 interface IProps {
 	UserID: string
 }
 
 function User(props: IProps) {
-	const history = useHistory();
+	const history = useNavigate();
 	const dispatch = useDispatch();
 
 	const user: Application.Types.iUserAccount = useSelector(UserAccountSlice.CurrentUser);
@@ -100,7 +100,7 @@ function User(props: IProps) {
 				setShowWarning(false);
 				if (c) {
 					dispatch(UserAccountSlice.DBAction({ verb: 'DELETE', record: user }));
-					history.push({ pathname: homePath + 'index.cshtml?name=Users', state: {} });
+					history({ pathname: homePath + 'index.cshtml?name=Users' });
 				}
 			}} />
 		</div>

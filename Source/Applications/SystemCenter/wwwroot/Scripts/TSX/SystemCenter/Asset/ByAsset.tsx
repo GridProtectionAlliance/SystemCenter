@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes } from '../../../TS/Services/Asset';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
@@ -62,7 +62,7 @@ interface Asset {
 declare var homePath: string;
 
 const ByAsset: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let history = useNavigate();
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<Asset>>>([]);
     const [data, setData] = React.useState<Array<Asset>>([]);
@@ -242,7 +242,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
 
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID, state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID})
     }
 
     const standardSearch: Search.IField<Asset> = { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false };

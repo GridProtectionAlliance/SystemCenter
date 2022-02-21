@@ -24,7 +24,7 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import AddToGroupPopup from './AddToGroup';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
@@ -55,7 +55,7 @@ const emptyAssetGroup: extendedAssetGroup = { ID: -1, Name: '', DisplayDashboard
 declare var homePath: string;
 
 const ByAssetGroup: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let history = useNavigate();
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<AssetGroup>>>([]);
     const [data, setData] = React.useState<Array<AssetGroup>>([]);
@@ -178,7 +178,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
             Promise.all([handle1,handle2, handle3]).then((x) => {
                 sessionStorage.clear();
-                history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + d.ID, state: {} })
+                history({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + d.ID })
             }, (msg) => {
                 if (msg.status == 500)
                     alert(msg.responseJSON.ExceptionMessage)
@@ -191,7 +191,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + item.row.ID, state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + item.row.ID})
     }
 
     function valid(field: keyof (OpenXDA.Types.AssetGroup)): boolean {

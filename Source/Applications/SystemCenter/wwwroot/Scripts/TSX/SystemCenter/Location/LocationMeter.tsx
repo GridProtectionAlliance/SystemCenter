@@ -25,12 +25,12 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import Table from '@gpa-gemstone/react-table';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 declare var homePath: string;
 
 function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.Element{
-    let history = useHistory();
+    let history = useNavigate();
     const [meters, setMeters] = React.useState<Array<OpenXDA.Types.Meter>>([]);
     const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -51,7 +51,7 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID, state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID })
     }
 
     return (

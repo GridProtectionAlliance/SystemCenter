@@ -29,7 +29,7 @@ import * as CryptoJS from 'crypto-js';
 import * as _ from 'lodash';
 import UserForm from './UserForm';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { ValueListSlice, ValueListGroupSlice, UserAdditionalFieldSlice, UserAccountSlice } from '../Store/Store';
 import { UserValidation } from '@gpa-gemstone/common-pages/lib/SliceInterfaces';
 
@@ -44,7 +44,7 @@ const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
 
 
 const ByUser: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let history = useNavigate();
     const dispatch = useDispatch();
 
     const search: Search.IFilter<Application.Types.iUserAccount>[] = useSelector(UserAccountSlice.SearchFilters);
@@ -190,7 +190,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
 
                     }}
-                    onClick={(d) => history.push({pathname: homePath + 'index.cshtml', search: '?name=User&UserAccountID=' + d.row.ID, state: { } })}
+                    onClick={(d) => history({pathname: homePath + 'index.cshtml', search: '?name=User&UserAccountID=' + d.row.ID })}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

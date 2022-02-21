@@ -25,7 +25,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import AddToGroupPopup from './AddToGroup';
 
@@ -33,7 +33,7 @@ declare var homePath: string;
 interface Meter { ID: number, MeterName: string, MeterID: number, AssetGroupID: number, Location: string }
 
 function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
-    let history = useHistory();
+    let history = useNavigate();
     const [meterList, setMeterList] = React.useState<Array<Meter>>([]);
     const [sortField, setSortField] = React.useState<string>('MeterName');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -117,7 +117,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setSortField(d.colKey);
                             }
                         }}
-                        onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + data.row.MeterID, state: {} }) }}
+                        onClick={(data) => { history({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + data.row.MeterID }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

@@ -24,7 +24,7 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
 
@@ -110,7 +110,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        //history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID, state: {} })
+        //history({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID})
     }
 
     function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
