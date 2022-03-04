@@ -230,7 +230,8 @@ function SectionSelect(props: IProps): JSX.Element {
                                             updated[index].NameTo = locations.find(l => l.ID == updated[index].endStationID).LocationKey;
                                         }
                                         props.SetSections(updated);
-                                    }} Options={locations.map(l => ({ Value: l.ID.toString(), Label: l.LocationKey }))} EmptyOption={true}/>  },
+                                    }} Options={locations.map(l => ({ Value: l.ID.toString(), Label: l.Name + '(' + l.LocationKey + ')' }))} EmptyOption={true} />
+                                },
                                 { key: 'Segments', label: '# of Segments', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.Segments.length },
                                 { key: 'endStationID', label: 'Length (miles)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.Segments.map((v) => props.Segments.find(seg => seg.AssetKey == v).Length).reduce((a,v) => a=a+v) },
 

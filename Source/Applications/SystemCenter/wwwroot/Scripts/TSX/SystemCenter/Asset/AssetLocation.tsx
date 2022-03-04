@@ -66,7 +66,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             cache: true,
             async: true
         }).done(data => {
-            let records = _.orderBy(data, ['LocationKey'], ['asc']);
+            let records = _.orderBy(data, ['Name'], ['asc']);
             setAllLocations(records);
             setNewLocation(records[0]);
         });
@@ -180,7 +180,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                                 <select className="form-control" value={newLocation != null ? newLocation.ID : '0'} onChange={(evt) => {
                                     setNewLocation(allLocations.find(l => l.ID.toString() == evt.target.value));
                                 }}>
-                                    {allLocations.map(als => <option value={als.ID} key={als.ID}>{als.LocationKey}</option>)}
+                                    {allLocations.map(als => <option value={als.ID} key={als.ID}>{als.Name} ({als.LocationKey})</option>)}
                                 </select>
                             </div>
                         </div>
