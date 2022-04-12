@@ -142,7 +142,7 @@ const MeterEventChannelWindow = (props: IProps) => {
             url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Channel/Update/Event`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Channels: this.state.Channels }),
+            data: JSON.stringify({ Channels: channels }),
             cache: false,
             async: true
         }).done(() => {
@@ -320,7 +320,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                 }}>Add Channel</button>
             </div>
             <div className="btn-group mr-2">
-                <button className={"btn btn-primary" + (errors.length > 0 || nChanges == 0 ? ' disabled' : '')} onClick={() => { if (errors.length > 0 || nChanges == 0) applyUpdates() }}
+                <button className={"btn btn-primary" + (errors.length > 0 || nChanges == 0 ? ' disabled' : '')} onClick={() => { if (errors.length === 0 && nChanges > 0) applyUpdates() }}
                     onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')} data-tooltip={'save'}>Save Changes</button>
                 <ToolTip Show={hover == 'New' && (errors.length > 0 || nChanges == 0)} Position={'top'} Theme={'dark'} Target={"save"}>
                     {nChanges == 0 ? <p> no changes have been made. </p> : null}
