@@ -49,7 +49,7 @@
     "react-router-dom": "5.2.0"
   },
   "scripts": {
-    "build": "npm prune && npm install && webpack --mode=development",
+    "build": "set NODE_OPTIONS=--openssl-legacy-provider && npm prune && npm install && webpack --mode=development",
     "builddebug": "webpack --mode=none",
     "buildrelease": "npm prune && npm install && webpack --mode=production",
     "watch": "webpack --watch --color --mode=development",
