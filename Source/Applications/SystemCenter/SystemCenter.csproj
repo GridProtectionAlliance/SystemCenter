@@ -438,6 +438,7 @@
     <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\CapBank.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Bus.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\Asset.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetEventChannel.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetLocation.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetConnection.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetInfo.tsx" />
