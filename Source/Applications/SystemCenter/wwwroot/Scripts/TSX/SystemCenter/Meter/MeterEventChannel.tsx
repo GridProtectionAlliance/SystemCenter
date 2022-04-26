@@ -31,6 +31,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { error } from 'console';
 import { AssetAttributes } from '../AssetAttribute/Asset';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -324,7 +325,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                     onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')} data-tooltip={'save'}>Save Changes</button>
                 <ToolTip Show={hover == 'New' && (errors.length > 0 || nChanges == 0)} Position={'top'} Theme={'dark'} Target={"save"}>
                     {nChanges == 0 ? <p> no changes have been made. </p> : null}
-                    {errors.length > 0 ? errors.map((e, i) => <p key={i}><ErrorSymbol /> {e}</p>) : null}
+                    {errors.length > 0 ? errors.map((e, i) => <> {CrossMark} <p key={i}> {e} </p> </>) : null}
                 </ToolTip>
             </div>
             <div className="btn-group mr-2">
@@ -338,8 +339,6 @@ const MeterEventChannelWindow = (props: IProps) => {
     </div>
 
 }
-
-const ErrorSymbol = () => <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
 
 export default MeterEventChannelWindow
 ;

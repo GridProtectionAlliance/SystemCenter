@@ -622,7 +622,35 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        [HttpGet, Route("{assetID:int}/ConnectedChannels")]
+        public IHttpActionResult GetAssetChannels(int assetID)
+        {
+            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
+            {
 
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    Asset asset = new TableOperations<Asset>(connection).QueryRecordWhere("ID={0}", assetID);
+                    if (asset is null)
+                        return Ok();
+
+                    asset.ConnectionFactory = () => (new AdoDataConnection(Connection));
+
+                    List<Channel> connectedChannels = asset.ConnectedChannels;
+
+                    if (connectedChannels.Count != 0)
+                    {
+                        TableOperations<ChannelDetail> tableOp = new TableOperations<ChannelDetail>(connection);
+                        return Ok(tableOp.QueryRecordsWhere($"ID in ({string.Join(", ", connectedChannels.Select((channels) => channels.ID))})"));
+                    } else
+                    {
+                        return Ok(new List<ChannelDetail>());
+                    }
+                }
+            }
+            else
+                return Unauthorized();
+        }
 
 
         [HttpPost, Route("Edit")]
