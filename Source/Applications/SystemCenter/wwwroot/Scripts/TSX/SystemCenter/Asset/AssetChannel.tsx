@@ -62,7 +62,7 @@ interface ChannelDetail { //TODO: Move to Gemstone
 }
 
 
-const AssetEventChannelWindow = (props: IProps) => {
+const AssetChannelWindow = (props: IProps) => {
 
     const [assetChannels, setAssetChannels] = React.useState<ChannelDetail[]>([]);
 
@@ -71,7 +71,7 @@ const AssetEventChannelWindow = (props: IProps) => {
     const [status, setStatus] = React.useState<Application.Types.Status>('idle');
 
 
-    const [sortField, setSortField] = React.useState<keyof (ChannelDetail)>('ID');
+    const [sortField, setSortField] = React.useState<keyof (ChannelDetail)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
 
@@ -79,7 +79,7 @@ const AssetEventChannelWindow = (props: IProps) => {
     React.useEffect(() => {
         let channelHandle = getChannels();
 
-        Promise.all([channelHandle]).then(() => setStatus('idle'), () => setStatus('error'))
+        Promise.all([channelHandle]);
 
         return () => {
             if (channelHandle != null && channelHandle.abort != null)
@@ -88,17 +88,22 @@ const AssetEventChannelWindow = (props: IProps) => {
     }, [props.Asset]);
 
     function getChannels(): JQuery.jqXHR<ChannelDetail[]> {
-        setStatus('loading')
-        return $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/ConnectedChannels`,
-            contentType: "application/json; charset=utf-A",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((d: Array<ChannelDetail>) => {
-            setAssetChannels(d);
-        });
+        setStatus('loading');
+        return $.ajax(
+            {
+                type: "GET",
+                url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/ConnectedChannels`,
+                contentType: "application/json; charset=utf-A",
+                dataType: 'json',
+                cache: true,
+                async: true
+            }
+        ).done(
+            (d: Array<ChannelDetail>) => {
+                setAssetChannels(d);
+                setStatus('idle');
+            }
+        ).fail(() => setStatus('error'));
     }
 
     if (status == 'error' || pStatus == 'error' || mtStatus == 'error')
@@ -189,6 +194,6 @@ const AssetEventChannelWindow = (props: IProps) => {
     );
 }
 
-export default AssetEventChannelWindow
+export default AssetChannelWindow
 ;
 

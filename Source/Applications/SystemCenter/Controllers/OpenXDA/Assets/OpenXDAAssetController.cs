@@ -627,25 +627,31 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                try
                 {
-                    Asset asset = new TableOperations<Asset>(connection).QueryRecordWhere("ID={0}", assetID);
-                    if (asset is null)
-                        return Ok();
-
-                    asset.ConnectionFactory = () => (new AdoDataConnection(Connection));
-
-                    List<Channel> connectedChannels = asset.ConnectedChannels;
-
-                    if (connectedChannels.Count != 0)
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                        TableOperations<ChannelDetail> tableOp = new TableOperations<ChannelDetail>(connection);
-                        return Ok(tableOp.QueryRecordsWhere($"ID in ({string.Join(", ", connectedChannels.Select((channels) => channels.ID))})"));
-                    } else
-                    {
-                        return Ok(new List<ChannelDetail>());
+                        Asset asset = new TableOperations<Asset>(connection).QueryRecordWhere("ID={0}", assetID);
+                        if (asset is null)
+                            throw (new Exception($"Asset ID={assetID} not found in OpenXDA database"));
+
+                        asset.ConnectionFactory = () => (new AdoDataConnection(Connection));
+
+                        List<Channel> connectedChannels = asset.ConnectedChannels;
+
+                        if (connectedChannels.Count > 0)
+                        {
+                            TableOperations<ChannelDetail> tableOp = new TableOperations<ChannelDetail>(connection);
+                            return Ok(tableOp.QueryRecordsWhere($"ID in ({string.Join(", ", connectedChannels.Select((channels) => channels.ID))})"));
+                        }
+                        else
+                        {
+                            return Ok(new List<ChannelDetail>());
+                        }
                     }
+                } catch (Exception ex)
+                {
+                    return InternalServerError(ex);
                 }
             }
             else
