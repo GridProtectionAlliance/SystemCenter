@@ -39,7 +39,7 @@ function LineSegmentAttributes(props: { NewEdit: Application.Types.NewEdit, Asse
             return props.Asset.R1 != null && AssetAttributes.isRealNumber(props.Asset.R1);
         else if (field == 'X1')
             return props.Asset.X1 != null && AssetAttributes.isRealNumber(props.Asset.X1);
-       else if (field == 'ThermalRating')
+        else if (field == 'ThermalRating')
             return props.Asset.ThermalRating != null && AssetAttributes.isRealNumber(props.Asset.ThermalRating);
 
         return false;

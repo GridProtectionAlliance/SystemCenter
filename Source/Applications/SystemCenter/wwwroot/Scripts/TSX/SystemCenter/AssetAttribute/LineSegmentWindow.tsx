@@ -195,7 +195,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Segement</button>
+                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Segment</button>
                 </div>
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary" onClick={(evt) => setShowFawg(true)}>Update from FAWG</button>
