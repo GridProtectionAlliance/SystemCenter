@@ -26,10 +26,14 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Reflection;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Security.Model;
+using GSF.Web;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
@@ -396,6 +400,243 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/MeterDataQualitySummary")]
     public class MeterDataQualitySummaryController : ModelController<MeterDataQualitySummary> { }
 
+    [RoutePrefix("api/OpenXDA/remoteXDAInstance")]
+    public class RemoteXDAInstanceController : ModelController<RemoteXDAInstance> { }
+
+    [RoutePrefix("api/OpenXDA/RemoteXDAAsset")]
+    public class RemoteXDAAssetController : ModelController<RemoteXDAAsset>
+    {
+        /// <summary>
+        /// Adds a new Record by casting RemoteXDAAsset to its base class AssetsToDataPush.
+        /// </summary>
+        /// <param name="record"> The <typeparamref name="RemoteXDAAsset"/> record to be added.</param>
+        /// <returns><see cref="IHttpActionResult"/> containing the added record or <see cref="Exception"/> </returns>
+        public override IHttpActionResult Patch([FromBody] RemoteXDAAsset record)
+        {
+            try
+            {
+                if (PatchAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        if (record.RemoteXDAAssetID > 0)
+                            throw new Exception("Unable to modifiy entry, entry already exists remotely.");
+                        int result = new TableOperations<AssetsToDataPush>(connection).AddNewOrUpdateRecord(record);
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        /// <summary>
+        /// Deletes an existing Record by casting RemoteXDAAsset to its base class AssetsToDataPush
+        /// </summary>
+        /// <param name="record"> The <typeparamref name="RemoteXDAAsset"/> record to be deleted.</param>
+        /// <returns><see cref="IHttpActionResult"/> containing the number of records deleted or <see cref="Exception"/> </returns>
+        public override IHttpActionResult Delete(RemoteXDAAsset record)
+        {
+            try
+            {
+                if (DeleteAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        if (record.RemoteXDAAssetID > 0)
+                            throw new Exception("Unable to modifiy entry, entry already exists remotely.");
+                        int result = new TableOperations<AssetsToDataPush>(connection).DeleteRecord(record.ID);
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        /// <summary>
+        /// Adds a new Record.
+        /// </summary>
+        /// <param name="record"> The <typeparamref name="RemoteXDAAsset"/> record to be added.</param>
+        /// <returns><see cref="IHttpActionResult"/> containing the added record or <see cref="Exception"/> </returns>
+        public virtual IHttpActionResult Post([FromBody] RemoteXDAAsset record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        // Add data push (or update)
+                        int result = new TableOperations<AssetsToDataPush>(connection).AddNewOrUpdateRecord(record);
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
+    [RoutePrefix("api/OpenXDA/RemoteXDAMeter")]
+    public class RemoteXDAMeterController : ModelController<RemoteXDAMeter>
+    {
+        /// <summary>
+        /// Updates a Record by casting RemoteXDAAsset to its base class AssetsToDataPush.
+        /// </summary>
+        /// <param name="record"> The <typeparamref name="RemoteXDAMeter"/> record to be added.</param>
+        /// <returns><see cref="IHttpActionResult"/> containing the added record or <see cref="Exception"/> </returns>
+        public override IHttpActionResult Patch([FromBody] RemoteXDAMeter record)
+        {
+            try
+            {
+                if (PatchAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        if (record.RemoteXDAMeterID > 0)
+                            throw new Exception("Unable to modifiy entry, entry already exists remotely.");
+                        int result = new TableOperations<MetersToDataPush>(connection).AddNewOrUpdateRecord(record);
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        /// <summary>
+        /// Deletes an existing Record by casting RemoteXDAAsset to its base class AssetsToDataPush
+        /// </summary>
+        /// <param name="record"> The <typeparamref name="RemoteXDAMeter"/> record to be deleted.</param>
+        /// <returns><see cref="IHttpActionResult"/> containing the number of records deleted or <see cref="Exception"/> </returns>
+        public override IHttpActionResult Delete(RemoteXDAMeter record)
+        {
+            try
+            {
+                if (DeleteAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        if (record.RemoteXDAMeterID > 0)
+                            throw new Exception("Unable to modifiy entry, entry already exists remotely.");
+                        int result = new TableOperations<MetersToDataPush>(connection).DeleteRecord(record.ID);
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        /// <summary>
+        /// Adds a new Record.
+        /// </summary>
+        /// <param name="record"> The <typeparamref name="RemoteXDAMeter"/> record to be added.</param>
+        /// <returns><see cref="IHttpActionResult"/> containing the added record or <see cref="Exception"/> </returns>
+        public virtual IHttpActionResult Post([FromBody] RemoteXDAMeter record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        int result = new TableOperations<MetersToDataPush>(connection).AddNewRecord(record);
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+    }
+
+    [RoutePrefix("api/OpenXDA/MetersToDataPush")]
+    public class MetersToDataPushController : ModelController<MetersToDataPush> { }
+
+    [RoutePrefix("api/OpenXDA/Alive")]
+    public class AliveCheckerController : ApiController
+    {
+        public static string LocalXDAInstance
+        {
+            get
+            {
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                {
+                    return new TableOperations<openXDA.Model.Setting>(connection).QueryRecordWhere("Name = 'LocalXDAInstance'").Value ?? "http://127.0.0.1:8989";
+                }
+            }
+        }
+        [HttpGet, Route("{instanceId:int}")]
+        public IHttpActionResult TestRemoteXDAConnection(int instanceId)
+        {
+            try
+            {
+                using (HttpClient client = new HttpClient())
+                {
+                    client.BaseAddress = new Uri(LocalXDAInstance);
+                    client.DefaultRequestHeaders.Accept.Clear();
+                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+                    // client.DefaultRequestHeaders.Authorization = 
+
+                    HttpResponseMessage response = client.GetAsync($"api/DataPusher/TestRemoteInstanceConnection/{instanceId}").Result;
+
+                    if (!response.IsSuccessStatusCode)
+                        throw new Exception("Could send request to local XDA instance.");
+
+                    return Ok(0);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
 }
 
 

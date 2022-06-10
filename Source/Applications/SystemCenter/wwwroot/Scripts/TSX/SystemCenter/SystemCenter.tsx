@@ -43,6 +43,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ByLocation = React.lazy(() => import(/* webpackChunkName: "ByLocation" */ './Location/ByLocation'));
     const ByAsset = React.lazy(() => import(/* webpackChunkName: "ByAsset" */ './Asset/ByAsset'));
     const ByCustomer = React.lazy(() => import(/* webpackChunkName: "ByCustomer" */ './Customer/ByCustomer'));
+    const RemoteXDAInstanceMain = React.lazy(() => import(/* webpackChunkname: "RemoteXDA" */ './RemoteXDA/RemoteXDAInstanceMain'))
+    const RemoteXDAInstance = React.lazy(() => import(/* webpackChunkname: "RemoteXDA" */ './RemoteXDA/RemoteXDAInstance'))
     const ByExternalDB = React.lazy(() => import(/* webpackChunkname: "ByExternalDB" */ './ExternalDB/ByExternalDB'))
     const ExternalDB = React.lazy(() => import(/* webpackChunkname: "ExternalDB" */ './ExternalDB/ExternalDB'))
     const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/ByUser'));
@@ -174,6 +176,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Companies"} to={controllerViewPath + "?name=Companies"}>Companies</NavLink>
                                 </li>
                                 <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=RemoteXDAInstanceMain"} to={controllerViewPath + "?name=RemoteXDAInstanceMain"}>Remote openXDA Instances</NavLink>
+                                </li>
+                                <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=PQViewSites"} to={controllerViewPath + "?name=PQViewSites"}>PQView Sites</NavLink>
                                 </li>
                                 <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
@@ -251,6 +256,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ByUser Roles={roles} />
                                 else if (qs['?name'] == "Companies")
                                     return <ByCompany Roles={roles} />
+                                else if (qs['?name'] == "RemoteXDAInstanceMain")
+                                    return <RemoteXDAInstanceMain Roles={roles} />
+                                else if (qs['?name'] == "RemoteXDAInstance")
+                                    return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} />
                                 else if (qs['?name'] == "ByExternalDB")
                                     return <ByExternalDB Roles={roles} />
                                 else if (qs['?name'] == "ExternalDB")
