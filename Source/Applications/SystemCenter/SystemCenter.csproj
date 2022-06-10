@@ -239,6 +239,7 @@
     <Compile Include="Controllers\SystemCenter\PQIController.cs" />
     <Compile Include="Controllers\SystemCenter\RVHTController.cs" />
     <Compile Include="Controllers\SystemCenter\SystemCenterController.cs" />
+    <Compile Include="Model\Security\RemoteUserAccount.cs" />
     <Compile Include="ScheduledTasks\OpenMICMeterStatisticOperation.cs" />
     <Compile Include="ScheduledTasks\UserAccountMetaDataUpdater.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineSegmentController.cs" />
@@ -427,6 +428,14 @@
       <SubType>Designer</SubType>
     </None>
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationImages.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteAssetForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteMeterTab.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteAssetTab.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteMeterForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteXDAInstanceForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\SystemSettingsTab.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteXDAInstance.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteXDAInstanceMain.tsx" />
     <Content Include="XDA.ico" />
     <Content Include="wwwroot\Users.cshtml" />
     <Content Include="wwwroot\ValueListGroups.cshtml" />

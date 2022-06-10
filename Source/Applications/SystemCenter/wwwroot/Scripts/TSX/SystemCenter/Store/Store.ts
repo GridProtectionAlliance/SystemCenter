@@ -77,6 +77,10 @@ export const ByAssetSlice = new GenericSlice<SystemCenter.Types.DetailedAsset>("
 export const ByLocationSlice = new GenericSlice<SystemCenter.Types.DetailedLocation>("ByLocation", `${homePath}api/OpenXDA/ByLocation`, "LocationKey", true);
 export const ByMeterSlice = new GenericSlice<SystemCenter.Types.DetailedMeter>("ByMeter", `${homePath}api/OpenXDA/ByMeter`, "Name", true);
 
+export const RemoteXDAInstanceSlice = new GenericSlice<OpenXDA.Types.RemoteXDAInstance>("remoteXDAInstance", `${homePath}api/OpenXDA/remoteXDAInstance`, "Name", false);
+export const RemoteXDAMeterSlice = new GenericSlice<OpenXDA.Types.RemoteXDAMeter>("RemoteXDAMeter", `${homePath}api/OpenXDA/RemoteXDAMeter`, "LocalMeterName", false);
+export const RemoteXDAAssetSlice = new GenericSlice<OpenXDA.Types.RemoteXDAAsset>("RemoteXDAAsset", `${homePath}api/OpenXDA/RemoteXDAAsset`, "LocalAssetName", false);
+export const UserAccountSliceRemote = new GenericSlice<Application.Types.iUserAccount>("UserAccountRemote", `${homePath}api/SystemCenter/RemoteUserAccount`, "Name", false);
 
 export const AssetNoteSlice = new NoteSlice('Asset');
 export const MeterNoteSlice = new NoteSlice('Meter');
@@ -125,6 +129,10 @@ export default configureStore({
         DataOperation: DataOperationSlice.Reducer,
         DataReader: DataReaderSlice.Reducer,
         ExternalDataBaseTable: ExternalDBTablesSlice.Reducer,
+        remoteXDAInstance: RemoteXDAInstanceSlice.Reducer,
+        RemoteXDAAsset: RemoteXDAAssetSlice.Reducer,
+        RemoteXDAMeter: RemoteXDAMeterSlice.Reducer,
+        UserAccountRemote: UserAccountSliceRemote.Reducer,
         ApplicationNode: ApplicationNodeSlice.Reducer,
         PQApplicationCategory: ApplicationCategorySlice.Reducer,
         PQApplications: PQApplicationsSlice.Reducer,
