@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import Table from '@gpa-gemstone/react-table';
 import { SystemCenter, Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { RemoteXDAMeterSlice, ByMeterSlice } from '../Store/Store';
+import { RemoteXDAMeterSlice, ByMeterSlice, RemoteXDAAssetSlice } from '../Store/Store';
 import { LoadingScreen, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { BlankRemoteXDAMeter, RemoteMeterForm } from './RemoteMeterForm';
@@ -53,10 +53,12 @@ const RemoteMeterTab = (props: IProps) => {
             isPivotColumn: false
         }]
 
+    // Shared Consts
+    const [selectedMeter, setSelectedMeter] = React.useState<OpenXDA.Types.RemoteXDAMeter>(BlankRemoteXDAMeter);
+
     // Edit and Delete Form Consts
     const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
     const [remoteMeter, setRemoteMeter] = React.useState<OpenXDA.Types.RemoteXDAMeter>(BlankRemoteXDAMeter);
-    const [selectedMeter, setSelectedMeter] = React.useState<OpenXDA.Types.RemoteXDAMeter>(BlankRemoteXDAMeter);
     const [showEdit, setShowEdit] = React.useState<(boolean)>(false);
 
     // Add New Meter Consts
@@ -64,10 +66,22 @@ const RemoteMeterTab = (props: IProps) => {
     const [meterList, setMeterList] = React.useState<Array<SystemCenter.Types.DetailedMeter>>([]);
     const [showAddMeters, setShowAddMeters] = React.useState<(boolean)>(false);
 
+    // Add New Assets for Meter
+    const remoteAssetStatus = useSelector(RemoteXDAAssetSlice.Status);
+    const [showAddAssets, setShowAddAssets] = React.useState<(boolean)>(false);
+    const [showLoading, setShowLoading] = React.useState<(boolean)>(false);
+    const [assetCount, setAssetCount] = React.useState<number>(0);
+
+
     React.useEffect(() => {
         if (remoteMeterStatus === 'unintiated' || remoteMeterStatus === 'changed')
             dispatch(RemoteXDAMeterSlice.Fetch());
     }, [dispatch, remoteMeterStatus]);
+
+    React.useEffect(() => {
+        if (remoteAssetStatus === 'unintiated' || remoteAssetStatus === 'changed')
+            dispatch(RemoteXDAAssetSlice.Fetch());
+    }, [dispatch, remoteAssetStatus]);
 
     React.useEffect(() => {
         if (meterStatus === 'unintiated' || meterStatus === 'changed')
@@ -87,10 +101,32 @@ const RemoteMeterTab = (props: IProps) => {
         return item.RemoteXDAMeterID <= 0;
     }
 
+    function getAssociatedAssetCount(meter: OpenXDA.Types.RemoteXDAMeter): JQuery.jqXHR<number> {
+        return $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/ByAsset/Associated/Count/${meter.RemoteXDAInstanceID}/${meter.LocalXDAMeterID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+    }
+
+    function addAssociatedAssets(meter: OpenXDA.Types.RemoteXDAMeter): JQuery.jqXHR<number> {
+        return $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/ByAsset/Associated/Add/${meter.RemoteXDAInstanceID}/${meter.LocalXDAMeterID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+    }
+
     let cardBody;
     if (remoteMeterStatus === 'error') {
         cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
-    } else if (remoteMeterStatus === 'loading') {
+    } else if (remoteMeterStatus === 'loading' || showLoading) {
         cardBody = <LoadingScreen Show={true} />
     } else {
         cardBody =
@@ -169,7 +205,7 @@ const RemoteMeterTab = (props: IProps) => {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Remote XDA Meters::</h4>
+                        <h4>Remote XDA Meters:</h4>
                     </div>
                 </div>
             </div>
@@ -177,17 +213,17 @@ const RemoteMeterTab = (props: IProps) => {
                 {cardBody}
             </div>
             <div className="card-footer">
-            </div>
-            <div className="add-new-meter">
-                <button
-                    className={"btn btn-primary"}
-                    type="submit"
-                    onClick={(e) => {
-                        e.preventDefault();
-                        setShowAddMeters(true);
-                    }}>
-                    Add Meters
-                </button>
+                <div className="add-new-meter">
+                    <button
+                        className={"btn btn-primary"}
+                        type="submit"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setShowAddMeters(true);
+                        }}>
+                        Add Meters
+                    </button>
+                </div>
             </div>
             <Modal Show={showEdit} Title={'Edit Remote Meter: ' + selectedMeter.LocalMeterName}
                 ShowCancel={true}
@@ -206,6 +242,25 @@ const RemoteMeterTab = (props: IProps) => {
                 }>
                 <RemoteMeterForm OriginalMeter={selectedMeter} SetRemoteMeter={setRemoteMeter} SetErrors={setNewInstErrors} />
             </Modal>
+            <Modal Show={showAddAssets} Title={'Add Associated Remote Asset(s)?'}
+                ShowCancel={true}
+                CallBack={(conf) => {
+                    if (conf) {
+                        let addAssetHandle = addAssociatedAssets(selectedMeter);
+                        return () => {
+                            if (addAssetHandle != null && addAssetHandle.abort != null) {
+                                addAssetHandle.abort();
+                            }
+                        };
+
+                    }
+                    setShowAddAssets(false);
+                }}
+                ShowX={true} Size={"sm"}
+                ConfirmText={"Yes"}
+                CancelText={"No"}>
+                <p>Add { assetCount } Associated Asset(s)?</p>
+            </Modal>
             <DefaultSelects.Meter
                 Slice={ByMeterSlice}
                 Selection={meterList}
@@ -213,18 +268,47 @@ const RemoteMeterTab = (props: IProps) => {
                     setShowAddMeters(false);
                     setMeterList([]);
                     if (!conf) return;
-                    let newRemotes: Array<SystemCenter.Types.DetailedMeter> = [];
-                    selected.forEach((meter) => { })
-
+                    selected.forEach((meter) => {
+                        setShowLoading(true);
+                        let newRemote: OpenXDA.Types.RemoteXDAMeter = {
+                            ID: -1,
+                            RemoteXDAInstanceID: props.ID,
+                            LocalXDAMeterID: meter.ID,
+                            RemoteXDAMeterID: -1,
+                            RemoteXDAName: "",
+                            RemoteXDAAssetKey: meter.AssetKey,
+                            Obsfucate: false,
+                            Synced: false,
+                            LocalAlias: "",
+                            LocalMeterName: "",
+                            LocalAssetKey: ""
+                        }
+                        setSelectedMeter(newRemote);
+                        RemoteXDAMeterSlice.DBAction({ verb: "POST", record: selectedMeter });
+                        let fetchAssetHandle = getAssociatedAssetCount(selectedMeter);
+                        fetchAssetHandle.then((data: number) => {
+                            setAssetCount(data);
+                            if (assetCount > 0)
+                                setShowAddAssets(true);
+                            setShowLoading(false);
+                        });
+                        return () => {
+                            if (fetchAssetHandle != null && fetchAssetHandle.abort != null) {
+                                fetchAssetHandle.abort();
+                                setShowLoading(false);
+                            }
+                        };
+                    });
                 }}
                 Show={showAddMeters}
-                Type={'multiple'}
+                Type={'single'}
                 Columns={[
                     { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Email', field: 'Email', label: 'Email', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetKey', field: 'AssetKey', label: 'Asset Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Location', field: 'Location', label: 'Location', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ]}
-                Title={"Select user for this remoteXDA instance: "}
+                Title={"Select Meter to Add for this remoteXDA Instance:"}
                 GetEnum={() => () => { }}
                 GetAddlFields={() => () => { }}
             />

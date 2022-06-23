@@ -35,6 +35,7 @@ using GSF.Data.Model;
 using GSF.Security.Model;
 using GSF.Web;
 using GSF.Web.Model;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using PQView.Model;
@@ -54,7 +55,67 @@ namespace SystemCenter.Controllers.OpenXDA
     public class PhaseController:ModelController<Phase> {}
 
     [RoutePrefix("api/OpenXDA/ByAsset")]
-    public class OpenXDAByAssetController : DetailedAssetController<DetailedAsset> { }
+    public class OpenXDAByAssetController : DetailedAssetController<DetailedAsset>
+    {
+        private string findAssetsQuery = "ID not in (Select LocalXDAAssetID From AssetsToDataPush Where RemoteXDAInstanceID = {0}) and ID in (Select AssetID From MeterAsset Where MeterID = {1})";
+        [HttpGet, Route("Associated/Count/{remoteInstanceID}/{meterID}")]
+        public virtual IHttpActionResult GetAssociatedAssets(int remoteInstanceID, int meterID)
+        {
+            if (GetAuthCheck() && !AllowSearch)
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    return Ok(JsonConvert.SerializeObject(new TableOperations<Asset>(connection)
+                        .QueryRecordsWhere(findAssetsQuery, remoteInstanceID, meterID)
+                        .Count()));
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        [HttpGet, Route("Associated/Add/{remoteInstanceID}/{meterID}")]
+        public virtual IHttpActionResult AddAssociatedAssets(int remoteInstanceID, int meterID)
+        {
+            //Even though this is a get request, doing a post check
+            if (PostAuthCheck() && !ViewOnly)
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    IEnumerable<Asset> additionalAssets = new TableOperations<Asset>(connection)
+                        .QueryRecordsWhere(findAssetsQuery, remoteInstanceID, meterID);
+                    TableOperations<AssetsToDataPush> assetDataPushTable = new TableOperations<AssetsToDataPush>(connection);
+                    AssetsToDataPush newRecord = new AssetsToDataPush
+                    {
+                        RemoteXDAInstanceID = remoteInstanceID,
+                        RemoteXDAAssetID = -1,
+                        RemoteXDAAssetKey = "",
+                        Obsfucate = false,
+                        Synced = false,
+                        // This will be set later by OpenXDA if it does not exist remotely already
+                        RemoteAssetCreatedByDataPusher = false
+
+                    };
+                    int result = 0;
+                    foreach (Asset asset in additionalAssets)
+                    {
+                        newRecord.LocalXDAAssetID = asset.ID;
+                        result += assetDataPushTable.AddNewRecord(newRecord);
+                    }
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
 
     [RoutePrefix("api/OpenXDA/ByMeter")]
     public class OpenXDAByMeterController : ModelController<DetailedMeter> { }
