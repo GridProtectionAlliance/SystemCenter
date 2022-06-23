@@ -160,7 +160,7 @@ const RemoteAssetTab = (props: IProps) => {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Remote XDA Assets::</h4>
+                        <h4>Remote XDA Assets:</h4>
                     </div>
                 </div>
             </div>
