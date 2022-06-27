@@ -71,6 +71,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ByApplicationNode = React.lazy(() => import(/* webpackChunkName: "DataReaders" */ './ApplicationManagment/ApplicationNode'));
     const ByApplicationCategory = React.lazy(() => import(/* webpackChunkName: "ByApplicationCategory" */ './ApplicationCategory/ByApplicationCategory'));
     const DBCleanup = React.lazy(() => import(/* webpackChunkName: "DBCleanup" */ './DB/DBCleanup'));
+    const DataFile = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './ProcessedFile/ByFile'));
+
 
     const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
@@ -152,6 +154,15 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item" hidden={settings.find(s => s.Name == 'SystemCenter.ShowDeviceHealthReport')?.Value != "1" }>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DeviceHealthReport"} to={controllerViewPath + "?name=DeviceHealthReport"}>Device Health Report</NavLink>
                                 </li>
+                            </ul>
+
+                            <hr />
+                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>Processed Files</h6>
+                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
+                                <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Datafiles"} to={controllerViewPath + "?name=DataFiles"}>Data Files</NavLink>
+                                </li>
+
                             </ul>
 
                             <hr />
@@ -299,6 +310,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (queryString.parse(rest.location.search)['?name'] == "ConfigurationHistory") {
                                     if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
                                     return <ConfigurationHistory MeterConfigurationID={parseInt(queryString.parse(rest.location.search).MeterConfigurationID as string)} MeterKey={queryString.parse(rest.location.search).MeterKey as string} />
+                                }
+                                else if (queryString.parse(rest.location.search)['?name'] == "DataFiles") {
+                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
+                                    return <DataFile Roles={roles} />
                                 }
                                 else
                                     return <ByMeter Roles={roles} />;

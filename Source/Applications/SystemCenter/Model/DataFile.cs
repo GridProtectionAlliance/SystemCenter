@@ -46,7 +46,7 @@ namespace SystemCenter.Model
 	        DataFile JOIN
 	        FileGroup ON DataFile.FileGroupID = FileGroup.ID
     ")]
-
+    [AllowSearch]
     public class DataFile : openXDA.Model.DataFile
     {
         [ParentKey(typeof(Meter))]
