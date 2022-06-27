@@ -42,7 +42,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
     const status: Application.Types.Status = useSelector(LocationDrawingSlice.Status);
     const sortKey = useSelector(LocationDrawingSlice.SortField);
     const ascending: boolean = useSelector(LocationDrawingSlice.Ascending);
-    const parentID: number = useSelector(LocationDrawingSlice.ParentID);
+    const parentID: number = useSelector(LocationDrawingSlice.ParentID) as number;
     const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '' };
     const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
 

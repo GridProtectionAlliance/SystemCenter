@@ -57,7 +57,7 @@ function Applications(props: IProps) {
 
     const data: PQApplications[] = useSelector(PQApplicationsSlice.Data);
     const status: Application.Types.Status = useSelector(PQApplicationsSlice.Status);
-    const parentID: number = useSelector(PQApplicationsSlice.ParentID);
+    const parentID: number = useSelector(PQApplicationsSlice.ParentID) as number;
 
     const [newPQApplications, setNewPQApplications] = React.useState<PQApplications>(EmptyApplication);
 
