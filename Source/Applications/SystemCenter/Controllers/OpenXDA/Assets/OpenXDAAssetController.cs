@@ -280,7 +280,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
                     DataTable table = connection.RetrieveData(sql, "");
 
-                    return Ok(JsonConvert.SerializeObject(table));
+                    return Ok(table);
                 }
             }
             catch (Exception ex)
@@ -295,127 +295,18 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             try
             {
-                using (TransactionScope scope = new TransactionScope()) {
+                using (TransactionScope scope = new TransactionScope())
+                {
+                    int assetID = PostNewAsset(record);
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                        JToken asset = record["Asset"];
-                        string assetType = asset["AssetType"].ToString();
-                        int assetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = {0}", assetType);
-
-
-                        if (assetType == "Line")
-                        {
-                            Line line = new Line();
-                            CreateLineFromJToken(line, asset);
-                            new TableOperations<Line>(connection).AddNewRecord(line);
-                            line.ID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", line.AssetKey);
-
-                            LineSegment lineSegment = new LineSegment()
-                            {
-                                VoltageKV = asset["VoltageKV"].ToObject<double>(),
-                                AssetKey = asset["AssetKey"].ToString() + "LineSegment",
-                                Description = asset["Description"].ToString(),
-                                AssetName = asset["AssetName"].ToString(),
-                                AssetTypeID = assetTypeID,
-                                R0 = asset["Segment"]["R0"].ToObject<double>(),
-                                X0 = asset["Segment"]["X0"].ToObject<double>(),
-                                R1 = asset["Segment"]["R1"].ToObject<double>(),
-                                X1 = asset["Segment"]["X1"].ToObject<double>(),
-                                Length = asset["Segment"]["Length"].ToObject<double>(),
-                            };
-                            lineSegment.AssetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'LineSegment'");
-
-                            new TableOperations<LineSegment>(connection).AddNewRecord(lineSegment);
-                            lineSegment.ID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", lineSegment.AssetKey);
-
-                            AssetConnection assetConnection = new AssetConnection()
-                            {
-                                AssetRelationshipTypeID = 0,
-                                ParentID = line.ID,
-                                ChildID = lineSegment.ID
-                            };
-                            assetConnection.AssetRelationshipTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment'");
-                            new TableOperations<AssetConnection>(connection).AddNewRecord(assetConnection);
-                        }
-                        else if (assetType == "LineSegment")
-                        {
-                            LineSegment lineSegment = new LineSegment();
-                            CreateLineSegmentFromJToken(lineSegment, asset);
-                            new TableOperations<LineSegment>(connection).AddNewRecord(lineSegment);
-                        }
-                        else if (assetType == "Breaker")
-                        {
-                            Breaker breaker = new Breaker();
-                            CreateBreakerFromJToken(breaker, asset);
-                            new TableOperations<Breaker>(connection).AddNewRecord(breaker);
-                            breaker.ID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", breaker.AssetKey);
-
-                            if (asset["EDNAPoint"] != null)
-                            {
-                                EDNAPoint eDNAPoint = new EDNAPoint()
-                                {
-                                    BreakerID = breaker.ID,
-                                    Point = asset["EDNAPoint"].ToString()
-                                };
-                                new TableOperations<EDNAPoint>(connection).AddNewRecord(eDNAPoint);
-
-                            }
-
-                            if (asset["SpareBreakerID"] != null)
-                            {
-                                AssetSpare assetSpare = new AssetSpare()
-                                {
-                                    AssetID = breaker.ID,
-                                    SpareAssetID = asset["SpareBreakerID"].ToObject<int>()
-                                };
-                                new TableOperations<AssetSpare>(connection).AddNewRecord(assetSpare);
-                            }
-
-
-                        }
-                        else if (assetType == "Bus")
-                        {
-                            Bus bus = new Bus();
-                            CreateBusFromJToken(bus, asset);
-                            new TableOperations<Bus>(connection).AddNewRecord(bus);
-                        }
-                        else if (assetType == "CapacitorBank")
-                        {
-                            CapBank capBank = new CapBank();
-                            CreateCapBankFromJToken(capBank, asset);
-                            new TableOperations<CapBank>(connection).AddNewRecord(capBank);
-                        }
-                        else if (assetType == "CapacitorBankRelay")
-                        {
-                            CapBankRelay capBankRelay = new CapBankRelay();
-                            CreateCapBankRelayFromJToken(capBankRelay, asset);
-                            new TableOperations<CapBankRelay>(connection).AddNewRecord(capBankRelay);
-                        }
-                        else if (assetType == "Transformer")
-                        {
-                            Transformer transformer = new Transformer();
-                            CreateTransformerFromJToken(transformer, asset);
-                            new TableOperations<Transformer>(connection).AddNewRecord(transformer);
-                        }
-                        else
-                        {
-                            Asset newAsset = new Asset();
-                            CreateAssetFromJToken(newAsset, asset);
-                            new TableOperations<Asset>(connection).AddNewRecord(newAsset);
-
-                        }
-
-
-                        int assetID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", asset["AssetKey"].ToString());
                         MeterAsset meterAsset = new MeterAsset() { MeterID = meterID, AssetID = assetID };
                         new TableOperations<MeterAsset>(connection).AddNewRecord(meterAsset);
                         AssetLocation assetLocation = new AssetLocation() { LocationID = locationID, AssetID = assetID };
                         new TableOperations<AssetLocation>(connection).AddNewRecord(assetLocation);
                     }
-
                     scope.Complete();
                     return Ok("Completed without errors.");
-
                 }
             }
             catch (Exception ex)
@@ -432,126 +323,132 @@ namespace SystemCenter.Controllers.OpenXDA
             {
                 using (TransactionScope scope = new TransactionScope())
                 {
+                    int assetID = PostNewAsset(record);
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                        JToken asset = record["Asset"];
-                        string assetType = asset["AssetType"].ToString();
-                        int assetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = {0}", assetType);
-
-
-                        if (assetType == "Line")
-                        {
-                            Line line = new Line();
-                            CreateLineFromJToken(line, asset);
-                            new TableOperations<Line>(connection).AddNewRecord(line);
-                            line.ID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", line.AssetKey);
-
-                            LineSegment lineSegment = new LineSegment()
-                            {
-                                VoltageKV = asset["VoltageKV"].ToObject<double>(),
-                                AssetKey = asset["AssetKey"].ToString() + "LineSegment",
-                                Description = asset["Description"].ToString(),
-                                AssetName = asset["AssetName"].ToString(),
-                                AssetTypeID = assetTypeID,
-                                R0 = asset["Segment"]["R0"].ToObject<double>(),
-                                X0 = asset["Segment"]["X0"].ToObject<double>(),
-                                R1 = asset["Segment"]["R1"].ToObject<double>(),
-                                X1 = asset["Segment"]["X1"].ToObject<double>(),
-                                Length = asset["Segment"]["Length"].ToObject<double>(),
-                            };
-                            lineSegment.AssetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'LineSegment'");
-
-                            new TableOperations<LineSegment>(connection).AddNewRecord(lineSegment);
-                            lineSegment.ID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", lineSegment.AssetKey);
-
-                            AssetConnection assetConnection = new AssetConnection()
-                            {
-                                AssetRelationshipTypeID = 0,
-                                ParentID = line.ID,
-                                ChildID = lineSegment.ID
-                            };
-                            assetConnection.AssetRelationshipTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment'");
-                            new TableOperations<AssetConnection>(connection).AddNewRecord(assetConnection);
-                        }
-                        else if (assetType == "LineSegment")
-                        {
-                            LineSegment lineSegment = new LineSegment();
-                            CreateLineSegmentFromJToken(lineSegment, asset);
-                            new TableOperations<LineSegment>(connection).AddNewRecord(lineSegment);
-                        }
-                        else if (assetType == "Breaker")
-                        {
-                            Breaker breaker = new Breaker();
-                            CreateBreakerFromJToken(breaker, asset);
-                            new TableOperations<Breaker>(connection).AddNewRecord(breaker);
-                            breaker.ID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", breaker.AssetKey);
-
-                            if (asset["EDNAPoint"] != null)
-                            {
-                                EDNAPoint eDNAPoint = new EDNAPoint()
-                                {
-                                    BreakerID = breaker.ID,
-                                    Point = asset["EDNAPoint"].ToString()
-                                };
-                                new TableOperations<EDNAPoint>(connection).AddNewRecord(eDNAPoint);
-                            }
-
-                            if (asset["SpareBreakerID"] != null)
-                            {
-                                AssetSpare assetSpare = new AssetSpare()
-                                {
-                                    AssetID = breaker.ID,
-                                    SpareAssetID = asset["SpareBreakerID"].ToObject<int>()
-                                };
-                                new TableOperations<AssetSpare>(connection).AddNewRecord(assetSpare);
-                            }
-                        }
-                        else if (assetType == "Bus")
-                        {
-                            Bus bus = new Bus();
-                            CreateBusFromJToken(bus, asset);
-                            new TableOperations<Bus>(connection).AddNewRecord(bus);
-                        }
-                        else if (assetType == "CapacitorBank")
-                        {
-                            CapBank capBank = new CapBank();
-                            CreateCapBankFromJToken(capBank, asset);
-                            new TableOperations<CapBank>(connection).AddNewRecord(capBank);
-                        }
-                        else if (assetType == "CapacitorBankRelay")
-                        {
-                            CapBankRelay capBankRelay = new CapBankRelay();
-                            CreateCapBankRelayFromJToken(capBankRelay, asset);
-                            new TableOperations<CapBankRelay>(connection).AddNewRecord(capBankRelay);
-                        }
-                        else if (assetType == "Transformer")
-                        {
-                            Transformer transformer = new Transformer();
-                            CreateTransformerFromJToken(transformer, asset);
-                            new TableOperations<Transformer>(connection).AddNewRecord(transformer);
-                        }
-                        else
-                        {
-                            Asset newAsset = new Asset();
-                            CreateAssetFromJToken(newAsset, asset);
-                            new TableOperations<Asset>(connection).AddNewRecord(newAsset);
-
-                        }
-
-
-                        int assetID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", asset["AssetKey"].ToString());
                         AssetLocation assetLocation = new AssetLocation() { LocationID = locationID, AssetID = assetID };
                         new TableOperations<AssetLocation>(connection).AddNewRecord(assetLocation);
                     }
-
                     scope.Complete();
                     return Ok("Completed without errors");
-
                 }
             }
             catch (Exception ex)
             {
                 return InternalServerError(ex);
+            }
+        }
+
+        // Method to post asset and return the associated asset ID
+        public int PostNewAsset(JObject record)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                JToken asset = record["Asset"];
+                string assetType = asset["AssetType"].ToString();
+                int assetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = {0}", assetType);
+
+
+                if (assetType == "Line")
+                {
+                    Line line = new Line();
+                    CreateLineFromJToken(line, asset);
+                    new TableOperations<Line>(connection).AddNewRecord(line);
+                    line.ID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", line.AssetKey);
+
+                    LineSegment lineSegment = new LineSegment()
+                    {
+                        VoltageKV = asset["VoltageKV"].ToObject<double>(),
+                        AssetKey = asset["AssetKey"].ToString() + "LineSegment",
+                        Description = asset["Description"].ToString(),
+                        AssetName = asset["AssetName"].ToString(),
+                        AssetTypeID = assetTypeID,
+                        R0 = asset["Segment"]["R0"].ToObject<double>(),
+                        X0 = asset["Segment"]["X0"].ToObject<double>(),
+                        R1 = asset["Segment"]["R1"].ToObject<double>(),
+                        X1 = asset["Segment"]["X1"].ToObject<double>(),
+                        Length = asset["Segment"]["Length"].ToObject<double>(),
+                    };
+                    lineSegment.AssetTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'LineSegment'");
+
+                    new TableOperations<LineSegment>(connection).AddNewRecord(lineSegment);
+                    lineSegment.ID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", lineSegment.AssetKey);
+
+                    AssetConnection assetConnection = new AssetConnection()
+                    {
+                        AssetRelationshipTypeID = 0,
+                        ParentID = line.ID,
+                        ChildID = lineSegment.ID
+                    };
+                    assetConnection.AssetRelationshipTypeID = connection.ExecuteScalar<int>("SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment'");
+                    new TableOperations<AssetConnection>(connection).AddNewRecord(assetConnection);
+                }
+                else if (assetType == "LineSegment")
+                {
+                    LineSegment lineSegment = new LineSegment();
+                    CreateLineSegmentFromJToken(lineSegment, asset);
+                    new TableOperations<LineSegment>(connection).AddNewRecord(lineSegment);
+                }
+                else if (assetType == "Breaker")
+                {
+                    Breaker breaker = new Breaker();
+                    CreateBreakerFromJToken(breaker, asset);
+                    new TableOperations<Breaker>(connection).AddNewRecord(breaker);
+                    breaker.ID = connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", breaker.AssetKey);
+
+                    if (asset["EDNAPoint"] != null)
+                    {
+                        EDNAPoint eDNAPoint = new EDNAPoint()
+                        {
+                            BreakerID = breaker.ID,
+                            Point = asset["EDNAPoint"].ToString()
+                        };
+                        new TableOperations<EDNAPoint>(connection).AddNewRecord(eDNAPoint);
+                    }
+
+                    if (asset["SpareBreakerID"] != null)
+                    {
+                        AssetSpare assetSpare = new AssetSpare()
+                        {
+                            AssetID = breaker.ID,
+                            SpareAssetID = asset["SpareBreakerID"].ToObject<int>()
+                        };
+                        new TableOperations<AssetSpare>(connection).AddNewRecord(assetSpare);
+                    }
+                }
+                else if (assetType == "Bus")
+                {
+                    Bus bus = new Bus();
+                    CreateBusFromJToken(bus, asset);
+                    new TableOperations<Bus>(connection).AddNewRecord(bus);
+                }
+                else if (assetType == "CapacitorBank")
+                {
+                    CapBank capBank = new CapBank();
+                    CreateCapBankFromJToken(capBank, asset);
+                    new TableOperations<CapBank>(connection).AddNewRecord(capBank);
+                }
+                else if (assetType == "CapacitorBankRelay")
+                {
+                    CapBankRelay capBankRelay = new CapBankRelay();
+                    CreateCapBankRelayFromJToken(capBankRelay, asset);
+                    new TableOperations<CapBankRelay>(connection).AddNewRecord(capBankRelay);
+                }
+                else if (assetType == "Transformer")
+                {
+                    Transformer transformer = new Transformer();
+                    CreateTransformerFromJToken(transformer, asset);
+                    new TableOperations<Transformer>(connection).AddNewRecord(transformer);
+                }
+                else
+                {
+                    Asset newAsset = new Asset();
+                    CreateAssetFromJToken(newAsset, asset);
+                    new TableOperations<Asset>(connection).AddNewRecord(newAsset);
+
+                }
+
+                return connection.ExecuteScalar<int>("SELECT ID FROM Asset WHERE AssetKey = {0}", asset["AssetKey"].ToString());
             }
         }
 
