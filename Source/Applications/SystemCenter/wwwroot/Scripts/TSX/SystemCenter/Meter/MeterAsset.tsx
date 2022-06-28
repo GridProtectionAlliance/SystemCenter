@@ -31,34 +31,35 @@ import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { getAssetTypes, getAllAssets, getAssetWithAdditionalFields, editExistingAsset } from '../../../TS/Services/Asset';
+import { getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
+import { SearchedAssets, SearchStatus, DBSearchAsset, DBActionAsset } from '../Store/AssetSlice'
 import Table from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { Warning, Modal, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { Warning, Modal, LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
+import { useDispatch, useSelector } from 'react-redux';
 
 declare var homePath: string;
 
 interface IProps { Meter: OpenXDA.Types.Meter }
 
 const MeterAssetWindow = (props: IProps) => {
-
-    const [meterAssets, setMeterAssets] = React.useState < Array<OpenXDA.Types.DetailedAsset>>([]);
-    const [newEditAsset, setNewEditAsset] = React.useState<OpenXDA.Types.DetailedAsset>(AssetAttributes.getNewAsset('Line'));
-    const [allAssets, setAllAssets] = React.useState<OpenXDA.Types.Asset[]>([]);
     const [assetTypes, setAssetTypes] = React.useState<OpenXDA.Types.AssetType[]>([]);
     const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('New');
-    const [activeAssetID, setActiveAssetID] = React.useState<number>(0);
-    const [activeAssetType, setActiveAssetType] = React.useState<OpenXDA.Types.AssetTypeName>('Line');
 
+    const [activeAsset, changeActiveAsset] = React.useState<OpenXDA.Types.Asset>(AssetAttributes.getNewAsset('Line'));
     const [showEditNew, setShoweditNew] = React.useState<boolean>(false);
     const [showDeleteWarning, setShowDeleteWarning] = React.useState<boolean>(false);
 
-    const [sortKey, setSortKey] = React.useState<string>('AssetKey');
-    const [ascending, setAscending] = React.useState<boolean>(true);
     const [showLoading, setShowLoading] = React.useState<boolean>(false);
 
-    const [assetReloadCounter, forceAssetReload] = React.useState<number>(0);
+    // Asset Slice Consts
+    const dispatch = useDispatch();
+    const assetStatus = useSelector(SearchStatus) as Application.Types.Status;
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.Asset>('AssetName');
+    const [ascending, setAscending] = React.useState<boolean>(true);
+    const [filter, setFilter] = React.useState<Search.IFilter<OpenXDA.Types.Asset>[]>([]);
+    const assetResults = useSelector(SearchedAssets) as OpenXDA.Types.Asset[];
 
     React.useEffect(() => {
         let h = getAssetTypes()
@@ -70,76 +71,48 @@ const MeterAssetWindow = (props: IProps) => {
     }, [])
 
     React.useEffect(() => {
-        let h = getAllAssets()
-        h.done((data: Array<OpenXDA.Types.Asset>) => {
-            setAllAssets(data);
-        });
-
-        return () => { if (h != null && h.abort != null) h.abort(); }
-    }, [assetReloadCounter])
-
-    React.useEffect(() => {
-        let h = getAllAssets()
-        h.done((data: Array<OpenXDA.Types.Asset>) => {
-            setAllAssets(data);
-        });
-
-        return () => { if (h != null && h.abort != null) h.abort(); }
-    }, [])
+        setFilter(
+            [{
+                FieldName: 'ID',
+                Type: 'number',
+                SearchText: `(Select AssetID from MeterAsset Where MeterID=${props.Meter.ID})`,
+                Operator: 'IN',
+                isPivotColumn: false
+            }]
+        );
+    }, [props.Meter]);
 
     React.useEffect(() => {
-        let h = getMeterAssets();
-        h.done((data: Array<OpenXDA.Types.Asset>) => {
-            setMeterAssets(data);
-        });
-
-        return () => { if (h != null && h.abort != null) h.abort(); }
-    }, [props.Meter, ascending, sortKey])
+        if (assetStatus === 'unintiated' || assetStatus === 'changed') {
+            setShowLoading(true);
+            reloadSlice();
+        }
+    }, [dispatch, assetStatus]);
 
     React.useEffect(() => {
-        if (activeAssetID == 0) {
-            setNewEditAsset(AssetAttributes.getNewAsset(activeAssetType));
+        setShowLoading(true);
+        reloadSlice();
+    }, [ascending, sortKey, filter, dispatch]);
+
+    function setActiveAsset(assetID: number, assetType: OpenXDA.Types.AssetTypeName) {
+        if (assetID == 0) {
+            changeActiveAsset(AssetAttributes.getNewAsset(assetType));
             setNewEdit('New');
             return;
         }
 
-        let h = getAssetWithAdditionalFields(activeAssetID, activeAssetType);
-        h.then(record => { setNewEditAsset(record); setNewEdit('Edit') });
-
-    }, [activeAssetID, activeAssetType]);
-
-    function getMeterAssets(): JQueryXHR {
-        return $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Asset/${sortKey}/${ascending? 1: 0}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        })
+        let h = getAssetWithAdditionalFields(assetID, assetType);
+        h.then(record => { changeActiveAsset(record); setNewEdit('Edit') });
     }
 
-    function deleteAsset() {
-        setShowLoading(true);
-        $.ajax({
-            type: "DELETE",
-            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Asset/${activeAssetID}/${props.Meter.LocationID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((assets: Array<OpenXDA.Types.Asset>) => {
-            setSortKey('AssetKey');
-            forceAssetReload((x) => x + 1);
-            setShowLoading(false);
-        }).fail((msg) => {
-            setShowLoading(false);
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
-            else 
-                sessionStorage.clear();            
-        });
+    function reloadSlice() {
+        dispatch(DBSearchAsset({ sortField: sortKey, ascending, filter: filter }))
+        setShowLoading(false);
     }
+
+    if (assetResults == undefined)
+        return null;
+
     return (
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -163,34 +136,34 @@ const MeterAssetWindow = (props: IProps) => {
                                     
                                     {
                                         key: 'EditDelete', label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
-                                        content: (item) => <> <button className="btn btn-sm"
-                                            onClick={(e) => {
-                                                setActiveAssetType(item.AssetType);
-                                                setActiveAssetID(item.ID);
-                                                setShoweditNew(true);
-                                            }}><span>{Pencil}</span></button>
+                                        content: (item) => <>
                                             <button className="btn btn-sm"
                                                 onClick={(e) => {
-                                                    setActiveAssetType(item.AssetType);
-                                                    setActiveAssetID(item.ID);
+                                                    e.preventDefault();
+                                                    setActiveAsset(item.ID, item.AssetType);
+                                                    setShoweditNew(true);
+                                                }}><span>{Pencil}</span></button>
+                                            <button className="btn btn-sm"
+                                                onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setActiveAsset(item.ID, item.AssetType);
                                                     setShowDeleteWarning(true)
                                                 }}><span>{TrashCan}</span></button>
                                         </>
                                     }
                                 ]}
                                 tableClass="table table-hover"
-                                data={meterAssets}
+                                data={assetResults}
                                 sortKey={sortKey}
                                 ascending={ascending}
                                 onSort={(d) => {
                                     if (d.colKey === 'EditDelete')
                                         return;
-
-                                    if (d.colKey === sortKey)
+                                    if (d.colKey == sortKey)
                                         setAscending(!ascending);
                                     else {
                                         setAscending(true);
-                                        setSortKey(d.colKey);
+                                        setSortKey(d.colKey as keyof OpenXDA.Types.Asset);
                                     }
                                 }}
                                 onClick={(fld) => { }}
@@ -200,29 +173,33 @@ const MeterAssetWindow = (props: IProps) => {
                                 selected={(item) => false}
                             />
 
-                            <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) deleteAsset(); setShowDeleteWarning(false); }} Title={'Remove this Asset'} Message={'This will permanently remove this Asset from the Meter.'} />
+                            <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBActionAsset({ verb: 'DELETE', record: activeAsset, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove this Asset'} Message={'This will permanently remove this Asset from the Meter.'} />
                             <LoadingScreen Show={showLoading} />
                             <Modal Show={showEditNew}
-                                Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + newEditAsset.AssetKey + ' for Meter'}
+                                Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + activeAsset.AssetKey + ' for Meter'}
                                 Size={'lg'}
                                 ShowX={true}
                                 ShowCancel={false}
                                 ConfirmText={'Save'}
-                                CallBack={(confirm) => { setShoweditNew(false); if (!confirm) return; }}
-                                ConfirmShowToolTip={AssetAttributes.AttributeError(newEditAsset).length > 0}
-                                DisableConfirm={AssetAttributes.AttributeError(newEditAsset).length > 0}
+                                CallBack={(confirm) => {
+                                    setShoweditNew(false);
+                                    if (confirm) {
+                                        dispatch(DBActionAsset({ verb: 'POST', record: activeAsset, meterID: props.Meter.ID, locationID: props.Meter.LocationID }));
+                                    }
+                                }}
+                                ConfirmShowToolTip={AssetAttributes.AttributeError(activeAsset).length > 0}
+                                DisableConfirm={AssetAttributes.AttributeError(activeAsset).length > 0}
                                 ConfirmToolTipContent={
-                                    AssetAttributes.AttributeError(newEditAsset).map((e, i) => <p key={i}><ErrorSymbol /> {e}</p>)
+                                    AssetAttributes.AttributeError(activeAsset).map((e, i) => <p key={i}><ErrorSymbol /> {e}</p>)
                                 }
                             >
                                 <div className="row">
                                     <div className="col">
-                                        <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets}
-                                            UpdateState={setNewEditAsset}
+                                        <AssetAttributes.AssetAttributeFields Asset={activeAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assetResults}
+                                            UpdateState={changeActiveAsset}
                                             GetDifferentAsset={(assetID) => {
-                                                setActiveAssetID(assetID);
-                                                setActiveAssetType(assetTypes.find(at => at.ID == (allAssets as any).find(a => a.ID == assetID).AssetTypeID).Name)
-                                            }} HideSelectAsset={false} HideAssetType={false} />
+                                                setActiveAsset(assetID, assetTypes.find(at => (assetResults as any).find(a => a.ID == assetID).AssetTypeID).Name);
+                                            }} HideSelectAsset={true} HideAssetType={false} />
                                     </div>
                                     <div className="col">
                                         {showAttributes()}
@@ -236,7 +213,8 @@ const MeterAssetWindow = (props: IProps) => {
             <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary pull-right" onClick={() => {
-                        setActiveAssetID(0); setActiveAssetType('Line'); setShoweditNew(true);
+                        setActiveAsset(0, 'Line');
+                        setShoweditNew(true);
                     }}>Add Asset</button>
                 </div>
             </div>
@@ -245,18 +223,18 @@ const MeterAssetWindow = (props: IProps) => {
 
 
     function showAttributes(): JSX.Element {
-        if (newEditAsset.AssetType == 'Breaker')
-            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Breaker} UpdateState={setNewEditAsset} ShowSpare={true} />;
-        else if (newEditAsset.AssetType == 'Bus')
-            return <BusAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
-        else if (newEditAsset.AssetType == 'CapacitorBank')
-            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBank} UpdateState={setNewEditAsset} />;
-        else if (newEditAsset.AssetType == 'Line')
-            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset} />;
-        else if (newEditAsset.AssetType == 'Transformer')
-            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset} />;
-        else if (newEditAsset.AssetType == 'DER')
-            return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} />;
+        if (activeAsset.AssetType == 'Breaker')
+            return <BreakerAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.Breaker} UpdateState={changeActiveAsset} ShowSpare={true} />;
+        else if (activeAsset.AssetType == 'Bus')
+            return <BusAttributes NewEdit={newEdit} Asset={activeAsset} UpdateState={changeActiveAsset} />;
+        else if (activeAsset.AssetType == 'CapacitorBank')
+            return <CapBankAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.CapBank} UpdateState={changeActiveAsset} />;
+        else if (activeAsset.AssetType == 'Line')
+            return <LineAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.Line} UpdateState={changeActiveAsset} />;
+        else if (activeAsset.AssetType == 'Transformer')
+            return <TransformerAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.Transformer} UpdateState={changeActiveAsset} />;
+        else if (activeAsset.AssetType == 'DER')
+            return <DERAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.DER} UpdateState={changeActiveAsset} />;
 
     }
 }
