@@ -25,15 +25,17 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
-import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
-import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
+import { DefaultSearchField } from '../CommonComponents/SearchFields';
+import { SearchBar, Search, Modal, LoadingIcon } from '@gpa-gemstone/react-interactive';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { useSelector, useDispatch } from 'react-redux';
 import { DataFileSlice } from '../Store/Store';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { OpenXDA as GlobalXDA } from '../global';
 import moment from 'moment';
+import { argv0 } from 'process';
 
 
 declare var homePath: string;
@@ -44,6 +46,10 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
     const cState = useSelector(DataFileSlice.SearchStatus);
     const data = useSelector(DataFileSlice.SearchResults);
+
+    const [eState, setEState] = React.useState<Application.Types.Status>('idle');
+    const [selectedID, setSelectetID] = React.useState<number>(-1);
+    const [evts, setEvts] = React.useState<GlobalXDA.Event[]>([]);
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.DataFile>>>([]);
     const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
@@ -68,10 +74,24 @@ const ByFile: Application.Types.iByComponent = (props) => {
             dispatch(DataFileSlice.DBSearch({ sortField: sortKey, ascending, filter: search }))
     }, [cState, dispatch]);
 
+    React.useEffect(() => {
+        const h = loadEvents(selectedID);
+        return () => { if (h !== null && h.abort != null) h.abort(); }
+    }, [selectedID])
 
-    
-    function handleSelect(item) {
-        //history.push({ pathname: homePath + 'index.cshtml', search: '?name=Customer&CustomerID=' + item.row.ID, state: {} })
+    function loadEvents(fileID: number) {
+        if (fileID < 0)
+            return null;
+
+        setEState('loading');
+        return $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/DataFile/GetEvents/${fileID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).fail(() => setEState('error')).done((d) => { setEState('idle'); setEvts(d); });;
     }
 
     return (
@@ -123,20 +143,42 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             setSortKey(d.colField);
                         }
                     }}
-                    onClick={handleSelect}
+                    onClick={(item) => setSelectetID(item.row.ID)}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%'  }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     selected={(item) => false}
                 />
             </div>
 
-            <Modal Show={showModal} Title={'Events'} CallBack={(c) => {
-                setShowModal(false);
+            <Modal Show={selectedID !== -1} Title={'Events'} CallBack={(c) => {
+                setSelectetID(-1);
                 // Logic to re-process the File.
             }} ShowCancel={false} ShowX={true}>
                 <div className="row">
-                    { /* Show a list of Events for event files. maybe with Link to openSEE? Add Process Button  */}
+                    <div className="col">
+                        {eState == 'loading' ? <LoadingIcon Show={true} /> : <Table<GlobalXDA.Event>
+                            cols={[
+                                { key: 'StartTime', field: 'StartTime', label: 'Event Start', headerStyle: { width: '50%' }, rowStyle: { width: '50%' }, content: (f) => moment(f.StartTime).format('MM/DD/YYYY hh:mm.ss.ssss') },
+                                { key: 'EndTime', field: 'EndTime', label: 'Event End', headerStyle: { width: '50%' }, rowStyle: { width: '50%' }, content: f => moment(f.EndTime).format('hh:mm.ss.ssss') },
+                                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                            ]}
+                            tableClass="table table-hover"
+                            data={evts}
+                            sortKey={'StartTime'}
+                            ascending={true}
+                            onSort={(d) => { }}
+                            onClick={(item) => { }}
+                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
+                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            selected={(item) => false}
+                        />}
+                    </div>
+                </div>
+                <div className="row">
+
+                    { /* Show a list of Events for event files. maybe with Link to openSEE? Add re-Process Button. needs interface to XDA...  */}
                 </div>
             </Modal>
             

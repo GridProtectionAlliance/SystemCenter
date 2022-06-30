@@ -54,7 +54,8 @@ export namespace SystemCenter {
 
 // OpenXDA Models
 export namespace OpenXDA {
-
+    //Events
+    interface Event { UpdatedBy: string, FileVersion: number, Description: string, SamplesPerCycle: number, SamplesPerSecond: number, TimeZoneOffset: number, Samples: number, EndTime: string, StartTime: string, Alias: string, Name: string, EventDataID: number | null, EventTypeID: number, AssetID: number, MeterID: number, FileGroupID: number, ID: number, ShortName: string }
 
     // Data Rescue
     interface DataRescueOperation { ID: number, MeterID: number, StartTime: Date, EndTime: Date, TimeShift: number, TimeShiftUnits: string, ChannelAdjustments: DataRescueChannelAdjustment[] }

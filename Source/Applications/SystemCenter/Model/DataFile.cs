@@ -55,6 +55,7 @@ namespace SystemCenter.Model
         public DateTime ProcessingEndTime { get; set; }
         public DateTime DataStartTime { get; set; }
     }
+
     [RoutePrefix("api/OpenXDA/DataFile")]
     public class OpenXDADataFileController : ModelController<DataFile> {
         //public override IHttpActionResult Get(string parentID = null)
@@ -62,6 +63,33 @@ namespace SystemCenter.Model
         //    IEnumerable<DataFile> files = (IEnumerable<DataFile>)base.Get(parentID).ExecuteAsync(new System.Threading.CancellationToken()).Result;
         //    return Ok(files.Take(50));
         //}
+
+        [HttpGet]
+        [Route("GetEvents/{id:int}")]
+        public IHttpActionResult GetEvents(int id)
+        {
+
+            if (GetAuthCheck())
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+
+                    try
+                    {
+                        return Ok(new TableOperations<Event>(connection).QueryRecords(restriction: new RecordRestriction("FileGroupID IN (SELECT FileGroupID FROM DataFile WHERE ID = {0})", id)));
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
+                }
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
+        }
     }
 
 }
