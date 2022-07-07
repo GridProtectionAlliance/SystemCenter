@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import type { Application } from '@gpa-gemstone/application-typings';
+import type { Application, OpenXDA as GemstoneXDA } from '@gpa-gemstone/application-typings';
 
 // System Center Models
 declare global {
@@ -57,6 +57,7 @@ export namespace OpenXDA {
     //Events
     interface Event { UpdatedBy: string, FileVersion: number, Description: string, SamplesPerCycle: number, SamplesPerSecond: number, TimeZoneOffset: number, Samples: number, EndTime: string, StartTime: string, Alias: string, Name: string, EventDataID: number | null, EventTypeID: number, AssetID: number, MeterID: number, FileGroupID: number, ID: number, ShortName: string }
 
+    interface EventChannel extends GemstoneXDA.Types.Channel { SourceIndices: string, MeterID: number, AssetID: number, PhaseID: number, MeasurementTypeID: number   }
     // Data Rescue
     interface DataRescueOperation { ID: number, MeterID: number, StartTime: Date, EndTime: Date, TimeShift: number, TimeShiftUnits: string, ChannelAdjustments: DataRescueChannelAdjustment[] }
     interface DataRescueChannelAdjustment { ID: number, ChannelID: number, Channel: string, Multiplier: number, Adder: number }

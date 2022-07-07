@@ -23,107 +23,114 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { SystemCenter } from '../global'
+import { Application, OpenXDA as GemstoneOpenXDA} from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
-import { forEach, toNumber } from 'lodash';
 import { useSelector, useDispatch } from 'react-redux';
-import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import { error } from 'console';
+import { LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { Input, Select } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import Table from '@gpa-gemstone/react-table';
+import { OpenXDA } from '../global';
+import { SelectAscending, SelectSortKey, SelectEventChannels, SelectEventChannelStatus, SelectMeterID, dBAction } from '../Store/EventChannelSlice';
+import { FetchChannels } from '../Store/EventChannelSlice';
+import { IsNumber } from '@gpa-gemstone/helper-functions';
+import { cloneDeep } from 'lodash';
 
 declare var homePath: string;
 
-interface IProps { Meter: OpenXDA.Types.Meter, IsVisible: boolean }
+interface IProps { Meter: GemstoneOpenXDA.Types.Meter, IsVisible: boolean }
+type RecordChange = Map<number, Map<keyof OpenXDA.EventChannel, string | number>>;
 
 const MeterEventChannelWindow = (props: IProps) => {
     const dispatch = useDispatch();
 
-    const [channels, setChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
-    const [meterChannels, setMeterChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
-    const phases = useSelector(PhaseSlice.Data) as OpenXDA.Types.Phase[];
-    const measurementTypes = useSelector(MeasurmentTypeSlice.Data) as OpenXDA.Types.MeasurementType[];
+    const data = useSelector(SelectEventChannels);
+    const sortKey = useSelector(SelectSortKey)
+    const ascending = useSelector(SelectAscending)
+    const status = useSelector(SelectEventChannelStatus);
+    const meterID = useSelector(SelectMeterID);
 
-    const [assets, setAssets] = React.useState<OpenXDA.Types.Asset[]>([]);
+    const [recordChanges, setRecordChanges] = React.useState<RecordChange>(new Map<number, Map<keyof OpenXDA.EventChannel, number | string>>());
 
+    const phases = useSelector(PhaseSlice.Data) as GemstoneOpenXDA.Types.Phase[];
+    const measurementTypes = useSelector(MeasurmentTypeSlice.Data) as GemstoneOpenXDA.Types.MeasurementType[];
+    const [assets, setAssets] = React.useState<GemstoneOpenXDA.Types.Asset[]>([]);
+    
     const pStatus = useSelector(PhaseSlice.Status) as Application.Types.Status;
     const mtStatus = useSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
-    const [status, setStatus] = React.useState<Application.Types.Status>('idle')
-    const [trigger, setTrigger] = React.useState<number>(0);
+    const [assetStatus, setAssetStatus] = React.useState<Application.Types.Status>('idle')
+
+    const [removeRecord, setRemoveRecord] = React.useState<OpenXDA.EventChannel|null>(null);
 
     const [errors, setErrors] = React.useState<string[]>([]);
-    const [nChanges, setNChanges] = React.useState<number>(0);
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'New')>('None');
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' )>('None');
 
     
 
     React.useEffect(() => {
-        if (pStatus == 'unintiated')
+        if (pStatus == 'unintiated' || pStatus == 'changed')
             dispatch(PhaseSlice.Fetch());
-    }, [])
+    }, [pStatus])
 
     React.useEffect(() => {
-        if (mtStatus == 'unintiated')
+        if (mtStatus == 'unintiated' || mtStatus == 'changed')
             dispatch(MeasurmentTypeSlice.Fetch());
-    }, [])
+    }, [mtStatus])
 
     React.useEffect(() => {
-        setNChanges(0);
-        setChannels(_.cloneDeep(meterChannels));
-    }, [meterChannels]);
+        if (status == 'unintiated' || meterID !== props.Meter.ID || status == 'changed')
+            dispatch(FetchChannels({ meterId: props.Meter.ID }));
+    }, [props.Meter,status])
 
     React.useEffect(() => {
         if (!props.IsVisible)
             return;
-
-        let channelHandle = getChannels();
         let assetHandle = getAssets();
 
-        Promise.all([channelHandle, assetHandle]).then(() => setStatus('idle'), () => setStatus('error'))
+        assetHandle.then(() => setAssetStatus('idle'), () => setAssetStatus('error'))
         return () => {
-            if (channelHandle != null && channelHandle.abort != null)
-                channelHandle.abort();
             if (assetHandle != null && assetHandle.abort != null)
                 assetHandle.abort();
         }
 
-    }, [props.IsVisible, props.Meter, trigger])
+    }, [props.IsVisible, props.Meter])
 
-    React.useEffect(() => {
-        const changed = channels.filter((c, i) => i < meterChannels.length && !_.isEqual(c, meterChannels[i]));
-        setNChanges(changed.length + (channels.length - meterChannels.length));
+     React.useEffect(() => {
 
-        let e = [];
-        changed.forEach((c) => {
-            if (c.Adder != null && !AssetAttributes.isRealNumber(c.Adder))
-                e.push('All Adders must be numeric values')
-            if (c.Multiplier != null && !AssetAttributes.isRealNumber(c.Multiplier))
-                e.push('All Multipliers must be numeric values')
-            if (c.Name == null || c.Name.length == 0)
-                e.push('All Channels must have a Name')
-            if (c.Phase == null || c.Phase.length == 0)
-                e.push('All Channels must have a Phase')
-            if (c.MeasurementType == null || c.MeasurementType.length == 0)
-                e.push('All Channels must have a Measurement Type')
-        })
+         let e = [];
+         for (let id of recordChanges.keys()) {
+             for (let k of recordChanges.get(id).keys()) {
+                 const val = recordChanges.get(id).get(k);
+                 if (k == 'Adder' && val != null && !AssetAttributes.isRealNumber(val))
+                     e.push('All Adders must be numeric values')
+                 if (k == 'Multiplier' && val != null && !AssetAttributes.isRealNumber(val))
+                     e.push('All Multipliers must be numeric values')
+                 if (k == 'ConnectionPriority' && val != null && !AssetAttributes.isRealNumber(val))
+                     e.push('All Connection Priorities must be numeric values')
+
+                 if(k == 'Adder' && val == null)
+                    e.push('All Channels must have an Adder')
+                 if (k == 'Multiplier' && val == null)
+                     e.push('All Channels must have a Multiplier')
+                 if (k == 'ConnectionPriority' && val == null)
+                     e.push('All Channels must have a Connection Priority')
+
+                 if (k == 'Name' && (val == null || val.toString().length == 0))
+                     e.push('All Channels must have a Name')
+                 if (k == 'SourceIndices' && (val == null || val.toString().length == 0))
+                     e.push('All Channels must have a valid Source Index')
+
+                 if (k == 'Name' && val != null && val.toString().length > 0 && data.findIndex(c => c.Name.toLowerCase() == val.toString().toLowerCase() && id != c.ID) > -1)
+                     e.push('All Channels names must be unique')
+             }
+         }
+     
         setErrors(_.uniq(e));
 
-    }, [channels])
-    function getChannels(): JQuery.jqXHR<OpenXDA.Types.Channel[]> {
-        setStatus('loading')
-        return $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Channels/Event`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((d: Array<OpenXDA.Types.Channel>) => {
-            setMeterChannels(d);
-        });
-    }
-    function getAssets(): JQuery.jqXHR<OpenXDA.Types.Asset[]> {
+     }, [recordChanges])
+
+    function getAssets(): JQuery.jqXHR<GemstoneOpenXDA.Types.Asset[]> {
         return $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Asset`,
@@ -131,42 +138,65 @@ const MeterEventChannelWindow = (props: IProps) => {
             dataType: 'json',
             cache: true,
             async: true
-        }).done((d: Array<OpenXDA.Types.Asset>) => {
+        }).done((d: GemstoneOpenXDA.Types.Asset[]) => {
             setAssets(d)
         });
     }
 
+    
     function applyUpdates(): void {
-        setStatus('loading')
-        $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Channel/Update/Event`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ Channels: channels }),
-            cache: false,
-            async: true
-        }).done(() => {
-            setTrigger(x => x +1 )
-        }).fail(msg => {
-            setStatus('error')
-        });
+        for (let id of recordChanges.keys()) {
+            const original = cloneDeep(data.find(r => r.ID == id)) as any;
+            for (let k of recordChanges.get(id).keys()) {
+                original[k] = (recordChanges.get(id).get(k as keyof OpenXDA.EventChannel)) as any
+            }
+            dispatch(dBAction({ record: original, verb: 'PATCH' }));
+        }
+
+        setRecordChanges(new Map<number, Map<keyof OpenXDA.EventChannel, number | string>>());
     }
 
-    function deleteChannel(index: number) {
-        setChannels((d) => {
-            let u = _.clone(d);
-            u.splice(index, 1);
-            return u;
+    function replicateChanges(record: OpenXDA.EventChannel) {
+        const result = { ...record } as any;
+        if (recordChanges.has(result.ID)) {
+            for (let k of recordChanges.get(result.ID).keys()) {
+                result[k] = (recordChanges.get(result.ID).get(k as keyof OpenXDA.EventChannel)) as any
+            }
+        }
+        return result as OpenXDA.EventChannel;
+    }
+
+    function createChange(record: OpenXDA.EventChannel, field: keyof OpenXDA.EventChannel) {
+        setRecordChanges((original) => {
+            let update = cloneDeep(original);
+            if (!update.has(record.ID))
+                update.set(record.ID, new Map<keyof OpenXDA.EventChannel, string | number>());
+            update.get(record.ID).set(field, record[field] as string|number);
+            return update;
         })
+
+    }
+   
+    function isValid(fld: keyof OpenXDA.EventChannel, record: OpenXDA.EventChannel) {
+        if (fld == 'SourceIndices')
+            return record.SourceIndices != null && record.SourceIndices.trim().length > 0;
+        if (fld == 'Name')
+            return record.Name != null && record.Name.trim().length > 0 && record.Name.length < 200 && data.findIndex(item => item.Name == record.Name && item.ID != record.ID) == -1;
+        if (fld == 'Adder')
+            return record.Adder != null && IsNumber(record.Adder);
+        if (fld == 'Multiplier')
+            return record.Multiplier != null && IsNumber(record.Multiplier);
+        if (fld == 'ConnectionPriority')
+            return record.ConnectionPriority != null && IsNumber(record.ConnectionPriority);
+        return true;
     }
 
-    if (status == 'error' || pStatus == 'error' || mtStatus == 'error')
+    if (assetStatus == 'error' || pStatus == 'error' || mtStatus == 'error' || status == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Channels:</h4>
+                        <h4>Event Channels:</h4>
                     </div>
                 </div>
             </div>
@@ -179,12 +209,12 @@ const MeterEventChannelWindow = (props: IProps) => {
             </div>
         </div>
 
-    if (status == 'loading' || pStatus == 'loading' || mtStatus == 'loading')
+    if (assetStatus == 'loading' || pStatus == 'loading' || mtStatus == 'loading' || status == 'loading')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Channels:</h4>
+                        <h4>Event Channels:</h4>
                     </div>
                 </div>
             </div>
@@ -197,149 +227,140 @@ const MeterEventChannelWindow = (props: IProps) => {
             </div>
         </div>
 
-    return <div className="card" style={{ marginBottom: 10 }}>
+    return <>
+        <div className="card" style={{ marginBottom: 10 }}>
         <div className="card-header">
             <div className="row">
                 <div className="col">
-                    <h4>Channels:</h4>
+                    <h4>Event Channels:</h4>
                 </div>
             </div>
         </div>
         <div className="card-body">
-            <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
-                <table className="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Channel</th>
-                            <th>Name</th>
-                            <th>Desc</th>
-                            <th>Type</th>
-                            <th>Phase</th>
-                            <th>Adder</th>
-                            <th>Multiplier</th>
-                            <th>Asset</th>
-                            <th>Conn.</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <div style={{ width: '100%', height: window.innerHeight - 420 }}>
+                <Table<OpenXDA.EventChannel>
+                    cols={[
                         {
-                            channels.map((c, index, array) => {
-                                return (
-                                    <tr key={index}>
-                                        <td style={{ width: '5%' }}><input className='form-control' value={c.Series[0].SourceIndexes} onChange={(event) => {
-                                            c.Series[0].SourceIndexes = event.target.value;
-                                            setChannels((d) => {
-                                                let u = [...d];
-                                                u[index] = c;
-                                                return u;
-                                            })
-                                        }} /></td>
-                                        <td style={{ width: '15%' }}><input className='form-control' value={c.Name} onChange={(event) => {
-                                            c.Name = event.target.value;
-                                            setChannels((d) => {
-                                                let u = [...d];
-                                                u[index] = c;
-                                                return u;
-                                            })
-                                        }} /></td>
-                                        <td style={{ width: '25%' }}><input className='form-control' value={c.Description == null ? '' : c.Description} onChange={(event) => {
-                                            c.Description = event.target.value;
-                                            setChannels((d) => {
-                                                let u = [...d];
-                                                u[index] = c;
-                                                return u;
-                                            })
-                                        }} /></td>
-                                        <td style={{ width: '10%' }}>{<select className='form-control' value={c.MeasurementType} onChange={(event) => {
-                                            c.MeasurementType = event.target.value;
-                                            setChannels((d) => {
-                                                let u = [...d];
-                                                u[index] = c;
-                                                return u;
-                                            })
-                                        }}>{measurementTypes.map(a => <option key={a.Name} value={a.Name}>{a.Name}</option>)}</select>}</td>
-                                        <td style={{ width: '10%' }}>{<select className='form-control' value={c.Phase} onChange={(event) => {
-                                            c.Phase = event.target.value;
-                                            setChannels((d) => {
-                                                let u = [...d];
-                                                u[index] = c;
-                                                return u;
-                                            })
-                                        }}>{phases.map(a => <option key={a.ID} value={a.Name}>{a.Name}</option>)}</select>}</td>
-                                        <td style={{ width: '5%' }}><input className='form-control' value={c.Adder} onChange={(event) => {
-                                            c.Adder = parseFloat(event.target.value);
-                                            setChannels((d) => {
-                                                let u = [...d];
-                                                u[index] = c;
-                                                return u;
-                                            })
-                                        }} /></td>
-                                        <td style={{ width: '5%' }}><input className='form-control' value={c.Multiplier} onChange={(event) => {
-                                            c.Multiplier = parseFloat(event.target.value);
-                                            setChannels((d) => {
-                                                let u = [...d];
-                                                u[index] = c;
-                                                return u;
-                                            })
-                                        }} /></td>
-                                        <td style={{ width: '10%' }}>{<select className='form-control' value={c.Asset} onChange={(event) => {
-                                            c.Asset = event.target.value;
-                                            setChannels((d) => {
-                                                let u = [...d];
-                                                u[index] = c;
-                                                return u;
-                                            })
-                                        }}>
-                                            <option value=""></option>
-                                            {assets.map(a => <option key={a.ID} value={a.AssetKey}>{a.AssetKey}</option>)}</select>}</td>
-                                        <td style={{ width: '5%' }}><input className='form-control' value={c.ConnectionPriority} onChange={(event) => {
-                                            c.ConnectionPriority = parseInt(event.target.value);
-                                            setChannels((d) => {
-                                                let u = [...d];
-                                                u[index] = c;
-                                                return u;
-                                            })
-                                        }} /></td>
-                                        <td style={{ width: '5%' }}>
-                                            <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span><i className="fa fa-times"></i></span></button>
-                                        </td>
+                            key: 'SourceIndices', field: 'SourceIndices', label: 'Channel', headerStyle: { width: '5%' }, rowStyle: { width: '5%' },
+                            content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'SourceIndices'} Label={''} Setter={(r) => createChange(r, 'SourceIndices')} Valid={(f) => isValid(f,c)} />
+                        },
+                        {
+                            key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' },
+                            content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Name'} Label={''} Setter={(r) => createChange(r, 'Name')} Valid={(f) => isValid(f, c)} />
+                        },
+                        {
+                            key: 'Description', field: 'Description', label: 'Desc', headerStyle: { width: '25%' }, rowStyle: { width: '25%' },
+                            content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Description'} Label={''} Setter={(r) => createChange(r, 'Description')} Valid={(f) => isValid(f, c)} />
+                        },
+                        {
+                            key: 'MeasurementType', field: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
+                            content: (c) => <Select Record={c} Field={'MeasurementTypeID'} Label={''} Options={measurementTypes.map(d => ({ Label: d.Name, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'MeasurementTypeID')} />
+                        },
+                        {
+                            key: 'Phase', field: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
+                            content: (c) => <Select Record={c} Field={'PhaseID'} Label={''} Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'PhaseID')} />
+                            
+                        },
+                        {
+                            key: 'Adder', field: 'Adder', label: 'Adder', headerStyle: { width: '5%' }, rowStyle: { width: '5%' },
+                            content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Adder'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'Adder')} Valid={(f) => isValid(f, c)} />
+                        },
+                        {
+                            key: 'Multiplier', field: 'Multiplier', label: 'Multiplier', headerStyle: { width: '5%' }, rowStyle: { width: '5%' },
+                            content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Multiplier'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'Multiplier')} Valid={(f) => isValid(f, c)} />
+                        },
+                        {
+                            key: 'Asset', field: 'Asset', label: 'Asset', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
+                            content: (c) => <Select Record={c} Field={'AssetID'} Label={''} Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'AssetID')} />
+                        },
+                        {
+                            key: 'ConnectionPriority', field: 'ConnectionPriority', label: 'Con.', headerStyle: { width: '5%' }, rowStyle: { width: '5%' },
+                            content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'ConnectionPriority'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'ConnectionPriority')} Valid={(f) => isValid(f, c)} />
+                        },
+                        {
+                            key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                            content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveRecord(c)}><span>{TrashCan}</span></button>
+                        },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
-                                    </tr>
-                                )
-                            })
-                        }
-                    </tbody>
-                </table>
+                    ]}
+                    tableClass="table table-hover"
+                    data={data.map(c => replicateChanges(c))}
+                    sortKey={sortKey}
+                    ascending={ascending}
+                        onSort={(d) => {
+
+                            if (d.colKey === "Scroll" || d.colKey == 'Remove')
+                                return;
+
+                            if (d.colKey === sortKey)
+                                dispatch(FetchChannels({ sortField: d.colField, ascending: !ascending, meterId: props.Meter.ID }));
+                            else 
+                                dispatch(FetchChannels({ sortField: d.colField, ascending: true, meterId: props.Meter.ID }));
+                        }}
+                    onClick={() => { }}
+                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
+                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    selected={(item) => false}
+                />
             </div>
         </div>
         <div className="card-footer">
             <div className="btn-group mr-2">
                 <button className="btn btn-primary pull-right" onClick={() => {
-                    let channel: OpenXDA.Types.Channel = { ID: 0, Meter: props.Meter.AssetKey, ConnectionPriority: 0, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series] }
-                    setChannels((d) => [...d,channel])
+                    let i = 1;
+                    while (data.findIndex(item => item.Name.toLowerCase() == `channel ${i}`) > -1)
+                        i = i + 1;
+
+                    let newChannel: OpenXDA.EventChannel = {
+                        Series: [],
+                        ID: 0,
+                        Meter: props.Meter.AssetKey,
+                        ConnectionPriority: 0,
+                        Asset: '',
+                        MeasurementType: 'Voltage',
+                        MeasurementCharacteristic: 'Instantaneous',
+                        Phase: 'AN',
+                        Name: 'Channel ' + i,
+                        Adder: 0,
+                        Multiplier: 1,
+                        SamplesPerHour: 0,
+                        PerUnitValue: null,
+                        HarmonicGroup: 0,
+                        Description: '',
+                        Enabled: true,
+                        SourceIndices: 'A1',
+                        MeterID: props.Meter.ID,
+                        AssetID: assets.length > 0 ? assets[0].ID : -1,
+                        MeasurementTypeID: measurementTypes.length > 0 ? measurementTypes[0].ID : -1,
+                        PhaseID: phases.length > 0 ? phases[0].ID : -1
+                    }
+
+                    dispatch(dBAction({ verb: 'POST', record: newChannel }));
                 }}>Add Channel</button>
             </div>
             <div className="btn-group mr-2">
-                <button className={"btn btn-primary" + (errors.length > 0 || nChanges == 0 ? ' disabled' : '')} onClick={() => { if (errors.length === 0 && nChanges > 0) applyUpdates() }}
-                    onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')} data-tooltip={'save'}>Save Changes</button>
-                <ToolTip Show={hover == 'New' && (errors.length > 0 || nChanges == 0)} Position={'top'} Theme={'dark'} Target={"save"}>
-                    {nChanges == 0 ? <p> no changes have been made. </p> : null}
+                <button className={"btn btn-primary" + (errors.length > 0 || recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (errors.length === 0 && recordChanges.size > 0) applyUpdates() }}
+                    onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'save'}>Save Changes</button>
+                <ToolTip Show={hover == 'Update' && (errors.length > 0 || recordChanges.size == 0)} Position={'top'} Theme={'dark'} Target={"save"}>
+                    {recordChanges.size == 0 ? <p> no changes have been made. </p> : null}
                     {errors.length > 0 ? errors.map((e, i) => <> {CrossMark} <p key={i}> {e} </p> </>) : null}
                 </ToolTip>
             </div>
             <div className="btn-group mr-2">
-                <button className={"btn btn-primary" + (nChanges == 0 ? ' disabled' : '')} onClick={() => { if (nChanges > 0) setTrigger(x => x+1) }}
+                <button className={"btn btn-primary" + (recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (recordChanges.size > 0) setRecordChanges(new Map<number, Map<keyof OpenXDA.EventChannel, number | string>>()); }}
                     onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"clr"}>Clear Changes</button>
-                <ToolTip Show={hover == 'Reset' && (nChanges > 0)} Position={'top'} Theme={'dark'} Target={"clr"}>
-                    <p> There are {nChanges} channels with changes that will be lost. </p>
+                <ToolTip Show={hover == 'Reset' && (recordChanges.size  > 0)} Position={'top'} Theme={'dark'} Target={"clr"}>
+                    <p> There are {recordChanges.size} channels with changes that will be lost. </p>
                 </ToolTip>
             </div>
         </div>
-    </div>
+        </div>
+        <Warning Message={'This will permanently remove the channel and can not be undone.'} Show={removeRecord != null} Title={'Delete Channel'} CallBack={(c) => { if (c) dispatch(dBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        </>
 
 }
 
-export default MeterEventChannelWindow
-;
+export default MeterEventChannelWindow;
 

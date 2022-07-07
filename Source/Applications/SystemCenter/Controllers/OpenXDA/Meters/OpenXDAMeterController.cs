@@ -522,5 +522,169 @@ namespace SystemCenter.Controllers.OpenXDA
         }
     }
 
+    [CustomView("SELECT " +
+                "    Channel.*, " +
+                "    Meter.AssetKey AS Meter, " +
+                "    Asset.AssetKey AS Asset, " +
+                "    MeasurementType.Name AS MeasurementType, " +
+                "    MeasurementCharacteristic.Name AS MeasurementCharacteristic, " +
+                "    Phase.Name AS Phase," +
+                "    (SELECT TOP 1 SourceIndexes FROM Series WHERE Channel.ID = Series.ChannelID) AS SourceIndices " +
+                "FROM " +
+                "    Channel JOIN " +
+                "    Asset ON Channel.AssetID = Asset.ID JOIN " +
+                "    Meter ON Channel.MeterID = Meter.ID JOIN " +
+                "    MeasurementType ON Channel.MeasurementTypeID = MeasurementType.ID JOIN " +
+                "    MeasurementCharacteristic ON Channel.MeasurementCharacteristicID = MeasurementCharacteristic.ID JOIN " +
+                "    Phase ON Channel.PhaseID = Phase.ID " +
+                "WHERE MeasurementCharacteristic.Name = 'Instantaneous' AND " +
+                "    (SELECT COUNT(ID) FROM Series WHERE Channel.ID = Series.ChannelID) = 1 AND " +
+                "    (SELECT TOP 1 SeriesTypeID FROM Series WHERE Channel.ID = Series.ChannelID) IN (SELECT ID FROM SeriesType WHERE Name IN ('Values','Instantaneous'))")]
+    public class EventChannel : ChannelBase
+    {
+        [ParentKey(typeof(MeterDetail))]
+        public new int MeterID { get; set; }
+        public string Meter { get; set; }
+        public string Asset { get; set; }
+        public string MeasurementType { get; set; }
+        public string MeasurementCharacteristic { get; set; }
+        public string Phase { get; set; }
+        public string SourceIndices { get; set; }
+    }
+
+    [RoutePrefix("api/OpenXDA/EventChannel")]
+    public class EventChannelController: ModelController<EventChannel>
+    {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        EventChannel newRecord = record.ToObject<EventChannel>();
+
+                        IEnumerable<MeasurementCharacteristic> measurementCharacteristics = new TableOperations<MeasurementCharacteristic>(connection).QueryRecordsWhere("Name = 'Instantaneous'");
+                        IEnumerable<SeriesType> seriesTypes = new TableOperations<SeriesType>(connection).QueryRecordsWhere("Name = 'Values'");
+
+                        ChannelBase channel = new ChannelBase() {
+                            MeterID = newRecord.MeterID,
+                            AssetID = newRecord.AssetID,
+                            MeasurementTypeID = newRecord.MeasurementTypeID,
+                            Adder = newRecord.Adder,
+                            MeasurementCharacteristicID = measurementCharacteristics.First()?.ID ?? 0,
+                            ConnectionPriority = newRecord.ConnectionPriority,
+                            PhaseID = newRecord.PhaseID,
+                            Name = newRecord.Name,
+                            Multiplier = newRecord.Multiplier,
+                            SamplesPerHour = newRecord.SamplesPerHour,
+                            PerUnitValue = newRecord.PerUnitValue,
+                            HarmonicGroup = newRecord.HarmonicGroup,
+                            Description = newRecord.Description,
+                            Enabled = newRecord.Enabled,
+                        };
+
+
+                        int result = new TableOperations<ChannelBase>(connection).AddNewRecord(channel);
+                        int channelID = connection.ExecuteScalar<int>("SELECT @@IDENTITY");
+
+                        Series series = new Series() { 
+                            SeriesTypeID = seriesTypes.First()?.ID ?? 0,
+                            SourceIndexes = newRecord.SourceIndices,
+                            ChannelID = channelID
+                        };
+
+                        result = new TableOperations<Series>(connection).AddNewRecord(series);
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Delete(EventChannel record)
+        {
+            if (DeleteAuthCheck())
+            {
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete Channel, 'ID = ''{record.ID}'''");
+                    return Ok(result);
+                }
+            }
+            else
+            {
+                return Unauthorized();
+            }
+
+        }
+
+        public override IHttpActionResult Patch([FromBody] EventChannel record)
+        {
+
+            try
+            {
+                if (PatchAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        IEnumerable<MeasurementCharacteristic> measurementCharacteristics = new TableOperations<MeasurementCharacteristic>(connection).QueryRecordsWhere("Name = 'Instantaneous'");
+
+                        ChannelBase channel = new ChannelBase()
+                        {
+                            ID = record.ID,
+                            MeterID = record.MeterID,
+                            AssetID = record.AssetID,
+                            MeasurementTypeID = record.MeasurementTypeID,
+                            Adder = record.Adder,
+                            MeasurementCharacteristicID = measurementCharacteristics.First()?.ID ?? 0,
+                            ConnectionPriority = record.ConnectionPriority,
+                            PhaseID = record.PhaseID,
+                            Name = record.Name,
+                            Multiplier = record.Multiplier,
+                            SamplesPerHour = record.SamplesPerHour,
+                            PerUnitValue = record.PerUnitValue,
+                            HarmonicGroup = record.HarmonicGroup,
+                            Description = record.Description,
+                            Enabled = record.Enabled,
+                        };
+
+                        int result = new TableOperations<ChannelBase>(connection).UpdateRecord(channel);
+
+                        Series series = new TableOperations<Series>(connection).QueryRecordWhere("ChannelID = {0}", record.ID);
+
+                        series.SourceIndexes = record.SourceIndices;
+                        result = new TableOperations<Series>(connection).UpdateRecord(series);
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
 
 }

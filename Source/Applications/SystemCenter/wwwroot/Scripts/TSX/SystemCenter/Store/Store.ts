@@ -24,8 +24,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 import MeterReducer from './MeterSlice';
 import AssetReducer from './AssetSlice';
-import { GenericSlice }from '@gpa-gemstone/react-interactive'
-
+import { GenericSlice } from '@gpa-gemstone/react-interactive'
+import { EventChannelSlice } from './EventChannelSlice';
 import { SystemCenter, OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import NoteSlice from './NoteSlice';
 import UserSlice from './UserSlice';
@@ -118,6 +118,7 @@ export default configureStore({
         ApplicationNode: ApplicationNodeSlice.Reducer,
         PQApplicationCategory: ApplicationCategorySlice.Reducer,
         PQApplications: PQApplicationsSlice.Reducer,
-        DBCleanup: DBCleanupSlice.Reducer
+        DBCleanup: DBCleanupSlice.Reducer,
+        EventChannels: EventChannelSlice.reducer
     }
 });
