@@ -73,17 +73,13 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     const [assetGrpErrors, setAssetGrpErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        let handle = null;
         if (status == 'changed' || status == 'unintiated')
-            handle = dispatch(AssetGroupSlice.Fetch());
-        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+            dispatch(AssetGroupSlice.Fetch());
     }, [status])
 
     React.useEffect(() => {
-        let handle = null;
         if (searchStatus == 'changed' || searchStatus == 'unintiated')
-            handle = dispatch(AssetGroupSlice.DBSearch({ filter: searchFields }));
-        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+            dispatch(AssetGroupSlice.DBSearch({ filter: searchFields }));
     }, [searchStatus])
 
     React.useEffect(() => {
