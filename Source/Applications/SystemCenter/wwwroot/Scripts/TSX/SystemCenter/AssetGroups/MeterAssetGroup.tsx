@@ -39,10 +39,12 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
     const [sortField, setSortField] = React.useState<string>('MeterName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
+    const [counter, setCounter] = React.useState<number>(0);
+
 
     React.useEffect(() => {
         return getData();
-    }, [props.AssetGroupID])
+    }, [props.AssetGroupID, counter])
 
     function getData() {
         if (props.AssetGroupID == null)
@@ -114,6 +116,23 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
         };
     }
 
+    function saveItems(items: SystemCenter.Types.DetailedMeter[]) {
+
+        let handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddMeters`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true,
+            data: JSON.stringify(items.map(e => e.ID))
+        });
+
+        handle.done(d => setCounter(x => x + 1))
+
+
+    }
+
     return (
         <>
         <div className="card" style={{ marginBottom: 10 }}>
@@ -171,7 +190,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                 OnClose={(selected, conf) => {
                     setShowAdd(false)
                     if (!conf) return
-                    setMeterList(selected);
+                    saveItems(selected.filter(items => meterList.findIndex(g => g.ID == items.ID) < 0))
                 }}
                 Show={showAdd}
                 Type={'multiple'}

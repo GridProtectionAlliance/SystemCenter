@@ -86,6 +86,23 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
         }
     }
 
+    function saveItems(items: OpenXDA.Types.AssetGroup[]) {
+        
+        let handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddAssetGroups`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true,
+            data: JSON.stringify(items.map(e => e.ID))
+        });
+
+        handle.done(d => setCounter(x => x + 1))
+
+
+    }
+
     return (
         <>
         <div className="card" style={{ marginBottom: 10 }}>
@@ -142,7 +159,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                     OnClose={(selected, conf) => {
                         setShowAdd(false)
                         if (!conf) return
-                        setGroupList(selected);
+                        saveItems(selected.filter(items => groupList.findIndex(g => g.ID == items.ID) < 0))
                     }}
                     Show={showAdd}
                     Type={'multiple'}
