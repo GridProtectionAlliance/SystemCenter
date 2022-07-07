@@ -115,6 +115,31 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        [HttpGet, Route("{assetGroupID:int}/RemoveAsset/{assetID:int}")]
+        public IHttpActionResult RemoveAsset(int assetGroupID, int assetID)
+        {
+            try
+            {
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        connection.ExecuteNonQuery("DELETE FROM AssetAssetGroup WHERE AssetID = {0} AND AssetGroupID = {1}", assetID, assetGroupID);
+                        return Ok(1);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+
         [CustomView("\r\n    SELECT\r\n        DISTINCT\r\n        Meter.ID,\r\n        AssetAssetGroup.AssetGroupID,\r\n        Meter.AssetKey,\r\n        Meter.Name,\r\n        Meter.Make,\r\n        Meter.Model,\r\n        Location.Name as Location,\r\n        COUNT(DISTINCT MeterAsset.AssetID)  as MappedAssets\r\n    FROM \r\n        Meter LEFT JOIN\r\n        Location ON Meter.LocationID = Location.ID LEFT JOIN\r\n        MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN \r\n        Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN\r\n        Note ON Note.NoteTypeID = (SELECT ID FROM NoteType WHERE Name = 'Meter') AND Note.ReferenceTableID = Meter.ID\r\n    GROUP BY\r\n        Meter.ID,\r\n        Meter.AssetKey,\r\n        Meter.Name,\r\n        Meter.Make,\r\n        Meter.Model,\r\n        Location.Name LEFT JOIN\r\n        MeterAssetGroup ON Asset.ID = MeterAssetGroup.AssetID\r\n        ")]
         private class MeterAsset : DetailedMeter
         {   
@@ -172,6 +197,31 @@ namespace SystemCenter.Controllers.OpenXDA
                 return InternalServerError(ex);
             }
         }
+
+        [HttpGet, Route("{assetGroupID:int}/RemoveMeter/{meterID:int}")]
+        public IHttpActionResult RemoveMeter(int assetGroupID, int meterID)
+        {
+            try
+            {
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        connection.ExecuteNonQuery("DELETE FROM MeterAssetGroup WHERE MeterID = {0} AND AssetGroupID = {1}", meterID, assetGroupID);
+                        return Ok(1);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
 
         [HttpGet, Route("{assetGroupID:int}/Users")]
         public IHttpActionResult GetUserAccounts(int assetGroupID)
@@ -249,6 +299,29 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        [HttpGet, Route("{assetGroupID:int}/RemoveGroup/{childID:int}")]
+        public IHttpActionResult RemoveGroup(int assetGroupID, int childID)
+        {
+            try
+            {
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        connection.ExecuteNonQuery("DELETE FROM AssetGroupAssetGroup WHERE ChildAssetGroupID = {0} AND ParentAssetGroupID = {1}", childID, assetGroupID);
+                        return Ok(1);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
         public override IHttpActionResult Delete(AssetGroupView record)
         {
             try

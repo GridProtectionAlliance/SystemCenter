@@ -29,6 +29,8 @@ import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import { AssetGroupSlice } from '../Store/Store';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import { Warning } from '@gpa-gemstone/react-interactive';
+import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -40,6 +42,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [counter, setCounter] = React.useState<number>(0);
+    const [removeGroup, setRemoveGroup] = React.useState<number>(-1);
 
     React.useEffect(() => {
         return getData();
@@ -86,6 +89,19 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
         }
     }
 
+    function removeItem(id: number) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/RemoveGroup/${id}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setCounter(x => x + 1))
+    }
+
     function saveItems(items: OpenXDA.Types.AssetGroup[]) {
         
         let handle = $.ajax({
@@ -117,12 +133,16 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <Table
                         cols={[
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Assets', field: 'Assets', label: 'Num. of Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Meters', field: 'Meters', label: 'Num. of Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Users', field: 'Users', label: 'Num. of Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssetGroups', field: 'AssetGroups', label: 'Num. of Asset Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                                { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'Assets', field: 'Assets', label: 'Num. of Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'Meters', field: 'Meters', label: 'Num. of Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'Users', field: 'Users', label: 'Num. of Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                    { key: 'AssetGroups', field: 'AssetGroups', label: 'Num. of Asset Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                {
+                                    key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                    content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveGroup(c.ID)}><span>{TrashCan}</span></button>
+                                },
+                                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
                         tableClass="table table-hover"
                         data={groupList}
@@ -174,6 +194,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                     Title={"Add Asset Groups to Asset Group"}
                     GetEnum={getEnum}
                     GetAddlFields={() => () => { }} />
+                <Warning Show={removeGroup > -1} Title={'Remove Asset Group from Group'} Message={'This will remove the Asset Group from this AssetGroup'} CallBack={(c) => { if (c) removeItem(removeGroup); setRemoveGroup(-1); }} />
             </div>
             </>
     );

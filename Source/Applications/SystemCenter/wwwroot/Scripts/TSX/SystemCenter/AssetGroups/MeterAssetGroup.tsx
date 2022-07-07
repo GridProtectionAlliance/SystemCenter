@@ -28,8 +28,9 @@ import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import { ByMeterSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Search } from '@gpa-gemstone/react-interactive';
+import { Search, Warning } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -40,7 +41,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [counter, setCounter] = React.useState<number>(0);
-
+    const [removeMeter, setRemoveMeter] = React.useState<number>(-1);
 
     React.useEffect(() => {
         return getData();
@@ -129,8 +130,19 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
         });
 
         handle.done(d => setCounter(x => x + 1))
+    }
 
+    function removeItem(id: number) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/RemoveMeter/${id}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
 
+        handle.done(d => setCounter(x => x + 1))
     }
 
     return (
@@ -149,6 +161,10 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                         cols={[
                             { key: 'MeterName', field: 'Name', label: 'Meter', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            {
+                                key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveMeter(c.ID)}><span>{TrashCan}</span></button>
+                            },
                             { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
                         tableClass="table table-hover"
@@ -206,6 +222,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                 Title={"Add Meters to Asset Group"}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalMeterFields} />
+            <Warning Show={removeMeter > -1} Title={'Remove Meter from Group'} Message={'This will remove the meter from this AssetGroup'} CallBack={(c) => { if (c) removeItem(removeMeter); setRemoveMeter(-1);  }} />
         </>
     );
 }

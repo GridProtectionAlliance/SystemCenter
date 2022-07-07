@@ -28,8 +28,9 @@ import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import { ByAssetSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Search } from '@gpa-gemstone/react-interactive';
+import { Search, Warning } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -40,6 +41,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [counter, setCounter] = React.useState<number>(0);
+    const [removeAsset, setRemoveAsset] = React.useState<number>(-1);
 
     React.useEffect(() => {
         return getData();
@@ -132,6 +134,19 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
 
     }
 
+    function removeItem(id: number) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/RemoveAsset/${id}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setCounter(x => x + 1))
+    }
+
     return (
         <>
         <div className="card" style={{ marginBottom: 10 }}>
@@ -147,10 +162,14 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <Table
                         cols={[
-                            { key: 'AssetName', field: 'AssetKey', label: 'AssetKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'LongAssetName', field: 'AssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
+                                { key: 'AssetName', field: 'AssetKey', label: 'AssetKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'LongAssetName', field: 'AssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                {
+                                    key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                    content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveAsset(c.ID)}><span>{TrashCan}</span></button>
+                                },
+                                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
                             
                         ]}
                         tableClass="table table-hover"
@@ -209,6 +228,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                 Title={"Add Transmission Assets to Asset Group"}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalAssetFields} />
+            <Warning Show={removeAsset > -1} Title={'Remove Asset from Group'} Message={'This will remove the transmission asset from this AssetGroup'} CallBack={(c) => { if (c) removeItem(removeAsset); setRemoveAsset(-1); }} />
             </>
     )
 }
