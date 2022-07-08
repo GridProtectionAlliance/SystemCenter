@@ -27,7 +27,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Table from '@gpa-gemstone/react-table';
 import { SystemCenter, Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { RemoteXDAMeterSlice, ByMeterSlice, RemoteXDAAssetSlice } from '../Store/Store';
-import { LoadingScreen, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { BlankRemoteXDAMeter, RemoteMeterForm } from './RemoteMeterForm';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
@@ -60,6 +60,7 @@ const RemoteMeterTab = (props: IProps) => {
     const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
     const [remoteMeter, setRemoteMeter] = React.useState<OpenXDA.Types.RemoteXDAMeter>(BlankRemoteXDAMeter);
     const [showEdit, setShowEdit] = React.useState<(boolean)>(false);
+    const [showDelete, setShowDelete] = React.useState<(boolean)>(false);
 
     // Add New Meter Consts
     const meterStatus = useSelector(ByMeterSlice.Status) as Application.Types.Status;
@@ -67,8 +68,6 @@ const RemoteMeterTab = (props: IProps) => {
     const [showAddMeters, setShowAddMeters] = React.useState<(boolean)>(false);
 
     // Add New Assets for Meter
-    const remoteAssetStatus = useSelector(RemoteXDAAssetSlice.Status);
-    const [showAddAssets, setShowAddAssets] = React.useState<(boolean)>(false);
     const [showLoading, setShowLoading] = React.useState<(boolean)>(false);
     const [assetCount, setAssetCount] = React.useState<number>(0);
 
@@ -77,11 +76,6 @@ const RemoteMeterTab = (props: IProps) => {
         if (remoteMeterStatus === 'unintiated' || remoteMeterStatus === 'changed')
             dispatch(RemoteXDAMeterSlice.Fetch());
     }, [dispatch, remoteMeterStatus]);
-
-    React.useEffect(() => {
-        if (remoteAssetStatus === 'unintiated' || remoteAssetStatus === 'changed')
-            dispatch(RemoteXDAAssetSlice.Fetch());
-    }, [dispatch, remoteAssetStatus]);
 
     React.useEffect(() => {
         if (meterStatus === 'unintiated' || meterStatus === 'changed')
@@ -171,7 +165,10 @@ const RemoteMeterTab = (props: IProps) => {
                             className={"btn btn-delete" + (isEditable(item) ? '' : ' disabled')}
                             onClick={(e) => {
                                 e.preventDefault();
-                                if (isEditable(item)) dispatch(RemoteXDAMeterSlice.DBAction({ verb: 'DELETE', record: item }));
+                                if (isEditable(item)) {
+                                    setSelectedMeter(item);
+                                    setShowDelete(true);
+                                }
                             }}>
                             <span>{TrashCan}</span>
                         </button> : null)
@@ -225,12 +222,15 @@ const RemoteMeterTab = (props: IProps) => {
                     </button>
                 </div>
             </div>
+            <Warning Title={"Delete Remote Meter"} Show={showDelete} Message={"Are you sure you want to delete the remote meter for " + selectedMeter.LocalMeterName + "?"}
+                CallBack={(conf) => {
+                    if (conf) dispatch(RemoteXDAMeterSlice.DBAction({ verb: 'DELETE', record: selectedMeter }));
+                    setShowDelete(false);
+                }}/>
             <Modal Show={showEdit} Title={'Edit Remote Meter: ' + selectedMeter.LocalMeterName}
                 ShowCancel={true}
                 CallBack={(conf) => {
-                    if (conf) {
-                        dispatch(RemoteXDAMeterSlice.DBAction({ verb: 'PATCH', record: remoteMeter }));
-                    }
+                    if (conf) dispatch(RemoteXDAMeterSlice.DBAction({ verb: 'PATCH', record: remoteMeter }));
                     setShowEdit(false);
                 }}
                 DisableConfirm={newInstErrors.length > 0}
@@ -242,11 +242,15 @@ const RemoteMeterTab = (props: IProps) => {
                 }>
                 <RemoteMeterForm OriginalMeter={selectedMeter} SetRemoteMeter={setRemoteMeter} SetErrors={setNewInstErrors} />
             </Modal>
-            <Modal Show={showAddAssets} Title={'Add Associated Remote Asset(s)?'}
+            <Modal Show={assetCount > 0} Title={'Add Associated Remote Asset(s)?'}
                 ShowCancel={true}
                 CallBack={(conf) => {
+                    setAssetCount(0);
                     if (conf) {
                         let addAssetHandle = addAssociatedAssets(selectedMeter);
+                        addAssetHandle.then((data: number) => {
+                            dispatch(RemoteXDAAssetSlice.Fetch()); // TODO: This doesn't properly reload the asset slice when switching tabs
+                        });
                         return () => {
                             if (addAssetHandle != null && addAssetHandle.abort != null) {
                                 addAssetHandle.abort();
@@ -254,7 +258,6 @@ const RemoteMeterTab = (props: IProps) => {
                         };
 
                     }
-                    setShowAddAssets(false);
                 }}
                 ShowX={true} Size={"sm"}
                 ConfirmText={"Yes"}
@@ -283,13 +286,11 @@ const RemoteMeterTab = (props: IProps) => {
                             LocalMeterName: "",
                             LocalAssetKey: ""
                         }
-                        setSelectedMeter(newRemote);
-                        RemoteXDAMeterSlice.DBAction({ verb: "POST", record: selectedMeter });
-                        let fetchAssetHandle = getAssociatedAssetCount(selectedMeter);
+                        dispatch(RemoteXDAMeterSlice.DBAction({ verb: "POST", record: newRemote }));
+                        setSelectedMeter(newRemote); // Technically, this is a race condition with setAssetCount
+                        let fetchAssetHandle = getAssociatedAssetCount(newRemote);
                         fetchAssetHandle.then((data: number) => {
                             setAssetCount(data);
-                            if (assetCount > 0)
-                                setShowAddAssets(true);
                             setShowLoading(false);
                         });
                         return () => {

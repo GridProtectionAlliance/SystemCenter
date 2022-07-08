@@ -25,11 +25,12 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useDispatch, useSelector } from 'react-redux';
 import Table from '@gpa-gemstone/react-table';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { RemoteXDAAssetSlice } from '../Store/Store';
-import { LoadingScreen, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { RemoteXDAAssetSlice, ByAssetSlice } from '../Store/Store';
+import { LoadingScreen, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { BlankRemoteXDAAsset, RemoteAssetForm } from './RemoteAssetForm';
+import { DefaultSelects } from '@gpa-gemstone/common-pages';
 
 interface IProps { ID: number }
 
@@ -57,6 +58,12 @@ const RemoteAssetTab = (props: IProps) => {
     const [remoteAsset, setRemoteAsset] = React.useState<OpenXDA.Types.RemoteXDAAsset>(BlankRemoteXDAAsset);
     const [selectedAsset, setSelectedAsset] = React.useState<OpenXDA.Types.RemoteXDAAsset>(BlankRemoteXDAAsset);
     const [showEdit, setShowEdit] = React.useState<(boolean)>(false);
+    const [showDelete, setShowDelete] = React.useState<(boolean)>(false);
+
+    // Add New Asset Consts
+    const assetStatus = useSelector(ByAssetSlice.Status) as Application.Types.Status;
+    const [assetList, setAssetList] = React.useState<Array<SystemCenter.Types.DetailedAsset>>([]);
+    const [showAddAssets, setShowAddAssets] = React.useState<(boolean)>(false);
 
     React.useEffect(() => {
         if (remoteAssetStatus === 'unintiated' || remoteAssetStatus === 'changed')
@@ -71,6 +78,11 @@ const RemoteAssetTab = (props: IProps) => {
     React.useEffect(() => {
         dispatch(RemoteXDAAssetSlice.DBSearch({ sortField: sortKey, ascending, filter: searchFilters }))
     }, [ascending, sortKey]);
+
+    React.useEffect(() => {
+        if (assetStatus === 'unintiated' || assetStatus === 'changed')
+            dispatch(ByAssetSlice.Fetch());
+    }, [dispatch, assetStatus]);
 
     function isEditable(item: OpenXDA.Types.RemoteXDAAsset): boolean {
         return item.RemoteXDAAssetID <= 0;
@@ -126,7 +138,10 @@ const RemoteAssetTab = (props: IProps) => {
                             className={"btn btn-delete" + (isEditable(item) ? '' : ' disabled')}
                             onClick={(e) => {
                                 e.preventDefault();
-                                if (isEditable(item)) dispatch(RemoteXDAAssetSlice.DBAction({ verb: 'DELETE', record: item }));
+                                if (isEditable(item)) {
+                                    setSelectedAsset(item);
+                                    setShowDelete(true);
+                                }
                             }}>
                             <span>{TrashCan}</span>
                         </button> : null)
@@ -167,12 +182,28 @@ const RemoteAssetTab = (props: IProps) => {
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
                 {cardBody}
             </div>
+            <div className="card-footer">
+                <div className="add-new-asset">
+                    <button
+                        className={"btn btn-primary"}
+                        type="submit"
+                        onClick={(e) => {
+                            e.preventDefault();
+                            setShowAddAssets(true);
+                        }}>
+                        Add Assets
+                    </button>
+                </div>
+            </div>
+            <Warning Title={"Delete Remote Asset"} Show={showDelete} Message={"Are you sure you want to delete the remote asset for " + selectedAsset.LocalAssetName + "?"}
+                CallBack={(conf) => {
+                    if (conf) dispatch(RemoteXDAAssetSlice.DBAction({ verb: 'DELETE', record: selectedAsset }));
+                    setShowDelete(false);
+                }} />
             <Modal Show={showEdit} Title={'Edit Remote Asset: ' + selectedAsset.LocalAssetName}
                 ShowCancel={true}
                 CallBack={(conf) => {
-                    if (conf) {
-                        dispatch(RemoteXDAAssetSlice.DBAction({ verb: 'PATCH', record: remoteAsset }));
-                    }
+                    if (conf) dispatch(RemoteXDAAssetSlice.DBAction({ verb: 'PATCH', record: remoteAsset }));
                     setShowEdit(false);
                 }}
                 DisableConfirm={newInstErrors.length > 0}
@@ -184,6 +215,42 @@ const RemoteAssetTab = (props: IProps) => {
                 }>
                 <RemoteAssetForm OriginalAsset={selectedAsset} SetRemoteAsset={setRemoteAsset} SetErrors={setNewInstErrors} />
             </Modal>
+            <DefaultSelects.Asset
+                Slice={ByAssetSlice}
+                Selection={assetList}
+                OnClose={(selected, conf) => {
+                    setShowAddAssets(false);
+                    setAssetList([]);
+                    if (!conf) return;
+                    selected.forEach((asset) => {
+                        let newRemote: OpenXDA.Types.RemoteXDAAsset = {
+                            ID: -1,
+                            RemoteXDAInstanceID: props.ID,
+                            LocalXDAAssetID: asset.ID,
+                            RemoteXDAAssetID: -1,
+                            RemoteXDAAssetKey: asset.AssetKey,
+                            Obsfucate: false,
+                            Synced: false,
+                            RemoteAssetCreatedByDataPusher: false,
+                            LocalAssetName: "",
+                            LocalAssetKey: ""
+                        }
+                        dispatch(RemoteXDAAssetSlice.DBAction({ verb: "POST", record: newRemote }));
+                    });
+                }}
+                Show={showAddAssets}
+                Type={'single'}
+                Columns={[
+                    { key: 'AssetName', field: 'AssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetKey', field: 'AssetKey', label: 'Asset Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                ]}
+                Title={"Select Meter to Add for this remoteXDA Instance:"}
+                GetEnum={() => () => { }}
+                GetAddlFields={() => () => { }}
+            />
         </div>
     );
 
