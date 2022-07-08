@@ -71,7 +71,7 @@ export default function RemoteMeterForm(props: IProps) {
             if (!RemoteMeterComparator(baseMeter, formMeter))
                 e.push("No changes made.")
             if (!valid('RemoteXDAName'))
-                e.push('Remote meter name is a required field (less than 200 characters)');
+                e.push('Remote meter name is a required field (less than 200 characters) if obfuscated.');
             if (!valid('RemoteXDAAssetKey'))
                 e.push('Remote asset key is a required field (less than 50 characters)');
             if (props.SetErrors != undefined)
@@ -84,7 +84,7 @@ export default function RemoteMeterForm(props: IProps) {
         if (field == 'RemoteXDAMeterID')
             return formMeter.RemoteXDAMeterID != null && formMeter.RemoteXDAMeterID <= 0;
         else if (field == 'RemoteXDAName')
-            return formMeter.RemoteXDAName != null && formMeter.RemoteXDAName.length > 0 && formMeter.RemoteXDAName.length <= 200;
+            return formMeter.RemoteXDAName != null && (formMeter.RemoteXDAName.length > 0 && formMeter.RemoteXDAName.length <= 200) || !formMeter.Obsfucate;
         else if (field == 'RemoteXDAAssetKey')
             return formMeter.RemoteXDAAssetKey != null && formMeter.RemoteXDAAssetKey.length > 0 && formMeter.RemoteXDAAssetKey.length <= 50;
         else
@@ -100,7 +100,10 @@ export default function RemoteMeterForm(props: IProps) {
                     <Input<OpenXDA.Types.RemoteXDAMeter> Record={formMeter} Field={'LocalAlias'} Label={'Local Alias'} Valid={() => true} Setter={() => { }} Disabled={true} />
                 </div>
                 <div className="col" style={{ width: '50%', float: "right" }}>
-                    <Input<OpenXDA.Types.RemoteXDAMeter> Record={formMeter} Field={'RemoteXDAName'} Label={'Remote Meter Name'} Feedback={"A key of less than 200 characters is required."} Help={"Also is the meter alias on the remote side if obfuscated. Otherwise uses local alias."} Valid={valid} Setter={setFormMeter} />
+                    <Input<OpenXDA.Types.RemoteXDAMeter> Record={formMeter} Field={'RemoteXDAName'} Label={'Remote Meter Name'} Feedback={"A name of less than 200 characters is required."} Help={"Also is the meter alias on the remote side if obfuscated. Otherwise uses local alias."}
+                        Valid={(field) => {
+                            return (valid(field) || !formMeter.Obsfucate);
+                        }} Setter={setFormMeter} Disabled={!formMeter.Obsfucate} />
                     <Input<OpenXDA.Types.RemoteXDAMeter> Record={formMeter} Field={'RemoteXDAAssetKey'} Label={'Remote Asset Key'} Feedback={"A key of less than 50 characters is required."} Valid={valid} Setter={setFormMeter} />
                     <CheckBox<OpenXDA.Types.RemoteXDAMeter> Record={formMeter} Field={'Obsfucate'} Label={'Obfuscate Remote Meter Alias'} Setter={setFormMeter} />
                 </div>

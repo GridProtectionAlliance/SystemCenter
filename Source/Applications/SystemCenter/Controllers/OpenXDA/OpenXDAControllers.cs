@@ -94,7 +94,6 @@ namespace SystemCenter.Controllers.OpenXDA
                     {
                         RemoteXDAInstanceID = remoteInstanceID,
                         RemoteXDAAssetID = -1,
-                        RemoteXDAAssetKey = "",
                         Obsfucate = false,
                         Synced = false,
                         // This will be set later by OpenXDA if it does not exist remotely already
@@ -105,6 +104,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     foreach (Asset asset in additionalAssets)
                     {
                         newRecord.LocalXDAAssetID = asset.ID;
+                        newRecord.RemoteXDAAssetKey = asset.AssetKey;
                         result += assetDataPushTable.AddNewRecord(newRecord);
                     }
                     return Ok(result);
@@ -483,7 +483,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     {
                         if (record.RemoteXDAAssetID > 0)
                             throw new Exception("Unable to modifiy entry, entry already exists remotely.");
-                        int result = new TableOperations<AssetsToDataPush>(connection).AddNewOrUpdateRecord(record);
+                        int result = new TableOperations<AssetsToDataPush>(connection).UpdateRecord(record);
                         return Ok(result);
                     }
                 }
@@ -534,7 +534,7 @@ namespace SystemCenter.Controllers.OpenXDA
         /// </summary>
         /// <param name="record"> The <typeparamref name="RemoteXDAAsset"/> record to be added.</param>
         /// <returns><see cref="IHttpActionResult"/> containing the added record or <see cref="Exception"/> </returns>
-        public virtual IHttpActionResult Post([FromBody] RemoteXDAAsset record)
+        public override IHttpActionResult Post([FromBody] JObject record)
         {
             try
             {
@@ -542,8 +542,9 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
+                        AssetsToDataPush newRecord = record.ToObject<AssetsToDataPush>();
                         // Add data push (or update)
-                        int result = new TableOperations<AssetsToDataPush>(connection).AddNewOrUpdateRecord(record);
+                        int result = new TableOperations<AssetsToDataPush>(connection).AddNewRecord(newRecord);
                         return Ok(result);
                     }
                 }
@@ -579,7 +580,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     {
                         if (record.RemoteXDAMeterID > 0)
                             throw new Exception("Unable to modifiy entry, entry already exists remotely.");
-                        int result = new TableOperations<MetersToDataPush>(connection).AddNewOrUpdateRecord(record);
+                        int result = new TableOperations<MetersToDataPush>(connection).UpdateRecord(record);
                         return Ok(result);
                     }
                 }
@@ -630,7 +631,7 @@ namespace SystemCenter.Controllers.OpenXDA
         /// </summary>
         /// <param name="record"> The <typeparamref name="RemoteXDAMeter"/> record to be added.</param>
         /// <returns><see cref="IHttpActionResult"/> containing the added record or <see cref="Exception"/> </returns>
-        public virtual IHttpActionResult Post([FromBody] RemoteXDAMeter record)
+        public override IHttpActionResult Post([FromBody] JObject record)
         {
             try
             {
@@ -638,7 +639,8 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                        int result = new TableOperations<MetersToDataPush>(connection).AddNewRecord(record);
+                        MetersToDataPush newRecord = record.ToObject<MetersToDataPush>();
+                        int result = new TableOperations<MetersToDataPush>(connection).AddNewRecord(newRecord);
                         return Ok(result);
                     }
                 }
