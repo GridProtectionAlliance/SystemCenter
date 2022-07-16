@@ -29,12 +29,20 @@ import CustomerInfo from './CustomerInfo';
 import CustomerMeterWindow from './CustomerMeter';
 import { useSelector, useDispatch } from 'react-redux';
 import { CustomerSlice } from '../Store/Store';
-import { Warning } from '@gpa-gemstone/react-interactive';
+import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 
 declare var homePath: string;
 
-interface IProps { CustomerID: number}
+interface IProps { CustomerID: number }
+
+const Tabs = [
+    { Id: "info", Label: "Customer Info" },
+    { Id: "notes", Label: "Notes" },
+    { Id: "additionalFields", Label: "Additional Fields" },
+    { Id: "meters", Label: "Assigned Meter" },
+]
+
 export default function Customer(props: IProps) {
     const dispatch = useDispatch();
 
@@ -95,23 +103,10 @@ export default function Customer(props: IProps) {
 
 
             <hr />
-            <ul className="nav nav-tabs">
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "customerInfo" ? " active" : "")} onClick={() => setTab('customerInfo')} data-toggle="tab" href="#customerInfo">Customer Info</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "additionalFields" ? " active" : "")} onClick={() => setTab('additionalFields')} data-toggle="tab">Additional Fields</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "meters" ? " active" : "")} onClick={() => setTab('meters')} data-toggle="tab" href="#meters">Assigned Meters</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "notes" ? " active" : "")} onClick={() => setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
-                </li>
-            </ul>
+            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "customerInfo" ? " active" : "fade")} id="customerInfo">
+                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="customerInfo">
                     <CustomerInfo Customer={customer} stateSetter={(record) => dispatch(CustomerSlice.DBAction({ verb: 'PATCH', record: record }))} />
                 </div>
                 <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
