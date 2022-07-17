@@ -34,6 +34,8 @@ import SecurityRoleSlice from './SecurityRoleSlice';
 import { PQApplications } from '../ApplicationCategory/Applications';
 import { DBCleanup } from '../DB/DBCleanup';
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
+import { OpenXDA as LocalXDA } from '../global'
+
 
 declare var homePath: string;
 
@@ -54,6 +56,10 @@ export const MeasurementCharacteristicSlice = new GenericSlice<OpenXDA.Types.Mea
 export const DataFileSlice = new GenericSlice<OpenXDA.Types.DataFile>("DataFile", `${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", false);
 export const CompanyTypeSlice = new GenericSlice<OpenXDA.Types.CompanyType>("CompanyType", `${homePath}api/OpenXDA/CompanyType`, "Name", false);
 export const CustomerSlice = new GenericSlice<OpenXDA.Types.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
+export const CustomerMeterSlice = new GenericSlice<LocalXDA.CustomerMeter>('CustomerMeter', `${homePath}api/SystemCenter/CustomerMeter`, 'MeterKey', false);
+export const CustomerAssetSlice = new GenericSlice<LocalXDA.CustomerAsset>('CustomerAsset', `${homePath}api/SystemCenter/CustomerAsset`, 'AssetKey', false);
+
+
 export const CompanySlice = new GenericSlice<OpenXDA.Types.Company>("Company", `${homePath}api/OpenXDA/Company`, "CompanyID", false);
 export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location", `${homePath}api/OpenXDA/Location`, "LocationKey", true);
 export const DataOperationSlice = new GenericSlice<OpenXDA.Types.DataOperation>("DataOperation", `${homePath}api/OpenXDA/DataOperation`, "LoadOrder");
@@ -119,6 +125,8 @@ export default configureStore({
         PQApplicationCategory: ApplicationCategorySlice.Reducer,
         PQApplications: PQApplicationsSlice.Reducer,
         DBCleanup: DBCleanupSlice.Reducer,
-        EventChannels: EventChannelSlice.reducer
+        EventChannels: EventChannelSlice.reducer,
+        CustomerMeter: CustomerMeterSlice.Reducer,
+        CustomerAsset: CustomerAssetSlice.Reducer
     }
 });

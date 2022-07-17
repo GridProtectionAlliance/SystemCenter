@@ -23,139 +23,220 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter, PQView } from '../global';
-import { OpenXDA } from '@gpa-gemstone/application-typings'
-
+import { PQView, OpenXDA as LocalXDA } from '../global';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
+import { useDispatch, useSelector } from 'react-redux';
+import { ByMeterSlice, CustomerMeterSlice } from '../Store/Store'
+import Table from '@gpa-gemstone/react-table';
+import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { LoadingIcon, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { DefaultSelects } from '@gpa-gemstone/common-pages';
 declare var homePath: string;
 
-export default class CustomerMeterWindow extends React.Component<{ Customer: OpenXDA.Types.Customer }, { Sites: Array<OpenXDA.Types.CustomerAccess>, AllSites: Array<PQView.Site>, SearchText: string, SelectedSites: Array<number> }, {}>{
-    constructor(props, context) {
-        super(props, context);
-        this.state = {
-            Sites: [],
-            AllSites: [],
-            SelectedSites:[],
-            SearchText: ''
+interface IProps { Customer: OpenXDA.Types.Customer }
+const CustomerMeterWindow = (props: IProps) => {
+    const dispatch = useDispatch();
+    const data = useSelector(CustomerMeterSlice.Data);
+    const status = useSelector(CustomerMeterSlice.Status);
+    const [showAdd, setShowAdd] = React.useState<boolean>(false);
+
+    const sortField = useSelector(CustomerMeterSlice.SortField);
+    const ascending = useSelector(CustomerMeterSlice.Ascending);
+
+    const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerMeter | null>(null);
+
+
+    React.useEffect(() => {
+        if (status == 'unintiated' || status == 'changed')
+            dispatch(CustomerMeterSlice.Fetch());
+    }, [status])
+
+    function getEnum(setOptions, field) {
+        let handle = null;
+        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+            return () => { };
+
+        handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        }
+    }
+
+    function getAdditionalMeterFields(setFields) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Meter/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        });
+
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
         }
 
-        this.getSites = this.getSites.bind(this);
-        this.addSites = this.addSites.bind(this);
-    }
-
-    componentDidMount() {
-        this.getSites();
-        this.getAllSites();
-    }
-
-    getSites(): void {
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/CustomerAccess/${this.props.Customer.ID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((sites: Array<OpenXDA.Types.CustomerAccess>) => this.setState({ Sites:  sites}));
-    }
-
-    addSites(): void {
-        $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/CustomerAccess/AddMultiple`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify(this.state.SelectedSites.map(ss => { return { ID: 0, CustomerID: this.props.Customer.ID, PQViewSiteID: parseInt(ss.toString()) } as OpenXDA.Types.CustomerAccess})),
-            cache: false,
-            async: true
-        }).done(() => {
-            this.getSites();
-        }).fail(msg => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
-            else {
-                this.getSites();
-            }
-        });;
-    }
-
-    getAllSites(): void {
-        $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/PQViewSite/`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((sites: Array<PQView.Site>) => {
-            this.setState({ AllSites: _.orderBy(sites, ['name'], ['asc']) })
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedMeter>
+            )), ['label'], ["asc"]);
+            setFields(ordered)
         });
+
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
     }
 
-
-
-    deleteCustommerAccess(record: OpenXDA.Types.CustomerAccess): void {
-        $.ajax({
-            type: "DELETE",
-            url: `${homePath}api/SystemCenter/CustomerAccess/Delete`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify(record),
-            cache: false,
-            async: true
-        }).done(() => {
-            this.getSites();
-        }).fail(msg => {
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
-            else {
-                this.getSites();
-            }
-        });;
-
+    function saveCustomerMeters(m: SystemCenter.Types.DetailedMeter[]) {
+        m.forEach((meter) => {
+            dispatch(CustomerMeterSlice.DBAction({
+                verb: 'POST', record: {
+                    ID: 0,
+                    CustomerKey: props.Customer.CustomerKey,
+                    CustomerName: props.Customer.Name,
+                    CustomerID: props.Customer.ID,
+                    MeterLocation: meter.Location,
+                    MeterKey: meter.AssetKey,
+                    MeterName: meter.Name,
+                    MeterID: meter.ID
+                }
+            }))
+        })
     }
 
-    render() {
-        return (
-            <div className="card" style={{ marginBottom: 10 }}>
-                <div className="card-header">
-                    <div className="row">
-                        <div className="col">
-                            <h4>Sites:</h4>
-                        </div>
-                    </div>
-                </div>
-                <div className="card-body">
-                    <div className="row">
-                        <div className="col">
-                            <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0, overflowY: 'auto' }}>
-                                <table className="table">
-                                    <thead><tr><th>Assigned Sites:</th><th></th></tr></thead>
-                                    <tbody>
-                                        {this.state.AllSites.length > 0 ? this.state.Sites.map((site, i) => <tr key={i}><td>{this.state.AllSites.find(allsite => allsite.id == site.PQViewSiteID).name}</td><td><button className="btn btn-sm" onClick={(e) => {
-                                            e.preventDefault();
-                                            this.deleteCustommerAccess(site);
-                                        }}><span><i className="fa fa-times"></i></span></button></td></tr>) : null}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div className="col">
-                            <input className="form-control" placeholder="Search filter for select box ..." value={this.state.SearchText} onChange={(e) => this.setState({SearchText: e.target.value })}/>
-                            <select className="form-control" style={{ paddingTop: 5, height: 'calc(100% - 35px)' }} multiple onChange={(e) => this.setState({ SelectedSites: $(e.target).val() as any })}>
-                                {this.state.AllSites.filter(allsite => allsite.name.toLowerCase().indexOf(this.state.SearchText.toLowerCase()) >= 0).map(allsite => <option key={allsite.id} value={allsite.id} hidden={this.state.Sites.find(s => s.PQViewSiteID == allsite.id) != null} disabled={this.state.Sites.find(s => s.PQViewSiteID == allsite.id) != null}>{allsite.name}</option>)}
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                <div className="card-footer">
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-primary pull-right" onClick={this.addSites}>Add Sites</button>
+    if (status == 'error')
+        return <div className="card" style={{ marginBottom: 10 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Assigned Meters:</h4>
                     </div>
                 </div>
             </div>
-                
-        );
-    }
+            <div className="card-body">
+                <div style={{ width: '100%', height: '200px' }}>
+                    <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                    </div>
+                </div>
+            </div>
+        </div>
 
+    if (status == 'loading')
+        return <div className="card" style={{ marginBottom: 10 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Assigned Meters:</h4>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body">
+                <div style={{ width: '100%', height: '200px' }}>
+                    <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                        <LoadingIcon Show={true} Size={40} Label={''} />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    return <>
+    <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card-header">
+            <div className="row">
+                <div className="col">
+                    <h4>Assigned Meters:</h4>
+                </div>
+            </div>
+        </div>
+        <div className="card-body">
+                <div style={{ width: '100%', height: window.innerHeight - 420 }}>
+                    <Table<LocalXDA.CustomerMeter>
+                    cols={[
+                            {
+                                key: 'MeterKey', field: 'MeterKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
+                            },
+                            {
+                                key: 'MeterName', field: 'MeterName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
+                            },
+                            {
+                                key: 'MeterLocation', field: 'MeterLocation', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
+                            },
+                            {
+                                key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveRecord(c)}><span>{TrashCan}</span></button>
+                            },
+                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+
+                    ]}
+                    tableClass="table table-hover"
+                    data={data}
+                    sortKey={sortField}
+                    ascending={ascending}
+                        onSort={(d) => {
+
+                            if (d.colKey === "Scroll" || d.colKey == 'Remove')
+                                return;
+
+                            if (d.colKey === sortField)
+                                dispatch(CustomerMeterSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
+                            else 
+                                dispatch(CustomerMeterSlice.Sort({ SortField: d.colField, Ascending: true }));
+                        }}
+                    onClick={() => { }}
+                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
+                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    selected={(item) => false}
+                />
+            </div>
+        </div>
+        <div className="card-footer">
+            <div className="btn-group mr-2">
+                    <button className="btn btn-primary pull-right" onClick={() => {
+                        setShowAdd(true);
+                }}>Add Meter</button>
+            </div>
+        </div>
+        </div>
+        <Warning Message={'This will permanently remove the meter from this customer and can affect PQDigest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove Meter from Customer'} CallBack={(c) => { if (c) dispatch(CustomerMeterSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        <DefaultSelects.Meter
+            Slice={ByMeterSlice}
+            Selection={[]}
+            OnClose={(selected, conf) => {
+                setShowAdd(false)
+                if (!conf) return
+                saveCustomerMeters(selected.filter(items => data.findIndex(g => g.MeterID == items.ID) < 0))
+            }}
+            Show={showAdd}
+            Type={'multiple'}
+            Columns={[
+                { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'MappedAssets', field: 'MappedAssets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+            ]}
+            Title={"Add Meters to Customer"}
+            GetEnum={getEnum}
+            GetAddlFields={getAdditionalMeterFields} />
+    </>
 }
 
+
+export default CustomerMeterWindow;

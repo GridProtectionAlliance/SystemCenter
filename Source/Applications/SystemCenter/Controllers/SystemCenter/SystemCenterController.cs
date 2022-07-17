@@ -144,21 +144,58 @@ namespace SystemCenter.Controllers
         }
     }
 
-    [RoutePrefix("api/SystemCenter/CustomerAccess")]
-    public class CustomerAccessController : ModelController<CustomerAccess>
+    [RoutePrefix("api/SystemCenter/CustomerMeter")]
+    public class CustomerMeterController : ModelController<CustomerMeterDetail>
     {
-        [HttpPost, Route("AddMultiple")]
-        public IHttpActionResult AddMultipleCustomerAccess(IEnumerable<CustomerAccess> customerAccesses)
+        public override IHttpActionResult Post([FromBody] JObject record)
         {
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                if (PostAuthCheck())
                 {
-                    foreach (CustomerAccess customerAccess in customerAccesses)
-                        new TableOperations<CustomerAccess>(connection).AddNewRecord(customerAccess);
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
 
-                    return Ok("Added all records without error.");
+                        CustomerMeterDetail newDetailRecord = record.ToObject<CustomerMeterDetail>();
+                        CustomerMeter newRecord = new CustomerMeter() { CustomerID = newDetailRecord.CustomerID, MeterID = newDetailRecord.MeterID };
+                        int result = new TableOperations<CustomerMeter>(connection).AddNewRecord(newRecord);
+
+                        return Ok(result);
+                    }
                 }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Delete(CustomerMeterDetail record)
+        {
+            try
+            {
+                if (DeleteAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                       
+                        int id = record.ID;
+                        int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete CustomerMeter, 'ID = {id}'");
+                        return Ok(result);
+
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
             }
             catch (Exception ex)
             {
@@ -166,6 +203,13 @@ namespace SystemCenter.Controllers
             }
         }
     }
+
+    [RoutePrefix("api/SystemCenter/CustomerAsset")]
+    public class CustomerAssetController : ModelController<openXDA.Model.CustomerAssetDetail>
+    {
+
+    }
+
 
     [RoutePrefix("api/Setting")]
     public class SettingController : ModelController<Setting> { }

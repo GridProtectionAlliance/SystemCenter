@@ -61,6 +61,29 @@ export namespace OpenXDA {
     // Data Rescue
     interface DataRescueOperation { ID: number, MeterID: number, StartTime: Date, EndTime: Date, TimeShift: number, TimeShiftUnits: string, ChannelAdjustments: DataRescueChannelAdjustment[] }
     interface DataRescueChannelAdjustment { ID: number, ChannelID: number, Channel: string, Multiplier: number, Adder: number }
+
+    interface CustomerAsset {
+        ID: number,
+        CustomerKey: string,
+        CustomerName: string
+        AssetKey: string,
+        AssetName: string,
+        AssetType: string,
+        AssetID: number,
+        CustomerID: number
+    }
+
+    interface CustomerMeter {
+        ID: number,
+        CustomerKey: string,
+        CustomerName: string
+        MeterKey: string,
+        MeterName: string,
+        MeterLocation: string,
+        CustomerID: number,
+        MeterID: number
+    }
+
 }
 
 export namespace PQView {

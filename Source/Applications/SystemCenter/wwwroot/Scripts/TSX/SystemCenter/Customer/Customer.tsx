@@ -72,7 +72,7 @@ export default function Customer(props: IProps) {
         if (sessionStorage.hasOwnProperty('Customer.Tab'))
             return JSON.parse(sessionStorage.getItem('Customer.Tab'));
         else
-            return 'customerInfo';
+            return 'info';
     }
 
     function deleteCustomer() {
