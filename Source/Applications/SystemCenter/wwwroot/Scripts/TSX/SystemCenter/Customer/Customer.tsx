@@ -31,6 +31,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { CustomerSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
+import CustomerAssetWindow from './CustomerAsset';
 
 declare var homePath: string;
 
@@ -41,6 +42,7 @@ const Tabs = [
     { Id: "notes", Label: "Notes" },
     { Id: "additionalFields", Label: "Additional Fields" },
     { Id: "meters", Label: "Assigned Meter" },
+    { Id: "assets", Label: "Assigned Asset" },
 ]
 
 export default function Customer(props: IProps) {
@@ -114,6 +116,9 @@ export default function Customer(props: IProps) {
                 </div>
                 <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
                     <CustomerMeterWindow Customer={customer} />
+                </div>
+                <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="assets">
+                    <CustomerAssetWindow Customer={customer} />
                 </div>
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" >
                     <NoteWindow ID={props.CustomerID} Type='Customer' />

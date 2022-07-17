@@ -207,7 +207,61 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/CustomerAsset")]
     public class CustomerAssetController : ModelController<openXDA.Model.CustomerAssetDetail>
     {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
 
+                        openXDA.Model.CustomerAssetDetail newDetailRecord = record.ToObject<openXDA.Model.CustomerAssetDetail>();
+                        openXDA.Model.CustomerAsset newRecord = new openXDA.Model.CustomerAsset() { CustomerID = newDetailRecord.CustomerID, AssetID = newDetailRecord.AssetID };
+                        int result = new TableOperations<openXDA.Model.CustomerAsset>(connection).AddNewRecord(newRecord);
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Delete(openXDA.Model.CustomerAssetDetail record)
+        {
+            try
+            {
+                if (DeleteAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        int id = record.ID;
+                        int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete CustomerAsset, 'ID = {id}'");
+                        return Ok(result);
+
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 
 

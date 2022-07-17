@@ -519,6 +519,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\NoteSlice.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\DownloadedFilesPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\DataQualityIssuesPage.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\CustomerAsset.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ByExternalDB.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDB.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBForm.tsx" />
