@@ -69,7 +69,6 @@ export default function Customer(props: IProps) {
             dispatch(CustomerSlice.Fetch());
     }, [cStatus])
 
-
     function getTab(): string {
         if (sessionStorage.hasOwnProperty('Customer.Tab'))
             return JSON.parse(sessionStorage.getItem('Customer.Tab'));

@@ -35,6 +35,7 @@ import { PQApplications } from '../ApplicationCategory/Applications';
 import { DBCleanup } from '../DB/DBCleanup';
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
 import { OpenXDA as LocalXDA } from '../global'
+import PQISlice from './PQISlice';
 
 
 declare var homePath: string;
@@ -127,6 +128,7 @@ export default configureStore({
         DBCleanup: DBCleanupSlice.Reducer,
         EventChannels: EventChannelSlice.reducer,
         CustomerMeter: CustomerMeterSlice.Reducer,
-        CustomerAsset: CustomerAssetSlice.Reducer
+        CustomerAsset: CustomerAssetSlice.Reducer,
+        PQI: PQISlice,
     }
 });
