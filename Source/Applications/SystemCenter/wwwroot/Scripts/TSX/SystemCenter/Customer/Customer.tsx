@@ -124,7 +124,7 @@ export default function Customer(props: IProps) {
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" >
                     <NoteWindow ID={props.CustomerID} Type='Customer' />
                 </div>
-                <div className={"tab-pane " + (tab == "mdmkeys" ? " active" : "fade")} id="mdm" >
+                <div className={"tab-pane " + (tab == "mdm" ? " active" : "fade")} id="mdm" >
                     <MDMKeys CustomerID={customer.ID} />
                 </div>
             </div>
