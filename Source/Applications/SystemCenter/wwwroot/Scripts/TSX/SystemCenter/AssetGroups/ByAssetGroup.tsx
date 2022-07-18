@@ -29,22 +29,13 @@ import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-ty
 import { Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
-import { AssetGroupSlice, ByAssetSlice, ByLocationSlice, ByMeterSlice } from '../Store/Store';
+import { AssetGroupSlice, ByAssetSlice, ByMeterSlice } from '../Store/Store';
 import { DefaultSearch, DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useDispatch, useSelector } from 'react-redux';
 import AssetGroup from './AssetGroup';
 
 declare var homePath: string;
 
-
-const defaultSearchcols: Array<Search.IField<AssetGroup>> = [
-    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-    { label: 'Number of Meter', key: 'Meters', type: 'integer', isPivotField: false },
-    { label: 'Number of Transmission Assets', key: 'Assets', type: 'integer', isPivotField: false },
-    { label: 'Number of Users', key: 'Users', type: 'integer', isPivotField: false },
-    { label: 'Number of Asset Groups', key: 'AssetGroups', type: 'integer', isPivotField: false },
-    { label: 'Show in PQ Dashboard', key: 'DisplayDashboard', type: 'boolean', isPivotField: false },     
-];
 
 interface AssetGroup {
     ID: number, Name: string, DisplayDashboard: boolean, AssetGroups: number, Meters: number, Assets: number, Users: number
