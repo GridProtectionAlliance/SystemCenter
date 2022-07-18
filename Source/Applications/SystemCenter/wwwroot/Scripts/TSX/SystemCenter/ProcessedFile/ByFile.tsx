@@ -28,7 +28,7 @@ import { useHistory } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
 import { DefaultSearchField } from '../CommonComponents/SearchFields';
-import { SearchBar, Search, Modal, LoadingIcon } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal, LoadingIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { useSelector, useDispatch } from 'react-redux';
 import { DataFileSlice } from '../Store/Store';
@@ -48,8 +48,10 @@ const ByFile: Application.Types.iByComponent = (props) => {
     const data = useSelector(DataFileSlice.SearchResults);
 
     const [eState, setEState] = React.useState<Application.Types.Status>('idle');
-    const [selectedID, setSelectetID] = React.useState<number>(-1);
+    const [selectedID, setSelectetID] = React.useState<OpenXDA.Types.DataFile|null>(null);
     const [evts, setEvts] = React.useState<GlobalXDA.Event[]>([]);
+
+    const [showWarning, setShowWarning] = React.useState<'hide' | 'complete' | 'error' | 'loading'>('hide');
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.DataFile>>>([]);
     const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
@@ -60,8 +62,6 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.DataFile>('DataStartTime');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    
-    const [showModal, setShowModal] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         dispatch(DataFileSlice.DBSearch({ sortField: sortKey, ascending, filter: search }))
@@ -75,7 +75,9 @@ const ByFile: Application.Types.iByComponent = (props) => {
     }, [cState, dispatch]);
 
     React.useEffect(() => {
-        const h = loadEvents(selectedID);
+        if (selectedID == null)
+            return;
+        const h = loadEvents(selectedID.ID);
         return () => { if (h !== null && h.abort != null) h.abort(); }
     }, [selectedID])
 
@@ -94,8 +96,21 @@ const ByFile: Application.Types.iByComponent = (props) => {
         }).fail(() => setEState('error')).done((d) => { setEState('idle'); setEvts(d); });;
     }
 
+    function reprocess(file: OpenXDA.Types.DataFile) {
+       
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/DataFile/Reprocess/${file.FileGroupID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).fail(() => setShowWarning('error')).done((d) => { setShowWarning('complete'); });;
+    }
+
     return (
         <div style={{ width: '100%', height: '100%' }}>
+            <LoadingScreen Show={showWarning == 'loading'} />
             <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'}
                 ShowLoading={cState == 'loading'} ResultNote={cState == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Data Files'}
                 GetEnum={(setOptions, field) => {
@@ -143,7 +158,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             setSortKey(d.colField);
                         }
                     }}
-                    onClick={(item) => setSelectetID(item.row.ID)}
+                    onClick={(item) => setSelectetID(item.row)}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -151,10 +166,11 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={selectedID !== -1} Title={'Events'} CallBack={(c) => {
-                setSelectetID(-1);
-                // Logic to re-process the File.
-            }} ShowCancel={false} ShowX={true}>
+            <Modal Show={selectedID != null} Title={'Events'} CallBack={(c) => {
+                if (c)
+                    reprocess(selectedID);
+                setSelectetID(null);
+            }} ShowCancel={false} ShowX={true} ConfirmText={'Reprocess File'}>
                 <div className="row">
                     <div className="col">
                         {eState == 'loading' ? <LoadingIcon Show={true} /> : <Table<GlobalXDA.Event>
@@ -181,8 +197,12 @@ const ByFile: Application.Types.iByComponent = (props) => {
                     { /* Show a list of Events for event files. maybe with Link to openSEE? Add re-Process Button. needs interface to XDA...  */}
                 </div>
             </Modal>
-            
-
+            <Modal Show={showWarning == 'complete'} Size={'sm'} Title={'Started Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
+                OpenXDA has started to Reprocess this File. Note that this may take several minutes.
+            </Modal>
+            <Modal Show={showWarning == 'error'} Size={'sm'} Title={'Error Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
+                OpenXDA was unable to reprocess this File. If this error continues to occur please contact your system administrator.
+            </Modal>
         </div>
     )
 }

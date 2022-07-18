@@ -31,7 +31,9 @@ using System.Linq;
 using System.Web.Http;
 using SystemCenter.Controllers;
 using openXDA.Model;
+using openXDA.APIAuthentication;
 using System;
+using System.Net.Http;
 
 namespace SystemCenter.Model
 {
@@ -58,11 +60,35 @@ namespace SystemCenter.Model
 
     [RoutePrefix("api/OpenXDA/DataFile")]
     public class OpenXDADataFileController : ModelController<DataFile> {
-        //public override IHttpActionResult Get(string parentID = null)
-        //{
-        //    IEnumerable<DataFile> files = (IEnumerable<DataFile>)base.Get(parentID).ExecuteAsync(new System.Threading.CancellationToken()).Result;
-        //    return Ok(files.Take(50));
-        //}
+
+        const string SettingsCategory = "systemSettings";
+
+        public string Host
+        {
+            get
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
+                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.Url'") ?? "";
+            }
+        }
+
+        public string Key
+        {
+            get
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
+                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIKey'") ?? "";
+            }
+        }
+
+        public string Token
+        {
+            get
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
+                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIToken'") ?? "";
+            }
+        }
 
         [HttpGet]
         [Route("GetEvents/{id:int}")]
@@ -89,6 +115,29 @@ namespace SystemCenter.Model
                 return Unauthorized();
             }
 
+        }
+
+        [HttpGet]
+        [Route("Reprocess/{id:int}")]
+        public IHttpActionResult Reprocess(int id)
+        {
+
+            if (PatchAuthCheck())
+            {
+                APIQuery query = new APIQuery(Key,Token,Host.Split(';'));
+
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Post;
+                }
+
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/Workbench/DataFiles/ReprocessFile/{id}").Result;
+                return Ok(1);
+            }
+            else
+            {
+                return Unauthorized();
+            }
         }
     }
 
