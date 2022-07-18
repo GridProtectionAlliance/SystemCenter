@@ -24,25 +24,29 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '../global';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
-import AddToGroupPopup from './AddToGroup';
+import { ByMeterSlice } from '../Store/Store';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { Search, Warning } from '@gpa-gemstone/react-interactive';
+import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
-interface Meter { ID: number, MeterName: string, MeterID: number, AssetGroupID: number, Location: string }
 
 function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
-    let history = useNavigate();
-    const [meterList, setMeterList] = React.useState<Array<Meter>>([]);
+
+    let history = useHistory();
+    const [meterList, setMeterList] = React.useState<Array<SystemCenter.Types.DetailedMeter>>([]);
     const [sortField, setSortField] = React.useState<string>('MeterName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [counter, setCounter] = React.useState<number>(0);
+    const [removeMeter, setRemoveMeter] = React.useState<number>(-1);
 
     React.useEffect(() => {
         return getData();
-    }, [props.AssetGroupID])
+    }, [props.AssetGroupID, counter])
 
     function getData() {
         if (props.AssetGroupID == null)
@@ -57,7 +61,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
             async: true
         });
 
-        handle.done((data: Array<Meter>) => setMeterList(data));
+        handle.done((data: Array<SystemCenter.Types.DetailedMeter>) => setMeterList(data));
       
         return function cleanup() {
             if (handle.abort != null)
@@ -65,21 +69,81 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
         }
     }
 
-    
+    function getEnum(setOptions, field) {
+        let handle = null;
+        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+            return () => { };
 
-    function AddMeter(toAdd) {
-        let handle = $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddMeters`,
+        handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(toAdd),
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        }
+    }
+
+    function getAdditionalMeterFields(setFields) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Meter/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
             cache: false,
             async: true
         });
 
-        handle.done((d) => { setCounter((x) => x + 1) })
-        return handle
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
+        }
+
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedMeter>
+            )), ['label'], ["asc"]);
+            setFields(ordered)
+        });
+
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
+    }
+
+    function saveItems(items: SystemCenter.Types.DetailedMeter[]) {
+
+        let handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddMeters`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true,
+            data: JSON.stringify(items.map(e => e.ID))
+        });
+
+        handle.done(d => setCounter(x => x + 1))
+    }
+
+    function removeItem(id: number) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/RemoveMeter/${id}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setCounter(x => x + 1))
     }
 
     return (
@@ -96,8 +160,12 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <Table
                         cols={[
-                            { key: 'MeterName', field: 'MeterName', label: 'Meter', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'MeterName', field: 'Name', label: 'Meter', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            {
+                                key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveMeter(c.ID)}><span>{TrashCan}</span></button>
+                            },
                             { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
                         tableClass="table table-hover"
@@ -117,7 +185,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setSortField(d.colKey);
                             }
                         }}
-                        onClick={(data) => { history({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + data.row.MeterID }) }}
+                        onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + data.row.ID, state: {} }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -133,7 +201,29 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
 
             </div>
-            <AddToGroupPopup type='Meter' onComplete={AddMeter} Show={showAdd} Close={() => setShowAdd(false)} />
+            <DefaultSelects.Meter
+                Slice={ByMeterSlice}
+                Selection={meterList}
+                OnClose={(selected, conf) => {
+                    setShowAdd(false)
+                    if (!conf) return
+                    saveItems(selected.filter(items => meterList.findIndex(g => g.ID == items.ID) < 0))
+                }}
+                Show={showAdd}
+                Type={'multiple'}
+                Columns={[
+                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'MappedAssets', field: 'MappedAssets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                ]}
+                Title={"Add Meters to Asset Group"}
+                GetEnum={getEnum}
+                GetAddlFields={getAdditionalMeterFields} />
+            <Warning Show={removeMeter > -1} Title={'Remove Meter from Group'} Message={'This will remove the meter from this AssetGroup'} CallBack={(c) => { if (c) removeItem(removeMeter); setRemoveMeter(-1);  }} />
         </>
     );
 }

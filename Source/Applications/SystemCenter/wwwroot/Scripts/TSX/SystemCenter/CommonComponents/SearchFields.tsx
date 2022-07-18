@@ -63,6 +63,7 @@ export namespace DefaultSearchField {
     export const ValueListGroup = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
     export const Customer = { label: 'Account Name', key: 'CustomerKey', type: 'string', isPivotField: false };
     export const Location = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
+    export const DataFile = { label: 'Path', key: 'Path', type: 'string', isPivotField: false };
 }
 
 export namespace TransformSearchFields {

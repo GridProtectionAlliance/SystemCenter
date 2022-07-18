@@ -89,10 +89,25 @@
   </Target>
   <PropertyGroup>
     <AfterBuildDependsOn>
-		RestoreBitmap
+		RestoreBitmap;
+		CopyLicenseAndReadme;
+		SignBuild
 	</AfterBuildDependsOn>
   </PropertyGroup>
   <Target Name="AfterBuild" DependsOnTargets="$(AfterBuildDependsOn)">
+  </Target>
+  <Target Name="CopyLicenseAndReadme">
+    <ItemGroup>
+      <CopyFiles Include="LICENSE.txt" />
+      <CopyFiles Include="README.txt" />
+    </ItemGroup>
+    <Copy SourceFiles="@(CopyFiles)" DestinationFolder="$(OutDir)" />
+  </Target>
+  <Target Name="SignBuild" Condition="'$(SIGNTOOL)' != ''">
+    <PropertyGroup>
+      <SignToolNameArg Condition="'$(SIGNTOOLNAMEFLAG)' != ''">$(SIGNTOOLNAMEFLAG) $(TargetFileName)</SignToolNameArg>
+    </PropertyGroup>
+    <Exec Command="$(SIGNTOOL) $(SignToolNameArg) $(TargetPath)" />
   </Target>
   <PropertyGroup>
     <PreBuildEvent>"$(WixToolPath)\heat.exe" dir "$(SolutionDir)Applications\SystemCenter\wwwroot" -cg SystemCenterWebFiles -dr WWWROOTFOLDER -gg -sfrag -srd -sreg -var var.SystemCenterSource -out "$(SolutionDir)\Applications\SystemCenterSetup\obj\SystemCenterWebFiles.wxs"</PreBuildEvent>

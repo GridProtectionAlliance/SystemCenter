@@ -156,7 +156,7 @@ function UserForm(props: IProps) {
                                     <div className="col">
                                         <Input<Application.Types.iUserAccount> Record={props.UserAccount} Field={'Phone'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(props.UserAccount, field)} Setter={props.Setter} />
                                         <Input<Application.Types.iUserAccount> Record={props.UserAccount} Field={'Email'} Feedback={'Password must be less than 200 characters.'} Valid={field => validUserAccountField(props.UserAccount, field)} Setter={props.Setter} />
-                                        <DatePicker<Application.Types.iUserAccount> Record={props.UserAccount} Field={'ChangePasswordOn'} Label='Change Password On' Setter={props.Setter} />
+                                        <DatePicker<Application.Types.iUserAccount> Record={props.UserAccount} Field={'ChangePasswordOn'} Label='Change Password On' Setter={props.Setter} Valid={() => { return true }} />
                                     </div>
                                 </div>
                             </div>

@@ -29,7 +29,7 @@ import { getAllAssets, getAssetTypes, getAssetWithAdditionalFields } from '../..
 import LineSegmentAttributes from './LineSegment';
 import { LoadingScreen, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table';
-import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
 import moment from 'moment';
 
@@ -161,6 +161,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                             { key: 'X1', field: 'X1', label: 'X1', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'R0', field: 'R0', label: 'R0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'X0', field: 'X0', label: 'X0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'IsEnd', field: 'IsEnd', label: 'End?', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.IsEnd ? HeavyCheckMark : "" },
                             {
                                 key: 'EditDelete', label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
                                 content: (item) => <> <button className="btn btn-sm"
@@ -194,7 +195,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Segement</button>
+                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Segment</button>
                 </div>
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary" onClick={(evt) => setShowFawg(true)}>Update from FAWG</button>

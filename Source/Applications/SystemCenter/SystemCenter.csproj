@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <PropertyGroup>
@@ -173,6 +173,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Dependencies\openXDA\openXDA.Model.dll</HintPath>
     </Reference>
+    <Reference Include="openXDA.PQI">
+      <HintPath>..\..\Dependencies\openXDA\openXDA.PQI.dll</HintPath>
+    </Reference>
     <Reference Include="Oracle.ManagedDataAccess, Version=4.122.19.1, Culture=neutral, PublicKeyToken=89b483f429c47342, processorArchitecture=MSIL">
       <HintPath>..\..\Dependencies\NuGet\Oracle.ManagedDataAccess.19.6.0\lib\net40\Oracle.ManagedDataAccess.dll</HintPath>
     </Reference>
@@ -230,6 +233,7 @@
     <Compile Include="Controllers\OpenXDA\Meters\OpenXDADataRescueController.cs" />
     <Compile Include="Controllers\OpenXDA\Meters\OpenXDAMeterDataController.cs" />
     <Compile Include="Controllers\SystemCenter\AccessLogController.cs" />
+    <Compile Include="Controllers\SystemCenter\PQIController.cs" />
     <Compile Include="Controllers\SystemCenter\RVHTController.cs" />
     <Compile Include="Controllers\SystemCenter\SystemCenterController.cs" />
     <Compile Include="ScheduledTasks\OpenMICMeterStatisticOperation.cs" />
@@ -439,6 +443,7 @@
     <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\CapBank.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\Bus.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\Asset.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetChannel.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetLocation.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetConnection.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetInfo.tsx" />
@@ -496,6 +501,11 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\CapBankRelay.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\DER.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ApplicationManagment\ApplicationNode.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ApplicationCategory\ApplicationCategory.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ApplicationCategory\ApplicationCategoryForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ApplicationCategory\ApplicationCategoryInfo.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ApplicationCategory\Applications.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ApplicationCategory\ByApplicationCategory.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\SectionEdit.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\SectionSelect.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\LineSegmentWizard.tsx" />
@@ -515,12 +525,13 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\NoteSlice.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\DownloadedFilesPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\DataQualityIssuesPage.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Customer\MDMKeys.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ByExternalDB.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDB.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBForm.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBInfo.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyForm.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\MDMKeys.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\CustomerAsset.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ByExternalDB.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDB.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBForm.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBInfo.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterTrendChannel.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\PropertyUI\MeterProperties.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\PropertyUI\MeterLocationProperties.tsx" />
@@ -539,20 +550,19 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Advanced\MeterDataRescue.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Advanced\MeterDataDelete.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\Advanced\MeterDataMerge.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\Reason.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Menu\Application.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Menu\Context.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Menu\Icons.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Menu\Section.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DB\DBCleanup.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\Reason.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\ProcessedFile\ByFile.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataOperations.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataReaders.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\Setting.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\QueryWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetSlice.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\EventChannelSlice.ts" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\PQISlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\MeterSlice.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\UserSlice.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\Store.ts" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AddToGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ByValueListGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\AdditionalUserFieldSlice.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\SecurityRoleSlice.tsx" />

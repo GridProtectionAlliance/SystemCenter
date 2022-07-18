@@ -27,6 +27,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings'
 import AssetInfoWindow from './AssetInfo';
 import AssetLocationWindow from './AssetLocation';
 import AssetMeterWindow from './AssetMeter';
+import AssetChannelWindow from './AssetChannel';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 
 import { useNavigate } from 'react-router-dom';
@@ -125,6 +126,7 @@ function Asset(props: { AssetID: number }) {
         { Id: "additionalFields", Label: "Additional Fields" },
         { Id: "substations", Label: "Substations" },
         { Id: "meters", Label: "Meters" },
+        { Id: "channels", Label: "Channels" },
         { Id: "connections", Label: "Connections" },
        ];
 
@@ -163,6 +165,9 @@ function Asset(props: { AssetID: number }) {
                 </div>
                 <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
                     <AssetMeterWindow Asset={asset} />
+                </div>
+                <div className={"tab-pane " + (tab == "channels" ? " active" : "fade")} id="channels">
+                    <AssetChannelWindow Asset={asset} />
                 </div>
                 <div className={"tab-pane " + (tab == "connections" ? " active" : "fade")} id="connections">
                     <AssetConnectionWindow Asset={asset} />

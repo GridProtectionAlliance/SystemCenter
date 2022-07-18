@@ -90,7 +90,7 @@ namespace SystemCenter.Controllers.OpenXDA
                             lineSegment.X1 = asset["X1"].ToObject<double>();
                             lineSegment.Length = asset["Length"].ToObject<double>();
                             lineSegment.ThermalRating = asset["ThermalRating"].ToObject<double>();
-
+                            lineSegment.IsEnd = asset["IsEnd"].ToObject<bool>();
 
                             new TableOperations<LineSegment>(connection).AddNewRecord(lineSegment);
 

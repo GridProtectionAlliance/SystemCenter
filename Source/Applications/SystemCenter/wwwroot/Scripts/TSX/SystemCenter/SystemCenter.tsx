@@ -30,6 +30,7 @@ import { createBrowserHistory } from "history"
 import { Application, SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import store, { SystemCenterSettingSlice } from './Store/Store';
+import ApplicationCategory from './ApplicationCategory/ApplicationCategory';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -68,6 +69,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const DataOperations = React.lazy(() => import(/* webpackChunkName: "DataOperations" */ './Settings/DataOperations'));
     const DataReaders = React.lazy(() => import(/* webpackChunkName: "DataReaders" */ './Settings/DataReaders'));
     const ByApplicationNode = React.lazy(() => import(/* webpackChunkName: "DataReaders" */ './ApplicationManagment/ApplicationNode'));
+    const ByApplicationCategory = React.lazy(() => import(/* webpackChunkName: "ByApplicationCategory" */ './ApplicationCategory/ByApplicationCategory'));
+    const DBCleanup = React.lazy(() => import(/* webpackChunkName: "DBCleanup" */ './DB/DBCleanup'));
+    const DataFile = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './ProcessedFile/ByFile'));
+
 
     const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
@@ -146,9 +151,21 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=AssetGroups"} to={controllerViewPath + "?name=AssetGroups"}>Asset Groups</NavLink>
                                 </li>
+                                <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=PQViewCustomers"} to={controllerViewPath + "?name=PQViewCustomers"}>Customer</NavLink>
+                                </li>
                                 <li className="nav-item" hidden={settings.find(s => s.Name == 'SystemCenter.ShowDeviceHealthReport')?.Value != "1" }>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DeviceHealthReport"} to={controllerViewPath + "?name=DeviceHealthReport"}>Device Health Report</NavLink>
                                 </li>
+                            </ul>
+
+                            <hr />
+                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>Processed Files</h6>
+                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
+                                <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Datafiles"} to={controllerViewPath + "?name=DataFiles"}>Data Files</NavLink>
+                                </li>
+
                             </ul>
 
                             <hr />
@@ -158,13 +175,13 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Companies"} to={controllerViewPath + "?name=Companies"}>Companies</NavLink>
                                 </li>
                                 <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=PQViewCustomers"} to={controllerViewPath + "?name=PQViewCustomers"}>Customers</NavLink>
-                                </li>
-                                <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=PQViewSites"} to={controllerViewPath + "?name=PQViewSites"}>PQView Sites</NavLink>
                                 </li>
                                 <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ByExternalDB"} to={controllerViewPath + "?name=ByExternalDB"}>External Databases</NavLink>
+                                </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ByApplicationCategory"} to={controllerViewPath + "?name=ByApplicationCategory"}>Application Categories</NavLink>
                                 </li>
                             </ul>
 
@@ -192,6 +209,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ApplicationNodes"} to={controllerViewPath + "?name=ApplicationNodes"}>SSO Applications</NavLink>
+                                </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DBCleanup"} to={controllerViewPath + "?name=DBCleanup"}>DB Cleanup</NavLink>
                                 </li>
                             </ul>
 
@@ -238,6 +258,12 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ExternalDB ID={parseInt(qs.ID as string)} />
                                 else if (qs['?name'] == "User")
                                     return <User UserID={qs.UserAccountID as string} />
+                                else if (qs['?name'] == "ByApplicationCategory")
+                                    return <ByApplicationCategory Roles={roles} />
+                                else if (qs['?name'] == "DBCleanup")
+                                    return <DBCleanup Roles={roles} />
+                                else if (qs['?name'] == "ApplicationCategory")
+                                    return <ApplicationCategory ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "UserStatistics")
                                     return <UserStatistics Roles={roles} />
                                 else if (qs['?name'] == "Meter")
@@ -284,6 +310,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (queryString.parse(rest.location.search)['?name'] == "ConfigurationHistory") {
                                     if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
                                     return <ConfigurationHistory MeterConfigurationID={parseInt(queryString.parse(rest.location.search).MeterConfigurationID as string)} MeterKey={queryString.parse(rest.location.search).MeterKey as string} />
+                                }
+                                else if (queryString.parse(rest.location.search)['?name'] == "DataFiles") {
+                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
+                                    return <DataFile Roles={roles} />
                                 }
                                 else
                                     return <ByMeter Roles={roles} />;

@@ -26,19 +26,22 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useNavigate } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
-import AddToGroupPopup from './AddToGroup';
+import { ByAssetSlice } from '../Store/Store';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { Search, Warning } from '@gpa-gemstone/react-interactive';
+import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
-interface Asset { ID: number, AssetName: string, LongAssetName: string, AssetID: number, AssetGroupID: number, AssetType: string, AssetLocation: string }
-
 
 function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
-    let history = useNavigate();
-    const [assetList, setAssetList] = React.useState<Array<Asset>>([]);
+    let history = useHistory();
+    const [assetList, setAssetList] = React.useState<Array<SystemCenter.Types.DetailedAsset>>([]);
     const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [counter, setCounter] = React.useState<number>(0);
+    const [removeAsset, setRemoveAsset] = React.useState<number>(-1);
 
     React.useEffect(() => {
         return getData();
@@ -57,7 +60,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             async: true
         });
 
-        handle.done((data: Array<Asset>) => setAssetList(data));
+        handle.done((data: Array<SystemCenter.Types.DetailedAsset>) => setAssetList(data));
       
         return function cleanup() {
             if (handle.abort != null)
@@ -65,19 +68,83 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
         }
     }
 
-    function AddAsset(toAdd) {
-        let handle = $.ajax({
-            type: "Post",
-            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddAssets`,
+    function getEnum(setOptions, field) {
+        let handle = null;
+        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+            return () => { };
+
+        handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify(toAdd),
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        }
+    }
+
+    function getAdditionalAssetFields(setFields) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Asset/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
             cache: false,
             async: true
         });
 
-        handle.done((d) => { setCounter((x) => x + 1) })
-        return handle
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
+        }
+
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+
+            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedAsset>
+            )), ['label'], ["asc"]);
+            setFields(ordered);
+        });
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
+    }
+
+    function saveItems(items: SystemCenter.Types.DetailedAsset[]) {
+
+        let handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/AddAssets`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true,
+            data: JSON.stringify(items.map(e => e.ID))
+        });
+
+        handle.done(d => setCounter(x => x + 1))
+
+
+    }
+
+    function removeItem(id: number) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/AssetGroup/${props.AssetGroupID}/RemoveAsset/${id}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setCounter(x => x + 1))
     }
 
     return (
@@ -95,11 +162,14 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <Table
                         cols={[
-                            { key: 'AssetName', field: 'AssetName', label: 'AssetKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'LongAssetName', field: 'LongAssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssetLocation', field: 'AssetLocation', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
+                                { key: 'AssetName', field: 'AssetKey', label: 'AssetKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'LongAssetName', field: 'AssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                {
+                                    key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                    content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveAsset(c.ID)}><span>{TrashCan}</span></button>
+                                },
+                                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
                             
                         ]}
                         tableClass="table table-hover"
@@ -122,7 +192,8 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setSortKey(d.colKey);
                             }
                         }}
-                        onClick={(data) => { history({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.AssetID }) }}
+
+                        onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.ID, state: {} }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 590, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -130,18 +201,37 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                         />
                     </div>
             </div>
-            
             <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Transmission Asset</button>
                 </div>
             </div>
-
             </div>
-            <AddToGroupPopup type='Asset' onComplete={AddAsset} Show={showAdd} Close={() => setShowAdd(false)} />
-        </>
-        
-    );
+            <DefaultSelects.Asset
+                Slice={ByAssetSlice}
+                Selection={assetList}
+                OnClose={(selected, conf) => {
+                    setShowAdd(false);
+                    if (!conf) return
+                    saveItems(selected.filter(items => assetList.findIndex(g => g.ID == items.ID) < 0))
+                }}
+                Show={showAdd}
+                Type={'multiple'}
+                Columns={[
+                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                ]}
+                Title={"Add Transmission Assets to Asset Group"}
+                GetEnum={getEnum}
+                GetAddlFields={getAdditionalAssetFields} />
+            <Warning Show={removeAsset > -1} Title={'Remove Asset from Group'} Message={'This will remove the transmission asset from this AssetGroup'} CallBack={(c) => { if (c) removeItem(removeAsset); setRemoveAsset(-1); }} />
+            </>
+    )
 }
 
 

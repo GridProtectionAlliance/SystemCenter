@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from './Asset';
-import { Input }from '@gpa-gemstone/react-forms';
+import { Input, CheckBox } from '@gpa-gemstone/react-forms';
 
 function LineSegmentAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.LineSegment, UpdateState: (newEditAsset: OpenXDA.Types.LineSegment) => void }): JSX.Element {
     function valid(field: keyof(OpenXDA.Types.LineSegment)): boolean {
@@ -39,7 +39,7 @@ function LineSegmentAttributes(props: { NewEdit: Application.Types.NewEdit, Asse
             return props.Asset.R1 != null && AssetAttributes.isRealNumber(props.Asset.R1);
         else if (field == 'X1')
             return props.Asset.X1 != null && AssetAttributes.isRealNumber(props.Asset.X1);
-       else if (field == 'ThermalRating')
+        else if (field == 'ThermalRating')
             return props.Asset.ThermalRating != null && AssetAttributes.isRealNumber(props.Asset.ThermalRating);
 
         return false;
@@ -58,6 +58,7 @@ function LineSegmentAttributes(props: { NewEdit: Application.Types.NewEdit, Asse
             <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'R1'} Feedback={'R1 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'X1'} Feedback={'X1 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'Thermal Rating is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <CheckBox<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'IsEnd'} Label={'End of Line?'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
         </>
     );
 }

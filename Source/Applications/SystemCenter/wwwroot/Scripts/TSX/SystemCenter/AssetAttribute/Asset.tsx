@@ -389,6 +389,13 @@ export namespace AssetAttributes {
 
         }
 
+        if (type == 'DER') {
+            if ((asset as OpenXDA.Types.DER).FullRatedOutputCurrent == null || !AssetAttributes.isRealNumber((asset as OpenXDA.Types.DER).FullRatedOutputCurrent))
+                errors.push('A valid Full Rated Output Current is required.')
+            if ((asset as OpenXDA.Types.DER).VoltageLevel == null)
+                errors.push('A valid Voltage Level is required.')
+        }
+
         return errors;
     }
 

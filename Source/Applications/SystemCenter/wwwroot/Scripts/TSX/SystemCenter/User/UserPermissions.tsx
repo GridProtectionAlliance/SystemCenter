@@ -31,6 +31,7 @@ interface IProps {
     UserID: string,
 }
 
+interface Roles extends Application.Types.iApplicationRole<Application.Types.SecurityRoleName> {}
 function UserPermission(props: IProps) {
     const dispatch = useDispatch();
 
@@ -42,7 +43,7 @@ function UserPermission(props: IProps) {
     const applicationNodes: Application.Types.iApplicationNode[] = useSelector(ApplicationNodeSlice.Data);
 
 
-    const [workingRoles, setWorkingRoles] = React.useState<Application.Types.iApplicationRole<Application.Types.SecurityRoleName>[]>([]);
+    const [workingRoles, setWorkingRoles] = React.useState<Map<string, Roles[]>>(new Map<string, Roles[]>());
     const [changed, setChanged] = React.useState<boolean>(false)
 
     React.useEffect(() => {
@@ -66,11 +67,17 @@ function UserPermission(props: IProps) {
 
     function resetCurrentRoles(avRoles: Application.Types.iApplicationRole<Application.Types.SecurityRoleName>[], currRoles: Application.Types.iApplicationRoleUserAccount[]) {
         setChanged(false);
-        setWorkingRoles(avRoles.map(src => {
-            const upd = _.cloneDeep(src);
+        const roles = new Map<string, Roles[]>();
+        avRoles.forEach(item => {
+            const upd = _.cloneDeep(item);
             upd.Assigned = currRoles.find(usrc => usrc.ApplicationRoleID === upd.ID) !== undefined;
-            return upd;
-        }))
+
+            if (roles.has(upd.NodeID))
+                roles.set(upd.NodeID, [...roles.get(upd.NodeID), upd]);
+            else
+                roles.set(upd.NodeID, [upd]);
+        })
+        setWorkingRoles(roles);
     }
 
     return (
@@ -84,24 +91,25 @@ function UserPermission(props: IProps) {
             </div>
             <div className="card-body">
                 <div className="row">
-                    <div className="col">
-                        {applicationNodes.map(node => 
-                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                <legend className="w-auto" style={{ fontSize: 'large' }}>{node.Name}:</legend>
-                                <form>
-                                    {
-                                        workingRoles.filter(r => r.NodeID == node.ID).map((scr, i, array) => <CheckBox<Application.Types.iApplicationRole<Application.Types.SecurityRoleName>> key={scr.ID} Record={scr} Field='Assigned' Label={scr.Name} Setter={(record) => {
-                                            scr.Assigned = record.Assigned;
-                                            const newArray = _.clone(array);
-                                            setWorkingRoles(newArray);
-                                            setChanged(true);
-                                        }} />)
-                                    }
-                                </form>
-                            </fieldset>
+                    
+                        {applicationNodes.map(node =>
+                            <div className="col" key={node.Name}>
+                                <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                    <legend className="w-auto" style={{ fontSize: 'large' }}>{node.Name}:</legend>
+                                    <form>
+                                        {
+                                            workingRoles.get(node.ID)?.map((scr, i, array) => <CheckBox<Application.Types.iApplicationRole<Application.Types.SecurityRoleName>> key={scr.ID} Record={scr} Field='Assigned' Label={scr.Name} Setter={(record) => {
+                                                scr.Assigned = record.Assigned;
+                                                const newArray = _.clone(array);
+                                                setWorkingRoles((r) => { const u = _.cloneDeep(r); u.set(record.NodeID, newArray); return u; });
+                                                setChanged(true);
+                                            }} />)
+                                        }
+                                    </form>
+                                </fieldset>
+                            </div>
                         )}
                        
-                    </div>
                     <div className="col">
                     </div>
                 </div>
@@ -111,7 +119,7 @@ function UserPermission(props: IProps) {
                     <button className="btn btn-primary" onClick={() =>
                         dispatch(SCSecurityRoleSlice.SetUserRoles({
                             UserId: props.UserID,
-                            Roles: workingRoles.filter(scr => scr.Assigned).map(scr => ({ ID: scr.NodeID, ApplicationRoleID: scr.ID, UserAccountID: props.UserID }))
+                            Roles: Array.prototype.concat.apply([], Array.from(workingRoles.values())).filter(scr => scr.Assigned).map(scr => ({ ID: scr.NodeID, ApplicationRoleID: scr.ID, UserAccountID: props.UserID }))
                         }))} disabled={!changed}>Update</button>
                 </div>
                 <div className="btn-group mr-2">

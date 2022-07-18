@@ -99,7 +99,11 @@ namespace SystemCenter.Controllers
                     HttpResponseMessage response = client.GetAsync(requestURI).Result;
 
                     if (!response.IsSuccessStatusCode)
-                        return "";
+                    {
+                        Log.Error( new Exception($"Unsuccessful status code for - {baseURL}/{requestURI} - {response.StatusCode} : {response.ReasonPhrase}") );
+                        return "Status code "+ response.StatusCode +": " + response.ReasonPhrase;
+
+                    }
 
                     Task<string> rsp = response.Content.ReadAsStringAsync();
                     return response.Content.ReadAsStringAsync().Result;

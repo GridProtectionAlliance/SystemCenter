@@ -41,6 +41,7 @@ using GSF.Data.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
+using SystemCenter.Model;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
@@ -55,6 +56,11 @@ namespace SystemCenter.Controllers.OpenXDA
             public List<int> AssetGroupList { get; set; }
 
         }
+        [CustomView("\r\n    SELECT\r\n        DISTINCT\r\n            Asset.ID,\r\n            AssetAssetGroup.AssetGroupID,\r\n            Asset.AssetKey,\r\n            Asset.AssetName,\r\n            Asset.VoltageKV,\r\n            AssetType.Name as AssetType,\r\n            COUNT(DISTINCT Meter.ID) as Meters,\r\n            COUNT(DISTINCT Location.ID) as Locations\r\n    FROM \r\n        Asset Join\r\n        AssetType ON Asset.AssetTypeID = AssetType.ID LEFT JOIN\r\n        MeterAsset ON MeterAsset.AssetID = Asset.ID LEFT JOIN\r\n        Meter ON MeterAsset.MeterID = Meter.ID LEFT JOIN\r\n        AssetLocation ON AssetLocation.AssetID = Asset.ID LEFT JOIN\r\n        Location ON AssetLocation.LocationID = Location.ID\r\n    GROUP BY\r\n        Asset.ID,\r\n        Asset.AssetKey,\r\n        Asset.AssetName,\r\n        Asset.VoltageKV,\r\n        AssetType.Name LEFT JOIN\r\n        AssetAssetGroup ON Asset.ID = AssetAssetGroup.AssetID\r\n    ")]
+        private class AssetGroupAsset : DetailedAsset 
+        {
+            public int AssetGroupID { get; set; }
+        };
 
         [HttpGet, Route("{assetGroupID:int}/Assets")]
         public IHttpActionResult GetAssets(int assetGroupID)
@@ -65,7 +71,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     try
                     {
-                        IEnumerable<AssetAssetGroupView> records = new TableOperations<AssetAssetGroupView>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
+                        IEnumerable<AssetGroupAsset> records = new TableOperations<AssetGroupAsset>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
 
                         return Ok(records);
                     }
@@ -108,8 +114,37 @@ namespace SystemCenter.Controllers.OpenXDA
                 return InternalServerError(ex);
             }
         }
-    
 
+        [HttpGet, Route("{assetGroupID:int}/RemoveAsset/{assetID:int}")]
+        public IHttpActionResult RemoveAsset(int assetGroupID, int assetID)
+        {
+            try
+            {
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        connection.ExecuteNonQuery("DELETE FROM AssetAssetGroup WHERE AssetID = {0} AND AssetGroupID = {1}", assetID, assetGroupID);
+                        return Ok(1);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+
+        [CustomView("\r\n    SELECT\r\n        DISTINCT\r\n        Meter.ID,\r\n        AssetAssetGroup.AssetGroupID,\r\n        Meter.AssetKey,\r\n        Meter.Name,\r\n        Meter.Make,\r\n        Meter.Model,\r\n        Location.Name as Location,\r\n        COUNT(DISTINCT MeterAsset.AssetID)  as MappedAssets\r\n    FROM \r\n        Meter LEFT JOIN\r\n        Location ON Meter.LocationID = Location.ID LEFT JOIN\r\n        MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN \r\n        Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN\r\n        Note ON Note.NoteTypeID = (SELECT ID FROM NoteType WHERE Name = 'Meter') AND Note.ReferenceTableID = Meter.ID\r\n    GROUP BY\r\n        Meter.ID,\r\n        Meter.AssetKey,\r\n        Meter.Name,\r\n        Meter.Make,\r\n        Meter.Model,\r\n        Location.Name LEFT JOIN\r\n        MeterAssetGroup ON Asset.ID = MeterAssetGroup.AssetID\r\n        ")]
+        private class MeterAsset : DetailedMeter
+        {   
+            public int AssetGroupID { get; set; }
+        };
         [HttpGet, Route("{assetGroupID:int}/Meters")]
         public IHttpActionResult GetMeters(int assetGroupID)
         {
@@ -119,7 +154,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     try
                     {
-                        IEnumerable<MeterAssetGroupView> records = new TableOperations<MeterAssetGroupView>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
+                        IEnumerable<MeterAsset> records = new TableOperations<MeterAsset>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
 
                         return Ok(records);
                     }
@@ -162,6 +197,31 @@ namespace SystemCenter.Controllers.OpenXDA
                 return InternalServerError(ex);
             }
         }
+
+        [HttpGet, Route("{assetGroupID:int}/RemoveMeter/{meterID:int}")]
+        public IHttpActionResult RemoveMeter(int assetGroupID, int meterID)
+        {
+            try
+            {
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        connection.ExecuteNonQuery("DELETE FROM MeterAssetGroup WHERE MeterID = {0} AND AssetGroupID = {1}", meterID, assetGroupID);
+                        return Ok(1);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
 
         [HttpGet, Route("{assetGroupID:int}/Users")]
         public IHttpActionResult GetUserAccounts(int assetGroupID)
@@ -239,6 +299,29 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        [HttpGet, Route("{assetGroupID:int}/RemoveGroup/{childID:int}")]
+        public IHttpActionResult RemoveGroup(int assetGroupID, int childID)
+        {
+            try
+            {
+                if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        connection.ExecuteNonQuery("DELETE FROM AssetGroupAssetGroup WHERE ChildAssetGroupID = {0} AND ParentAssetGroupID = {1}", childID, assetGroupID);
+                        return Ok(1);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
         public override IHttpActionResult Delete(AssetGroupView record)
         {
             try

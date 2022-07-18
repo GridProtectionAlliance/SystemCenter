@@ -25,9 +25,9 @@ import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { useSelector, useDispatch } from 'react-redux';
 import { CustomerSlice } from '../Store/Store';
+import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
+import { FetchPQIFacilities, SelectFacilities, SelectStatus } from '../Store/PQISlice';
 
-
-import { CheckBox, Input, TextArea } from '@gpa-gemstone/react-forms';
 declare var homePath: string;
 
 interface IProps { Customer: OpenXDA.Types.Customer, stateSetter: (customer: OpenXDA.Types.Customer) => void, setErrors?: (e: string[]) => void }
@@ -39,11 +39,24 @@ export default function CustomerForm(props: IProps) {
     const [errors, setErrors] = React.useState<string[]>([]);
     const allCustomerKeys = useSelector(CustomerSlice.Data) as OpenXDA.Types.Customer[];
     const acStatus = useSelector(CustomerSlice.Status) as Application.Types.Status;
+    const pqiStatus = useSelector(SelectStatus);
+    const pqiFacilities = useSelector(SelectFacilities);
+
+    React.useEffect(() => {
+        if (pqiStatus == 'unintiated' || pqiStatus == 'changed')
+            dispatch(FetchPQIFacilities());
+    }, [pqiStatus])
+
 
     React.useEffect(() => {
         if (acStatus == 'changed' || acStatus == 'unintiated')
             dispatch(CustomerSlice.Fetch());
     }, [])
+
+    function pathToID(path: string) {
+        let id = path.substr(path.lastIndexOf('/') + 1);
+        return id;
+    }
 
     React.useEffect(() => {
         let e = [];
@@ -76,19 +89,24 @@ export default function CustomerForm(props: IProps) {
             return props.Customer.Phone == null || props.Customer.Phone.length <= 20;
         else if (field == 'Description')
             return props.Customer.Description == null || props.Customer.Description.length <= 200;
-        return false;
+        return true;
     }
 
     
-    return (<div className="row" style={{marginLeft: 0}}>
+    return (
         <div className="col">
-            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Label={'Customer Key'} Feedback={'CustomerKey of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Label={'Customer Key'}Feedback={'Customer Key of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            {pqiStatus == 'idle' ?
+                <Select<OpenXDA.Types.Customer> Record={props.Customer} Label={'PQI Facility'} Field={'PQIFacilityID'} Setter={(record) => props.stateSetter(record)} Options={[...pqiFacilities.map((f) => ({ Label: f.Name, Value: pathToID(f.Path) })), { Label: 'None', Value: '-1' }]} /> :
+                <div className="alert alert-warning" role="alert">
+                    System is unable to connect to PQI
+                </div>
+                }
             <TextArea<OpenXDA.Types.Customer> Rows={3} Record={props.Customer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <CheckBox Record={props.Customer} Field={'LSCVS'} Setter={(record) => props.stateSetter(record)} Label={'LSCVS'} />
         </div>
-
-    </div>)
+    )
 
 }

@@ -53,7 +53,9 @@ export default function CustomerInfo(props: IProps) {
         if (customer.Description != props.Customer.Description)
             w.push('Changes to Description will be lost.')
         if (customer.LSCVS != props.Customer.LSCVS)
-            w.push('Changes to LSCVS will be lost.')
+            w.push('Changes to LSCVS Status will be lost.')
+        if (customer.PQIFacilityID != props.Customer.PQIFacilityID)
+            w.push('Changes to PQI Facility will be lost.')
         setWarning(w);
     }, [customer, props.Customer])
 
@@ -67,9 +69,7 @@ export default function CustomerInfo(props: IProps) {
                 </div>
             </div>
             <div className="card-body">
-                <div className="row">
-                    <CustomerForm Customer={customer} stateSetter={setCustomer} setErrors={setError} />
-                </div>
+                <CustomerForm Customer={customer} stateSetter={setCustomer} setErrors={setError} />
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">

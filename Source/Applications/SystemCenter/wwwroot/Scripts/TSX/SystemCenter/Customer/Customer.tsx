@@ -29,13 +29,25 @@ import CustomerInfo from './CustomerInfo';
 import CustomerMeterWindow from './CustomerMeter';
 import { useSelector, useDispatch } from 'react-redux';
 import { CustomerSlice } from '../Store/Store';
-import { Warning } from '@gpa-gemstone/react-interactive';
+import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import MDMKeys from './MDMKeys';
+import CustomerAssetWindow from './CustomerAsset';
+
 
 declare var homePath: string;
 
-interface IProps { CustomerID: number}
+interface IProps { CustomerID: number }
+
+const Tabs = [
+    { Id: "info", Label: "Customer Info" },
+    { Id: "notes", Label: "Notes" },
+    { Id: "additionalFields", Label: "Additional Fields" },
+    { Id: "meters", Label: "Assigned Meter" },
+    { Id: "assets", Label: "Assigned Asset" },
+    { Id: "mdm", Label: "MDM Keys" },
+]
+
 export default function Customer(props: IProps) {
     const dispatch = useDispatch();
 
@@ -60,12 +72,11 @@ export default function Customer(props: IProps) {
             dispatch(CustomerSlice.Fetch());
     }, [cStatus])
 
-
     function getTab(): string {
         if (sessionStorage.hasOwnProperty('Customer.Tab'))
             return JSON.parse(sessionStorage.getItem('Customer.Tab'));
         else
-            return 'customerInfo';
+            return 'info';
     }
 
     function deleteCustomer() {
@@ -81,6 +92,8 @@ export default function Customer(props: IProps) {
     if (cStatus == 'error')
         return null;
 
+    if (customer == null)
+        return null
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
@@ -94,26 +107,9 @@ export default function Customer(props: IProps) {
 
 
             <hr />
-            <ul className="nav nav-tabs">
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "customerInfo" ? " active" : "")} onClick={() => setTab('customerInfo')} data-toggle="tab" href="#customerInfo">Customer Info</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "additionalFields" ? " active" : "")} onClick={() => setTab('additionalFields')} data-toggle="tab">Additional Fields</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "meters" ? " active" : "")} onClick={() => setTab('meters')} data-toggle="tab" href="#meters">Assigned Meters</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "notes" ? " active" : "")} onClick={() => setTab('notes')} data-toggle="tab" href="#notes">Notes</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "mdmkeys" ? " active" : "")} onClick={() => setTab('mdmkeys')} data-toggle="tab" href="#mdmkeys">MDM Keys</a>
-                </li>
-            </ul>
-
+            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "customerInfo" ? " active" : "fade")} id="customerInfo">
+                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="customerInfo">
                     <CustomerInfo Customer={customer} stateSetter={(record) => dispatch(CustomerSlice.DBAction({ verb: 'PATCH', record: record }))} />
                 </div>
                 <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
@@ -122,10 +118,13 @@ export default function Customer(props: IProps) {
                 <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
                     <CustomerMeterWindow Customer={customer} />
                 </div>
+                <div className={"tab-pane " + (tab == "assets" ? " active" : "fade")} id="assets">
+                    <CustomerAssetWindow Customer={customer} />
+                </div>
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" >
                     <NoteWindow ID={props.CustomerID} Type='Customer' />
                 </div>
-                <div className={"tab-pane " + (tab == "mdmkeys" ? " active" : "fade")} id="mdmkeys" >
+                <div className={"tab-pane " + (tab == "mdmkeys" ? " active" : "fade")} id="mdm" >
                     <MDMKeys CustomerID={customer.ID} />
                 </div>
             </div>

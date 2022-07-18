@@ -78,7 +78,8 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
             Name: null,
             Phone: null,
             Description: null,
-            LSCVS: false
+            LSCVS: false,
+            PQIFacilityID: -1,
         }
     }
 

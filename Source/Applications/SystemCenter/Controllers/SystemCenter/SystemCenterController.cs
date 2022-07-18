@@ -59,6 +59,9 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/ValueListGroup")]
     public class ValueListGroupController : ModelController<ValueListGroup> { }
 
+    [RoutePrefix("api/OpenXDA/DBCleanup")]
+    public class DBCleanupController : ModelController<openXDA.Model.DBCleanup> { }
+
     [RoutePrefix("api/SystemCenter/Customer")]
     public class CustomerController : ModelController<Customer>
     {
@@ -144,21 +147,58 @@ namespace SystemCenter.Controllers
         }
     }
 
-    [RoutePrefix("api/SystemCenter/CustomerAccess")]
-    public class CustomerAccessController : ModelController<CustomerAccess>
+    [RoutePrefix("api/SystemCenter/CustomerMeter")]
+    public class CustomerMeterController : ModelController<CustomerMeterDetail>
     {
-        [HttpPost, Route("AddMultiple")]
-        public IHttpActionResult AddMultipleCustomerAccess(IEnumerable<CustomerAccess> customerAccesses)
+        public override IHttpActionResult Post([FromBody] JObject record)
         {
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                if (PostAuthCheck())
                 {
-                    foreach (CustomerAccess customerAccess in customerAccesses)
-                        new TableOperations<CustomerAccess>(connection).AddNewRecord(customerAccess);
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
 
-                    return Ok("Added all records without error.");
+                        CustomerMeterDetail newDetailRecord = record.ToObject<CustomerMeterDetail>();
+                        CustomerMeter newRecord = new CustomerMeter() { CustomerID = newDetailRecord.CustomerID, MeterID = newDetailRecord.MeterID };
+                        int result = new TableOperations<CustomerMeter>(connection).AddNewRecord(newRecord);
+
+                        return Ok(result);
+                    }
                 }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Delete(CustomerMeterDetail record)
+        {
+            try
+            {
+                if (DeleteAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                       
+                        int id = record.ID;
+                        int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete CustomerMeter, 'ID = {id}'");
+                        return Ok(result);
+
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
             }
             catch (Exception ex)
             {
@@ -166,6 +206,67 @@ namespace SystemCenter.Controllers
             }
         }
     }
+
+    [RoutePrefix("api/SystemCenter/CustomerAsset")]
+    public class CustomerAssetController : ModelController<openXDA.Model.CustomerAssetDetail>
+    {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        openXDA.Model.CustomerAssetDetail newDetailRecord = record.ToObject<openXDA.Model.CustomerAssetDetail>();
+                        openXDA.Model.CustomerAsset newRecord = new openXDA.Model.CustomerAsset() { CustomerID = newDetailRecord.CustomerID, AssetID = newDetailRecord.AssetID };
+                        int result = new TableOperations<openXDA.Model.CustomerAsset>(connection).AddNewRecord(newRecord);
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Delete(openXDA.Model.CustomerAssetDetail record)
+        {
+            try
+            {
+                if (DeleteAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        int id = record.ID;
+                        int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete CustomerAsset, 'ID = {id}'");
+                        return Ok(result);
+
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
 
     [RoutePrefix("api/Setting")]
     public class SettingController : ModelController<Setting> { }
@@ -186,6 +287,11 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/MiMD/Setting")]
     public class MiMDSettingController : ModelController<MiMDSetting> { }
 
+    [RoutePrefix("api/OpenXDA/ApplicationCategory")]
+    public class ApplicationCategoryController : ModelController<openXDA.Model.ApplicationCategory> { }
+
+    [RoutePrefix("api/OpenXDA/PQApplications")]
+    public class PQApplicationsController : ModelController<openXDA.Model.PQApplications> { }
 
     [RoutePrefix("api/SystemCenter/AdditionalField")]
     public class AdditionalFieldController : ModelController<AdditionalField>

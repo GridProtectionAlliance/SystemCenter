@@ -57,7 +57,8 @@ namespace SystemCenter.Model.Security
 	        AdditionalUserField JOIN
 	        AdditionalUserFieldValue ON AdditionalUserField.ID = AdditionalUserFieldValue.AdditionalUserFieldID) 
     ", "UserAccountID", "Value", "FieldName")]
-    public class UserAccount : GSF.Security.Model.UserAccount {
+    public class UserAccount : GSF.Security.Model.UserAccount
+    {
         static UserAccount()
         {
             TableOperations<UserAccount>.TypeRegistry.RegisterType<AdoSecurityProvider>();
@@ -74,7 +75,8 @@ namespace SystemCenter.Model.Security
     }
 
     [RoutePrefix("api/SystemCenter/UserAccount")]
-    public class UserAccountController : ModelController<UserAccount> {
+    public class UserAccountController : ModelController<UserAccount>
+    {
         [HttpGet, Route("UpdateMetaData")]
         public IHttpActionResult GetUdateMetaData()
         {
@@ -163,7 +165,8 @@ namespace SystemCenter.Model.Security
 
 
         [HttpPost, Route("SID")]
-        public IHttpActionResult GetSIDFromUserName([FromBody] string userName) {
+        public IHttpActionResult GetSIDFromUserName([FromBody] string userName)
+        {
             if (PostRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
             try
             {
@@ -180,7 +183,7 @@ namespace SystemCenter.Model.Security
         public IHttpActionResult GetUserInfo([FromBody] UserAccount userAccount)
         {
             if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
-            using(AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             using (AdoDataConnection connection2 = new AdoDataConnection("systemSettings"))
             {
                 try
@@ -205,7 +208,7 @@ namespace SystemCenter.Model.Security
                     userAccount.Approved = true;
                     userAccount.Department = userInfo.Department;
                     userAccount.DepartmentNumber = userInfo.GetUserPropertyValue("departmentnumber");
-                    
+
                     return Ok(userAccount);
                 }
                 catch (Exception ex)
@@ -280,7 +283,7 @@ namespace SystemCenter.Model.Security
                                 Regex regex = new Regex($"^{search.SearchText}$");
                                 records = records.Where(userAccount => !regex.IsMatch(userAccount.AccountName.ToLower()));
                             }
-                            
+
                         });
                     }
 
@@ -349,7 +352,8 @@ namespace SystemCenter.Model.Security
                     return Ok(records);
                 }
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 return InternalServerError(ex);
             }
         }
@@ -429,7 +433,7 @@ namespace SystemCenter.Model.Security
     [RoutePrefix("api/SystemCenter/ApplicationRoleUserAccount")]
     public class SystemCenterApplicationRoleUserAccountController : ModelController<ApplicationRoleUserAccount>
     {
-       
+
         [HttpPatch, Route("UpdateArray")]
         public IHttpActionResult PatchArray([FromBody] IEnumerable<ApplicationRoleUserAccount> records)
         {
@@ -442,7 +446,8 @@ namespace SystemCenter.Model.Security
                     {
                         IEnumerable<ApplicationRoleUserAccount> applicationRoles = new TableOperations<ApplicationRoleUserAccount>(connection).QueryRecordsWhere("UserAccountID = {0}", records.First().UserAccountID);
 
-                        foreach (ApplicationRoleUserAccount applicationRole in applicationRoles) {
+                        foreach (ApplicationRoleUserAccount applicationRole in applicationRoles)
+                        {
                             if (records.FirstOrDefault(r => r.ApplicationRoleID == applicationRole.ApplicationRoleID) == null)
                                 new TableOperations<ApplicationRoleUserAccount>(connection).DeleteRecord(applicationRole);
                         }
@@ -477,6 +482,6 @@ namespace SystemCenter.Model.Security
     { }
 
     [RoutePrefix("api/SystemCenter/ApplicationRole")]
-    public class SystemCenterApplicationRoleController : ModelController<ApplicationRole> {}
+    public class SystemCenterApplicationRoleController : ModelController<ApplicationRole> { }
 
 }
