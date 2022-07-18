@@ -24,7 +24,7 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -40,7 +40,7 @@ const defaultSearchcols: Array<Search.IField<SystemCenter.Types.ExternalDataBase
 ];
 
 const ByExternalDB: Application.Types.iByComponent = (props) => {
-    let history = useNavigate();
+    let history = useHistory();
     const blankExternalDB = {
         ID: 0,
         TableName: null,
@@ -75,7 +75,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     }, [ascending, sortKey]);
 
     function handleSelect(item) {
-        history({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDB&ID=' + item.row.ID })
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDB&ID=' + item.row.ID })
     }
 
     const standardSearch: Search.IField<SystemCenter.Types.ExternalDataBaseTable> = { label: 'Name', key: 'TableName', type: 'string', isPivotField: false };

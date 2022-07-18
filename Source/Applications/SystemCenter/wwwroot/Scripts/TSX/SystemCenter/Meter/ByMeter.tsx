@@ -30,6 +30,7 @@ import { Search } from '@gpa-gemstone/react-interactive';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
 import { useDispatch, useSelector } from 'react-redux';
+import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
 
@@ -42,10 +43,10 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     const sortKey = useSelector(ByMeterSlice.SortField);
 
     function handleSelect(item) {
-        history({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID })
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID })
     }
     function goNewMeterWizard() {
-        history({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard' })
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard' })
     }
 
     function getAdditionalFields(setFields) {

@@ -24,7 +24,7 @@
 import * as React from 'react';
 import _ from 'lodash';
 import Table from '@gpa-gemstone/react-table';
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { LoadingIcon, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { OpenXDA } from '@gpa-gemstone/application-typings';
@@ -39,7 +39,7 @@ interface AssetConnection {
 }
 
 function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
-    let history = useNavigate();
+    let history = useHistory();
     let dispatch = useDispatch();
 
     const [assetConnections, setAssetConnections] = React.useState<Array<AssetConnection>>([]);
@@ -172,7 +172,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
 
 
     function handleSelect(item) {
-        history({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.AssetID})
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.AssetID})
     }
 
     if (status == 'error' || actStatus == 'error')

@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings' 
 import Table from '@gpa-gemstone/react-table';
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
@@ -43,7 +43,7 @@ declare var homePath: string;
 
 
 function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.Element{
-    let history = useNavigate();
+    let history = useHistory();
     let dispatch = useDispatch();
 
     const [data, setData] = React.useState<Array<OpenXDA.Types.Asset>>([]);
@@ -194,7 +194,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
 
     function handleSelect(item, event) {
         if (event.target.localName == 'td')
-            history({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID })
+            history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID })
     }
 
     function GetDifferentAsset(assetID: number) {

@@ -24,7 +24,7 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 
 import { DefaultSearchField, SearchFields } from '../CommonComponents/SearchFields';
@@ -39,7 +39,7 @@ declare var homePath: string;
 
 const ByCustomer: Application.Types.iByComponent = (props) => {
     let dispatch = useDispatch();
-    let history = useNavigate();
+    let history = useHistory();
 
     const cState = useSelector(CustomerSlice.SearchStatus);
     const data = useSelector(CustomerSlice.SearchResults);
@@ -112,7 +112,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history({ pathname: homePath + 'index.cshtml', search: '?name=Customer&CustomerID=' + item.row.ID })
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Customer&CustomerID=' + item.row.ID })
     }
 
     return (

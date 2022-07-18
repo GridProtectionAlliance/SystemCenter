@@ -25,15 +25,14 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
-import { useNavigate } from 'react-router-dom';
-import { isEqual } from 'lodash';
+import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
 interface User { ID: number, UserAccountID: string, AssetGroupID: number, Dashboard: boolean, Email: boolean, Username: string, GroupName: string}
 
 function UserAssetGroupWindow(props: { AssetGroupID: number}) {
-    let history = useNavigate();
+    let history = useHistory();
     const [userList, setUserList] = React.useState<Array<User>>([]);
     const [sortField, setSortField] = React.useState<string>('Username');
     const [ascending, setAscending] = React.useState<boolean>(true);

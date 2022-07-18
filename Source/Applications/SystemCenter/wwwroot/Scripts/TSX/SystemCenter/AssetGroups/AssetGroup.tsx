@@ -24,8 +24,7 @@
 import * as React from 'react';
 import _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import AssetgroupInfoWindow from './AssetGroupInfo';
 import AssetAssetGroupWindow from './AssetAssetGroup';
 import MeterAssetGroupWindow from './MeterAssetGroup';
@@ -37,7 +36,7 @@ declare var homePath: string;
 declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup' | 'user' 
 
 function AssetGroup(props: { AssetGroupID: number }) {
-    let history = useNavigate();
+    let history = useHistory();
     const [assetGroup, setAssetGroup] = React.useState<OpenXDA.Types.AssetGroup>(null);
     const [allAssetGroups, setAllAssetGroups] = React.useState<Array<OpenXDA.Types.AssetGroup>>([]);
     const [tab, setTabState] = React.useState<string>(getTab());
@@ -121,7 +120,7 @@ function AssetGroup(props: { AssetGroupID: number }) {
         
         handle.done((msg) => {
             sessionStorage.clear();
-            history({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroups'});
+            history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroups'});
         });
 
         handle.then((d) => setLoadDelete(false))

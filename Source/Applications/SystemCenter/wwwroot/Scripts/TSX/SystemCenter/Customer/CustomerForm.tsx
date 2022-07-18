@@ -25,7 +25,7 @@ import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { useSelector, useDispatch } from 'react-redux';
 import { CustomerSlice } from '../Store/Store';
-import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
+import { Input, Select, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
 import { FetchPQIFacilities, SelectFacilities, SelectStatus } from '../Store/PQISlice';
 
 declare var homePath: string;

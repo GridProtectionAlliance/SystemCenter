@@ -38,7 +38,7 @@ function MDMKeys(props: IProps) {
     const search: Search.IFilter<SystemCenter.Types.LSCVSAccount>[] = useSelector(LSCVSAccountSlice.SearchFilters);
     const status: Application.Types.Status = useSelector(LSCVSAccountSlice.Status);
     const data: SystemCenter.Types.LSCVSAccount[] = useSelector(LSCVSAccountSlice.SearchResults);
-    const parentID: number = useSelector(LSCVSAccountSlice.ParentID);
+    const parentID = useSelector(LSCVSAccountSlice.ParentID);
     const dispatch = useDispatch();
 
 

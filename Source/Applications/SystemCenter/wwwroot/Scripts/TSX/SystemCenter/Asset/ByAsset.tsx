@@ -23,9 +23,8 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useNavigate } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { getAssetTypes } from '../../../TS/Services/Asset';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import BreakerAttributes from '../AssetAttribute/Breaker';

@@ -24,7 +24,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import { ByAssetSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';

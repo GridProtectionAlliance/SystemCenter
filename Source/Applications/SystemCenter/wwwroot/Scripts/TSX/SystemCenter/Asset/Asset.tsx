@@ -29,19 +29,19 @@ import AssetLocationWindow from './AssetLocation';
 import AssetMeterWindow from './AssetMeter';
 import AssetChannelWindow from './AssetChannel';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-
-import { useNavigate } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AssetConnectionWindow from './AssetConnection';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import { getAssetTypes } from '../../../TS/Services/Asset';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
 import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+
 declare var homePath: string;
 declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'Segments'
 
 function Asset(props: { AssetID: number }) {
-    let history = useNavigate();
+    let history = useHistory();
     const [asset, setAsset] = React.useState<OpenXDA.Types.Asset>(null);
     const [tab, setTabState] = React.useState<string>(getTab());
     const [assetType, setAssetType] = React.useState<OpenXDA.Types.AssetTypeName>(null);
@@ -93,7 +93,7 @@ function Asset(props: { AssetID: number }) {
 
         handle.done((msg) => {
             sessionStorage.clear();
-            history({ pathname: homePath + 'index.cshtml', search: '?name=Assets' });
+            history.push({ pathname: homePath + 'index.cshtml', search: '?name=Assets' });
         });
 
         handle.then((d) => setLoadDelete(false))
