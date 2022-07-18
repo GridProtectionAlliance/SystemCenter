@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 declare var homePath: string;
 declare interface MeterConfiguration {
@@ -34,7 +34,7 @@ declare interface MeterConfiguration {
     LastProcessedTime: string
 }
 function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) {
-    const history = useHistory();
+    const history = useNavigate();
     const [meterConfigurations, setMeterConfigurations] = React.useState<Array<MeterConfiguration>>([]);
 
     React.useEffect(() => {
@@ -57,7 +57,7 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
     }
 
     function handleSelect(item: MeterConfiguration) {
-        history.push({ pathname: `${homePath}index.cshtml`, search: `?name=ConfigurationHistory&MeterKey=${props.Meter.AssetKey}&MeterConfigurationID=${item.ID}`, state: {} })
+        history({ pathname: `${homePath}index.cshtml`, search: `?name=ConfigurationHistory&MeterKey=${props.Meter.AssetKey}&MeterConfigurationID=${item.ID}`})
     }
 
     return (

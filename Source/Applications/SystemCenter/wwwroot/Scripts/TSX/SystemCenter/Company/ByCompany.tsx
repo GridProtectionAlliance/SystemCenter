@@ -24,7 +24,7 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols'
@@ -37,7 +37,7 @@ declare var homePath: string;
 
 
 const ByCompany: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let history = useNavigate();
 
     const dispatch = useDispatch();
     const companyTypes = useSelector(CompanyTypeSlice.Data) as OpenXDA.Types.CompanyType[];
@@ -149,7 +149,7 @@ const ByCompany: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Company&CompanyID=' + item.row.ID, state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=Company&CompanyID=' + item.row.ID })
     }
 
     

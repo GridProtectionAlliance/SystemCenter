@@ -38,6 +38,7 @@ import { useDispatch, useSelector } from 'react-redux';
 declare var homePath: string;
 
 const ByLocation: Application.Types.iByComponent = (props) => {
+
     let history = useHistory();
     const dispatch = useDispatch();
     const data = useSelector(ByLocationSlice.SearchResults);
@@ -163,7 +164,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Location&LocationID=' + item.row.ID, state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=Location&LocationID=' + item.row.ID })
     }
 
     function valid(field: keyof (SystemCenter.Types.DetailedLocation)): boolean {

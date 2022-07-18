@@ -35,6 +35,7 @@ import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 declare var homePath: string;
 
 function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
+
     let history = useHistory();
     const [meterList, setMeterList] = React.useState<Array<SystemCenter.Types.DetailedMeter>>([]);
     const [sortField, setSortField] = React.useState<string>('MeterName');

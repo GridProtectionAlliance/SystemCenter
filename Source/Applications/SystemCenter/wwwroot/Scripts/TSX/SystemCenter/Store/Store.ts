@@ -67,6 +67,7 @@ export const DataOperationSlice = new GenericSlice<OpenXDA.Types.DataOperation>(
 export const DataReaderSlice = new GenericSlice<OpenXDA.Types.DataReader>("DataReader", `${homePath}api/OpenXDA/DataReader`, "LoadOrder");
 export const ExternalDBTablesSlice = new GenericSlice<SystemCenter.Types.ExternalDataBaseTable>("ExternalDataBaseTable", `${homePath}api/OpenXDA/ExternalDBTables`, "TableName", false);
 export const ApplicationNodeSlice = new GenericSlice<Application.Types.iApplicationNode>("ApplicationNode", `${homePath}api/OpenXDA/ApplicationNode`, "Name", false);
+export const LSCVSAccountSlice = new GenericSlice<SystemCenter.Types.LSCVSAccount>("LSCVSAccount", `${homePath}api/LSCVSAccount`, "AccountID", false);
 export const DBCleanupSlice = new GenericSlice<DBCleanup>("DBCleanup", `${homePath}api/OpenXDA/DBCleanup`, "ID", true);
 export const ApplicationCategorySlice = new GenericSlice<ApplicationCategory>("PQApplicationCategory", `${homePath}api/OpenXDA/ApplicationCategory`, "Name", true);
 export const PQApplicationsSlice = new GenericSlice<PQApplications>("PQApplications", `${homePath}api/OpenXDA/PQApplications`, "Name", true);
@@ -75,6 +76,7 @@ export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("Asset
 export const ByAssetSlice = new GenericSlice<SystemCenter.Types.DetailedAsset>("ByAsset", `${homePath}api/OpenXDA/ByAsset`, "AssetName", true);
 export const ByLocationSlice = new GenericSlice<SystemCenter.Types.DetailedLocation>("ByLocation", `${homePath}api/OpenXDA/ByLocation`, "LocationKey", true);
 export const ByMeterSlice = new GenericSlice<SystemCenter.Types.DetailedMeter>("ByMeter", `${homePath}api/OpenXDA/ByMeter`, "Name", true);
+
 
 export const AssetNoteSlice = new NoteSlice('Asset');
 export const MeterNoteSlice = new NoteSlice('Meter');
@@ -88,6 +90,7 @@ export const SCSecurityRoleSlice = new SecurityRoleSlice('SCSecurityRole', `${ho
 
 export default configureStore({
     reducer: {
+        LSCVSAccount: LSCVSAccountSlice.Reducer,
         CompanyType: CompanyTypeSlice.Reducer,
         AssetGroup: AssetGroupSlice.Reducer,
         ByAsset: ByAssetSlice.Reducer,

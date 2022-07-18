@@ -53,6 +53,9 @@ namespace SystemCenter.Controllers
 
     }
 
+    [RoutePrefix("api/LSCVSAccount")]
+    public class LSCVSAccountController : ModelController<LSCVSAccount> { }
+
     [RoutePrefix("api/ValueListGroup")]
     public class ValueListGroupController : ModelController<ValueListGroup> { }
 

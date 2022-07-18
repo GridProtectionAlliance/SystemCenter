@@ -26,7 +26,7 @@ import Table from '@gpa-gemstone/react-table';
 import { Application } from '@gpa-gemstone/application-typings'
 import * as _ from 'lodash';
 import * as d3 from 'd3';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { GetAccessLogAggregates, GetAccessLogTable, } from './../../../TS/Services/User';
 import moment from 'moment';
 
@@ -42,7 +42,7 @@ interface AccesLogTable {
 }
 
 const UserStatistics: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let history = useNavigate();
     let svgWidth = window.innerWidth - 250 - 30;
     let svgHeight = (window.innerHeight - 75) * .33;
     let margin = { top: 20, right: 20, bottom: 20, left: 50 };

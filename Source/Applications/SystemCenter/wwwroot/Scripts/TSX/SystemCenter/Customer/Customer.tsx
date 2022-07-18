@@ -31,7 +31,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { CustomerSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
+import MDMKeys from './MDMKeys';
 import CustomerAssetWindow from './CustomerAsset';
+
 
 declare var homePath: string;
 
@@ -43,6 +45,7 @@ const Tabs = [
     { Id: "additionalFields", Label: "Additional Fields" },
     { Id: "meters", Label: "Assigned Meter" },
     { Id: "assets", Label: "Assigned Asset" },
+    { Id: "mdm", Label: "MDM Keys" },
 ]
 
 export default function Customer(props: IProps) {
@@ -105,7 +108,6 @@ export default function Customer(props: IProps) {
 
             <hr />
             <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
-
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="customerInfo">
                     <CustomerInfo Customer={customer} stateSetter={(record) => dispatch(CustomerSlice.DBAction({ verb: 'PATCH', record: record }))} />
@@ -116,11 +118,14 @@ export default function Customer(props: IProps) {
                 <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
                     <CustomerMeterWindow Customer={customer} />
                 </div>
-                <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="assets">
+                <div className={"tab-pane " + (tab == "assets" ? " active" : "fade")} id="assets">
                     <CustomerAssetWindow Customer={customer} />
                 </div>
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" >
                     <NoteWindow ID={props.CustomerID} Type='Customer' />
+                </div>
+                <div className={"tab-pane " + (tab == "mdmkeys" ? " active" : "fade")} id="mdm" >
+                    <MDMKeys CustomerID={customer.ID} />
                 </div>
             </div>
             <Warning Title={'Confirm'} Show={showWarning} Message={'This will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />

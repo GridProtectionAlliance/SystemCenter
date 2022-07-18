@@ -24,7 +24,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import { ByAssetSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
@@ -192,6 +192,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setSortKey(d.colKey);
                             }
                         }}
+
                         onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.ID, state: {} }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 590, width: '100%' }}

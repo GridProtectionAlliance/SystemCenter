@@ -1,4 +1,4 @@
-﻿//******************************************************************************************************
+//******************************************************************************************************
 //  ByAsset.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes } from '../../../TS/Services/Asset';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
@@ -51,6 +51,7 @@ declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Brea
 declare var homePath: string;
 
 const ByAsset: Application.Types.iByComponent = (props) => {
+
     let history = useHistory();
     const data = useSelector(ByAssetSlice.SearchResults);
     const search = useSelector(ByAssetSlice.SearchFilters);
@@ -180,7 +181,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
 
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID, state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID})
     }
 
     function getEnum(setOptions, field) {

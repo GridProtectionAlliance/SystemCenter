@@ -24,7 +24,6 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search } from '@gpa-gemstone/react-interactive';
@@ -43,10 +42,10 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     const sortKey = useSelector(ByMeterSlice.SortField);
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID, state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID })
     }
     function goNewMeterWizard() {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard', state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard' })
     }
 
     function getAdditionalFields(setFields) {

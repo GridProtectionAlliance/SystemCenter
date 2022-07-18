@@ -57,6 +57,7 @@ const emptyAssetGroup: extendedAssetGroup = { ID: -1, Name: '', DisplayDashboard
 declare var homePath: string;
 
 const ByAssetGroup: Application.Types.iByComponent = (props) => {
+
     let history = useHistory();
     const dispatch = useDispatch();
     const data = useSelector(AssetGroupSlice.SearchResults);
@@ -68,6 +69,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     const allAssetGroups = useSelector(AssetGroupSlice.Data);
 
     const [showFilter, setFilter] = React.useState<('None' | 'Meter' | 'Asset' | 'Asset Group' | 'Station')>('None');
+
     const [newAssetGroup, setNewAssetGroup] = React.useState<extendedAssetGroup>(_.cloneDeep(emptyAssetGroup));
     const [showNewGroup, setShowNewGroup] = React.useState<boolean>(false);
     const [assetGrpErrors, setAssetGrpErrors] = React.useState<string[]>([]);
@@ -191,7 +193,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
             Promise.all([handle1,handle2, handle3]).then((x) => {
                 sessionStorage.clear();
-                history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + d.ID, state: {} })
+                history({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + d.ID })
             }, (msg) => {
                 if (msg.status == 500)
                     alert(msg.responseJSON.ExceptionMessage)
@@ -204,7 +206,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + item.row.ID, state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + item.row.ID})
     }
 
     function valid(field: keyof (OpenXDA.Types.AssetGroup)): boolean {

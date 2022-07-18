@@ -30,7 +30,7 @@ import AssetMeterWindow from './AssetMeter';
 import AssetChannelWindow from './AssetChannel';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AssetConnectionWindow from './AssetConnection';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
@@ -41,7 +41,7 @@ declare var homePath: string;
 declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'Segments'
 
 function Asset(props: { AssetID: number }) {
-    let history = useHistory();
+    let history = useNavigate();
     const [asset, setAsset] = React.useState<OpenXDA.Types.Asset>(null);
     const [tab, setTabState] = React.useState<string>(getTab());
     const [assetType, setAssetType] = React.useState<OpenXDA.Types.AssetTypeName>(null);
@@ -93,7 +93,7 @@ function Asset(props: { AssetID: number }) {
 
         handle.done((msg) => {
             sessionStorage.clear();
-            history.push({ pathname: homePath + 'index.cshtml', search: '?name=Assets', state: {} });
+            history({ pathname: homePath + 'index.cshtml', search: '?name=Assets' });
         });
 
         handle.then((d) => setLoadDelete(false))

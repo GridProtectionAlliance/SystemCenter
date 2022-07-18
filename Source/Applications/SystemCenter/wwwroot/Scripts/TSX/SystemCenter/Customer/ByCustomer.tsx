@@ -24,24 +24,22 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 
-import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
+import { DefaultSearchField, SearchFields } from '../CommonComponents/SearchFields';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
-import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { useSelector, useDispatch } from 'react-redux';
 import { CustomerSlice } from '../Store/Store';
 import CustomerForm from './CustomerForm';
-import { cross } from 'd3';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 
 
 declare var homePath: string;
 
 const ByCustomer: Application.Types.iByComponent = (props) => {
     let dispatch = useDispatch();
-    let history = useHistory();
+    let history = useNavigate();
 
     const cState = useSelector(CustomerSlice.SearchStatus);
     const data = useSelector(CustomerSlice.SearchResults);
@@ -114,7 +112,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Customer&CustomerID=' + item.row.ID, state: {} })
+        history({ pathname: homePath + 'index.cshtml', search: '?name=Customer&CustomerID=' + item.row.ID })
     }
 
     return (
@@ -157,6 +155,14 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        {
+                            key: 'LSCVS', field: 'LSCVS', label: 'LSCVS', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
+                                if (item.LSCVS == true)
+                                    return HeavyCheckMark;
+                                if (item.LSCVS == false)
+                                    return null;
+                            }
+                        },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"

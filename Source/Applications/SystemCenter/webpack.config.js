@@ -34,7 +34,12 @@ module.exports = env => {
                 {
                     test: /\.css$/,
                     include: path.resolve(__dirname, 'wwwroot', "Content"),
-                    use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
+                    use: [{ loader: 'style-loader' }, { loader: 'css-loader', options: { modules: true } }],
+                },
+                {
+                    test: /\.css$/,
+                    include: path.resolve(__dirname, 'wwwroot'),
+                    use: [{ loader: 'style-loader' }, { loader: 'css-loader'}],
                 },
             ]
         },
