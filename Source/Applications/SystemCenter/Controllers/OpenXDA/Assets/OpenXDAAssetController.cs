@@ -519,6 +519,24 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        [HttpPost, Route("{assetID:int}/Meter/{meterID:int}")]
+        public IHttpActionResult PostExistingMeterForAsset(int assetID, int meterID)
+        {
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    MeterAsset meterAsset = new MeterAsset() { MeterID = meterID, AssetID = assetID };
+                    new TableOperations<MeterAsset>(connection).AddNewRecord(meterAsset);
+                    return Ok(meterAsset);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
         [HttpGet, Route("{assetID:int}/ConnectedChannels")]
         public IHttpActionResult GetAssetChannels(int assetID)
         {
@@ -689,6 +707,25 @@ namespace SystemCenter.Controllers.OpenXDA
                 try
                 {
                     new TableOperations<AssetLocation>(connection).DeleteRecordWhere("LocationID = {0} AND AssetID = {1}", locationID, assetID);
+
+                    return Ok("Deleted");
+                }
+                catch (Exception ex)
+                {
+                    return InternalServerError(ex);
+                }
+            }
+        }
+
+
+        [HttpDelete, Route("{assetID:int}/Meter/{meterID:int}")]
+        public IHttpActionResult DeleteMeterLocation(int assetID, int meterID)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                try
+                {
+                    new TableOperations<MeterAsset>(connection).DeleteRecordWhere("MeterID = {0} AND AssetID = {1}", meterID, assetID);
 
                     return Ok("Deleted");
                 }

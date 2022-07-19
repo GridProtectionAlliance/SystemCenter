@@ -23,17 +23,32 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import Table from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
+import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import { ByMeterSlice } from '../Store/Store';
+import { Search } from '@gpa-gemstone/react-interactive';
+import { useDispatch, useSelector } from 'react-redux';
 
 declare var homePath: string;
 
 function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     let history = useHistory();
+    const dispatch = useDispatch();
     const [meters, setMeters] = React.useState<Array<OpenXDA.Types.Meter>>([]);
     const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [showAdd, setShowAdd] = React.useState<boolean>(false);
+    const allMeters = useSelector(ByMeterSlice.Data);
+    const mStatus = useSelector(ByMeterSlice.Status);
+    const mParentID = useSelector(ByMeterSlice.ParentID);
+
+    React.useEffect(() => {
+        if (mStatus == 'unintiated' || mStatus == 'changed' || mParentID != null)
+            dispatch(ByMeterSlice.Fetch());
+    }, [mStatus, mParentID]);
+
 
     React.useEffect(() => {
         getMeters();
@@ -50,8 +65,90 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
         }).done(meters => setMeters(meters));
     }
 
+   
+    function addMeter(meterID: number) {
+        return $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Meter/${meterID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done(record => {
+            getMeters();
+        }).fail((msg) => {
+            if (msg.status == 500)
+                alert(msg.responseJSON.ExceptionMessage)
+        });
+    }
+
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID })
+    }
+
+    function getEnum(setOptions, field) {
+        let handle = null;
+        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+            return () => { };
+
+        handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        }
+    }
+
+    function getAdditionalMeterFields(setFields) {
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Meter/FieldName/0`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        });
+
+        function ConvertType(type: string) {
+            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
+                return { type: type }
+            return {
+                type: 'enum', enum: [{ Label: type, Value: type }]
+            }
+        }
+
+        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
+                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedMeter>
+            )), ['label'], ["asc"]);
+            setFields(ordered)
+        });
+
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
+    }
+
+    async function deleteMeter(meter: OpenXDA.Types.Meter) {
+        return $.ajax({
+            type: "DELETE",
+            url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/Meter/${meter.ID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done(() => {
+            getMeters();
+        }).fail((msg) => {
+            if (msg.status == 500)
+                alert(msg.responseJSON.ExceptionMessage)
+        });
     }
 
     return (
@@ -100,7 +197,33 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                 </div>
             </div>
             <div className="card-footer">
+                <div className="btn-group mr-2">
+                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Change Meters</button>
+                </div>
             </div>
+            <DefaultSelects.Meter
+                Slice={ByMeterSlice}
+                Selection={allMeters.filter(m => meters.findIndex(g => g.ID == m.ID) > -1)}
+                OnClose={(selected, conf) => {
+                    setShowAdd(false)
+                    if (!conf) return
+                    selected.map(m => m.ID).filter(m => meters.findIndex(g => g.ID == m) < 0).forEach((m) => addMeter(m));
+                    meters.filter(m => selected.findIndex(s => s.ID == m.ID) < 0).forEach(m => deleteMeter(m));
+                }}
+                Show={showAdd}
+                Type={'multiple'}
+                Columns={[
+                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'MappedAssets', field: 'MappedAssets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                ]}
+                Title={"Add Meters to Asset"}
+                GetEnum={getEnum}
+                GetAddlFields={getAdditionalMeterFields} />
         </div>
                 
     );
