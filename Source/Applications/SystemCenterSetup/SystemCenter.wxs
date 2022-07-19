@@ -289,6 +289,8 @@
       <ComponentRef Id="TagDefinitions" />
       <ComponentRef Id="GrafanaAdapters"/>
       <ComponentRef Id="openXDA.Model" />
+      <ComponentRef Id="openXDA.PQI" />
+      <ComponentRef Id="openXDA.APIAuthentication" />
       <ComponentRef Id="Oracle.ManagedDataAccess" />
       
       <!-- Self Hosting SignalR, WebAPI and Razor Engine Components (provided via GSF.Web) -->
@@ -394,6 +396,13 @@
       <Component Id="openXDA.Model">
         <File Id="openXDA.Model.dll" Name="openXDA.Model.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.Model.dll" />
       </Component>
+       <Component Id="openXDA.APIAuthentication">
+        <File Id="openXDA.APIAuthentication.dll" Name="openXDA.APIAuthentication.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.APIAuthentication.dll" />
+      </Component>
+       <Component Id="openXDA.PQI">
+        <File Id="openXDA.PQI.dll" Name="openXDA.PQI.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.PQI.dll" />
+      </Component>
+        
       <Component Id="Oracle.ManagedDataAccess">
         <File Id="Oracle.ManagedDataAccess.dll" Name="Oracle.ManagedDataAccess.dll" Source="$(var.SystemCenter.TargetDir)Oracle.ManagedDataAccess.dll" />
       </Component>
