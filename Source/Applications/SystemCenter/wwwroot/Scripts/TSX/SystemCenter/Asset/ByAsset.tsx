@@ -180,7 +180,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
 
 
     function handleSelect(item) {
-        history({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID})
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID})
     }
 
     function getEnum(setOptions, field) {
