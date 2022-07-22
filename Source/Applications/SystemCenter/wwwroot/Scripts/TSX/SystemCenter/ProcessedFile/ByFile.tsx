@@ -55,7 +55,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.DataFile>>>([]);
     const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
-        { isPivotField: false, key: 'Path', label: 'Path', type: 'string' },
+        { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
         { isPivotField: false, key: 'CreationTime', label: 'File Created', type: 'datetime' },
         { isPivotField: false, key: 'DataStartTime', label: 'Data Start', type: 'datetime' }        
     ]
