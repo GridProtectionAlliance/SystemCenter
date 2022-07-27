@@ -109,6 +109,10 @@ function SectionSelect(props: IProps): JSX.Element {
         // Find all "Taps" at the end of the Line
         Taps = Taps.concat(props.Segments.filter(s => s.IsEnd).map(s => props.Connections.filter(con => con.BusNumber == s.FromBus).length > 0 ? s.ToBus : s.FromBus).map((b, index) => ({ Bus: b, IsEnd: true } as FawgTap)));
 
+        // We need to add a Tap at the end if there is only 1 Segment since in that case IsEnd is only true once even though that segment has 2 ends at substations
+        if (Taps.length == 1 && props.Segments.length == 1)
+            Taps.push({ Bus: props.Segments[0].ToBus, IsEnd: true } as FawgTap);
+
         // update Taps with locationID as available (-1) otherwise and add connected Segments
         Taps.forEach((item, index) => {
             item.ConnectedSegments = [];
@@ -215,7 +219,7 @@ function SectionSelect(props: IProps): JSX.Element {
                                             updated[index].NameFrom = locations.find(l => l.ID == updated[index].startStationID).LocationKey;
                                         }
                                         props.SetSections(updated);
-                                    }} Options={locations.map(l => ({ Value: l.ID.toString(), Label: l.LocationKey }))} EmptyOption={true} />
+                                    }} Options={locations.map(l => ({ Value: l.ID.toString(), Label: l.Name + '(' + l.LocationKey + ')' }))} EmptyOption={true} />
                                 },
                                 {
                                     key: 'endBus', label: 'End', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.endTap ? 'Tap (Bus ' + item.endBus + ')' : <Select<FawgSection> Label={`Substation (Bus ${item.endBus} )`} Field={'endStationID'} Record={item} EmptyLabel={'N / A'} Setter={(r) => {
