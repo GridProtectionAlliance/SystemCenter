@@ -54,16 +54,20 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
     function getData(): void {
         getSegments();
 
-        getAllAssets().done((assets: Array<OpenXDA.Types.Asset>) => {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/LineSegment/OrphanedSegments`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done(assets => {
             getAssetTypes().done((assetTypes: Array<OpenXDA.Types.AssetType>) => {
                 let dat = assetTypes.filter(item => item.Name == 'LineSegment')
                 setAssetTypes(dat);
                 setAllAssets(assets.filter(item => item['AssetTypeID'] == dat[0].ID));
             });
-            
         });
-       
-
     }
 
     function getSegments(): void {

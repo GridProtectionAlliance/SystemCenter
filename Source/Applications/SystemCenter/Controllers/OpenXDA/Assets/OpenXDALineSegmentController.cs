@@ -25,7 +25,6 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net.Http;
 using System.Transactions;
 using System.Web.Http;
 using GSF.Data;
@@ -40,6 +39,40 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/LineSegment")]
     public class OpenXDALineSegmentController : ModelController<LineSegment>
     {
+
+        [HttpGet, Route("OrphanedSegments")]
+        public IHttpActionResult GetOrphanedSegments()
+        {
+            if (GetRoles != string.Empty && !User.IsInRole(GetRoles))
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                const string Query =
+                    "SELECT LineSegment.* " +
+                    "FROM " +
+                    "    Asset LineSegment JOIN " +
+                    "    AssetType ON " +
+                    "        LineSegment.AssetTypeID = AssetType.ID AND " +
+                    "        AssetType.Name = 'LineSegment' JOIN " +
+                    "    AssetRelationshipType ON AssetRelationshipType.Name = 'Line-LineSegment' LEFT OUTER JOIN " +
+                    "    AssetRelationship ON " +
+                    "        AssetRelationship.AssetRelationshipTypeID = AssetRelationshipType.ID AND " +
+                    "        LineSegment.ID IN (AssetRelationship.ParentID, AssetRelationship.ChildID) " +
+                    "WHERE AssetRelationship.ID IS NULL";
+
+                using (DataTable table = connection.RetrieveData(Query))
+                {
+                    TableOperations<Asset> assetTable = new TableOperations<Asset>(connection);
+
+                    IEnumerable<Asset> records = table
+                        .AsEnumerable()
+                        .Select(assetTable.LoadRecord);
+
+                    return Ok(records);
+                }
+            }
+        }
 
         [HttpGet, Route("{segmentID:int}/AddToLine/{lineID:int}")]
         public IHttpActionResult AddLineSegmentToLine(int segmentID, int lineID)
