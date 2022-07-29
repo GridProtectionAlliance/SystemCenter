@@ -29,6 +29,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
@@ -37,6 +38,7 @@ using GSF.Web;
 using GSF.Web.Model;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using openXDA.APIAuthentication;
 using openXDA.Model;
 using PQView.Model;
 using SystemCenter.Model;
@@ -462,7 +464,106 @@ namespace SystemCenter.Controllers.OpenXDA
     public class MeterDataQualitySummaryController : ModelController<MeterDataQualitySummary> { }
 
     [RoutePrefix("api/OpenXDA/remoteXDAInstance")]
-    public class RemoteXDAInstanceController : ModelController<RemoteXDAInstance> { }
+    public class RemoteXDAInstanceController : ModelController<RemoteXDAInstance>
+    {
+        #region [Properties]
+
+        /// <summary>
+        /// Local XDA URL
+        /// </summary>
+
+        const string SettingsCategory = "systemSettings";
+
+        public string Host
+        {
+            get
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
+                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.Url'") ?? "http://localhost:8989";
+            }
+        }
+
+        public string Key
+        {
+            get
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
+                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIKey'") ?? "";
+            }
+        }
+
+        public string Token
+        {
+            get
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
+                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIToken'") ?? "";
+            }
+        }
+
+        public string ClientID
+        {
+            get
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
+                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.ClientID'") ?? "SystemCenter";
+            }
+        }
+
+        #endregion
+
+        #region [HttpMethods]
+        [HttpGet, Route("Alive/{remoteInstanceID}")]
+        public IHttpActionResult TestRemoteXDAConnection(int remoteInstanceID)
+        {
+            if (GetAuthCheck() && !AllowSearch)
+                return Unauthorized();
+            try
+            {
+                Task<string> responseTask = SendGetRequest($"/api/DataPusher/TestConnection/{remoteInstanceID}");
+                return Ok(responseTask.Result);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpGet, Route("ConfigPush/{remoteInstanceID}")]
+        public virtual IHttpActionResult PushRemoteConfig(int remoteInstanceID)
+        {
+            if (GetAuthCheck() && !AllowSearch)
+                return Unauthorized();
+            try
+            {
+                Task<string> responseTask = SendGetRequest($"/api/DataPusher/SyncInstanceConfig/{ClientID}/{remoteInstanceID}");
+                return Ok("1");
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        #endregion
+
+        private async Task<string> SendGetRequest(string requestURI)
+        {
+            APIQuery query = new APIQuery(Key, Token, Host.Split(';'));
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+            HttpResponseMessage responseMessage = await query.SendWebRequestAsync(ConfigureRequest, requestURI).ConfigureAwait(false);
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                throw new Exception("Status code " + responseMessage.StatusCode + ": " + responseMessage.ReasonPhrase);
+            }
+
+            return await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+        }
+
+    }
 
     [RoutePrefix("api/OpenXDA/RemoteXDAAsset")]
     public class RemoteXDAAssetController : ModelController<RemoteXDAAsset>
@@ -660,46 +761,6 @@ namespace SystemCenter.Controllers.OpenXDA
 
     [RoutePrefix("api/OpenXDA/MetersToDataPush")]
     public class MetersToDataPushController : ModelController<MetersToDataPush> { }
-
-    [RoutePrefix("api/OpenXDA/Alive")]
-    public class AliveCheckerController : ApiController
-    {
-        public static string LocalXDAInstance
-        {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-                {
-                    return new TableOperations<openXDA.Model.Setting>(connection).QueryRecordWhere("Name = 'LocalXDAInstance'").Value ?? "http://127.0.0.1:8989";
-                }
-            }
-        }
-        [HttpGet, Route("{instanceId:int}")]
-        public IHttpActionResult TestRemoteXDAConnection(int instanceId)
-        {
-            try
-            {
-                using (HttpClient client = new HttpClient())
-                {
-                    client.BaseAddress = new Uri(LocalXDAInstance);
-                    client.DefaultRequestHeaders.Accept.Clear();
-                    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-                    // client.DefaultRequestHeaders.Authorization = 
-
-                    HttpResponseMessage response = client.GetAsync($"api/DataPusher/TestRemoteInstanceConnection/{instanceId}").Result;
-
-                    if (!response.IsSuccessStatusCode)
-                        throw new Exception("Could send request to local XDA instance.");
-
-                    return Ok(0);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-    }
 }
 
 

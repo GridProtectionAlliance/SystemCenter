@@ -30,6 +30,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { createPortal } from "react-dom";
 import { UserAccountSliceRemote } from '../Store/Store';
 import { IsCron } from '@gpa-gemstone/helper-functions';
+import { Modal } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen } from '@gpa-gemstone/react-interactive';
 
 const BlankRemoteXDAInstance: OpenXDA.Types.RemoteXDAInstance = {
     ID: 0,
@@ -82,6 +84,17 @@ export default function RemoteXDAInstanceForm(props: IProps) {
     const [formInstance, setFormInstance] = React.useState<OpenXDA.Types.RemoteXDAInstance>(props.BaseInstance);
     const [showUserSearch, setShowUserSearch] = React.useState<(boolean)>(false);
     const [userList, setUserList] = React.useState<Array<Application.Types.iUserAccount>>([]);
+
+    // Test/Push Modal Const
+    const [showTestResult, setShowTestResult] = React.useState<(boolean)>(false);
+    const [testResult, setTestResult] = React.useState<(boolean)>(false);
+
+    // Test/Push Modal Const
+    const [showConfigResult, setShowConfigResult] = React.useState<(boolean)>(false);
+    const [configResult, setConfigResult] = React.useState<(boolean)>(false);
+
+    const [showFailure, setShowFailure] = React.useState<(boolean)>(false);
+    const [loading, setLoading] = React.useState<(boolean)>(false);
 
     React.useEffect(() => {
         if (userStatus === 'unintiated' || userStatus === 'changed') {
@@ -136,20 +149,97 @@ export default function RemoteXDAInstanceForm(props: IProps) {
             return false;
     }
 
+    function testConnection() {
+        setLoading(true);
+        const handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/remoteXDAInstance/Alive/${formInstance.ID}`,
+            contentType: "text/plain; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+
+        handle.done((str) => {
+            setTestResult(str === "1")
+            setShowTestResult(true);
+            setLoading(false);
+        }).fail(() => {
+            setShowFailure(true);
+            setLoading(false);
+        });
+
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
+    }
+
+    function pushRemoteConfig() {
+        setLoading(true);
+        const handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/remoteXDAInstance/ConfigPush/${formInstance.ID}`,
+            contentType: "text/plain; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+
+        handle.done((str) => {
+            setConfigResult(str === "1")
+            setShowConfigResult(true);
+            setLoading(false);
+        }).fail(() => {
+            setShowFailure(true);
+            setLoading(false);
+        });
+
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
+        };
+    }
+
     return (
         <div id='rXDAFormRoot'>
-            <form>
-                <div className="col" style={{width: '50%', float:"left"}}>
-                    <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Name'} Label={'Name'} Feedback={"A name of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} />
-                    <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Address'} Label={'Address'} Feedback={"An address of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} />
-                    <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Frequency'} Label={'Frequency'} Feedback={"A frequency that is a valid cron format is required."} Valid={valid} Setter={setFormInstance} Help={'In order of minutes, hours, day of the month, month, weekday. For example, a frequency of every midnight would be * 0 * * *'} />
-                </div>
-                <div className="col" style={{ width: '50%', float: "right" }}>
-                    <Input<Application.Types.iUserAccount> Record={instanceUser} Field={'Name'} Label={'Username'} Valid={() => instanceUser.Name !== null} Setter={() => { }} Disabled={true} />
-                    <button type="button" className="btn btn-primary btn-block" onClick={() => { setShowUserSearch(true); }}> Add or change user. </button>
-                </div>
-            </form>
-            {domReady ? createPortal(
+            {loading ? <LoadingScreen Show={true} /> :
+                <form>
+                    <div className="col" style={{ width: '50%', float: "left" }}>
+                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Name'} Label={'Name'} Feedback={"A name of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} />
+                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Address'} Label={'Address'} Feedback={"An address of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} />
+                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Frequency'} Label={'Frequency'} Feedback={"A frequency that is a valid cron format is required."} Valid={valid} Setter={setFormInstance} Help={'In order of minutes, hours, day of the month, month, weekday. For example, a frequency of every midnight would be * 0 * * *'} />
+                    </div>
+                    <div className="col" style={{ width: '50%', float: "right" }}>
+                        <Input<Application.Types.iUserAccount> Record={instanceUser} Field={'Name'} Label={'Username'} Valid={() => instanceUser.Name !== null} Setter={() => { }} Disabled={true} />
+                        <button type="button" className="btn btn-primary btn-block" onClick={() => { setShowUserSearch(true); }}> Add or Change User </button>
+                        {formInstance.ID > 0 ? <>
+                            <button type="button" className="btn btn-primary btn-block" onClick={testConnection}> Test Remote Connection </button>
+                            <button type="button" className="btn btn-primary btn-block" onClick={pushRemoteConfig}> Push Meters and Assets to Remote </button>
+                        </> : null}
+                    </div>
+                </form>
+            }
+            {domReady ? createPortal(<>
+                <Modal Show={showTestResult} Title={`Test Connection ${testResult ? "Succeeded" : "Failed"}`}
+                    ShowCancel={false}
+                    CallBack={() => { setShowTestResult(false); }}
+                    ShowX={true} Size={"sm"}
+                    ConfirmText={"Ok"}>
+                    {testResult ? "Connection made to remote XDA server." : "Connection could not be made to remote XDA server."}
+                </Modal>
+                <Modal Show={showConfigResult} Title={`Push Remote Config ${configResult ? "Succeeded" : "Failed"}`}
+                    ShowCancel={false}
+                    CallBack={() => { setShowConfigResult(false); }}
+                    ShowX={true} Size={"sm"}
+                    ConfirmText={"Ok"}>
+                    {configResult ? "Config push successfully intialized. Local XDA is attempting to push the config to remote XDA. Check local XDA error log for any unpushed remotes." : "Config push could not be commanded to remote XDA server."}
+                </Modal>
+                <Modal Show={showFailure} Title={'Command Failure'}
+                    ShowCancel={false}
+                    CallBack={() => { setShowFailure(false); }}
+                    ShowX={true} Size={"sm"}
+                    ConfirmText={"Ok"}>
+                    Connection to to local XDA server failed.
+                </Modal>
                 <DefaultSelects.User
                     Slice={UserAccountSliceRemote}
                     Selection={userList}
@@ -179,7 +269,8 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                     Title={"Select user for this remoteXDA instance: "}
                     GetEnum={() => () => { }}
                     GetAddlFields={() => () => { }}
-                />, portalContainer) : null}
+                />
+                </>, portalContainer) : null}
         </div>
     );
 }
