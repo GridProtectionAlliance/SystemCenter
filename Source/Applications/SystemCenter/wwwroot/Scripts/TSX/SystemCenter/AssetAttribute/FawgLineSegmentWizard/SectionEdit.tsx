@@ -178,12 +178,12 @@ function TableRowInput(props: { Segment: FawgSegment, remove: (assetKey: string)
 
             <td style={{ verticalAlign: 'middle' }}>{Z0.toFixed(2)}</td>
             <td style={{ verticalAlign: 'middle' }}>{a0.toFixed(2)}</td>
-            <td><Input<FawgSegment> Label={'R0 (pu)'} Record={props.Segment} Field={'R0'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
-            <td><Input<FawgSegment> Label={'X0 (pu)'} Record={props.Segment} Field={'X0'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
+            <td><Input<FawgSegment> Label={'R0 (Ohm)'} Record={props.Segment} Field={'R0'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
+            <td><Input<FawgSegment> Label={'X0 (Ohm)'} Record={props.Segment} Field={'X0'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
             <td style={{ verticalAlign: 'middle' }}>{Z1.toFixed(2)}</td>
             <td style={{ verticalAlign: 'middle' }}>{a1.toFixed(2)}</td>
-            <td><Input<FawgSegment> Label={'R1 (pu)'} Record={props.Segment} Field={'R1'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
-            <td><Input<FawgSegment> Label={'X1 (pu)'} Record={props.Segment} Field={'X1'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
+            <td><Input<FawgSegment> Label={'R1 (Ohm)'} Record={props.Segment} Field={'R1'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
+            <td><Input<FawgSegment> Label={'X1 (Ohm)'} Record={props.Segment} Field={'X1'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
             <td style={{ verticalAlign: 'middle' }}>{Zs.toFixed(2)}</td>
             <td style={{ verticalAlign: 'middle' }}>{as.toFixed(2)}</td>
             <td style={{ verticalAlign: 'middle' }}>{Rs.toFixed(2)}</td>
