@@ -83,7 +83,7 @@ export default function RemoteAssetForm(props: IProps) {
         if (field == 'RemoteXDAAssetID')
             return formAsset.RemoteXDAAssetID != null && formAsset.RemoteXDAAssetID <= 0;
         else if (field == 'RemoteXDAAssetKey')
-            return formAsset.RemoteXDAAssetKey != null && formAsset.RemoteXDAAssetKey.length > 0 && formAsset.RemoteXDAAssetKey.length <= 200;
+            return (formAsset.RemoteXDAAssetKey != null && formAsset.RemoteXDAAssetKey.length > 0 && formAsset.RemoteXDAAssetKey.length <= 200) || !formAsset.Obsfucate;
         else
             return false;
     }
