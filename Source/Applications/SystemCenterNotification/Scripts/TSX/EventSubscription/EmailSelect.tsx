@@ -79,12 +79,12 @@ const EmailSelect = (props: IProps) => {
                                 setSelectedCategory(parseInt((evt.target.value as any).toString()));
                             }}
                             value={selectedCategory}
-                        >
-                            {emailCategories.map((c, i) => (
+                                >
+                                    {emailCategories.map((c, i) => c.SelfSubscribe?
                                 <option key={i} value={c.ID}>
                                     {c.Name}
                                 </option>
-                            ))}
+                            : null)}
                         </select></>}
                     </div>
                 </div>
