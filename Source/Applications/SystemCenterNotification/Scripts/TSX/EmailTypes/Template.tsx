@@ -1,0 +1,98 @@
+﻿//******************************************************************************************************
+//  Template.tsx - Gbtc
+//
+//  Copyright © 2022, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  05/05/2022 - C. Lackner
+//       Generated original version of source code.
+//
+//******************************************************************************************************
+
+import { useDispatch, useSelector } from 'react-redux';
+import * as React from 'react';
+import {ToolTip } from '@gpa-gemstone/react-interactive'
+import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import {  EmailType } from '../global';
+import {  EmailTypeSlice } from '../Store';
+import { IsNumber } from '@gpa-gemstone/helper-functions';
+import EmailForm from './EmailForm';
+import { TextArea } from '@gpa-gemstone/react-forms';
+
+declare var homePath;
+declare var version;
+
+interface IProps { Record: EmailType}
+
+
+
+const Template = (props: IProps) => {
+    const dispatch = useDispatch();
+
+    const [email, setEmail] = React.useState<EmailType>(props.Record);
+    const [hasChanged, setHasChanged] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
+
+
+
+    React.useEffect(() => {
+        setEmail(props.Record);
+    }, [props.Record])
+
+    React.useEffect(() => {
+        let h = true;
+        h = h && email.Template == props.Record.Template;
+        setHasChanged(!h);
+    }, [props.Record, email])
+
+
+    return (
+        <div className="card" style={{ marginBottom: 10 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Template:</h4>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body">
+                <TextArea<EmailType> Record={email} Setter={setEmail} Field={'Template'} Rows={12} Label='' Valid={(r) => email.Template != null && email.Template.length > 0} />
+            </div>
+            <div className="card-footer">
+                <div className="btn-group mr-2">
+                    <button className={"btn btn-primary" + (email.Template != null && email.Template.length > 0 && hasChanged ? '' : ' disabled')} type="submit"
+                        onClick={() => { if (email.Template != null && email.Template.length > 0 && hasChanged) dispatch(EmailTypeSlice.DBAction({ verb: 'PATCH', record: email })); }}
+                        data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                </div>
+                <ToolTip Show={(email.Template == null || email.Template.length == 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+                    {!hasChanged ? <p> No changes made.</p> : null}
+                    {email.Template == null || email.Template.length == 0 ? <p> {CrossMark} A valid Template is required.</p> : null}
+                   
+                </ToolTip>
+                <div className="btn-group mr-2">
+                    <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
+                        onClick={() => { setEmail(props.Record); setHasChanged(false); }}
+                        onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
+                </div>
+                <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+                    {hasChanged? <p> {Warning} Changes to Template will be discarded.</p> : null}
+                </ToolTip>
+            </div>
+
+        </div>
+        )
+}
+
+export default Template;

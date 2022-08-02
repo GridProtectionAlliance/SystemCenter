@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "downlevelIteration": true,
+    "jsx": "react",
+    "lib": [ "dom", "es5", "scripthost", "es2015", "es6" ],
+    "noEmitOnError": true,
+    "noImplicitAny": false,
+    "removeComments": false,
+    "inlineSourceMap": false,
+    "target": "es5",
+    "esModuleInterop": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "skipLibCheck": true
+  },
+  "include": [ "Scripts/**/*" ],
+  "exclude": [
+    "./node_modules/*"
+  ]
+}
