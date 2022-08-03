@@ -101,6 +101,38 @@ namespace SystemCenter.Notifications.Controllers
 
         }
 
+        [Route("Phone"), HttpGet]
+        public IHttpActionResult ConfirmPhone()
+        {
+            try
+            {
+                UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
+                userInfo.Initialize();
+
+                string username = System.Web.HttpContext.Current.User.Identity.Name;
+                string usersid = UserInfo.UserNameToSID(username);
+
+                ConfirmableUserAccount account;
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                {
+                    account = new TableOperations<ConfirmableUserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
+
+
+                    if (account.PhoneConfirmed)
+                        return Ok(1);
+
+                    else
+                        connection.ExecuteNonQuery("UPDATE UserAccount SET PhoneConfirmed = 1 WHERE ID = {0}", account.ID);
+                    return Ok(1);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+
+
+        }
 
         [Route("ResendEmail"), HttpGet]
         public IHttpActionResult ResendEmail()
@@ -160,7 +192,7 @@ namespace SystemCenter.Notifications.Controllers
                     account = new TableOperations<ConfirmableUserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
 
 
-                    if (account.EmailConfirmed)
+                    if (account.PhoneConfirmed)
                         return Ok(1);
 
                     //Send Text from openXDA
@@ -172,8 +204,10 @@ namespace SystemCenter.Notifications.Controllers
                     }
 
                     HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/sendTextVerification/{account.ID}").Result;
-
-                    return Ok(1);
+                    int code = 0;
+                    if (responseMessage.IsSuccessStatusCode)
+                        code =  int.Parse(responseMessage.Content.ReadAsStringAsync().Result);
+                    return Ok(code);
                 }
             }
             catch (Exception ex)

@@ -55,6 +55,11 @@ const EventFilter = (props: IProps) => {
             setFilter(props.Filter);
     }, [props.Show])
 
+    React.useEffect(() => {
+        if (filter.EventTypes.length == 0 && eventTypes.length > 0)
+            setFilter((f) => ({ ...f, EventTypes: eventTypes.map(e => e.ID) }));
+    }, [eventTypes, filter.EventTypes]);
+
     return (
         <>
         <Modal Title={'Event Filter'}
@@ -80,13 +85,21 @@ const EventFilter = (props: IProps) => {
                         <fieldset className="border" style={{ padding: '10px', height: '100%', width: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large', width: '50%' }}>Event Types:</legend>
                             <form>
-                                <ul style={{ listStyleType: 'none', padding: 0, width: '33%', position: 'relative', float: 'left' }}>
-                                    {eventTypes.map((et, i) => (i%3 == 1? <li key={et.ID}> <label><input type="checkbox" onChange={() => {
-                                        if (filter.EventTypes.find((i) => i == et.ID) != null)
-                                            setFilter((f) => ({ ...f, EventTypes: f.EventTypes.filter(i => i != et.ID) }));
-                                        else
-                                            setFilter((f) => ({ ...f, EventTypes: [...f.EventTypes, et.ID] }));
-                                    }} checked={filter.EventTypes.find((i) => i == et.ID) != null} /> {et.Description} </label></li> : null))}
+                                    <ul style={{ listStyleType: 'none', padding: 0, width: '33%', position: 'relative', float: 'left' }}>
+                                        <li> <label><input type="checkbox" onChange={() => {
+                                            if (filter.EventTypes.length == eventTypes.length)
+                                                setFilter((f) => ({ ...f, EventTypes: [eventTypes[0].ID] }));
+                                            else
+                                                setFilter((f) => ({ ...f, EventTypes: eventTypes.map(e => e.ID) }));
+                                        }} checked={filter.EventTypes.length == eventTypes.length} /> All </label></li>
+
+                                        {eventTypes.map((et, i) => (i % 3 == 1 ? <li key={et.ID}> <label><input type="checkbox" onChange={() => {
+                                            if (filter.EventTypes.find((i) => i == et.ID) != null)
+                                                setFilter((f) => ({ ...f, EventTypes: f.EventTypes.filter(i => i != et.ID) }));
+                                            else
+                                                setFilter((f) => ({ ...f, EventTypes: [...f.EventTypes, et.ID] }));
+                                        }} checked={filter.EventTypes.find((i) => i == et.ID) != null} disabled={filter.EventTypes.length == 1 && filter.EventTypes.find((i) => i == et.ID) != null}
+                                        /> {et.Description} </label></li> : null))}
                                 </ul>
                                 <ul style={{ listStyleType: 'none', padding: 0, width: '34%', position: 'relative', float: 'left' }}>
                                     {eventTypes.map((et, i) => (i % 3 == 2 ?<li key={et.ID}> <label><input type="checkbox" onChange={() => {
@@ -94,7 +107,8 @@ const EventFilter = (props: IProps) => {
                                             setFilter((f) => ({ ...f, EventTypes: f.EventTypes.filter(i => i != et.ID) }));
                                         else
                                             setFilter((f) => ({ ...f, EventTypes: [...f.EventTypes, et.ID] }));
-                                    }} checked={filter.EventTypes.find((i) => i == et.ID) != null} /> {et.Description} </label></li> : null))}
+                                    }} checked={filter.EventTypes.find((i) => i == et.ID) != null} disabled={filter.EventTypes.length == 1 && filter.EventTypes.find((i) => i == et.ID) != null}
+                                    /> {et.Description} </label></li> : null))}
                                 </ul>
                                 <ul style={{ listStyleType: 'none', padding: 0, width: '33%', position: 'relative', float: 'right' }}>
                                     {eventTypes.map((et, i) => (i % 3 == 0 ?<li key={et.ID}> <label><input type="checkbox" onChange={() => {
@@ -102,7 +116,8 @@ const EventFilter = (props: IProps) => {
                                             setFilter((f) => ({ ...f, EventTypes: f.EventTypes.filter(i => i != et.ID) }));
                                         else
                                             setFilter((f) => ({ ...f, EventTypes: [...f.EventTypes, et.ID] }));
-                                    }} checked={filter.EventTypes.find((i) => i == et.ID) != null} /> {et.Description} </label></li>: null))}
+                                    }} checked={filter.EventTypes.find((i) => i == et.ID) != null} disabled={filter.EventTypes.length == 1 && filter.EventTypes.find((i) => i == et.ID) != null}
+                                    /> {et.Description} </label></li> : null))}
                                 </ul>
                             </form>
                         </fieldset>                      

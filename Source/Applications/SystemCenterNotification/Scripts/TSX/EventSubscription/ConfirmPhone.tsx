@@ -30,6 +30,7 @@ import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { EmailType } from '../global';
 import { EmailCategorySlice, EmailTypeSlice, SettingSlice, UserInfoSlice } from '../Store';
 import * as $ from 'jquery';
+import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
 
 declare var homePath;
 declare var version;
@@ -42,7 +43,8 @@ const ConfirmPhone = (props: IProps) => {
     const dispatch = useDispatch();
 
     const [forceResend, setForceResend] = React.useState<number>(-1);
-    const [number, setNumber] = React.useState<number>(9874);
+    const [number, setNumber] = React.useState<number>(0);
+    const [code, setCode] = React.useState<number>(-1);
 
     const confirmed = useSelector(UserInfoSlice.ConfirmedPhone);
 
@@ -52,12 +54,12 @@ const ConfirmPhone = (props: IProps) => {
 
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}/api/Confirm/ResendText`,
+            url: `${homePath}api/Confirm/ResendText`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            cache: true,
+            cache: false,
             async: true
-        })
+        }).then((d) => { setCode(d); })
 
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, [forceResend]);
@@ -68,47 +70,71 @@ const ConfirmPhone = (props: IProps) => {
             props.SetConfirmed();
     }, [confirmed]);
 
+    React.useEffect(() => {
+        if (code > 0 && code == number) 
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/Confirm/Phone`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        }).then((d) => {
+            dispatch(UserInfoSlice.Fetch());
+        });
+
+            }, [code, number])
     return <> <div className="row">
         <div className="col">
             <div className="row">
                 <div className="col">
                     <div className="alert alert-info" style={{ margin: 'auto' }}>
-                    Please confirm your phone number by entering the 4 digit code received by Text message.
+                    Please confirm your phone number by entering the 5 digit code received by Text message.
                     </div>
                 </div>
             </div>
-            <div className="row">
+            <div className="row" style={{ marginTop: 15 }}>
                 <div className="col">
                     <button type="button" className="btn btn-secondary btn-block" onClick={() => { setForceResend(x => x + 1) }}>Resend Text Message</button>
                 </div>
             </div>
-            <div className="row">
+            <div className="row" style={{ marginTop: 15 }}>
                 <div className="col">
                     <form>
                         <div className="form-row">
                             <div className="col-4">
                             </div>
                             <div className="col">
-                                <input type="number" max={9} min={0} className="form-control" value={Math.floor(number / 1000)} onChange={(evt) => {
-                                    setNumber(x => x + 1000*(-Math.floor(number / 1000) + parseInt(evt.target.value)))
+                                <input type="number" max={9} min={0} className="form-control" value={Math.floor(number / 10000)} onChange={(evt) => {
+                                    if (IsInteger(evt.target.value))
+                                        setNumber(x => x + 10000 * (-Math.floor(number / 10000) + parseInt(evt.target.value)))
+                                }} width={100} />
+                            </div>
+                            <div className="col">
+                                <input type="number" max={9} min={0} className="form-control" value={Math.floor(number / 1000) % 10} onChange={(evt) => {
+                                    if (IsInteger(evt.target.value))
+                                        setNumber(x => x + 1000 * (-Math.floor(number / 1000) % 10 + parseInt(evt.target.value)))
                                 }} />
                             </div>
                             <div className="col">
-                                <input type="number" max={9} min={0} className="form-control" value={Math.floor((number % 1000) / 100)} onChange={(evt) => {
-                                    setNumber(x => x + 100*(-Math.floor((number % 1000) / 100) +  parseInt(evt.target.value)))
+                                <input type="number" max={9} min={0} className="form-control" value={Math.floor((number % 1000) / 100) % 10} onChange={(evt) => {
+                                    if (IsNumber(evt.target.value))
+                                        setNumber(x => x + 100 * (-Math.floor((number % 1000) / 100) % 10 +  parseInt(evt.target.value)))
                                 }} />
                             </div>
                             <div className="col">
-                                <input type="number" max={9} min={0} className="form-control" value={Math.floor((number % 100) / 10)} onChange={(evt) => {
-                                    setNumber(x => x + 10*(-Math.floor((number % 100) / 10) + parseInt(evt.target.value)))
+                                <input type="number" max={9} min={0} className="form-control" value={Math.floor((number % 100) / 10) % 10} onChange={(evt) => {
+                                    if (IsNumber(evt.target.value))
+                                        setNumber(x => x + 10 * (-Math.floor((number % 100) / 10) % 10 + parseInt(evt.target.value)))
                                 }} />
                             </div>
                             <div className="col">
                                 <input type="number" max={9} min={0} className="form-control" value={number % 10} onChange={(evt) => {
-                                    setNumber(x => x - (x % 10) + parseInt(evt.target.value))
+                                    if (IsNumber(evt.target.value))
+                                        setNumber(x => x - (x % 10) + parseInt(evt.target.value))
                                 }} width={100} />
                             </div>
-                            <div className="col-4">
+                          
+                            <div className="col-3">
                             </div>
                         </div>
                     </form>

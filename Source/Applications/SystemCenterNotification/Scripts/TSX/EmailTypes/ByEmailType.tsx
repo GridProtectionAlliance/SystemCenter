@@ -81,7 +81,7 @@ const ByEmailType = (props: IProps) => {
             e.push('A Name is required');
         if (allData.findIndex(s => s.Name === newEmail.Name && s.ID !== newEmail.ID) >= 0)
             e.push('An Email with this Name already exists');
-        if (newEmail.EmailCategoryID > 0)
+        if (newEmail.EmailCategoryID < 0)
             e.push('A Category has to be selected.');
         if (!IsNumber(newEmail.MinDelay))
             e.push('A valid minimum delay is required.');
@@ -93,6 +93,11 @@ const ByEmailType = (props: IProps) => {
             e.push('The maximum delay can not be less than the minimum delay.')
         setErrors(e);
     }, [newEmail])
+
+    React.useEffect(() => {
+        if (newEmail.EmailCategoryID < 0 && categories.length > 0)
+            setNewEmail((e) => ({ ...e, EmailCategoryID: categories[0].ID }));
+    }, [newEmail, categories]);
 
     const searchFields: Search.IField<EmailType>[] = [
         { key: "Name", label: "Name", type: "string", isPivotField: false },

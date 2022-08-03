@@ -312,6 +312,7 @@
     <TypeScriptCompile Include="Scripts\TSX\EmailTypes\DatasourceUI\SQLDataSource.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\EmailTypes\DatasourceUI\DataSourceModal.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\EmailTypes\DatasourceUI\DataSourceWindow.tsx" />
+    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\TestEmail.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\EmailTypes\Template.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\EventFilterComponents\FilterSelect.tsx" />
     <TypeScriptCompile Include="Scripts\TSX\EventFilterComponents\EventFilterButton.tsx" />

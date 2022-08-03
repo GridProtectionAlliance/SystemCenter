@@ -85,12 +85,12 @@ const DataSourceModal = (props: IProps) => {
     React.useEffect(() => {
         if (props.Record == null)
             return;
-        const d = originalsettings;
+        const d = cloneDeep(originalsettings);
         getDefaults().forEach((ds) => {
             if (d.find(s => s.Name == ds.Name) == null)
                 d.push({ ...ds, TriggeredEmailDataSourceEmailTypeID: props.Record.ID })
         })
-        setCurrentSettings(originalsettings);
+        setCurrentSettings(d);
 
 
     }, [originalsettings])

@@ -60,18 +60,7 @@ const BySubscription = (props: IProps) => {
                 <div style={{ width: '100%' }}>
                     <nav className="navbar navbar-expand-lg navbar-light bg-light">
                         <div className="collapse navbar-collapse" style={{ width: '100%' }}>
-                            <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>
-                                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                                        <form>
-                                            <button className="btn btn-primary" onClick={(event) => { }}>
-                                                Add Subscription
-                                            </button>
-                                        </form>
-                                    </fieldset>
-                                </li>
-                                    
+                            <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>  
                             </ul>
                         </div>
                     </nav>

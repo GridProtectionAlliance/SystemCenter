@@ -23,8 +23,8 @@
 
 import { useDispatch } from 'react-redux';
 import * as React from 'react';
-import {ToolTip, Warning } from '@gpa-gemstone/react-interactive'
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ToolTip } from '@gpa-gemstone/react-interactive'
+import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
 import {  EmailType, IEvent } from '../../global';
 import {  EmailTypeSlice } from '../../Store';
 import EventSelect from './EventSelect';
@@ -79,7 +79,7 @@ const TriggerWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body">
+            <div className="card-body" style={{}}>
                 <div className="row">
                     <div className="col">
                         <EditSection
@@ -134,13 +134,13 @@ const TriggerWindow = (props: IProps) => {
                         onClick={() => { setEmail(props.Record); setHasChanged(false); }}
                         onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                 </div>
-                <ToolTip Show={triggerStatus == 'invalid' || aggregateStatus=='invalid'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                    {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> {Warning} Changes to Trigger SQL will be discarded.</p> : null}
-                    {props.Record.CombineEventsSQL != email.CombineEventsSQL ? <p> {Warning} Changes to Suppression SQL will be discarded.</p> : null}
-                </ToolTip>
-                <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+                <ToolTip Show={(triggerStatus == 'invalid' || aggregateStatus == 'invalid') && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
                     {triggerStatus == 'invalid' ? <p> {CrossMark} Trigger SQL is invalid.</p> : null}
                     {aggregateStatus == 'invalid' ? <p> {CrossMark} Suppression SQL is invalid.</p> : null}
+                </ToolTip>
+                <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+                    {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> {Warning} Changes to Trigger SQL will be discarded.</p> : null}
+                    {props.Record.CombineEventsSQL != email.CombineEventsSQL ? <p> {Warning} Changes to Suppression SQL will be discarded.</p> : null}
                 </ToolTip>
             </div>
 

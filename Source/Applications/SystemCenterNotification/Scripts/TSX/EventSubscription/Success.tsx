@@ -42,7 +42,7 @@ interface IProps {
 const Success = (props: IProps) => {
     const dispatch = useDispatch();
     const email = useSelector((state) => EmailTypeSlice.Datum(state, props.emailTypeID));
-    const assetGrp = useSelector((state) => AssetGroupSlice.Datum(state, props.emailTypeID));
+    const assetGrp = useSelector((state) => AssetGroupSlice.Datum(state, props.assetGroupID));
     const userID = useSelector(UserInfoSlice.UserAccountID);
 
     React.useEffect(() => {

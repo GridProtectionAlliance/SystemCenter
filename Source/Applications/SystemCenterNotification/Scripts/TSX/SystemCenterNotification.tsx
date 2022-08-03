@@ -36,6 +36,7 @@ import { useParams } from 'react-router-dom';
 import BySubscription from './Subscriptions/Event/BySubscription';
 import { UserInfoSlice } from './Store';
 import ByAllSubscription from './Subscriptions/Event/ByAllSubscription';
+import EmailConfirmed from './EventSubscription/EmailConfirmed';
 
 declare var homePath;
 declare var version;
@@ -89,7 +90,7 @@ const MainPage = (props: {}) => {
                 </Page>
             </Section>
             <Page Name='ConfirmEmail' >
-                <EmailPage useParams={{ id: '1' }} />
+                <EmailConfirmed />
             </Page>
         </App>
     );

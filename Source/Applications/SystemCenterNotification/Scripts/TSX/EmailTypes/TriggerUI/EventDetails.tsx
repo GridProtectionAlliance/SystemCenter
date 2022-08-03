@@ -53,7 +53,7 @@ const EventDetails = (props: IProps) => {
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true,
-            data: props.CombineSQL
+            data: JSON.stringify({ sql: props.CombineSQL })
         }).then((d) => {
             props.SetStatus(true, false);
             setData(d);
@@ -77,7 +77,7 @@ const EventDetails = (props: IProps) => {
                 cols={[
                     {
                         key: 'StartTime', field: 'StartTime', label: 'Time', headerStyle: { width: '20%' }, rowStyle: { width: '20%' },
-                        content: (r) => <> {moment(r.StartTime).format("MM/DD/YYYY")} <br /> {moment(r.StartTime).format("HH:mm:ss.fffff")}  </>
+                        content: (r) => <> {moment(r.StartTime).format("MM/DD/YYYY")} <br /> {moment(r.StartTime).format("HH:mm:ss.ssss")}  </>
                     },
                     { key: 'Asset', field: 'Asset', label: 'Asset', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
                     { key: 'Meter', field: 'Meter', label: 'Meter', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },

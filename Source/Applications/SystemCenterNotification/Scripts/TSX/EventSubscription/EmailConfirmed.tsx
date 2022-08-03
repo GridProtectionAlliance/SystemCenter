@@ -48,10 +48,9 @@ const EmailConfirmed = (props: {}) => {
         setLoading(true);
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}/api/Confirm/Email`,
+            url: `${homePath}api/Confirm/Email`,
             contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
+            cache: false,
             async: true
         }).then((d) => {
             setLoading(false);

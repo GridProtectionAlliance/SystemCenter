@@ -64,10 +64,9 @@ const EmailSelect = (props: IProps) => {
 
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}/api/Confirm/ResendEmail`,
+            url: `${homePath}api/Confirm/ResendEmail`,
             contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
+            cache: false,
             async: true
         })
 

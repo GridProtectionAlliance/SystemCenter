@@ -23,7 +23,7 @@
 
 import { useDispatch, useSelector } from 'react-redux';
 import * as React from 'react';
-import { TabSelector, Warning, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive'
+import { TabSelector, Warning, LoadingScreen, ServerErrorIcon, Modal } from '@gpa-gemstone/react-interactive'
 import { Application } from '@gpa-gemstone/application-typings';
 import { EmailTypeSlice } from '../Store';
 import GeneralInfo from './GeneralInfo';
@@ -31,6 +31,7 @@ import Subscriptions from './Subscriptions';
 import TriggerWindow from './TriggerUI/TriggerWindow';
 import DataSourceWindow from './DatasourceUI/DataSourceWindow';
 import Template from './Template';
+import TestEmail from './TestEmail';
 
 declare var homePath;
 declare var version;
@@ -44,6 +45,7 @@ const EmailPage = (props: IProps) => {
     const dispatch = useDispatch();
 
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
+    const [showTest, setShowTest] = React.useState<boolean>(false);
 
     const email = useSelector((state) => EmailTypeSlice.Datum(state, parseInt(props.useParams.id)));
     const status: Application.Types.Status = useSelector(EmailTypeSlice.Status);
@@ -70,7 +72,8 @@ const EmailPage = (props: IProps) => {
                         <h2>{email != null ? email.Name : ''}</h2>
                     </div>
                     <div className="col">
-                        <button className="btn btn-danger float-right" hidden={location == null} onClick={() => setShowDelete(true)}>Delete Email</button>
+                        <button className="btn btn-danger float-right" onClick={() => setShowDelete(true)}>Delete Email</button>
+                        <button className="btn btn-primary float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Email</button>
                     </div>
                 </div>
 
@@ -83,23 +86,23 @@ const EmailPage = (props: IProps) => {
                     { Label: ' Subscriptions', Id: 'subscriptions' }
                 ]} />
 
-                <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
-                    {tab == "settings" ? <div className={"tab-pane active"} id="settings">
-                        <GeneralInfo Record={email} />
-                    </div> : null}
-                    {tab == "template" ? <div className={"tab-pane active"} id="template">
-                        <Template Record={email} />
-                    </div> : null}
-                    {tab == "dataSources" ? <div className={"tab-pane active"} id="dataSources">
-                        <DataSourceWindow Record={email} />
-                    </div> : null}
-                    {tab == 'trigger' ? <div className={"tab-pane active"} id="trigger">
-                        <TriggerWindow Record={email} />
-                    </div> : null}
-                    {tab == 'subscriptions' ? <div className={"tab-pane active"} id="subscriptions">
-                        <Subscriptions Record={email} />
-                    </div> : null}
-                </div>
+               
+                {tab == "settings" ? <div className={"tab-pane active"} id="settings">
+                    <GeneralInfo Record={email} />
+                </div> : null}
+                {tab == "template" ? <div className={"tab-pane active"} id="template">
+                    <Template Record={email} />
+                </div> : null}
+                {tab == "dataSources" ? <div className={"tab-pane active"} id="dataSources">
+                    <DataSourceWindow Record={email} />
+                </div> : null}
+                {tab == 'trigger' ? <div className={"tab-pane active"} id="trigger">
+                    <TriggerWindow Record={email} />
+                </div> : null}
+                {tab == 'subscriptions' ? <div className={"tab-pane active"} id="subscriptions">
+                    <Subscriptions Record={email} />
+                </div> : null}
+                <TestEmail show={showTest} OnClose={() => setShowTest(false)} record={email} />
                 <Warning Message={'This will permanently delete this notification and can not be undone.'} Show={showDelete} Title={'Delete ' + (email !== undefined? email.Name : '')}
                     CallBack={(conf) => { if (conf) dispatch(EmailTypeSlice.DBAction({ verb: 'DELETE', record: email })); }} />
             </div>

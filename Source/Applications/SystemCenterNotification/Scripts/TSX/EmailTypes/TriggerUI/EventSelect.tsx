@@ -95,7 +95,6 @@ const EventSelect = (props: IProps) => {
                             <h5>Notification Events:</h5>
                         </div>
                         <div className="col">
-                        <button className="btn btn-primary float-right" style={{ marginLeft: 5 }} onClick={() => { }}>SEBrowser</button>
                         <button className="btn btn-primary float-right" style={{ marginLeft: 5 }} onClick={() => setShowModal(true)}>Filter</button>
                         </div>
                     </div>
@@ -105,7 +104,7 @@ const EventSelect = (props: IProps) => {
                     cols={[
                         {
                             key: 'StartTime', field: 'StartTime', label: 'Time', headerStyle: { width: '20%' }, rowStyle: { width: '20%' },
-                            content: (r) => <> {moment(r.StartTime).format("MM/DD/YYYY")} <br /> {moment(r.StartTime).format("HH:mm:ss.fffff")}  </>
+                            content: (r) => <> {moment(r.StartTime).format("MM/DD/YYYY")} <br /> {moment(r.StartTime).format("HH:mm:ss.ssss")}  </>
                         },
                         { key: 'Asset', field: 'Asset', label: 'Asset', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
                         { key: 'Meter', field: 'Meter', label: 'Meter', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
@@ -119,7 +118,7 @@ const EventSelect = (props: IProps) => {
                     onSort={(d) => { }}
                     onClick={(item) => { props.SetSelectedEvent(item.row.EventID); }}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', height: 'calc(100 % - 50 px)', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', height: 'calc(100 % - 50 px)', width: '100%', maxHeight: 200 }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     selected={(record) => record.EventID == props.SelectedEventID}
                 />}

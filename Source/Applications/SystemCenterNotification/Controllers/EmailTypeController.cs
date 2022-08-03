@@ -23,9 +23,11 @@
 using GSF.Data;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
+using openXDA.APIAuthentication;
 using openXDA.Model;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Web.Http;
 
 namespace SystemCenter.Notifications.Controllers
@@ -56,6 +58,38 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/OpenXDA/EmailType")]
     public class EmailTypeController : ModelController<EmailType>
     {
+        const string SettingsCategory = "systemSettings";
+
+        #region [ Properties ]
+        public string Host
+        {
+            get
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
+                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.Url'") ?? "";
+            }
+        }
+
+        public string Key
+        {
+            get
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
+                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIKey'") ?? "";
+            }
+        }
+
+        public string Token
+        {
+            get
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
+                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIToken'") ?? "";
+            }
+        }
+
+        #endregion
+
         [HttpPost, Route("GetEvents")]
         public IHttpActionResult TestTrigger([FromBody] PostEventFilter content)
         {
@@ -117,14 +151,16 @@ namespace SystemCenter.Notifications.Controllers
         }
 
         [HttpPost, Route("GetCombined/{eventID:int}")]
-        public IHttpActionResult GetCombined(int eventID, [FromBody] string combineSQL)
+        public IHttpActionResult GetCombined(int eventID, [FromBody] JObject postObject)
         {
             if (!PostAuthCheck())
                 return Unauthorized();
 
             try
             {
-               
+                string combineSQL = postObject.GetValue("sql").ToString();
+
+
                 string sql = $@"
                 SELECT TOP 100 
                     E.StartTime, 
@@ -151,5 +187,30 @@ namespace SystemCenter.Notifications.Controllers
             }
         }
 
+        [HttpGet, Route("Test/{eventID:int}/{emailID:int}/{recipient}")]
+        public IHttpActionResult Test(int eventID,int emailID, string recipient)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+            try
+            {
+                //Send Email from openXDA
+                APIQuery query = new APIQuery(Key, Token, Host.Split(';'));
+
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Get;
+                }
+
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testEmail/{emailID}/{eventID}/{recipient}").Result;
+
+                return Ok(1);
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 }
