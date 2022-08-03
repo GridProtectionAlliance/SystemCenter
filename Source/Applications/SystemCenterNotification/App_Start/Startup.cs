@@ -90,7 +90,7 @@ namespace SystemCenter.Notifications
             s_authenticationOptions = new AuthenticationOptions
             {
                 LoginPage = LoginPage,
-                LoginHeader = $"<h3><img src=\"{Resources.Root}/Shared/Images/gpa-smalllock.png\"/> {ApplicationName}</h3>",
+                LoginHeader = $"<h3><img src=\"{LoginIcon}\"/> {ApplicationName}</h3>",
                 AnonymousResourceExpression = AnonymousResourceExpression,
                 AuthFailureRedirectResourceExpression = @"^/$|^/.+$",
                 AuthTestPage = AuthTestPage
