@@ -286,6 +286,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\SystemCenter.png" />
+    <Content Include="Scripts\SystemCenterNotification.js" />
     <Content Include="webpack.config.js" />
     <Content Include="package.json" />
     <Content Include="Web.config">
@@ -299,42 +300,42 @@
     <Content Include="tsconfig.json" />
   </ItemGroup>
   <ItemGroup>
-    <TypeScriptCompile Include="Scripts\TSX\EmailCategory\EmailList.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailCategory\EmailCategoryWindow.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailCategory\EmailCategoryPage.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailCategory\EmailCategoryForm.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailCategory\ByEmailCategory.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\ByEmailType.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\DatasourceUI\SQLDataSource.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\DatasourceUI\DataSourceModal.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\DatasourceUI\DataSourceWindow.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\TestEmail.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\Template.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EventFilterComponents\FilterSelect.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EventFilterComponents\EventFilterButton.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EventFilterComponents\EventFilter.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\TriggerUI\EventDetails.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\TriggerUI\EventSelect.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\TriggerUI\TriggerWindow.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\Subscriptions.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\GeneralInfo.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\EmailPage.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EmailTypes\EmailForm.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EventSubscription\AssetGroupSelection.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EventSubscription\Success.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EventSubscription\EmailConfirmed.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EventSubscription\ConfirmEmail.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EventSubscription\ConfirmPhone.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EventSubscription\UserSelect.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EventSubscription\EmailSelect.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\EventSubscription\NewEventSubscription.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\global.d.ts" />
-    <TypeScriptCompile Include="Scripts\TSX\Store.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\Store\UserInfoSlice.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\Subscriptions\Event\AddAllSubscription.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\Subscriptions\Event\ByAllSubscription.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\Subscriptions\Event\BySubscription.tsx" />
-    <TypeScriptCompile Include="Scripts\TSX\SystemCenterNotification.tsx" />
+    <Content Include="Scripts\TSX\EmailCategory\EmailList.tsx" />
+    <Content Include="Scripts\TSX\EmailCategory\EmailCategoryWindow.tsx" />
+    <Content Include="Scripts\TSX\EmailCategory\EmailCategoryPage.tsx" />
+    <Content Include="Scripts\TSX\EmailCategory\EmailCategoryForm.tsx" />
+    <Content Include="Scripts\TSX\EmailCategory\ByEmailCategory.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\ByEmailType.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\DatasourceUI\SQLDataSource.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\DatasourceUI\DataSourceModal.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\DatasourceUI\DataSourceWindow.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\TestEmail.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\Template.tsx" />
+    <Content Include="Scripts\TSX\EventFilterComponents\FilterSelect.tsx" />
+    <Content Include="Scripts\TSX\EventFilterComponents\EventFilterButton.tsx" />
+    <Content Include="Scripts\TSX\EventFilterComponents\EventFilter.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\TriggerUI\EventDetails.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\TriggerUI\EventSelect.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\TriggerUI\TriggerWindow.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\Subscriptions.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\GeneralInfo.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\EmailPage.tsx" />
+    <Content Include="Scripts\TSX\EmailTypes\EmailForm.tsx" />
+    <Content Include="Scripts\TSX\EventSubscription\AssetGroupSelection.tsx" />
+    <Content Include="Scripts\TSX\EventSubscription\Success.tsx" />
+    <Content Include="Scripts\TSX\EventSubscription\EmailConfirmed.tsx" />
+    <Content Include="Scripts\TSX\EventSubscription\ConfirmEmail.tsx" />
+    <Content Include="Scripts\TSX\EventSubscription\ConfirmPhone.tsx" />
+    <Content Include="Scripts\TSX\EventSubscription\UserSelect.tsx" />
+    <Content Include="Scripts\TSX\EventSubscription\EmailSelect.tsx" />
+    <Content Include="Scripts\TSX\EventSubscription\NewEventSubscription.tsx" />
+    <Content Include="Scripts\TSX\global.d.ts" />
+    <Content Include="Scripts\TSX\Store.tsx" />
+    <Content Include="Scripts\TSX\Store\UserInfoSlice.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Event\AddAllSubscription.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Event\ByAllSubscription.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Event\BySubscription.tsx" />
+    <Content Include="Scripts\TSX\SystemCenterNotification.tsx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Views\Login\AuthTest.cshtml" />
@@ -351,6 +352,11 @@
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <ExcludeFoldersFromDeployment>Scripts\TSX</ExcludeFoldersFromDeployment>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
   </PropertyGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />

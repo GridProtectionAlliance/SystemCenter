@@ -39,6 +39,8 @@
   "scripts": {
     "build": "set NODE_OPTIONS=--openssl-legacy-provider && npm prune && npm install && webpack --mode=development",
     "watch": "webpack --watch --color --mode=development",
-    "update": "npx npm-check-updates"
+    "update": "npx npm-check-updates",
+    "builddebug": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --mode=none",
+    "buildrelease": "set NODE_OPTIONS=--openssl-legacy-provider && npm prune && npm install && webpack --mode=production"
   }
 }
