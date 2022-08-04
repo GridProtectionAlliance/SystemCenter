@@ -20,6 +20,7 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
+using GSF.Configuration;
 using GSF.Data;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
@@ -27,8 +28,11 @@ using openXDA.APIAuthentication;
 using openXDA.Model;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net.Http;
 using System.Web.Http;
+using SystemCenter.Notifications.Model;
+using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
 
 namespace SystemCenter.Notifications.Controllers
 {
@@ -58,37 +62,15 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/OpenXDA/EmailType")]
     public class EmailTypeController : ModelController<EmailType>
     {
-        const string SettingsCategory = "systemSettings";
-
-        #region [ Properties ]
-        public string Host
+        private class Settings
         {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.Url'") ?? "";
-            }
-        }
+            public Settings(Action<object> configure) =>
+                configure(this);
 
-        public string Key
-        {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIKey'") ?? "";
-            }
+            [Category]
+            [SettingName("XDA")]
+            public APIConfiguration APISettings { get; } = new APIConfiguration();
         }
-
-        public string Token
-        {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIToken'") ?? "";
-            }
-        }
-
-        #endregion
 
         [HttpPost, Route("GetEvents")]
         public IHttpActionResult TestTrigger([FromBody] PostEventFilter content)
@@ -140,7 +122,7 @@ namespace SystemCenter.Notifications.Controllers
                     {groupFilter}
                 ORDER BY StartTime DESC";
 
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = CreateDbConnection())
                     return Ok(connection.RetrieveData(sql, content.Start, content.End));
                
             }
@@ -177,7 +159,7 @@ namespace SystemCenter.Notifications.Controllers
                 WHERE E.ID IN ({string.Format(combineSQL, eventID)})
                 ORDER BY StartTime DESC";
 
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = CreateDbConnection())
                     return Ok(connection.RetrieveData(sql));
 
             }
@@ -194,8 +176,10 @@ namespace SystemCenter.Notifications.Controllers
                 return Unauthorized();
             try
             {
+                Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+
                 //Send Email from openXDA
-                APIQuery query = new APIQuery(Key, Token, Host.Split(';'));
+                APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
 
                 void ConfigureRequest(HttpRequestMessage request)
                 {
@@ -211,6 +195,43 @@ namespace SystemCenter.Notifications.Controllers
             {
                 return InternalServerError(ex);
             }
+        }
+
+        [HttpGet, Route("GetData/{eventID:int}/{emailID:int}")]
+        public IHttpActionResult GetData(int eventID, int emailID)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+            try
+            {
+                Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+
+                //Send Email from openXDA
+                APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
+
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Get;
+                }
+
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testData/{emailID}/{eventID}").Result;
+
+                string r = responseMessage.Content.ReadAsStringAsync().Result;
+                return Ok(1);
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+
+        private AdoDataConnection CreateDbConnection()
+        {
+            AdoDataConnection connection = new AdoDataConnection(Connection);
+            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
+            return connection;
         }
     }
 }

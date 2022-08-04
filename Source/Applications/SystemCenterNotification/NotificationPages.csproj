@@ -269,6 +269,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="GlobalSettings.cs" />
+    <Compile Include="Model\APIConfiguration.cs" />
     <Compile Include="Model\ConfigurationLoader.cs" />
     <Compile Include="Model\UserInformation.cs" />
     <Compile Include="Model\AppModel.cs" />
