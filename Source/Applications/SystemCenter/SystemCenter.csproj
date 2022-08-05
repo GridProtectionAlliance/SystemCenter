@@ -239,6 +239,8 @@
     <Compile Include="Controllers\SystemCenter\PQIController.cs" />
     <Compile Include="Controllers\SystemCenter\RVHTController.cs" />
     <Compile Include="Controllers\SystemCenter\SystemCenterController.cs" />
+    <Compile Include="Model\Configuration\APIConfiguration.cs" />
+    <Compile Include="Model\Configuration\ConfigurationLoader.cs" />
     <Compile Include="Model\Security\RemoteUserAccount.cs" />
     <Compile Include="ScheduledTasks\OpenMICMeterStatisticOperation.cs" />
     <Compile Include="ScheduledTasks\UserAccountMetaDataUpdater.cs" />

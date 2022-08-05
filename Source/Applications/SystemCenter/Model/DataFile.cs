@@ -34,6 +34,8 @@ using openXDA.Model;
 using openXDA.APIAuthentication;
 using System;
 using System.Net.Http;
+using System.ComponentModel;
+using GSF.Configuration;
 
 namespace SystemCenter.Model
 {
@@ -61,33 +63,14 @@ namespace SystemCenter.Model
     [RoutePrefix("api/OpenXDA/DataFile")]
     public class OpenXDADataFileController : ModelController<DataFile> {
 
-        const string SettingsCategory = "systemSettings";
-
-        public string Host
+        private class Settings
         {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.Url'") ?? "";
-            }
-        }
+            public Settings(Action<object> configure) =>
+                configure(this);
 
-        public string Key
-        {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIKey'") ?? "";
-            }
-        }
-
-        public string Token
-        {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIToken'") ?? "";
-            }
+            [Category]
+            [SettingName("XDA")]
+            public APIConfiguration APISettings { get; } = new APIConfiguration();
         }
 
         [HttpGet]
@@ -97,7 +80,7 @@ namespace SystemCenter.Model
 
             if (GetAuthCheck())
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = CreateDbConnection())
                 {
 
                     try
@@ -124,7 +107,9 @@ namespace SystemCenter.Model
 
             if (PatchAuthCheck())
             {
-                APIQuery query = new APIQuery(Key,Token,Host.Split(';'));
+                APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+
+                APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
 
                 void ConfigureRequest(HttpRequestMessage request)
                 {
@@ -138,6 +123,13 @@ namespace SystemCenter.Model
             {
                 return Unauthorized();
             }
+        }
+
+        private AdoDataConnection CreateDbConnection()
+        {
+            AdoDataConnection connection = new AdoDataConnection(Connection);
+            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
+            return connection;
         }
     }
 

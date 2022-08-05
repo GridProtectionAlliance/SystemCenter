@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
@@ -31,6 +32,7 @@ using System.Net.Http.Headers;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Web.Http;
+using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Security.Model;
@@ -42,6 +44,7 @@ using openXDA.APIAuthentication;
 using openXDA.Model;
 using PQView.Model;
 using SystemCenter.Model;
+using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
@@ -468,46 +471,14 @@ namespace SystemCenter.Controllers.OpenXDA
     {
         #region [Properties]
 
-        /// <summary>
-        /// Local XDA URL
-        /// </summary>
-
-        const string SettingsCategory = "systemSettings";
-
-        public string Host
+        private class Settings
         {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.Url'") ?? "http://localhost:8989";
-            }
-        }
+            public Settings(Action<object> configure) =>
+                configure(this);
 
-        public string Key
-        {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIKey'") ?? "";
-            }
-        }
-
-        public string Token
-        {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIToken'") ?? "";
-            }
-        }
-
-        public string ClientID
-        {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.ClientID'") ?? "SystemCenter";
-            }
+            [Category]
+            [SettingName("XDA")]
+            public APIConfiguration APISettings { get; } = new APIConfiguration();
         }
 
         #endregion
@@ -529,6 +500,7 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        // #ToDo check what ClienID is used for on the openXDA side.. most likely not necessary
         [HttpGet, Route("ConfigPush/{remoteInstanceID}")]
         public virtual IHttpActionResult PushRemoteConfig(int remoteInstanceID)
         {
@@ -536,7 +508,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 return Unauthorized();
             try
             {
-                Task<string> responseTask = SendGetRequest($"/api/DataPusher/SyncInstanceConfig/{ClientID}/{remoteInstanceID}");
+                Task<string> responseTask = SendGetRequest($"/api/DataPusher/SyncInstanceConfig/SystemCenter/{remoteInstanceID}");
                 return Ok("1");
             }
             catch (Exception ex)
@@ -548,7 +520,9 @@ namespace SystemCenter.Controllers.OpenXDA
 
         private async Task<string> SendGetRequest(string requestURI)
         {
-            APIQuery query = new APIQuery(Key, Token, Host.Split(';'));
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+
+            APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
             void ConfigureRequest(HttpRequestMessage request)
             {
                 request.Method = HttpMethod.Get;
@@ -563,7 +537,15 @@ namespace SystemCenter.Controllers.OpenXDA
 
         }
 
+        private AdoDataConnection CreateDbConnection()
+        {
+            AdoDataConnection connection = new AdoDataConnection(Connection);
+            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
+            return connection;
+        }
     }
+
+
 
     [RoutePrefix("api/OpenXDA/RemoteXDAAsset")]
     public class RemoteXDAAssetController : ModelController<RemoteXDAAsset>

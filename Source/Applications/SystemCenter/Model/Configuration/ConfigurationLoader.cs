@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
 //  ConfigurationLoader.cs - Gbtc
 //
-//  Copyright © 2018, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2021, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,29 +16,30 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  09/10/2018 - Billy Ernest
+//  06/28/2021 - Billy Ernest
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-using GSF.Configuration;
+
+
 using GSF.Data;
 using GSF.Data.Model;
-using openXDA.Model;
-using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Configuration;
 using System.Linq;
+using System;
 using GSF;
+using GSF.Configuration;
+using System.Configuration;
+using System.ComponentModel;
 
-namespace SystemCenter.Notifications.Model
+namespace SystemCenter.Model
 {
     /// <summary>
     /// Loads settings form openXDA and SystemCenter Settings Tables.
     /// </summary>
     /// <remarks>
-    /// This is a derivative of the openXDA Configuration Loader but specifically for SYstemCenterNotifications
+    /// This is a derivative of the openXDA Configuration Loader but specifically for SystemCenter
     /// </remarks>
     public class ConfigurationLoader
     {
@@ -132,7 +133,7 @@ namespace SystemCenter.Notifications.Model
         {
             return key.Split('.').Append(value).ToArray();
         }
-        
+
 
         #endregion
 
