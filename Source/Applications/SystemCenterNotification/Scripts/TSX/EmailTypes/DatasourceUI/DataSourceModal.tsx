@@ -30,6 +30,7 @@ import { TriggeredDataSourceSettingSlice, TriggeredDataSourceSlice, TriggeredEma
 import { Select } from '@gpa-gemstone/react-forms';
 import SQLDataSource from './SQLDataSource';
 import { cloneDeep } from 'lodash'
+import PQIDataSource from './PQIDataSource';
 
 declare var homePath;
 declare var version;
@@ -122,6 +123,13 @@ const DataSourceModal = (props: IProps) => {
                 SetSetting={updateSettings}
                 Settings={currentSetings}
             > {StandardUI()}</SQLDataSource.UI>;
+        if (type.ConfigUI == 'pqi')
+            return <PQIDataSource.UI
+                DataSourceID={record.ID}
+                SetErrors={setErrors}
+                SetSetting={updateSettings}
+                Settings={currentSetings}
+            > {StandardUI()}</PQIDataSource.UI>;
 
         return null;
     }
@@ -135,7 +143,8 @@ const DataSourceModal = (props: IProps) => {
 
         if (type.ConfigUI == 'sql')
             return SQLDataSource.Defaults
-
+        if (type.ConfigUI == 'pqi')
+            return PQIDataSource.Defaults
         return [];
     }
     function StandardUI() {
