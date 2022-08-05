@@ -77,7 +77,7 @@ const EventFilter = (props: IProps) => {
                         <fieldset className="border" style={{ padding: '10px', height: '100%', width: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large', width: '50%' }}>Time Window:</legend>
                                 <div className="">
-                                    <DateRangePicker<IEventFilter> Label='' Record={filter} Setter={setFilter} FromField={'Start'} ToField={'End'} Valid={() => true} />
+                                    <DateRangePicker<IEventFilter> Label='' Record={filter} Setter={setFilter} FromField={'Start'} ToField={'End'} Type={'datetime-local'} Valid={() => true} Format={'YYYY-MM-DDTHH:mm:ssZ'} />
                             </div>
                         </fieldset>
                     </div>

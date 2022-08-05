@@ -23,6 +23,7 @@
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Web.Model;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using openXDA.Model;
@@ -31,6 +32,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Net.Http;
 using System.Web.Http;
+using System.Xml;
 using SystemCenter.Notifications.Model;
 using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
 
@@ -216,8 +218,11 @@ namespace SystemCenter.Notifications.Controllers
 
                 HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testData/{emailID}/{eventID}").Result;
 
-                string r = responseMessage.Content.ReadAsStringAsync().Result;
-                return Ok(1);
+                responseMessage.EnsureSuccessStatusCode();
+
+                XmlDocument response = JsonConvert.DeserializeXmlNode(responseMessage.Content.ReadAsStringAsync().Result);
+                
+                return Ok(response.OuterXml);
 
             }
             catch (Exception ex)

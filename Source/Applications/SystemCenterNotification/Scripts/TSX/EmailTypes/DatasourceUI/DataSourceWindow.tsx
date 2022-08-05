@@ -29,6 +29,7 @@ import {  EmailType, IDataSourceTriggeredEmailType, IEvent } from '../../global'
 import {  EmailTypeSlice, TriggeredEmailDataSourceSlice } from '../../Store';
 import DataSourceModal from './DataSourceModal';
 import Table from '@gpa-gemstone/react-table';
+import DataSourceTesting from './DataSourceTesting';
 
 
 declare var homePath;
@@ -43,6 +44,7 @@ const DataSourceWindow = (props: IProps) => {
     const data = useSelector(TriggeredEmailDataSourceSlice.Data);
     const emailID = useSelector(TriggeredEmailDataSourceSlice.ParentID);
     const [dataSource, setDataSource] = React.useState<null | IDataSourceTriggeredEmailType>(null);
+    const [showTest, setShowTest] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || emailID !== props.Record.ID)
@@ -55,6 +57,9 @@ const DataSourceWindow = (props: IProps) => {
                 <div className="row">
                     <div className="col">
                         <h4>Data Sources:</h4>
+                    </div>
+                    <div className="col">
+                        <button className="btn btn-primary float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Data Sources</button>
                     </div>
                 </div>
             </div>
@@ -90,6 +95,7 @@ const DataSourceWindow = (props: IProps) => {
 
         </div>
         <DataSourceModal Record={dataSource} OnClose={() => setDataSource(null)} />
+        <DataSourceTesting Record={props.Record} OnClose={() => setShowTest(false)} Show={showTest}/>;
         </>
         )
 }
