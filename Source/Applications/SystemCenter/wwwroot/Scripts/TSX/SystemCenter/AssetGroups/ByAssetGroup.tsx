@@ -184,7 +184,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
             Promise.all([handle1,handle2, handle3]).then((x) => {
                 sessionStorage.clear();
-                history({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + d.ID })
+                history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + d.ID })
             }, (msg) => {
                 if (msg.status == 500)
                     alert(msg.responseJSON.ExceptionMessage)
@@ -197,7 +197,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + item.row.ID})
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + item.row.ID})
     }
 
     function valid(field: keyof (OpenXDA.Types.AssetGroup)): boolean {

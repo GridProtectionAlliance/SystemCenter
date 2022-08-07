@@ -164,7 +164,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history({ pathname: homePath + 'index.cshtml', search: '?name=Location&LocationID=' + item.row.ID })
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Location&LocationID=' + item.row.ID })
     }
 
     function valid(field: keyof (SystemCenter.Types.DetailedLocation)): boolean {
