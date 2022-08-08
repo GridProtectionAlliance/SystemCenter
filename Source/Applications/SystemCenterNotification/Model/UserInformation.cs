@@ -41,11 +41,10 @@ namespace SystemCenter.Notifications.Model
         #region [ Properties ]
 
         public List<string> Roles { get; set; }
-
         public Guid UserID { get; set; }
-
         public bool EmailConfirmed { get; set; }
         public bool PhoneConfirmed { get; set; }
+        public int? CellCarrierID { get; set; }
 
         #endregion       
     }
@@ -81,6 +80,7 @@ namespace SystemCenter.Notifications.Model
 
             UserAccount account;
             bool requireEmailConfirm = true;
+            openXDA.Model.UserAccountCarrier cellCarrier;
 
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
@@ -115,6 +115,7 @@ namespace SystemCenter.Notifications.Model
 
                 }
 
+                cellCarrier = new TableOperations<openXDA.Model.UserAccountCarrier>(connection).QueryRecordWhere("UserAccountID = {0}", account.ID);
             }
 
             UserInformation result = new UserInformation()
@@ -123,14 +124,14 @@ namespace SystemCenter.Notifications.Model
                 UserID = account.ID,
                 EmailConfirmed = account.EmailConfirmed || !requireEmailConfirm,
                 PhoneConfirmed = account.PhoneConfirmed,
-                
+                CellCarrierID = cellCarrier?.CarrierID ?? null
+
             };
         
             if (User.IsInRole("Administrator")) result.Roles.Add("Administrator");
             if (User.IsInRole("Viewer")) result.Roles.Add("Viewer");
             if (User.IsInRole("Transmission SME")) result.Roles.Add("Transmission SME");
             if (User.IsInRole("PQ Data Viewer")) result.Roles.Add("PQ Data Viewer");
-
 
             return Ok(result);
         }

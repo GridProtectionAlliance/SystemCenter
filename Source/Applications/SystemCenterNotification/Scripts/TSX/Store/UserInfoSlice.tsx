@@ -41,14 +41,16 @@ interface IState {
     UserAccountID: string,
     Roles: Application.Types.SecurityRoleName[],
     EmailConfirmed: boolean,
-    PhoneConfirmed: boolean
+    PhoneConfirmed: boolean,
+    CellCarrierID?: number
 }
 
 interface IUserInfo {
     Roles: Application.Types.SecurityRoleName[],
     UserID: string,
     EmailConfirmed : boolean,
-    PhoneConfirmed: boolean
+    PhoneConfirmed: boolean,
+    CellCarrierID?: number,
 }
 
 export default class UserInfoSlice {
@@ -91,7 +93,8 @@ export default class UserInfoSlice {
             UserAccountID: "",
             ActiveFetchID: [],
             EmailConfirmed: false,
-            PhoneConfirmed: false
+            PhoneConfirmed: false,
+            CellCarrierID?: null
         } as IState,
         reducers: {},
         extraReducers: (builder: ActionReducerMapBuilder<IState>) => {
@@ -104,6 +107,7 @@ export default class UserInfoSlice {
                 state.Roles = data.Roles as Draft<Application.Types.SecurityRoleName[]>;
                 state.EmailConfirmed = data.EmailConfirmed;
                 state.PhoneConfirmed = data.PhoneConfirmed;
+                state.CellCarrierID = data.CellCarrierID;
             });
             builder.addCase(fetch.pending, (state: WritableDraft<IState>, action: PayloadAction<undefined, string, { arg: void, requestId: string }, never>) => {
                 state.Status = 'loading';
@@ -152,4 +156,5 @@ export default class UserInfoSlice {
     public Status = (state: any) => state[this.Name].Status as Application.Types.Status;
     public ConfirmedPhone = (state: any) => (state[this.Name] as IState).PhoneConfirmed as boolean;
     public ConfirmedEmail = (state: any) => (state[this.Name] as IState).EmailConfirmed as boolean;
+    public CelCarrierID = (state: any) => (state[this.Name] as IState).CellCarrierID as boolean;
 }
