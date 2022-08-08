@@ -58,6 +58,7 @@ export default class UserInfoSlice {
     APIPath: string = "";
     Slice: (Slice<IState>);
     Fetch: (AsyncThunk<any, void, {}>);
+    UpdateCarrier: (AsyncThunk<any, number, {}>);
     Reducer: any;
 
     private fetchHandle: any | null;
@@ -82,7 +83,22 @@ export default class UserInfoSlice {
         });
 
         return await handle;
-    });
+        });
+
+        const updateCarrier = createAsyncThunk(`${name}/PatchCarrier${name}`, async (args: number, { signal, getState }) => {
+
+
+            const handle = this.PatchCarrier(args);
+
+            signal.addEventListener('abort', () => {
+                if (handle.abort !== undefined) handle.abort();
+            });
+
+            return await handle;
+        });
+
+
+
 
     const slice = createSlice({
         name: this.Name,
@@ -94,7 +110,7 @@ export default class UserInfoSlice {
             ActiveFetchID: [],
             EmailConfirmed: false,
             PhoneConfirmed: false,
-            CellCarrierID?: null
+            CellCarrierID: null
         } as IState,
         reducers: {},
         extraReducers: (builder: ActionReducerMapBuilder<IState>) => {
@@ -125,6 +141,18 @@ export default class UserInfoSlice {
                     Time: new Date().toString()
                 }
             });
+            builder.addCase(updateCarrier.fulfilled, (state: WritableDraft<IState>, action: PayloadAction<unknown, string, { arg: number, requestId: string }, never>) => {
+                state.Status = 'changed';
+            });
+            builder.addCase(updateCarrier.rejected, (state: WritableDraft<IState>, action: PayloadAction<unknown, string, { arg: number, requestId: string }, SerializedError>) => {
+                state.Status = 'error';
+
+                state.Error = {
+                    Message: (action.error.message == null ? '' : action.error.message),
+                    Verb: 'PATCH',
+                    Time: new Date().toString()
+                }
+            });
         }
 
     });
@@ -133,8 +161,7 @@ export default class UserInfoSlice {
     this.Fetch = fetch;
     this.Slice = slice;
         this.Reducer = slice.reducer;
-
-
+        this.UpdateCarrier = updateCarrier;
 
     }
 
@@ -150,11 +177,22 @@ export default class UserInfoSlice {
         });
     }
 
+    private PatchCarrier(id: number): any {
+        return $.ajax({
+            type: "GET",
+            url: `${this.APIPath}/${id.toString()}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+    }
+
     public UserAccountID = (state: any) => state[this.Name].UserAccountID as string;
     public Error = (state: any) => state[this.Name].Error as IError;
     public Roles = (state: any) => (state[this.Name] as IState).Roles as Application.Types.SecurityRoleName[];
     public Status = (state: any) => state[this.Name].Status as Application.Types.Status;
     public ConfirmedPhone = (state: any) => (state[this.Name] as IState).PhoneConfirmed as boolean;
     public ConfirmedEmail = (state: any) => (state[this.Name] as IState).EmailConfirmed as boolean;
-    public CelCarrierID = (state: any) => (state[this.Name] as IState).CellCarrierID as boolean;
+    public CellCarrierID = (state: any) => (state[this.Name] as IState).CellCarrierID as number|null;
 }

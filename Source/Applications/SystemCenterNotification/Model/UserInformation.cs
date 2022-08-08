@@ -67,7 +67,7 @@ namespace SystemCenter.Notifications.Model
     }
 
     [RoutePrefix("api/UserInfo")]
-    public class UserController: ApiController
+    public class UserController : ApiController
     {
         [Route(), HttpGet]
         public IHttpActionResult Get()
@@ -127,13 +127,53 @@ namespace SystemCenter.Notifications.Model
                 CellCarrierID = cellCarrier?.CarrierID ?? null
 
             };
-        
+
             if (User.IsInRole("Administrator")) result.Roles.Add("Administrator");
             if (User.IsInRole("Viewer")) result.Roles.Add("Viewer");
             if (User.IsInRole("Transmission SME")) result.Roles.Add("Transmission SME");
             if (User.IsInRole("PQ Data Viewer")) result.Roles.Add("PQ Data Viewer");
 
             return Ok(result);
+        }
+
+        [Route("{carrierID:int}"), HttpGet]
+        public IHttpActionResult PatchCarrier(int carrierID)
+        {
+            try
+            {
+                UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
+                userInfo.Initialize();
+
+                string username = System.Web.HttpContext.Current.User.Identity.Name;
+                string usersid = UserInfo.UserNameToSID(username);
+
+                UserAccount account;
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                {
+                    account = new TableOperations<UserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
+
+                    openXDA.Model.UserAccountCarrier cellCarrier = new TableOperations<openXDA.Model.UserAccountCarrier>(connection).QueryRecordWhere("UserAccountID = {0}", account.ID);
+                    if (cellCarrier == null)
+                    {
+                        cellCarrier = new openXDA.Model.UserAccountCarrier()
+                        {
+                            CarrierID = carrierID,
+                            UserAccountID = account.ID
+                        };
+                        new TableOperations<openXDA.Model.UserAccountCarrier>(connection).AddNewRecord(cellCarrier);
+                    }
+                    else
+                    {
+                        cellCarrier.CarrierID = carrierID;
+                        new TableOperations<openXDA.Model.UserAccountCarrier>(connection).UpdateRecord(cellCarrier);
+                    }
+                    return Ok(1);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
         }
     }
 }

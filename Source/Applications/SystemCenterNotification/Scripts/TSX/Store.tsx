@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import { configureStore } from '@reduxjs/toolkit';
-import { ActiveSubscription, EmailCategory, EmailType, IDataSourceTriggeredEmailType, ITriggeredDataSource, ITriggeredEmailDataSourceSetting, SubscibeEmails } from './global';
+import { ActiveSubscription, EmailCategory, EmailType, IDataSourceTriggeredEmailType, ITriggeredDataSource, ITriggeredEmailDataSourceSetting, SubscibeEmails, ICellCarrier } from './global';
 import { GenericSlice } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import UserInfoSliceClass  from './Store/UserInfoSlice';
@@ -48,6 +48,7 @@ export const TriggeredEmailDataSourceSlice = new GenericSlice<IDataSourceTrigger
 export const TriggeredDataSourceSettingSlice = new GenericSlice<ITriggeredEmailDataSourceSetting>("TriggeredDataSourceSetting", `${homePath}api/OpenXDA/TriggeredEmailDataSourceSetting`, "Name", false);
 export const UserAccountSlice = new GenericSlice<Application.Types.iUserAccount>("UserAccount", `${homePath}api/OpenXDA/UserAccount`, "Name", false);
 
+export const CellCarrierSlice = new GenericSlice<ICellCarrier>("CellCarrier", `${homePath}api/OpenXDA/CellCarrier`, "Name", true);
 
 const reducer = {
     EmailCategory: EmailCategorySlice.Reducer,
@@ -65,7 +66,8 @@ const reducer = {
     TriggeredDataSourceSetting: TriggeredDataSourceSettingSlice.Reducer,
     TriggeredEmailDataSource: TriggeredEmailDataSourceSlice.Reducer,
     TriggeredDataSource: TriggeredDataSourceSlice.Reducer,
-    UserAccount: UserAccountSlice.Reducer
+    UserAccount: UserAccountSlice.Reducer,
+    CellCarrier: CellCarrierSlice.Reducer
 }
 
 const store = configureStore({ reducer });

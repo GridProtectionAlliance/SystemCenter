@@ -358,4 +358,7 @@ namespace SystemCenter.Notifications.Controllers
     public class RemoteUserAccount : UserAccount { }
     [RoutePrefix("api/OpenXDA/UserAccount")]
     public class RemoteUserAccountController : ModelController<RemoteUserAccount> { }
+
+    [RoutePrefix("api/openXDA/CellCarrier")]
+    public class CellCarrierController : ModelController<CellCarrier> { }
 }

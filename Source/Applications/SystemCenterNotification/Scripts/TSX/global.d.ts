@@ -116,3 +116,9 @@ export interface ITriggeredEmailDataSourceSetting {
     Value: string,
     Name: string
 }
+
+export interface ICellCarrier {
+    ID: number,
+    Name: string,
+    Transform: string,
+}
