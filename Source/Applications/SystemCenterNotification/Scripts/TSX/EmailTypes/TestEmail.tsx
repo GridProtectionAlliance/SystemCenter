@@ -41,6 +41,7 @@ const TestEmail = (props: IProps) => {
     const [eventID, setEventID] = React.useState<number>(-1);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const userID = useSelector(UserInfoSlice.UserAccountID);
+    let portalID: string = "TestEmailOuter";
 
     React.useEffect(() => {
         if (!props.show)
@@ -59,22 +60,22 @@ const TestEmail = (props: IProps) => {
     }
 
     return (
-        <>
+        <div id={portalID}>
             <Modal Show={props.show} ShowX={true} ShowCancel={false}
                 ConfirmShowToolTip={eventID == -1}
                 DisableConfirm={eventID == -1}
-                Size={'xlg'} Title={'Select an Event for Testing'}
+                Size={'lg'} Title={'Select an Event for Testing'}
                 ConfirmToolTipContent={<p> {CrossMark} An Event has to be selected </p>}
                 CallBack={(c) => { if (c) setShowWarning(true); else props.OnClose(); }}
                 ConfirmText={'Send'}
             >
                 <div style={{ height: innerHeight - 250 }}>
-                    <EventSelect SelectedEventID={eventID} SetSelectedEvent={setEventID} SetStatus={() => { }} TriggerSQL={props.record.TriggerEmailSQL} />
+                    <EventSelect SelectedEventID={eventID} SetSelectedEvent={setEventID} SetStatus={() => { }} TriggerSQL={props.record.TriggerEmailSQL} RenderPortalId={portalID}/>
                 </div>
             </Modal>
             <Warning Message={'This will send an email to the email address associated with your account.'} Show={showWarning} Title={'Send Test Email '}
                 CallBack={(conf) => { if (conf) sendEmail(); setShowWarning(false);  props.OnClose(); }} />
-        </>)
+        </div>)
 }
 
 export default TestEmail;

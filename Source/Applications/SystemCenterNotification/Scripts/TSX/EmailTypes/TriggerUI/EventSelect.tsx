@@ -32,7 +32,7 @@ import { LoadingIcon } from '@gpa-gemstone/react-interactive';
 declare var homePath;
 declare var version;
 
-interface IProps { TriggerSQL: string, SetStatus: (valid: boolean, loading: boolean) => void, SetSelectedEvent: (id: number) => void, SelectedEventID: number}
+interface IProps { TriggerSQL: string, SetStatus: (valid: boolean, loading: boolean) => void, SetSelectedEvent: (id: number) => void, SelectedEventID: number, RenderPortalId?: string}
 
 
 const EventSelect = (props: IProps) => {
@@ -124,7 +124,7 @@ const EventSelect = (props: IProps) => {
                 />}
                 </div>
         </div>
-        <EventFilter Show={showModal} Close={() => setShowModal(false)} SetFilter={setFilter} Filter={filter} />
+        <EventFilter Show={showModal} Close={() => setShowModal(false)} SetFilter={setFilter} Filter={filter} RenderPortalId={props.RenderPortalId} />
         </>
                   
         )
