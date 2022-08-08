@@ -177,7 +177,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                         sortKey={sortKey}
                         ascending={ascending}
                         onSort={(d) => {
-                            if (d.colKey === "Scroll")
+                            if (d.colKey === "Scroll" || d.colKey === "Remove")
                                 return;
 
                             if (d.colKey === sortKey) {
@@ -193,7 +193,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                             }
                         }}
 
-                        onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.ID, state: {} }) }}
+                            onClick={(data) => { if (data.colKey != 'Remove') history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.ID, state: {} }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 590, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

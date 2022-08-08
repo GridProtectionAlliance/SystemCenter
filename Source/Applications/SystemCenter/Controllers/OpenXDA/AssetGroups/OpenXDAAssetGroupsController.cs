@@ -56,12 +56,7 @@ namespace SystemCenter.Controllers.OpenXDA
             public List<int> AssetGroupList { get; set; }
 
         }
-        [CustomView("\r\n    SELECT\r\n        DISTINCT\r\n            Asset.ID,\r\n            AssetAssetGroup.AssetGroupID,\r\n            Asset.AssetKey,\r\n            Asset.AssetName,\r\n            Asset.VoltageKV,\r\n            AssetType.Name as AssetType,\r\n            COUNT(DISTINCT Meter.ID) as Meters,\r\n            COUNT(DISTINCT Location.ID) as Locations\r\n    FROM \r\n        Asset Join\r\n        AssetType ON Asset.AssetTypeID = AssetType.ID LEFT JOIN\r\n        MeterAsset ON MeterAsset.AssetID = Asset.ID LEFT JOIN\r\n        Meter ON MeterAsset.MeterID = Meter.ID LEFT JOIN\r\n        AssetLocation ON AssetLocation.AssetID = Asset.ID LEFT JOIN\r\n        Location ON AssetLocation.LocationID = Location.ID\r\n    GROUP BY\r\n        Asset.ID,\r\n        Asset.AssetKey,\r\n        Asset.AssetName,\r\n        Asset.VoltageKV,\r\n        AssetType.Name LEFT JOIN\r\n        AssetAssetGroup ON Asset.ID = AssetAssetGroup.AssetID\r\n    ")]
-        private class AssetGroupAsset : DetailedAsset 
-        {
-            public int AssetGroupID { get; set; }
-        };
-
+     
         [HttpGet, Route("{assetGroupID:int}/Assets")]
         public IHttpActionResult GetAssets(int assetGroupID)
         {
@@ -71,9 +66,34 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     try
                     {
-                        IEnumerable<AssetGroupAsset> records = new TableOperations<AssetGroupAsset>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
+                        string sql = @"SELECT   
+                            DISTINCT
+                                Asset.ID,
+                                AssetAssetGroup.AssetGroupID,
+                                Asset.AssetKey,
+                                Asset.AssetName,
+                                Asset.VoltageKV,
+                                AssetType.Name as AssetType,
+                                COUNT(DISTINCT Meter.ID) as Meters,
+                                COUNT(DISTINCT Location.ID) as Locations
+                            FROM
+                                Asset Join
+                                AssetType ON Asset.AssetTypeID = AssetType.ID LEFT JOIN
+                                MeterAsset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
+                                Meter ON MeterAsset.MeterID = Meter.ID LEFT JOIN
+                                AssetLocation ON AssetLocation.AssetID = Asset.ID LEFT JOIN
+                                Location ON AssetLocation.LocationID = Location.ID LEFT JOIN
+                                AssetAssetGroup ON Asset.ID = AssetAssetGroup.AssetID
+                            GROUP BY
+                                Asset.ID,
+                                Asset.AssetKey, 
+                                Asset.AssetName,
+                                Asset.VoltageKV,
+                                AssetType.Name,
+                                AssetAssetGroup.AssetGroupID
+                            HAVING AssetAssetGroup.AssetGroupID = {0}";
 
-                        return Ok(records);
+                        return Ok(connection.RetrieveData(sql,assetGroupID));
                     }
                     catch (Exception ex)
                     {
@@ -139,12 +159,6 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-
-        [CustomView("\r\n    SELECT\r\n        DISTINCT\r\n        Meter.ID,\r\n        AssetAssetGroup.AssetGroupID,\r\n        Meter.AssetKey,\r\n        Meter.Name,\r\n        Meter.Make,\r\n        Meter.Model,\r\n        Location.Name as Location,\r\n        COUNT(DISTINCT MeterAsset.AssetID)  as MappedAssets\r\n    FROM \r\n        Meter LEFT JOIN\r\n        Location ON Meter.LocationID = Location.ID LEFT JOIN\r\n        MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN \r\n        Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN\r\n        Note ON Note.NoteTypeID = (SELECT ID FROM NoteType WHERE Name = 'Meter') AND Note.ReferenceTableID = Meter.ID\r\n    GROUP BY\r\n        Meter.ID,\r\n        Meter.AssetKey,\r\n        Meter.Name,\r\n        Meter.Make,\r\n        Meter.Model,\r\n        Location.Name LEFT JOIN\r\n        MeterAssetGroup ON Asset.ID = MeterAssetGroup.AssetID\r\n        ")]
-        private class MeterAsset : DetailedMeter
-        {   
-            public int AssetGroupID { get; set; }
-        };
         [HttpGet, Route("{assetGroupID:int}/Meters")]
         public IHttpActionResult GetMeters(int assetGroupID)
         {
@@ -154,9 +168,32 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     try
                     {
-                        IEnumerable<MeterAsset> records = new TableOperations<MeterAsset>(connection).QueryRecordsWhere("AssetGroupID = {0}", assetGroupID);
-
-                        return Ok(records);
+                        string sql = @"SELECT DISTINCT
+                            Meter.ID,
+                            MeterAssetGroup.AssetGroupID,
+                            Meter.AssetKey,
+                            Meter.Name,
+                            Meter.Make,
+                            Meter.Model,
+                            Location.Name as Location,
+                            COUNT(DISTINCT MeterAsset.AssetID)  as MappedAssets
+                        FROM
+                            Meter LEFT JOIN
+                            Location ON Meter.LocationID = Location.ID LEFT JOIN
+                            MeterAsset ON Meter.ID = MeterAsset.MeterID LEFT JOIN
+                            Asset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
+                            MeterAssetGroup ON Meter.ID = MeterAssetGroup.MeterID
+                        GROUP BY
+                            Meter.ID,
+                            Meter.AssetKey,
+                            Meter.Name,
+                            Meter.Make,
+                            Meter.Model,
+                            Location.Name,
+                            MeterAssetGroup.AssetGroupID
+                        HAVING MeterAssetGroup.AssetGroupID = {0}";
+                       
+                        return Ok(connection.RetrieveData(sql,assetGroupID));
                     }
                     catch (Exception ex)
                     {

@@ -172,7 +172,8 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                         data={meterList}
                         sortKey={sortField}
                         ascending={ascending}
-                        onSort={(d) => {
+                            onSort={(d) => {
+                            if (d.colKey == 'Remove' || d.colKey == 'Scroll')
                             if (d.colKey == sortField) {
                                 let ordered = _.orderBy(meterList, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
@@ -184,8 +185,8 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setMeterList(ordered);
                                 setSortField(d.colKey);
                             }
-                        }}
-                        onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + data.row.ID, state: {} }) }}
+                            }}
+                            onClick={(data) => { if (data.colKey != 'Remove') history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + data.row.ID, state: {} }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
