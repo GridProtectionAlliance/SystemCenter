@@ -31,7 +31,7 @@ import React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { PQApplicationsSlice } from "../Store/Store";
 
-
+//TODO: remove this interface and use interface from gemstone when new gemstone application-typing is published (check for it being used anywhere else too)
 export interface PQApplications {
     ID: number;
     Name: string;
@@ -40,6 +40,7 @@ export interface PQApplications {
     CategoryID: number;
     SortOrder: number;
 }
+
 interface IProps { ID: number, Tab: string }
 
 const EmptyApplication: PQApplications = {
@@ -59,30 +60,23 @@ function Applications(props: IProps) {
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
-    const [Options, setOptions] = React.useState<SystemCenter.Types.ValueListItem[]>([]);
+    const [Options, setOptions] = React.useState<string[]>([]);
     const [EditApplication, setEditApplication] = React.useState<PQApplications>(EmptyApplication);
 
     //Table consts
     const [sortField, setSortField] = React.useState<keyof PQApplications>('Name');
     const [ascending, setAscending] = React.useState<boolean>(false);
-    const data: PQApplications[] = useSelector(PQApplicationsSlice.SearchResults);
-    const searchState: Application.Types.Status = useSelector(PQApplicationsSlice.SearchStatus);
-    const searchFilters: Search.IFilter<PQApplications>[] =
-        [{
-            FieldName: 'CategoryID',
-            SearchText: props.ID.toString(),
-            Operator: '=',
-            Type: "number",
-            isPivotColumn: false
-        }];
+    const data: PQApplications[] = useSelector(PQApplicationsSlice.Data);
+    const parentID = useSelector(PQApplicationsSlice.ParentID);
+    const status: Application.Types.Status = useSelector(PQApplicationsSlice.Status);
 
     React.useEffect(() => {
-        if (searchState === 'unintiated' || searchState === 'changed')
-            dispatch(PQApplicationsSlice.DBSearch({ filter: searchFilters, ascending: ascending, sortField: sortField }));
-    }, [dispatch, searchState]);
+        if (status === 'unintiated' || status === 'changed' || parentID !== props.ID)
+            dispatch(PQApplicationsSlice.Fetch(props.ID));
+    }, [dispatch, status, parentID]);
 
     React.useEffect(() => {
-        dispatch(PQApplicationsSlice.DBSearch({ sortField: sortField, ascending: ascending, filter: searchFilters }));
+        dispatch(PQApplicationsSlice.Sort({ SortField: sortField, Ascending: ascending}));
     }, [ascending, sortField]);
 
     React.useEffect(() => {
@@ -94,13 +88,13 @@ function Applications(props: IProps) {
 
     React.useEffect(() => {
         if (Options.length > 0)
-            setEditApplication({ ...EditApplication, Image: Options[0].Value, CategoryID: props.ID})
+            setEditApplication({ ...EditApplication, Image: Options[0], CategoryID: props.ID})
     }, [Options]);
 
     function getTileImages() {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/ValueList/Group/TileImages`,
+            url: `${homePath}api/OpenXDA/Tiles/GetAll`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -155,7 +149,7 @@ function Applications(props: IProps) {
                 <div className="card-footer">
                     <div className="btn-group mr-2">
                         <button className={"btn btn-primary"} onClick={() => {
-                            { setShowModal(true); setHasChanged(false); setEditApplication({ ...EmptyApplication, Image: (Options.length > 0 ? Options[0].Value : EmptyApplication.Image), CategoryID: props.ID }) }
+                            { setShowModal(true); setHasChanged(false); setEditApplication({ ...EmptyApplication, Image: (Options.length > 0 ? Options[0] : EmptyApplication.Image), CategoryID: props.ID }) }
                         }} data-tooltip={'New'} >Add Application</button>
                     </div>
                 </div>
@@ -189,7 +183,7 @@ function Applications(props: IProps) {
                             Valid={field => true}
                             Setter={(record) => { setEditApplication(record); setHasChanged(true); }}
                         />
-                        <Select<PQApplications> Record={EditApplication} Field={'Image'} Label='Image' Options={Options.map((item => ({ Value: item.Value, Label: item.Value })))}
+                        <Select<PQApplications> Record={EditApplication} Field={'Image'} Label='Image' Options={Options.map((item => ({ Value: item, Label: item })))}
                             Setter={(record) => { setEditApplication(record); setHasChanged(true); }}
                         />
                     </div>
