@@ -359,6 +359,10 @@
   <ItemGroup>
     <Content Include="Scripts\TSX\EventSubscription\ConfirmCarrier.tsx" />
   </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Scripts\TSX\CellCarrier\ByCellCarrier.tsx" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
