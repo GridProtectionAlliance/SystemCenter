@@ -66,9 +66,9 @@ function Applications(props: IProps) {
     //Table consts
     const [sortField, setSortField] = React.useState<keyof PQApplications>('Name');
     const [ascending, setAscending] = React.useState<boolean>(false);
-    const data: PQApplications[] = useSelector(PQApplicationsSlice.Data);
-    const parentID = useSelector(PQApplicationsSlice.ParentID);
-    const status: Application.Types.Status = useSelector(PQApplicationsSlice.Status);
+    const data: PQApplications[] = useAppSelector(PQApplicationsSlice.Data);
+    const parentID = useAppSelector(PQApplicationsSlice.ParentID);
+    const status: Application.Types.Status = useAppSelector(PQApplicationsSlice.Status);
 
     React.useEffect(() => {
         if (status === 'unintiated' || status === 'changed' || parentID !== props.ID)
