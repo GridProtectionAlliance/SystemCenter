@@ -29,6 +29,10 @@ import UserInfoSliceClass  from './Store/UserInfoSlice';
 
 declare var homePath: string;
 
+//Dispatch and Selector Types
+export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>
+
 export const EmailCategorySlice = new GenericSlice<EmailCategory>("EmailCategory", `${homePath}api/OpenXDA/EmailCategory`, "Name", true);
 export const EmailTypeSlice = new GenericSlice<EmailType>("EmailType", `${homePath}api/OpenXDA/EmailType`, "Name", true);
 export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("AssetGroup", `${homePath}api/OpenXDA/AssetGroup`, "Name", true);

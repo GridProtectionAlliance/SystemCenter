@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { EmailCategory, EmailType } from '../global';
 import { EmailCategorySlice, EmailTypeSlice } from '../Store';
@@ -31,12 +31,12 @@ import { IsNumber } from '@gpa-gemstone/helper-functions'
 interface IProps { record: EmailType, setRecord: (d: EmailType) => void }
 
 const EmailForm = (props: IProps) => {
-    const dispatch = useDispatch();
-    const emails = useSelector(EmailTypeSlice.Data);
-    const status = useSelector(EmailTypeSlice.Status);
+    const dispatch = useAppDispatch();
+    const emails = useAppSelector(EmailTypeSlice.Data);
+    const status = useAppSelector(EmailTypeSlice.Status);
 
-    const categoryStatus = useSelector(EmailCategorySlice.Status);
-    const categories = useSelector(EmailCategorySlice.Data);
+    const categoryStatus = useAppSelector(EmailCategorySlice.Status);
+    const categories = useAppSelector(EmailCategorySlice.Data);
 
 
     React.useEffect(() => {

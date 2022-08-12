@@ -21,7 +21,6 @@
 //
 //******************************************************************************************************
 
-import { Provider, useDispatch, useSelector } from 'react-redux';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import { Application as App, LoadingIcon, LoadingScreen, Page } from '@gpa-gemstone/react-interactive'
@@ -29,6 +28,7 @@ import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { EmailType } from '../global';
 import { EmailCategorySlice, EmailTypeSlice, SettingSlice, UserInfoSlice } from '../Store';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { Select } from '@gpa-gemstone/react-forms';
 import * as $ from 'jquery';
 
@@ -39,7 +39,7 @@ const EmailConfirmed = (props: {}) => {
 
     const [loading, setLoading] = React.useState<boolean>(false);
     const [success, setSuccess] = React.useState<boolean>(false);
-    const status = useSelector(UserInfoSlice.Status);
+    const status = useAppSelector(UserInfoSlice.Status);
 
     React.useEffect(() => {
         if (status != 'idle' || loading)

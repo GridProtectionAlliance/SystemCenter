@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { LoadingIcon } from '@gpa-gemstone/react-interactive'
 import { EmailCategorySlice, EmailTypeSlice } from '../Store';
@@ -35,15 +35,15 @@ interface IProps {
 }
 
 const EmailSelect = (props: IProps) => {
-    const dispatch = useDispatch();
-    const emailCategoryStatus = useSelector(EmailCategorySlice.Status);
-    const emailCategories = useSelector(EmailCategorySlice.Data);
+    const dispatch = useAppDispatch();
+    const emailCategoryStatus = useAppSelector(EmailCategorySlice.Status);
+    const emailCategories = useAppSelector(EmailCategorySlice.Data);
 
     const [selectedCategory, setSelectedCategory] = React.useState<number>(-1);
 
-    const emailTypeStatus = useSelector(EmailTypeSlice.Status);
-    const emailTypes = useSelector(EmailTypeSlice.Data);
-    const emailTypeParentID = useSelector(EmailTypeSlice.ParentID);
+    const emailTypeStatus = useAppSelector(EmailTypeSlice.Status);
+    const emailTypes = useAppSelector(EmailTypeSlice.Data);
+    const emailTypeParentID = useAppSelector(EmailTypeSlice.ParentID);
 
     React.useEffect(() => {
         if (emailCategoryStatus === 'unintiated' || emailCategoryStatus === 'changed')

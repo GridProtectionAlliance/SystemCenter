@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { Warning, Modal } from '@gpa-gemstone/react-interactive'
 import { Application } from '@gpa-gemstone/application-typings';
@@ -37,10 +37,10 @@ declare var version;
 interface IProps { show: boolean, record: EmailType, OnClose: () => void  }
 
 const TestEmail = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [eventID, setEventID] = React.useState<number>(-1);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
-    const userID = useSelector(UserInfoSlice.UserAccountID);
+    const userID = useAppSelector(UserInfoSlice.UserAccountID);
     let portalID: string = "TestEmailOuter";
 
     React.useEffect(() => {

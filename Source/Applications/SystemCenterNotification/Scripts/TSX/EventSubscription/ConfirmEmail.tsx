@@ -21,7 +21,6 @@
 //
 //******************************************************************************************************
 
-import { Provider, useDispatch, useSelector } from 'react-redux';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import { Application as App, LoadingIcon, Page } from '@gpa-gemstone/react-interactive'
@@ -29,6 +28,7 @@ import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { EmailType } from '../global';
 import { EmailCategorySlice, EmailTypeSlice, SettingSlice, UserInfoSlice } from '../Store';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as $ from 'jquery';
 
 declare var homePath;
@@ -39,13 +39,13 @@ interface IProps {
 }
 
 const EmailSelect = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
    
     const [force, setForce] = React.useState<number>(-1);
     const [forceResend, setForceResend] = React.useState<number>(-1);
 
-    const confirmed = useSelector(UserInfoSlice.ConfirmedEmail);
-    const status = useSelector(UserInfoSlice.Status);
+    const confirmed = useAppSelector(UserInfoSlice.ConfirmedEmail);
+    const status = useAppSelector(UserInfoSlice.Status);
 
     React.useEffect(() => {
         dispatch(UserInfoSlice.Fetch());

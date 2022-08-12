@@ -21,7 +21,6 @@
 //
 //******************************************************************************************************
 
-import { Provider, useDispatch, useSelector } from 'react-redux';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import { Application as App, LoadingIcon, Page } from '@gpa-gemstone/react-interactive'
@@ -29,6 +28,7 @@ import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { EmailType } from '../global';
 import { CellCarrierSlice, EmailCategorySlice, EmailTypeSlice, SettingSlice, UserInfoSlice } from '../Store';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as $ from 'jquery';
 import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
 
@@ -38,13 +38,13 @@ declare var version;
 interface IProps {}
 
 const ConfirmPhoneCarrier = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [currentCarrier, setCurrentCarrier] = React.useState<number>(-1);
-    const userCarrier = useSelector(UserInfoSlice.CellCarrierID);
+    const userCarrier = useAppSelector(UserInfoSlice.CellCarrierID);
 
-    const carriers = useSelector(CellCarrierSlice.Data);
-    const carrierStatus = useSelector(CellCarrierSlice.Status);
+    const carriers = useAppSelector(CellCarrierSlice.Data);
+    const carrierStatus = useAppSelector(CellCarrierSlice.Status);
 
     React.useEffect(() => {
         if (carrierStatus == 'unintiated' || carrierStatus == 'changed')

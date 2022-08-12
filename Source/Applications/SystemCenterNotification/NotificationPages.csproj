@@ -330,6 +330,7 @@
     <Content Include="Scripts\TSX\EventSubscription\EmailSelect.tsx" />
     <Content Include="Scripts\TSX\EventSubscription\NewEventSubscription.tsx" />
     <Content Include="Scripts\TSX\global.d.ts" />
+    <Content Include="Scripts\TSX\hooks.ts" />
     <Content Include="Scripts\TSX\Store.tsx" />
     <Content Include="Scripts\TSX\Store\UserInfoSlice.tsx" />
     <Content Include="Scripts\TSX\Subscriptions\Event\AddAllSubscription.tsx" />

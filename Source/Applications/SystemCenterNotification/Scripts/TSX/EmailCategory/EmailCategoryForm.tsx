@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { EmailCategory } from '../global';
 import { EmailCategorySlice } from '../Store';
@@ -31,9 +31,9 @@ import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 interface IProps { record: EmailCategory, setRecord: (d: EmailCategory) => void }
 
 const EmailCategoryForm = (props: IProps) => {
-    const dispatch = useDispatch();
-    const emailCategories = useSelector(EmailCategorySlice.Data);
-    const status = useSelector(EmailCategorySlice.Status);
+    const dispatch = useAppDispatch();
+    const emailCategories = useAppSelector(EmailCategorySlice.Data);
+    const status = useAppSelector(EmailCategorySlice.Status);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')

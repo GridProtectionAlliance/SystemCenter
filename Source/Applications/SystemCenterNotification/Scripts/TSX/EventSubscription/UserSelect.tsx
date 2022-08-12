@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { LoadingIcon } from '@gpa-gemstone/react-interactive'
 import { EmailCategorySlice, EmailTypeSlice, UserAccountSlice } from '../Store';
@@ -38,10 +38,10 @@ interface IProps {
 }
 
 const UserSelect = (props: IProps) => {
-    const dispatch = useDispatch();
-    const data = useSelector(UserAccountSlice.SearchResults);
-    const sortField = useSelector(UserAccountSlice.SortField);
-    const ascending = useSelector(UserAccountSlice.Ascending);
+    const dispatch = useAppDispatch();
+    const data = useAppSelector(UserAccountSlice.SearchResults);
+    const sortField = useAppSelector(UserAccountSlice.SortField);
+    const ascending = useAppSelector(UserAccountSlice.Ascending);
     
     return (
         <>

@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { TabSelector, Warning, LoadingScreen, ServerErrorIcon, Modal } from '@gpa-gemstone/react-interactive'
 import { Application } from '@gpa-gemstone/application-typings';
@@ -42,13 +42,13 @@ type tab = 'settings' | 'template' | 'dataSources' | 'subscriptions'  | 'trigger
 
 
 const EmailPage = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [showTest, setShowTest] = React.useState<boolean>(false);
 
-    const email = useSelector((state) => EmailTypeSlice.Datum(state, parseInt(props.useParams.id)));
-    const status: Application.Types.Status = useSelector(EmailTypeSlice.Status);
+    const email = useAppSelector((state) => EmailTypeSlice.Datum(state, parseInt(props.useParams.id)));
+    const status: Application.Types.Status = useAppSelector(EmailTypeSlice.Status);
 
     const [tab, setTab] = React.useState<tab>('settings');
 

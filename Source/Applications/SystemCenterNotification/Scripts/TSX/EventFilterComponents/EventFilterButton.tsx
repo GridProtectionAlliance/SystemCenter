@@ -23,7 +23,7 @@
 import React from 'react';
 import 'moment';
 import _ from 'lodash';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { EventAssetGroupSlice, EventAssetSlice, EventLocationSlice, EventMeterSlice } from '../Store';
 
 interface IProps {
@@ -33,23 +33,23 @@ interface IProps {
 }
 
 function EventFilterButton(props: IProps) {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [hover, setHover] = React.useState<boolean>(false);
     const [rows, setRows] = React.useState<JSX.Element[]>([]);
     const [header, setHeader] = React.useState<JSX.Element>(null);
 
-    const meter = useSelector(EventMeterSlice.Data);
-    const meterStatus = useSelector(EventMeterSlice.Status);
+    const meter = useAppSelector(EventMeterSlice.Data);
+    const meterStatus = useAppSelector(EventMeterSlice.Status);
 
-    const asset = useSelector(EventAssetSlice.Data);
-    const assetStatus = useSelector(EventAssetSlice.Status);
+    const asset = useAppSelector(EventAssetSlice.Data);
+    const assetStatus = useAppSelector(EventAssetSlice.Status);
 
-    const location = useSelector(EventLocationSlice.Data);
-    const locationStatus = useSelector(EventLocationSlice.Status);
+    const location = useAppSelector(EventLocationSlice.Data);
+    const locationStatus = useAppSelector(EventLocationSlice.Status);
 
-    const group = useSelector(EventAssetGroupSlice.Data);
-    const groupStatus = useSelector(EventAssetGroupSlice.Status);
+    const group = useAppSelector(EventAssetGroupSlice.Data);
+    const groupStatus = useAppSelector(EventAssetGroupSlice.Status);
 
     React.useEffect(() => {
         if (meterStatus == 'unintiated' || meterStatus == 'changed')

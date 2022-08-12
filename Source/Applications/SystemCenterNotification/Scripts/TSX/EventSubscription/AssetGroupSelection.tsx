@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import { Provider } from 'react-redux';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import { Application as App, LoadingIcon, Page, Search } from '@gpa-gemstone/react-interactive'
@@ -29,6 +29,7 @@ import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { EmailType } from '../global';
 import { AssetGroupSlice, EmailCategorySlice, EmailTypeSlice } from '../Store';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { Select } from '@gpa-gemstone/react-forms';
 import * as $ from 'jquery';
 import Table from '@gpa-gemstone/react-table';
@@ -42,13 +43,13 @@ interface IProps {
 }
 
 const AssetGroupSelection = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [parentGroups, setParentGroups] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
     const [parentGroupState, setParentGroupState] = React.useState<Application.Types.Status>('unintiated');
 
     const [selectedParent, setSelectedParent] = React.useState<number>(-1);
-    const assetGrpStatus = useSelector(AssetGroupSlice.Status);
-    const assetGrps = useSelector(AssetGroupSlice.SearchResults);
+    const assetGrpStatus = useAppSelector(AssetGroupSlice.Status);
+    const assetGrps = useAppSelector(AssetGroupSlice.SearchResults);
 
     const [asc, setAsc] = React.useState<boolean>(false);
     const [sort, setSort] = React.useState<keyof OpenXDA.Types.AssetGroup>('Name');

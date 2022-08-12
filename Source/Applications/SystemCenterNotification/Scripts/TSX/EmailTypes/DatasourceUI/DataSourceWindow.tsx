@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import {ToolTip, Warning } from '@gpa-gemstone/react-interactive'
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -39,10 +39,10 @@ interface IProps { Record: EmailType}
 
 
 const DataSourceWindow = (props: IProps) => {
-    const dispatch = useDispatch();
-    const status = useSelector(TriggeredEmailDataSourceSlice.Status);
-    const data = useSelector(TriggeredEmailDataSourceSlice.Data);
-    const emailID = useSelector(TriggeredEmailDataSourceSlice.ParentID);
+    const dispatch = useAppDispatch();
+    const status = useAppSelector(TriggeredEmailDataSourceSlice.Status);
+    const data = useAppSelector(TriggeredEmailDataSourceSlice.Data);
+    const emailID = useAppSelector(TriggeredEmailDataSourceSlice.ParentID);
     const [dataSource, setDataSource] = React.useState<null | IDataSourceTriggeredEmailType>(null);
     const [showTest, setShowTest] = React.useState<boolean>(false);
 

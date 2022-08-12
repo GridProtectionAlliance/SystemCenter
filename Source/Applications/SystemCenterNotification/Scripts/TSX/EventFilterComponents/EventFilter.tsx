@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { createPortal } from "react-dom";
 import {Modal } from '@gpa-gemstone/react-interactive'
@@ -39,12 +39,12 @@ interface IProps { Show: boolean, Close: () => void, Filter: IEventFilter, SetFi
 
 
 const EventFilter = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [filter, setFilter] = React.useState<IEventFilter>(props.Filter);
     const [showFilter, setShowFilter] = React.useState<('Meter' | 'Asset' | 'AssetGroup' | 'Location' | 'None')>('None')
 
-    const eventTypes = useSelector(EventTypeSlice.Data);
-    const eventTypeStatus = useSelector(EventTypeSlice.Status);
+    const eventTypes = useAppSelector(EventTypeSlice.Data);
+    const eventTypeStatus = useAppSelector(EventTypeSlice.Status);
 
     // Portal rendering const
     const [domReady, setDomReady] = React.useState(false);

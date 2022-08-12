@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import { LoadingScreen, SearchBar, Warning } from '@gpa-gemstone/react-interactive'
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
@@ -40,16 +40,16 @@ declare var version;
 interface IProps {}
 
 const ByAllSubscription = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const status: Application.Types.Status = useSelector(ActiveSubscriptionSlice.Status);
-    const data: ActiveSubscription[] = useSelector(ActiveSubscriptionSlice.SearchResults);
-    const allData: ActiveSubscription[] = useSelector(ActiveSubscriptionSlice.Data);
-    const parentID = useSelector(ActiveSubscriptionSlice.ParentID);
-    const sortField = useSelector(ActiveSubscriptionSlice.SortField);
-    const asc = useSelector(ActiveSubscriptionSlice.Ascending);
-    const filter = useSelector(ActiveSubscriptionSlice.SearchFilters);
-    const searchStatus = useSelector(ActiveSubscriptionSlice.SearchStatus);
+    const status: Application.Types.Status = useAppSelector(ActiveSubscriptionSlice.Status);
+    const data: ActiveSubscription[] = useAppSelector(ActiveSubscriptionSlice.SearchResults);
+    const allData: ActiveSubscription[] = useAppSelector(ActiveSubscriptionSlice.Data);
+    const parentID = useAppSelector(ActiveSubscriptionSlice.ParentID);
+    const sortField = useAppSelector(ActiveSubscriptionSlice.SortField);
+    const asc = useAppSelector(ActiveSubscriptionSlice.Ascending);
+    const filter = useAppSelector(ActiveSubscriptionSlice.SearchFilters);
+    const searchStatus = useAppSelector(ActiveSubscriptionSlice.SearchStatus);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [force, setForce] = React.useState<number>(0);

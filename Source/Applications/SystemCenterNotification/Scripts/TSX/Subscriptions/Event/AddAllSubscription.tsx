@@ -21,7 +21,6 @@
 //
 //******************************************************************************************************
 
-import { useDispatch } from 'react-redux';
 import * as React from 'react';
 import { Modal } from '@gpa-gemstone/react-interactive'
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -29,6 +28,7 @@ import EmailSelect from '../../EventSubscription/EmailSelect';
 import AssetGroupSelection from '../../EventSubscription/AssetGroupSelection';
 import UserSelect from '../../EventSubscription/UserSelect';
 import { ActiveSubscriptionSlice } from '../../Store';
+import { useAppDispatch } from '../../hooks';
 
 declare var homePath;
 declare var version;
@@ -39,7 +39,7 @@ interface IProps {
 }
 
 const AddAllSubscription = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [step, setStep] = React.useState<('Email'|'AssetGroup'|'User')>('User');
     const [error, setError] = React.useState<string[]>([]);

@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import { LoadingScreen } from '@gpa-gemstone/react-interactive'
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
@@ -39,14 +39,14 @@ declare var version;
 interface IProps {}
 
 const BySubscription = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const status: Application.Types.Status = useSelector(ActiveSubscriptionSlice.Status);
-    const data: ActiveSubscription[] = useSelector(ActiveSubscriptionSlice.Data);
-    const parentID = useSelector(ActiveSubscriptionSlice.ParentID);
-    const userID = useSelector(UserInfoSlice.UserAccountID)
-    const sortField = useSelector(ActiveSubscriptionSlice.SortField);
-    const asc = useSelector(ActiveSubscriptionSlice.Ascending);
+    const status: Application.Types.Status = useAppSelector(ActiveSubscriptionSlice.Status);
+    const data: ActiveSubscription[] = useAppSelector(ActiveSubscriptionSlice.Data);
+    const parentID = useAppSelector(ActiveSubscriptionSlice.ParentID);
+    const userID = useAppSelector(UserInfoSlice.UserAccountID)
+    const sortField = useAppSelector(ActiveSubscriptionSlice.SortField);
+    const asc = useAppSelector(ActiveSubscriptionSlice.Ascending);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || parentID != userID)

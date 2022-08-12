@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import { Provider } from 'react-redux';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import { Application as App, Page, Section } from '@gpa-gemstone/react-interactive'
@@ -35,6 +35,7 @@ import EmailPage from './EmailTypes/EmailPage';
 import { useParams } from 'react-router-dom';
 import BySubscription from './Subscriptions/Event/BySubscription';
 import { UserInfoSlice } from './Store';
+import { useAppDispatch, useAppSelector } from './hooks';
 import ByAllSubscription from './Subscriptions/Event/ByAllSubscription';
 import EmailConfirmed from './EventSubscription/EmailConfirmed';
 import ByCellCarrier from './CellCarrier/ByCellCarrier';
@@ -48,9 +49,9 @@ const Phone = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" vie
 
 
 const MainPage = (props: {}) => {
-    const dispatch = useDispatch();
-    const status = useSelector(UserInfoSlice.Status)
-    const roles = useSelector(UserInfoSlice.Roles)
+    const dispatch = useAppDispatch();
+    const status = useAppSelector(UserInfoSlice.Status)
+    const roles = useAppSelector(UserInfoSlice.Roles)
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')

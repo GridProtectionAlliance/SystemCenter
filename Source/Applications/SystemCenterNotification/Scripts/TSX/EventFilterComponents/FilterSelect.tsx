@@ -25,7 +25,7 @@ import 'moment';
 import _ from 'lodash';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { EventMeterSlice, EventLocationSlice, EventAssetSlice, EventAssetGroupSlice } from '../Store';
 import * as $ from 'jquery';
 import { Search } from '@gpa-gemstone/react-interactive';
@@ -41,7 +41,7 @@ interface IProps {
 type Data = (SystemCenter.Types.DetailedMeter | SystemCenter.Types.DetailedAsset | OpenXDA.Types.AssetGroup | SystemCenter.Types.DetailedLocation);
 
 function FilterSelect(props: IProps) {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const select = React.useMemo(() => {
         if (props.Type == 'Meter') return EventMeterSlice.Data;
         if (props.Type == 'Location') return EventLocationSlice.Data;
@@ -57,7 +57,7 @@ function FilterSelect(props: IProps) {
     }, [props.Type])
 
 
-    const data: Data[] = useSelector(select as (state: any) => Data[]);
+    const data: Data[] = useAppSelector(select as (state: any) => Data[]);
     const [selectedData, setSelectedData] = React.useState<Data[]>();
 
     React.useEffect(() => {

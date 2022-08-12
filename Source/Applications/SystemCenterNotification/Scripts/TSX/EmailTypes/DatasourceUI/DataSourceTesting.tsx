@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch } from '../../hooks';
 import * as React from 'react';
 import { LoadingIcon, Modal, ToolTip, ServerErrorIcon } from '@gpa-gemstone/react-interactive'
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
@@ -45,7 +45,7 @@ interface IProps {
 
 
 const DataSourceTesting = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [eventID, setEventID] = React.useState<number>(-1);
     const [data, setData] = React.useState<string>('');

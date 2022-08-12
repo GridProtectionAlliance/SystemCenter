@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
 import { LoadingScreen, Modal, Search, SearchBar, TabSelector, ToolTip, Warning } from '@gpa-gemstone/react-interactive'
@@ -40,13 +40,13 @@ interface IProps { Category: EmailCategory}
 
 
 const EmailCategoryWindow = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [category, setCategory] = React.useState<EmailCategory>(props.Category);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-    const categories = useSelector(EmailCategorySlice.Data);
+    const categories = useAppSelector(EmailCategorySlice.Data);
 
     const [errors, setErrors] = React.useState<string[]>([]);
 

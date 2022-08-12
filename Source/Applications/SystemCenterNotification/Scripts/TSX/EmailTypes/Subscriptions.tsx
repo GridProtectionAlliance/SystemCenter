@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
 import { LoadingScreen, Modal, Search, SearchBar, TabSelector, ToolTip, Warning } from '@gpa-gemstone/react-interactive'
@@ -40,13 +40,13 @@ interface IProps { Record: EmailType}
 
 
 const Subscriptions = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const subscriptions = useSelector(EventSubscriptionSlice.Data);
-    const status = useSelector(EventSubscriptionSlice.Status);
-    const parentID = useSelector(EventSubscriptionSlice.ParentID);
-    const asc = useSelector(EventSubscriptionSlice.Ascending);
-    const sortKey = useSelector(EventSubscriptionSlice.SortField);
+    const subscriptions = useAppSelector(EventSubscriptionSlice.Data);
+    const status = useAppSelector(EventSubscriptionSlice.Status);
+    const parentID = useAppSelector(EventSubscriptionSlice.ParentID);
+    const asc = useAppSelector(EventSubscriptionSlice.Ascending);
+    const sortKey = useAppSelector(EventSubscriptionSlice.SortField);
 
     const [approvalStatus, setApprovalStatus] = React.useState<Application.Types.Status>('idle');
 

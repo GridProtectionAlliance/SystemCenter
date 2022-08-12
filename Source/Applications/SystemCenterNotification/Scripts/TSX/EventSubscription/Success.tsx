@@ -21,7 +21,6 @@
 //
 //******************************************************************************************************
 
-import { Provider, useDispatch, useSelector } from 'react-redux';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import { Application as App, LoadingIcon, Page } from '@gpa-gemstone/react-interactive'
@@ -29,6 +28,7 @@ import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { EmailType } from '../global';
 import { ActiveSubscriptionSlice, AssetGroupSlice, EmailCategorySlice, EmailTypeSlice, SettingSlice, UserInfoSlice } from '../Store';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as $ from 'jquery';
 
 declare var homePath;
@@ -40,10 +40,10 @@ interface IProps {
 }
 
 const Success = (props: IProps) => {
-    const dispatch = useDispatch();
-    const email = useSelector((state) => EmailTypeSlice.Datum(state, props.emailTypeID));
-    const assetGrp = useSelector((state) => AssetGroupSlice.Datum(state, props.assetGroupID));
-    const userID = useSelector(UserInfoSlice.UserAccountID);
+    const dispatch = useAppDispatch();
+    const email = useAppSelector((state) => EmailTypeSlice.Datum(state, props.emailTypeID));
+    const assetGrp = useAppSelector((state) => AssetGroupSlice.Datum(state, props.assetGroupID));
+    const userID = useAppSelector(UserInfoSlice.UserAccountID);
 
     React.useEffect(() => {
         dispatch(ActiveSubscriptionSlice.DBAction({

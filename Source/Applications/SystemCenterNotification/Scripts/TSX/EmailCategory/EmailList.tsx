@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
 import { LoadingScreen, Modal, Search, SearchBar, TabSelector, ToolTip, Warning } from '@gpa-gemstone/react-interactive'
@@ -40,15 +40,15 @@ interface IProps { CategoryID: number}
 
 
 const EmailList = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const emails = useSelector(EmailTypeSlice.Data);
-    const status = useSelector(EmailTypeSlice.Status);
+    const emails = useAppSelector(EmailTypeSlice.Data);
+    const status = useAppSelector(EmailTypeSlice.Status);
 
-    const parentID = useSelector(EmailTypeSlice.ParentID);
+    const parentID = useAppSelector(EmailTypeSlice.ParentID);
 
-    const sortField = useSelector(EmailTypeSlice.SortField);
-    const ascending = useSelector(EmailTypeSlice.Ascending);
+    const sortField = useAppSelector(EmailTypeSlice.SortField);
+    const ascending = useAppSelector(EmailTypeSlice.Ascending);
 
     React.useEffect(() => {
         if (props.CategoryID != parentID || status == 'unintiated' || status == 'changed')

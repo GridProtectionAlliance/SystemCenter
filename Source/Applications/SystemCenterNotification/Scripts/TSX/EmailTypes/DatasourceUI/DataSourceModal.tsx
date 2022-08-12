@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import { Modal, ToolTip } from '@gpa-gemstone/react-interactive'
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
@@ -42,14 +42,14 @@ interface IProps {
 
 
 const DataSourceModal = (props: IProps) => {
-    const dispatch = useDispatch();
-    const typeStatus = useSelector(TriggeredDataSourceSlice.Status);
-    const types = useSelector(TriggeredDataSourceSlice.Data);
+    const dispatch = useAppDispatch();
+    const typeStatus = useAppSelector(TriggeredDataSourceSlice.Status);
+    const types = useAppSelector(TriggeredDataSourceSlice.Data);
     const [record, setRecord] = React.useState<IDataSourceTriggeredEmailType>();
 
-    const originalsettings = useSelector(TriggeredDataSourceSettingSlice.Data);
-    const settingStatus = useSelector(TriggeredDataSourceSettingSlice.Status);
-    const settingsParentID = useSelector(TriggeredDataSourceSettingSlice.ParentID);
+    const originalsettings = useAppSelector(TriggeredDataSourceSettingSlice.Data);
+    const settingStatus = useAppSelector(TriggeredDataSourceSettingSlice.Status);
+    const settingsParentID = useAppSelector(TriggeredDataSourceSettingSlice.ParentID);
     const [currentSetings, setCurrentSettings] = React.useState<ITriggeredEmailDataSourceSetting[]>([]);
 
     const [errors, setErrors] = React.useState<string[]>([]);

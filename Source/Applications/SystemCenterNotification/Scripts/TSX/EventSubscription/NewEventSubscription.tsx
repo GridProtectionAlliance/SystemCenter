@@ -21,7 +21,6 @@
 //
 //******************************************************************************************************
 
-import { Provider, useDispatch, useSelector } from 'react-redux';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import { Application as App, Page, ToolTip } from '@gpa-gemstone/react-interactive'
@@ -32,6 +31,7 @@ import AssetGroupSelection from './AssetGroupSelection';
 import ConfirmEmail from './ConfirmEmail';
 import ConfirmPhone from './ConfirmPhone';
 import { EmailTypeSlice, UserInfoSlice } from '../Store';
+import { useAppSelector } from '../hooks';
 import Success from './Success';
 import ConfirmPhoneCarrier from './ConfirmCarrier';
 
@@ -46,9 +46,9 @@ const NewEventSubscription = (props: {}) => {
 
     const [emailTypeID, setEmailTypeID] = React.useState<number>(-1);
     const [assetGroupID, setAssetGroupID] = React.useState<number>(-1);
-    const isText = useSelector((state) => (EmailTypeSlice.Datum(state, emailTypeID) == null ? false : EmailTypeSlice.Datum(state, emailTypeID).SMS));
+    const isText = useAppSelector((state) => (EmailTypeSlice.Datum(state, emailTypeID) == null ? false : EmailTypeSlice.Datum(state, emailTypeID).SMS));
 
-    const carrierID = useSelector(UserInfoSlice.CellCarrierID);
+    const carrierID = useAppSelector(UserInfoSlice.CellCarrierID);
 
     React.useEffect(() => {
         const e = [];

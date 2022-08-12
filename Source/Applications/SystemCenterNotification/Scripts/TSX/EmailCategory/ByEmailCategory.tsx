@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
@@ -37,13 +37,13 @@ declare var version;
 interface IProps {}
 
 const ByEmailCategory = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const search: Search.IFilter<EmailCategory>[] = useSelector(EmailCategorySlice.SearchFilters);
-    const status: Application.Types.Status = useSelector(EmailCategorySlice.Status);
-    const searchStatus: Application.Types.Status = useSelector(EmailCategorySlice.SearchStatus);
-    const data: EmailCategory[] = useSelector(EmailCategorySlice.SearchResults);
-    const allData: EmailCategory[] = useSelector(EmailCategorySlice.Data);
+    const search: Search.IFilter<EmailCategory>[] = useAppSelector(EmailCategorySlice.SearchFilters);
+    const status: Application.Types.Status = useAppSelector(EmailCategorySlice.Status);
+    const searchStatus: Application.Types.Status = useAppSelector(EmailCategorySlice.SearchStatus);
+    const data: EmailCategory[] = useAppSelector(EmailCategorySlice.SearchResults);
+    const allData: EmailCategory[] = useAppSelector(EmailCategorySlice.Data);
 
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -51,8 +51,8 @@ const ByEmailCategory = (props: IProps) => {
 
     const [newEmailCategory, setNewEmailCategory] = React.useState<EmailCategory>({ ID: -1, Name: '', SelfSubscribe: true });
 
-    const sortField = useSelector(EmailCategorySlice.SortField);
-    const asc = useSelector(EmailCategorySlice.Ascending);
+    const sortField = useAppSelector(EmailCategorySlice.SortField);
+    const asc = useAppSelector(EmailCategorySlice.Ascending);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')

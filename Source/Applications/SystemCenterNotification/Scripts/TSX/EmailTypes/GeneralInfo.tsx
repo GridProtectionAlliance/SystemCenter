@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import {ToolTip, Warning } from '@gpa-gemstone/react-interactive'
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -38,13 +38,13 @@ interface IProps { Record: EmailType}
 
 
 const GeneralInfo = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [email, setEmail] = React.useState<EmailType>(props.Record);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-    const allEmails = useSelector(EmailTypeSlice.Data);
+    const allEmails = useAppSelector(EmailTypeSlice.Data);
 
     const [errors, setErrors] = React.useState<string[]>([]);
 

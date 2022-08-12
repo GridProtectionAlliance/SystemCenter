@@ -21,7 +21,6 @@
 //
 //******************************************************************************************************
 
-import { Provider, useDispatch, useSelector } from 'react-redux';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import { Application as App, LoadingIcon, Page } from '@gpa-gemstone/react-interactive'
@@ -29,6 +28,7 @@ import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { EmailType } from '../global';
 import { EmailCategorySlice, EmailTypeSlice, SettingSlice, UserInfoSlice } from '../Store';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as $ from 'jquery';
 import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
 
@@ -40,13 +40,13 @@ interface IProps {
 }
 
 const ConfirmPhone = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [forceResend, setForceResend] = React.useState<number>(-1);
     const [number, setNumber] = React.useState<number>(0);
     const [code, setCode] = React.useState<number>(-1);
 
-    const confirmed = useSelector(UserInfoSlice.ConfirmedPhone);
+    const confirmed = useAppSelector(UserInfoSlice.ConfirmedPhone);
 
     React.useEffect(() => {
         if (forceResend < 0)

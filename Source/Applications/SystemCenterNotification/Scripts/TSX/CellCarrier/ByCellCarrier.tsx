@@ -21,7 +21,6 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
 import * as React from 'react';
 import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
@@ -30,6 +29,7 @@ import Table from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import { ICellCarrier } from '../global';
 import { CellCarrierSlice } from '../Store';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { Input } from '@gpa-gemstone/react-forms';
 import { castArray } from 'lodash';
 
@@ -40,20 +40,20 @@ declare var version;
 interface IProps {}
 
 const ByCellCarrier = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const searchFields: Search.IField<ICellCarrier>[] = [
         { key: "Name", label: "Name", type: "string", isPivotField: false },
         { key: "Transform", label: "Transform", type: "string", isPivotField: false },
     ]
 
-    const searchStatus: Application.Types.Status = useSelector(CellCarrierSlice.SearchStatus);
-    const status: Application.Types.Status = useSelector(CellCarrierSlice.Status);
-    const data: ICellCarrier[] = useSelector(CellCarrierSlice.SearchResults);
-    const allData: ICellCarrier[] = useSelector(CellCarrierSlice.Data);
-    const sortField = useSelector(CellCarrierSlice.SortField);
-    const asc = useSelector(CellCarrierSlice.Ascending);
-    const filters = useSelector(CellCarrierSlice.SearchFilters);
+    const searchStatus: Application.Types.Status = useAppSelector(CellCarrierSlice.SearchStatus);
+    const status: Application.Types.Status = useAppSelector(CellCarrierSlice.Status);
+    const data: ICellCarrier[] = useAppSelector(CellCarrierSlice.SearchResults);
+    const allData: ICellCarrier[] = useAppSelector(CellCarrierSlice.Data);
+    const sortField = useAppSelector(CellCarrierSlice.SortField);
+    const asc = useAppSelector(CellCarrierSlice.Ascending);
+    const filters = useAppSelector(CellCarrierSlice.SearchFilters);
     const [showModal, setShowModal] = React.useState<'New'|'Edit'|'Hide'>('Hide');
     const [carrier, setCarrier] = React.useState<ICellCarrier>({ Name: '', Transform: '', ID: 0 })
 

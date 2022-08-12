@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { useParams } from 'react-router-dom';
 import { LoadingScreen, Modal, Search, SearchBar, TabSelector, Warning } from '@gpa-gemstone/react-interactive'
@@ -43,12 +43,12 @@ type tab = 'settings' | 'emails'
 
 
 const EmailCategoryPage = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
 
-    const category = useSelector((state) => EmailCategorySlice.Datum(state, parseInt(props.useParams.id)));
-    const status: Application.Types.Status = useSelector(EmailCategorySlice.Status);
+    const category = useAppSelector((state) => EmailCategorySlice.Datum(state, parseInt(props.useParams.id)));
+    const status: Application.Types.Status = useAppSelector(EmailCategorySlice.Status);
 
     const [tab, setTab] = React.useState<tab>('settings');
 

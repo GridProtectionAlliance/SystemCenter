@@ -21,7 +21,7 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
@@ -38,16 +38,16 @@ declare var version;
 interface IProps {}
 
 const ByEmailType = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const search: Search.IFilter<EmailType>[] = useSelector(EmailTypeSlice.SearchFilters);
-    const status: Application.Types.Status = useSelector(EmailTypeSlice.Status);
-    const searchStatus: Application.Types.Status = useSelector(EmailTypeSlice.SearchStatus);
-    const data: EmailType[] = useSelector(EmailTypeSlice.SearchResults);
-    const allData: EmailType[] = useSelector(EmailTypeSlice.Data);
-    const categoryStatus = useSelector(EmailCategorySlice.Status);
-    const categories = useSelector(EmailCategorySlice.Data);
-    const parentID = useSelector(EmailTypeSlice.ParentID);
+    const search: Search.IFilter<EmailType>[] = useAppSelector(EmailTypeSlice.SearchFilters);
+    const status: Application.Types.Status = useAppSelector(EmailTypeSlice.Status);
+    const searchStatus: Application.Types.Status = useAppSelector(EmailTypeSlice.SearchStatus);
+    const data: EmailType[] = useAppSelector(EmailTypeSlice.SearchResults);
+    const allData: EmailType[] = useAppSelector(EmailTypeSlice.Data);
+    const categoryStatus = useAppSelector(EmailCategorySlice.Status);
+    const categories = useAppSelector(EmailCategorySlice.Data);
+    const parentID = useAppSelector(EmailTypeSlice.ParentID);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -55,8 +55,8 @@ const ByEmailType = (props: IProps) => {
     const emptyEmail = { ID: -1, Name: '', ShowSubscription: true, SMS: false, CombineEventsSQL: '', TriggerEmailSQL: '', EmailCategoryID: -1, MaxDelay: 0, MinDelay: 0, Template: '', RequireApproval: false } as EmailType
     const [newEmail, setNewEmail] = React.useState<EmailType>(emptyEmail);
 
-    const sortField = useSelector(EmailTypeSlice.SortField);
-    const asc = useSelector(EmailTypeSlice.Ascending);
+    const sortField = useAppSelector(EmailTypeSlice.SortField);
+    const asc = useAppSelector(EmailTypeSlice.Ascending);
 
 
 
