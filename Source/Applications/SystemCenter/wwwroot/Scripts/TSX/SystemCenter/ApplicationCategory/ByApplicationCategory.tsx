@@ -27,7 +27,7 @@ import * as _ from 'lodash';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal} from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols'
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { ApplicationCategorySlice } from '../Store/Store';
 import { Input } from '@gpa-gemstone/react-forms';
 import { useHistory } from "react-router-dom";
@@ -39,7 +39,7 @@ export interface ApplicationCategory {
 }
 
 const ByApplicationCategory: Application.Types.iByComponent = (props) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     let history = useHistory();
 
     const emptyApplicationCategory = { ID: 0, Name: '', SortOrder: 0 };
@@ -50,11 +50,11 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
 
-    const search: Search.IFilter<ApplicationCategory>[] = useSelector(ApplicationCategorySlice.SearchFilters);
-    const status: Application.Types.Status = useSelector(ApplicationCategorySlice.Status);
-    const searchStatus: Application.Types.Status = useSelector(ApplicationCategorySlice.SearchStatus);
-    const data: ApplicationCategory[] = useSelector(ApplicationCategorySlice.SearchResults);
-    const allApplicationCategories: ApplicationCategory[] = useSelector(ApplicationCategorySlice.Data);
+    const search: Search.IFilter<ApplicationCategory>[] = useAppSelector(ApplicationCategorySlice.SearchFilters);
+    const status: Application.Types.Status = useAppSelector(ApplicationCategorySlice.Status);
+    const searchStatus: Application.Types.Status = useAppSelector(ApplicationCategorySlice.SearchStatus);
+    const data: ApplicationCategory[] = useAppSelector(ApplicationCategorySlice.SearchResults);
+    const allApplicationCategories: ApplicationCategory[] = useAppSelector(ApplicationCategorySlice.Data);
 
 
     const searchFields: Search.IField<SystemCenter.Types.Setting>[] = [

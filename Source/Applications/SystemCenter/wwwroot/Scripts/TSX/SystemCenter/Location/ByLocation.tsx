@@ -33,21 +33,21 @@ import { Search, Modal } from '@gpa-gemstone/react-interactive';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { ByLocationSlice } from '../Store/Store';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 
 declare var homePath: string;
 
 const ByLocation: Application.Types.iByComponent = (props) => {
 
     let history = useHistory();
-    const dispatch = useDispatch();
-    const data = useSelector(ByLocationSlice.SearchResults);
-    const ascending = useSelector(ByLocationSlice.Ascending);
-    const sortKey = useSelector(ByLocationSlice.SortField);
-    const searchFields = useSelector(ByLocationSlice.SearchFilters);
-    const allKeys = useSelector(ByLocationSlice.Data);
-    const searchStatus = useSelector(ByLocationSlice.SearchStatus);
-    const status = useSelector(ByLocationSlice.Status);
+    const dispatch = useAppDispatch();
+    const data = useAppSelector(ByLocationSlice.SearchResults);
+    const ascending = useAppSelector(ByLocationSlice.Ascending);
+    const sortKey = useAppSelector(ByLocationSlice.SortField);
+    const searchFields = useAppSelector(ByLocationSlice.SearchFilters);
+    const allKeys = useAppSelector(ByLocationSlice.Data);
+    const searchStatus = useAppSelector(ByLocationSlice.SearchStatus);
+    const status = useAppSelector(ByLocationSlice.Status);
     const [newLocation, setNewLocation] = React.useState<SystemCenter.Types.DetailedLocation>(getNewLocation());
     const [newLocationErrors, setNewLocationErrors] = React.useState<string[]>([]);
 

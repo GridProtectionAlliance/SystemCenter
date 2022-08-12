@@ -29,20 +29,20 @@ import * as _ from 'lodash';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
 import Table from '@gpa-gemstone/react-table';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { LocationDrawingSlice } from '../Store/Store';
 import { Input } from '@gpa-gemstone/react-forms';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 
 const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const links: SystemCenter.Types.LocationDrawing[] = useSelector(LocationDrawingSlice.Data);
-    const status: Application.Types.Status = useSelector(LocationDrawingSlice.Status);
-    const sortKey = useSelector(LocationDrawingSlice.SortField);
-    const ascending: boolean = useSelector(LocationDrawingSlice.Ascending);
-    const parentID: number = useSelector(LocationDrawingSlice.ParentID) as number;
+    const links: SystemCenter.Types.LocationDrawing[] = useAppSelector(LocationDrawingSlice.Data);
+    const status: Application.Types.Status = useAppSelector(LocationDrawingSlice.Status);
+    const sortKey = useAppSelector(LocationDrawingSlice.SortField);
+    const ascending: boolean = useAppSelector(LocationDrawingSlice.Ascending);
+    const parentID: number = useAppSelector(LocationDrawingSlice.ParentID) as number;
     const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '' };
     const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
 

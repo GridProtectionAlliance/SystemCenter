@@ -25,7 +25,7 @@ import { Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
 import { CheckBox } from '@gpa-gemstone/react-forms';
 import { ApplicationNodeSlice, SCSecurityRoleSlice } from '../Store/Store';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 
 interface IProps {
     UserID: string,
@@ -33,14 +33,14 @@ interface IProps {
 
 interface Roles extends Application.Types.iApplicationRole<Application.Types.SecurityRoleName> {}
 function UserPermission(props: IProps) {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const currentRoles: Application.Types.iApplicationRoleUserAccount[] = useSelector(SCSecurityRoleSlice.Roles);
-    const allRoleStatus: Application.Types.Status = useSelector(SCSecurityRoleSlice.Status)
-    const availableRoles: Application.Types.iApplicationRole<Application.Types.SecurityRoleName>[] = useSelector(SCSecurityRoleSlice.AvailableRoles)
-    const currentRoleStatus: Application.Types.Status = useSelector(SCSecurityRoleSlice.CurrentRoleStatus)
-    const applicationNodeStatus: Application.Types.Status = useSelector(ApplicationNodeSlice.Status);
-    const applicationNodes: Application.Types.iApplicationNode[] = useSelector(ApplicationNodeSlice.Data);
+    const currentRoles: Application.Types.iApplicationRoleUserAccount[] = useAppSelector(SCSecurityRoleSlice.Roles);
+    const allRoleStatus: Application.Types.Status = useAppSelector(SCSecurityRoleSlice.Status)
+    const availableRoles: Application.Types.iApplicationRole<Application.Types.SecurityRoleName>[] = useAppSelector(SCSecurityRoleSlice.AvailableRoles)
+    const currentRoleStatus: Application.Types.Status = useAppSelector(SCSecurityRoleSlice.CurrentRoleStatus)
+    const applicationNodeStatus: Application.Types.Status = useAppSelector(ApplicationNodeSlice.Status);
+    const applicationNodes: Application.Types.iApplicationNode[] = useAppSelector(ApplicationNodeSlice.Data);
 
 
     const [workingRoles, setWorkingRoles] = React.useState<Map<string, Roles[]>>(new Map<string, Roles[]>());

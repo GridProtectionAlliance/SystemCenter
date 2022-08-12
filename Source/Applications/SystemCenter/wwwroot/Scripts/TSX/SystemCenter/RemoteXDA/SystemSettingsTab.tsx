@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { RemoteXDAInstanceSlice } from '../Store/Store';
 import { LoadingScreen, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
@@ -36,9 +36,9 @@ interface IProps { ID: number }
 const SystemSettingsTab = (props: IProps) => {
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-    const dispatch = useDispatch();
-    const instStatus = useSelector(RemoteXDAInstanceSlice.Status) as Application.Types.Status;
-    const connection = useSelector((state) => RemoteXDAInstanceSlice.Datum(state, props.ID));
+    const dispatch = useAppDispatch();
+    const instStatus = useAppSelector(RemoteXDAInstanceSlice.Status) as Application.Types.Status;
+    const connection = useAppSelector((state) => RemoteXDAInstanceSlice.Datum(state, props.ID));
 
     const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
     const [baseInstance, setBaseInstance] = React.useState<OpenXDA.Types.RemoteXDAInstance>(connection);

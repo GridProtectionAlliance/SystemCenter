@@ -29,7 +29,7 @@ import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBForm from './ExternalDBForm';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
 
 declare var homePath: string;
@@ -54,11 +54,11 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.ExternalDataBaseTable>('TableName');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
-    const dispatch = useDispatch();
-    const extDBStatus = useSelector(ExternalDBTablesSlice.Status) as Application.Types.Status;
-    const searchResults = useSelector(ExternalDBTablesSlice.SearchResults);
-    const searchState = useSelector(ExternalDBTablesSlice.SearchStatus);
-    const searchFilters = useSelector(ExternalDBTablesSlice.SearchFilters);
+    const dispatch = useAppDispatch();
+    const extDBStatus = useAppSelector(ExternalDBTablesSlice.Status) as Application.Types.Status;
+    const searchResults = useAppSelector(ExternalDBTablesSlice.SearchResults);
+    const searchState = useAppSelector(ExternalDBTablesSlice.SearchStatus);
+    const searchFilters = useAppSelector(ExternalDBTablesSlice.SearchFilters);
 
     React.useEffect(() => {
         if (extDBStatus === 'unintiated' || extDBStatus === 'changed')

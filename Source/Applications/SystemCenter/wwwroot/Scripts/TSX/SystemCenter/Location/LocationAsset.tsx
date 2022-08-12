@@ -32,7 +32,7 @@ import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { FetchAsset, SelectAssets, SelectAssetStatus } from '../Store/AssetSlice';
 import { AssetTypeSlice } from '../Store/Store';
 import { getAssetWithAdditionalFields, editExistingAsset } from '../../../TS/Services/Asset';
@@ -44,7 +44,7 @@ declare var homePath: string;
 
 function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.Element{
     let history = useHistory();
-    let dispatch = useDispatch();
+    let dispatch = useAppDispatch();
 
     const [data, setData] = React.useState<Array<OpenXDA.Types.Asset>>([]);
     const [sortKey, setSortKey] = React.useState<string>('AssetKey');
@@ -61,11 +61,11 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
 
     const [lStatus, setLStatus] = React.useState<'error' | 'loading' | 'idle'>('idle')
 
-    const aStatus = useSelector(SelectAssetStatus);
-    const atStatus = useSelector(AssetTypeSlice.Status);
+    const aStatus = useAppSelector(SelectAssetStatus);
+    const atStatus = useAppSelector(AssetTypeSlice.Status);
 
-    const assetTypes = useSelector(AssetTypeSlice.Data);
-    const allAssets = useSelector(SelectAssets);
+    const assetTypes = useAppSelector(AssetTypeSlice.Data);
+    const allAssets = useAppSelector(SelectAssets);
 
     React.useEffect(() => {
         if (atStatus == 'unintiated' || atStatus == 'changed')

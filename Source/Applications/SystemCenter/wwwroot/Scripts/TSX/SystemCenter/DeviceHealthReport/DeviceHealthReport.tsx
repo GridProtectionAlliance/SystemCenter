@@ -29,7 +29,7 @@ import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
 
 import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { SystemCenterSettingSlice } from '../Store/Store';
 import moment from 'moment';
 import { HeavyCheckMark, CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
@@ -51,7 +51,7 @@ const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
 ];
 
 const DeviceHealthReport: Application.Types.iByComponent = (props) => {
-    let dispatch = useDispatch();
+    let dispatch = useAppDispatch();
 
     const [search, setSearch] = React.useState<Search.IFilter<SCGlobal.DeviceHealthReport>[]>([]);
 
@@ -63,8 +63,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
 
     const [ascending, setAscending] = React.useState<boolean>(true);
 
-    const settings = useSelector(SystemCenterSettingSlice.Data);
-    const settingStatus = useSelector(SystemCenterSettingSlice.Status);
+    const settings = useAppSelector(SystemCenterSettingSlice.Data);
+    const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
 
     React.useEffect(() => {
         let handle = getMeters();

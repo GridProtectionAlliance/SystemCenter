@@ -27,7 +27,7 @@ import * as _ from 'lodash';
 import UserInfo from './UserInfo';
 import UserPermissions from './UserPermissions';
 import AdditionalField from './AdditionalUserFieldsWindow'
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { CheckBox } from '@gpa-gemstone/react-forms';
 import { UserAccountSlice } from '../Store/Store';
 import { useHistory } from "react-router-dom";
@@ -38,10 +38,10 @@ interface IProps {
 
 function User(props: IProps) {
 	const history = useHistory();
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
 
-	const user: Application.Types.iUserAccount = useSelector(UserAccountSlice.CurrentUser);
-	const status: Application.Types.Status = useSelector(UserAccountSlice.Status);
+	const user: Application.Types.iUserAccount = useAppSelector(UserAccountSlice.CurrentUser);
+	const status: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
 
 	const [tab, setTab] = React.useState<string>('userInfo')
 

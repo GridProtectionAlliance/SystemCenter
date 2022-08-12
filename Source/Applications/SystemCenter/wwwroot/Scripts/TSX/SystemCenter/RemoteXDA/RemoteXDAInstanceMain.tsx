@@ -28,7 +28,7 @@ import { useHistory } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { RemoteXDAInstanceSlice } from '../Store/Store';
 import { RemoteXDAInstanceForm, BlankRemoteXDAInstance } from './RemoteXDAInstanceForm';
 
@@ -50,11 +50,11 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
     const [newInstErrors, setNewInstErrors] = React.useState<string[]>([]);
     const [formInstance, setFormInstance] = React.useState<OpenXDA.Types.RemoteXDAInstance>(BlankRemoteXDAInstance);
 
-    const dispatch = useDispatch();
-    const instStatus = useSelector(RemoteXDAInstanceSlice.Status) as Application.Types.Status;
-    const searchResults = useSelector(RemoteXDAInstanceSlice.SearchResults);
-    const searchState = useSelector(RemoteXDAInstanceSlice.SearchStatus);
-    const searchFilters = useSelector(RemoteXDAInstanceSlice.SearchFilters);
+    const dispatch = useAppDispatch();
+    const instStatus = useAppSelector(RemoteXDAInstanceSlice.Status) as Application.Types.Status;
+    const searchResults = useAppSelector(RemoteXDAInstanceSlice.SearchResults);
+    const searchState = useAppSelector(RemoteXDAInstanceSlice.SearchStatus);
+    const searchFilters = useAppSelector(RemoteXDAInstanceSlice.SearchFilters);
 
     React.useEffect(() => {
         if (instStatus === 'unintiated' || instStatus === 'changed')

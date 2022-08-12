@@ -26,7 +26,7 @@ import Table from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, Warning, LoadingScreen, ServerErrorIcon, GenericSlice } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 
 interface IProps {
     SettingsSlice: GenericSlice<SystemCenter.Types.Setting>
@@ -35,14 +35,14 @@ interface IProps {
 
 
 function Setting(props: IProps) {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const search: Search.IFilter<SystemCenter.Types.Setting>[] = useSelector(props.SettingsSlice.SearchFilters);
-    const searchStatus: Application.Types.Status = useSelector(props.SettingsSlice.SearchStatus);
+    const search: Search.IFilter<SystemCenter.Types.Setting>[] = useAppSelector(props.SettingsSlice.SearchFilters);
+    const searchStatus: Application.Types.Status = useAppSelector(props.SettingsSlice.SearchStatus);
 
-    const data: SystemCenter.Types.Setting[] = useSelector(props.SettingsSlice.SearchResults);
-    const allSettings: SystemCenter.Types.Setting[] = useSelector(props.SettingsSlice.Data);
-    const status: Application.Types.Status = useSelector(props.SettingsSlice.Status);
+    const data: SystemCenter.Types.Setting[] = useAppSelector(props.SettingsSlice.SearchResults);
+    const allSettings: SystemCenter.Types.Setting[] = useAppSelector(props.SettingsSlice.Data);
+    const status: Application.Types.Status = useAppSelector(props.SettingsSlice.Status);
 
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.Setting>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);

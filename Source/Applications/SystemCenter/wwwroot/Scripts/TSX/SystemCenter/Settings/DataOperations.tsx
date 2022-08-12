@@ -27,19 +27,19 @@ import { Input } from '@gpa-gemstone/react-forms';
 import { LoadingScreen, Modal, Search, SearchBar, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table';
 import * as React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { SystemCenter as GlobalSC } from '../global';
 import { DataOperationSlice } from '../Store/Store';
 
 const DataOperations: GlobalSC.BySettingsComponent = (props) => {
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const search = useSelector(DataOperationSlice.SearchFilters);
-    const searchStatus = useSelector(DataOperationSlice.SearchStatus);
+    const search = useAppSelector(DataOperationSlice.SearchFilters);
+    const searchStatus = useAppSelector(DataOperationSlice.SearchStatus);
 
-    const data = useSelector(DataOperationSlice.SearchResults);
-    const status = useSelector(DataOperationSlice.Status);
+    const data = useAppSelector(DataOperationSlice.SearchResults);
+    const status = useAppSelector(DataOperationSlice.Status);
 
     const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.DataOperation>('LoadOrder');
     const [ascending, setAscending] = React.useState<boolean>(true);

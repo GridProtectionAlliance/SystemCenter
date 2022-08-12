@@ -27,19 +27,19 @@ import { Input } from "@gpa-gemstone/react-forms";
 import { Modal, Search } from "@gpa-gemstone/react-interactive";
 import Table from "@gpa-gemstone/react-table";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../hooks";
 import { LSCVSAccountSlice } from "../Store/Store";
 
 interface IProps {CustomerID: number}
 
 function MDMKeys(props: IProps) {
 
-    const searchStatus: Application.Types.Status = useSelector(LSCVSAccountSlice.SearchStatus);
-    const search: Search.IFilter<SystemCenter.Types.LSCVSAccount>[] = useSelector(LSCVSAccountSlice.SearchFilters);
-    const status: Application.Types.Status = useSelector(LSCVSAccountSlice.Status);
-    const data: SystemCenter.Types.LSCVSAccount[] = useSelector(LSCVSAccountSlice.SearchResults);
-    const parentID = useSelector(LSCVSAccountSlice.ParentID);
-    const dispatch = useDispatch();
+    const searchStatus: Application.Types.Status = useAppSelector(LSCVSAccountSlice.SearchStatus);
+    const search: Search.IFilter<SystemCenter.Types.LSCVSAccount>[] = useAppSelector(LSCVSAccountSlice.SearchFilters);
+    const status: Application.Types.Status = useAppSelector(LSCVSAccountSlice.Status);
+    const data: SystemCenter.Types.LSCVSAccount[] = useAppSelector(LSCVSAccountSlice.SearchResults);
+    const parentID = useAppSelector(LSCVSAccountSlice.ParentID);
+    const dispatch = useAppDispatch();
 
 
     const emptyLSCVS = { ID: 0, AccountID: '', CustomerID: props.CustomerID };

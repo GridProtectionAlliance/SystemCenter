@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA as GemstoneOpenXDA} from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { Input, Select } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../AssetAttribute/Asset';
@@ -43,22 +43,22 @@ interface IProps { Meter: GemstoneOpenXDA.Types.Meter, IsVisible: boolean }
 type RecordChange = Map<number, Map<keyof OpenXDA.EventChannel, string | number>>;
 
 const MeterEventChannelWindow = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const data = useSelector(SelectEventChannels);
-    const sortKey = useSelector(SelectSortKey)
-    const ascending = useSelector(SelectAscending)
-    const status = useSelector(SelectEventChannelStatus);
-    const meterID = useSelector(SelectMeterID);
+    const data = useAppSelector(SelectEventChannels);
+    const sortKey = useAppSelector(SelectSortKey)
+    const ascending = useAppSelector(SelectAscending)
+    const status = useAppSelector(SelectEventChannelStatus);
+    const meterID = useAppSelector(SelectMeterID);
 
     const [recordChanges, setRecordChanges] = React.useState<RecordChange>(new Map<number, Map<keyof OpenXDA.EventChannel, number | string>>());
 
-    const phases = useSelector(PhaseSlice.Data) as GemstoneOpenXDA.Types.Phase[];
-    const measurementTypes = useSelector(MeasurmentTypeSlice.Data) as GemstoneOpenXDA.Types.MeasurementType[];
+    const phases = useAppSelector(PhaseSlice.Data) as GemstoneOpenXDA.Types.Phase[];
+    const measurementTypes = useAppSelector(MeasurmentTypeSlice.Data) as GemstoneOpenXDA.Types.MeasurementType[];
     const [assets, setAssets] = React.useState<GemstoneOpenXDA.Types.Asset[]>([]);
     
-    const pStatus = useSelector(PhaseSlice.Status) as Application.Types.Status;
-    const mtStatus = useSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
+    const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
+    const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
     const [assetStatus, setAssetStatus] = React.useState<Application.Types.Status>('idle')
 
     const [removeRecord, setRemoveRecord] = React.useState<OpenXDA.EventChannel|null>(null);

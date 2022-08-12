@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
 import Table from '@gpa-gemstone/react-table';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '../hooks';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
@@ -66,8 +66,8 @@ const AssetChannelWindow = (props: IProps) => {
 
     const [assetChannels, setAssetChannels] = React.useState<ChannelDetail[]>([]);
 
-    const pStatus = useSelector(PhaseSlice.Status) as Application.Types.Status;
-    const mtStatus = useSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
+    const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
+    const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
     const [status, setStatus] = React.useState<Application.Types.Status>('idle');
 
 

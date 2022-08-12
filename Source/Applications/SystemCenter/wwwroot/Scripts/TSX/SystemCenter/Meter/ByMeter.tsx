@@ -29,18 +29,18 @@ import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Search } from '@gpa-gemstone/react-interactive';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
 
 const ByMeter: Application.Types.iByComponent = (props) => {
     let history = useHistory();
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const data = useSelector(ByMeterSlice.SearchResults);
-    const ascending = useSelector(ByMeterSlice.Ascending);
-    const sortKey = useSelector(ByMeterSlice.SortField);
+    const data = useAppSelector(ByMeterSlice.SearchResults);
+    const ascending = useAppSelector(ByMeterSlice.Ascending);
+    const sortKey = useAppSelector(ByMeterSlice.SortField);
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID })

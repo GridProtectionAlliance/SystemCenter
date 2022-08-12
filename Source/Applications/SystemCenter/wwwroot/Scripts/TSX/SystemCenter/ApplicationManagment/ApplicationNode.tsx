@@ -26,21 +26,21 @@ import Table from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, Warning, LoadingScreen, ServerErrorIcon, GenericSlice } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { ApplicationNodeSlice } from '../Store/Store';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 
 
 
 const ByApplicationNode: Application.Types.iByComponent = (props) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const search: Search.IFilter<Application.Types.iApplicationNode>[] = useSelector(ApplicationNodeSlice.SearchFilters);
-    const searchStatus: Application.Types.Status = useSelector(ApplicationNodeSlice.SearchStatus);
+    const search: Search.IFilter<Application.Types.iApplicationNode>[] = useAppSelector(ApplicationNodeSlice.SearchFilters);
+    const searchStatus: Application.Types.Status = useAppSelector(ApplicationNodeSlice.SearchStatus);
 
-    const data: Application.Types.iApplicationNode[] = useSelector(ApplicationNodeSlice.SearchResults);
-    const allApplications: Application.Types.iApplicationNode[] = useSelector(ApplicationNodeSlice.Data);
-    const status: Application.Types.Status = useSelector(ApplicationNodeSlice.Status);
+    const data: Application.Types.iApplicationNode[] = useAppSelector(ApplicationNodeSlice.SearchResults);
+    const allApplications: Application.Types.iApplicationNode[] = useAppSelector(ApplicationNodeSlice.Data);
+    const status: Application.Types.Status = useAppSelector(ApplicationNodeSlice.Status);
 
     const [sortField, setSortField] = React.useState<keyof Application.Types.iApplicationNode>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);

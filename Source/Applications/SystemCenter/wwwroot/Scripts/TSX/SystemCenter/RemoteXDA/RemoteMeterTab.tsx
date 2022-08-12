@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import Table from '@gpa-gemstone/react-table';
 import { SystemCenter, Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { RemoteXDAMeterSlice, ByMeterSlice, RemoteXDAAssetSlice } from '../Store/Store';
@@ -39,10 +39,10 @@ const RemoteMeterTab = (props: IProps) => {
     // Display Remote Meters Consts
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.RemoteXDAMeter>('LocalMeterName');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const dispatch = useDispatch();
-    const remoteMeterStatus = useSelector(RemoteXDAMeterSlice.Status) as Application.Types.Status;
-    const searchResults = useSelector(RemoteXDAMeterSlice.SearchResults);
-    const searchState = useSelector(RemoteXDAMeterSlice.SearchStatus);
+    const dispatch = useAppDispatch();
+    const remoteMeterStatus = useAppSelector(RemoteXDAMeterSlice.Status) as Application.Types.Status;
+    const searchResults = useAppSelector(RemoteXDAMeterSlice.SearchResults);
+    const searchState = useAppSelector(RemoteXDAMeterSlice.SearchStatus);
 
     const searchFilters: Search.IFilter<OpenXDA.Types.RemoteXDAMeter>[] =
         [{
@@ -63,7 +63,7 @@ const RemoteMeterTab = (props: IProps) => {
     const [showDelete, setShowDelete] = React.useState<(boolean)>(false);
 
     // Add New Meter Consts
-    const meterStatus = useSelector(ByMeterSlice.Status) as Application.Types.Status;
+    const meterStatus = useAppSelector(ByMeterSlice.Status) as Application.Types.Status;
     const [meterList, setMeterList] = React.useState<Array<SystemCenter.Types.DetailedMeter>>([]);
     const [showAddMeters, setShowAddMeters] = React.useState<(boolean)>(false);
 

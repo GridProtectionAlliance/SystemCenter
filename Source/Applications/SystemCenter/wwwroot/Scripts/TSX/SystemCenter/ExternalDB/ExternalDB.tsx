@@ -28,7 +28,7 @@ import * as _ from 'lodash';
 import ExternalDBWindow from './ExternalDBInfo';
 import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive';
 import QueryWindow from './QueryWindow';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
 import { Application } from '@gpa-gemstone/application-typings';
 
@@ -39,9 +39,9 @@ function ExternalDB(props: { ID: number }) {
     const [tab, setTab] = React.useState(getTab);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
 
-    const dispatch = useDispatch();
-    const extDBStatus = useSelector(ExternalDBTablesSlice.Status) as Application.Types.Status;
-    const datum = useSelector((state) => ExternalDBTablesSlice.Datum(state, props.ID))
+    const dispatch = useAppDispatch();
+    const extDBStatus = useAppSelector(ExternalDBTablesSlice.Status) as Application.Types.Status;
+    const datum = useAppSelector((state) => ExternalDBTablesSlice.Datum(state, props.ID))
 
     React.useEffect(() => {
         if (extDBStatus === 'unintiated' || extDBStatus === 'changed') 

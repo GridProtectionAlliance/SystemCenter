@@ -27,7 +27,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { RemoteXDAInstanceSlice } from '../Store/Store';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import SystemSettingsTab from './SystemSettingsTab'
@@ -46,9 +46,9 @@ function RemoteXDAInstance(props: IProps) {
 
     const [loading, setLoading] = React.useState<boolean>(false);
 
-    const dispatch = useDispatch();
-    const instStatus = useSelector(RemoteXDAInstanceSlice.Status) as Application.Types.Status;
-    const connection = useSelector((state) => RemoteXDAInstanceSlice.Datum(state, props.ID));
+    const dispatch = useAppDispatch();
+    const instStatus = useAppSelector(RemoteXDAInstanceSlice.Status) as Application.Types.Status;
+    const connection = useAppSelector((state) => RemoteXDAInstanceSlice.Datum(state, props.ID));
 
     React.useEffect(() => {
         if (instStatus === 'unintiated' || instStatus === 'changed')

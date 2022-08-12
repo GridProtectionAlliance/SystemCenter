@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListGroupSlice } from '../Store/Store';
 import { ValueListSlice } from '../Store/Store';
 
@@ -37,12 +37,12 @@ import ValueListGroupForm from './ValueListGroupForm';
 
 
 const ValueListGroups: Application.Types.iByComponent = (props) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const data = useSelector(ValueListGroupSlice.SearchResults);
-    const status = useSelector(ValueListGroupSlice.SearchStatus);
-    const items = useSelector(ValueListSlice.Data);
-    const itemStatus = useSelector(ValueListSlice.Status);
+    const data = useAppSelector(ValueListGroupSlice.SearchResults);
+    const status = useAppSelector(ValueListGroupSlice.SearchStatus);
+    const items = useAppSelector(ValueListSlice.Data);
+    const itemStatus = useAppSelector(ValueListSlice.Status);
 
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ValueListGroup>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);

@@ -29,7 +29,7 @@ import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-ty
 
 import { DefaultSearchField, SearchFields } from '../CommonComponents/SearchFields';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { CustomerSlice } from '../Store/Store';
 import CustomerForm from './CustomerForm';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
@@ -38,11 +38,11 @@ import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 declare var homePath: string;
 
 const ByCustomer: Application.Types.iByComponent = (props) => {
-    let dispatch = useDispatch();
+    let dispatch = useAppDispatch();
     let history = useHistory();
 
-    const cState = useSelector(CustomerSlice.SearchStatus);
-    const data = useSelector(CustomerSlice.SearchResults);
+    const cState = useAppSelector(CustomerSlice.SearchStatus);
+    const data = useAppSelector(CustomerSlice.SearchResults);
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.Customer>>>([]);
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<OpenXDA.Types.Customer>>>(SearchFields.Customer as Search.IField<OpenXDA.Types.Customer>[]);

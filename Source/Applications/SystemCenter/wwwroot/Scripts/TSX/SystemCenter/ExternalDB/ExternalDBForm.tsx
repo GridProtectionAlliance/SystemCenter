@@ -25,13 +25,13 @@ import * as React from 'react';
 import { Input, Select} from '@gpa-gemstone/react-forms';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { ExternalDBTablesSlice } from '../Store/Store';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '../hooks';
 
 interface IProps { ExternalDB: SystemCenter.Types.ExternalDataBaseTable, Setter: (externalDBTable: SystemCenter.Types.ExternalDataBaseTable) => void, setErrors?: (e: string[]) => void }
 
 export default function ExternalDBForm(props: IProps) {
 
-    const data = useSelector(ExternalDBTablesSlice.Data) as SystemCenter.Types.ExternalDataBaseTable[];
+    const data = useAppSelector(ExternalDBTablesSlice.Data) as SystemCenter.Types.ExternalDataBaseTable[];
 
     let Options = [{
         Value: "Maximo",

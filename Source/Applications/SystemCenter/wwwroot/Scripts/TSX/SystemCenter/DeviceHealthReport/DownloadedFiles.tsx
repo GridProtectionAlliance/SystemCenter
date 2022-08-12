@@ -26,18 +26,18 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { DataFileSlice } from '../Store/Store';
 import Table from '@gpa-gemstone/react-table';
 import moment from 'moment';
 
 function DownloadedFiles(props: { MeterID: number, MeterName: string }) {
-    const dispatch = useDispatch();
-    const files = useSelector(DataFileSlice.Data);
-    const status = useSelector(DataFileSlice.Status);
-    const sortKey = useSelector(DataFileSlice.SortField);
-    const ascending = useSelector(DataFileSlice.Ascending);
-    const meterID = useSelector(DataFileSlice.ParentID);
+    const dispatch = useAppDispatch();
+    const files = useAppSelector(DataFileSlice.Data);
+    const status = useAppSelector(DataFileSlice.Status);
+    const sortKey = useAppSelector(DataFileSlice.SortField);
+    const ascending = useAppSelector(DataFileSlice.Ascending);
+    const meterID = useAppSelector(DataFileSlice.ParentID);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || meterID != props.MeterID)

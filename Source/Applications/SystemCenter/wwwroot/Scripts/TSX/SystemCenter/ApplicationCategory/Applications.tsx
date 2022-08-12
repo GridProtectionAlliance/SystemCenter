@@ -28,7 +28,7 @@ import { Input, Select } from "@gpa-gemstone/react-forms";
 import { Modal, Search, ToolTip, Warning } from "@gpa-gemstone/react-interactive";
 import Table from "@gpa-gemstone/react-table";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../hooks";
 import { PQApplicationsSlice } from "../Store/Store";
 
 
@@ -44,7 +44,7 @@ interface IProps { ID: number, Tab: string }
 
 function Applications(props: IProps) {
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -55,9 +55,9 @@ function Applications(props: IProps) {
     const [Options, setOptions] = React.useState<SystemCenter.Types.ValueListItem[]>([]);
     const [EmptyApplication, setEmptyApplication] = React.useState<PQApplications>({ ID: 0, Name: '', URL: '', Image: '', CategoryID: props.ID, SortOrder: 0 })
 
-    const data: PQApplications[] = useSelector(PQApplicationsSlice.Data);
-    const status: Application.Types.Status = useSelector(PQApplicationsSlice.Status);
-    const parentID: number = useSelector(PQApplicationsSlice.ParentID) as number;
+    const data: PQApplications[] = useAppSelector(PQApplicationsSlice.Data);
+    const status: Application.Types.Status = useAppSelector(PQApplicationsSlice.Status);
+    const parentID: number = useAppSelector(PQApplicationsSlice.ParentID) as number;
 
     const [newPQApplications, setNewPQApplications] = React.useState<PQApplications>(EmptyApplication);
 

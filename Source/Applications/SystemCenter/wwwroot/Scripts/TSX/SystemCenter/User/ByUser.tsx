@@ -28,7 +28,7 @@ import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import * as CryptoJS from 'crypto-js';
 import * as _ from 'lodash';
 import UserForm from './UserForm';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { useHistory } from "react-router-dom";
 import { ValueListSlice, ValueListGroupSlice, UserAdditionalFieldSlice, UserAccountSlice } from '../Store/Store';
 import { UserValidation } from '@gpa-gemstone/common-pages/lib/SliceInterfaces';
@@ -45,33 +45,33 @@ const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
 
 const ByUser: Application.Types.iByComponent = (props) => {
     let history = useHistory();
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const search: Search.IFilter<Application.Types.iUserAccount>[] = useSelector(UserAccountSlice.SearchFilters);
+    const search: Search.IFilter<Application.Types.iUserAccount>[] = useAppSelector(UserAccountSlice.SearchFilters);
 
-    const data: Application.Types.iUserAccount[] = useSelector(UserAccountSlice.SearchResults);
-    const userStatus: Application.Types.Status = useSelector(UserAccountSlice.Status);
-    const searchStatus: Application.Types.Status = useSelector(UserAccountSlice.SearchStatus);
-    const allUsers: Application.Types.iUserAccount[] = useSelector(UserAccountSlice.Data);
+    const data: Application.Types.iUserAccount[] = useAppSelector(UserAccountSlice.SearchResults);
+    const userStatus: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
+    const searchStatus: Application.Types.Status = useAppSelector(UserAccountSlice.SearchStatus);
+    const allUsers: Application.Types.iUserAccount[] = useAppSelector(UserAccountSlice.Data);
 
     const [sortField, setSortField] = React.useState<keyof Application.Types.iUserAccount>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
-    const currentUserAccount: Application.Types.iUserAccount = useSelector(UserAccountSlice.CurrentUser);
-    const adStatus: UserValidation = useSelector(UserAccountSlice.ADValidation);
-    const adlFields: Application.Types.iAdditionalUserField[] = useSelector(UserAdditionalFieldSlice.Fields)
-    const adlFieldStatus: Application.Types.Status = useSelector(UserAdditionalFieldSlice.FieldStatus)
+    const currentUserAccount: Application.Types.iUserAccount = useAppSelector(UserAccountSlice.CurrentUser);
+    const adStatus: UserValidation = useAppSelector(UserAccountSlice.ADValidation);
+    const adlFields: Application.Types.iAdditionalUserField[] = useAppSelector(UserAdditionalFieldSlice.Fields)
+    const adlFieldStatus: Application.Types.Status = useAppSelector(UserAdditionalFieldSlice.FieldStatus)
 
     const [filterableList, setFilterableList] = React.useState<Search.IField<Application.Types.iUserAccount>[]>(defaultSearchcols);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [userError, setUserError] = React.useState<string[]>([]);
 
-    const valueListItems: SystemCenter.Types.ValueListItem[] = useSelector(ValueListSlice.Data);
-    const valueListItemStatus: Application.Types.Status = useSelector(ValueListSlice.Status);
+    const valueListItems: SystemCenter.Types.ValueListItem[] = useAppSelector(ValueListSlice.Data);
+    const valueListItemStatus: Application.Types.Status = useAppSelector(ValueListSlice.Status);
 
-    const valueListGroups: SystemCenter.Types.ValueListGroup[] = useSelector(ValueListGroupSlice.Data);
-    const valueListGroupStatus: Application.Types.Status = useSelector(ValueListGroupSlice.Status);
+    const valueListGroups: SystemCenter.Types.ValueListGroup[] = useAppSelector(ValueListGroupSlice.Data);
+    const valueListGroupStatus: Application.Types.Status = useAppSelector(ValueListGroupSlice.Status);
 
 
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('unintiated');

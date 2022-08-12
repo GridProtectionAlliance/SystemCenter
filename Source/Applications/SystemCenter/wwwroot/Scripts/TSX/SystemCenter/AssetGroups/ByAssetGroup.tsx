@@ -31,7 +31,7 @@ import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { AssetGroupSlice, ByAssetSlice, ByMeterSlice } from '../Store/Store';
 import { DefaultSearch, DefaultSelects } from '@gpa-gemstone/common-pages';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetGroup from './AssetGroup';
 
 declare var homePath: string;
@@ -50,14 +50,14 @@ declare var homePath: string;
 const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
     let history = useHistory();
-    const dispatch = useDispatch();
-    const data = useSelector(AssetGroupSlice.SearchResults);
-    const sortKey = useSelector(AssetGroupSlice.SortField);
-    const ascending = useSelector(AssetGroupSlice.Ascending);
-    const searchStatus = useSelector(AssetGroupSlice.SearchStatus);
-    const searchFields = useSelector(AssetGroupSlice.SearchFilters)
-    const status = useSelector(AssetGroupSlice.Status);
-    const allAssetGroups = useSelector(AssetGroupSlice.Data);
+    const dispatch = useAppDispatch();
+    const data = useAppSelector(AssetGroupSlice.SearchResults);
+    const sortKey = useAppSelector(AssetGroupSlice.SortField);
+    const ascending = useAppSelector(AssetGroupSlice.Ascending);
+    const searchStatus = useAppSelector(AssetGroupSlice.SearchStatus);
+    const searchFields = useAppSelector(AssetGroupSlice.SearchFilters)
+    const status = useAppSelector(AssetGroupSlice.Status);
+    const allAssetGroups = useAppSelector(AssetGroupSlice.Data);
 
     const [showFilter, setFilter] = React.useState<('None' | 'Meter' | 'Asset' | 'Asset Group' | 'Station')>('None');
 
@@ -200,7 +200,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + item.row.ID})
     }
 
-    function valid(field: keyof (OpenXDA.Types.AssetGroup)): boolean {
+    function valid(field: keyof (extendedAssetGroup)): boolean {
         if (field == 'Name') {
             if (newAssetGroup.Name == null || newAssetGroup.Name.length == 0) return false;
                 return allAssetGroups.map(item => item.Name.toLowerCase()).indexOf(newAssetGroup.Name.toLowerCase()) < 0;

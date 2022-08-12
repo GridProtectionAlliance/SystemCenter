@@ -30,7 +30,7 @@ import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols'
 import CompanyForm from './CompanyForm';
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { CompanyTypeSlice } from '../Store/Store';
 
 declare var homePath: string;
@@ -39,9 +39,9 @@ declare var homePath: string;
 const ByCompany: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
-    const dispatch = useDispatch();
-    const companyTypes = useSelector(CompanyTypeSlice.Data) as OpenXDA.Types.CompanyType[];
-    const ctStatus = useSelector(CompanyTypeSlice.Status) as Application.Types.Status;
+    const dispatch = useAppDispatch();
+    const companyTypes = useAppSelector(CompanyTypeSlice.Data) as OpenXDA.Types.CompanyType[];
+    const ctStatus = useAppSelector(CompanyTypeSlice.Status) as Application.Types.Status;
     
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.Company>>>([]);
     const [data, setData] = React.useState<Array<OpenXDA.Types.Company>>([]);

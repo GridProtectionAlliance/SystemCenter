@@ -23,7 +23,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { CustomerSlice } from '../Store/Store';
 import { Input, Select, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
 import { FetchPQIFacilities, SelectFacilities, SelectStatus } from '../Store/PQISlice';
@@ -34,13 +34,13 @@ interface IProps { Customer: OpenXDA.Types.Customer, stateSetter: (customer: Ope
 
 
 export default function CustomerForm(props: IProps) {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [errors, setErrors] = React.useState<string[]>([]);
-    const allCustomerKeys = useSelector(CustomerSlice.Data) as OpenXDA.Types.Customer[];
-    const acStatus = useSelector(CustomerSlice.Status) as Application.Types.Status;
-    const pqiStatus = useSelector(SelectStatus);
-    const pqiFacilities = useSelector(SelectFacilities);
+    const allCustomerKeys = useAppSelector(CustomerSlice.Data) as OpenXDA.Types.Customer[];
+    const acStatus = useAppSelector(CustomerSlice.Status) as Application.Types.Status;
+    const pqiStatus = useAppSelector(SelectStatus);
+    const pqiFacilities = useAppSelector(SelectFacilities);
 
     React.useEffect(() => {
         if (pqiStatus == 'unintiated' || pqiStatus == 'changed')

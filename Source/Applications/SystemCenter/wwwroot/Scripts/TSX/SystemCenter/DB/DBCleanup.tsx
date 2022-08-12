@@ -27,7 +27,7 @@ import Table from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, Warning, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { DBCleanupSlice } from '../Store/Store';
 
 export interface DBCleanup {
@@ -38,14 +38,14 @@ export interface DBCleanup {
 }
 
 const DBCleanup: Application.Types.iByComponent = (props) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const status = useSelector(DBCleanupSlice.Status);
-    const search: Search.IFilter<DBCleanup>[] = useSelector(DBCleanupSlice.SearchFilters);
+    const status = useAppSelector(DBCleanupSlice.Status);
+    const search: Search.IFilter<DBCleanup>[] = useAppSelector(DBCleanupSlice.SearchFilters);
 
-    const searchStatus = useSelector(DBCleanupSlice.SearchStatus);
-    const data: DBCleanup[] = useSelector(DBCleanupSlice.SearchResults);
-    const allDBCleanup: DBCleanup[] = useSelector(DBCleanupSlice.Data);
+    const searchStatus = useAppSelector(DBCleanupSlice.SearchStatus);
+    const data: DBCleanup[] = useAppSelector(DBCleanupSlice.SearchResults);
+    const allDBCleanup: DBCleanup[] = useAppSelector(DBCleanupSlice.Data);
 
     const [sortField, setSortField] = React.useState<keyof DBCleanup>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);

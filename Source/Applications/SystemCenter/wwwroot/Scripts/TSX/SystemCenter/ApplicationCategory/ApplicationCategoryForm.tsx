@@ -24,16 +24,16 @@
 import { Application } from "@gpa-gemstone/application-typings";
 import { Input } from "@gpa-gemstone/react-forms";
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useAppDispatch, useAppSelector } from "../hooks";
 import { ApplicationCategorySlice } from "../Store/Store";
 import { ApplicationCategory } from "./ByApplicationCategory";
 interface IProps { ApplicationCat: ApplicationCategory, stateSetter: (appcat: ApplicationCategory) => void, setErrors?: (e: string[]) => void }
 
 
 export default function ApplicationCategoryForm(props: IProps) {
-    const dispatch = useDispatch();
-    const acStatus = useSelector(ApplicationCategorySlice.Status) as Application.Types.Status;
-    const allApplicationCategories: ApplicationCategory[] = useSelector(ApplicationCategorySlice.Data);
+    const dispatch = useAppDispatch();
+    const acStatus = useAppSelector(ApplicationCategorySlice.Status) as Application.Types.Status;
+    const allApplicationCategories: ApplicationCategory[] = useAppSelector(ApplicationCategorySlice.Data);
     const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {

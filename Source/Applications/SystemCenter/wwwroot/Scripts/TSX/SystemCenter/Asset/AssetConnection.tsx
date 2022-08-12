@@ -28,7 +28,7 @@ import { useHistory } from "react-router-dom";
 import { LoadingIcon, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
 
 interface AssetConnection {
@@ -40,11 +40,11 @@ interface AssetConnection {
 
 function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     let history = useHistory();
-    let dispatch = useDispatch();
+    let dispatch = useAppDispatch();
 
     const [assetConnections, setAssetConnections] = React.useState<Array<AssetConnection>>([]);
 
-    const assetConnectionTypes = useSelector(AssetConnectionTypeSlice.SearchResults);
+    const assetConnectionTypes = useAppSelector(AssetConnectionTypeSlice.SearchResults);
     const [selectedAssetID, setSelectedAssetID] = React.useState<number>(0);
     const [selectedTypeID, setSelectedtypeID] = React.useState<number>(0);
     const [localAssets, setLocalAssets] = React.useState<Array<OpenXDA.Types.Asset>>([]);
@@ -54,7 +54,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
     const [showModal, setShowModal] = React.useState<boolean>(false);
 
     const [status, setStatus] = React.useState<'idle' | 'loading' | 'error'>('idle');
-    const actStatus = useSelector(AssetConnectionTypeSlice.SearchStatus);
+    const actStatus = useAppSelector(AssetConnectionTypeSlice.SearchStatus);
     const [trigger, setTrigger] = React.useState<number>(0);
 
     React.useEffect(() => {

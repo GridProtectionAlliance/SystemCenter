@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { PQView, OpenXDA as LocalXDA } from '../global';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { ByAssetSlice, CustomerAssetSlice } from '../Store/Store'
 import Table from '@gpa-gemstone/react-table';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
@@ -35,13 +35,13 @@ declare var homePath: string;
 
 interface IProps { Customer: OpenXDA.Types.Customer }
 const CustomerAssetWindow = (props: IProps) => {
-    const dispatch = useDispatch();
-    const data = useSelector(CustomerAssetSlice.Data);
-    const status = useSelector(CustomerAssetSlice.Status);
+    const dispatch = useAppDispatch();
+    const data = useAppSelector(CustomerAssetSlice.Data);
+    const status = useAppSelector(CustomerAssetSlice.Status);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
 
-    const sortField = useSelector(CustomerAssetSlice.SortField);
-    const ascending = useSelector(CustomerAssetSlice.Ascending);
+    const sortField = useAppSelector(CustomerAssetSlice.SortField);
+    const ascending = useAppSelector(CustomerAssetSlice.Ascending);
 
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerAsset | null>(null);
 

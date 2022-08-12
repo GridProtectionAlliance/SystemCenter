@@ -26,7 +26,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '@gpa-gemstone/application-typings'
 import { TextArea } from '@gpa-gemstone/react-forms';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
 
 interface IProps {
@@ -36,7 +36,7 @@ interface IProps {
 export default function QueryWindow(props: IProps) {
 
     const [extDBTable, setExtDBTable] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(props.ExternalDB)
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     React.useEffect(() => {
         setExtDBTable(props.ExternalDB)

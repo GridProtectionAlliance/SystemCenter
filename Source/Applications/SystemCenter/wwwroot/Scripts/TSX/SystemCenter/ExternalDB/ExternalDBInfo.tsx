@@ -28,7 +28,7 @@ import ExternalDBForm from './ExternalDBForm';
 import { SystemCenter } from '@gpa-gemstone/application-typings'
 import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
 
 interface IProps {
@@ -41,8 +41,8 @@ export default function ExternalDBWindow(props: IProps) {
     const [errors, setErrors] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-    const dispatch = useDispatch();
-    const status = useSelector(ExternalDBTablesSlice.Status);
+    const dispatch = useAppDispatch();
+    const status = useAppSelector(ExternalDBTablesSlice.Status);
 
     React.useEffect(() => { setExtDBTable(extDBTable); }, [extDBTable]);
 

@@ -27,17 +27,17 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import ValueListGroupInfo from './ValueListGroupInfo';
 import ValueListGroupItems from './ValueListGroupItem';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListGroupSlice } from '../Store/Store';
 
 declare var homePath: string;
 
 export default function ValueListGroup(props: { GroupID: number }) {
-    const dispatch = useDispatch();
-    const record = useSelector((state) => ValueListGroupSlice.Datum(state, props.GroupID));
+    const dispatch = useAppDispatch();
+    const record = useAppSelector((state) => ValueListGroupSlice.Datum(state, props.GroupID));
 
-    const data = useSelector(ValueListGroupSlice.Data);
-    const valueListGroupStatus = useSelector(ValueListGroupSlice.Status);
+    const data = useAppSelector(ValueListGroupSlice.Data);
+    const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
 
     const [tab, setTab] = React.useState<'items' | 'info'>('items');
 

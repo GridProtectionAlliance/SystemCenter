@@ -28,7 +28,7 @@ import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
 import { UserAdditionalFieldSlice, ValueListSlice, ValueListGroupSlice } from '../Store/Store';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
 
 interface IField {
@@ -56,26 +56,26 @@ interface IProps {
 }
 
 function AdditionalField(props: IProps) {
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
 
-	const valueListItems = useSelector(ValueListSlice.Data);
-	const valueListItemStatus = useSelector(ValueListSlice.Status);
+	const valueListItems = useAppSelector(ValueListSlice.Data);
+	const valueListItemStatus = useAppSelector(ValueListSlice.Status);
 
-	const valueListGroups = useSelector(ValueListGroupSlice.Data);
-	const valueListGroupStatus= useSelector(ValueListGroupSlice.Status);
+	const valueListGroups = useAppSelector(ValueListGroupSlice.Data);
+	const valueListGroupStatus= useAppSelector(ValueListGroupSlice.Status);
 
-	const fields = useSelector(UserAdditionalFieldSlice.Fields);
-	const values = useSelector(UserAdditionalFieldSlice.Values);
-	const fieldStatus = useSelector(UserAdditionalFieldSlice.FieldStatus);
-	const valueStatus = useSelector(UserAdditionalFieldSlice.ValueStatus);
-	const valueParentID = useSelector(UserAdditionalFieldSlice.ValueParentId);
+	const fields = useAppSelector(UserAdditionalFieldSlice.Fields);
+	const values = useAppSelector(UserAdditionalFieldSlice.Values);
+	const fieldStatus = useAppSelector(UserAdditionalFieldSlice.FieldStatus);
+	const valueStatus = useAppSelector(UserAdditionalFieldSlice.ValueStatus);
+	const valueParentID = useAppSelector(UserAdditionalFieldSlice.ValueParentId);
 
 	const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('unintiated');
 
 	const [editValues, setEditValues] = React.useState<Application.Types.iAdditionalUserFieldValue[]>([]);
 
-	const sortField = useSelector(UserAdditionalFieldSlice.SortField);
-	const ascending = useSelector(UserAdditionalFieldSlice.Ascending);
+	const sortField = useAppSelector(UserAdditionalFieldSlice.SortField);
+	const ascending = useAppSelector(UserAdditionalFieldSlice.Ascending);
 
 	const [newField, setNewField] = React.useState<Application.Types.iAdditionalUserField>(props.EmptyField);
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);

@@ -24,16 +24,16 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
 import { Modal, Search } from '@gpa-gemstone/react-interactive';
 
 export default function Page5(props: { Assets: Array<OpenXDA.Types.Asset>, AssetConnections: Array<OpenXDA.Types.AssetConnection>, UpdateAssetConnections: (record: OpenXDA.Types.AssetConnection[]) => void }) {
 
-    const dispatch = useDispatch();
-    const assetConnectionTypes = useSelector(AssetConnectionTypeSlice.SearchResults);
-    const actStatus = useSelector(AssetConnectionTypeSlice.Status);
-    const allConnectionTypes = useSelector(AssetConnectionTypeSlice.Data);
+    const dispatch = useAppDispatch();
+    const assetConnectionTypes = useAppSelector(AssetConnectionTypeSlice.SearchResults);
+    const actStatus = useAppSelector(AssetConnectionTypeSlice.Status);
+    const allConnectionTypes = useAppSelector(AssetConnectionTypeSlice.Data);
 
     const [selectedTypeID, setSelectedTypeID] = React.useState<number>(0);
     const [selectedAssetKey, setSelectedAssetKey] = React.useState<string>((props.Assets[0].AssetKey));

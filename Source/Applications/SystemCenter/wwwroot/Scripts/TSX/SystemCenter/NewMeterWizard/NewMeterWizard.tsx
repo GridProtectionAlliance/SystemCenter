@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
 import { LocationSlice } from '../Store/Store';
@@ -45,11 +45,11 @@ export interface AssetLists {
 }
 
 export default function NewMeterWizard(props: {}) {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const meterKeys = useSelector(SelectMeterKeysLowerCase);
-    const mStatus = useSelector(SelectMeterStatus);
-    const lStatus = useSelector(LocationSlice.Status);
+    const meterKeys = useAppSelector(SelectMeterKeysLowerCase);
+    const mStatus = useAppSelector(SelectMeterStatus);
+    const lStatus = useAppSelector(LocationSlice.Status);
 
     const [currentStep, setCurrentStep] = React.useState<number>(getCurrentStep());
     const [meterInfo, setMeterInfo] = React.useState<OpenXDA.Types.Meter>(getMeterInfo());

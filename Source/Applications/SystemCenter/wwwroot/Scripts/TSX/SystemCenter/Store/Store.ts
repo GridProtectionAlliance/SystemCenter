@@ -40,6 +40,10 @@ import PQISlice from './PQISlice';
 
 declare var homePath: string;
 
+//Dispatch and Selector Types
+export type AppDispatch = typeof store.dispatch;
+export type RootState = ReturnType<typeof store.getState>
+
 export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup', `${homePath}api/ValueListGroup`, 'Name');
 export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList', `${homePath}api/ValueList`, 'SortOrder');
 export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing', `${homePath}api/LocationDrawing`, 'Name');
@@ -92,7 +96,7 @@ export const UserAccountSlice = new UserSlice('UserAccounts', `${homePath}api/Sy
 export const UserAdditionalFieldSlice = new AdditionalUserFieldSlice('AdditionalUserFields', `${homePath}api/SystemCenter`);
 export const SCSecurityRoleSlice = new SecurityRoleSlice('SCSecurityRole', `${homePath}api/SystemCenter`);
 
-export default configureStore({
+const store = configureStore({
     reducer: {
         LSCVSAccount: LSCVSAccountSlice.Reducer,
         CompanyType: CompanyTypeSlice.Reducer,
@@ -143,3 +147,4 @@ export default configureStore({
         PQI: PQISlice,
     }
 });
+export default store;

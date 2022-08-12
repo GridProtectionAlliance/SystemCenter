@@ -31,7 +31,7 @@ import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { AssetTypeSlice } from '../Store/Store';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
 import { Modal } from '@gpa-gemstone/react-interactive';
@@ -53,11 +53,11 @@ interface Page4Props {
 type AssetType = OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay;
 
 export default function Page4(props: Page4Props) {
-    const dispatch = useDispatch();
-    const assetTypes = useSelector(AssetTypeSlice.Data);
-    const atStatus = useSelector(AssetTypeSlice.Status);
-    const assets = useSelector(SelectAssets);
-    const aStatus = useSelector(SelectAssetStatus);
+    const dispatch = useAppDispatch();
+    const assetTypes = useAppSelector(AssetTypeSlice.Data);
+    const atStatus = useAppSelector(AssetTypeSlice.Status);
+    const assets = useAppSelector(SelectAssets);
+    const aStatus = useAppSelector(SelectAssetStatus);
 
     const [newEditAsset, setNewEditAsset] = React.useState<AssetType>(AssetAttributes.getNewAsset('Line'));
     const [editAssetKey, setEditAssetKey] = React.useState<string>('');

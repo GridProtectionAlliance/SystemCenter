@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { toNumber } from 'lodash';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../Store/Store';
 import { pseudoRandomBytes } from 'crypto';
 import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
@@ -299,19 +299,19 @@ interface IProps {
 }
 
 const ChannelScalingWindow = (props: IProps) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [VoltageMultiplier, setVoltageMultiplier] = React.useState<number>(1);
     const [CurrentMultiplier, setCurrentMultiplier] = React.useState<number>(1);
     const [Wrappers, setWrappers] = React.useState<ChannelScalingWrapper[]>([]);
 
-    const phases = useSelector(PhaseSlice.Data) as OpenXDA.Types.Phase[];
-    const measurementTypes = useSelector(MeasurmentTypeSlice.Data) as OpenXDA.Types.MeasurementType[];
-    const measurementCharacteristics = useSelector(MeasurementCharacteristicSlice.Data) as OpenXDA.Types.MeasurementCharacteristic[];
+    const phases = useAppSelector(PhaseSlice.Data) as OpenXDA.Types.Phase[];
+    const measurementTypes = useAppSelector(MeasurmentTypeSlice.Data) as OpenXDA.Types.MeasurementType[];
+    const measurementCharacteristics = useAppSelector(MeasurementCharacteristicSlice.Data) as OpenXDA.Types.MeasurementCharacteristic[];
 
-    const pStatus = useSelector(PhaseSlice.Status) as Application.Types.Status;
-    const mtStatus = useSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
-    const mcStatus = useSelector(MeasurementCharacteristicSlice.Status) as Application.Types.Status;
+    const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
+    const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
+    const mcStatus = useAppSelector(MeasurementCharacteristicSlice.Status) as Application.Types.Status;
 
     const [status, setStatus] = React.useState<Application.Types.Status>('idle')
     const [trigger, setTrigger] = React.useState<number>(0);

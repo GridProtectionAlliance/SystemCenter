@@ -37,7 +37,7 @@ import Table from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Warning, Modal, LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 
 declare var homePath: string;
 
@@ -54,12 +54,12 @@ const MeterAssetWindow = (props: IProps) => {
     const [showLoading, setShowLoading] = React.useState<boolean>(false);
 
     // Asset Slice Consts
-    const dispatch = useDispatch();
-    const assetStatus = useSelector(SearchStatus) as Application.Types.Status;
+    const dispatch = useAppDispatch();
+    const assetStatus = useAppSelector(SearchStatus) as Application.Types.Status;
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.Asset>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [filter, setFilter] = React.useState<Search.IFilter<OpenXDA.Types.Asset>[]>([]);
-    const assetResults = useSelector(SearchedAssets) as OpenXDA.Types.Asset[];
+    const assetResults = useAppSelector(SearchedAssets) as OpenXDA.Types.Asset[];
 
     React.useEffect(() => {
         let h = getAssetTypes()

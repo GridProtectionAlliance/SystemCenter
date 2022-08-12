@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { Input, TextArea, Select } from '@gpa-gemstone/react-forms';
 import { CompanyTypeSlice, CompanySlice } from '../Store/Store';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
@@ -31,12 +31,12 @@ interface IProps { Company: OpenXDA.Types.Company, Setter: (company: OpenXDA.Typ
 
 export default function CompanyForm(props: IProps) {
 
-    const dispatch = useDispatch();
-    const companyTypes = useSelector(CompanyTypeSlice.Data) as OpenXDA.Types.CompanyType[];
-    const companies = useSelector(CompanySlice.Data) as OpenXDA.Types.Company[];
+    const dispatch = useAppDispatch();
+    const companyTypes = useAppSelector(CompanyTypeSlice.Data) as OpenXDA.Types.CompanyType[];
+    const companies = useAppSelector(CompanySlice.Data) as OpenXDA.Types.Company[];
 
-    const ctStatus = useSelector(CompanyTypeSlice.Status) as Application.Types.Status;
-    const cStatus = useSelector(CompanySlice.Status) as Application.Types.Status;
+    const ctStatus = useAppSelector(CompanyTypeSlice.Status) as Application.Types.Status;
+    const cStatus = useAppSelector(CompanySlice.Status) as Application.Types.Status;
 
     React.useEffect(() => {
         let e = [];

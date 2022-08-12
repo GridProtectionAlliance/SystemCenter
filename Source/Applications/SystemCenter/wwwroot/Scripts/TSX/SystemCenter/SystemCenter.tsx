@@ -27,8 +27,9 @@ import { BrowserRouter as Router, Route, NavLink, Switch } from 'react-router-do
 import queryString from "querystring";
 import { createBrowserHistory } from "history"
 import { Application, SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
-import { Provider, useDispatch, useSelector } from 'react-redux';
+import { Provider } from 'react-redux';
 import store, { SystemCenterSettingSlice } from './Store/Store';
+import { useAppDispatch, useAppSelector } from './hooks';
 import ApplicationCategory from './ApplicationCategory/ApplicationCategory';
 
 declare var homePath: string;
@@ -36,7 +37,7 @@ declare var controllerViewPath: string;
 declare var version: string;
 
 const SystemCenter: React.FunctionComponent = (props: {}) => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const history = createBrowserHistory();
     const ByMeter = React.lazy(() => import(/*webpackChunkName: "ByMeter"*/'./Meter/ByMeter'));
@@ -92,8 +93,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
     }, []);
 
-    const settings: SCTypes.Types.Setting[] = useSelector(SystemCenterSettingSlice.Data);
-    const settingsStatus: Application.Types.Status = useSelector(SystemCenterSettingSlice.Status);
+    const settings: SCTypes.Types.Setting[] = useAppSelector(SystemCenterSettingSlice.Data);
+    const settingsStatus: Application.Types.Status = useAppSelector(SystemCenterSettingSlice.Status);
 
     React.useEffect(() => {
         if (settingsStatus == 'unintiated' || settingsStatus == 'changed')

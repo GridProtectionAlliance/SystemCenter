@@ -37,7 +37,7 @@ import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { Search, Modal, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table'
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
 import { AssetTypeSlice, ByAssetSlice } from '../Store/Store';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
@@ -52,10 +52,10 @@ declare var homePath: string;
 const ByAsset: Application.Types.iByComponent = (props) => {
 
     let history = useHistory();
-    const data = useSelector(ByAssetSlice.SearchResults);
-    const search = useSelector(ByAssetSlice.SearchFilters);
-    const sortKey = useSelector(ByAssetSlice.SortField);
-    const ascending = useSelector(ByAssetSlice.Ascending);
+    const data = useAppSelector(ByAssetSlice.SearchResults);
+    const search = useAppSelector(ByAssetSlice.SearchFilters);
+    const sortKey = useAppSelector(ByAssetSlice.SortField);
+    const ascending = useAppSelector(ByAssetSlice.Ascending);
 
     const [newAsset, setNewAsset] = React.useState<OpenXDA.Types.Asset>(AssetAttributes.getNewAsset('Line'));
 
@@ -67,11 +67,11 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     const [assetErrors, setAssetErrors] = React.useState<string[]>([]);
     const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle')
 
-    const assetType = useSelector(AssetTypeSlice.Data);
-    const assetTypeStatus = useSelector(AssetTypeSlice.Status);
-    const allAssets = useSelector(SelectAssets);
-    const aStatus = useSelector(SelectAssetStatus);
-    const dispatch = useDispatch();
+    const assetType = useAppSelector(AssetTypeSlice.Data);
+    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
+    const allAssets = useAppSelector(SelectAssets);
+    const aStatus = useAppSelector(SelectAssetStatus);
+    const dispatch = useAppDispatch();
 
     React.useEffect(() => {
         let handle = null;

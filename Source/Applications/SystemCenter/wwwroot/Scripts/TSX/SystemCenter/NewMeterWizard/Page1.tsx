@@ -24,16 +24,16 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
 import MeterProperties from '../Meter/PropertyUI/MeterProperties';
 
 declare var homePath: string;
 
 export default function Page1(props: { MeterInfo: OpenXDA.Types.Meter, UpdateMeterInfo: (record: OpenXDA.Types.Meter) => void , SetError: (e: string[]) => void}) {
-    const dispatch = useDispatch();
-    const meterKeys = useSelector(SelectMeterKeysLowerCase);
-    const mStatus = useSelector(SelectMeterStatus);
+    const dispatch = useAppDispatch();
+    const meterKeys = useAppSelector(SelectMeterKeysLowerCase);
+    const mStatus = useAppSelector(SelectMeterStatus);
 
     React.useEffect(() => {
         if (mStatus === 'unintiated' || mStatus === 'changed') {

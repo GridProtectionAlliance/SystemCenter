@@ -29,20 +29,20 @@ import { useHistory } from "react-router-dom";
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
 import { Search } from '@gpa-gemstone/react-interactive';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 
 declare var homePath: string;
 
 function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     let history = useHistory();
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
     const [meters, setMeters] = React.useState<Array<OpenXDA.Types.Meter>>([]);
     const [sortField, setSortField] = React.useState<keyof(OpenXDA.Types.Meter)>('AssetKey');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
-    const allMeters = useSelector(ByMeterSlice.Data);
-    const mStatus = useSelector(ByMeterSlice.Status);
-    const mParentID = useSelector(ByMeterSlice.ParentID);
+    const allMeters = useAppSelector(ByMeterSlice.Data);
+    const mStatus = useAppSelector(ByMeterSlice.Status);
+    const mParentID = useAppSelector(ByMeterSlice.ParentID);
 
     React.useEffect(() => {
         if (mStatus == 'unintiated' || mStatus == 'changed' || mParentID != null)

@@ -25,14 +25,14 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { LocationSlice } from '../Store/Store';
 import MeterLocationProperties from '../Meter/PropertyUI/MeterLocationProperties';
 
 export default function Page2(props: { LocationInfo: OpenXDA.Types.Location, UpdateLocationInfo: (record: OpenXDA.Types.Location) => void, SetError: (e: string[]) => void  }) {
-    const dispatch = useDispatch();
-    const locations = useSelector(LocationSlice.Data);
-    const lStatus = useSelector(LocationSlice.Status);
+    const dispatch = useAppDispatch();
+    const locations = useAppSelector(LocationSlice.Data);
+    const lStatus = useAppSelector(LocationSlice.Status);
 
     React.useEffect(() => {
         if (lStatus === 'unintiated' || lStatus === 'changed') {

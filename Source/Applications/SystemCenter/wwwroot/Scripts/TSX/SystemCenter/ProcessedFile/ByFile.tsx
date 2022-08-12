@@ -30,7 +30,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { DefaultSearchField } from '../CommonComponents/SearchFields';
 import { SearchBar, Search, Modal, LoadingIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { DataFileSlice } from '../Store/Store';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA as GlobalXDA } from '../global';
@@ -41,11 +41,11 @@ import { argv0 } from 'process';
 declare var homePath: string;
 
 const ByFile: Application.Types.iByComponent = (props) => {
-    let dispatch = useDispatch();
+    let dispatch = useAppDispatch();
     let history = useHistory();
 
-    const cState = useSelector(DataFileSlice.SearchStatus);
-    const data = useSelector(DataFileSlice.SearchResults);
+    const cState = useAppSelector(DataFileSlice.SearchStatus);
+    const data = useAppSelector(DataFileSlice.SearchResults);
 
     const [eState, setEState] = React.useState<Application.Types.Status>('idle');
     const [selectedID, setSelectetID] = React.useState<OpenXDA.Types.DataFile|null>(null);

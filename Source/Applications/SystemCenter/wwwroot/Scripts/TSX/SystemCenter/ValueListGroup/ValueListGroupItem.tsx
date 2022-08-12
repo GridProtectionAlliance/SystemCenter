@@ -25,16 +25,16 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 
-import { useSelector, useDispatch } from 'react-redux';
+import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
 
 export default function ValueListGroupItems(props: { Record: SystemCenter.Types.ValueListGroup }) {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const data = useSelector(ValueListSlice.Data);
-    const status = useSelector(ValueListSlice.Status);
-    const parentID= useSelector(ValueListSlice.ParentID);
+    const data = useAppSelector(ValueListSlice.Data);
+    const status = useAppSelector(ValueListSlice.Status);
+    const parentID= useAppSelector(ValueListSlice.ParentID);
 
     const emptyRecord: SystemCenter.Types.ValueListItem = { ID: 0, GroupID: 0, Value: '', AltValue: '', SortOrder: 0 };
     const [record, setRecord] = React.useState<SystemCenter.Types.ValueListItem>(emptyRecord);

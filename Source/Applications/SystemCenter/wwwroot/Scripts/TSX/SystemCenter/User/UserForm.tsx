@@ -25,7 +25,7 @@ import { Application } from '@gpa-gemstone/application-typings';
 import { Input, DatePicker, CheckBox } from '@gpa-gemstone/react-forms'
 import * as _ from 'lodash';
 import { UserAccountSlice } from '../Store/Store';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 
 interface IProps {
     UserAccount: Application.Types.iUserAccount,
@@ -35,12 +35,12 @@ interface IProps {
 }
 
 function UserForm(props: IProps) {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     const [updatedAD, setUpdatedAD] = React.useState<boolean>(false);
-    const userValidation = useSelector(UserAccountSlice.ADValidation);
-    const allUsers: Application.Types.iUserAccount[] = useSelector(UserAccountSlice.Data);
-    const userStatus: Application.Types.Status = useSelector(UserAccountSlice.Status);
+    const userValidation = useAppSelector(UserAccountSlice.ADValidation);
+    const allUsers: Application.Types.iUserAccount[] = useAppSelector(UserAccountSlice.Data);
+    const userStatus: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
 
     const [userError, setUserError] = React.useState<string[]>([]);
 

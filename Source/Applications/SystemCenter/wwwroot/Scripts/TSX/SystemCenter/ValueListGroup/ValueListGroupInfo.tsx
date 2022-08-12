@@ -25,13 +25,13 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { useDispatch } from 'react-redux';
+import { useAppDispatch } from '../hooks';
 import { ValueListGroupSlice } from '../Store/Store';
 import ValueListGroupForm from './ValueListGroupForm';
 
 const ValueListInfoWindow = (props: { Record: SystemCenter.Types.ValueListGroup }) => {
     const [record, setRecord] = React.useState<SystemCenter.Types.ValueListGroup>(props.Record);
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     if (record == null) return;
     return (

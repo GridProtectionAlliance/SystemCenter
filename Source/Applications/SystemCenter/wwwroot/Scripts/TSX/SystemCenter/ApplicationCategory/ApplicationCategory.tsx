@@ -24,7 +24,7 @@ import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategor
 import * as React from 'react';
 import * as _ from 'lodash';
 import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { ApplicationCategorySlice } from '../Store/Store';
 import { Application } from '@gpa-gemstone/application-typings';
 import { Input } from '@gpa-gemstone/react-forms';
@@ -41,10 +41,10 @@ function ApplicationCategory(props: IProps) {
     const [tab, setTab] = React.useState(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
-    const acStatus = useSelector(ApplicationCategorySlice.Status) as Application.Types.Status;
-    const applicationCategory = useSelector((state) => ApplicationCategorySlice.Datum(state, props.ID)) as ApplicationCategory;
+    const acStatus = useAppSelector(ApplicationCategorySlice.Status) as Application.Types.Status;
+    const applicationCategory = useAppSelector((state) => ApplicationCategorySlice.Datum(state, props.ID)) as ApplicationCategory;
 
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
     React.useEffect(() => {
         if (acStatus == 'unintiated' || acStatus == 'changed')

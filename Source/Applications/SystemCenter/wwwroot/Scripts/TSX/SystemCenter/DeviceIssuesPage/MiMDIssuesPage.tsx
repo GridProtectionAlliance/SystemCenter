@@ -31,17 +31,17 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import Reason from './Reason';
 import moment from 'moment';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { SystemCenterSettingSlice } from '../Store/Store';
 
 function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
-    let dispatch = useDispatch();
+    let dispatch = useAppDispatch();
 
     const [data, setData] = React.useState<SC.MiMDDailyStatistic[]>([]);
     const [sortField, setSortField] = React.useState<keyof SC.MiMDDailyStatistic>('Date');
     const [ascending, setAscending] = React.useState<boolean>(false);
-    const settings = useSelector(SystemCenterSettingSlice.Data);
-    const settingStatus = useSelector(SystemCenterSettingSlice.Status);
+    const settings = useAppSelector(SystemCenterSettingSlice.Data);
+    const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
 
     React.useEffect(() => {
         let handle = $.ajax({

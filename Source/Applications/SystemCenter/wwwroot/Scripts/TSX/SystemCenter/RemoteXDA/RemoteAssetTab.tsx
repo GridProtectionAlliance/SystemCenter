@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import Table from '@gpa-gemstone/react-table';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { RemoteXDAAssetSlice, ByAssetSlice } from '../Store/Store';
@@ -39,10 +39,10 @@ const RemoteAssetTab = (props: IProps) => {
     // Display Remote Assets Consts
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.RemoteXDAAsset>('LocalAssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const dispatch = useDispatch();
-    const remoteAssetStatus = useSelector(RemoteXDAAssetSlice.Status);
-    const searchResults = useSelector(RemoteXDAAssetSlice.SearchResults);
-    const searchState = useSelector(RemoteXDAAssetSlice.SearchStatus);
+    const dispatch = useAppDispatch();
+    const remoteAssetStatus = useAppSelector(RemoteXDAAssetSlice.Status);
+    const searchResults = useAppSelector(RemoteXDAAssetSlice.SearchResults);
+    const searchState = useAppSelector(RemoteXDAAssetSlice.SearchStatus);
 
     const searchFilters: Search.IFilter<OpenXDA.Types.RemoteXDAAsset>[] =
     [{
@@ -61,7 +61,7 @@ const RemoteAssetTab = (props: IProps) => {
     const [showDelete, setShowDelete] = React.useState<(boolean)>(false);
 
     // Add New Asset Consts
-    const assetStatus = useSelector(ByAssetSlice.Status) as Application.Types.Status;
+    const assetStatus = useAppSelector(ByAssetSlice.Status) as Application.Types.Status;
     const [assetList, setAssetList] = React.useState<Array<SystemCenter.Types.DetailedAsset>>([]);
     const [showAddAssets, setShowAddAssets] = React.useState<(boolean)>(false);
 

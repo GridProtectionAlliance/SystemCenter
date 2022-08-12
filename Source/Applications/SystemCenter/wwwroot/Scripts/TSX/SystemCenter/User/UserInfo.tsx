@@ -28,12 +28,12 @@ import UserForm from './UserForm';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 import { Warning } from '@gpa-gemstone/gpa-symbols';
 import { UserAccountSlice } from '../Store/Store';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 
 const UserInfo = () => {
-    const dispatch = useDispatch();
+    const dispatch = useAppDispatch();
 
-    const currentUser = useSelector(UserAccountSlice.CurrentUser);
+    const currentUser = useAppSelector(UserAccountSlice.CurrentUser);
     const [user, setUser] = React.useState<Application.Types.iUserAccount>(currentUser);
     const [warnings, setWarning] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('None' | 'Clear')>('None');

@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { Input } from '@gpa-gemstone/react-forms';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
-import { useDispatch, useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { createPortal } from "react-dom";
 import { UserAccountSliceRemote } from '../Store/Store';
 import { IsCron } from '@gpa-gemstone/helper-functions';
@@ -71,9 +71,9 @@ interface IProps { BaseInstance: OpenXDA.Types.RemoteXDAInstance, SetInstance: (
 
 export default function RemoteXDAInstanceForm(props: IProps) {
     // UserAccount Slice const
-    const dispatch = useDispatch();
-    const userStatus = useSelector(UserAccountSliceRemote.Status) as Application.Types.Status;
-    const user = useSelector((state) => UserAccountSliceRemote.Datum(state, props.BaseInstance.UserAccountID));
+    const dispatch = useAppDispatch();
+    const userStatus = useAppSelector(UserAccountSliceRemote.Status) as Application.Types.Status;
+    const user = useAppSelector((state) => UserAccountSliceRemote.Datum(state, props.BaseInstance.UserAccountID));
 
     // Portal rendering const
     const [domReady, setDomReady] = React.useState(false);
