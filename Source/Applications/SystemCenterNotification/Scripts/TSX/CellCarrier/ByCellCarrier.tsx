@@ -128,11 +128,11 @@ const ByCellCarrier = (props: IProps) => {
                 </>}
                 ConfirmBtnClass={'btn-success'} CallBack={(c, b) => {
                     if (showModal == 'New' && c)
-                        CellCarrierSlice.DBAction({ verb: 'POST', record: carrier })
+                        dispatch(CellCarrierSlice.DBAction({ verb: 'POST', record: carrier }))
                     if (showModal == 'Edit' && c)
-                        CellCarrierSlice.DBAction({ verb: 'PATCH', record: carrier })
-                    if (showModal == 'New' && b && !c)
-                        CellCarrierSlice.DBAction({ verb: 'DELETE', record: carrier })
+                        dispatch(CellCarrierSlice.DBAction({ verb: 'PATCH', record: carrier }))
+                    if (showModal == 'Edit' && b && !c)
+                        dispatch(CellCarrierSlice.DBAction({ verb: 'DELETE', record: carrier }))
 
                     setShowModal('Hide');
 
