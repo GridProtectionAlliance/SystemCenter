@@ -32,6 +32,7 @@ import { ApplicationCategorySlice } from '../Store/Store';
 import { Input } from '@gpa-gemstone/react-forms';
 import { useHistory } from "react-router-dom";
 
+//TODO: remove this interface and use interface from gemstone when new gemstone application-typing is published (check for it being used anywhere else too)
 export interface ApplicationCategory {
     ID: number;
     Name: string;

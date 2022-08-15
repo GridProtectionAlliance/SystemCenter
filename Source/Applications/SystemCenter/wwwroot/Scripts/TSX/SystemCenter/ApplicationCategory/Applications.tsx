@@ -31,46 +31,52 @@ import React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { PQApplicationsSlice } from "../Store/Store";
 
-
+//TODO: remove this interface and use interface from gemstone when new gemstone application-typing is published (check for it being used anywhere else too)
 export interface PQApplications {
     ID: number;
     Name: string;
-    URL: string;
+    Url: string;
     Image: string;
     CategoryID: number;
     SortOrder: number;
 }
+
 interface IProps { ID: number, Tab: string }
+
+const EmptyApplication: PQApplications = {
+    ID: 0,
+    Name: '',
+    Url: '',
+    Image: '',
+    CategoryID: 0,
+    SortOrder: 0
+}
 
 function Applications(props: IProps) {
 
     const dispatch = useAppDispatch();
 
+    // Pop-up consts
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
-    const [sortField, setSortField] = React.useState<keyof PQApplications>('Name');
-    const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
-    const [ascending, setAscending] = React.useState<boolean>(false);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
-    const [Options, setOptions] = React.useState<SystemCenter.Types.ValueListItem[]>([]);
-    const [EmptyApplication, setEmptyApplication] = React.useState<PQApplications>({ ID: 0, Name: '', URL: '', Image: '', CategoryID: props.ID, SortOrder: 0 })
+    const [Options, setOptions] = React.useState<string[]>([]);
+    const [EditApplication, setEditApplication] = React.useState<PQApplications>(EmptyApplication);
 
+    //Table consts
+    const [sortField, setSortField] = React.useState<keyof PQApplications>('Name');
+    const [ascending, setAscending] = React.useState<boolean>(false);
     const data: PQApplications[] = useAppSelector(PQApplicationsSlice.Data);
+    const parentID = useAppSelector(PQApplicationsSlice.ParentID);
     const status: Application.Types.Status = useAppSelector(PQApplicationsSlice.Status);
-    const parentID: number = useAppSelector(PQApplicationsSlice.ParentID) as number;
-
-    const [newPQApplications, setNewPQApplications] = React.useState<PQApplications>(EmptyApplication);
-
 
     React.useEffect(() => {
-        if (status === 'unintiated' || status === 'changed' || props.ID != parentID)
+        if (status === 'unintiated' || status === 'changed' || parentID !== props.ID)
             dispatch(PQApplicationsSlice.Fetch(props.ID));
-    }, [dispatch, status]);
-
-    React.useEffect(() => { setHasChanged(false) }, [showModal]);
+    }, [dispatch, status, parentID]);
 
     React.useEffect(() => {
-        dispatch(PQApplicationsSlice.Sort({ SortField: sortField, Ascending: ascending }));
+        dispatch(PQApplicationsSlice.Sort({ SortField: sortField, Ascending: ascending}));
     }, [ascending, sortField]);
 
     React.useEffect(() => {
@@ -81,21 +87,25 @@ function Applications(props: IProps) {
     }, []);
 
     React.useEffect(() => {
-        if (Options.length > 0) 
-            setEmptyApplication({ ID: 0, Name: '', URL: '', Image: Options[0].Value, CategoryID: props.ID, SortOrder: 0 })
+        if (Options.length > 0)
+            setEditApplication({ ...EditApplication, Image: Options[0], CategoryID: props.ID})
     }, [Options]);
 
     function getTileImages() {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/ValueList/Group/TileImages`,
+            url: `${homePath}api/OpenXDA/Tiles/GetAll`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
             async: true
         });
-        handle.done(d => setOptions(d))
+        handle.done(d => setOptions(d));
         return handle;
+    }
+
+    function isNew(app: PQApplications): boolean {
+        return app.ID < 1;
     }
 
     return (
@@ -109,74 +119,78 @@ function Applications(props: IProps) {
             </div>
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
                 <Table<PQApplications>
-                        cols={[
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'URL', field: 'URL', label: 'URL', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'SortOrder', field: 'SortOrder', label: 'Sort Order', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Image', field: 'Image', label: 'Image', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortField}
-                        ascending={ascending}
-                        onSort={(d) => {
-                            if (d.colField === undefined)
-                                return;
+                    cols={[
+                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Url', field: 'Url', label: 'URL', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'SortOrder', field: 'SortOrder', label: 'Sort Order', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Image', field: 'Image', label: 'Image', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }
+                    ]}
+                    tableClass="table table-hover"
+                    data={data}
+                    sortKey={sortField}
+                    ascending={ascending}
+                    onSort={(d) => {
+                        if (d.colField === undefined)
+                            return;
 
-                            if (d.colField === sortField)
-                                setAscending(!ascending);
-                            else {
-                                setAscending(true);
-                                setSortField(d.colField);
-                            }
-                        }}
-                        onClick={(item) => { setNewPQApplications(item.row); setShowModal(true); setEditNew('Edit'); }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455,}}
-                        rowStyle={{display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
+                        if (d.colField === sortField)
+                            setAscending(!ascending);
+                        else {
+                            setAscending(true);
+                            setSortField(d.colField);
+                        }
+                    }}
+                    onClick={(item) => { setEditApplication(item.row); setShowModal(true); setHasChanged(false); }}
+                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    selected={(item) => false}
                 />
                 <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className={"btn btn-primary"} onClick={() => { { setShowModal(true); setEditNew('New'); setNewPQApplications(EmptyApplication) } }} data-tooltip={'New'} >Add Application</button>
+                        <button className={"btn btn-primary"} onClick={() => {
+                            { setShowModal(true); setHasChanged(false); setEditApplication({ ...EmptyApplication, Image: (Options.length > 0 ? Options[0] : EmptyApplication.Image), CategoryID: props.ID }) }
+                        }} data-tooltip={'New'} >Add Application</button>
                     </div>
                 </div>
             </div>
-            <Modal Title={editNew === 'Edit' ? newPQApplications.Name + ' - Application' : 'Add New Application'}
-                Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
+            <Modal Title={isNew(EditApplication) ?  'Add New Application' : EditApplication.Name + ' - Application'}
+                Show={showModal} ShowX={true} Size={'lg'} ShowCancel={!isNew(EditApplication)} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
-                    if (conf && editNew === 'New')
-                        dispatch(PQApplicationsSlice.DBAction({ verb: 'POST', record: newPQApplications }))
-                    if (conf && editNew === 'Edit')
-                        dispatch(PQApplicationsSlice.DBAction({ verb: 'PATCH', record: newPQApplications }))
-                    if (!conf && isBtn)
+                    if (conf) {
+                        if (isNew(EditApplication))
+                            dispatch(PQApplicationsSlice.DBAction({ verb: 'POST', record: EditApplication }))
+                        else
+                            dispatch(PQApplicationsSlice.DBAction({ verb: 'PATCH', record: EditApplication }))
+                    }
+                    else if (isBtn)
                         setShowWarning(true);
                     setShowModal(false);
                 }}
-                DisableConfirm={(editNew === 'Edit' && !hasChanged)}
+                DisableConfirm={(!isNew(EditApplication) && !hasChanged)}
             >
                 <div className="row">
                     <div className="col">
-                        <Input<PQApplications> Record={newPQApplications} Field={'Name'} Label='Name' Feedback={'A Name is required.'}
-                            Valid={field => newPQApplications.Name != null && newPQApplications.Name.length > 0}
-                            Setter={(record) => { setNewPQApplications(record); setHasChanged(true); }}
+                        <Input<PQApplications> Record={EditApplication} Field={'Name'} Label='Name' Feedback={'A Name is required.'}
+                            Valid={field => EditApplication.Name != null && EditApplication.Name.length > 0}
+                            Setter={(record) => { setEditApplication(record); setHasChanged(true); }}
                         />
-                        <Input<PQApplications> Record={newPQApplications} Field={'URL'} Label='URL' Feedback={'URL is required.'}
-                            Valid={field => newPQApplications.URL != null && newPQApplications.URL.length > 0}
-                            Setter={(record) => { setNewPQApplications(record); setHasChanged(true); }}
+                        <Input<PQApplications> Record={EditApplication} Field={'Url'} Label='URL' Feedback={'URL is required.'}
+                            Valid={field => EditApplication.Url != null && EditApplication.Url.length > 0}
+                            Setter={(record) => { setEditApplication(record); setHasChanged(true); }}
                         />
-                        <Input<PQApplications> Type={'number'} Record={newPQApplications} Field={'SortOrder'} Label='Sort Order' Feedback={'Sort Order is required.'}
+                        <Input<PQApplications> Type={'number'} Record={EditApplication} Field={'SortOrder'} Label='Sort Order' Feedback={'Sort Order is required.'}
                             Valid={field => true}
-                            Setter={(record) => { setNewPQApplications(record); setHasChanged(true); }}
+                            Setter={(record) => { setEditApplication(record); setHasChanged(true); }}
                         />
-                        <Select<PQApplications> Record={newPQApplications} Field={'Image'} Label='Image' Options={Options.map((item => ({ Value: item.Value, Label: item.AltValue })))}
-                            Setter={(record) => { setNewPQApplications(record); setHasChanged(true); }}
+                        <Select<PQApplications> Record={EditApplication} Field={'Image'} Label='Image' Options={Options.map((item => ({ Value: item, Label: item })))}
+                            Setter={(record) => { setEditApplication(record); setHasChanged(true); }}
                         />
                     </div>
                 </div>
             </Modal>
             <Warning Title={'Delete Application'} Message={'This will Delete this Application from the System. This can have unintended consequences and cause the System to crash. Are you sure you want to continue?'}
-                Show={showWarning} CallBack={(conf) => { if (conf) dispatch(PQApplicationsSlice.DBAction({ verb: 'DELETE', record: newPQApplications })); setShowWarning(false); }} />
+                Show={showWarning} CallBack={(conf) => { if (conf) dispatch(PQApplicationsSlice.DBAction({ verb: 'DELETE', record: EditApplication })); setShowWarning(false); }} />
         </div>
     )
 }
