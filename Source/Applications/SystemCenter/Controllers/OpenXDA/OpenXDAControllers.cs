@@ -48,48 +48,6 @@ using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
-    public class OpenXDAApiController
-    {
-        #region [Properties]
-        private string Connection { get; } = "systemSettings";
-        private class Settings
-        {
-            public Settings(Action<object> configure) =>
-                configure(this);
-
-            [Category]
-            [SettingName("XDA")]
-            public APIConfiguration APISettings { get; } = new APIConfiguration();
-        }
-        #endregion
-
-        private AdoDataConnection CreateDbConnection()
-        {
-            AdoDataConnection connection = new AdoDataConnection(Connection);
-            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
-            return connection;
-        }
-
-        public async Task<string> SendGetRequest(string requestURI)
-        {
-            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
-
-            APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
-            void ConfigureRequest(HttpRequestMessage request)
-            {
-                request.Method = HttpMethod.Get;
-            }
-            HttpResponseMessage responseMessage = await query.SendWebRequestAsync(ConfigureRequest, requestURI).ConfigureAwait(false);
-            if (!responseMessage.IsSuccessStatusCode)
-            {
-                throw new Exception("Status code " + responseMessage.StatusCode + ": " + responseMessage.ReasonPhrase);
-            }
-
-            return await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
-
-        }
-    }
-
     [RoutePrefix("api/OpenXDA/DataOperation")]
     public class DataOperationController : ModelController<DataOperation> { }
     [RoutePrefix("api/OpenXDA/DataReader")]
@@ -512,7 +470,15 @@ namespace SystemCenter.Controllers.OpenXDA
     public class RemoteXDAInstanceController : ModelController<RemoteXDAInstance>
     {
         #region [Properties]
-        private readonly OpenXDAApiController XdaApiController = new OpenXDAApiController();
+        private class Settings
+        {
+            public Settings(Action<object> configure) =>
+                configure(this);
+
+            [Category]
+            [SettingName("XDA")]
+            public APIConfiguration APISettings { get; } = new APIConfiguration();
+        }
         #endregion
 
         #region [HttpMethods]
@@ -523,7 +489,7 @@ namespace SystemCenter.Controllers.OpenXDA
                 return Unauthorized();
             try
             {
-                Task<string> responseTask = XdaApiController.SendGetRequest($"/api/DataPusher/TestConnection/{remoteInstanceID}");
+                Task<string> responseTask = SendGetRequest($"/api/DataPusher/TestConnection/{remoteInstanceID}");
                 return Ok(responseTask.Result);
             }
             catch (Exception ex)
@@ -540,13 +506,40 @@ namespace SystemCenter.Controllers.OpenXDA
                 return Unauthorized();
             try
             {
-                Task<string> responseTask = XdaApiController.SendGetRequest($"/api/DataPusher/SyncInstanceConfig/SystemCenter/{remoteInstanceID}");
+                Task<string> responseTask = SendGetRequest($"/api/DataPusher/SyncInstanceConfig/SystemCenter/{remoteInstanceID}");
                 return Ok("1");
             }
             catch (Exception ex)
             {
                 return InternalServerError(ex);
             }
+        }
+
+        //Todo: Think about moving this into API Auth Module
+        public async Task<string> SendGetRequest(string requestURI)
+        {
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+
+            APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+            HttpResponseMessage responseMessage = await query.SendWebRequestAsync(ConfigureRequest, requestURI).ConfigureAwait(false);
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                throw new Exception("Status code " + responseMessage.StatusCode + ": " + responseMessage.ReasonPhrase);
+            }
+
+            return await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+        }
+
+        private AdoDataConnection CreateDbConnection()
+        {
+            AdoDataConnection connection = new AdoDataConnection(Connection);
+            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
+            return connection;
         }
         #endregion
     }
@@ -555,7 +548,17 @@ namespace SystemCenter.Controllers.OpenXDA
     public class TileListController : ApiController
     {
         #region [Properties]
-        private readonly OpenXDAApiController XdaApiController = new OpenXDAApiController();
+        private string Connection { get; } = "systemSettings";
+        private class Settings
+        {
+            public Settings(Action<object> configure) =>
+                configure(this);
+
+            [Category]
+            [SettingName("XDA")]
+            public APIConfiguration APISettings { get; } = new APIConfiguration();
+        }
+
         #endregion
 
         #region [HttpMethods]
@@ -564,7 +567,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             try
             {
-                Task<string> responseTask = XdaApiController.SendGetRequest($"/api/TileList/GetAll");
+                Task<string> responseTask = SendGetRequest($"/api/TileList/GetAll");
                 object json_obj = JsonConvert.DeserializeObject(responseTask.Result);
                 return Json(json_obj);
             }
@@ -572,6 +575,32 @@ namespace SystemCenter.Controllers.OpenXDA
             {
                 return InternalServerError(ex);
             }
+        }
+
+        //Todo: Think about moving this into API Auth Module
+        public async Task<string> SendGetRequest(string requestURI)
+        {
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+
+            APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+            HttpResponseMessage responseMessage = await query.SendWebRequestAsync(ConfigureRequest, requestURI).ConfigureAwait(false);
+            if (!responseMessage.IsSuccessStatusCode)
+            {
+                throw new Exception("Status code " + responseMessage.StatusCode + ": " + responseMessage.ReasonPhrase);
+            }
+
+            return await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+        }
+        private AdoDataConnection CreateDbConnection()
+        {
+            AdoDataConnection connection = new AdoDataConnection(Connection);
+            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
+            return connection;
         }
         #endregion
     }
