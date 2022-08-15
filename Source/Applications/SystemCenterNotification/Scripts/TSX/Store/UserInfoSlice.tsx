@@ -42,7 +42,8 @@ interface IState {
     Roles: Application.Types.SecurityRoleName[],
     EmailConfirmed: boolean,
     PhoneConfirmed: boolean,
-    CellCarrierID?: number
+    CellCarrierID?: number,
+    CellPhone: string,
 }
 
 interface IUserInfo {
@@ -51,6 +52,7 @@ interface IUserInfo {
     EmailConfirmed : boolean,
     PhoneConfirmed: boolean,
     CellCarrierID?: number,
+    CellPhone: string,
 }
 
 export default class UserInfoSlice {
@@ -59,6 +61,7 @@ export default class UserInfoSlice {
     Slice: (Slice<IState>);
     Fetch: (AsyncThunk<any, void, {}>);
     UpdateCarrier: (AsyncThunk<any, number, {}>);
+    UpdatePhone: (AsyncThunk<any, string, {}>);
     Reducer: any;
 
     private fetchHandle: any | null;
@@ -97,7 +100,17 @@ export default class UserInfoSlice {
             return await handle;
         });
 
+        const updatePhone = createAsyncThunk(`${name}/PatchPhone${name}`, async (args: string, { signal, getState }) => {
 
+
+            const handle = this.PatchPhoneNumber(args);
+
+            signal.addEventListener('abort', () => {
+                if (handle.abort !== undefined) handle.abort();
+            });
+
+            return await handle;
+        });
 
 
     const slice = createSlice({
@@ -110,7 +123,8 @@ export default class UserInfoSlice {
             ActiveFetchID: [],
             EmailConfirmed: false,
             PhoneConfirmed: false,
-            CellCarrierID: null
+            CellCarrierID: null,
+            CellPhone: ''
         } as IState,
         reducers: {},
         extraReducers: (builder: ActionReducerMapBuilder<IState>) => {
@@ -124,6 +138,7 @@ export default class UserInfoSlice {
                 state.EmailConfirmed = data.EmailConfirmed;
                 state.PhoneConfirmed = data.PhoneConfirmed;
                 state.CellCarrierID = data.CellCarrierID;
+                state.CellPhone = data.CellPhone;
             });
             builder.addCase(fetch.pending, (state: WritableDraft<IState>, action: PayloadAction<undefined, string, { arg: void, requestId: string }, never>) => {
                 state.Status = 'loading';
@@ -153,6 +168,18 @@ export default class UserInfoSlice {
                     Time: new Date().toString()
                 }
             });
+            builder.addCase(updatePhone.fulfilled, (state: WritableDraft<IState>, action: PayloadAction<unknown, string, { arg: string, requestId: string }, never>) => {
+                state.Status = 'changed';
+            });
+            builder.addCase(updatePhone.rejected, (state: WritableDraft<IState>, action: PayloadAction<unknown, string, { arg: string, requestId: string }, SerializedError>) => {
+                state.Status = 'error';
+
+                state.Error = {
+                    Message: (action.error.message == null ? '' : action.error.message),
+                    Verb: 'PATCH',
+                    Time: new Date().toString()
+                }
+            });
         }
 
     });
@@ -160,9 +187,9 @@ export default class UserInfoSlice {
 
     this.Fetch = fetch;
     this.Slice = slice;
-        this.Reducer = slice.reducer;
+    this.Reducer = slice.reducer;
         this.UpdateCarrier = updateCarrier;
-
+        this.UpdatePhone = updatePhone;
     }
 
 
@@ -188,11 +215,23 @@ export default class UserInfoSlice {
         });
     }
 
+    private PatchPhoneNumber(phone: string): any {
+        return $.ajax({
+            type: "GET",
+            url: `${this.APIPath}/PatchPhone/${phone}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+    }
+
     public UserAccountID = (state: any) => state[this.Name].UserAccountID as string;
     public Error = (state: any) => state[this.Name].Error as IError;
     public Roles = (state: any) => (state[this.Name] as IState).Roles as Application.Types.SecurityRoleName[];
     public Status = (state: any) => state[this.Name].Status as Application.Types.Status;
     public ConfirmedPhone = (state: any) => (state[this.Name] as IState).PhoneConfirmed as boolean;
     public ConfirmedEmail = (state: any) => (state[this.Name] as IState).EmailConfirmed as boolean;
-    public CellCarrierID = (state: any) => (state[this.Name] as IState).CellCarrierID as number|null;
+    public CellCarrierID = (state: any) => (state[this.Name] as IState).CellCarrierID as number | null;
+    public CellPhone = (state: any) => (state[this.Name] as IState).CellPhone as string;
 }

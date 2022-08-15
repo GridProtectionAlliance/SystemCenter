@@ -39,6 +39,7 @@ import { useAppDispatch, useAppSelector } from './hooks';
 import ByAllSubscription from './Subscriptions/Event/ByAllSubscription';
 import EmailConfirmed from './EventSubscription/EmailConfirmed';
 import ByCellCarrier from './CellCarrier/ByCellCarrier';
+import ByUserInformation from './UserInformation/ByUserInformation';
 
 declare var homePath;
 declare var version;
@@ -73,6 +74,9 @@ const MainPage = (props: {}) => {
             <Section Label='My Subscriptions'>
                 <Page Name='MyEventSubscriptions' Label='Event Notifications' Icon={SVGIcons.AlertPerson} >
                     <BySubscription/>
+                </Page>
+                <Page Name='ContactInfo' Label={'Contact Info'} Icon={Phone}>
+                    <ByUserInformation />
                 </Page>
             </Section>
             <Section Label='All Subscriptions'>

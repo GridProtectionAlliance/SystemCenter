@@ -38,7 +38,7 @@ interface IProps {
     SetConfirmed: () => void,
 }
 
-const EmailSelect = (props: IProps) => {
+const EmailConfirm = (props: IProps) => {
     const dispatch = useAppDispatch();
    
     const [force, setForce] = React.useState<number>(-1);
@@ -91,4 +91,4 @@ const EmailSelect = (props: IProps) => {
         </>;
 }
 
-export default EmailSelect;
+export default EmailConfirm;

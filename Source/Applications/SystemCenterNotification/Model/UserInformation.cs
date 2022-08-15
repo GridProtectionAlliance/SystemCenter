@@ -45,7 +45,7 @@ namespace SystemCenter.Notifications.Model
         public bool EmailConfirmed { get; set; }
         public bool PhoneConfirmed { get; set; }
         public int? CellCarrierID { get; set; }
-
+        public string CellPhone { get; set; }
         #endregion       
     }
 
@@ -124,7 +124,8 @@ namespace SystemCenter.Notifications.Model
                 UserID = account.ID,
                 EmailConfirmed = account.EmailConfirmed || !requireEmailConfirm,
                 PhoneConfirmed = account.PhoneConfirmed,
-                CellCarrierID = cellCarrier?.CarrierID ?? null
+                CellCarrierID = cellCarrier?.CarrierID ?? null,
+                CellPhone = account.Phone ?? account.MobilePhone
 
             };
 
@@ -167,6 +168,34 @@ namespace SystemCenter.Notifications.Model
                         cellCarrier.CarrierID = carrierID;
                         new TableOperations<openXDA.Model.UserAccountCarrier>(connection).UpdateRecord(cellCarrier);
                     }
+                    return Ok(1);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [Route("PatchPhone/{phone}"), HttpGet]
+        public IHttpActionResult PatchPhone(string phone)
+        {
+            try
+            {
+                UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
+                userInfo.Initialize();
+
+                string username = System.Web.HttpContext.Current.User.Identity.Name;
+                string usersid = UserInfo.UserNameToSID(username);
+
+                UserAccount account;
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                {
+                    account = new TableOperations<UserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
+                    account.Phone = phone;
+                    account.PhoneConfirmed = false;
+                    new TableOperations<UserAccount>(connection).UpdateRecord(account);
+                   
                     return Ok(1);
                 }
             }

@@ -279,7 +279,7 @@
     <Compile Include="ViewExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
-	<EmbeddedResource Include="AjaxMin.dll" />
+    <EmbeddedResource Include="AjaxMin.dll" />
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\bootstrap.css" />
@@ -358,7 +358,9 @@
   <ItemGroup>
     <Content Include="Scripts\TSX\EventSubscription\ConfirmCarrier.tsx" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Scripts\TSX\UserInformation\ByUserInformation.tsx" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\TSX\CellCarrier\ByCellCarrier.tsx" />
   </ItemGroup>
