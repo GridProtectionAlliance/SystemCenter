@@ -99,16 +99,16 @@ const MainPage = (props: {}) => {
                 <Page Name='Categories' Label='Email Categories' Icon={SVGIcons.Folder} RequiredRoles={['Administrator', 'Engineer']}>
                     <ByEmailCategory />
                 </Page>
-                <Page Name='Category/:id' >
+                <Page Name='Category/:id' RequiredRoles={['Administrator', 'Engineer']}>
                     <EmailCategoryPage useParams={{ id: '1' }} />
                 </Page>
-                <Page Name='EventEmails' Label='Event Notifications' Icon={SVGIcons.Alert} >
+                <Page Name='EventEmails' Label='Event Notifications' Icon={SVGIcons.Alert} RequiredRoles={['Administrator', 'Engineer']}>
                     <ByEmailType />
                 </Page>
-                <Page Name='EventEmail/:id' >
+                <Page Name='EventEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
                     <EmailPage useParams={{ id: '1' }} />
                 </Page>
-                <Page Name='Carrier' Label={'Cell Carrier'} Icon={Phone}>
+                <Page Name='Carrier' Label={'Cell Carrier'} Icon={Phone} RequiredRoles={['Administrator', 'Engineer']}>
                     <ByCellCarrier />
                 </Page>
             </Section>
