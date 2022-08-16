@@ -396,7 +396,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     {
 
                         extendedAssetGroupView newRecord = record.ToObject<extendedAssetGroupView>();
-                        AssetGroup newGroup = new AssetGroup() { ID= newRecord.ID, DisplayDashboard = newRecord.DisplayDashboard, Name= newRecord.Name };
+                        AssetGroup newGroup = new AssetGroup() { ID= newRecord.ID, DisplayDashboard = newRecord.DisplayDashboard, Name= newRecord.Name, DisplayEmail=newRecord.DisplayEmail };
 
                         int result = new TableOperations<AssetGroup>(connection).AddNewRecord(newRecord);
 
