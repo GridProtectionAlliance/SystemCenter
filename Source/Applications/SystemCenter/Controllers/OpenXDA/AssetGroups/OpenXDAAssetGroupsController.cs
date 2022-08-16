@@ -417,7 +417,35 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
+        public override IHttpActionResult Patch([FromBody] AssetGroupView record)
+        {
+            try
+            {
+                if (PatchAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        AssetGroup tblRecord = new TableOperations<AssetGroupView>(connection).QueryRecordWhere("ID = {0}", record.ID);
+                        tblRecord.Name = record.Name;
+                        tblRecord.DisplayEmail = record.DisplayEmail;
+                        tblRecord.DisplayDashboard = record.DisplayDashboard;
 
+                        int result = new TableOperations<AssetGroup>(connection).UpdateRecord(tblRecord);
+
+                        return Ok(1);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 
 }

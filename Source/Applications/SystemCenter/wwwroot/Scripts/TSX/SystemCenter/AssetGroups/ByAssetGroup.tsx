@@ -37,13 +37,9 @@ import AssetGroup from './AssetGroup';
 declare var homePath: string;
 
 
-interface AssetGroup {
-    ID: number, Name: string, DisplayDashboard: boolean, AssetGroups: number, Meters: number, Assets: number, Users: number
-}
+interface extendedAssetGroup extends OpenXDA.Types.AssetGroup { MeterList: Array<SystemCenter.Types.DetailedMeter>, AssetList: Array<SystemCenter.Types.DetailedAsset>, UserList: Array<number>, AssetGroupList: Array<OpenXDA.Types.AssetGroup> }
 
-interface extendedAssetGroup extends AssetGroup { MeterList: Array<SystemCenter.Types.DetailedMeter>, AssetList: Array<SystemCenter.Types.DetailedAsset>, UserList: Array<number>, AssetGroupList: Array<OpenXDA.Types.AssetGroup> }
-
-const emptyAssetGroup: extendedAssetGroup = { ID: -1, Name: '', DisplayDashboard: true, AssetGroups: 0, Meters: 0, Assets: 0, Users: 0, MeterList: [], AssetList: [], UserList: [], AssetGroupList: [] };
+const emptyAssetGroup: extendedAssetGroup = { ID: -1, Name: '', DisplayDashboard: true, AssetGroups: 0, Meters: 0, Assets: 0, Users: 0, MeterList: [], AssetList: [], UserList: [], AssetGroupList: [], DisplayEmail: false };
 
 declare var homePath: string;
 
@@ -244,8 +240,8 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                             </fieldset>
                     </li>
                 </DefaultSearch.AssetGroup>
-            <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
-                <Table<AssetGroup>
+                <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
+                    <Table<OpenXDA.Types.AssetGroup>
                     cols={[
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Assets', field: 'Assets', label: 'Num. of Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -291,6 +287,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                         <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique name of less than 50 characters is required.'} Valid={valid}
                             Setter={setNewAssetGroup} Disabled={false} />
                         <CheckBox<extendedAssetGroup> Record={newAssetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in Dashboard'} Setter={setNewAssetGroup} Disabled={false} />
+                        <CheckBox<extendedAssetGroup> Record={newAssetGroup} Field={'DisplayEmail'} Label={'Show Asset Group in Email Subscription'} Setter={setNewAssetGroup} Disabled={false} />
                     </div>
                     <div className="col">
                         <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />

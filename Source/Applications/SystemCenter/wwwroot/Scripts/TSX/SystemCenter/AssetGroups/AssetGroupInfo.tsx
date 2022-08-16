@@ -53,6 +53,15 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
     }
 
     function editExistingAssetGroup() {
+        let handle = $.ajax({
+            type: "PATCH",
+            url: `${homePath}api/OpenXDA/Assetgroup/Update`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify(assetGroup),
+            cache: false,
+            async: true
+        })
 
     }
 
