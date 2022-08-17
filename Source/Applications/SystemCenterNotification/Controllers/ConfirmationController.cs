@@ -20,6 +20,7 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
+using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Identity;
@@ -30,8 +31,11 @@ using openXDA.APIAuthentication;
 using openXDA.Model;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Net.Http;
 using System.Web.Http;
+using SystemCenter.Notifications.Model;
+using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
 
 namespace SystemCenter.Notifications.Controllers
 {
@@ -39,34 +43,18 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/Confirm")]
     public class ConfirmationController : ApiController
     {
-        const string SettingsCategory = "systemSettings";
+        const string Connection = "systemSettings";
 
-        public string Host
+        private class Settings
         {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.Url'") ?? "";
-            }
+            public Settings(Action<object> configure) =>
+                configure(this);
+
+            [Category]
+            [SettingName("XDA")]
+            public APIConfiguration APISettings { get; } = new APIConfiguration();
         }
 
-        public string Key
-        {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIKey'") ?? "";
-            }
-        }
-
-        public string Token
-        {
-            get
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(SettingsCategory))
-                    return connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'XDA.APIToken'") ?? "";
-            }
-        }
 
         [Route("Email"), HttpGet]
         public IHttpActionResult ConfirmEmail()
@@ -155,7 +143,8 @@ namespace SystemCenter.Notifications.Controllers
                         return Ok(1);
 
                     //Send Email from openXDA
-                    APIQuery query = new APIQuery(Key, Token, Host.Split(';'));
+                    Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+                    APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
 
                     void ConfigureRequest(HttpRequestMessage request)
                     {
@@ -196,7 +185,8 @@ namespace SystemCenter.Notifications.Controllers
                         return Ok(1);
 
                     //Send Text from openXDA
-                    APIQuery query = new APIQuery(Key, Token, Host.Split(';'));
+                    Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+                    APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
 
                     void ConfigureRequest(HttpRequestMessage request)
                     {
@@ -216,6 +206,20 @@ namespace SystemCenter.Notifications.Controllers
             }
 
 
+        }
+
+        [Route("Acknowledgment"), HttpGet]
+        public IHttpActionResult GetAcknowledgement()
+        {
+            using (AdoDataConnection connection = CreateDbConnection())
+                return Ok(connection.ExecuteScalar<string>($"SELECT Value From [SystemCenter.Setting] Where Name = 'Subscription.Acknowledge'") ?? "");
+        }
+
+        private AdoDataConnection CreateDbConnection()
+        {
+            AdoDataConnection connection = new AdoDataConnection(Connection);
+            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
+            return connection;
         }
     }
 }

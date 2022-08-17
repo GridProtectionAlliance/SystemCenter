@@ -24,7 +24,7 @@
 import { Provider } from 'react-redux';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
-import { Application as App, Page, Section } from '@gpa-gemstone/react-interactive'
+import { Application as App, Modal, Page, Section } from '@gpa-gemstone/react-interactive'
 import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
 import NewEventSubscription from './EventSubscription/NewEventSubscription';
 import store from './Store';
@@ -40,6 +40,8 @@ import ByAllSubscription from './Subscriptions/Event/ByAllSubscription';
 import EmailConfirmed from './EventSubscription/EmailConfirmed';
 import ByCellCarrier from './CellCarrier/ByCellCarrier';
 import ByUserInformation from './UserInformation/ByUserInformation';
+import * as $ from 'jquery';
+import moment from 'moment';
 
 declare var homePath;
 declare var version;
@@ -65,12 +67,41 @@ const MainPage = (props: {}) => {
     const status = useAppSelector(UserInfoSlice.Status)
     const roles = useAppSelector(UserInfoSlice.Roles)
 
+    const [acknowledge, setAcknowledge] = React.useState<boolean>(LoadAck());
+    const [ackSetting, setAckSetting] = React.useState<string>('');
+
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
             dispatch(UserInfoSlice.Fetch());
     }, [status])
 
+    React.useEffect(() => {
+        const handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/Confirm/Acknowledgment`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+
+        handle.then((d: string) => { setAckSetting(d); })
+
+        return () => { if (handle != null && handle.abort != null) handle.abort();}
+    }, [])
+
+    function LoadAck() {
+        if (sessionStorage.hasOwnProperty('Notifications.Ack'))
+            return moment.duration(moment(JSON.parse(sessionStorage.getItem('Notifications.Ack'))).diff(moment())).asDays() < 1;
+        return false;
+    }
+
+    React.useEffect(() => {
+        if (acknowledge)
+            sessionStorage.setItem('Notifications.Ack', JSON.stringify(moment().format("YYYY-MM-DD")));
+    }, [acknowledge])
     return (
+        <>
         <App
             DefaultPath={'EventSubscribe'}
             HomePath={homePath}
@@ -115,7 +146,17 @@ const MainPage = (props: {}) => {
             <Page Name='ConfirmEmail' >
                 <EmailConfirmed />
             </Page>
-        </App>
+            </App>
+            <Modal Show={!acknowledge && ackSetting.length > 0} Title={'Terms of Use'} ShowCancel={false} ShowX={false} Size={'xlg'} ConfirmBtnClass={'btn-success'} ConfirmText={'Acknowledge'}
+                CallBack={() => setAcknowledge(true)}
+            >
+                <div className="row">
+                    <div className="col">
+                        {ackSetting}
+                    </div>
+                </div>
+            </Modal>
+        </>
     );
 }
 const X = (props: {}) => {
