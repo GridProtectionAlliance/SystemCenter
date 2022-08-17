@@ -32,7 +32,9 @@ using openXDA.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Net;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using SystemCenter.Notifications.Model;
 using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
@@ -59,153 +61,115 @@ namespace SystemCenter.Notifications.Controllers
         [Route("Email"), HttpGet]
         public IHttpActionResult ConfirmEmail()
         {
-            try
+            UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
+            userInfo.Initialize();
+
+            string username = System.Web.HttpContext.Current.User.Identity.Name;
+            string usersid = UserInfo.UserNameToSID(username);
+
+            ConfirmableUserAccount account;
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
-                UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
-                userInfo.Initialize();
+                account = new TableOperations<ConfirmableUserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
 
-                string username = System.Web.HttpContext.Current.User.Identity.Name;
-                string usersid = UserInfo.UserNameToSID(username);
-
-                ConfirmableUserAccount account;
-                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-                {
-                    account = new TableOperations<ConfirmableUserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
-
-
-                    if (account.EmailConfirmed)
-                        return Ok(1);
-
-                    else
-                        connection.ExecuteNonQuery("UPDATE UserAccount SET EmailConfirmed = 1 WHERE ID = {0}", account.ID);
+                if (account.EmailConfirmed)
                     return Ok(1);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
 
-
+                connection.ExecuteNonQuery("UPDATE UserAccount SET EmailConfirmed = 1 WHERE ID = {0}", account.ID);
+                return Ok(1);
+            }
         }
 
         [Route("Phone"), HttpGet]
         public IHttpActionResult ConfirmPhone()
         {
-            try
+            UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
+            userInfo.Initialize();
+
+            string username = System.Web.HttpContext.Current.User.Identity.Name;
+            string usersid = UserInfo.UserNameToSID(username);
+
+            ConfirmableUserAccount account;
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
-                UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
-                userInfo.Initialize();
+                account = new TableOperations<ConfirmableUserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
 
-                string username = System.Web.HttpContext.Current.User.Identity.Name;
-                string usersid = UserInfo.UserNameToSID(username);
-
-                ConfirmableUserAccount account;
-                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-                {
-                    account = new TableOperations<ConfirmableUserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
-
-
-                    if (account.PhoneConfirmed)
-                        return Ok(1);
-
-                    else
-                        connection.ExecuteNonQuery("UPDATE UserAccount SET PhoneConfirmed = 1 WHERE ID = {0}", account.ID);
+                if (account.PhoneConfirmed)
                     return Ok(1);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
 
-
+                connection.ExecuteNonQuery("UPDATE UserAccount SET PhoneConfirmed = 1 WHERE ID = {0}", account.ID);
+                return Ok(1);
+            }
         }
 
         [Route("ResendEmail"), HttpGet]
-        public IHttpActionResult ResendEmail()
+        public async Task<IHttpActionResult> ResendEmail()
         {
-            try
+            UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
+            userInfo.Initialize();
+
+            string username = System.Web.HttpContext.Current.User.Identity.Name;
+            string usersid = UserInfo.UserNameToSID(username);
+
+            ConfirmableUserAccount account;
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
-                UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
-                userInfo.Initialize();
+                account = new TableOperations<ConfirmableUserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
 
-                string username = System.Web.HttpContext.Current.User.Identity.Name;
-                string usersid = UserInfo.UserNameToSID(username);
-
-                ConfirmableUserAccount account;
-                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-                {
-                    account = new TableOperations<ConfirmableUserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
-
-
-                    if (account.EmailConfirmed)
-                        return Ok(1);
-
-                    //Send Email from openXDA
-                    Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
-                    APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
-
-                    void ConfigureRequest(HttpRequestMessage request)
-                    {
-                        request.Method = HttpMethod.Get;
-                    }
-
-                    HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/sendVerification/{account.ID}").Result;
-
+                if (account.EmailConfirmed)
                     return Ok(1);
+
+                //Send Email from openXDA
+                Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+                APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
+
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Get;
                 }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
 
+                HttpResponseMessage responseMessage = await query.SendWebRequestAsync(ConfigureRequest, $"/api/email/sendVerification/{account.ID}");
 
+                if (responseMessage.StatusCode == HttpStatusCode.Unauthorized)
+                    responseMessage.StatusCode = HttpStatusCode.Forbidden;
+
+                return ResponseMessage(responseMessage);
+            }
         }
 
         [Route("ResendText"), HttpGet]
-        public IHttpActionResult ResendText()
+        public async Task<IHttpActionResult> ResendText()
         {
-            try
+            UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
+            userInfo.Initialize();
+
+            string username = System.Web.HttpContext.Current.User.Identity.Name;
+            string usersid = UserInfo.UserNameToSID(username);
+
+            ConfirmableUserAccount account;
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
             {
-                UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
-                userInfo.Initialize();
+                account = new TableOperations<ConfirmableUserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
 
-                string username = System.Web.HttpContext.Current.User.Identity.Name;
-                string usersid = UserInfo.UserNameToSID(username);
+                if (account.PhoneConfirmed)
+                    return Ok(1);
 
-                ConfirmableUserAccount account;
-                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                //Send Text from openXDA
+                Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+                APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
+
+                void ConfigureRequest(HttpRequestMessage request)
                 {
-                    account = new TableOperations<ConfirmableUserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
-
-
-                    if (account.PhoneConfirmed)
-                        return Ok(1);
-
-                    //Send Text from openXDA
-                    Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
-                    APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
-
-                    void ConfigureRequest(HttpRequestMessage request)
-                    {
-                        request.Method = HttpMethod.Get;
-                    }
-
-                    HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/sendTextVerification/{account.ID}").Result;
-                    int code = 0;
-                    if (responseMessage.IsSuccessStatusCode)
-                        code =  int.Parse(responseMessage.Content.ReadAsStringAsync().Result);
-                    return Ok(code);
+                    request.Method = HttpMethod.Get;
                 }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
 
+                HttpResponseMessage responseMessage = await query.SendWebRequestAsync(ConfigureRequest, $"/api/email/sendTextVerification/{account.ID}");
 
+                if (responseMessage.StatusCode == HttpStatusCode.Unauthorized)
+                    responseMessage.StatusCode = HttpStatusCode.Forbidden;
+
+                return ResponseMessage(responseMessage);
+            }
         }
 
         [Route("Acknowledgment"), HttpGet]
