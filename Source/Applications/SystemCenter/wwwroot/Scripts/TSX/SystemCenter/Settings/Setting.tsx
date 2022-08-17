@@ -167,8 +167,7 @@ function Setting(props: IProps) {
                             Valid={field => editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name === editnewSetting.Name && s.ID !== editnewSetting.ID) < 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
-                        <TextArea<SystemCenter.Types.Setting> Record={editnewSetting} Field={'Value'} Label='Value' Feedback={'Value is required.'}
-                            Valid={field => editnewSetting.Value != null && editnewSetting.Value.length > 0}
+                        <TextArea<SystemCenter.Types.Setting> Record={editnewSetting} Field={'Value'} Label='Value' Valid={field => true}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                             Rows={1}
                         />
