@@ -21,7 +21,7 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { Input } from '@gpa-gemstone/react-forms';
+import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, Warning, LoadingScreen, ServerErrorIcon, GenericSlice } from '@gpa-gemstone/react-interactive';
@@ -169,12 +169,14 @@ function Setting(props: IProps) {
                             Valid={field => editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name === editnewSetting.Name && s.ID !== editnewSetting.ID) < 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
-                        <Input<SystemCenter.Types.Setting> Record={editnewSetting} Field={'Value'} Label='Value' Feedback={'Value is required.'}
+                        <TextArea<SystemCenter.Types.Setting> Record={editnewSetting} Field={'Value'} Label='Value' Feedback={'Value is required.'}
                             Valid={field => editnewSetting.Value != null && editnewSetting.Value.length > 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
+                            Rows={1}
                         />
-                        <Input<SystemCenter.Types.Setting> Record={editnewSetting} Field={'DefaultValue'} Label='Default Value' Valid={field => true}
+                        <TextArea<SystemCenter.Types.Setting> Record={editnewSetting} Field={'DefaultValue'} Label='Default Value' Valid={field => true}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
+                            Rows={1}
                         />
                     </div>
                 </div>
