@@ -47,7 +47,7 @@ function Setting(props: IProps) {
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.Setting>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
-    const emptySetting = { ID: 0, Name: '', Value: '', DefaultValue: '' }
+    const emptySetting = { ID: 0, Name: '', Value: null, DefaultValue: null }
     const [editnewSetting, setEditNewSetting] = React.useState<SystemCenter.Types.Setting>(emptySetting);
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
 
@@ -79,8 +79,6 @@ function Setting(props: IProps) {
             e.push('A Name is required')
         if (editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name.toLowerCase() === editnewSetting.Name.toLowerCase() && s.ID !== editnewSetting.ID) > -1)
             e.push('A Settign with this Name already exists.')
-        if (editnewSetting.Value == null || editnewSetting.Value.length === 0)
-            e.push('A Value is required')
         setErrors(e)
     }, [editnewSetting])
 
