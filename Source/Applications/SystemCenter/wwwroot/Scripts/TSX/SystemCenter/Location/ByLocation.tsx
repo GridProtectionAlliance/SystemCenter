@@ -85,17 +85,13 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     }, [newLocation, allKeys]);
 
     React.useEffect(() => {
-        let handle = null;
         if (status == 'changed' || status == 'unintiated')
-            handle = dispatch(ByLocationSlice.Fetch());
-        return () => { if (handle != null && handle.abort != null) handle.abort();}
-    }, [status])
+            dispatch(ByLocationSlice.Fetch());
+    }, [dispatch, status])
 
     React.useEffect(() => {
-        let handle = null;
         if (searchStatus == 'changed' || searchStatus == 'unintiated')
-            handle = dispatch(ByLocationSlice.DBSearch({filter: searchFields}));
-        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+            dispatch(ByLocationSlice.DBSearch({filter: searchFields}));
     }, [searchStatus])
 
     function getNewLocation() {
