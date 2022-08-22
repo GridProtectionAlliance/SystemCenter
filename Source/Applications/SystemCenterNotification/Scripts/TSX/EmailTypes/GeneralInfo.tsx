@@ -23,8 +23,8 @@
 
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import {ToolTip, Warning } from '@gpa-gemstone/react-interactive'
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import {ToolTip } from '@gpa-gemstone/react-interactive'
+import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
 import {  EmailType } from '../global';
 import {  EmailTypeSlice } from '../Store';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
