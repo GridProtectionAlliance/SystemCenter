@@ -33,6 +33,7 @@ import { cloneDeep } from 'lodash'
 import EventSelect from '../TriggerUI/EventSelect';
 import * as $ from 'jquery';
 import { Application } from '@gpa-gemstone/application-typings';
+import { pd } from 'pretty-data';
 
 declare var homePath;
 declare var version;
@@ -76,7 +77,7 @@ const DataSourceTesting = (props: IProps) => {
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true,
-        }).then((d) => { setStatus('idle'); setData(d); }, (d) => { setStatus('error') })
+        }).then((d) => { setStatus('idle'); setData(pd.xml(d)); }, (d) => { setStatus('error') })
     }
 
     return (
