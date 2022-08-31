@@ -483,53 +483,25 @@ const ChannelScalingWindow = (props: IProps) => {
     
     }
 
+    let cardBody;
     if (status == 'loading' || pStatus == 'loading' || mcStatus == 'loading' || mtStatus == 'loading')
-        return <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Channel Scaling:</h4>
-                    </div>
+        cardBody = 
+            <div style={{ width: '100%', height: '200px' }}>
+                <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                    <LoadingIcon Show={true} Size={40} Label={''} />
                 </div>
             </div>
-            <div className="card-body">
-                <div style={{ width: '100%', height: '200px' }}>
-                    <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <LoadingIcon Show={true} Size={40} Label={''} />
-                    </div>
+    else if (status == 'error' || pStatus == 'error' || mcStatus == 'error' || mtStatus == 'error')
+        cardBody =
+            <div style={{ width: '100%', height: '200px' }}>
+                <div style={{ margin: 'auto' }}>
+                    <ServerErrorIcon Show={true} Size={40} Label={''} />
                 </div>
             </div>
-        </div>
-
-    if (status == 'error' || pStatus == 'error' || mcStatus == 'error' || mtStatus == 'error')
-        return <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Channel Scaling:</h4>
-                    </div>
-                </div>
-            </div>
-            <div className="card-body">
-                <div style={{ width: '100%', height: '200px' }}>
-                    <div style={{ margin: 'auto' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={''} />
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    return (
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Channel Scaling:</h4>
-                    </div>
-                </div>
-            </div>
-            <div className="card-body">
-                <div style={{ width: '100%', margin: 10 }}>
+    else
+        cardBody =
+            <>
+                <div style={{ width: '100%', maxHeight: '27px', margin: 10 }}>
                     Voltage Multiplier: <input style={{ width: "5em" }} type="text" value={VoltageMultiplier} onChange={(event) => {
                         const value = event.target.value;
                         const voltageMultiplier = toNumber(value);
@@ -544,7 +516,7 @@ const ChannelScalingWindow = (props: IProps) => {
                         setChanged(true);
                     }} />
                 </div>
-                <div style={{ width: '100%'}}>
+                <div style={{ width: '100%' }}>
                     <Table<ChannelScalingWrapper>
                         cols={[
                             { key: 'Descriptor', field: 'Descriptor', label: 'Description', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
@@ -568,12 +540,25 @@ const ChannelScalingWindow = (props: IProps) => {
                         onSort={(d) => { }}
                         onClick={(fld) => { }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 450, }}
+                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 497, }}
                         rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                         selected={(item) => false}
                         keySelector={(item) => item.Channel.ID.toString()}
                     />
                 </div>
+            </>
+
+    return (
+        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+            <div className="card-header">
+                <div className="row">
+                    <div className="col">
+                        <h4>Channel Scaling:</h4>
+                    </div>
+                </div>
+            </div>
+            <div className="card-body" style={{ maxHeight: window.innerHeight - 365 }}>
+                {cardBody}
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
