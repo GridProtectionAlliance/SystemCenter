@@ -40,6 +40,8 @@ using Resources = GSF.Web.Shared.Resources;
 using AuthenticationOptions = GSF.Web.Security.AuthenticationOptions;
 
 using static SystemCenter.Notifications.Common;
+using System.Web.Hosting;
+using System.Text.RegularExpressions;
 
 [assembly: OwinStartup(typeof(SystemCenter.Notifications.Startup))]
 
@@ -87,10 +89,12 @@ namespace SystemCenter.Notifications
             LoadAssemblyFromResource("AjaxMin");
             SetupTempPath();
 
+            string iconPath = Regex.Replace(LoginIcon, "^~(?=/)", HostingEnvironment.ApplicationVirtualPath);
+
             s_authenticationOptions = new AuthenticationOptions
             {
                 LoginPage = LoginPage,
-                LoginHeader = $"<h3><img src=\"{LoginIcon}\"/> {ApplicationName}</h3>",
+                LoginHeader = $"<h3><img src=\"{iconPath}\"/> {ApplicationName}</h3>",
                 AnonymousResourceExpression = AnonymousResourceExpression,
                 AuthFailureRedirectResourceExpression = @"^/$|^/.+$",
                 AuthTestPage = AuthTestPage
