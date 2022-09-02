@@ -21,26 +21,30 @@
 //
 //******************************************************************************************************
 
-using GSF;
-using GSF.Configuration;
-using GSF.Data;
-using GSF.Identity;
-using GSF.Web.Embedded;
-using GSF.Web.Model;
-using Microsoft.AspNet.SignalR;
-using Microsoft.AspNet.SignalR.Json;
-using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Web;
 using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
+using GSF;
+using GSF.Configuration;
+using GSF.Data;
+using GSF.Diagnostics;
+using GSF.Identity;
+using GSF.IO;
+using GSF.Threading;
+using GSF.Web.Embedded;
+using GSF.Web.Model;
+using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Json;
+using Newtonsoft.Json;
 using SystemCenter.Notifications.Model;
-using System.IO;
 
 namespace SystemCenter.Notifications
 {
@@ -75,6 +79,8 @@ namespace SystemCenter.Notifications
             systemSettings.Add("DateFormat", "MM/dd/yyyy", "The default date format to use when rendering timestamps.");
             systemSettings.Add("TimeFormat", "HH:mm.ss.fff", "The default time format to use when rendering timestamps.");
             systemSettings.Add("DefaultSecurityRoles", DefaultSecurityRoles, "The default security roles that should exist for the application.");
+            systemSettings.Add("DebugLogLocation", "Logs", "The location to which debug logs will be written");
+            systemSettings.Add("DebugLogLevel", VerboseLevel.None, "The verbosity level of messages to be captured in the debug log: None, Low, Medium, High, Ultra, All");
 
             // Load default configuration file based model settings
             global.CompanyName = systemSettings["CompanyName"].Value;
@@ -82,6 +88,11 @@ namespace SystemCenter.Notifications
             global.DateFormat = systemSettings["DateFormat"].Value;
             global.TimeFormat = systemSettings["TimeFormat"].Value;
             global.DateTimeFormat = $"{global.DateFormat} {global.TimeFormat}";
+
+            // Start logging debug messages
+            string debugLogLocation = systemSettings["DebugLogLocation"].Value;
+            VerboseLevel debugLogLevel = systemSettings["DebugLogLevel"].ValueAs<VerboseLevel>();
+            RunDebugLogger(debugLogLocation, debugLogLevel);
 
             // Load database driven model settings
             using (DataContext dataContext = new DataContext(exceptionHandler: LogException))
@@ -296,6 +307,49 @@ namespace SystemCenter.Notifications
             }
         }
 
+        private void RunDebugLogger(string logLocation, VerboseLevel verboseLevel)
+        {
+            ConcurrentQueue<LogMessage> logMessages = new ConcurrentQueue<LogMessage>();
 
+            IEnumerable<LogMessage> DrainMessages()
+            {
+                while (logMessages.TryDequeue(out LogMessage message))
+                    yield return message;
+            }
+
+            void LogMessages(DateTime date, IEnumerable<LogMessage> messages)
+            {
+                string fullPath = FilePath.GetAbsolutePath(logLocation);
+                string logPath = Path.Combine(fullPath, $"{date:yyyyMMdd}.log");
+                Directory.CreateDirectory(fullPath);
+                StreamWriter log = File.AppendText(logPath);
+
+                foreach (LogMessage message in messages)
+                    log.WriteLine(message.GetMessage());
+            }
+
+            void LogAllMessages()
+            {
+                if (logMessages.IsEmpty)
+                    return;
+
+                Thread.Sleep(1000);
+
+                IEnumerable<IGrouping<DateTime, LogMessage>> groupings = DrainMessages()
+                    .GroupBy(logMessage => logMessage.UtcTime.Date);
+
+                foreach (var grouping in groupings)
+                    LogMessages(grouping.Key, grouping);
+            }
+
+            LongSynchronizedOperation logOperation = new LongSynchronizedOperation(LogAllMessages);
+            LogSubscriber subscriber = Logger.CreateSubscriber(verboseLevel);
+
+            subscriber.NewLogMessage += (logMessage) =>
+            {
+                logMessages.Enqueue(logMessage);
+                logOperation.RunOnceAsync();
+            };
+        }
     }
 }
