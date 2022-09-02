@@ -66,25 +66,15 @@
       <HintPath>..\..\Dependencies\NuGet\ExpressionEvaluator.2.0.4.0\lib\net40\ExpressionEvaluator.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="GSF.Communication, Version=2.4.48.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Dependencies\NuGet\GSF.Communication.2.4.48-beta\lib\net46\GSF.Communication.dll</HintPath>
+    <Reference Include="GSF.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependencies\GSF\GSF.Core.dll</HintPath>
     </Reference>
-    <Reference Include="GSF.Core, Version=2.4.48.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Dependencies\NuGet\GSF.Core.2.4.48-beta\lib\net46\GSF.Core.dll</HintPath>
+    <Reference Include="GSF.Security, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependencies\GSF\GSF.Security.dll</HintPath>
     </Reference>
-    <Reference Include="GSF.Security, Version=2.4.48.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Dependencies\NuGet\GSF.Security.2.4.48-beta\lib\net46\GSF.Security.dll</HintPath>
-    </Reference>
-    <Reference Include="GSF.ServiceModel, Version=2.4.48.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Dependencies\NuGet\GSF.ServiceModel.2.4.48-beta\lib\net46\GSF.ServiceModel.dll</HintPath>
-    </Reference>
-    <Reference Include="GSF.ServiceProcess, Version=2.4.48.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Dependencies\NuGet\GSF.ServiceProcess.2.4.48-beta\lib\net46\GSF.ServiceProcess.dll</HintPath>
-    </Reference>
-    <Reference Include="GSF.TimeSeries, Version=2.4.48.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\..\Dependencies\NuGet\GSF.TimeSeries.2.4.48-beta\lib\net46\GSF.TimeSeries.dll</HintPath>
-    </Reference>
-    <Reference Include="GSF.Web, Version=2.4.48.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="GSF.Web, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Dependencies\GSF\GSF.Web.dll</HintPath>
     </Reference>
