@@ -22,17 +22,25 @@
 //******************************************************************************************************
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import { cloneDeep } from 'lodash';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 import MeterLocationProperties from './PropertyUI/MeterLocationProperties';
+import { LocationSlice, ByMeterSlice } from '../Store/Store';
 
 declare var homePath: string;
 
 interface IProps { Meter: OpenXDA.Types.Meter, StateSetter: (meter: OpenXDA.Types.Meter) => void }
 
 const LocationWindow = (props: IProps) => {
+    // Location Slice consts
+    const dispatch = useAppDispatch();
+    const locationStatus = useAppSelector(LocationSlice.Status) as Application.Types.Status;
+    const locationList = useAppSelector(LocationSlice.Data) as OpenXDA.Types.Location[];
+    const [updateMeter, setUpdateMeter] = React.useState<boolean>(false);
+
     const newLocation: OpenXDA.Types.Location = {
         ID: 0,
         LocationKey: null,
@@ -45,35 +53,26 @@ const LocationWindow = (props: IProps) => {
     }
     const [location, setLocation] = React.useState<OpenXDA.Types.Location>(newLocation);
     const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(props.Meter);
-
-    const [locationList, setLocationList] = React.useState<OpenXDA.Types.Location[]>([]);
    
     const [validKey, setValidKey] = React.useState<boolean>(true);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'New')>('None');
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
 
     React.useEffect(() => {
-        let handle = getAllLocations();
-        return () => { if (handle != null && handle.abort != null) handle.abort();}
-    }, []);
+        if (locationStatus === 'unintiated' || locationStatus === 'changed')
+            dispatch(LocationSlice.Fetch());
+        else if (locationStatus === 'idle' && updateMeter)
+            setLocation(locationList.find((d: OpenXDA.Types.Location) => d.LocationKey === location.LocationKey) as OpenXDA.Types.Location);
 
-    React.useEffect(() => {
-        let h1 = getLocation();
-        let h2 = getAllLocations();
-        return () => {
-            if (h1 != null && h1.abort != null) h1.abort();
-            if (h2 != null && h2.abort != null) h2.abort();
-        } 
-    }, [meter])
+    }, [dispatch, locationStatus, updateMeter]);
 
     React.useEffect(() => {
         setMeter(props.Meter);
-    }, [props.Meter])
+    }, [props.Meter]);
 
     React.useEffect(() => {
-        if (locationList.length > 0)
-            sessionStorage.setItem('SystemCenter.Locations', JSON.stringify(locationList));
-    }, [locationList]);
+        setLocationFromMeter(meter.LocationID);
+    }, [meter.LocationID, locationList]);
 
     React.useEffect(() => {
         const key = location.LocationKey;
@@ -86,61 +85,19 @@ const LocationWindow = (props: IProps) => {
             setValidKey(false);
         else
             setValidKey(location.ID == index[0].ID);
-
     }, [location, locationList]);
 
-    function getAllLocations(): JQuery.jqXHR<OpenXDA.Types.Location[]> {
-        if (sessionStorage.hasOwnProperty('SystemCenter.Locations')) {
-            setLocationList(JSON.parse(sessionStorage.getItem('SystemCenter.Locations')));
-            return null;
-        }
-        
-        let h = $.ajax({
-                type: "GET",
-                url: `${homePath}api/OpenXDA/Location`,
-                contentType: "application/json; charset=utf-8",
-                dataType: 'json',
-                cache: true,
-                async: true
-        })
+    React.useEffect(() => {
+        if (location.ID < 1 || !updateMeter) return;
+        setUpdateMeter(false);
+        let updateMeterHandle = updateMeterLocation(location.ID);
+        return () => {
+            if (updateMeterHandle != null && updateMeterHandle.abort != null) {
+                updateMeterHandle.abort();
+            }
+        };
 
-        h.done(mls => {
-            setLocationList(mls);
-            sessionStorage.setItem('SystemCenter.Locations', JSON.stringify(mls));
-        });
-
-        return h;
-    }
-
-    function getLocation(): JQuery.jqXHR<OpenXDA.Types.Location> {
-        if (meter == null || meter.LocationID == null) return null;
-
-        if (meter.LocationID == 0) {
-            setLocation(newLocation)
-            return;
-        }
-
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/Location/One/${meter.LocationID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        })
-        handle.done((d: OpenXDA.Types.Location) => {
-            setLocation(d);
-            setLocationList((lst) => {
-                let index = lst.findIndex(item => item.ID == d.ID);
-                if (index == -1)
-                    return [...lst, d];
-                let ulst = _.cloneDeep(lst);
-                ulst[index] = d;
-                return ulst;
-            })
-        });
-        return handle;
-    }
+    }, [location, updateMeter]);
 
     function valid(field: keyof OpenXDA.Types.Location): boolean {
         if (field == 'LocationKey')
@@ -162,55 +119,34 @@ const LocationWindow = (props: IProps) => {
 
     const isValidLocation = valid('LocationKey') && valid('Name') && valid('Alias') && valid('ShortName') && valid('Latitude') && valid('Longitude');
 
-    function addNewLocation(): JQuery.jqXHR {
-        const newLocation: any = _.clone(location);
-        newLocation.MeterID = this.props.Meter.ID;
-
-        return $.ajax({
-            type: "POST",
-            url: `${homePath}api/OpenXDA/Location/Add`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(location),
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((location: OpenXDA.Types.Location) => {
-            setHasChanged(false);
-            setLocation(location);
-            props.StateSetter(cloneDeep(props.Meter));
-        });
+    function postLocation() {
+        setUpdateMeter(true);
+        dispatch(LocationSlice.DBAction({ verb: (location.ID > 0 ? 'PATCH' : 'POST'), record: location }));
     }
 
-    function updateLocation(): JQuery.jqXHR {
+    function setLocationFromMeter(locationID: number) {
+        if (locationID > 0 && locationStatus === 'idle')
+            setLocation(locationList.find((d: OpenXDA.Types.Location) => d.ID === locationID) as OpenXDA.Types.Location);
+        else
+            setLocation(newLocation);
+    }
 
-
-        return $.ajax({
-            type: "PATCH",
-            url: `${homePath}api/OpenXDA/Location/Update`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(location),
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((d: number) => {
-            if (location.ID != props.Meter.LocationID) {
-                const m = cloneDeep(props.Meter);
-                m.LocationID = location.ID;
-                $.ajax({
-                    type: "PATCH",
-                    url: `${homePath}api/OpenXDA/Meter/Update`,
-                    contentType: "application/json; charset=utf-8",
-                    data: JSON.stringify(m),
-                    dataType: 'json',
-                    cache: true,
-                    async: true
-                }).done((msg) => {
-                    props.StateSetter(cloneDeep(m));
-                });
-
-            }
-            setHasChanged(false);
-        });
+    function updateMeterLocation(locationID: number): JQuery.jqXHR {
+        if (props.Meter.LocationID != locationID) {
+            const m = cloneDeep(props.Meter);
+            m.LocationID = locationID;
+            return $.ajax({
+                type: "PATCH",
+                url: `${homePath}api/OpenXDA/Meter/Update`,
+                contentType: "application/json; charset=utf-8",
+                data: JSON.stringify(m),
+                dataType: 'json',
+                cache: true,
+                async: true
+            }).done((msg) => {
+                props.StateSetter(cloneDeep(m));
+            });
+        }
     }
 
     return (
@@ -225,49 +161,38 @@ const LocationWindow = (props: IProps) => {
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
                 <MeterLocationProperties Meter={meter} Location={location} Locationlist={locationList}
                     SetLocation={(loc) => { setLocation(loc); setHasChanged(true); }}
-                    UpdateMeter={(m) => { setHasChanged(props.Meter.LocationID != (m.LocationID != null ? parseInt(m.LocationID.toString()) : 0)); setMeter({ ...m, LocationID: (m.LocationID != null ? parseInt(m.LocationID.toString()) : 0) }) }}
+                    UpdateMeter={(m) => {
+                        setHasChanged(props.Meter.LocationID != (m.LocationID != null ? parseInt(m.LocationID.toString()) : 0));
+                        setMeter({ ...m, LocationID: (m.LocationID != null ? parseInt(m.LocationID.toString()) : 0) });
+                    }}
                     DisableLocation={false}
                 />
              </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (!hasChanged || !isValidLocation ? ' disabled' : '')} onClick={() => { if (isValidLocation && hasChanged) addNewLocation() }} hidden={location.ID != 0}
-                        onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')} data-tooltip={'NewLocation'}>Add New</button>
-                    <ToolTip Show={hover == 'New' && (!hasChanged || !isValidLocation)} Position={'top'} Theme={'dark'} Target={"NewLocation"}>
+                    <button className={"btn btn-primary" + (!hasChanged || !isValidLocation ? ' disabled' : '')} onClick={() => { postLocation() }} disabled={!(isValidLocation && hasChanged) }
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'NewLocation'}>{location.ID > 0 ? "Update" : "Add New"}</button>
+                    <ToolTip Show={hover == 'Update' && (!hasChanged || !isValidLocation)} Position={'top'} Theme={'dark'} Target={"NewLocation"}>
+                        {!hasChanged || location.ID < 1 ? <p> No Changes have been made. </p> : null}
                         {!validKey ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Key needs to be unique.  </p> : null}
                         {!valid('LocationKey') && validKey ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Key is required and needs to be less than 50 characters. </p> : null}
                         {!valid('Name') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Name is required and needs to be less than 200 characters. </p> : null}
                         {!valid('ShortName') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> ShortName needs to be less than 50 characters. </p> : null}
                         {!valid('Latitude') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Latitude is required. </p> : null}
                         {!valid('Longitude') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Longtitude is required. </p> : null}
-                        </ToolTip>
-                    </div>
+                    </ToolTip>
+                </div>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (!hasChanged || !isValidLocation ? ' disabled' : '')} onClick={() => { if (isValidLocation && hasChanged) updateLocation() }} hidden={location.ID == 0}
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'UpdateLocation'}>Update</button>
-                    <ToolTip Show={hover == 'Update' && (!hasChanged || !isValidLocation)} Position={'top'} Theme={'dark'} Target={"UpdateLocation"}>
-                        {!hasChanged ? <p> No Changes have been made. </p> : null}
-                        {!validKey ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Key needs to be unique. </p> : null}
-                        {!valid('LocationKey') && validKey ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Key is required and needs to be less than 50 characters. </p> : null}
-                        {!valid('Name')? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Name is required and needs to be less than 200 characters. </p> : null}
-                        {!valid('ShortName') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> ShortName needs to be less than 50 characters. </p> : null}
-                        {!valid('Latitude') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Latitude is required. </p> : null}
-                        {!valid('Longitude') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Longtitude is required. </p> : null}
-                    </ToolTip>
+                <button className={"btn btn-default" + (hasChanged? '' : ' disabled')}
+                    data-tooltip='ResetLocation' onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')}
+                    onClick={() => { if (hasChanged) { setMeter(props.Meter); setHasChanged(false); } } }>Reset</button>
+                <ToolTip Show={hover == 'Reset' && !hasChanged} Position={'top'} Theme={'dark'} Target={"ResetLocation"}>
+                    <p> No Changes have been made.</p>
+                </ToolTip>
                 </div>
-                    <div className="btn-group mr-2">
-                    <button className={"btn btn-default" + (hasChanged? '' : ' disabled')}
-                        data-tooltip='ResetLocation' onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')}
-                        onClick={() => { if (hasChanged) { setMeter(props.Meter); setHasChanged(false); } } }>Reset</button>
-                    <ToolTip Show={hover == 'Reset' && !hasChanged} Position={'top'} Theme={'dark'} Target={"ResetLocation"}>
-                      <p> No Changes have been made.</p>
-                    </ToolTip>
-                    </div>
-                </div>
-
-
             </div>
-        );
+        </div>
+    );
 
 }
 
