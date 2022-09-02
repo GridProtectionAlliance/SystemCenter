@@ -250,15 +250,15 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             >
                 <div className="row">
                     <div className="col">
-                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'LocationKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Location Key' Field={'LocationKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Name' Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Short Name' Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Alias' Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={setNewLocation} />
                     </div>
                     <div className="col">
-                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'Latitude'} Feedback={'Latitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Field={'Longitude'} Feedback={'Longitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
-                        <TextArea<SystemCenter.Types.DetailedLocation> Rows={3} Record={newLocation} Field={'Description'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Latitude' Field={'Latitude'} Feedback={'Latitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Longitude' Field={'Longitude'} Feedback={'Longitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
+                        <TextArea<SystemCenter.Types.DetailedLocation> Rows={3} Record={newLocation} Label='Description'  Field={'Description'} Valid={valid} Setter={setNewLocation} />
                     </div>
                 </div>
             </Modal>

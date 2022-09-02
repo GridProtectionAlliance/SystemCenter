@@ -95,9 +95,9 @@ export default function CustomerForm(props: IProps) {
     
     return (
         <div className="col">
-            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Label={'Customer Key'}Feedback={'Customer Key of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
-            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Name'} Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
-            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Phone'} Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Label='Customer Key' Feedback={'Customer Key of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Name'} Label='Name' Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Phone'} Label='Phone' Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             {pqiStatus == 'idle' ?
                 <Select<OpenXDA.Types.Customer> Record={props.Customer} Label={'PQI Facility'} Field={'PQIFacilityID'} Setter={(record) => props.stateSetter(record)} Options={[...pqiFacilities.map((f) => ({ Label: f.Name, Value: pathToID(f.Path) })), { Label: 'None', Value: '-1' }]} /> :
                 <div className="alert alert-warning" role="alert">
@@ -105,7 +105,7 @@ export default function CustomerForm(props: IProps) {
                 </div>
                 }
             <TextArea<OpenXDA.Types.Customer> Rows={3} Record={props.Customer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
-            <CheckBox Record={props.Customer} Field={'LSCVS'} Setter={(record) => props.stateSetter(record)} Label={'LSCVS'} />
+            <CheckBox Record={props.Customer} Field={'LSCVS'} Setter={(record) => props.stateSetter(record)} Label={'LSCVS Customer'} />
         </div>
     )
 
