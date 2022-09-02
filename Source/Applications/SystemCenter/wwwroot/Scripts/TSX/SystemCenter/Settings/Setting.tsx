@@ -117,10 +117,10 @@ function Setting(props: IProps) {
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                     <Table<SystemCenter.Types.Setting>
                         cols={[
-                            { key: 'Name', field: 'Name', label: 'Setting Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Value', field: 'Value', label: 'Current Value', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'DefaultValue', field: 'DefaultValue', label: 'Default Value', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
-                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                            { key: 'Name', field: 'Name', label: 'Setting Name', headerStyle: { width: '24%' }, rowStyle: { width: '24%' } },
+                            { key: 'Value', field: 'Value', label: 'Current Value', headerStyle: { width: '38%' }, rowStyle: { width: '38%' } },
+                            { key: 'DefaultValue', field: 'DefaultValue', label: 'Default Value', headerStyle: { width: '38%' }, rowStyle: { width: '38%' } },
+                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 17, padding: 0 } },
                         ]}
                         tableClass="table table-hover"
                         data={data}
