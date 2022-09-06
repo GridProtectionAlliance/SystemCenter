@@ -322,10 +322,12 @@ namespace SystemCenter.Notifications
                 string fullPath = FilePath.GetAbsolutePath(logLocation);
                 string logPath = Path.Combine(fullPath, $"{date:yyyyMMdd}.log");
                 Directory.CreateDirectory(fullPath);
-                StreamWriter log = File.AppendText(logPath);
 
-                foreach (LogMessage message in messages)
-                    log.WriteLine(message.GetMessage());
+                using (StreamWriter log = File.AppendText(logPath))
+                {
+                    foreach (LogMessage message in messages)
+                        log.WriteLine(message.GetMessage());
+                }
             }
 
             void LogAllMessages()
