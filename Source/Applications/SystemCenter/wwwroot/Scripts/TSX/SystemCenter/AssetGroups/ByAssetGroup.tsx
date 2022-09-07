@@ -296,11 +296,8 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                         <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Meters'} Label={'Num. of Meters'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
                         <button type="button" className="btn btn-primary btn-block" onClick={() => { setFilter('Meter'); }}> Add Meter </button>
                         
-                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Users'} Label={'Num. of Users'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                        <button type="button" className="btn btn-primary btn-block" disabled={true}> Add User Account </button>
                         <Input<extendedAssetGroup> Record={newAssetGroup} Field={'AssetGroups'} Label={'Num. of Asset Groups'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
                         <button type="button" className="btn btn-primary btn-block" onClick={() => { setFilter('Asset Group'); }}> Add Asset Group </button>
-                       
                     </div>
                 </div>
             </Modal>
