@@ -29,13 +29,10 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
 import { DefaultSearchField } from '../CommonComponents/SearchFields';
 import { SearchBar, Search, Modal, LoadingIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
-import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { DataFileSlice } from '../Store/Store';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA as GlobalXDA } from '../global';
 import moment from 'moment';
-import { argv0 } from 'process';
 
 
 declare var homePath: string;
@@ -66,8 +63,6 @@ const ByFile: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         dispatch(DataFileSlice.DBSearch({ sortField: sortKey, ascending, filter: search }))
     }, [search, ascending, sortKey]);
-
-   
 
     React.useEffect(() => {
         if (cState == 'unintiated' || cState == 'changed')
@@ -100,7 +95,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
        
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/DataFile/Reprocess/${file.FileGroupID}`,
+            url: `${homePath}api/OpenXDA/DataFile/Reprocess/${selectedID.FileGroupID}` ,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -166,17 +161,18 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={selectedID != null} Title={'Events'} CallBack={(c) => {
+            <Modal Show={selectedID != null} Title={'Events'} CallBack={(c,b) => {
                 if (c)
                     reprocess(selectedID);
                 setSelectetID(null);
-            }} ShowCancel={false} ShowX={true} ConfirmText={'Reprocess File'}>
+            }} ShowCancel={false} ShowX={true} ConfirmText={'Reprocess File'} >
                 <div className="row">
                     <div className="col">
                         {eState == 'loading' ? <LoadingIcon Show={true} /> : <Table<GlobalXDA.Event>
                             cols={[
-                                { key: 'StartTime', field: 'StartTime', label: 'Event Start', headerStyle: { width: '50%' }, rowStyle: { width: '50%' }, content: (f) => moment(f.StartTime).format('MM/DD/YYYY hh:mm.ss.ssss') },
-                                { key: 'EndTime', field: 'EndTime', label: 'Event End', headerStyle: { width: '50%' }, rowStyle: { width: '50%' }, content: f => moment(f.EndTime).format('hh:mm.ss.ssss') },
+                                { key: 'ID', field: 'ID', label: 'Event ID', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (f) => f.ID },
+                                { key: 'StartTime', field: 'StartTime', label: 'Event Start', headerStyle: { width: '40%' }, rowStyle: { width: '40%' }, content: (f) => moment(f.StartTime).format('MM/DD/YYYY hh:mm.ss.ssss') },
+                                { key: 'EndTime', field: 'EndTime', label: 'Event End', headerStyle: { width: '40%' }, rowStyle: { width: '40%' }, content: f => moment(f.EndTime).format('hh:mm.ss.ssss') },
                                 { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                             ]}
                             tableClass="table table-hover"
@@ -193,8 +189,11 @@ const ByFile: Application.Types.iByComponent = (props) => {
                     </div>
                 </div>
                 <div className="row">
-
-                    { /* Show a list of Events for event files. maybe with Link to openSEE? Add re-Process Button. needs interface to XDA...  */}
+                    <div className="col">
+                        <a href={`${homePath}api/OpenXDA/DataFile/Download/${(selectedID != null ? selectedID.ID : -1)}`} target="_blank" className="btn btn-info btn-block" role="button">
+                            Download File
+                        </a>
+                    </div>
                 </div>
             </Modal>
             <Modal Show={showWarning == 'complete'} Size={'sm'} Title={'Started Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>

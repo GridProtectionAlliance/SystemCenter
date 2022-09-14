@@ -36,6 +36,9 @@ using System;
 using System.Net.Http;
 using System.ComponentModel;
 using GSF.Configuration;
+using System.Net.Http.Headers;
+using System.Net;
+using System.IO;
 
 namespace SystemCenter.Model
 {
@@ -118,6 +121,54 @@ namespace SystemCenter.Model
 
                 HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/Workbench/DataFiles/ReprocessFile/{id}").Result;
                 return Ok(1);
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
+        [HttpGet]
+        [Route("Download/{id:int}")]
+        public IHttpActionResult Download(int id)
+        {
+
+            if (GetAuthCheck())
+            {
+                APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+
+                APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
+
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Get;
+                }
+
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/Workbench/DataFiles/DownloadFile/{id}").Result;
+                if (!responseMessage.IsSuccessStatusCode)
+                    return InternalServerError();
+                string path;
+                using (AdoDataConnection connection = CreateDbConnection())
+                    path = connection.ExecuteScalar<string>("SELECT Filepath from DataFile Where ID = {0}", id);
+
+                // For some reason this does not quite work but we will look at this in the openXDA
+                byte[] data = responseMessage.Content.ReadAsByteArrayAsync().Result;
+                string fileName = path.Substring(path.LastIndexOf("//") + 1);
+             
+                Stream stream = new MemoryStream(data);
+
+                var result = new HttpResponseMessage(HttpStatusCode.OK)
+                {
+                    Content = new StreamContent(stream)
+                };
+
+                result.Content.Headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue("attachment")
+                {
+                    FileName = fileName
+                };
+
+                result.Content.Headers.ContentType = new MediaTypeHeaderValue("application/file");
+                return ResponseMessage(result);
             }
             else
             {
