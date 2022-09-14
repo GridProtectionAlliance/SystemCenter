@@ -74,6 +74,8 @@ namespace SystemCenter.Controllers
             public int ToBus { get; set; }
             public int LocationFromID { get; set; }
             public int LocationToID { get; set; }
+            public string FromBusName { get; set; }
+            public string ToBusName { get; set; }
             public bool Changed { get; set; }
         }
 
@@ -125,10 +127,10 @@ namespace SystemCenter.Controllers
                             AssetName = line.AssetName + String.Format(" Segment {0}", segment),
                             ThermalRating = double.Parse((row["ConductorSummerContRating"].ToString() == "" ? "0" : row["ConductorSummerContRating"].ToString())),
                             FromBus = int.Parse(row["fromBusNumber"].ToString()),
-                            ToBus = int.Parse(row["ToBusNumber"].ToString())
-                    });
-
-                      
+                            ToBus = int.Parse(row["ToBusNumber"].ToString()),
+                            FromBusName = row["fromBusName"].ToString(),
+                            ToBusName = row["toBusName"].ToString()
+                        });
                     }
                 }
 

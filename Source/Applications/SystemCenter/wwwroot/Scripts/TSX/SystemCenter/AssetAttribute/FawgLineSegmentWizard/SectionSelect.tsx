@@ -54,6 +54,8 @@ export interface FawgSection {
 export interface FawgSegment extends OpenXDA.Types.LineSegment {
     FromBus: number,
     ToBus: number,
+    FromBusName: number,
+    ToBusName: number,
     LocationFromID: number,
     LocationToID: number,
     Changed: boolean
