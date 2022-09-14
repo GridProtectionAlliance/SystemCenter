@@ -246,13 +246,13 @@ namespace SystemCenter.Controllers
                            
                         }
 
-                        updatedData.connections
-                            .Where(item => updatedData.segments.Select(seg => seg.AssetKey).Contains(item.ChildKey) && updatedData.segments.Select(seg => seg.AssetKey).Contains(item.ParentKey))
-                            .Select(con =>
-                               connection.ExecuteNonQuery(
+                        foreach (TempConnection con in updatedData.connections.Where(item => updatedData.segments.Select(seg => seg.AssetKey).Contains(item.ChildKey) && updatedData.segments.Select(seg => seg.AssetKey).Contains(item.ParentKey)))
+                        {
+                            connection.ExecuteNonQuery(
                                    "INSERT INTO LineSegmentConnections (ParentSegment, ChildSegment) VALUES ((SELECT ID FROM ASSET WHERE ASSETKEY = {0}),(SELECT ID FROM ASSET WHERE ASSETKEY = {1}))",
-                                   con.ParentKey, con.ChildKey)
-                        );
+                                   con.ParentKey, con.ChildKey);
+                        }
+                        
                     }
 
                     scope.Complete();
