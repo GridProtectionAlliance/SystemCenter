@@ -81,7 +81,9 @@ INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDB
 GO
 
 INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Transformer', 'XFR Type','Fawg','Transformer','Type')
+('Transformer', 'XFR Type','Fawg','Transformer','Type'),
+('LineSegment', 'From Bus Name','Fawg','LineSegment','FromBusName'),
+('LineSegment', 'To Bus Name','Fawg','LineSegment','ToBusName')
 GO
 
 /* Fields From Maximo for Meter */
@@ -579,18 +581,21 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
                     Lines.Lines_Id,
 	                Lines.fromBusNumber,
 	                Lines.ToBusNumber,
-	                Buses.VoltageValue,
+	                fromBus.VoltageValue,
 	                Lines.LengthMiles,
-	                (Lines.PosSeqResistance * Buses.VoltageValue * Buses.VoltageValue / 100.0) AS PosSeqResistance,
-					(Lines.PosSeqReactance * Buses.VoltageValue * Buses.VoltageValue / 100.0) AS PosSeqReactance,
-					(Lines.ZeroSeqResistance * Buses.VoltageValue * Buses.VoltageValue / 100.0) AS ZeroSeqResistance,
-					(Lines.ZeroSeqReactance * Buses.VoltageValue * Buses.VoltageValue / 100.0) AS ZeroSeqReactance,	               
+					fromBus.ShortName as fromBusName,
+					toBus.ShortName as toBusName,
+	                (Lines.PosSeqResistance * fromBus.VoltageValue * fromBus.VoltageValue / 100.0) AS PosSeqResistance,
+					(Lines.PosSeqReactance * fromBus.VoltageValue * fromBus.VoltageValue / 100.0) AS PosSeqReactance,
+					(Lines.ZeroSeqResistance * fromBus.VoltageValue * fromBus.VoltageValue / 100.0) AS ZeroSeqResistance,
+					(Lines.ZeroSeqReactance * fromBus.VoltageValue * fromBus.VoltageValue / 100.0) AS ZeroSeqReactance,	               
 	                Lines.ConductorSummerContRating,
 	                Lines.ConductorWinterContRating,
                     (SELECT CONCAT(''L'', Lines.TransLineNumber)) AS LNumber
                 FROM
                     Lines JOIN
-                    Buses ON Lines.fromBuses_Id = Buses.Buses_Id JOIN
+                    Buses fromBus ON Lines.fromBuses_Id = fromBus.Buses_Id JOIN
+                    Buses toBus ON Lines.toBuses_Id = toBus.Buses_Id JOIN
                     Branches ON Lines.Branches_Id = Branches.Branches_Id
                 WHERE
                     Branches.Description = ''Fawg One'' AND

@@ -173,8 +173,8 @@ function TableRowInput(props: { Segment: FawgSegment, remove: (assetKey: string)
         <tr>
             <td style={{verticalAlign: 'middle'}}>Segment {props.index+1}</td>
             <td><Input<FawgSegment> Label={'Length (miles)'} Record={props.Segment} Field={'Length'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
-            <td style={{ verticalAlign: 'middle' }}>{props.Segment.FromBus}</td>
-            <td style={{ verticalAlign: 'middle' }}>{props.Segment.ToBus}</td>
+            <td style={{ verticalAlign: 'middle' }}>{props.Segment.FromBusName + " (ID: " + props.Segment.FromBus + ")"}</td>
+            <td style={{ verticalAlign: 'middle' }}>{props.Segment.ToBusName + " (ID: " + props.Segment.ToBus + ")"}</td>
 
             <td style={{ verticalAlign: 'middle' }}>{Z0.toFixed(2)}</td>
             <td style={{ verticalAlign: 'middle' }}>{a0.toFixed(2)}</td>
