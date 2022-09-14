@@ -32,6 +32,7 @@ using Newtonsoft.Json.Linq;
 using Oracle.ManagedDataAccess.Client;
 using openXDA.Model;
 using System.Transactions;
+using SystemCenter.Model;
 
 namespace SystemCenter.Controllers
 {
@@ -195,13 +196,16 @@ namespace SystemCenter.Controllers
 
                         TableOperations<AssetConnection> connectionTable = new TableOperations<AssetConnection>(connection);
                         TableOperations<LineSegment> segmentTable = new TableOperations<LineSegment>(connection);
+                        TableOperations<AdditionalFieldValue> addFieldTable = new TableOperations<AdditionalFieldValue>(connection);
+                        IEnumerable<AdditionalField> additonalFields = new TableOperations<AdditionalField>(connection).QueryRecordsWhere("ExternalDB = 'Fawg' and ExternalDBTable = 'LineSegment'");
 
                         foreach (AssetConnection con in connectionTable.QueryRecordsWhere("(ParentID = {0} OR ChildID = {0} ) AND AssetRelationshipTypeID = (SELECT ID FROM AssetRelationshipType WHERE Name = 'Line-LineSegment')",lineID).ToList())
                         {
                             LineSegment seg = segmentTable.QueryRecordWhere("ID = {0} OR ID = {1}", con.ParentID, con.ChildID);
                             connection.ExecuteNonQuery("DELETE FROM LineSegmentConnections WHERE ParentSegment = {0} OR ChildSegment = {0}", seg.ID);
                             int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete 'Asset', 'ID = {seg.ID}'");
-
+                            foreach (AdditionalField addField in additonalFields)
+                                result += connection.ExecuteNonQuery("DELETE FROM AdditionalFieldValue WHERE ParentTableID = {0} AND AdditionalFieldID = {1}", seg.ID, addField.ID);
                         }
 
                         int assetType = connection.ExecuteScalar<int>("SELECT ID FROM AssetType WHERE Name = 'LineSegment'");
@@ -243,7 +247,27 @@ namespace SystemCenter.Controllers
                                 connection.ExecuteNonQuery($"INSERT INTO AssetLocation (AssetID, LocationID) VALUES ({segmentID},{seg.LocationFromID})");
                             if (seg.IsEnd && seg.LocationToID > 0)
                                 connection.ExecuteNonQuery($"INSERT INTO AssetLocation (AssetID, LocationID) VALUES ({segmentID},{seg.LocationToID})");
-                           
+
+                            //Adding additional fields
+
+                            foreach (AdditionalField addField in additonalFields)
+                            {
+                                try
+                                {
+                                    string fieldVal = typeof(FawgLineSegment).GetProperty(addField.ExternalDBTableKey).GetValue(seg).ToString();
+                                    addFieldTable.AddNewRecord(
+                                        new AdditionalFieldValue()
+                                        {
+                                            Value = fieldVal,
+                                            ParentTableID = segmentID,
+                                            AdditionalFieldID = addField.ID
+                                        });
+                                }
+                                catch
+                                {
+                                    continue;
+                                }
+                            }
                         }
 
                         foreach (TempConnection con in updatedData.connections.Where(item => updatedData.segments.Select(seg => seg.AssetKey).Contains(item.ChildKey) && updatedData.segments.Select(seg => seg.AssetKey).Contains(item.ParentKey)))

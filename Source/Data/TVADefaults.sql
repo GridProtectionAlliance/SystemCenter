@@ -81,9 +81,15 @@ INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDB
 GO
 
 INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Transformer', 'XFR Type','Fawg','Transformer','Type'),
-('LineSegment', 'From Bus Name','Fawg','LineSegment','FromBusName'),
-('LineSegment', 'To Bus Name','Fawg','LineSegment','ToBusName')
+('Transformer', 'XFR Type','Fawg','Transformer','Type')
+GO
+
+/* LineSegment Fawg Fields */
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
+('LineSegment', 'FromBusName','Fawg','LineSegment','FromBusName'),
+('LineSegment', 'ToBusName','Fawg','LineSegment','ToBusName'),
+('LineSegment', 'FromBus','Fawg','LineSegment','FromBus'),
+('LineSegment', 'ToBus','Fawg','LineSegment','ToBus')
 GO
 
 /* Fields From Maximo for Meter */
@@ -1108,12 +1114,6 @@ INSERT INTO ValueList ([GroupID], [Value],[AltValue],[SortOrder]) VALUES
 ((SELECT ID FROM ValueListGroup WHERE Name = 'Status'),'Retired',NULL,1),
 ((SELECT ID FROM ValueListGroup WHERE Name = 'Status'),'Planned',NULL,1),
 ((SELECT ID FROM ValueListGroup WHERE Name = 'Status'),'Repair',NULL,1)
-GO
-
-/* Fields for Line segments to identify changes compared to FAWG - also needed for possible email Alerts against changes in FAWG */
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('LineSegment', 'FromBus','','',''),
-('LineSegment', 'ToBus','','','')
 GO
 
 DROP VIEW [dbo].[SEBrowser.EventSearchEventView]
