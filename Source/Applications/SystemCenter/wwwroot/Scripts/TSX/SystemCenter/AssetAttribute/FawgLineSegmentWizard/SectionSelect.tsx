@@ -41,7 +41,9 @@ interface IProps {
 
 export interface FawgSection {
     startBus: number,
+    startBusName: string,
     endBus: number,
+    endBusName: string,
     startStationID: (number | null),
     endStationID: (number | null),
     Segments: string[],
@@ -54,8 +56,8 @@ export interface FawgSection {
 export interface FawgSegment extends OpenXDA.Types.LineSegment {
     FromBus: number,
     ToBus: number,
-    FromBusName: number,
-    ToBusName: number,
+    FromBusName: string,
+    ToBusName: string,
     LocationFromID: number,
     LocationToID: number,
     Changed: boolean
@@ -136,7 +138,9 @@ function SectionSelect(props: IProps): JSX.Element {
         let currentTap = Taps.find(t => t.ConnectedSegments.length > t.ProcessedSegments.length)
         let CompletedSections: FawgSection[] = [];
         while (currentTap != null) {
-            let currentSection: FawgSection = { startBus: currentTap.Bus, startStationID: currentTap.LocationID, Segments: [], endBus: -1, endStationID: -1, startTap: !currentTap.IsEnd, endTap: true, NameFrom: '', NameTo: '' };
+            let currentSection: FawgSection = {
+                startBus: currentTap.Bus, startStationID: currentTap.LocationID, Segments: [], endBus: -1, endStationID: -1, startTap: !currentTap.IsEnd, endTap: true, NameFrom: '', NameTo: '', startBusName: '', endBusName: ''
+            };
             let currentSegment = currentTap.ConnectedSegments.find(s => currentTap.ProcessedSegments.findIndex(ps => ps == s) == -1);
             let nextBus = props.Segments.find(s => s.AssetKey == currentSegment).FromBus;
 
@@ -159,6 +163,14 @@ function SectionSelect(props: IProps): JSX.Element {
             currentSection.endBus = nextBus;
             currentSection.endStationID = Taps.find(t => t.Bus == nextBus).LocationID;
             currentSection.endTap = !Taps.find(t => t.Bus == nextBus).IsEnd;
+            let endSeg = props.Segments.find(seg => seg.FromBus == currentSection.endBus);
+            if (endSeg == undefined) {
+                currentSection.endBusName = props.Segments.find(seg => seg.ToBus == currentSection.endBus).ToBusName;
+                currentSection.startBusName = props.Segments.find(seg => seg.FromBus == currentSection.startBus).FromBusName;
+            } else {
+                currentSection.endBusName = endSeg.FromBusName
+                currentSection.startBusName = props.Segments.find(seg => seg.ToBus == currentSection.startBus).ToBusName;
+            }
             CompletedSections.push(currentSection);
             Taps.find(t => t.Bus == nextBus).ProcessedSegments.push(currentSegment);
             currentTap = Taps.find(t => t.ConnectedSegments.length > t.ProcessedSegments.length);
@@ -209,7 +221,7 @@ function SectionSelect(props: IProps): JSX.Element {
                             cols={[
                                 {
                                     key: 'startBus', label: 'Start', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                    content: (item) => item.startTap ? 'Tap (Bus ' + item.startBus + ')' : <Select<FawgSection> Label={`Substation (Bus ${item.startBus} )`} Field={'startStationID'} Record={item} EmptyLabel={'N/A'} Setter={(r) => {
+                                    content: (item) => item.startTap ? 'Tap (Bus ' + item.startBus + ')' : <Select<FawgSection> Label={item.startBusName + " (ID: " + item.startBus + ")"} Field={'startStationID'} Record={item} EmptyLabel={'N/A'} Setter={(r) => {
                                         let updated = _.cloneDeep(props.Sections);
                                         let index = props.Sections.findIndex(sec => sec.Segments[0] == item.Segments[0]);
                                         if (r.startStationID == null) {
@@ -224,7 +236,8 @@ function SectionSelect(props: IProps): JSX.Element {
                                     }} Options={locations.map(l => ({ Value: l.ID.toString(), Label: l.Name + '(' + l.LocationKey + ')' }))} EmptyOption={true} />
                                 },
                                 {
-                                    key: 'endBus', label: 'End', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.endTap ? 'Tap (Bus ' + item.endBus + ')' : <Select<FawgSection> Label={`Substation (Bus ${item.endBus} )`} Field={'endStationID'} Record={item} EmptyLabel={'N / A'} Setter={(r) => {
+                                    key: 'endBus', label: 'End', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                    content: (item) => item.endTap ? 'Tap (Bus ' + item.endBus + ')' : <Select<FawgSection> Label={item.endBusName + " (ID: " + item.endBus + ")"} Field={'endStationID'} Record={item} EmptyLabel={'N / A'} Setter={(r) => {
                                         let updated = _.cloneDeep(props.Sections);
                                     let index = props.Sections.findIndex(sec => sec.Segments[0] == item.Segments[0]);
                                         if (r.endStationID == null) {

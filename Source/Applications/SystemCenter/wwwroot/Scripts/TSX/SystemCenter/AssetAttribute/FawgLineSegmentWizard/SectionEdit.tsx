@@ -97,7 +97,7 @@ function SectionEdit(props: IProps): JSX.Element {
             <div className="row">
                 <div className="col">
                     <div className="alert alert-primary" role="alert">
-                        <h4 className="alert-heading">Line Section {props.Section.startTap ? 'Tap' : props.Section.NameFrom} (Bus {props.Section.startBus}) to {props.Section.endTap ? 'Tap' : props.Section.NameTo} (Bus {props.Section.endBus})</h4>
+                        <h4 className="alert-heading">Line Section {props.Section.startTap ? 'Tap' : props.Section.NameFrom} (Bus {props.Section.startBusName}) to {props.Section.endTap ? 'Tap' : props.Section.NameTo} (Bus {props.Section.endBusName})</h4>
                     </div>
                 </div>
             </div>

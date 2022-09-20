@@ -96,7 +96,7 @@ namespace SystemCenter.Controllers
                 line = (new TableOperations<Line>(connection)).QueryRecordWhere("ID = {0}", lineID);
             }
 
-            int segment = 1;
+            int segment = 0;
             List<FawgLineSegment> segments = new List<FawgLineSegment>();
 
 
@@ -216,7 +216,7 @@ namespace SystemCenter.Controllers
 
                             LineSegment lseg = new LineSegment()
                             {
-                                AssetKey = line.AssetKey + " Segment" + i,
+                                AssetKey = seg.AssetKey,
                                 R0 = seg.R0,
                                 R1 = seg.R1,
                                 X0 = seg.X0,
@@ -226,7 +226,7 @@ namespace SystemCenter.Controllers
                                 IsEnd = seg.IsEnd,
                                 Spare = false,
                                 AssetTypeID = assetType,
-                                AssetName = line.AssetName + " Segment " + i,
+                                AssetName = seg.AssetName,
                                 VoltageKV = line.VoltageKV
                             };
 
