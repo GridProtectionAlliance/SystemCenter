@@ -29,8 +29,9 @@ import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import { AssetGroupSlice } from '../Store/Store';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
-import { Warning } from '@gpa-gemstone/react-interactive';
+import { Search, Warning } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { useAppDispatch, useAppSelector } from '../hooks';
 
 declare var homePath: string;
 
@@ -44,9 +45,18 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
     const [counter, setCounter] = React.useState<number>(0);
     const [removeGroup, setRemoveGroup] = React.useState<number>(-1);
 
+    const noSameFilter: Search.IFilter<OpenXDA.Types.RemoteXDAMeter> =
+    {
+        FieldName: 'ID',
+        SearchText: props.AssetGroupID.toString(),
+        Operator: '<>',
+        Type: 'number',
+        isPivotColumn: false
+    };
+
     React.useEffect(() => {
         return getData();
-    }, [props.AssetGroupID, counter])
+    }, [props.AssetGroupID, counter]);
 
     function getData() {
         if (props.AssetGroupID == null)
@@ -183,6 +193,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                     }}
                     Show={showAdd}
                     Type={'multiple'}
+                    AddlFilters={[noSameFilter]}
                     Columns={[
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
