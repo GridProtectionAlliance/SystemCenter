@@ -528,7 +528,6 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AssetGroupInfo.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AssetAssetGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\MeterAssetGroup.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\UserAssetGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AssetGroupAssetGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\ByCompany.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\Company.tsx" />

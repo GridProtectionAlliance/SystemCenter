@@ -28,12 +28,11 @@ import { useHistory } from 'react-router-dom';
 import AssetgroupInfoWindow from './AssetGroupInfo';
 import AssetAssetGroupWindow from './AssetAssetGroup';
 import MeterAssetGroupWindow from './MeterAssetGroup';
-import UserAssetGroupWindow from './UserAssetGroup';
 import AssetGroupAssetGroupWindow from './AssetGroupAssetGroup';
 import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
-declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup' | 'user' 
+declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup'
 
 function AssetGroup(props: { AssetGroupID: number }) {
     let history = useHistory();
@@ -136,7 +135,6 @@ function AssetGroup(props: { AssetGroupID: number }) {
         { Id: "info", Label: "Info" },
         { Id: "asset", Label: "Assets" },
         { Id: "meter", Label: "Meters" },
-        { Id: "user", Label: "Users" },
         { Id: "assetgroup", Label: "Asset Groups" }];
 
 
@@ -162,9 +160,6 @@ function AssetGroup(props: { AssetGroupID: number }) {
                 </div>
                 <div className={"tab-pane " + (tab == "meter" ? " active" : "fade")} id="meter">
                     <MeterAssetGroupWindow AssetGroupID={props.AssetGroupID} />
-                </div>
-                <div className={"tab-pane " + (tab == "user" ? " active" : "fade")} id="user">
-                    <UserAssetGroupWindow AssetGroupID={props.AssetGroupID} />
                 </div>
                 <div className={"tab-pane " + (tab == "assetgroup" ? " active" : "fade")} id="assetgroup">
                     <AssetGroupAssetGroupWindow AssetGroupID={props.AssetGroupID} />
