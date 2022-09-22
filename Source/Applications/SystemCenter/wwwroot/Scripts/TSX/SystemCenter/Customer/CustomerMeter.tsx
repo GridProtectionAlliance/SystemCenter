@@ -36,8 +36,8 @@ declare var homePath: string;
 interface IProps { Customer: OpenXDA.Types.Customer }
 const CustomerMeterWindow = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const data = useAppSelector(CustomerMeterSlice.Data);
-    const status = useAppSelector(CustomerMeterSlice.Status);
+    const data = useAppSelector(CustomerMeterSlice.SearchResults);
+    const status = useAppSelector(CustomerMeterSlice.SearchStatus);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
 
     const sortField = useAppSelector(CustomerMeterSlice.SortField);
@@ -45,11 +45,26 @@ const CustomerMeterWindow = (props: IProps) => {
 
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerMeter | null>(null);
 
-
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
-            dispatch(CustomerMeterSlice.Fetch());
+            getData();
     }, [status])
+
+    React.useEffect(() => {
+        getData();
+    }, [props.Customer.ID])
+
+    function getData() {
+        dispatch(CustomerMeterSlice.DBSearch({
+            filter: [{
+                FieldName: 'CustomerID',
+                SearchText: props.Customer.ID.toString(),
+                Operator: '=',
+                Type: 'number',
+                isPivotColumn: false
+            }], sortField, ascending
+        }));
+    }
 
     function getEnum(setOptions, field) {
         let handle = null;
