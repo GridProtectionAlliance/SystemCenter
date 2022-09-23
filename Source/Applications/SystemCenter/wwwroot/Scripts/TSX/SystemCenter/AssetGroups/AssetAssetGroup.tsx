@@ -26,11 +26,13 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
-import { ByAssetSlice } from '../Store/Store';
+import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Search, Warning } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { AssetAttributes } from '../AssetAttribute/Asset';
 
 declare var homePath: string;
 
@@ -43,9 +45,18 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     const [counter, setCounter] = React.useState<number>(0);
     const [removeAsset, setRemoveAsset] = React.useState<number>(-1);
 
+    const assetType = useAppSelector(AssetTypeSlice.Data);
+    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
+    const dispatch = useAppDispatch();
+
     React.useEffect(() => {
         return getData();
-    }, [props.AssetGroupID, counter])
+    }, [props.AssetGroupID, counter]);
+
+    React.useEffect(() => {
+        if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
+            dispatch(AssetTypeSlice.Fetch());
+    }, [assetTypeStatus]);
 
     function getData() {
         if (props.AssetGroupID == null)
@@ -69,22 +80,12 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     }
 
     function getEnum(setOptions, field) {
-        let handle = null;
-        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+        if (field.type != 'enum')
             return () => { };
 
-        handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        });
-
-        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-        return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+        if (field.key == 'AssetType') {
+            setOptions(assetType.map((t) => ({ Value: t.Name, Label: t.Name })))
+            return () => { }
         }
     }
 
@@ -162,15 +163,14 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <Table
                         cols={[
-                                { key: 'AssetName', field: 'AssetKey', label: 'AssetKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'LongAssetName', field: 'AssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                {
-                                    key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                    content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveAsset(c.ID)}><span>{TrashCan}</span></button>
-                                },
-                                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
-                            
+                            { key: 'AssetName', field: 'AssetKey', label: 'AssetKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'LongAssetName', field: 'AssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            {
+                                key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveAsset(c.ID)}><span>{TrashCan}</span></button>
+                            },
+                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
                         ]}
                         tableClass="table table-hover"
                         data={assetList}
@@ -192,8 +192,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setSortKey(d.colKey);
                             }
                         }}
-
-                            onClick={(data) => { if (data.colKey != 'Remove') history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.ID, state: {} }) }}
+                        onClick={(data) => { if (data.colKey != 'Remove') history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.ID, state: {} }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 590, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
