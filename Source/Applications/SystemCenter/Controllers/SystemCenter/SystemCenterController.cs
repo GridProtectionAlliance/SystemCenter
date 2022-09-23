@@ -523,7 +523,7 @@ namespace SystemCenter.Controllers
                     SamplesPerHour = 0,
                     PerUnitValue = 1,
                     HarmonicGroup = 0,
-                    Description = cd.DataSource.DataSourceLocation + " - " + cd.ChannelName,
+                    Description = (cd.DataSource.DataSourceName) + " - " + cd.ChannelName,
                     Enabled = true,
                     Adder = 0,
                     Multiplier = 1,
