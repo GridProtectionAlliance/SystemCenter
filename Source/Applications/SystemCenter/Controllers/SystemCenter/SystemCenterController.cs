@@ -510,31 +510,61 @@ namespace SystemCenter.Controllers
                 if (parser.DataSourceRecords.Count == 0)
                     return BadRequest("File contained no useable channel definitions");
 
-                IEnumerable<ChannelDefinition> channelDefinitions = parser.DataSourceRecords.First().ChannelDefinitions.Where(cd => cd.QuantityTypeID == QuantityType.WaveForm && cd.SeriesDefinitions.Where(ser => ser.QuantityCharacteristicID == QuantityCharacteristic.Instantaneous && ser.QuantityUnits != QuantityUnits.Seconds).Any() && (cd.QuantityMeasured == QuantityMeasured.Voltage || cd.QuantityMeasured == QuantityMeasured.Current));
+                IEnumerable<ChannelDefinition> channelDefinitions = parser.DataSourceRecords.First().ChannelDefinitions
+                    .Where(cd => cd.SeriesDefinitions.Where(ser => ser.QuantityCharacteristicID == QuantityCharacteristic.Instantaneous).Any());
 
-                var channels = channelDefinitions.Select((cd,index) => new {
-                    ID = index + 1 ,
-                    Meter = meterKey,
-                    Asset = "",
-                    MeasurementType = cd.QuantityMeasured.ToString(),
-                    MeasurementCharacteristic = "Instantaneous",
-                    Phase = cd.Phase.ToString(),
-                    Name = cd.ChannelName,
-                    SamplesPerHour = 0,
-                    PerUnitValue = 1,
-                    HarmonicGroup = 0,
-                    Description = (cd.DataSource.DataSourceName) + " - " + cd.ChannelName,
-                    Enabled = true,
-                    Adder = 0,
-                    Multiplier = 1,
-                    Series = new [] { 
-                        new {
-                            ID = 0,
-                            ChannelID = 0,
-                            SeriesType = "Values",
-                            SourceIndexes = ""
-                        }
-                    }
+                var channels = channelDefinitions.Select((cd,index) => {
+
+                    Guid characteristic = cd.SeriesDefinitions
+                    .Where(item => item.ValueTypeID != SeriesValueType.Time).FirstOrDefault()?.QuantityCharacteristicID
+                    ?? QuantityCharacteristic.Instantaneous;
+                    Guid valType = SeriesValueType.Val;
+                    Guid maxType = SeriesValueType.Max;
+                    Guid minType = SeriesValueType.Min;
+                    Guid avgType = SeriesValueType.Avg;
+
+                    Func<Guid, string> SeriesType = (Guid g) =>
+                    {
+                        if (g == SeriesValueType.Val)
+                            return "Values";
+                        if (g == SeriesValueType.Min)
+                            return "Minimum";
+                        if (g == SeriesValueType.Min)
+                            return "Maximum";
+                        if (g == SeriesValueType.Min)
+                            return "Average";
+                        return "Values";
+                    };
+
+
+                    var series = cd.SeriesDefinitions.Where(s => s.ValueTypeID == SeriesValueType.Val || s.ValueTypeID == SeriesValueType.Max || s.ValueTypeID == SeriesValueType.Min || s.ValueTypeID == SeriesValueType.Avg)
+                    .Select(d => new {
+                        ID = 0,
+                        ChannelID = 0,
+                        SeriesType = SeriesType(d.ValueTypeID),
+                        SourceIndexes = ""
+                    });
+                      
+                    return new
+                    {
+                        ID = index + 1,
+                        Meter = meterKey,
+                        Asset = "",
+                        MeasurementType = cd.QuantityMeasured.ToString(),
+                        // If anything is not a
+                        MeasurementCharacteristic = QuantityCharacteristic.ToName(characteristic),
+                        Phase = cd.Phase.ToString(),
+                        Name = cd.ChannelName,
+                        SamplesPerHour = 0,
+                        PerUnitValue = 1,
+                        HarmonicGroup = 0,
+                        Description = (cd.DataSource.DataSourceName) + " - " + cd.ChannelName,
+                        Enabled = true,
+                        Adder = 0,
+                        Multiplier = 1,
+                        Series = series
+                    };
+                    
                 });
 
                 return Ok(channels);
