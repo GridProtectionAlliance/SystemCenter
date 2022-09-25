@@ -236,8 +236,8 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                 <div className="col-6">
                     <div className="form-group" style={{ width: '100%' }}>
                         <div className="custom-file" style={IsPQD ? { width: '50%' } : {}}>
-                            <input type="file" className="custom-file-input" ref={fileInput} accept=".cfg,.par,.pqd" />
-                            <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile : 'Choose cfg, par or pqd file for event data.'}</label>
+                            <input type="file" className="custom-file-input" ref={fileInput} accept=".cfg,.pqd" />
+                            <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile : 'Choose cfg or pqd file for event data.'}</label>
                         </div>
                         <div className="custom-file" style={{ width: '50%', visibility: (IsPQD? undefined : 'hidden') }}>
                             <input type="file" className="custom-file-input" ref={trendFileInput} accept=".pqd" />
@@ -305,7 +305,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                     selected={(item) => false}
                 />
             </div>
-            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={'File is not of type cfg, par, or pqd. Please only use cfg, par, or pqd files.'} CallBack={() => setShowCFGError(false)} />
+            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={'File is not of type cfg, par, or pqd. Please only use cfg, or pqd files.'} CallBack={() => setShowCFGError(false)} />
             <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare channels. This will remove ${NSpare} Channels from the Configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
 
         </>
