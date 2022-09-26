@@ -146,15 +146,19 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             //If this section goes to a Tap add all other connections....
             if (sec.startTap) {
                 let connectedSections = sections.filter((item, i) => (item.startBus == sec.startBus || item.endBus == sec.startBus) && secIndex != i);
-                let connectedSegments = connectedSections.map(item => item.startBus == sec.startBus ? item.Segments[0] : item.Segments[item.Segments.length - 1]).filter(item => finishedSegments.indexOf(s => s.Assetkey == item) > -1);
-                connectedSegments.forEach(cSeg => {
+                let connectedSegments = connectedSections.map(item => item.startBus == sec.startBus ? item.Segments[0] : item.Segments[item.Segments.length - 1]);
+                connectedSegments.filter((cSeg) =>
+                    !finishedConnections.some(seg => (seg.ChildKey == cSeg && seg.ParentKey == sec.Segments[0]) || (seg.ParentKey == cSeg && seg.ChildKey == sec.Segments[0]))
+                ).forEach(cSeg => {
                     finishedConnections.push({ ChildKey: cSeg, ParentKey: sec.Segments[0], BusNumber: 0 } as FawgConnection)
                 })
             }
             if (sec.endTap) {
                 let connectedSections = sections.filter((item, i) => (item.startBus == sec.endBus || item.endBus == sec.endBus) && secIndex != i);
-                let connectedSegments = connectedSections.map(item => item.startBus == sec.endBus ? item.Segments[0] : item.Segments[item.Segments.length - 1]).filter(item => finishedSegments.indexOf(s => s.Assetkey == item) > -1);
-                connectedSegments.forEach(cSeg => {
+                let connectedSegments = connectedSections.map(item => item.startBus == sec.endBus ? item.Segments[0] : item.Segments[item.Segments.length - 1]);
+                connectedSegments.filter((cSeg) =>
+                    !finishedConnections.some(seg => (seg.ChildKey == cSeg && seg.ParentKey == sec.Segments[sec.Segments.length - 1]) || (seg.ParentKey == cSeg && seg.ChildKey == sec.Segments[sec.Segments.length - 1]))
+                ).forEach(cSeg => {
                     finishedConnections.push({ ChildKey: cSeg, ParentKey: sec.Segments[sec.Segments.length - 1], BusNumber: 0 } as FawgConnection)
                 })
             }
@@ -197,6 +201,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((t, i) => <p key={i}><i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> {t} </p>) }
             >
+                <LoadingScreen Show={showLoading} />
                 {step == 'SelectSection' ? <SectionSelect Segments={segments}
                     Connections={segmentConnections} Sections={sections} SetSections={SetSections} AddSection={() => { }}
                     LineID={props.LineID} /> : null}
@@ -208,7 +213,6 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                 Show={showWarning} CallBack={(conf) => { setShowWarning(false); if (conf) props.closeWizard(); }} />
             <Warning Title={'Confirm FAWG update'} Message={'This will override any current LineSegments and save the Configuration to openXDA.'}
                 Show={showConfirm} CallBack={(conf) => { setShowConfirm(false); if (conf) { submitUpdate(); } }} />
-            <LoadingScreen Show={showLoading} />
             <Warning Title={'Error'} Message={'An error occurred while updating the Line Segment Configuration.'}
                 Show={showError} CallBack={(conf) => { setShowError(false); props.closeWizard(); } } />
         </>);
