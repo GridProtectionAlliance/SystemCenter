@@ -242,7 +242,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
                     </div>
                 </div>
             </Modal>
-            {showFawg ? <LineSegmentWizard LineID={props.ID} closeWizard={() => setShowFawg(false)} /> : null}
+            {showFawg ? <LineSegmentWizard LineID={props.ID} closeWizard={() => { setShowFawg(false); getData(); }} /> : null}
         </>
     );
 }
