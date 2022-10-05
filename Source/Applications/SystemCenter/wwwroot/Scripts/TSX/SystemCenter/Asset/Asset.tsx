@@ -139,7 +139,7 @@ function Asset(props: { AssetID: number }) {
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
                 <div className="col">
-                    <h2>{asset != null ? asset.AssetKey : ''}</h2>
+                    <h2>{asset != null ? asset.AssetName + ' (' + asset.AssetKey + ')': ''}</h2>
                 </div>
                 <div className="col">
                     <button className="btn btn-danger pull-right" hidden={asset == null} onClick={() => setShowDelete(true)}>Delete Asset</button>
