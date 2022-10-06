@@ -165,9 +165,14 @@ function SectionSelect(props: IProps): JSX.Element {
                 let nextConnection = props.Connections.find(item => (item.ChildKey == currentSegment || item.ParentKey == currentSegment) && item.BusNumber == nextBus)
 
                 currentSegment = (nextConnection.ChildKey == currentSegment) ? nextConnection.ParentKey : nextConnection.ChildKey;
-                nextBus = props.Segments.find(s => s.AssetKey == currentSegment).ToBus;
-                if (nextBus == nextConnection.BusNumber)
-                    nextBus = props.Segments.find(s => s.AssetKey == currentSegment).FromBus;
+                nextSeg = props.Segments.find(s => s.AssetKey == currentSegment);
+                nextBus = nextSeg.ToBus;
+                nextBusName = nextSeg.ToBusName;
+                if (nextBus == nextConnection.BusNumber) {
+                    nextSeg = props.Segments.find(s => s.AssetKey == currentSegment);
+                    nextBus = nextSeg.FromBus;
+                    nextBusName = nextSeg.FromBusName;
+                }
                 currentSection.Segments.push(currentSegment);
             }
 

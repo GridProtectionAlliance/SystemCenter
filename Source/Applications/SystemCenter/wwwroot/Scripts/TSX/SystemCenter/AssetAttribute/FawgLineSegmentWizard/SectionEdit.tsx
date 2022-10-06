@@ -54,12 +54,18 @@ function SectionEdit(props: IProps): JSX.Element {
         props.Section.Segments.forEach((item) => {
             let updated = _.cloneDeep(props.Segments.find(seg => seg.AssetKey == item));
             let lastBus = props.Section.startBus;
-            if (data.length > 0)
+            let lastBusName = props.Section.startBusName;
+            if (data.length > 0) {
                 lastBus = data[data.length - 1].ToBus;
+                lastBusName = data[data.length - 1].ToBusName;
+            }
 
-            if (lastBus != updated.FromBus)
+            if (lastBus != updated.FromBus) {
                 updated.ToBus = updated.FromBus;
+                updated.ToBusName = updated.FromBusName;
+            }
             updated.FromBus = lastBus;
+            updated.FromBusName = lastBusName;
             
             data.push(updated);
         });
