@@ -1,0 +1,277 @@
+﻿//******************************************************************************************************
+//  ChannelScalingForm.tsx - Gbtc
+//
+//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  01/03/2020 - Billy Ernest
+//       Generated original version of source code.
+//  10/20/2022 - Gabriel Santos
+//       Refactored this code, split this class from ChannelScalingWindow and placed it in its own file.
+//
+//******************************************************************************************************
+
+import * as React from 'react';
+import * as _ from 'lodash';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { toNumber } from 'lodash';
+import { useAppSelector, useAppDispatch } from '../../hooks';
+import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../../Store/Store';
+import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import Table from '@gpa-gemstone/react-table';
+import { ChannelScalingWrapper, ChannelScalingType } from './ChannelScalingWrapper';
+
+declare let homePath: string;
+
+interface IProps {
+    Channels: OpenXDA.Types.Channel[],
+    UpdateChannels: (channels: OpenXDA.Types.Channel[]) => void,
+    ChannelStatus?: Application.Types.Status,
+}
+
+const ChannelScalingForm = (props: IProps) => {
+    const dispatch = useAppDispatch();
+
+    const [VoltageMultiplier, setVoltageMultiplier] = React.useState<number>(1);
+    const [CurrentMultiplier, setCurrentMultiplier] = React.useState<number>(1);
+    const [Wrappers, setWrappers] = React.useState<ChannelScalingWrapper[]>([]);
+
+    const phases = useAppSelector(PhaseSlice.Data) as OpenXDA.Types.Phase[];
+    const measurementTypes = useAppSelector(MeasurmentTypeSlice.Data) as OpenXDA.Types.MeasurementType[];
+    const measurementCharacteristics = useAppSelector(MeasurementCharacteristicSlice.Data) as OpenXDA.Types.MeasurementCharacteristic[];
+
+    const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
+    const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
+    const mcStatus = useAppSelector(MeasurementCharacteristicSlice.Status) as Application.Types.Status;
+    const [status, setStatus] = React.useState <Application.Types.Status>('idle');
+    const [hover, setHover] = React.useState<( 'Reset' | 'None' | 'Replace' | 'Adjust' )>('None');
+    const [changed, setChanged] = React.useState<boolean>(false);
+
+    // Constants
+    const ScalingTypes: ChannelScalingType[] = [
+        ChannelScalingType.Voltage,
+        ChannelScalingType.Current,
+        ChannelScalingType.PowerAndEnergy,
+        ChannelScalingType.Impedance,
+        ChannelScalingType.NoScaling
+    ];
+
+    React.useEffect(() => {
+        if (props.ChannelStatus === undefined) setStatus('idle');
+        else setStatus(props.ChannelStatus);
+    }, [props.ChannelStatus]);
+
+    React.useEffect(() => {
+        if (pStatus == 'unintiated')
+            dispatch(PhaseSlice.Fetch());
+    }, [pStatus])
+
+    React.useEffect(() => {
+        if (mtStatus == 'unintiated')
+            dispatch(MeasurmentTypeSlice.Fetch());
+    }, [mtStatus])
+
+    React.useEffect(() => {
+        if (mcStatus == 'unintiated')
+            dispatch(MeasurementCharacteristicSlice.Fetch());
+    }, [mcStatus])
+
+    React.useEffect(() => {
+        initializeWrappers();
+    }, [props.Channels, status, pStatus, mtStatus, mcStatus]);
+
+    function initializeWrappers() {
+        if (status == 'idle' && mtStatus == 'idle' && mcStatus == 'idle' && pStatus == 'idle') {
+            const wrappers = props.Channels.map(channel => {
+                const measurementType = measurementTypes.find(measurementType => measurementType.Name === channel.MeasurementType);
+                const measurementCharacteristic = measurementCharacteristics.find(measurementCharacteristic => measurementCharacteristic.Name === channel.MeasurementCharacteristic);
+                const phase = phases.find(phase => phase.Name === channel.Phase);
+                return new ChannelScalingWrapper(channel, measurementType, measurementCharacteristic, phase);
+            });
+
+            const vMultiplier = getBaseVoltageMultiplier(wrappers);
+            const iMultiplier = getBaseCurrentMultiplier(wrappers);
+
+            for (const wrapper of wrappers) {
+                const newMultiplier = wrapper.CalculateMultiplier(vMultiplier, iMultiplier);
+                wrapper.ReplacedMultiplier = newMultiplier;
+            }
+
+            setVoltageMultiplier(getBaseVoltageMultiplier(wrappers));
+            setCurrentMultiplier(getBaseCurrentMultiplier(wrappers));
+            setWrappers(wrappers);
+        }
+    }
+
+    function getBaseVoltageMultiplier(wrappers: ChannelScalingWrapper[]): number {
+        for (const wrapper of wrappers) {
+            if (wrapper.ScalingType === ChannelScalingType.Voltage)
+                return wrapper.Channel.Multiplier;
+        }
+
+        return 1;
+    }
+
+    function getBaseCurrentMultiplier(wrappers: ChannelScalingWrapper[]): number {
+        for (const wrapper of wrappers) {
+            if (wrapper.ScalingType === ChannelScalingType.Current)
+                return wrapper.Channel.Multiplier;
+        }
+
+        return 1;
+    }
+
+    function recalculateChannelMultipliers(multipliers: { VoltageMultiplier?: number, CurrentMultiplier?: number } = {}, wrappers?: ChannelScalingWrapper[]): void {
+        const vMultiplier: number = multipliers.VoltageMultiplier || VoltageMultiplier;
+        const iMultiplier: number = multipliers.CurrentMultiplier || CurrentMultiplier;
+
+        if (wrappers == undefined)
+            wrappers = _.cloneDeep(Wrappers);
+
+        const baseVoltageMultiplier = getBaseVoltageMultiplier(wrappers);
+        const baseCurrentMultiplier = getBaseCurrentMultiplier(wrappers);
+
+        for (const wrapper of wrappers) {
+            const baseMultiplier = wrapper.CalculateMultiplier(baseVoltageMultiplier, baseCurrentMultiplier);
+            const newMultiplier = wrapper.CalculateMultiplier(vMultiplier, iMultiplier);
+            wrapper.AdjustedMultiplier = wrapper.Channel.Multiplier * newMultiplier / baseMultiplier;
+            wrapper.ReplacedMultiplier = newMultiplier;
+        }
+
+        setVoltageMultiplier(vMultiplier);
+        setCurrentMultiplier(iMultiplier);
+        setWrappers(wrappers);
+    }
+
+    function useReplacedMultiplier() {
+        const updatedWrappers = _.cloneDeep(Wrappers);
+        for (const wrapper of updatedWrappers) {
+            const channel = wrapper.Channel;
+            channel.Multiplier = wrapper.ReplacedMultiplier;
+            wrapper.AdjustedMultiplier = wrapper.ReplacedMultiplier;
+        }
+        props.UpdateChannels(updatedWrappers.map(wrapper => wrapper.Channel));
+    }
+
+    function useAdjustedMultiplier() {
+        const updatedWrappers = _.cloneDeep(Wrappers);
+        for (const wrapper of updatedWrappers) {
+            const channel = wrapper.Channel;
+            channel.Multiplier = wrapper.AdjustedMultiplier;
+        }
+        props.UpdateChannels(updatedWrappers.map(wrapper => wrapper.Channel));
+    }
+
+    let cardBody;
+    if (status == 'loading' || pStatus == 'loading' || mcStatus == 'loading' || mtStatus == 'loading')
+        cardBody = 
+            <div style={{ width: '100%', height: '200px' }}>
+                <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                    <LoadingIcon Show={true} Size={40} Label={''} />
+                </div>
+            </div>
+    else if (status == 'error' || pStatus == 'error' || mcStatus == 'error' || mtStatus == 'error')
+        cardBody =
+            <div style={{ width: '100%', height: '200px' }}>
+                <div style={{ margin: 'auto' }}>
+                    <ServerErrorIcon Show={true} Size={40} Label={''} />
+                </div>
+            </div>
+    else
+        cardBody =
+            <>
+                <div style={{ width: '100%', maxHeight: '27px', margin: 10 }}>
+                    Voltage Multiplier: <input style={{ width: "5em" }} type="text" value={VoltageMultiplier} onChange={(event) => {
+                        const value = event.target.value;
+                        const voltageMultiplier = toNumber(value);
+                        recalculateChannelMultipliers({ VoltageMultiplier: voltageMultiplier });
+                        setChanged(true);
+                    }} />
+                    <span style={{ marginLeft: "2em" }} />
+                    Current Multiplier: <input style={{ width: "5em" }} type="text" value={CurrentMultiplier} onChange={(event) => {
+                        const value = event.target.value;
+                        const currentMultiplier = toNumber(value);
+                        recalculateChannelMultipliers({ CurrentMultiplier: currentMultiplier });
+                        setChanged(true);
+                    }} />
+                </div>
+                <div style={{ width: '100%' }}>
+                    <Table<ChannelScalingWrapper>
+                        cols={[
+                            { key: 'Descriptor', field: 'Descriptor', label: 'Description', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                            { key: 'Identity', field: 'Identity', label: 'Type', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
+                            {
+                                key: 'ScalingType', label: 'Scaling Type', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (item, key, fld, style, index) => <select className='form-control' value={item.ScalingTypeName} onChange={(event) => {
+                                    const scalingTypeName = event.target.value;
+                                    const wrapper = _.cloneDeep(Wrappers);
+                                    wrapper[index].ScalingType = ChannelScalingType[scalingTypeName];
+                                    recalculateChannelMultipliers({},wrapper);
+                                }}>{ScalingTypes.map(a => <option key={ChannelScalingType[a]} value={ChannelScalingType[a]}>{ChannelScalingType[a]}</option>)}</select>
+                            },
+                            { key: 'Multiplier', field: 'CalculateMultiplier', label: 'Multiplier', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                            { key: 'Replaced', field: 'ReplacedMultiplier', label: 'Replaced', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                            { key: 'Adjusted', field: 'AdjustedMultiplier', label: 'Adjusted', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        ]}
+                        tableClass="table table-hover"
+                        data={Wrappers}
+                        sortKey={''}
+                        ascending={false}
+                        onSort={(d) => { }}
+                        onClick={(fld) => { }}
+                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 497, }}
+                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        selected={(item) => false}
+                        keySelector={(item) => item.Channel.ID.toString()}
+                    />
+                </div>
+            </>
+
+    return (
+        <>
+            <div className="card-body" style={{ maxHeight: window.innerHeight - 365 }}>
+                {cardBody}
+            </div>
+            <div className="card-footer">
+                <div className="btn-group mr-2">
+                    <button className={"btn btn-primary pull-right" + (!changed ? ' disabled' : '')} onClick={() => { if(changed) useReplacedMultiplier(); }}
+                        onMouseEnter={() => setHover('Replace')} onMouseLeave={() => setHover('None')} data-tooltip={"rep"}
+                    >Replace Multipliers</button>
+                    <ToolTip Show={hover == 'Replace' && (!changed)} Position={'top'} Theme={'dark'} Target={"rep"}>
+                        <p> There are no changes to be applied. </p>
+                    </ToolTip>
+                </div>
+                <div className="btn-group mr-2">
+                    <button className={"btn btn-primary pull-right" + (!changed ? ' disabled' : '')} onClick={() => { if (changed) useAdjustedMultiplier(); }}
+                        onMouseEnter={() => setHover('Adjust')} onMouseLeave={() => setHover('None')} data-tooltip={"adj"}
+                    >Adjust Multipliers</button>
+                    <ToolTip Show={hover == 'Adjust' && (changed)} Position={'top'} Theme={'dark'} Target={"adj"}>
+                        <p> There are no changes to be applied. </p>
+                    </ToolTip>
+                </div>
+                <div className="btn-group mr-2">
+                    <button className={"btn btn-default" + (!changed ? ' disabled' : '')} onClick={() => { if (changed) initializeWrappers(); }}
+                        onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"res"}
+                    >Clear Changes</button>
+                    <ToolTip Show={hover == 'Reset' && (changed)} Position={'top'} Theme={'dark'} Target={"res"}>
+                        <p> All changes will be lost. </p>
+                    </ToolTip>
+                </div>
+            </div>
+        </>
+    );
+}
+
+export default ChannelScalingForm;

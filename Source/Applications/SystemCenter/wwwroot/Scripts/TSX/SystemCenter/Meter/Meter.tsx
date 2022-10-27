@@ -30,7 +30,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import MeterInfoWindow from './MeterInfo';
 import MeterEventChannelWindow from '../Meter/MeterEventChannel';
 import MeterTrendChannelWindow from '../Meter/MeterTrendChannel';
-import MeterChannelScalingWindow from '../Meter/MeterChannelScaling';
+import ChannelScalingWindow from './ChannelScaling/ChannelScalingWindow';
 import MeterAssetWindow from '../Meter/MeterAsset';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
@@ -212,7 +212,7 @@ function Meter(props: IProps) {
                     <MeterTrendChannelWindow Meter={meter} IsVisible={Tab === "trendChannels"} />
                 </div>
                 <div className={"tab-pane " + (Tab == "channelScaling" ? " active" : "fade")} id="channelScaling">
-                    <MeterChannelScalingWindow Meter={meter} IsVisible={Tab === "channelScaling"} />
+                    <ChannelScalingWindow Meter={meter} IsVisible={Tab === "channelScaling"} />
                 </div>
                 <div className={"tab-pane " + (Tab == "assets" ? " active" : "fade")} id="assets">
                     <MeterAssetWindow Meter={meter} />

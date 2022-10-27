@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, Warning as WarningSymbol } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
 import { LocationSlice } from '../Store/Store';
 
@@ -34,7 +34,7 @@ import Page2 from './Page2';
 import Page3 from './Page3';
 import Page4 from './Page4';
 import Page5 from './Page5';
-import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 
 export interface AssetLists {
     Breakers: Array<OpenXDA.Types.Breaker>,
@@ -59,8 +59,10 @@ export default function NewMeterWizard(props: {}) {
     const [assetConnections, setAssetConnections] = React.useState<OpenXDA.Types.AssetConnection[]>(getAssetConnections());
 
     const [error, setError] = React.useState<string[]>([]);
+    const [warning, setWarning] = React.useState<string[]>([]);
     const [hoverNext, setHoverNext] = React.useState<boolean>(false);
-    
+    const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
+    const [loading, setLoading] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         if (mStatus === 'unintiated' || mStatus === 'changed') {
@@ -126,7 +128,7 @@ export default function NewMeterWizard(props: {}) {
                 Alias: null,
                 Make: null,
                 Model: null,
-                TimeZone: null,
+                TimeZone: "UTC",
                 Description: null,
                 LocationID: 0
             }
@@ -170,10 +172,9 @@ export default function NewMeterWizard(props: {}) {
             return [];
     }
 
-    function addNewMeter(event: React.MouseEvent<HTMLButtonElement, MouseEvent>): void {
-        event.preventDefault();
-
-        $.ajax({
+    function addNewMeter() {
+        setLoading(true);
+        let handle = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/Meter/New`,
             contentType: "application/json; charset=utf-8",
@@ -190,7 +191,9 @@ export default function NewMeterWizard(props: {}) {
         }).done(() => {
             clearData();
             window.location.href = homePath + 'index.cshtml?name=Meters';
+            setLoading(false);
         }).fail(msg => {
+            setLoading(false);
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
             else {
@@ -198,12 +201,17 @@ export default function NewMeterWizard(props: {}) {
                 window.location.href = homePath + 'index.cshtml?name=Meters';
             }
         });
+
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        };
     }
 
     function next() {
         if (disableNext())
             return;
         setError([]);
+        setWarning([]);
         // Make sure currentStep is set to something reasonable
         if (currentStep >= 4) {
            setCurrentStep(5);
@@ -215,6 +223,7 @@ export default function NewMeterWizard(props: {}) {
 
     function prev() {
         setError([]);
+        setWarning([]);
         if (currentStep <= 1) {
             setCurrentStep(1);
         } else {
@@ -262,6 +271,7 @@ export default function NewMeterWizard(props: {}) {
             return "Step 4: Populate assets monitored by the new meter"
         else if (currentStep == 5)
             return "Step 5: Add connection between the assets that are monitored by the new meter"
+        else return ("Error, no page found for step #" + currentStep)
 
     }
 
@@ -271,7 +281,7 @@ export default function NewMeterWizard(props: {}) {
         else if (currentStep == 2)
             return <Page2 LocationInfo={locationInfo} UpdateLocationInfo={setLocationInfo} SetError={(e) => { setError(e) }}/>
         else if (currentStep == 3)
-            return <Page3 MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError}/>
+            return <Page3 MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError} SetWarning={setWarning}/>
         else if (currentStep == 4)
             return <Page4 AssetConnections={assetConnections} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} SetError={setError}/>
         else if (currentStep == 5)
@@ -298,8 +308,9 @@ export default function NewMeterWizard(props: {}) {
     return (
         <div style={{padding: 10, height: 'inherit', overflowY: 'hidden'}}>
             <h2>New Meter Wizard</h2>
-            <hr/>
-            <div className="card" style={{height: 'calc(100% - 75px)'}}>
+            <hr />
+            <div className="card" style={{ height: 'calc(100% - 75px)' }}>
+                <LoadingScreen Show={loading} />
                 <div className="card-header">
                     <button className="btn btn-primary pull-right" onClick={clearData} >Clear Data</button>
                     <h4 style={{width: '90%'}}>{getHeader()}</h4>
@@ -312,15 +323,20 @@ export default function NewMeterWizard(props: {}) {
                     {currentStep < 5 ? <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
                         data-tooltip='Next' onMouseEnter={() => setHoverNext(true)} onMouseLeave={() => setHoverNext(false)}
                     >Next</button> : null}
-                    <button className="btn btn-success pull-right" onClick={addNewMeter} hidden={currentStep < 5}>Submit</button>
+                    <button className="btn btn-success pull-right" onClick={() => setShowSubmit(true)} hidden={currentStep < 5}>Create Meter</button>
                 </div>
-                <ToolTip Show={hoverNext && error.length > 0} Position={'top'} Theme={'dark'} Target={"Next"}>
-                    {error.map((item, index) => <p key={index}> {ErrorSymbol()} {item} </p>)}
+                <ToolTip Show={hoverNext && (warning.length > 0 || error.length > 0)} Position={'top'} Theme={'dark'} Target={"Next"}>
+                    {error.map((item, index) => <p key={index}> {CrossMark} {item} </p>)}
+                    {warning.map((item, index) => <p key={index + 'w'}> {WarningSymbol} {item} </p>)}
                 </ToolTip>
             </div>
-
+            <Warning Title="Submit Meter" Message="Submit and Save Meter?\nSubmission required to continue setup..." Show={showSubmit} CallBack={(confirmed) => {
+                setShowSubmit(false);
+                if (confirmed) {
+                    addNewMeter();
+                    setCurrentStep(6);
+                }
+            }} />
         </div>
     );
 }
-
-const ErrorSymbol = () => CrossMark

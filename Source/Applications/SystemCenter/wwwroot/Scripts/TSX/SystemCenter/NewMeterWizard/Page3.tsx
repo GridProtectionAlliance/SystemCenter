@@ -27,20 +27,31 @@ import { Application, OpenXDA, PqDiff } from '@gpa-gemstone/application-typings'
 import CFGParser from '../../../TS/CFGParser';
 
 import Table from '@gpa-gemstone/react-table'
-import { Input, Select } from '@gpa-gemstone/react-forms';
-import { Warning } from '@gpa-gemstone/react-interactive';
+import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
+import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
 import PQDIFParser from '../../../TS/PQDIFParser';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, HeavyCheckMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
 
 declare var homePath: string;
 
-export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA.Types.Channel>, UpdateChannels: React.Dispatch<React.SetStateAction<OpenXDA.Types.Channel[]>>, UpdateAssets: (record: OpenXDA.Types.Asset[]) => void, SetError: (e: string[]) => void }) {
+interface IProps {
+    MeterKey: string,
+    Channels: Array<OpenXDA.Types.Channel>,
+    UpdateChannels: React.Dispatch<React.SetStateAction<OpenXDA.Types.Channel[]>>,
+    UpdateAssets: (record: OpenXDA.Types.Asset[]) => void,
+    SetError: (e: string[]) => void,
+    SetWarning: (w: string[]) => void
+}
+
+export default function Page3(props: IProps) {
     const fileInput = React.useRef(null);
     const trendFileInput = React.useRef(null);
 
     const [showCFGError, setShowCFGError] = React.useState<boolean>(false);
     const [showSpareWarning, setShowSpareWarning] = React.useState<boolean>(false);
+    const [showScaling, setShowScaling] = React.useState<boolean>(false);
     const [selectedFile, setSelectedFile] = React.useState('');
     const [selectedTrendFile, setSelectedTrendFile] = React.useState('');
 
@@ -60,6 +71,8 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
             setSelectedTrendFile(fileName);
             readSingleFile((evt as React.ChangeEvent<HTMLInputElement>), true);
         });
+
+        props.SetWarning(["Ensure all scaling values are correct.", "Ensure all virtual channels are setup."])
 
 
         return () => {
@@ -256,8 +269,14 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                     }
                     }>Clear Channels</button>
                 </div>
+                <div className="col-1">
+                    <button className="btn btn-primary pull-right" disabled={props.Channels.length == 0} onClick={() => {
+                        setShowScaling(true);
+                    }
+                    }>Scale Channels</button>
+                </div>
 
-                <div className="col-2">
+                <div className="col-1">
                     <button className="btn btn-primary pull-right" onClick={() => {
                         let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel
                         let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
@@ -267,35 +286,37 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                 </div>
 
             </div>
-            <div style={{ width: '100%', maxHeight: innerHeight - 380, padding: 30 }}>
+            <div style={{ width: '100%', maxHeight: innerHeight - 410, padding: 30 }}>
                 <Table<OpenXDA.Types.Channel> cols={[
                     {
-                        key: 'Series', label: 'Channel', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Types.Series> Field={'SourceIndexes'}
+                        key: 'Series', label: 'Channel', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Series> Field={'SourceIndexes'}
                             Record={item.Series[0]} Setter={(series) => {
                             item.Series[0].SourceIndexes = series.SourceIndexes;
                             editChannel(item)
                         }} Label={''} Valid={() => true}/>
                     },
                     {
-                        key: 'Name', label: 'Name', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Name'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
+                        key: 'Name', label: 'Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Name'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
                     },
                     {
-                        key: 'Description', label: 'Desc', headerStyle: { width: '26%' }, rowStyle: { width: '26%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Description'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
-                    },
-                    {
-                        key: 'MeasurementType', label: 'Type', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementTypes.map((t) => ({ Value: t, Label: t }))} />
+                        key: 'MeasurementType', label: 'Type', headerStyle: { width: '13%' }, rowStyle: { width: '13%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementTypes.map((t) => ({ Value: t, Label: t }))} />
                     },
                     {
                         key: 'MeasurementCharacteristic', label: 'Char.', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementCharacteristic'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementCharacteristics.map((t) => ({ Value: t, Label: t }))} />
                     },
                     {
-                        key: 'Phase', label: 'Phase', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.Phases.map((t) => ({ Value: t, Label: t }))} />
+                        key: 'Phase', label: 'Phase', headerStyle: { width: '13%' }, rowStyle: { width: '13%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.Phases.map((t) => ({ Value: t, Label: t }))} />
                     },
                     { key: 'HarmonicGroup', label: 'Harm', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'HarmonicGroup'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
-                    { key: 'Adder', label: 'Adder', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
-                    { key: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
-                    { key: 'Trend', label: 'Trend', headerStyle: { width: '8%' }, rowStyle: { width: '4%', paddingTop: 36, paddingBottom: 36 }, content: (item) => item.Series.filter(s => s.SeriesType != 'Values').length > 0 ? HeavyCheckMark : CrossMark },
-                    { key: 'DeleteButton', label: '', headerStyle: { width: '0%' }, rowStyle: { width: '4%', paddingTop: 36, paddingBottom: 36 }, content: (item, field, key, style, index) => <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span><i className="fa fa-times"></i></span></button> },
+                    { key: 'Adder', label: 'Adder', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
+                    { key: 'Multiplier', label: 'Multiplier', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
+                    {
+                        key: 'Description', label: 'Description', headerStyle: { width: 'calc(24%-6px)' }, rowStyle: { width: 'calc(37%-6px)' }, content: (item) => <TextArea<OpenXDA.Types.Channel> Field={'Description'} Rows={2} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
+                    },
+                    {
+                        key: 'Trend', label: 'Trend', headerStyle: { width: '6%' }, rowStyle: { width: '6%', paddingTop: 36, paddingBottom: 36 }, content: (item) => <span> {item.Series.filter(s => s.SeriesType != 'Values').length > 0 ? HeavyCheckMark : CrossMark} </span> },
+                    { key: 'DeleteButton', label: '', headerStyle: { width: '3%' }, rowStyle: { width: '3%', paddingTop: 36, paddingBottom: 36 }, content: (item, field, key, style, index) => <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span>{TrashCan}</span></button> },
+                    { key: 'Scroll', label: '', headerStyle: { width: '5px' }, rowStyle: { width: '0px' }, content: () => null }
                 ]}
                     tableClass="table table-hover"
                     data={props.Channels}
@@ -303,6 +324,7 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                     ascending={false}
                     onSort={(d) => {}}
                     onClick={(fld) => { }}
+                    tableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed' }}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: innerHeight - 460, }}
                     rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -311,9 +333,10 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
             </div>
             <Warning Show={showCFGError} Title={'Error Parsing File'} Message={'File is not of type cfg, par, or pqd. Please only use cfg, or pqd files.'} CallBack={() => setShowCFGError(false)} />
             <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare channels. This will remove ${NSpare} Channels from the Configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
-
+            <Modal Title="Scale Channels for New Meter" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Leave Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
+                <ChannelScalingForm Channels={props.Channels} UpdateChannels={props.UpdateChannels}/>
+            </Modal>
         </>
         );
 
 }
-
