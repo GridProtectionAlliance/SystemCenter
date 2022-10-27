@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -32,10 +32,11 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { AssetTypeSlice } from '../Store/Store';
+import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
 import { Modal } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
+import { DefaultSelects } from '@gpa-gemstone/common-pages';
 
 declare var homePath: string;
 
@@ -47,7 +48,6 @@ interface Page4Props {
     UpdateAssets: (record: OpenXDA.Types.Asset[]) => void,
     UpdateAssetConnections: (record: OpenXDA.Types.AssetConnection[]) => void,
     SetError: (e: string[]) => void
-
 }
 
 type AssetType = OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay;
@@ -64,6 +64,9 @@ export default function Page4(props: Page4Props) {
 
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
+
+    const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(false);
+    const [selectedAssets, setSelectedAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
 
     React.useEffect(() => {
         if (atStatus === 'unintiated' || atStatus === 'changed') {
@@ -85,7 +88,13 @@ export default function Page4(props: Page4Props) {
         if (props.Assets.length == 0)
             e.push('At least 1 Assets needs to be set up.');
         props.SetError(e)
-    }, [props.Assets.length]);
+
+        let assetList: SystemCenter.Types.DetailedAsset[] = [];
+        props.Assets.forEach((asset) => {
+            assetList.push();
+        });
+        setSelectedAssets(assetList);
+    }, [props.Assets]);
 
     React.useEffect(() => {
         if (newEditAsset.AssetType == 'Breaker') {
@@ -231,7 +240,12 @@ export default function Page4(props: Page4Props) {
                     </div>
                     <div className="col" style={{padding: 20}}>
                         <div style={{ width: '100%', height: 38 }}>
-                            <button className="btn btn-primary pull-right" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add Asset</button>
+                            <div className="col-1">
+                                <button className="btn btn-primary pull-right" onClick={() => { setShowAssetSelect(true); }}>Add Assets</button>
+                            </div>
+                            <div className="col-1">
+                                <button className="btn btn-primary pull-right" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Create Asset</button>
+                            </div>
                         </div>
 
                         <div style={{ width: '100%', maxHeight: window.innerHeight - 350, padding: 30, overflowY: 'auto' }}>
@@ -272,6 +286,72 @@ export default function Page4(props: Page4Props) {
                     </div>
 
                 </div>
+                <DefaultSelects.Asset
+                    Slice={ByAssetSlice}
+                    Selection={selectedAssets}
+                    OnClose={(selected, confirm) => {
+                        setShowAssetSelect(false);
+                        if (!confirm) return;
+
+                        let list: Array<OpenXDA.Types.Asset> = [];
+                        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
+                        let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
+
+                        let newAssets: Array<SystemCenter.Types.DetailedAsset> = selectedAssets.filter((selectedAsset) => props.Assets.findIndex((asset) => (asset.ID === selectedAsset.ID)) < 0);
+                        let removedAssets: Array<OpenXDA.Types.Asset> = props.Assets.filter((asset) => selectedAssets.findIndex((selectedAsset) => (asset.ID === selectedAsset.ID)) < 0);
+
+                        //Deal with removed assets
+                        $.each(removedAssets, (index, asset) => {
+                            $.each(channels, (index, channel) => {
+                                if (channel.Asset == asset.AssetKey)
+                                    channel.Asset = ''
+                            });
+
+                            var index = assetConnections.findIndex(assetConnection => assetConnection.Parent == asset.AssetKey || assetConnection.Child == asset.AssetKey);
+                            while (index >= 0) {
+                                assetConnections.splice(index, 1);
+                                index = assetConnections.findIndex(assetConnection => assetConnection.Parent == asset.AssetKey || assetConnection.Child == asset.AssetKey);
+                            }
+                        });
+
+                        //Convert assets from slice to correct typing
+                        $.each(selectedAssets, (index, record) => {
+                            let assetRecord: OpenXDA.Types.Asset = assets.find((asset) => { asset.ID === record.ID });
+
+                            //Deal with new assets
+                            if (newAssets.findIndex((asset) => (asset.ID === assetRecord.ID)) >= 0)
+                                $.each(channels, (index, channel) => {
+                                    if (channel.Asset == assetRecord.AssetKey)
+                                        channel.Asset = ''
+
+                                    if (assetRecord.Channels.findIndex(c => c.ID == channel.ID) >= 0)
+                                        channel.Asset = assetRecord.AssetKey
+                                });
+
+                            //Push converted asset to list
+                            list.push(assetRecord);
+                        });
+
+                        //Update props
+                        props.UpdateAssets(list);
+                        props.UpdateChannels(channels);
+                        props.UpdateAssetConnections(assetConnections);
+
+                    }}
+                    Show={showAssetSelect}
+                    Type={'multiple'}
+                    Columns={[
+                        { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    ]}
+                    Title={"Add Transmission Assets to New Meter"}
+                    GetEnum={() => () => { }}
+                    GetAddlFields={() => () => { }} />
                 <Modal Show={showAssetModal}
                     Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + newEditAsset.AssetKey + ' for Meter'}
                     ConfirmBtnClass={'btn-success'}
@@ -333,7 +413,7 @@ export default function Page4(props: Page4Props) {
                                     }
                                     
                                 }}
-                                GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={false} />
+                                GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
                         </div>
                         <div className="col">
                             {showAttributes()}
