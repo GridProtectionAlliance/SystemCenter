@@ -150,7 +150,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                                     { key: 'AssetGroups', field: 'AssetGroups', label: 'Num. of Asset Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 {
                                     key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                    content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveGroup(c.ID)}><span>{TrashCan}</span></button>
+                                    content: (c) => <button className="btn btn-sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setRemoveGroup(c.ID) }}><span>{TrashCan}</span></button>
                                 },
                                 { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
