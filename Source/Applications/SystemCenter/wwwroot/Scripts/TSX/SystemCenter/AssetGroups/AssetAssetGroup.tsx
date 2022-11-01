@@ -85,7 +85,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
 
         if (field.key == 'AssetType') {
             setOptions(assetType.map((t) => ({ Value: t.Name, Label: t.Name })))
-            return () => { }
+            return () => { };
         }
     }
 

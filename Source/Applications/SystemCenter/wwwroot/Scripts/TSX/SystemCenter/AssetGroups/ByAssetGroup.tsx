@@ -29,7 +29,7 @@ import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-ty
 import { Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
-import { AssetGroupSlice, ByAssetSlice, ByMeterSlice } from '../Store/Store';
+import { AssetGroupSlice, ByAssetSlice, ByMeterSlice, AssetTypeSlice } from '../Store/Store';
 import { DefaultSearch, DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetGroup from './AssetGroup';
@@ -55,6 +55,9 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     const status = useAppSelector(AssetGroupSlice.Status);
     const allAssetGroups = useAppSelector(AssetGroupSlice.Data);
 
+    const assetType = useAppSelector(AssetTypeSlice.Data);
+    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
+
     const [showFilter, setFilter] = React.useState<('None' | 'Meter' | 'Asset' | 'Asset Group' | 'Station')>('None');
 
     const [newAssetGroup, setNewAssetGroup] = React.useState<extendedAssetGroup>(_.cloneDeep(emptyAssetGroup));
@@ -64,12 +67,17 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (status == 'changed' || status == 'unintiated')
             dispatch(AssetGroupSlice.Fetch());
-    }, [status])
+    }, [status]);
 
     React.useEffect(() => {
         if (searchStatus == 'changed' || searchStatus == 'unintiated')
             dispatch(AssetGroupSlice.DBSearch({ filter: searchFields }));
-    }, [searchStatus])
+    }, [searchStatus]);
+
+    React.useEffect(() => {
+        if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
+            dispatch(AssetTypeSlice.Fetch());
+    }, [assetTypeStatus]);
 
     React.useEffect(() => {
         let e = [];
@@ -206,21 +214,12 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
     function getEnum(setOptions, field) {
         let handle = null;
-        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+        if (field.type != 'enum')
             return () => { };
 
-        handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        });
-
-        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-        return () => {
-            if (handle != null && handle.abort == null) handle.abort();
+        if (field.key == 'AssetType') {
+            setOptions(assetType.map((t) => ({ Value: t.Name, Label: t.Name })))
+            return () => { };
         }
     }
 
