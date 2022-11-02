@@ -80,12 +80,26 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     }
 
     function getEnum(setOptions, field) {
-        if (field.type != 'enum')
-            return () => { };
-
-        if (field.key == 'AssetType') {
+        if (field.key == 'AssetType' && field.type == 'enum') {
             setOptions(assetType.map((t) => ({ Value: t.Name, Label: t.Name })))
             return () => { }
+        }
+
+        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+            return () => { };
+
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
+
+        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+        return () => {
+            if (handle != null && handle.abort == null) handle.abort();
         }
     }
 
