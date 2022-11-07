@@ -23,14 +23,14 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { PQView, OpenXDA as LocalXDA } from '../global';
+import { OpenXDA as LocalXDA } from '../global';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { ByAssetSlice, CustomerAssetSlice } from '../Store/Store'
+import { CustomerAssetSlice } from '../Store/Store'
 import Table from '@gpa-gemstone/react-table';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { LoadingIcon, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
-import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import { LoadingIcon, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import AssetSelect from '../Asset/AssetSelect';
 declare var homePath: string;
 
 interface IProps { Customer: OpenXDA.Types.Customer }
@@ -49,56 +49,7 @@ const CustomerAssetWindow = (props: IProps) => {
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
             dispatch(CustomerAssetSlice.Fetch());
-    }, [status])
-
-    function getEnum(setOptions, field) {
-        let handle = null;
-        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
-            return () => { };
-
-        handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        });
-
-        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-        return () => {
-            if (handle != null && handle.abort == null) handle.abort();
-        }
-    }
-
-    function getAdditionalAssetFields(setFields) {
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Asset/FieldName/0`,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            async: true
-        });
-
-        function ConvertType(type: string) {
-            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
-                return { type: type }
-            return {
-                type: 'enum', enum: [{ Label: type, Value: type }]
-            }
-        }
-
-        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
-
-            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
-                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedAsset>
-            )), ['label'], ["asc"]);
-            setFields(ordered);
-        });
-        return () => {
-            if (handle != null && handle.abort == null) handle.abort();
-        };
-    }
+    }, [status]);
 
     function saveCustomerAssets(m: SystemCenter.Types.DetailedAsset[]) {
         m.forEach((asset) => {
@@ -213,28 +164,13 @@ const CustomerAssetWindow = (props: IProps) => {
         </div>
         </div>
         <Warning Message={'This will permanently remove the asset from this customer and can affect PQDigest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove Asset from Customer'} CallBack={(c) => { if (c) dispatch(CustomerAssetSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
-        <DefaultSelects.Asset
-            Slice={ByAssetSlice}
-            Selection={[]}
-            OnClose={(selected, conf) => {
+        <AssetSelect Type='multiple' SessionStorageID='CustomerAsset' ShowModal={showAdd} SelectedAssets={[]}
+            Title={"Add Transmission Asset to Customer"}
+            OnCloseFunction={(selected, conf) => {
                 setShowAdd(false)
                 if (!conf) return
-                saveCustomerAssets(selected.filter(items => data.findIndex(g => g.AssetID == items.ID) < 0))
-            }}
-            Show={showAdd}
-            Type={'multiple'}
-            Columns={[
-                { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-            ]}
-            Title={"Add Transmission Asset to Customer"}
-            GetEnum={getEnum}
-            GetAddlFields={getAdditionalAssetFields} />
+                saveCustomerAssets(selected.filter(items => data.findIndex(g => g.AssetID == items.ID) < 0));
+            }} />
     </>
 }
 
