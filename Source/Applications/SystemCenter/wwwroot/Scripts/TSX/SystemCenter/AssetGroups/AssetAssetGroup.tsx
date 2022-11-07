@@ -26,13 +26,12 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
-import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
+import { AssetTypeSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Search, Warning } from '@gpa-gemstone/react-interactive';
-import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import { Warning } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { AssetAttributes } from '../AssetAttribute/Asset';
+import AssetSelect from '../Asset/AssetSelect';
 
 declare var homePath: string;
 
@@ -77,59 +76,6 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             if (handle.abort != null)
                 handle.abort();
         }
-    }
-
-    function getEnum(setOptions, field) {
-        if (field.key == 'AssetType' && field.type == 'enum') {
-            setOptions(assetType.map((t) => ({ Value: t.Name, Label: t.Name })))
-            return () => { }
-        }
-
-        if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
-            return () => { };
-
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        });
-
-        handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-        return () => {
-            if (handle != null && handle.abort == null) handle.abort();
-        }
-    }
-
-    function getAdditionalAssetFields(setFields) {
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Asset/FieldName/0`,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            async: true
-        });
-
-        function ConvertType(type: string) {
-            if (type == 'string' || type == 'integer' || type == 'number' || type == 'datetime' || type == 'boolean')
-                return { type: type }
-            return {
-                type: 'enum', enum: [{ Label: type, Value: type }]
-            }
-        }
-
-        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
-
-            let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
-                { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedAsset>
-            )), ['label'], ["asc"]);
-            setFields(ordered);
-        });
-        return () => {
-            if (handle != null && handle.abort == null) handle.abort();
-        };
     }
 
     function saveItems(items: SystemCenter.Types.DetailedAsset[]) {
@@ -220,28 +166,12 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                 </div>
             </div>
             </div>
-            <DefaultSelects.Asset
-                Slice={ByAssetSlice}
-                Selection={assetList}
-                OnClose={(selected, conf) => {
+            <AssetSelect Type='multiple' SessionStorageID='AssetAssetGroup' Title='Add Transmission Assets to Asset Group' ShowModal={showAdd} SelectedAssets={assetList}
+                OnCloseFunction={(selected, conf) => {
                     setShowAdd(false);
                     if (!conf) return
                     saveItems(selected.filter(items => assetList.findIndex(g => g.ID == items.ID) < 0))
-                }}
-                Show={showAdd}
-                Type={'multiple'}
-                Columns={[
-                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
-                Title={"Add Transmission Assets to Asset Group"}
-                GetEnum={getEnum}
-                GetAddlFields={getAdditionalAssetFields} />
+                }} />
             <Warning Show={removeAsset > -1} Title={'Remove Asset from Group'} Message={'This will remove the transmission asset from this AssetGroup'} CallBack={(c) => { if (c) removeItem(removeAsset); setRemoveAsset(-1); }} />
             </>
     )

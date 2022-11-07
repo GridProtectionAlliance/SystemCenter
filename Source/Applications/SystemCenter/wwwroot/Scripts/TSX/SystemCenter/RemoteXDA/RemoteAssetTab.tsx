@@ -27,10 +27,10 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import Table from '@gpa-gemstone/react-table';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { RemoteXDAAssetSlice, ByAssetSlice } from '../Store/Store';
-import { LoadingScreen, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { BlankRemoteXDAAsset, RemoteAssetForm } from './RemoteAssetForm';
-import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import AssetSelect from '../Asset/AssetSelect';
 
 interface IProps { ID: number }
 
@@ -215,10 +215,9 @@ const RemoteAssetTab = (props: IProps) => {
                 }>
                 <RemoteAssetForm OriginalAsset={selectedAsset} SetRemoteAsset={setRemoteAsset} SetErrors={setNewInstErrors} />
             </Modal>
-            <DefaultSelects.Asset
-                Slice={ByAssetSlice}
-                Selection={assetList}
-                OnClose={(selected, conf) => {
+            <AssetSelect Type='multiple' SessionStorageID='RemoteAssetTab' ShowModal={showAddAssets} SelectedAssets={assetList}
+                Title={"Select Meter to Add for this remoteXDA Instance:"}
+                OnCloseFunction={(selected, conf) => {
                     setShowAddAssets(false);
                     setAssetList([]);
                     if (!conf) return;
@@ -237,20 +236,7 @@ const RemoteAssetTab = (props: IProps) => {
                         }
                         dispatch(RemoteXDAAssetSlice.DBAction({ verb: "POST", record: newRemote }));
                     });
-                }}
-                Show={showAddAssets}
-                Type={'single'}
-                Columns={[
-                    { key: 'AssetName', field: 'AssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetKey', field: 'AssetKey', label: 'Asset Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
-                Title={"Select Meter to Add for this remoteXDA Instance:"}
-                GetEnum={() => () => { }}
-                GetAddlFields={() => () => { }}
-            />
+                }} />
         </div>
     );
 

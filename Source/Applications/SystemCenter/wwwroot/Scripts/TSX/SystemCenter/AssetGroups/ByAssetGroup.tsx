@@ -32,7 +32,7 @@ import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { AssetGroupSlice, ByAssetSlice, ByMeterSlice, AssetTypeSlice } from '../Store/Store';
 import { DefaultSearch, DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import AssetGroup from './AssetGroup';
+import AssetSelect from '../Asset/AssetSelect';
 
 declare var homePath: string;
 
@@ -340,10 +340,10 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                 Title={"Add Meters to " + (newAssetGroup.Name == undefined || newAssetGroup.Name.length == 0 ? "Asset Group" : newAssetGroup.Name)}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalMeterFields} />
-            <DefaultSelects.Asset
-                Slice={ByAssetSlice}
-                Selection={newAssetGroup.AssetList}
-                OnClose={(selected, conf) => {
+
+            <AssetSelect Type='multiple' SessionStorageID='ByAssetGroup.Asset' ShowModal={showFilter == 'Asset'} SelectedAssets={newAssetGroup.AssetList}
+                Title={"Add Transmission Assets to " + (newAssetGroup.Name == undefined || newAssetGroup.Name.length == 0 ? "Asset Group" : newAssetGroup.Name)}
+                OnCloseFunction={(selected, conf) => {
                     setFilter('None')
                     if (!conf) return
                     setNewAssetGroup((grp) => {
@@ -351,19 +351,8 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                         updated.AssetList = selected;
                         updated.Assets = updated.AssetList.length;
                         return updated;
-                    })
-                }}
-                Show={showFilter == 'Asset'}
-                Type={'multiple'}
-                Columns={[{ key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }]}
-                Title={"Add Transmission Assets to " + (newAssetGroup.Name == undefined || newAssetGroup.Name.length == 0 ? "Asset Group" : newAssetGroup.Name)}
-                GetEnum={getEnum}
-                GetAddlFields={getAdditionalAssetFields} />
+                    });
+                }} />
 
             <DefaultSelects.AssetGroup
                 Slice={AssetGroupSlice}
