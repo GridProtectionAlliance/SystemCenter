@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Page1.tsx - Gbtc
+//  LocationPage.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -29,7 +29,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { LocationSlice } from '../Store/Store';
 import MeterLocationProperties from '../Meter/PropertyUI/MeterLocationProperties';
 
-export default function Page2(props: { LocationInfo: OpenXDA.Types.Location, UpdateLocationInfo: (record: OpenXDA.Types.Location) => void, SetError: (e: string[]) => void  }) {
+export default function LocationPage(props: { LocationInfo: OpenXDA.Types.Location, UpdateLocationInfo: (record: OpenXDA.Types.Location) => void, SetError: (e: string[]) => void  }) {
     const dispatch = useAppDispatch();
     const locations = useAppSelector(LocationSlice.Data);
     const lStatus = useAppSelector(LocationSlice.Status);

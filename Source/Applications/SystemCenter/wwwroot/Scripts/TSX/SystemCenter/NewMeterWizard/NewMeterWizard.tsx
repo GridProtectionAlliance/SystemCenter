@@ -29,10 +29,10 @@ import { CrossMark, Warning as WarningSymbol } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
 import { LocationSlice } from '../Store/Store';
 
-import Page1 from './Page1';
-import Page2 from './Page2';
-import Page3 from './Page3';
-import Page4 from './Page4';
+import MeterInfoPage from './MeterInfoPage';
+import LocationPage from './LocationPage';
+import ChannelPage from './ChannelPage';
+import AssetPage from './AssetPage';
 import Page5 from './Page5';
 import { LoadingScreen, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 
@@ -266,25 +266,27 @@ export default function NewMeterWizard(props: {}) {
         else if (currentStep == 2)
             return "Step 2: Substation information for the new meter"
         else if (currentStep == 3)
-            return "Step 3: Populate channels for the new meter"
+            return "Step 3: Populate event channels for the new meter"
         else if (currentStep == 4)
-            return "Step 4: Populate assets monitored by the new meter"
+            return "Step 4: Populate trend channels for the new meter"
         else if (currentStep == 5)
-            return "Step 5: Add connection between the assets that are monitored by the new meter"
+            return "Step 5: Populate assets monitored by the new meter"
+        else if (currentStep == 6)
+            return "Step 6: Add connection between the assets that are monitored by the new meter"
         else return ("Error, no page found for step #" + currentStep)
 
     }
 
     function getPage() {
         if (currentStep == 1)
-            return <Page1 MeterInfo={meterInfo} UpdateMeterInfo={setMeterInfo} SetError={setError} />
+            return <MeterInfoPage MeterInfo={meterInfo} UpdateMeterInfo={setMeterInfo} SetError={setError} />
         else if (currentStep == 2)
-            return <Page2 LocationInfo={locationInfo} UpdateLocationInfo={setLocationInfo} SetError={(e) => { setError(e) }}/>
-        else if (currentStep == 3)
-            return <Page3 MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError} SetWarning={setWarning}/>
-        else if (currentStep == 4)
-            return <Page4 AssetConnections={assetConnections} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} SetError={setError}/>
+            return <LocationPage LocationInfo={locationInfo} UpdateLocationInfo={setLocationInfo} SetError={(e) => { setError(e) }}/>
+        else if (currentStep == 3 || currentStep == 4)
+            return <ChannelPage MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError} SetWarning={setWarning} TrendChannels={currentStep == 4} />
         else if (currentStep == 5)
+            return <AssetPage AssetConnections={assetConnections} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} SetError={setError}/>
+        else if (currentStep == 6)
             return <Page5 Assets={assets} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />
 
     }

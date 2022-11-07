@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Page1.tsx - Gbtc
+//  MeterInfoPage.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -30,7 +30,7 @@ import MeterProperties from '../Meter/PropertyUI/MeterProperties';
 
 declare var homePath: string;
 
-export default function Page1(props: { MeterInfo: OpenXDA.Types.Meter, UpdateMeterInfo: (record: OpenXDA.Types.Meter) => void , SetError: (e: string[]) => void}) {
+export default function MeterInfoPage(props: { MeterInfo: OpenXDA.Types.Meter, UpdateMeterInfo: (record: OpenXDA.Types.Meter) => void , SetError: (e: string[]) => void}) {
     const dispatch = useAppDispatch();
     const meterKeys = useAppSelector(SelectMeterKeysLowerCase);
     const mStatus = useAppSelector(SelectMeterStatus);
@@ -58,10 +58,6 @@ export default function Page1(props: { MeterInfo: OpenXDA.Types.Meter, UpdateMet
 
         if (!valid('Alias'))
             error.push('Alias must be less than 200 characters.');
-        if (!valid('Make'))
-            error.push('Make must be less than 200 characters.');
-        if (!valid('Model'))
-            error.push('Model must be less than 200 characters.');
 
         props.SetError(error);
     }, [props.MeterInfo, meterKeys])

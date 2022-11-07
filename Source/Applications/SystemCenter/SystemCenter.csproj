@@ -487,10 +487,10 @@
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterAsset.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\NewMeterWizard.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page5.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page4.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page3.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page2.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page1.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\AssetPage.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\ChannelPage.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\LocationPage.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\MeterInfoPage.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\ByLocation.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterLocation.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\ByAsset.tsx" />

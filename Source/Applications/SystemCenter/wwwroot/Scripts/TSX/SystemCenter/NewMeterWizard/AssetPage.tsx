@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Page4.tsx - Gbtc
+//  AssetPage.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -40,7 +40,7 @@ import { DefaultSelects } from '@gpa-gemstone/common-pages';
 
 declare var homePath: string;
 
-interface Page4Props {
+interface IProps {
     Assets: Array<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay>,
     Channels: OpenXDA.Types.Channel[],
     AssetConnections: Array<OpenXDA.Types.AssetConnection>,
@@ -52,12 +52,14 @@ interface Page4Props {
 
 type AssetType = OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay;
 
-export default function Page4(props: Page4Props) {
+export default function AssetPage(props: IProps) {
     const dispatch = useAppDispatch();
     const assetTypes = useAppSelector(AssetTypeSlice.Data);
     const atStatus = useAppSelector(AssetTypeSlice.Status);
     const assets = useAppSelector(SelectAssets);
     const aStatus = useAppSelector(SelectAssetStatus);
+    const byAssetStatus = useAppSelector(ByAssetSlice.Status);
+    const detailedAssets = useAppSelector(ByAssetSlice.Data);
 
     const [newEditAsset, setNewEditAsset] = React.useState<AssetType>(AssetAttributes.getNewAsset('Line'));
     const [editAssetKey, setEditAssetKey] = React.useState<string>('');
@@ -75,6 +77,7 @@ export default function Page4(props: Page4Props) {
             }
         }
     }, [dispatch, atStatus]);
+
     React.useEffect(() => {
         if (aStatus === 'unintiated' || aStatus === 'changed') {
             dispatch(FetchAsset());
@@ -84,6 +87,12 @@ export default function Page4(props: Page4Props) {
     }, [dispatch, aStatus]);
 
     React.useEffect(() => {
+        if (byAssetStatus === 'unintiated' || byAssetStatus === 'changed') {
+            dispatch(ByAssetSlice.Fetch());
+        }
+    }, [dispatch, byAssetStatus]);
+
+    React.useEffect(() => {
         let e = [];
         if (props.Assets.length == 0)
             e.push('At least 1 Assets needs to be set up.');
@@ -91,7 +100,8 @@ export default function Page4(props: Page4Props) {
 
         let assetList: SystemCenter.Types.DetailedAsset[] = [];
         props.Assets.forEach((asset) => {
-            assetList.push();
+            if (asset.ID > 0)
+                assetList.push(detailedAssets.find(detailedAsset => detailedAsset.ID === asset.ID));
         });
         setSelectedAssets(assetList);
     }, [props.Assets]);
@@ -240,10 +250,10 @@ export default function Page4(props: Page4Props) {
                     </div>
                     <div className="col" style={{padding: 20}}>
                         <div style={{ width: '100%', height: 38 }}>
-                            <div className="col-1">
+                            <div className="col-1 pull-right">
                                 <button className="btn btn-primary pull-right" onClick={() => { setShowAssetSelect(true); }}>Add Assets</button>
                             </div>
-                            <div className="col-1">
+                            <div className="col-1 pull-right">
                                 <button className="btn btn-primary pull-right" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Create Asset</button>
                             </div>
                         </div>
@@ -297,15 +307,16 @@ export default function Page4(props: Page4Props) {
                         let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
                         let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
 
-                        let newAssets: Array<SystemCenter.Types.DetailedAsset> = selectedAssets.filter((selectedAsset) => props.Assets.findIndex((asset) => (asset.ID === selectedAsset.ID)) < 0);
-                        let removedAssets: Array<OpenXDA.Types.Asset> = props.Assets.filter((asset) => selectedAssets.findIndex((selectedAsset) => (asset.ID === selectedAsset.ID)) < 0);
+                        let newAssets: Array<SystemCenter.Types.DetailedAsset> = selected.filter((selectedAsset) => props.Assets.findIndex((asset) => (asset.ID === selectedAsset.ID)) < 0);
+                        let removedAssets: Array<OpenXDA.Types.Asset> = props.Assets.filter((asset) => selected.findIndex((selectedAsset) => (asset.ID === selectedAsset.ID)) < 0);
 
                         //Deal with removed assets
                         $.each(removedAssets, (index, asset) => {
                             $.each(channels, (index, channel) => {
                                 if (channel.Asset == asset.AssetKey)
-                                    channel.Asset = ''
+                                    channel.Asset = '';
                             });
+                            console.log("Removed asset");
 
                             var index = assetConnections.findIndex(assetConnection => assetConnection.Parent == asset.AssetKey || assetConnection.Child == asset.AssetKey);
                             while (index >= 0) {
@@ -315,22 +326,26 @@ export default function Page4(props: Page4Props) {
                         });
 
                         //Convert assets from slice to correct typing
-                        $.each(selectedAssets, (index, record) => {
-                            let assetRecord: OpenXDA.Types.Asset = assets.find((asset) => { asset.ID === record.ID });
+                        $.each(selected, (index, record) => {
+                            let assetRecord: OpenXDA.Types.Asset = { ...assets.find((asset) => asset.ID === record.ID), Channels: [] };
+                            console.log("Added asset");
 
                             //Deal with new assets
                             if (newAssets.findIndex((asset) => (asset.ID === assetRecord.ID)) >= 0)
                                 $.each(channels, (index, channel) => {
                                     if (channel.Asset == assetRecord.AssetKey)
-                                        channel.Asset = ''
+                                        channel.Asset = '';
 
-                                    if (assetRecord.Channels.findIndex(c => c.ID == channel.ID) >= 0)
-                                        channel.Asset = assetRecord.AssetKey
+                                    if (channels.findIndex(c => (c.ID === channel.ID)) >= 0)
+                                        channel.Asset = assetRecord.AssetKey;
                                 });
 
                             //Push converted asset to list
                             list.push(assetRecord);
                         });
+
+                        //Update selected
+                        setSelectedAssets(selected);
 
                         //Update props
                         props.UpdateAssets(list);

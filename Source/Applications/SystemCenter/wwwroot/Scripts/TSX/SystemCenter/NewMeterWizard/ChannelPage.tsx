@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Page3.tsx - Gbtc
+//  ChannelPage.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -42,10 +42,11 @@ interface IProps {
     UpdateChannels: React.Dispatch<React.SetStateAction<OpenXDA.Types.Channel[]>>,
     UpdateAssets: (record: OpenXDA.Types.Asset[]) => void,
     SetError: (e: string[]) => void,
-    SetWarning: (w: string[]) => void
+    SetWarning: (w: string[]) => void,
+    TrendChannels: boolean
 }
 
-export default function Page3(props: IProps) {
+export default function ChannelPage(props: IProps) {
     const fileInput = React.useRef(null);
     const trendFileInput = React.useRef(null);
 
@@ -311,15 +312,13 @@ export default function Page3(props: IProps) {
                     { key: 'Adder', label: 'Adder', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
                     { key: 'Multiplier', label: 'Multiplier', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
                     {
-                        key: 'Description', label: 'Description', headerStyle: { width: 'calc(24%-6px)' }, rowStyle: { width: 'calc(37%-6px)' }, content: (item) => <TextArea<OpenXDA.Types.Channel> Field={'Description'} Rows={2} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
+                        key: 'Description', label: 'Description', headerStyle: { width: 'calc(24%-6px)' }, rowStyle: { width: 'calc(24%-6px)' }, content: (item) => <TextArea<OpenXDA.Types.Channel> Field={'Description'} Rows={2} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
                     },
-                    {
-                        key: 'Trend', label: 'Trend', headerStyle: { width: '6%' }, rowStyle: { width: '6%', paddingTop: 36, paddingBottom: 36 }, content: (item) => <span> {item.Series.filter(s => s.SeriesType != 'Values').length > 0 ? HeavyCheckMark : CrossMark} </span> },
                     { key: 'DeleteButton', label: '', headerStyle: { width: '3%' }, rowStyle: { width: '3%', paddingTop: 36, paddingBottom: 36 }, content: (item, field, key, style, index) => <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span>{TrashCan}</span></button> },
                     { key: 'Scroll', label: '', headerStyle: { width: '5px' }, rowStyle: { width: '0px' }, content: () => null }
                 ]}
                     tableClass="table table-hover"
-                    data={props.Channels}
+                    data={props.Channels.filter((item) => (item.Series.filter(s => s.SeriesType != 'Values').length > 0) ? props.TrendChannels : !props.TrendChannels)}
                     sortKey={'Series'}
                     ascending={false}
                     onSort={(d) => {}}

@@ -112,10 +112,6 @@ const MeterInforWindow = (props: IProps) => {
             return meter.Alias == null || meter.Alias.length <= 200;
         else if (field == 'ShortName')
             return meter.ShortName == null || meter.ShortName.length <= 50;
-        else if (field == 'Make')
-            return meter.Make != null && meter.Make.length > 0 && meter.Make.length <= 200;
-        else if (field == 'Model')
-            return meter.Model != null && meter.Model.length > 0 && meter.Model.length <= 200;
         else if (field == 'Description')
             return true;
         return false;
