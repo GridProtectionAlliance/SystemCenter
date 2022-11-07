@@ -32,12 +32,13 @@ import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
-import { SearchedAssets, SearchStatus, DBSearchAsset, DBActionAsset } from '../Store/AssetSlice'
+import { SearchedAssets, SearchStatus, DBSearchAsset, DBActionAsset, DBMeterAction } from '../Store/AssetSlice'
 import Table from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Warning, Modal, LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import { useAppDispatch, useAppSelector } from '../hooks';
+import AssetSelect from '../Asset/AssetSelect';
 
 declare var homePath: string;
 
@@ -52,6 +53,7 @@ const MeterAssetWindow = (props: IProps) => {
     const [showDeleteWarning, setShowDeleteWarning] = React.useState<boolean>(false);
 
     const [showLoading, setShowLoading] = React.useState<boolean>(false);
+    const [showSelect, setShowSelect] = React.useState<boolean>(false);
 
     // Asset Slice Consts
     const dispatch = useAppDispatch();
@@ -87,12 +89,12 @@ const MeterAssetWindow = (props: IProps) => {
             setShowLoading(true);
             reloadSlice();
         }
-    }, [dispatch, assetStatus]);
+    }, [assetStatus]);
 
     React.useEffect(() => {
         setShowLoading(true);
         reloadSlice();
-    }, [ascending, sortKey, filter, dispatch]);
+    }, [ascending, sortKey, filter]);
 
     function setActiveAsset(assetID: number, assetType: OpenXDA.Types.AssetTypeName) {
         if (assetID == 0) {
@@ -114,6 +116,7 @@ const MeterAssetWindow = (props: IProps) => {
         return null;
 
     return (
+        <>
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -173,7 +176,7 @@ const MeterAssetWindow = (props: IProps) => {
                                 selected={(item) => false}
                             />
 
-                            <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBActionAsset({ verb: 'DELETE', record: activeAsset, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove this Asset'} Message={'This will permanently remove this Asset from the Meter.'} />
+                                <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove this Asset'} Message={'This will permanently remove this Asset from the Meter.'} />
                             <LoadingScreen Show={showLoading} />
                             <Modal Show={showEditNew}
                                 Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + activeAsset.AssetKey + ' for Meter'}
@@ -211,14 +214,30 @@ const MeterAssetWindow = (props: IProps) => {
                 </div>
             </div>
             <div className="card-footer">
-                <div className="btn-group mr-2">
+                    <div className="btn-group mr-2">
+                        <button className="btn btn-primary pull-left" style={{ marginRight: 5 }} onClick={() => {
+                        setShowSelect(true);
+                    }}>Add Existing Asset</button>
                     <button className="btn btn-primary pull-right" onClick={() => {
                         setActiveAsset(0, 'Line');
                         setShoweditNew(true);
-                    }}>Add Asset</button>
+                    }}>Add New Asset</button>
                 </div>
             </div>
-        </div>
+            </div>
+            <AssetSelect
+                SelectedAssets={[]}
+                ShowModal={showSelect}
+                SessionStorageID={'MeterAsset'}
+                Type={'single'}
+                Title={`Add Asset to ${props.Meter.Name}`}
+                OnCloseFunction={(selected, confirm) => {
+                    setShowSelect(false);
+                    if (confirm) 
+                      dispatch(DBMeterAction({ verb: 'POST', assetID: selected[0].ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID }));
+                }}
+            />
+            </>
     );
 
 

@@ -486,6 +486,36 @@ namespace SystemCenter.Controllers.OpenXDA
             
         }
 
+        [HttpPost, Route("{meterID:int}/Asset/{assetID:int}/{locationID:int}")]
+        public IHttpActionResult AddMeterAsset(int meterID, int assetID, int locationID)
+        {
+            if (PostRoles == string.Empty || User.IsInRole(PostRoles))
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    try
+                    {
+                        MeterAsset meterAsset = new TableOperations<MeterAsset>(connection).QueryRecordWhere("MeterID = {0} AND AssetID = {1}", meterID, assetID);
+                        if (meterAsset is null) 
+                            new TableOperations<MeterAsset>(connection).AddNewRecord(new MeterAsset() { MeterID = meterID, AssetID = assetID});
+
+                        AssetLocation assetLoc = new TableOperations<AssetLocation>(connection).QueryRecordWhere("LocationID = {0} AND AssetID = {1}", locationID, assetID);
+                        if (assetLoc is null)
+                            new TableOperations<AssetLocation>(connection).AddNewRecord(new AssetLocation() { LocationID = locationID, AssetID = assetID });
+                     
+                        return Ok(1);
+                    }
+                    catch (Exception ex)
+                    {
+                        return InternalServerError(ex);
+                    }
+                }
+            }
+            else
+                return Unauthorized();
+
+        }
+
         [HttpGet, Route("extDataBases")]
         public IHttpActionResult GetExternalDB()
         {

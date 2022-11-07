@@ -47,6 +47,18 @@ export const DBActionAsset = createAsyncThunk(`Asset/dbAction`, async (args: { v
     return await handle;
 });
 
+
+export const DBMeterAction = createAsyncThunk(`Asset/dbMeterAction`, async (args: { verb: 'POST' | 'DELETE', assetID: number, meterID: number, locationID: number }, { signal }) => {
+    const handle = MeterAction(args.verb, args.assetID, args.meterID, args.locationID);
+
+    signal.addEventListener('abort', () => {
+        if (handle.abort !== undefined) handle.abort();
+    });
+
+    return await handle;
+});
+
+
 let searchHandle: JQuery.jqXHR<any>| null;
 export const DBSearchAsset = createAsyncThunk(`Asset/Search`, async (args: { filter: Search.IFilter<OpenXDA.Types.Asset>[], sortField?: keyof OpenXDA.Types.Asset, ascending?: boolean }, { signal }) => {
     let sortfield = args.sortField;
@@ -132,6 +144,24 @@ export const AssetSlice = createSlice({
             state.SearchStatus = 'changed';
             state.Error = null;
         });
+
+        builder.addCase(DBMeterAction.pending, (state, action) => {
+            state.Status = 'loading';
+        });
+        builder.addCase(DBMeterAction.rejected, (state, action) => {
+            state.Status = 'error';
+            state.Error = {
+                Message: (action.error.message == null ? '' : action.error.message),
+                Verb: action.meta.arg.verb,
+                Time: new Date().toString()
+            }
+        });
+        builder.addCase(DBMeterAction.fulfilled, (state, action) => {
+            state.Status = 'changed';
+            state.SearchStatus = 'changed';
+            state.Error = null;
+        });
+
     }
 
 });
@@ -190,5 +220,19 @@ function dbAction(verb: 'POST' | 'DELETE', record: OpenXDA.Types.Asset, meterID:
             alert(msg.responseJSON.ExceptionMessage)
         else
             sessionStorage.clear();
+    });
+}
+
+function MeterAction(verb: 'POST'|'DELETE', assetID: number, meterID: number, locationID: number) {
+    let route = `${homePath}api/OpenXDA/Meter/${meterID}/Asset/${assetID}/${locationID}`;
+
+    return $.ajax({
+        type: verb,
+        url: route,
+        contentType: "application/json; charset=utf-8",
+        dataType: 'json',
+        data: JSON.stringify(''),
+        cache: false,
+        async: true
     });
 }
