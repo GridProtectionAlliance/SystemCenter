@@ -84,9 +84,9 @@ export namespace AssetAttributes {
                 }
                 else {
                     let oldKey = (allAssets.find(aa => aa.ID === props.Asset.ID)  != undefined? allAssets.find(aa => aa.ID === props.Asset.ID).AssetKey.toLowerCase() : '');
-                    if (props.AllAssets != undefined && props.AllAssets.find(aa => aa.ID === props.Asset.ID) == undefined)
+                    if (props.AllAssets != undefined && props.AllAssets.find(aa => aa.ID === props.Asset.ID) != undefined)
                         oldKey = props.AllAssets.find(aa => aa.ID === props.Asset.ID).AssetKey.toLowerCase();
-                    if (oldKey == props.Asset.AssetKey)
+                    if (oldKey == props.Asset.AssetKey.toLowerCase())
                         return true;
                     else {
                         const keys = _.uniq(currentKeys.concat(...(props.AllAssets != undefined ? props.AllAssets.map(a => a.AssetKey.toLocaleLowerCase()) : [])))
