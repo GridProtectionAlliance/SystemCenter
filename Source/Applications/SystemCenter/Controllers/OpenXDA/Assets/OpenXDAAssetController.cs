@@ -553,6 +553,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         asset.ConnectionFactory = () => (new AdoDataConnection(Connection));
 
                         List<Channel> connectedChannels = asset.ConnectedChannels;
+                        connectedChannels.AddRange(asset.DirectChannels);
 
                         if (connectedChannels.Count > 0)
                         {

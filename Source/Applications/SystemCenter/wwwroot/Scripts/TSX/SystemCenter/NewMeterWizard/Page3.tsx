@@ -280,18 +280,22 @@ export default function Page3(props: { MeterKey: string, Channels: Array<OpenXDA
                         key: 'Name', label: 'Name', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Name'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
                     },
                     {
-                        key: 'Description', label: 'Desc', headerStyle: { width: '33%' }, rowStyle: { width: '33%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Description'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
+                        key: 'Description', label: 'Desc', headerStyle: { width: '26%' }, rowStyle: { width: '26%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Description'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
                     },
                     {
-                        key: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementTypes.map((t) => ({ Value: t, Label: t }))} />
+                        key: 'MeasurementType', label: 'Type', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementTypes.map((t) => ({ Value: t, Label: t }))} />
                     },
                     {
-                        key: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.Phases.map((t) => ({ Value: t, Label: t }))} />
+                        key: 'MeasurementCharacteristic', label: 'Char.', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementCharacteristic'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementCharacteristics.map((t) => ({ Value: t, Label: t }))} />
                     },
+                    {
+                        key: 'Phase', label: 'Phase', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.Phases.map((t) => ({ Value: t, Label: t }))} />
+                    },
+                    { key: 'HarmonicGroup', label: 'Harm', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'HarmonicGroup'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
                     { key: 'Adder', label: 'Adder', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
                     { key: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
-                    { key: 'Trend', label: 'Trend', headerStyle: { width: '10%' }, rowStyle: { width: '5%', paddingTop: 36, paddingBottom: 36 }, content: (item) => item.Series.filter(s => s.SeriesType != 'Values').length > 0 ? HeavyCheckMark : CrossMark },
-                    { key: 'DeleteButton', label: '', headerStyle: { width: '0%' }, rowStyle: { width: '5%', paddingTop: 36, paddingBottom: 36 }, content: (item, field, key, style, index) => <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span><i className="fa fa-times"></i></span></button> },
+                    { key: 'Trend', label: 'Trend', headerStyle: { width: '8%' }, rowStyle: { width: '4%', paddingTop: 36, paddingBottom: 36 }, content: (item) => item.Series.filter(s => s.SeriesType != 'Values').length > 0 ? HeavyCheckMark : CrossMark },
+                    { key: 'DeleteButton', label: '', headerStyle: { width: '0%' }, rowStyle: { width: '4%', paddingTop: 36, paddingBottom: 36 }, content: (item, field, key, style, index) => <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span><i className="fa fa-times"></i></span></button> },
                 ]}
                     tableClass="table table-hover"
                     data={props.Channels}

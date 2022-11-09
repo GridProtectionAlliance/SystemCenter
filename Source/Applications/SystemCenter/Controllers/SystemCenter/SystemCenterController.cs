@@ -23,6 +23,7 @@
 
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.PhasorProtocols;
 using GSF.PQDIF.Logical;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
@@ -513,6 +514,10 @@ namespace SystemCenter.Controllers
                 IEnumerable<ChannelDefinition> channelDefinitions = parser.DataSourceRecords.First().ChannelDefinitions
                     .Where(cd => cd.SeriesDefinitions.Where(ser => ser.QuantityCharacteristicID == QuantityCharacteristic.Instantaneous).Any());
 
+                List<ObservationRecord> observations = new List<ObservationRecord>();
+                while (parser.HasNextObservationRecord())
+                    observations.Add(parser.NextObservationRecord());
+
                 var channels = channelDefinitions.Select((cd,index) => {
 
                     Guid characteristic = cd.SeriesDefinitions
@@ -536,6 +541,13 @@ namespace SystemCenter.Controllers
                         return "Values";
                     };
 
+                    int harmonic = 0;
+                    int harmonicGroup = observations
+                        .Where(observation => ReferenceEquals(observation.DataSource, cd.DataSource))
+                        .SelectMany(observation => observation.ChannelInstances)
+                        .Where(channelInstance => ReferenceEquals(channelInstance.ChannelDefinition, cd))
+                        .Select(channelInstance => channelInstance.ChannelGroupID)
+                        .FirstOrDefault(channelGroupIndex => channelGroupIndex != 0);
 
                     var series = cd.SeriesDefinitions.Where(s => s.ValueTypeID == SeriesValueType.Val || s.ValueTypeID == SeriesValueType.Max || s.ValueTypeID == SeriesValueType.Min || s.ValueTypeID == SeriesValueType.Avg)
                     .Select(d => new {
@@ -544,7 +556,7 @@ namespace SystemCenter.Controllers
                         SeriesType = SeriesType(d.ValueTypeID),
                         SourceIndexes = ""
                     });
-                      
+                    
                     return new
                     {
                         ID = index + 1,
@@ -557,7 +569,7 @@ namespace SystemCenter.Controllers
                         Name = cd.ChannelName,
                         SamplesPerHour = 0,
                         PerUnitValue = 1,
-                        HarmonicGroup = 0,
+                        HarmonicGroup = harmonic,
                         Description = (cd.DataSource.DataSourceName) + " - " + cd.ChannelName,
                         Enabled = true,
                         Adder = 0,

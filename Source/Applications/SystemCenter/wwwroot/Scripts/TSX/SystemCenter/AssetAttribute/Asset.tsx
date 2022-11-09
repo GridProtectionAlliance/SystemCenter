@@ -25,13 +25,15 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { FetchAsset, SelectAssetKeysLowerCase, SelectAssets, SelectAssetStatus } from '../Store/AssetSlice';
 
 interface AssetAttributesProps {
     Asset: OpenXDA.Types.Asset,
     NewEdit: Application.Types.NewEdit,
     UpdateState: (Asset: OpenXDA.Types.Asset) => void,
     AssetTypes: Array<OpenXDA.Types.AssetType>,
-    AllAssets: Array<OpenXDA.Types.Asset>,
+    AllAssets?: Array<OpenXDA.Types.Asset>,
     GetDifferentAsset: (assetID: number) => void,
     HideSelectAsset: boolean,
     HideAssetType: boolean,
@@ -41,6 +43,15 @@ interface AssetAttributesProps {
 export namespace AssetAttributes {
 
     export function AssetAttributeFields(props: AssetAttributesProps): JSX.Element {
+        const dispatch = useAppDispatch();
+        const currentKeys = useAppSelector(SelectAssetKeysLowerCase);
+        const allAssets = useAppSelector(SelectAssets);
+        const assetStatus = useAppSelector(SelectAssetStatus);
+
+        React.useEffect(() => {
+            if (assetStatus == 'unintiated' || assetStatus == 'changed')
+                dispatch(FetchAsset());
+        }, [assetStatus]);
 
         function changeAssetType(type: OpenXDA.Types.AssetTypeName): void {
             let asset = {
@@ -64,18 +75,23 @@ export namespace AssetAttributes {
                 if (props.Asset.AssetKey == null || props.Asset.AssetKey.length == 0) return false;
                 else if (props.NewEdit == 'New') {
                     if (props.Asset.ID == 0) {
-                        return props.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(props.Asset.AssetKey.toLowerCase()) < 0;
+                        const keys = _.uniq(currentKeys.concat(...(props.AllAssets != undefined ? props.AllAssets.map(a => a.AssetKey.toLocaleLowerCase()) : [])))
+                        return keys.indexOf(props.Asset.AssetKey.toLowerCase()) < 0;
                     }
                     else {
                         return true;
                     }
                 }
                 else {
-                    let oldKey = props.AllAssets.find(aa => aa.ID === props.Asset.ID) == undefined ? '' : props.AllAssets.find(aa => aa.ID === props.Asset.ID).AssetKey;
-                    if (oldKey == props.Asset.AssetKey)
+                    let oldKey = (allAssets.find(aa => aa.ID === props.Asset.ID)  != undefined? allAssets.find(aa => aa.ID === props.Asset.ID).AssetKey.toLowerCase() : '');
+                    if (props.AllAssets != undefined && props.AllAssets.find(aa => aa.ID === props.Asset.ID) != undefined)
+                        oldKey = props.AllAssets.find(aa => aa.ID === props.Asset.ID).AssetKey.toLowerCase();
+                    if (oldKey == props.Asset.AssetKey.toLowerCase())
                         return true;
-                    else
-                        return props.AllAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(props.Asset.AssetKey.toLowerCase()) < 0;
+                    else {
+                        const keys = _.uniq(currentKeys.concat(...(props.AllAssets != undefined ? props.AllAssets.map(a => a.AssetKey.toLocaleLowerCase()) : [])))
+                        return keys.indexOf(props.Asset.AssetKey.toLowerCase()) < 0;
+                    }
                 }
             }
             else if (field == 'AssetName')
