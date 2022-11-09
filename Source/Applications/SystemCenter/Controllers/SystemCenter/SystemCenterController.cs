@@ -543,10 +543,11 @@ namespace SystemCenter.Controllers
 
                     int harmonic = 0;
                     int harmonicGroup = observations
-                    .SelectMany(observation => observation.ChannelInstances)
-                    .Where(channelInstance => ReferenceEquals(parser.DataSourceRecords.First().ChannelDefinitions[(int)channelInstance.ChannelDefinitionIndex], cd))
-                    .Select(channelInstance => channelInstance.ChannelGroupID)
-                    .FirstOrDefault(channelGroupIndex => channelGroupIndex != 0);
+                        .Where(observation => ReferenceEquals(observation.DataSource, cd.DataSource))
+                        .SelectMany(observation => observation.ChannelInstances)
+                        .Where(channelInstance => ReferenceEquals(channelInstance.ChannelDefinition, cd))
+                        .Select(channelInstance => channelInstance.ChannelGroupID)
+                        .FirstOrDefault(channelGroupIndex => channelGroupIndex != 0);
 
                     var series = cd.SeriesDefinitions.Where(s => s.ValueTypeID == SeriesValueType.Val || s.ValueTypeID == SeriesValueType.Max || s.ValueTypeID == SeriesValueType.Min || s.ValueTypeID == SeriesValueType.Avg)
                     .Select(d => new {
