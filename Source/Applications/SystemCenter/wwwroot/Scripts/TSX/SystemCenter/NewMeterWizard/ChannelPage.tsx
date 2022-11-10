@@ -82,9 +82,9 @@ export default function ChannelPage(props: IProps) {
     }, [])
 
     React.useEffect(() => {
-        let e = [];
-        if (props.Channels.length == 0)
-            e.push('At Least 1 Channel has to be set up.');
+        let e = []; 
+        if (props.Channels.filter((item) => (item.Series.filter(s => s.SeriesType != 'Values').length == 0)) && !props.TrendChannels)
+            e.push('At least 1 event channel has to be set up.');
         props.SetError(e);
     }, [props.Channels]);
 
