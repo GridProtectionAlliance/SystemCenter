@@ -545,7 +545,7 @@ namespace SystemCenter.Controllers
                     int harmonicGroup = observations
                         .Where(observation => ReferenceEquals(observation.DataSource, cd.DataSource))
                         .SelectMany(observation => observation.ChannelInstances)
-                        .Where(channelInstance => ReferenceEquals(channelInstance.ChannelDefinition, cd))
+                        .Where(channelInstance => ReferenceEquals(channelInstance.Definition, cd))
                         .Select(channelInstance => channelInstance.ChannelGroupID)
                         .FirstOrDefault(channelGroupIndex => channelGroupIndex != 0);
 
