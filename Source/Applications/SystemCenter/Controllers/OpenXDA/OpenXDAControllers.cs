@@ -48,6 +48,9 @@ using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 
 namespace SystemCenter.Controllers.OpenXDA
 {
+    [RoutePrefix("api/OpenXDA/SourceImpedance")]
+    public class SourceImpedanceController : ModelController<SourceImpedance> { }
+
     [RoutePrefix("api/OpenXDA/DataOperation")]
     public class DataOperationController : ModelController<DataOperation> { }
     [RoutePrefix("api/OpenXDA/DataReader")]

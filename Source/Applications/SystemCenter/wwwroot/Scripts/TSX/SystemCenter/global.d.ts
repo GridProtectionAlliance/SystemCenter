@@ -84,6 +84,10 @@ export namespace OpenXDA {
         MeterID: number
     }
 
+    //These will move over to gpa-gemstone before the merge
+    interface SourceImpedance { ID: number, AssetLocationID: number, RSrc: number, XSrc: number }
+    interface AssetLocation { ID: number, AssetID: number, LocationID: number }
+
 }
 
 export namespace PQView {

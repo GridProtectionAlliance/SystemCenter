@@ -96,6 +96,8 @@ export const UserAccountSlice = new UserSlice('UserAccounts', `${homePath}api/Sy
 export const UserAdditionalFieldSlice = new AdditionalUserFieldSlice('AdditionalUserFields', `${homePath}api/SystemCenter`);
 export const SCSecurityRoleSlice = new SecurityRoleSlice('SCSecurityRole', `${homePath}api/SystemCenter`);
 
+export const SourceImpedanceSlice = new GenericSlice<LocalXDA.SourceImpedance>("SourceImpedance", `${homePath}api/OpenXDA/SourceImpedance`, "AssetLocationID", false);
+
 const store = configureStore({
     reducer: {
         LSCVSAccount: LSCVSAccountSlice.Reducer,
@@ -145,6 +147,7 @@ const store = configureStore({
         CustomerMeter: CustomerMeterSlice.Reducer,
         CustomerAsset: CustomerAssetSlice.Reducer,
         PQI: PQISlice,
+        SourceImpedance: SourceImpedanceSlice.Reducer,
     }
 });
 export default store;
