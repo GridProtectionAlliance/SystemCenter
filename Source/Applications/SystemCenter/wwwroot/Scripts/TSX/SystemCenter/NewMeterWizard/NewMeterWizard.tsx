@@ -60,7 +60,7 @@ export default function NewMeterWizard(props: {}) {
 
     const [error, setError] = React.useState<string[]>([]);
     const [warning, setWarning] = React.useState<string[]>([]);
-    const [hoverNext, setHoverNext] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<boolean>(false);
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
     const [loading, setLoading] = React.useState<boolean>(false);
 
@@ -213,8 +213,8 @@ export default function NewMeterWizard(props: {}) {
         setError([]);
         setWarning([]);
         // Make sure currentStep is set to something reasonable
-        if (currentStep >= 4) {
-           setCurrentStep(5);
+        if (currentStep >= 5) {
+           setCurrentStep(6);
         } else {
             setCurrentStep(currentStep + 1);
         }
@@ -285,27 +285,13 @@ export default function NewMeterWizard(props: {}) {
         else if (currentStep == 3 || currentStep == 4)
             return <ChannelPage MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError} SetWarning={setWarning} TrendChannels={currentStep == 4} />
         else if (currentStep == 5)
-            return <AssetPage AssetConnections={assetConnections} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} SetError={setError}/>
+            return <AssetPage AssetConnections={assetConnections} Location={locationInfo} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} SetError={setError}/>
         else if (currentStep == 6)
             return <Page5 Assets={assets} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />
 
-    }
+    };
 
-    function disableNext(): boolean {
-        if (currentStep == 1) {
-            return error.length > 0
-        }
-        else if (currentStep == 2) {
-            return error.length > 0
-        }
-        else if (currentStep == 3)
-            return channels.length == 0;
-        else if (currentStep == 4)
-            return assets.length == 0;
-
-
-        return true;
-    }
+    function disableNext() { return error.length > 0 };
 
     return (
         <div style={{padding: 10, height: 'inherit', overflowY: 'hidden'}}>
@@ -321,18 +307,20 @@ export default function NewMeterWizard(props: {}) {
                     {getPage()}
                 </div>
                 <div className="card-footer">
-                    {currentStep > 1 ? <button className="btn btn-danger pull-left" onClick={prev}>Prev</button> : null}
-                    {currentStep < 5 ? <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
-                        data-tooltip='Next' onMouseEnter={() => setHoverNext(true)} onMouseLeave={() => setHoverNext(false)}
+                    {currentStep > 1 ? <button className="btn btn-danger pull-left" onClick={prev} disabled={currentStep === 7}
+                        data-tooltip='Prev' onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+                    >Prev</button> : null}
+                    {currentStep < 6 ? <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
+                        data-tooltip='Next' onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
                     >Next</button> : null}
                     <button className="btn btn-success pull-right" onClick={() => setShowSubmit(true)} hidden={currentStep < 5}>Create Meter</button>
                 </div>
-                <ToolTip Show={hoverNext && (warning.length > 0 || error.length > 0)} Position={'top'} Theme={'dark'} Target={"Next"}>
+                <ToolTip Show={hover && (warning.length > 0 || error.length > 0)} Position={'top'} Theme={'dark'} Target={"Next"}>
                     {error.map((item, index) => <p key={index}> {CrossMark} {item} </p>)}
                     {warning.map((item, index) => <p key={index + 'w'}> {WarningSymbol} {item} </p>)}
                 </ToolTip>
             </div>
-            <Warning Title="Submit Meter" Message="Submit and Save Meter?\nSubmission required to continue setup..." Show={showSubmit} CallBack={(confirmed) => {
+            <Warning Title="Submit Meter" Message="Submit and Save Meter? Submission required to continue setup..." Show={showSubmit} CallBack={(confirmed) => {
                 setShowSubmit(false);
                 if (confirmed) {
                     addNewMeter();

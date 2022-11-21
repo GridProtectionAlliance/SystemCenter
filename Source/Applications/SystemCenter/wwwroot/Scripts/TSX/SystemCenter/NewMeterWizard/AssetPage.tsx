@@ -34,9 +34,9 @@ import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { Modal, Search } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
-import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import AssetSelect from '../Asset/AssetSelect';
 
 declare var homePath: string;
 
@@ -47,7 +47,8 @@ interface IProps {
     UpdateChannels: (record: OpenXDA.Types.Channel[]) => void,
     UpdateAssets: (record: OpenXDA.Types.Asset[]) => void,
     UpdateAssetConnections: (record: OpenXDA.Types.AssetConnection[]) => void,
-    SetError: (e: string[]) => void
+    SetError: (e: string[]) => void,
+    Location: OpenXDA.Types.Location
 }
 
 type AssetType = OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay;
@@ -67,8 +68,22 @@ export default function AssetPage(props: IProps) {
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
 
-    const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(false);
+    const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(props.Assets.length === 0);
     const [selectedAssets, setSelectedAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
+
+    const pageID: string = 'AssetPage';
+    const defaultFilt: Search.IFilter<SystemCenter.Types.DetailedAsset> = {
+        FieldName: 'ID',
+        SearchText: `(SELECT AssetID FROM AssetLocation WHERE LocationID = ${props.Location.ID})`,
+        Operator: 'IN',
+        Type: 'number',
+        isPivotColumn: false
+    }
+
+    React.useEffect(() => {
+        if (!localStorage.hasOwnProperty(pageID))
+            localStorage.setItem(pageID, JSON.stringify([defaultFilt]));
+    }, []);
 
     React.useEffect(() => {
         if (atStatus === 'unintiated' || atStatus === 'changed') {
@@ -174,9 +189,6 @@ export default function AssetPage(props: IProps) {
 
     }
 
-
-    
-
     function getDifferentAsset(assetID: number): void {
         let assetTypeID = assets.find(a => a.ID == assetID)['AssetTypeID']; 
         let assetType = assetTypes.find(at => at.ID == assetTypeID)
@@ -216,8 +228,6 @@ export default function AssetPage(props: IProps) {
         })
     }
 
-   
-
     function showAttributes(): JSX.Element {
         if (newEditAsset.AssetType == 'Breaker')
             return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Breaker} UpdateState={setNewEditAsset} />;
@@ -233,10 +243,7 @@ export default function AssetPage(props: IProps) {
             return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'DER')
             return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} />;
-
     }
-
-
 
         return (
             <>
@@ -252,9 +259,6 @@ export default function AssetPage(props: IProps) {
                         <div style={{ width: '100%', height: 38 }}>
                             <div className="col-1 pull-right">
                                 <button className="btn btn-primary pull-right" onClick={() => { setShowAssetSelect(true); }}>Add Assets</button>
-                            </div>
-                            <div className="col-1 pull-right">
-                                <button className="btn btn-primary pull-right" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Create Asset</button>
                             </div>
                         </div>
 
@@ -296,10 +300,8 @@ export default function AssetPage(props: IProps) {
                     </div>
 
                 </div>
-                <DefaultSelects.Asset
-                    Slice={ByAssetSlice}
-                    Selection={selectedAssets}
-                    OnClose={(selected, confirm) => {
+                <AssetSelect Type='multiple' StorageID={pageID} Title="Add Transmission Assets to New Meter" ShowModal={showAssetSelect} SelectedAssets={selectedAssets}
+                    OnCloseFunction={(selected, confirm) => {
                         setShowAssetSelect(false);
                         if (!confirm) return;
 
@@ -307,8 +309,7 @@ export default function AssetPage(props: IProps) {
                         let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
                         let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
 
-                        let newAssets: Array<SystemCenter.Types.DetailedAsset> = selected.filter((selectedAsset) => props.Assets.findIndex((asset) => (asset.ID === selectedAsset.ID)) < 0);
-                        let removedAssets: Array<OpenXDA.Types.Asset> = props.Assets.filter((asset) => selected.findIndex((selectedAsset) => (asset.ID === selectedAsset.ID)) < 0);
+                        let removedAssets: Array<OpenXDA.Types.Asset> = props.Assets.filter((asset) =>  asset.ID > 0 && selected.findIndex((selectedAsset) => (asset.ID === selectedAsset.ID)) < 0);
 
                         //Deal with removed assets
                         $.each(removedAssets, (index, asset) => {
@@ -316,7 +317,6 @@ export default function AssetPage(props: IProps) {
                                 if (channel.Asset == asset.AssetKey)
                                     channel.Asset = '';
                             });
-                            console.log("Removed asset");
 
                             var index = assetConnections.findIndex(assetConnection => assetConnection.Parent == asset.AssetKey || assetConnection.Child == asset.AssetKey);
                             while (index >= 0) {
@@ -327,21 +327,15 @@ export default function AssetPage(props: IProps) {
 
                         //Convert assets from slice to correct typing
                         $.each(selected, (index, record) => {
-                            let assetRecord: OpenXDA.Types.Asset = { ...assets.find((asset) => asset.ID === record.ID), Channels: [] };
-                            console.log("Added asset");
-
-                            //Deal with new assets
-                            if (newAssets.findIndex((asset) => (asset.ID === assetRecord.ID)) >= 0)
-                                $.each(channels, (index, channel) => {
-                                    if (channel.Asset == assetRecord.AssetKey)
-                                        channel.Asset = '';
-
-                                    if (channels.findIndex(c => (c.ID === channel.ID)) >= 0)
-                                        channel.Asset = assetRecord.AssetKey;
-                                });
+                            let assetRecord: OpenXDA.Types.Asset = { ...assets.find((asset) => asset.ID === record.ID), Channels: channels.filter((channel) => channel.Asset == record.AssetKey)};
 
                             //Push converted asset to list
                             list.push(assetRecord);
+                        });
+
+                        //Add the new assets that have been created by the user
+                        $.each(props.Assets.filter((asset) => asset.ID <= 0), (index, asset) => {
+                            list.push(asset);
                         });
 
                         //Update selected
@@ -351,22 +345,18 @@ export default function AssetPage(props: IProps) {
                         props.UpdateAssets(list);
                         props.UpdateChannels(channels);
                         props.UpdateAssetConnections(assetConnections);
-
-                    }}
-                    Show={showAssetSelect}
-                    Type={'multiple'}
-                    Columns={[
-                        { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    Title={"Add Transmission Assets to New Meter"}
-                    GetEnum={() => () => { }}
-                    GetAddlFields={() => () => { }} />
+                    }}>
+                    <li className="nav-item" style={{ width: '30%', paddingRight: 10 }}>
+                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                            <legend className="w-auto" style={{ fontSize: 'large' }}>New Asset:</legend>
+                            <form>
+                                <div className="form-group">
+                                    <button className="btn btn-primary" onClick={(e) => { e.preventDefault(); setNewEdit('New'); setShowAssetModal(true); setShowAssetSelect(false); }}>Create Asset</button>
+                                </div>
+                            </form>
+                        </fieldset>
+                    </li>
+                </AssetSelect>
                 <Modal Show={showAssetModal}
                     Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + newEditAsset.AssetKey + ' for Meter'}
                     ConfirmBtnClass={'btn-success'}

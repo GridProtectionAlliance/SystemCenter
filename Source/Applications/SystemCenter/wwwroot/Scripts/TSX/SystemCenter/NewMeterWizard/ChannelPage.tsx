@@ -31,7 +31,7 @@ import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
 import PQDIFParser from '../../../TS/PQDIFParser';
-import { CrossMark, HeavyCheckMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
 
 declare var homePath: string;
@@ -55,6 +55,7 @@ export default function ChannelPage(props: IProps) {
     const [showScaling, setShowScaling] = React.useState<boolean>(false);
     const [selectedFile, setSelectedFile] = React.useState('');
     const [selectedTrendFile, setSelectedTrendFile] = React.useState('');
+    const [currentChannels, setCurrentChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
 
     React.useEffect(() => {
         $(fileInput.current).on("change", (evt: any) => {
@@ -82,11 +83,19 @@ export default function ChannelPage(props: IProps) {
     }, [])
 
     React.useEffect(() => {
-        let e = []; 
-        if (props.Channels.filter((item) => (item.Series.filter(s => s.SeriesType != 'Values').length == 0)) && !props.TrendChannels)
+        setCurrentChannels(getCurrentChannels(props.TrendChannels));
+    }, [props.Channels, props.TrendChannels]);
+
+    React.useEffect(() => {
+        let e = [];
+        if (currentChannels.length == 0 && !props.TrendChannels)
             e.push('At least 1 event channel has to be set up.');
         props.SetError(e);
-    }, [props.Channels]);
+    }, [currentChannels]);
+
+    function getCurrentChannels(trendChannels: boolean): OpenXDA.Types.Channel[] {
+        return props.Channels.filter((item) => (item.Series.filter(s => s.SeriesType != 'Values').length > 0) ? trendChannels : !trendChannels);
+    }
 
     function readSingleFile(evt: React.ChangeEvent<HTMLInputElement>, isTrend: boolean) {
         //Retrieve the first (and only!) File from the FileList object
@@ -193,6 +202,20 @@ export default function ChannelPage(props: IProps) {
         props.UpdateChannels(updated);
     }
 
+    function editChannels(channels: OpenXDA.Types.Channel[]) {
+        let updated = _.cloneDeep(props.Channels)
+
+        $.each(channels, (i, channel) => {
+            let index = props.Channels.findIndex(ch => ch.ID == channel.ID);
+            if (index > -1)
+                updated[index] = channel;
+            else
+                updated.push(channel);
+        });
+
+        props.UpdateChannels(updated);
+    }
+
     function clearSpareChannels() {
         let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
         let assets: Array<OpenXDA.Types.Asset> = JSON.parse(localStorage.getItem('NewMeterWizard.Assets'));
@@ -264,7 +287,7 @@ export default function ChannelPage(props: IProps) {
                 </div>
                 <div className="col-1">
                     <button className="btn btn-primary pull-right" disabled={props.Channels.length == 0} onClick={() => {
-                        props.UpdateChannels([])
+                        props.UpdateChannels(getCurrentChannels(!props.TrendChannels)); // Set props to only non-shown channels for current page
                         setSelectedFile('');
                         setSelectedTrendFile('');
                     }
@@ -277,14 +300,15 @@ export default function ChannelPage(props: IProps) {
                     }>Scale Channels</button>
                 </div>
 
-                <div className="col-1">
-                    <button className="btn btn-primary pull-right" onClick={() => {
-                        let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel
-                        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
-                        channels.push(channel);
-                        props.UpdateChannels(channels);
-                    }}>Add Channel</button>
-                </div>
+                {props.TrendChannels ? null :
+                    <div className="col-1">
+                        <button className="btn btn-primary pull-right" onClick={() => {
+                            let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel
+                            let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
+                            channels.push(channel);
+                            props.UpdateChannels(channels);
+                        }}>Add Channel</button>
+                    </div>}
 
             </div>
             <div style={{ width: '100%', maxHeight: innerHeight - 410, padding: 30 }}>
@@ -318,7 +342,7 @@ export default function ChannelPage(props: IProps) {
                     { key: 'Scroll', label: '', headerStyle: { width: '5px' }, rowStyle: { width: '0px' }, content: () => null }
                 ]}
                     tableClass="table table-hover"
-                    data={props.Channels.filter((item) => (item.Series.filter(s => s.SeriesType != 'Values').length > 0) ? props.TrendChannels : !props.TrendChannels)}
+                    data={currentChannels}
                     sortKey={'Series'}
                     ascending={false}
                     onSort={(d) => {}}
@@ -333,7 +357,7 @@ export default function ChannelPage(props: IProps) {
             <Warning Show={showCFGError} Title={'Error Parsing File'} Message={'File is not of type cfg, par, or pqd. Please only use cfg, or pqd files.'} CallBack={() => setShowCFGError(false)} />
             <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare channels. This will remove ${NSpare} Channels from the Configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
             <Modal Title="Scale Channels for New Meter" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Leave Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
-                <ChannelScalingForm Channels={props.Channels} UpdateChannels={props.UpdateChannels}/>
+                <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels}/>
             </Modal>
         </>
         );
