@@ -227,7 +227,7 @@ const MeterAssetWindow = (props: IProps) => {
             <AssetSelect
                 SelectedAssets={[]}
                 ShowModal={showSelect}
-                SessionStorageID={'MeterAsset'}
+                StorageID={'MeterAsset'}
                 Type={'single'}
                 Title={`Add Asset to ${props.Meter.Name}`}
                 OnCloseFunction={(selected, confirm) => {

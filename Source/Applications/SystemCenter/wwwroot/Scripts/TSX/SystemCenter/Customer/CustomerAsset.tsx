@@ -164,7 +164,7 @@ const CustomerAssetWindow = (props: IProps) => {
         </div>
         </div>
         <Warning Message={'This will permanently remove the asset from this customer and can affect PQDigest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove Asset from Customer'} CallBack={(c) => { if (c) dispatch(CustomerAssetSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
-        <AssetSelect Type='multiple' SessionStorageID='CustomerAsset' ShowModal={showAdd} SelectedAssets={[]}
+        <AssetSelect Type='multiple' StorageID='CustomerAsset' ShowModal={showAdd} SelectedAssets={[]}
             Title={"Add Transmission Asset to Customer"}
             OnCloseFunction={(selected, conf) => {
                 setShowAdd(false)
