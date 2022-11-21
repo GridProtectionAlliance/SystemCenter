@@ -215,7 +215,7 @@ const RemoteAssetTab = (props: IProps) => {
                 }>
                 <RemoteAssetForm OriginalAsset={selectedAsset} SetRemoteAsset={setRemoteAsset} SetErrors={setNewInstErrors} />
             </Modal>
-            <AssetSelect Type='multiple' SessionStorageID='RemoteAssetTab' ShowModal={showAddAssets} SelectedAssets={assetList}
+            <AssetSelect Type='multiple' StorageID='RemoteAssetTab' ShowModal={showAddAssets} SelectedAssets={assetList}
                 Title={"Select Meter to Add for this remoteXDA Instance:"}
                 OnCloseFunction={(selected, conf) => {
                     setShowAddAssets(false);

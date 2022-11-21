@@ -166,7 +166,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                 </div>
             </div>
             </div>
-            <AssetSelect Type='multiple' SessionStorageID='AssetAssetGroup' Title='Add Transmission Assets to Asset Group' ShowModal={showAdd} SelectedAssets={assetList}
+            <AssetSelect Type='multiple' StorageID='AssetAssetGroup' Title='Add Transmission Assets to Asset Group' ShowModal={showAdd} SelectedAssets={assetList}
                 OnCloseFunction={(selected, conf) => {
                     setShowAdd(false);
                     if (!conf) return

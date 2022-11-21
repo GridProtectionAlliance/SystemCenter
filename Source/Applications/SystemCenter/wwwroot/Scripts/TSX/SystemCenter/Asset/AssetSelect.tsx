@@ -37,8 +37,10 @@ interface IProps {
     SelectedAssets: Array<SystemCenter.Types.DetailedAsset>,
     ShowModal: boolean,
     Type?: 'single' | 'multiple',
-    SessionStorageID?: string, //TODO: Add this functionality to save filters in session storage (gemstone addition)
-    Title?: string
+    StorageID?: string,
+    Title?: string,
+    ChildrenSectionTitle?: string,
+    children?: React.ReactNode
 }
 
 export default function AssetSelect(props: IProps) {
@@ -111,6 +113,7 @@ export default function AssetSelect(props: IProps) {
             OnClose={props.OnCloseFunction}
             Show={props.ShowModal}
             Type={props.Type === undefined ? 'multiple' : props.Type}
+            StorageID={props.StorageID}
             Columns={[
                 { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                 { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -122,6 +125,8 @@ export default function AssetSelect(props: IProps) {
             ]}
             Title={props.Title === undefined ? "Select Assets" : props.Title}
             GetEnum={getEnum}
-            GetAddlFields={getAdditionalAssetFields} />
+            GetAddlFields={getAdditionalAssetFields}>
+            {props.children}
+        </DefaultSelects.Asset>
     )
 }

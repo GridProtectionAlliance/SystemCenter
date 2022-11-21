@@ -54,10 +54,8 @@ export interface FawgSection {
 }
 
 export interface FawgSegment extends OpenXDA.Types.LineSegment {
-    FromBus: number,
-    ToBus: number,
-    FromBusName: string,
-    ToBusName: string,
+    FromBusNumber: number,
+    ToBusNumber: number,
     LocationFromID: number,
     LocationToID: number,
     Changed: boolean
@@ -111,11 +109,11 @@ function SectionSelect(props: IProps): JSX.Element {
         // Find all real Taps...
         Taps = _.uniq(props.Connections.map(c => c.BusNumber).filter(b => props.Connections.filter(con => con.BusNumber == b).length > 1)).map((b, index) => ({ Bus: b,  IsEnd: false} as FawgTap))
         // Find all "Taps" at the end of the Line
-        Taps = Taps.concat(props.Segments.filter(s => s.IsEnd).map(s => props.Connections.filter(con => con.BusNumber == s.FromBus).length > 0 ? s.ToBus : s.FromBus).map((b, index) => ({ Bus: b, IsEnd: true } as FawgTap)));
+        Taps = Taps.concat(props.Segments.filter(s => s.IsEnd).map(s => props.Connections.filter(con => con.BusNumber == s.FromBusNumber).length > 0 ? s.ToBusNumber : s.FromBusNumber).map((b, index) => ({ Bus: b, IsEnd: true } as FawgTap)));
 
         // We need to add a Tap at the end if there is only 1 Segment since in that case IsEnd is only true once even though that segment has 2 ends at substations
         if (Taps.length == 1 && props.Segments.length == 1)
-            Taps.push({ Bus: props.Segments[0].ToBus, IsEnd: true } as FawgTap);
+            Taps.push({ Bus: props.Segments[0].ToBusNumber, IsEnd: true } as FawgTap);
 
         // update Taps with locationID as available (-1) otherwise and add connected Segments
         Taps.forEach((item, index) => {
@@ -123,14 +121,14 @@ function SectionSelect(props: IProps): JSX.Element {
             item.ProcessedSegments = [];
             item.LocationID = -1;
 
-            item.ConnectedSegments = props.Segments.filter(seg => seg.FromBus == item.Bus || seg.ToBus == item.Bus).map(seg => seg.AssetKey);
+            item.ConnectedSegments = props.Segments.filter(seg => seg.FromBusNumber == item.Bus || seg.ToBusNumber == item.Bus).map(seg => seg.AssetKey);
 
             if (item.ConnectedSegments.length == 1) {
-                const segment = props.Segments.find(seg => seg.FromBus == item.Bus);
+                const segment = props.Segments.find(seg => seg.FromBusNumber == item.Bus);
                 if (segment != null)
                     item.LocationID = segment.LocationFromID;
                 else
-                    item.LocationID = props.Segments.find(seg => seg.ToBus == item.Bus).LocationToID;
+                    item.LocationID = props.Segments.find(seg => seg.ToBusNumber == item.Bus).LocationToID;
             }
         });
 
@@ -141,21 +139,21 @@ function SectionSelect(props: IProps): JSX.Element {
             let currentSection: FawgSection = {
                 startBus: currentTap.Bus, startStationID: currentTap.LocationID, Segments: [], endBus: -1, endStationID: -1, startTap: !currentTap.IsEnd, endTap: true, NameFrom: '', NameTo: '', startBusName: '', endBusName: ''
             };
-            let segBus = props.Segments.find(seg => seg.ToBus == currentSection.startBus);
+            let segBus = props.Segments.find(seg => seg.ToBusNumber == currentSection.startBus);
             if (segBus != undefined) {
-                currentSection.startBusName = segBus.ToBusName;
+                currentSection.startBusName = segBus.ToBus;
             } else {
-                currentSection.startBusName = props.Segments.find(seg => seg.FromBus == currentSection.startBus).FromBusName;
+                currentSection.startBusName = props.Segments.find(seg => seg.FromBusNumber == currentSection.startBus).fromBus;
             }
             let currentSegment = currentTap.ConnectedSegments.find(s => currentTap.ProcessedSegments.findIndex(ps => ps == s) == -1);
             let nextSeg = props.Segments.find(s => s.AssetKey == currentSegment);
-            let nextBus = nextSeg.FromBus;
-            let nextBusName = nextSeg.FromBusName;
+            let nextBus = nextSeg.FromBusNumber;
+            let nextBusName = nextSeg.fromBus;
 
             if (nextBus == currentTap.Bus) {
                 nextSeg = props.Segments.find(s => s.AssetKey == currentSegment);
-                nextBus = nextSeg.ToBus;
-                nextBusName = nextSeg.ToBusName;
+                nextBus = nextSeg.ToBusNumber;
+                nextBusName = nextSeg.ToBus;
             }
             currentSection.Segments.push(currentSegment);
             currentTap.ProcessedSegments.push(currentSegment);
@@ -166,12 +164,12 @@ function SectionSelect(props: IProps): JSX.Element {
 
                 currentSegment = (nextConnection.ChildKey == currentSegment) ? nextConnection.ParentKey : nextConnection.ChildKey;
                 nextSeg = props.Segments.find(s => s.AssetKey == currentSegment);
-                nextBus = nextSeg.ToBus;
-                nextBusName = nextSeg.ToBusName;
+                nextBus = nextSeg.ToBusNumber;
+                nextBusName = nextSeg.ToBus;
                 if (nextBus == nextConnection.BusNumber) {
                     nextSeg = props.Segments.find(s => s.AssetKey == currentSegment);
-                    nextBus = nextSeg.FromBus;
-                    nextBusName = nextSeg.FromBusName;
+                    nextBus = nextSeg.FromBusNumber;
+                    nextBusName = nextSeg.fromBus;
                 }
                 currentSection.Segments.push(currentSegment);
             }

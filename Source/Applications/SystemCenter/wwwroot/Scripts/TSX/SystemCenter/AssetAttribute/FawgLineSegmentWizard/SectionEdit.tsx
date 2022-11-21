@@ -56,16 +56,16 @@ function SectionEdit(props: IProps): JSX.Element {
             let lastBus = props.Section.startBus;
             let lastBusName = props.Section.startBusName;
             if (data.length > 0) {
-                lastBus = data[data.length - 1].ToBus;
-                lastBusName = data[data.length - 1].ToBusName;
+                lastBus = data[data.length - 1].ToBusNumber;
+                lastBusName = data[data.length - 1].ToBus;
             }
 
-            if (lastBus != updated.FromBus) {
-                updated.ToBus = updated.FromBus;
-                updated.ToBusName = updated.FromBusName;
+            if (lastBus != updated.FromBusNumber) {
+                updated.ToBusNumber = updated.FromBusNumber;
+                updated.ToBus = updated.fromBus;
             }
-            updated.FromBus = lastBus;
-            updated.FromBusName = lastBusName;
+            updated.FromBusNumber = lastBus;
+            updated.fromBus = lastBusName;
             
             data.push(updated);
         });
@@ -179,8 +179,8 @@ function TableRowInput(props: { Segment: FawgSegment, remove: (assetKey: string)
         <tr>
             <td style={{verticalAlign: 'middle'}}>Segment {props.index+1}</td>
             <td><Input<FawgSegment> Label={'Length (miles)'} Record={props.Segment} Field={'Length'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
-            <td style={{ verticalAlign: 'middle' }}>{(props.Segment.FromBusName == '' ? "Unknown Bus" : props.Segment.FromBusName) + " (ID: " + props.Segment.FromBus + ")"}</td>
-            <td style={{ verticalAlign: 'middle' }}>{(props.Segment.ToBusName == '' ? "Unknown Bus" : props.Segment.ToBusName) + " (ID: " + props.Segment.ToBus + ")"}</td>
+            <td style={{ verticalAlign: 'middle' }}>{(props.Segment.fromBus == '' ? "Unknown Bus" : props.Segment.fromBus) + " (ID: " + props.Segment.FromBusNumber + ")"}</td>
+            <td style={{ verticalAlign: 'middle' }}>{(props.Segment.ToBus == '' ? "Unknown Bus" : props.Segment.ToBus) + " (ID: " + props.Segment.ToBusNumber + ")"}</td>
 
             <td style={{ verticalAlign: 'middle' }}>{Z0.toFixed(2)}</td>
             <td style={{ verticalAlign: 'middle' }}>{a0.toFixed(2)}</td>
