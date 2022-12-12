@@ -39,7 +39,6 @@ interface IProps {
     Type?: 'single' | 'multiple',
     StorageID?: string,
     Title?: string,
-    ChildrenSectionTitle?: string,
     children?: React.ReactNode
 }
 
