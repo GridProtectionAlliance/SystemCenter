@@ -440,9 +440,12 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\Types.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\TapSelect.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\SourceImpedanceWindow.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\hooks.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingWrapper.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingForm.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\LineSegmentPage.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\AdditionalFieldsPage.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteAssetForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteMeterTab.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteAssetTab.tsx" />
@@ -474,7 +477,6 @@
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetConnection.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetInfo.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetMeter.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsWindow.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\NoteWindow.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\ConfigurationHistory\ConfigurationHistory.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\Location.tsx" />
@@ -486,7 +488,7 @@
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterEventChannel.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterAsset.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\NewMeterWizard.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page5.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\ConnectionPage.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\AssetPage.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\ChannelPage.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\LocationPage.tsx" />

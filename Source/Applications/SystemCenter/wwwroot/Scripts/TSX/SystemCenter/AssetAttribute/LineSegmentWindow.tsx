@@ -29,7 +29,7 @@ import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
 import moment from 'moment';
 
-function LineSegmentWindow(props: { ID: number }): JSX.Element {
+function LineSegmentWindow(props: { ID: number, AssetName?: string }): JSX.Element {
     const [segments, setSegments] = React.useState<Array<OpenXDA.Types.LineSegment>>([]);
     const [showFawg, setShowFawg] = React.useState<boolean>(false);
 
@@ -60,7 +60,7 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
         <>
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
-                <h4>Line Segments:</h4>
+                <h4>{"Line Segments" + (props.AssetName === undefined ? "" : " for Asset " + props.AssetName) + ":"}</h4>
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>

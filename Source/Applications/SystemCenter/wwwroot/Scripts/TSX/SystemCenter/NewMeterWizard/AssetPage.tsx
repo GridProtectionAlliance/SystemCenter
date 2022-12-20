@@ -41,14 +41,15 @@ import AssetSelect from '../Asset/AssetSelect';
 declare var homePath: string;
 
 interface IProps {
-    Assets: Array<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay>,
+    Assets: Array<AssetType>,
     Channels: OpenXDA.Types.Channel[],
     AssetConnections: Array<OpenXDA.Types.AssetConnection>,
     UpdateChannels: (record: OpenXDA.Types.Channel[]) => void,
     UpdateAssets: (record: OpenXDA.Types.Asset[]) => void,
     UpdateAssetConnections: (record: OpenXDA.Types.AssetConnection[]) => void,
     SetError: (e: string[]) => void,
-    Location: OpenXDA.Types.Location
+    Location: OpenXDA.Types.Location,
+    PageID?: string
 }
 
 type AssetType = OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay;
@@ -68,10 +69,9 @@ export default function AssetPage(props: IProps) {
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
 
-    const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(props.Assets.length === 0);
+    const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(false);
     const [selectedAssets, setSelectedAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
 
-    const pageID: string = 'AssetPage';
     const defaultFilt: Search.IFilter<SystemCenter.Types.DetailedAsset> = {
         FieldName: 'ID',
         SearchText: `(SELECT AssetID FROM AssetLocation WHERE LocationID = ${props.Location.ID})`,
@@ -81,8 +81,9 @@ export default function AssetPage(props: IProps) {
     }
 
     React.useEffect(() => {
-        if (!localStorage.hasOwnProperty(pageID))
-            localStorage.setItem(pageID, JSON.stringify([defaultFilt]));
+        if (props.PageID !== undefined && !localStorage.hasOwnProperty(props.PageID))
+            localStorage.setItem(props.PageID, JSON.stringify([defaultFilt]));
+        setShowAssetSelect(props.Assets.length === 0);
     }, []);
 
     React.useEffect(() => {
@@ -300,7 +301,7 @@ export default function AssetPage(props: IProps) {
                     </div>
 
                 </div>
-                <AssetSelect Type='multiple' StorageID={pageID} Title="Add Transmission Assets to New Meter" ShowModal={showAssetSelect} SelectedAssets={selectedAssets}
+                <AssetSelect Type='multiple' StorageID={props.PageID} Title="Add Transmission Assets to New Meter" ShowModal={showAssetSelect} SelectedAssets={selectedAssets}
                     OnCloseFunction={(selected, confirm) => {
                         setShowAssetSelect(false);
                         if (!confirm) return;
@@ -327,8 +328,7 @@ export default function AssetPage(props: IProps) {
 
                         //Convert assets from slice to correct typing
                         $.each(selected, (index, record) => {
-                            let assetRecord: OpenXDA.Types.Asset = { ...assets.find((asset) => asset.ID === record.ID), Channels: channels.filter((channel) => channel.Asset == record.AssetKey)};
-
+                            let assetRecord = { ...assets.find((asset) => asset.ID === record.ID), AssetType: record.AssetType as OpenXDA.Types.AssetTypeName, Channels: channels.filter((channel) => channel.Asset == record.AssetKey) };
                             //Push converted asset to list
                             list.push(assetRecord);
                         });

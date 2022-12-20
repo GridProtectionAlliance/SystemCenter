@@ -25,18 +25,29 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-
 import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
 import { HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
 
 declare var homePath: string;
-declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer' | 'Company' | 'ValueListGroup' | 'Asset' | OpenXDA.Types.AssetTypeName
-interface IProps { ID: number, Type: AdditionalFieldType, Tab: string }
+declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer' | 'Company' | 'ValueListGroup' | 'Asset' | OpenXDA.Types.AssetTypeName;
+
+interface IProps {
+    ID: number,
+    Type: AdditionalFieldType,
+    Tab?: string,
+    Name?: string,
+    //Change properties of page
+    DefaultEdit?: boolean,
+    HideExternal?: boolean,
+    //Hide different buttons
+    HideResetButton?: boolean,
+    HideAddAdditionalFieldButton?: boolean,
+    HideEditButton?: boolean
+}
 
 function AdditionalFieldsWindow(props: IProps): JSX.Element {
-
     const [valueListGroups, setValueListGroups] = React.useState<Array<SystemCenter.Types.ValueListGroup>>([]);
     const [externalDBs, setExternalDBs] = React.useState<Array<string>>([]);
     const [externalDBTables, setExternalDBTables] = React.useState<Array<string>>([]);
@@ -45,7 +56,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     const [additionalFieldValues, setAdditionalFieldVaules] = React.useState<Array<SystemCenter.Types.AdditionalFieldValue>>([]);
 
     const [additionalFieldValuesWorking, setAdditionalFieldValuesWorking] = React.useState<Array<SystemCenter.Types.AdditionalFieldValue>>([]);
-    const [edit, setEdit] = React.useState<boolean>(false);
+    const [edit, setEdit] = React.useState<boolean>(props.DefaultEdit ?? false);
 
     const [sortKey, setSortKey] = React.useState<string>('FieldName');
     const [ascending, setAscending] = React.useState<boolean>(false);
@@ -111,7 +122,10 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         })
 
         handle.done((data: Array<SystemCenter.Types.AdditionalField>) => {
-            setAdditionalFields(data);
+            if (props.HideExternal ?? false)
+                setAdditionalFields(data.filter(item => item.ExternalDB == null || item.ExternalDB == ''));
+            else
+                setAdditionalFields(data);
         });
 
         return handle;
@@ -354,65 +368,49 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     }
 
     if (state == 'loading')
-        return <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Additional Fields:</h4>
-                    </div>
+        return (
+            <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
+                <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                    <LoadingIcon Show={true} Size={40} />
                 </div>
-            </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-                <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
-                    <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <LoadingIcon Show={true} Size={40} />
-                    </div>
-                </div>
-            </div>
-        </div>
+            </div>);
 
                         
     if (state == 'error')
-        return <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Additional Fields:</h4>
-                    </div>
+        return (
+            <div style={{ width: '100%', height: '200px' }}>
+                <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                    <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
                 </div>
-            </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-                <div style={{ width: '100%', height: '200px' }}>
-                    <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
-                    </div>
-                </div>
-            </div>
-        </div>
+            </div>);
 
     return (
-        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Additional Fields:</h4>
-                    </div>
-                    <div className="col">
-                        {(edit) ?
-                            <button className="btn btn-default pull-right" data-tooltip='View' onClick={() => { setEdit(false); getFieldValues(); }} onMouseEnter={() => setHover('View')} onMouseLeave={() => setHover('None')}>View</button> :
-                            <button className="btn btn-primary pull-right" onClick={() => setEdit(true)}>Edit</button>}
-                        <ToolTip Show={hover == 'View' && (HasValueChanged())} Position={'left'} Theme={'dark'} Target={"View"}>
-                            {ChangedValues(true)}
-                        </ToolTip>
+        <>
+            <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+                <div className="card-header">
+                    <div className="row">
+                        <div className="col">
+                            <h4>{"Additional Fields" + (props.Name === undefined ? "" : " for " + props.Name) + ":"}</h4>
+                        </div>
+                        <div className="col">
+                            {(props.HideEditButton ?? false) ? null :
+                                (edit ? <button className="btn btn-default pull-right" data-tooltip='View' onClick={() => { setEdit(false); getFieldValues(); }} onMouseEnter={() => setHover('View')} onMouseLeave={() => setHover('None')}>View</button>
+                                    : <button className="btn btn-primary pull-right" onClick={() => setEdit(true)}>Edit</button>)}
+                            <ToolTip Show={hover == 'View' && (HasValueChanged())} Position={'left'} Theme={'dark'} Target={"View"}>
+                                {ChangedValues(true)}
+                            </ToolTip>
+                        </div>
                     </div>
                 </div>
-                
-            </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-                <Table<SystemCenter.Types.AdditionalField>
+                <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+                    <Table<SystemCenter.Types.AdditionalField>
                         cols={[
                             { key: 'FieldName', field: 'FieldName', label: 'Field', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'ExternalDB', field: 'ExternalDB', label: 'Ext DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            {
+                                key: 'ExternalDB', field: 'ExternalDB', label: (props.HideExternal ?? false) ? '' : 'Ext DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
+                                    return (props.HideExternal ?? false) ? '' : item.ExternalDB
+                                }
+                            },
                             { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             {
                                 key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
@@ -454,32 +452,35 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                         rowStyle={{display: 'table', tableLayout: 'fixed', width: '100%' }}
                         selected={(item) => false}
                     />
-            </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (!edit ? ' disabled' : '')} onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')}
-                        onClick={() => { if (edit) { setShowEdit(true); setNewField(EmptyField) } }} data-tooltip={'New'} >Add Field</button>
                 </div>
-                <ToolTip Show={hover == 'New' && !edit} Position={'top'} Theme={'dark'} Target={"New"}>
-                    {!edit? <p> To add a new Field switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
-                </ToolTip>
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (!HasValueChanged() || !edit || HasInvalidChanges() ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && !HasInvalidChanges() && edit) addOrUpdateValues(); }}
-                        onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>
+                <div className="card-footer">
+                    <div className="btn-group mr-2">
+                        {props.HideAddAdditionalFieldButton ?? false ? null :
+                            <button className={"btn btn-primary" + (!edit ? ' disabled' : '')} onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')}
+                                onClick={() => { if (edit) { setShowEdit(true); setNewField(EmptyField) } }} data-tooltip={'New'} >Add Field</button>}
+                        <ToolTip Show={hover == 'New' && !edit} Position={'top'} Theme={'dark'} Target={"New"}>
+                            {!edit ? <p> To add a new Field switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
+                        </ToolTip>
+                    </div>
+                    <div className="btn-group mr-2">
+                        <button className={"btn btn-primary" + (!HasValueChanged() || !edit || HasInvalidChanges() ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && !HasInvalidChanges() && edit) addOrUpdateValues(); }}
+                            onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>
+                        <ToolTip Show={hover == 'Save' && (!edit || HasValueChanged())} Position={'top'} Theme={'dark'} Target={"SaveValues"}>
+                            {!edit ? <p> To change any Fields switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
+                            {HasValueChanged() && !HasInvalidChanges() ? ChangedValues(false) : null}
+                            {HasValueChanged() && HasInvalidChanges() ? InvalidChanges() : null}
+                        </ToolTip>
+                    </div>
+                    <div className="btn-group mr-2">
+                        {props.HideResetButton ?? false ? null :
+                            <button className={"btn btn-default" + (!(HasValueChanged()) || !edit ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && edit) getFieldValues(); }} onMouseEnter={() => setHover('Clear')}
+                                onMouseLeave={() => setHover('None')} data-tooltip={'Clear'}>Reset</button>}
+                        <ToolTip Show={hover == 'Clear' && (!edit || HasValueChanged())} Position={'top'} Theme={'dark'} Target={"Clear"}>
+                            {!edit ? <p> To change any Fields switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
+                            {HasValueChanged() ? ChangedValues(true) : null}
+                        </ToolTip>
+                    </div>
                 </div>
-                <ToolTip Show={hover == 'Save' && (!edit || HasValueChanged())} Position={'top'} Theme={'dark'} Target={"SaveValues"}>
-                    {!edit ? <p> To change any Fields switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
-                    {HasValueChanged() && !HasInvalidChanges() ? ChangedValues(false) : null}
-                    {HasValueChanged() && HasInvalidChanges() ? InvalidChanges() : null}
-                </ToolTip>
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-default" + (!(HasValueChanged()) || !edit ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && edit) getFieldValues(); }} onMouseEnter={() => setHover('Clear')}
-                        onMouseLeave={() => setHover('None')} data-tooltip={'Clear'}>Reset</button>
-                </div>
-                <ToolTip Show={hover == 'Clear' && (!edit || HasValueChanged())} Position={'top'} Theme={'dark'} Target={"Clear"}>
-                    {!edit ? <p> To change any Fields switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
-                    {HasValueChanged() ? ChangedValues(true) : null }
-                </ToolTip>
             </div>
             <Warning Show={showWarning} Title={'Delete ' + newField.FieldName}
                 Message={"This will delete the field '" + newField.FieldName + "' from all " + props.Type + "s and will also delete all information assigned to these fields."}
@@ -532,9 +533,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             <ToolTip Zindex={9999} Show={hover == 'ExternalDB' && (newField.ExternalDB == null || newField.ExternalDB.length == 0)} Position={'bottom'} Theme={'dark'} Target={"ExternalDB"}>
                 <p> No External Database selected.</p>
             </ToolTip>
-        </div>
-
-    );
+    </>);
 }
 
 export default AdditionalFieldsWindow;

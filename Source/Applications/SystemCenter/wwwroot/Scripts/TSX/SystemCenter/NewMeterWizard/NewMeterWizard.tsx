@@ -23,7 +23,8 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { LoadingScreen, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CrossMark, Warning as WarningSymbol } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
@@ -33,8 +34,11 @@ import MeterInfoPage from './MeterInfoPage';
 import LocationPage from './LocationPage';
 import ChannelPage from './ChannelPage';
 import AssetPage from './AssetPage';
-import Page5 from './Page5';
-import { LoadingScreen, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import ConnectionPage from './ConnectionPage';
+import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
+import LineSegmentPage from './LineSegmentPage';
+import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
+import AdditionalFieldsPage from './AdditionalFieldsPage';
 
 export interface AssetLists {
     Breakers: Array<OpenXDA.Types.Breaker>,
@@ -51,6 +55,7 @@ export default function NewMeterWizard(props: {}) {
     const mStatus = useAppSelector(SelectMeterStatus);
     const lStatus = useAppSelector(LocationSlice.Status);
 
+    // Meter Info
     const [currentStep, setCurrentStep] = React.useState<number>(getCurrentStep());
     const [meterInfo, setMeterInfo] = React.useState<OpenXDA.Types.Meter>(getMeterInfo());
     const [locationInfo, setLocationInfo] = React.useState<OpenXDA.Types.Location>(getLocationInfo());
@@ -58,11 +63,34 @@ export default function NewMeterWizard(props: {}) {
     const [assets, setAssets] = React.useState<OpenXDA.Types.Asset[]>(getAssets());
     const [assetConnections, setAssetConnections] = React.useState<OpenXDA.Types.AssetConnection[]>(getAssetConnections());
 
+    // Wizard Page Control
     const [error, setError] = React.useState<string[]>([]);
     const [warning, setWarning] = React.useState<string[]>([]);
-    const [hover, setHover] = React.useState<boolean>(false);
+    const [hasNewAssets, setHasNewAssets] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev'>('None');
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
     const [loading, setLoading] = React.useState<boolean>(false);
+
+    const portalID: string = "NewMeterWizardPortalID";
+    const assetPageID: string = "NewMeterWizard.AssetPage";
+
+    // Define Step Numbers
+    const generalStep: number = 1;
+    const locationStep: number = generalStep + 1;
+    const eventChannelsStep: number = locationStep + 1;
+    const trendChannelsStep: number = eventChannelsStep + 1;
+    const assetStep: number = trendChannelsStep + 1;
+    const connectionStep: number = assetStep + 1;
+    const additionalFieldMeterStep: number = connectionStep + 1;
+    const externalFieldStep: number = additionalFieldMeterStep + 1;
+    const customerAssetGroupMeterStep: number = externalFieldStep + 1;
+    const lineSegmentStep: number = customerAssetGroupMeterStep + 1;
+    const additionalFieldAssetStep: number = lineSegmentStep + 1;
+
+    // Define Special Steps
+    const saveStep: number = connectionStep;
+    const finalStepMeter: number = customerAssetGroupMeterStep;
+    const finalStep: number = additionalFieldAssetStep;
 
     React.useEffect(() => {
         if (mStatus === 'unintiated' || mStatus === 'changed') {
@@ -103,6 +131,7 @@ export default function NewMeterWizard(props: {}) {
     }, [channels]);
     React.useEffect(() => {
         localStorage.setItem('NewMeterWizard.Assets', JSON.stringify(assets));
+        setHasNewAssets(assets.some((asset) => asset.ID < 1));
     }, [assets]);
     React.useEffect(() => {
         localStorage.setItem('NewMeterWizard.AssetConnections', JSON.stringify(assetConnections));
@@ -113,7 +142,6 @@ export default function NewMeterWizard(props: {}) {
             return JSON.parse(localStorage.getItem('NewMeterWizard.CurrentStep'))
         else
             return 1
-
     }
 
     function getMeterInfo(): OpenXDA.Types.Meter {
@@ -172,6 +200,10 @@ export default function NewMeterWizard(props: {}) {
             return [];
     }
 
+    function isFinalStep(): boolean {
+        return hasNewAssets ? (currentStep === finalStep) : (currentStep === finalStepMeter);
+    }
+
     function addNewMeter() {
         setLoading(true);
         let handle = $.ajax({
@@ -188,18 +220,14 @@ export default function NewMeterWizard(props: {}) {
             dataType: 'json',
             cache: true,
             async: true
-        }).done(() => {
-            clearData();
-            window.location.href = homePath + 'index.cshtml?name=Meters';
+        }).done((meterID) => {
+            next();
             setLoading(false);
+            setMeterInfo({ ...meterInfo, ID: meterID });
         }).fail(msg => {
             setLoading(false);
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
-            else {
-                clearData();
-                window.location.href = homePath + 'index.cshtml?name=Meters';
-            }
         });
 
         return () => {
@@ -210,20 +238,22 @@ export default function NewMeterWizard(props: {}) {
     function next() {
         if (disableNext())
             return;
-        setError([]);
-        setWarning([]);
+        setErrorWarning();
         // Make sure currentStep is set to something reasonable
-        if (currentStep >= 5) {
-           setCurrentStep(6);
+        if (currentStep >= finalStep) {
+           setCurrentStep(finalStep);
         } else {
             setCurrentStep(currentStep + 1);
         }
 
+        if (isFinalStep())
+            clearData();
+
     }
 
     function prev() {
-        setError([]);
-        setWarning([]);
+        setErrorWarning();
+        if (currentStep == saveStep + 1) return;
         if (currentStep <= 1) {
             setCurrentStep(1);
         } else {
@@ -233,6 +263,14 @@ export default function NewMeterWizard(props: {}) {
         localStorage.setItem('NewMeterWizard.CurrentStep', currentStep.toString())
     }
 
+    function setErrorWarning() {
+        setError([]);
+        // For Additional Fields Step
+        if (currentStep == saveStep)
+            setWarning(["Ensure that any changes made are saved using the save button."]);
+        else
+            setWarning([]);
+    }
 
     function clearData(): void {
         clearLocalStorage();
@@ -258,39 +296,76 @@ export default function NewMeterWizard(props: {}) {
             localStorage.removeItem('NewMeterWizard.AssetConnections')
         if (localStorage.hasOwnProperty('NewMeterWizard.CurrentStep'))
             localStorage.removeItem('NewMeterWizard.CurrentStep')
+        if (localStorage.hasOwnProperty(assetPageID))
+            localStorage.removeItem(assetPageID)
     }
 
     function getHeader(): string {
-        if(currentStep == 1)
-            return "Step 1: General information about the new meter"
-        else if (currentStep == 2)
-            return "Step 2: Substation information for the new meter"
-        else if (currentStep == 3)
-            return "Step 3: Populate event channels for the new meter"
-        else if (currentStep == 4)
-            return "Step 4: Populate trend channels for the new meter"
-        else if (currentStep == 5)
-            return "Step 5: Populate assets monitored by the new meter"
-        else if (currentStep == 6)
-            return "Step 6: Add connection between the assets that are monitored by the new meter"
-        else return ("Error, no page found for step #" + currentStep)
-
+        switch (currentStep) {
+            case generalStep:
+                return `Step ${generalStep}: General information about the new meter`;
+            case locationStep:
+                return `Step ${locationStep}: Substation information for the new meter`;
+            case eventChannelsStep:
+                return `Step ${eventChannelsStep}: Populate event channels for the new meter`;
+            case trendChannelsStep:
+                return `Step ${trendChannelsStep}: Populate trend channels for the new meter`;
+            case assetStep:
+                return `Step ${assetStep}: Populate assets monitored by the new meter`;
+            case connectionStep:
+                return `Step ${connectionStep}: Add connection between the assets that are monitored by the new meter`;
+            case additionalFieldMeterStep:
+                return `Step ${additionalFieldMeterStep}: Edit the new meter's additional fields that are not from external databases`;
+            case externalFieldStep:
+                return `Step ${externalFieldStep}: Import data from external DB's for the new meter's additional fields`;
+            case lineSegmentStep:
+                return `Step ${lineSegmentStep}: Add line segments for each new line asset`;
+            case additionalFieldAssetStep:
+                return `Step ${additionalFieldAssetStep}: Edit the additional fields for each asset monitored by the new meter`;
+            case customerAssetGroupMeterStep:
+                return `Step ${customerAssetGroupMeterStep}: Assign the new meter to asset groups and customers`;
+            default:
+                return `Error, no page found for step #${currentStep}`;
+        }
     }
 
     function getPage() {
-        if (currentStep == 1)
-            return <MeterInfoPage MeterInfo={meterInfo} UpdateMeterInfo={setMeterInfo} SetError={setError} />
-        else if (currentStep == 2)
-            return <LocationPage LocationInfo={locationInfo} UpdateLocationInfo={setLocationInfo} SetError={(e) => { setError(e) }}/>
-        else if (currentStep == 3 || currentStep == 4)
-            return <ChannelPage MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError} SetWarning={setWarning} TrendChannels={currentStep == 4} />
-        else if (currentStep == 5)
-            return <AssetPage AssetConnections={assetConnections} Location={locationInfo} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} SetError={setError}/>
-        else if (currentStep == 6)
-            return <Page5 Assets={assets} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />
-
+        switch (currentStep) {
+            case generalStep:
+                return <MeterInfoPage MeterInfo={meterInfo} UpdateMeterInfo={setMeterInfo} SetError={setError} />
+            case locationStep:
+                return <LocationPage LocationInfo={locationInfo} UpdateLocationInfo={setLocationInfo} SetError={(e) => { setError(e) }} />
+            case eventChannelsStep:
+                // The uses the same page as the next step for now
+            case trendChannelsStep:
+                return <ChannelPage MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError} SetWarning={setWarning} TrendChannels={currentStep == 4} />
+            case assetStep:
+                return <AssetPage AssetConnections={assetConnections} Location={locationInfo} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} SetError={setError} PageID={assetPageID} />
+            case connectionStep:
+                return <ConnectionPage Assets={assets} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />
+            case additionalFieldMeterStep:
+                return <AdditionalFieldsWindow ID={meterInfo.ID} Type='Meter' Tab={currentStep.toString()} DefaultEdit={true} HideExternal={true} HideAddAdditionalFieldButton={true} HideEditButton={true} HideResetButton={true} />
+            case externalFieldStep:
+                return <ExternalDBUpdate ID={meterInfo.ID} Type='Meter' Tab={currentStep.toString()} />
+            case lineSegmentStep:
+                return <LineSegmentPage Assets={assets} />
+            case additionalFieldAssetStep:
+                return <AdditionalFieldsPage Assets={assets} />
+            case customerAssetGroupMeterStep:
+                return null; //TODO: Write Page
+        }
     };
 
+    function getNextButton() {
+        if (currentStep === saveStep)
+            return (<button className="btn btn-success pull-right" onClick={() => setShowSubmit(true)}>Create Meter</button>);
+        else
+            return (
+                <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
+                    data-tooltip='Next' onMouseEnter={() => setHover('Next')} onMouseLeave={() => setHover('None')}
+                >{isFinalStep() ? 'Finish Editing' : 'Next'}</button>);
+    }
+    
     function disableNext() { return error.length > 0 };
 
     return (
@@ -307,25 +382,24 @@ export default function NewMeterWizard(props: {}) {
                     {getPage()}
                 </div>
                 <div className="card-footer">
-                    {currentStep > 1 ? <button className="btn btn-danger pull-left" onClick={prev} disabled={currentStep === 7}
-                        data-tooltip='Prev' onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
+                    {currentStep > 1 && currentStep !== saveStep + 1 ? <button className="btn btn-danger pull-left" onClick={prev}
+                        data-tooltip='Prev' onMouseEnter={() => setHover('Prev')} onMouseLeave={() => setHover('None')}
                     >Prev</button> : null}
-                    {currentStep < 6 ? <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
-                        data-tooltip='Next' onMouseEnter={() => setHover(true)} onMouseLeave={() => setHover(false)}
-                    >Next</button> : null}
-                    <button className="btn btn-success pull-right" onClick={() => setShowSubmit(true)} hidden={currentStep < 5}>Create Meter</button>
+                    {getNextButton()}
+                    <div className="col-1 pull-right" id={portalID} />
                 </div>
-                <ToolTip Show={hover && (warning.length > 0 || error.length > 0)} Position={'top'} Theme={'dark'} Target={"Next"}>
+                <ToolTip Show={hover == 'Next' && (warning.length > 0 || error.length > 0)} Position={'top'} Theme={'dark'} Target={"Next"}>
                     {error.map((item, index) => <p key={index}> {CrossMark} {item} </p>)}
                     {warning.map((item, index) => <p key={index + 'w'}> {WarningSymbol} {item} </p>)}
+                </ToolTip>
+                <ToolTip Show={hover == 'Prev' && currentStep === saveStep + 1} Position={'top'} Theme={'dark'} Target={"Prev"}>
+                    <p> {CrossMark} Cannot Return to Steps before Submission </p>
                 </ToolTip>
             </div>
             <Warning Title="Submit Meter" Message="Submit and Save Meter? Submission required to continue setup..." Show={showSubmit} CallBack={(confirmed) => {
                 setShowSubmit(false);
-                if (confirmed) {
+                if (confirmed)
                     addNewMeter();
-                    setCurrentStep(6);
-                }
             }} />
         </div>
     );

@@ -126,9 +126,9 @@ const MeterProperties = (props: IProps) => {
         else if (field == 'ShortName')
             return props.Meter.ShortName == null || props.Meter.ShortName.length <= 50;
         else if (field == 'Make')
-            return props.Meter.Make != null && props.Meter.Make.length > 0 && props.Meter.Make.length <= 200;
+            return props.Meter.Make != null;
         else if (field == 'Model')
-            return props.Meter.Model != null && props.Meter.Model.length > 0 && props.Meter.Model.length <= 200;
+            return props.Meter.Model != null;
         else if (field == 'Description')
             return true;
         return false;
@@ -147,8 +147,8 @@ const MeterProperties = (props: IProps) => {
                 <Input<OpenXDA.Types.Meter> Record={props.Meter} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
                 </div>
                 <div className="col">
-                <Select<OpenXDA.Types.Meter> Record={props.Meter} Field={'Make'} Options={makeList.map(item => { return { Value: item.Value, Label: item.AltValue } })} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
-                <Select<OpenXDA.Types.Meter> Record={props.Meter} Field={'Model'} Options={modelList.map(item => { return { Value: item.Value, Label: item.AltValue } })} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
+                <Select<OpenXDA.Types.Meter> Record={props.Meter} Field={'Make'} Options={makeList.map(item => { return { Value: item.Value, Label: item.AltValue } })} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} EmptyOption={true} EmptyLabel={'None Selected'} />
+                <Select<OpenXDA.Types.Meter> Record={props.Meter} Field={'Model'} Options={modelList.map(item => { return { Value: item.Value, Label: item.AltValue } })} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} EmptyOption={true} EmptyLabel={'None Selected'} />
                 <Select<OpenXDA.Types.Meter> Help={'The Timezone needs to match the Timezone the meter is configured in.'} Record={props.Meter} Field={'TimeZone'} Options={timeZones.map(item => { return { Value: item.Value, Label: item.AltValue } })}
                     Label={'Time Zone'} Setter={(meter) => props.StateSetter(meter)} EmptyOption={true} EmptyLabel={'None Selected'} />
                             
