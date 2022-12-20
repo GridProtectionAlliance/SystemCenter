@@ -205,6 +205,7 @@ export namespace AssetAttributes {
             record.X1 = null;
             record.ThermalRating = null;
             record.Length = null;
+            record.IsEnd = false;
             return record
         }
         else if (type == 'DER') {
