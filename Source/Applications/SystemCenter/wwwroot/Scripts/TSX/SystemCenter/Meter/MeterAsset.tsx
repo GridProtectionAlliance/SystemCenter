@@ -32,7 +32,7 @@ import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
-import { SearchedAssets, SearchStatus, DBSearchAsset, DBActionAsset, DBMeterAction } from '../Store/AssetSlice'
+import { SearchedAssets, SearchStatus, DBSearchAsset, DBActionAsset, DBMeterAction, SelectAssets, SelectAssetStatus, FetchAsset } from '../Store/AssetSlice'
 import Table from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Warning, Modal, LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
@@ -62,6 +62,8 @@ const MeterAssetWindow = (props: IProps) => {
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [filter, setFilter] = React.useState<Search.IFilter<OpenXDA.Types.Asset>[]>([]);
     const assetResults = useAppSelector(SearchedAssets) as OpenXDA.Types.Asset[];
+    const allAssets = useAppSelector(SelectAssets) as OpenXDA.Types.Asset[];
+    const selectStatus = useAppSelector(SelectAssetStatus) as Application.Types.Status;
 
     React.useEffect(() => {
         let h = getAssetTypes()
@@ -92,6 +94,13 @@ const MeterAssetWindow = (props: IProps) => {
     }, [assetStatus]);
 
     React.useEffect(() => {
+        if (selectStatus === 'unintiated' || selectStatus === 'changed') {
+            setShowLoading(true);
+            reloadSelect();
+        }
+    }, [SelectAssetStatus]);
+
+    React.useEffect(() => {
         setShowLoading(true);
         reloadSlice();
     }, [ascending, sortKey, filter]);
@@ -108,7 +117,12 @@ const MeterAssetWindow = (props: IProps) => {
     }
 
     function reloadSlice() {
-        dispatch(DBSearchAsset({ sortField: sortKey, ascending, filter: filter }))
+        dispatch(DBSearchAsset({ sortField: sortKey, ascending, filter: filter }));
+        setShowLoading(false);
+    }
+
+    function reloadSelect() {
+        dispatch(FetchAsset());
         setShowLoading(false);
     }
 
@@ -197,10 +211,10 @@ const MeterAssetWindow = (props: IProps) => {
                             >
                                 <div className="row">
                                     <div className="col">
-                                        <AssetAttributes.AssetAttributeFields Asset={activeAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assetResults}
+                                        <AssetAttributes.AssetAttributeFields Asset={activeAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets}
                                             UpdateState={changeActiveAsset}
                                             GetDifferentAsset={(assetID) => {
-                                                setActiveAsset(assetID, assetTypes.find(at => (assetResults as any).find(a => a.ID == assetID).AssetTypeID).Name);
+                                                setActiveAsset(assetID, assetTypes.find(at => (allAssets as any).find(a => a.ID == assetID).AssetTypeID).Name);
                                             }} HideSelectAsset={true} HideAssetType={false} />
                                     </div>
                                     <div className="col">
