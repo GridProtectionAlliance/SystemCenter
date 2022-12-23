@@ -86,8 +86,8 @@ export default function LocationPage(props: { LocationInfo: OpenXDA.Types.Locati
                         Name: '',
                         Alias: '',
                         ShortName: '',
-                        Latitude: 0,
-                        Longitude: 0,
+                        Latitude: null,
+                        Longitude: null,
                         Description: '',
                     });
             }}
