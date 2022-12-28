@@ -24,7 +24,6 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
 import { DefaultSearchField } from '../CommonComponents/SearchFields';
@@ -39,7 +38,6 @@ declare var homePath: string;
 
 const ByFile: Application.Types.iByComponent = (props) => {
     let dispatch = useAppDispatch();
-    let history = useHistory();
 
     const cState = useAppSelector(DataFileSlice.SearchStatus);
     const data = useAppSelector(DataFileSlice.SearchResults);
@@ -134,8 +132,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 <Table<OpenXDA.Types.DataFile>
                     cols={[
                         { key: 'Path', field: 'FilePath', label: 'Path', headerStyle: { width: '70%' }, rowStyle: { width: '70%' }, content: (f) => f.FilePath.length > 100 ? f.FilePath.substr(f.FilePath.length - 100, 100) : f.FilePath },
-                        { key: 'CreationTime', field: 'CreationTime', label: 'File Created', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: f => moment(f.CreationTime).format('MM/DD/YYYY hh:mm.ss.ssss') },
-                        { key: 'DataStartTime', field: 'DataStartTime', label: 'Data Start', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: f => moment(f.DataStartTime).format('MM/DD/YYYY hh:mm.ss.ssss') },
+                        { key: 'CreationTime', field: 'CreationTime', label: 'File Created', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: f => moment(f.CreationTime).format('MM/DD/YYYY HH:mm.ss.ssss') },
+                        { key: 'DataStartTime', field: 'DataStartTime', label: 'Data Start', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: f => moment(f.DataStartTime).format('MM/DD/YYYY HH:mm.ss.ssss') },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"
