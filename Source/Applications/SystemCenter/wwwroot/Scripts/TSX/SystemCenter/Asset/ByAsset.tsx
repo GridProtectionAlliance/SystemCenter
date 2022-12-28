@@ -53,11 +53,12 @@ const ByAsset: Application.Types.iByComponent = (props) => {
 
     let history = useHistory();
     const data = useAppSelector(ByAssetSlice.SearchResults);
-    const search = useAppSelector(ByAssetSlice.SearchFilters);
+    const byAssetStatus = useAppSelector(ByAssetSlice.SearchStatus);
     const sortKey = useAppSelector(ByAssetSlice.SortField);
     const ascending = useAppSelector(ByAssetSlice.Ascending);
 
     const [newAsset, setNewAsset] = React.useState<OpenXDA.Types.Asset>(AssetAttributes.getNewAsset('Line'));
+    const [loadAssetKey, setLoadAssetKey] = React.useState<string>(null);
 
     const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
     const [showNewModal, setShowNewModal] = React.useState<boolean>(false);
@@ -68,16 +69,20 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle')
 
     const assetType = useAppSelector(AssetTypeSlice.Data);
-    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
+    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);  
     const allAssets = useAppSelector(SelectAssets);
     const aStatus = useAppSelector(SelectAssetStatus);
     const dispatch = useAppDispatch();
 
     React.useEffect(() => {
-        let handle = null;
+        if (byAssetStatus == 'changed' || byAssetStatus == 'unintiated')
+            dispatch(ByAssetSlice.Fetch());
+    }, [byAssetStatus]);
+
+    React.useEffect(() => {
         if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
-            handle = dispatch(AssetTypeSlice.Fetch());
-    }, [assetTypeStatus])
+            dispatch(AssetTypeSlice.Fetch());
+    }, [assetTypeStatus]);
 
     React.useEffect(() => {
         if (assetType.length == 0)
@@ -88,12 +93,16 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     }, [assetType])
 
     React.useEffect(() => {
-        if (aStatus === 'unintiated' || aStatus === 'changed') {
+        if (aStatus === 'unintiated' || aStatus === 'changed')
             dispatch(FetchAsset());
-            return function () {
+        else if (loadAssetKey !== null && aStatus === 'idle') {
+            const asset = allAssets.find(asset => asset.AssetKey == loadAssetKey);
+            if (asset != null) {
+                handleSelect(asset.ID);
+                setLoadAssetKey(null);
             }
         }
-    }, [dispatch, aStatus]);
+    }, [dispatch, aStatus, loadAssetKey]);
 
     React.useEffect(() => {
         const errors = AssetAttributes.AssetError(newAsset, newAsset.AssetType);
@@ -101,7 +110,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             errors.push('AssetKey has to be unique.')
 
         setAssetErrors(errors);
-    }, [newAsset])
+    }, [newAsset]);
 
     function getAdditionalFields(setFields) {
         let handle = $.ajax({
@@ -141,7 +150,8 @@ const ByAsset: Application.Types.iByComponent = (props) => {
 
     function addNewAsset() {
         setPageState('loading');
-        
+        setLoadAssetKey(newAsset.AssetKey);
+
         $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/${newAsset.AssetType}/Add`,
@@ -152,7 +162,8 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             async: true
         }).done(() => {
             sessionStorage.clear();
-            setPageState('idle')
+            dispatch(FetchAsset());
+            setPageState('idle');
         }).fail(() => {
             setPageState('error')
         });
@@ -179,8 +190,8 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     }
 
 
-    function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.ID})
+    function handleSelect(ID: number) {
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + ID})
     }
 
     function getEnum(setOptions, field) {
@@ -269,7 +280,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                             dispatch(ByAssetSlice.Sort({ SortField: d.colField as keyof SystemCenter.Types.DetailedAsset, Ascending: true }));
                         }
                     }}
-                    onClick={handleSelect}
+                    onClick={item => handleSelect(item.row.ID)}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
