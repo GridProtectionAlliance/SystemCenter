@@ -69,7 +69,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle')
 
     const assetType = useAppSelector(AssetTypeSlice.Data);
-    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);  
+    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
     const allAssets = useAppSelector(SelectAssets);
     const aStatus = useAppSelector(SelectAssetStatus);
     const dispatch = useAppDispatch();
