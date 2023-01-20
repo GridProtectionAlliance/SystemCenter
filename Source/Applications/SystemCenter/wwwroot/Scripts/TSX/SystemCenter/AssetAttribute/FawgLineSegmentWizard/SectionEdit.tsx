@@ -25,178 +25,229 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Input } from '@gpa-gemstone/react-forms';
-import { FawgSection, FawgSegment } from './SectionSelect';
-
+import { ISection, ISegment, ITap } from './Types';
+import { ConfigurableTable } from '@gpa-gemstone/react-interactive';
+import { update } from 'lodash';
 
 declare var homePath: string;
 interface IProps {
-    Segments: FawgSegment[],
-    Section: FawgSection,
-    SetSection: (sec: FawgSection) => void
-    SetSegments: (sections: FawgSegment[]) => void
+    Section: ISection,
+    SetSection: (sec: ISection) => void,
+    LineKey: string,
+    LineName: string
 }
 
+interface IImpedances {
+    Z1: number,
+    Z0: number,
+    A0: number,
+    A1: number,
+    Xs: number,
+    Rs: number,
+    Zs: number,
+    As: number
+}
 
 function SectionEdit(props: IProps): JSX.Element {
-    const [data, setData] = React.useState<FawgSegment[]>([]);
 
-    React.useEffect(() => {
-        CreateTableData();
-    }, [props.Segments, props.Section]);
+  
+    function RemoveSegment(index: number): void {
+        let updated = _.cloneDeep(props.Section.Segments);
+        updated.splice(index, 1);
+        if (index == props.Section.Segments.length - 1)
+            updated[updated.length - 1].ToBus = props.Section.EndBus;
+        else
+            updated[index - 1].ToBus = updated[index].fromBus;
+        
+        props.SetSection({ ...props.Section, Segments: updated })
+    }
 
+    function updateSegment(segment: ISegment, index: number): void {
+        let updated = _.cloneDeep(props.Section.Segments);
+        updated.splice(index, 1, segment);
+        props.SetSection({ ...props.Section, Segments: updated })
+    }
 
-    function CreateTableData(): void {
-        if (props.Segments.length == 0)
-            return;
+    function addSegment() {
+        const newSegment: ISegment = {
+            ID: 0,
+            VoltageKV: 0,
+            AssetKey: props.LineKey + '-S1',
+            Description: '',
+            AssetName: 'Segment 1',
+            AssetType: 'LineSegment',
+            Spare: false,
+            Channels: [],
+            R0: 0,
+            X0: 0,
+            R1: 0,
+            X1: 0,
+            ThermalRating: 0,
+            Length: 0,
+            IsEnd: false,
+            fromBus: props.Section.StartBus,
+            ToBus: props.Section.EndBus,
+            Changed: false
+        };
 
-        let data: FawgSegment[] = [];
+        newSegment.ToBus = props.Section.EndBus;
+        let updated = [...props.Section.Segments];
 
-        props.Section.Segments.forEach((item) => {
-            let updated = _.cloneDeep(props.Segments.find(seg => seg.AssetKey == item));
-            let lastBus = props.Section.startBus;
-            let lastBusName = props.Section.startBusName;
-            if (data.length > 0) {
-                lastBus = data[data.length - 1].ToBusNumber;
-                lastBusName = data[data.length - 1].ToBus;
+        if (props.Section.Segments.length == 0)
+            newSegment.fromBus = props.Section.StartBus;
+        else {
+            let bus = 'Bus 1';
+            let i = 2;
+            while (props.Section.Segments.find(s => s.fromBus == bus) != null) {
+                bus = 'Bus ' + i.toFixed(0);
+                i = i + 1;
             }
+            newSegment.fromBus = bus;
+            updated[updated.length - 1].ToBus = bus;
+        }
 
-            if (lastBus != updated.FromBusNumber) {
-                updated.ToBusNumber = updated.FromBusNumber;
-                updated.ToBus = updated.fromBus;
-            }
-            updated.FromBusNumber = lastBus;
-            updated.fromBus = lastBusName;
-            
-            data.push(updated);
-        });
-
-        setData(data)
+        updated.push(newSegment)
+       
+        props.SetSection({
+             ...props.Section, Segments: updated
+        })
     }
 
-    function RemoveSegment(assetKey: string): void {
-        let updated = _.cloneDeep(props.Section);
-        let index = updated.Segments.findIndex(a => a == assetKey);
-        if (index == -1)
-            return;
-        updated.Segments.splice(index, 1);
-        props.SetSection(updated);
+    function computeImpedances(record: ISegment): IImpedances {
+        const result: IImpedances = {
+            Z0: 0,
+            Z1: 0,
+            Zs: 0,
+            Rs: 0,
+            Xs: 0,
+            A0: 0,
+            A1: 0,
+            As: 0
+        }
+        result.Z1 = Math.sqrt(record.R1 * record.R1 + record.X1 * record.X1);
+        result.Z0 = Math.sqrt(record.R0 * record.R0 + record.X0 * record.X0);
+        result.A0 = Math.acos(record.R0 / result.Z0) * 180.0 / Math.PI;
+        result.A1 = Math.acos(record.R1 / result.Z1) * 180.0 / Math.PI;
+        result.Xs = (2 * record.X1 + record.X0) / 3.0;
+        result.Rs = (2 * record.R1 + record.R0) / 3.0;
+        result.Zs = Math.sqrt(result.Rs * result.Rs + result.Xs * result.Xs);
+        result.As = Math.acos(result.Rs / result.Zs) * 180.0 / Math.PI;
+
+        return result;
     }
 
-    function updateSegment(segment: FawgSegment): void {
-        let index = props.Segments.findIndex(seg => seg.AssetKey == segment.AssetKey);
-        if (index == -1)
-            return;
-        let updated = _.cloneDeep(props.Segments);
-        updated[index].R0 = segment.R0;
-        updated[index].R1 = segment.R1;
-
-        updated[index].X0 = segment.X0;
-        updated[index].X1 = segment.X1;
-
-        updated[index].Length = segment.Length;
-        updated[index].ThermalRating = segment.ThermalRating;
-
-        props.SetSegments(updated);
+    function valid(record: ISegment, field: keyof ISegment) {
+        return true;
     }
+
     return (
         <>
             <div className="row">
                 <div className="col">
                     <div className="alert alert-primary" role="alert">
-                        <h4 className="alert-heading">Line Section {props.Section.startTap ? 'Tap' : props.Section.NameFrom} (Bus {props.Section.startBusName == '' ? "Unknown Bus" : props.Section.startBusName}) to {props.Section.endTap ? 'Tap' : props.Section.NameTo} (Bus {props.Section.endBusName == '' ? "Unknown Bus" : props.Section.endBusName})</h4>
+                        <h4 className="alert-heading">Line Section {props.Section.StartBus} to {props.Section.EndBus}</h4>
                     </div>
                 </div>
             </div>
             <div className="row">
                 <div className="col">
                     <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                        <table className='table'>
-                            <thead>
-                                <tr>
-                                    <th style={{ width: 'auto' }}>Segment</th>
-                                    <th style={{ width: 'auto' }}>Length</th>
-                                    <th colSpan={2} style={{ width: 'auto' }}>FAWG Bus</th>
-
-                                    <th colSpan={4} style={{ width: 'auto' }}>Zero Seq (Ohm/deg)</th>
-                                    <th colSpan={4} style={{ width: 'auto' }}>Positive Seq (Ohm/deg)</th>
-                                    <th colSpan={4} style={{ width: 'auto' }}>Loop (LG) (Ohm/deg)</th>
-                                    <th style={{ width: 'auto' }}>Thermal Rating</th>
-                                    <th style={{ width: 40 }}></th>
-                                </tr>
-                                <tr>
-                                    <th style={{ width: 'auto' }}></th>
-                                    <th style={{ width: 'auto' }}></th>
-
-                                    <th style={{ width: 'auto' }}>From</th>
-                                    <th style={{ width: 'auto' }}>To</th>
-
-                                    <th style={{ width: 'auto' }}>Z0</th>
-                                    <th style={{ width: 'auto' }}>&lt;</th>
-                                    <th style={{ width: 'auto' }}>R0</th>
-                                    <th style={{ width: 'auto' }}>X0</th>
-
-                                    <th style={{ width: 'auto' }}>Z1</th>
-                                    <th style={{ width: 'auto' }}>&lt;</th>
-                                    <th style={{ width: 'auto' }}>R1</th>
-                                    <th style={{ width: 'auto' }}>X1</th>
-
-                                    <th style={{ width: 'auto' }}>Zs</th>
-                                    <th style={{ width: 'auto' }}>&lt;</th>
-                                    <th style={{ width: 'auto' }}>Rs</th>
-                                    <th style={{ width: 'auto' }}>Xs</th>
-
-                                    <th style={{ width: 'auto' }}></th>
-                                    <th style={{ width: 40 }}></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {data.map((a, i) => <TableRowInput key={i} Segment={a} remove={RemoveSegment} index={i} edit={updateSegment} />)}
-                            </tbody>
-                        </table>
+                        <ConfigurableTable<ISegment>
+                            cols={[{
+                                field: "AssetName", key: "AssetName", label: "Segment",
+                                content: (item, key, fld, style, index) => <Input<ISegment> Record={item} Field={'AssetName'} Label={''} Feedback={'Name must be less than 200 characters and is required.'} Valid={(fld) => valid(item,fld)} Setter={(r) => updateSegment(r, index)} />
+                                },
+                                {
+                                    field: "fromBus", key: "fromBus", label: "From Bus",
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'fromBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={index == 0} />
+                                },
+                                {
+                                    field: "ToBus", key: "ToBus", label: "To Bus", content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'ToBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={true} />
+                                },
+                                {
+                                    field: "Length", key: "Length", label: "Length (mi)",
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'Length'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
+                                },
+                                {
+                                    field: "ID", key: "Z0", label: "Z0 (Ohm)",
+                                    content: (item) => computeImpedances(item).Z0.toFixed(2)
+                                },
+                                {
+                                    field: "ID", key: "A0", label: "<Z0 (deg)",
+                                    content: (item) => computeImpedances(item).A0.toFixed(2)
+                                },
+                                {
+                                    field: "ID", key: "R0", label: "R0 (Ohm)",
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'R0'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
+                                },
+                                {
+                                    field: "ID", key: "X0", label: "X0 (Ohm)",
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'X0'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
+                                },
+                                {
+                                    field: "ID", key: "Z1", label: "Z1 (Ohm)",
+                                    content: (item) => (item) => computeImpedances(item).Z1.toFixed(2)
+                                },
+                                {
+                                    field: "ID", key: "A1", label: "<Z1 (deg)",
+                                    content: (item) => (item) => computeImpedances(item).A1.toFixed(2)
+                                },
+                                {
+                                    field: "ID", key: "R1", label: "R1 (Ohm)",
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'R1'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
+                                },
+                                {
+                                    field: "ID", key: "X1", label: "X1 (Ohm)",
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'X1'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
+                                },
+                                {
+                                    field: "ID", key: "Zs", label: "Zs (Ohm)",
+                                    content: (item) => computeImpedances(item).Zs.toFixed(2)
+                                },
+                                {
+                                    field: "ID", key: "As",
+                                    label: "<Zs (deg)", content: (item) => computeImpedances(item).As.toFixed(2)
+                                },
+                                {
+                                    field: "ID", key: "Rs", label: "Rs (Ohm)",
+                                    content: (item) => computeImpedances(item).Rs.toFixed(2)
+                                },
+                                {
+                                    field: "ID", key: "Xs", label: "Xs (Ohm)",
+                                    content: (item) => computeImpedances(item).Xs.toFixed(2)
+                                },
+                                {
+                                    field: "ThermalRating", key: "ThermalRating", label: "Thermal Rating",
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'ThermalRating'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={() => true} />
+                                },
+                                {
+                                    field: "ID", key: "btns", label: "",
+                                    content: (item, key, fld, style, index) => <button className="btn btn-sm" onClick={(e) => RemoveSegment(index)}><span>{TrashCan}</span></button>
+                                },
+                            ]}
+                            tableClass="table table-hover"
+                            data={props.Section.Segments}
+                            sortKey={''}
+                            ascending={false}
+                            onSort={(d) => {}}
+                            onClick={(item) => { } }
+                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll' }}
+                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
+                            selected={(item) => false}
+                            requiredColumns={["AssetKey"]}
+                            defaultColumns={["R0","X0","R1","X1","Length"]}
+                        />
                     </div>
                 </div>
             </div>
             <div className="row">
                 <div className="col">
-                    {/* Add new Segment Button to be added in Future */}
+                    <button className="btn btn-primary" onClick={() => addSegment()}>Add Segment</button>
                 </div>
             </div>
         </>
     );
 }
 
-function TableRowInput(props: { Segment: FawgSegment, remove: (assetKey: string) => void, edit: (asset: FawgSegment) => void, index: number }) {
-    let Z1 = Math.sqrt(props.Segment.R1 * props.Segment.R1 + props.Segment.X1 * props.Segment.X1);
-    let Z0 = Math.sqrt(props.Segment.R0 * props.Segment.R0 + props.Segment.X0 * props.Segment.X0);
-    let a0 = Math.acos(props.Segment.R0 / Z0) * 180.0 / Math.PI;
-    let a1 = Math.acos(props.Segment.R1 / Z1) * 180.0 / Math.PI;
-    let Xs = (2 * props.Segment.X1 + props.Segment.X0) / 3.0;
-    let Rs = (2 * props.Segment.R1 + props.Segment.R0) / 3.0;
-    let Zs = Math.sqrt(Rs * Rs + Xs * Xs);
-    let as = Math.acos(Rs / Zs) * 180.0 / Math.PI;
-
-    return (
-        <tr>
-            <td style={{verticalAlign: 'middle'}}>Segment {props.index+1}</td>
-            <td><Input<FawgSegment> Label={'Length (miles)'} Record={props.Segment} Field={'Length'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
-            <td style={{ verticalAlign: 'middle' }}>{(props.Segment.fromBus == '' ? "Unknown Bus" : props.Segment.fromBus) + " (ID: " + props.Segment.FromBusNumber + ")"}</td>
-            <td style={{ verticalAlign: 'middle' }}>{(props.Segment.ToBus == '' ? "Unknown Bus" : props.Segment.ToBus) + " (ID: " + props.Segment.ToBusNumber + ")"}</td>
-
-            <td style={{ verticalAlign: 'middle' }}>{Z0.toFixed(2)}</td>
-            <td style={{ verticalAlign: 'middle' }}>{a0.toFixed(2)}</td>
-            <td><Input<FawgSegment> Label={'R0 (Ohm)'} Record={props.Segment} Field={'R0'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
-            <td><Input<FawgSegment> Label={'X0 (Ohm)'} Record={props.Segment} Field={'X0'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
-            <td style={{ verticalAlign: 'middle' }}>{Z1.toFixed(2)}</td>
-            <td style={{ verticalAlign: 'middle' }}>{a1.toFixed(2)}</td>
-            <td><Input<FawgSegment> Label={'R1 (Ohm)'} Record={props.Segment} Field={'R1'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
-            <td><Input<FawgSegment> Label={'X1 (Ohm)'} Record={props.Segment} Field={'X1'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
-            <td style={{ verticalAlign: 'middle' }}>{Zs.toFixed(2)}</td>
-            <td style={{ verticalAlign: 'middle' }}>{as.toFixed(2)}</td>
-            <td style={{ verticalAlign: 'middle' }}>{Rs.toFixed(2)}</td>
-            <td style={{ verticalAlign: 'middle' }}>{Xs.toFixed(2)}</td>
-            <td><Input<FawgSegment> Label={'Thermal Rating'} Record={props.Segment} Field={'ThermalRating'} Type={'number'} Setter={props.edit} Valid={() => true} /></td>
-            <td style={{ width: 40 }}><button className="btn btn-sm" onClick={(e) => props.remove(props.Segment.AssetKey)}><span>{TrashCan}</span></button></td>
-        </tr>
-    );
-}
 export default SectionEdit;

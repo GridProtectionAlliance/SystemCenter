@@ -23,49 +23,81 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import {SystemCenter, OpenXDA } from '../../global';
-
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { LoadingScreen, Modal, Warning } from '@gpa-gemstone/react-interactive';
-import SectionSelect, { FawgConnection, FawgSection, FawgSegment } from './SectionSelect';
-import { error } from 'jquery';
+import SectionSelect from './SectionSelect';
 import SectionEdit from './SectionEdit';
+import { ISection, ISegment, ITap } from './Types';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import TapSelect from './TapSelect';
+import { promises } from 'stream';
 
 declare var homePath: string;
 interface IProps {
     LineID: number,
+    LineKey: string,
+    LineName: string,
     closeWizard: () => void,
 }
 
-type WizardStep = 'SelectSection' | 'EditSection';
+type WizardStep = 'SetupTap' | 'SelectSection' | 'EditSection';
 
 
 
 function LineSegmentWizard(props: IProps): JSX.Element {
-    const [segments, setSegments] = React.useState<FawgSegment[]>([]);
-    const [segmentConnections, setConnections] = React.useState<Array<FawgConnection>>([]);
-    const [sections, SetSections] = React.useState<FawgSection[]>([]);
+    const [sections, setSections] = React.useState<ISection[]>([]);
+    const [taps, setTaps] = React.useState<ITap[]>([]);
+    const [step, setStep] = React.useState<WizardStep>('SetupTap');
 
-    const [step, setStep] = React.useState<WizardStep>('SelectSection');
     const [currentSegment, setCurrentSegment] = React.useState<number>(0);
+
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showConfirm, setShowConfirm] = React.useState<boolean>(false);
     const [showLoading, setShowLoading] = React.useState<boolean>(false);
+
     const [errors, setError] = React.useState<string[]>([]);
     const [showError, setShowError] = React.useState<boolean>(false);
+
+    const [locations, setLocations] = React.useState<OpenXDA.Types.Location[]>([]);
+
     React.useEffect(() => {
         getData();
-        
-    }, []);
+    }, [props.LineID]);
 
     React.useEffect(() => {
         let e = [];
-        if (sections.length == 0)
-            e.push('At least one Section of the Line needs to be pulled from FAWG.')
+        if (step == 'SetupTap' && taps.length < 2)
+            e.push('At least 2 Taps or Endpoints have to be defined.')
+        if (step == 'SetupTap' && _.uniqBy(taps, (t) => t.Bus).length != taps.length)
+            e.push('All Taps have to have unique Bus names.')
+        if (step == 'SelectSection' && sections.length == 0)
+            e.push('At least 1 Section of the Line needs to be defined.')
+        if (step == 'EditSection' && sections[currentSegment].Segments.length == 0)
+            e.push('At least 1 Segment needs to be defined.')
         setError(e);
-    }, [sections]);
+    }, [step, sections, taps,]);
+
 
     function getData(): void {
-        $.ajax({
+        setShowLoading(true);
+        setShowError(false);
+        const promiseLocation: JQuery.jqXHR<OpenXDA.Types.Location> =  $.ajax({
+                type: "GET",
+                url: `${homePath}api/OpenXDA/Asset/${props.LineID}/Locations`,
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                cache: true,
+                async: true
+        }).done(data => setLocations(data));
+
+        Promise.all([promiseLocation]).then(() => {
+            setShowLoading(false);
+        }, () => {
+            setShowError(true);
+        });
+    
+        // ToDo implement logic that loads segments from xda and fawg as appropriate
+        /*$.ajax({
             type: "GET",
             url: `${homePath}api/ExternalDB/FAWG/LineSegment/UpdateSegments/${props.LineID}`,
             contentType: "application/json; charset=utf-8",
@@ -79,9 +111,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             setShowError(true)
             if (msg.status == 500)
                 console.log(msg.responseJSON.ExceptionMessage)
-        });
-
-        
+        });*/       
 
     }
 
@@ -90,7 +120,9 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             setCurrentSegment(0)
             setStep('EditSection');
         }
-
+        if (step == 'SetupTap') 
+            setStep('SelectSection');
+        
         if (step == 'EditSection' && (currentSegment < (sections.length - 1)))
             setCurrentSegment((x) => x + 1);
         if (step == 'EditSection' && (currentSegment == (sections.length - 1)))
@@ -102,12 +134,66 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             setStep('SelectSection');
         if (step == 'EditSection' && currentSegment > 0)
             setCurrentSegment((x) => x - 1);
-        
-        
+        if (step == 'SelectSection')
+            setStep('SetupTap')
+    }
+
+    function removeTap(index: number) {
+
+        const bus = taps[index].Bus;
+
+        setTaps((d) => {
+            const u = [...d];
+            u.splice(index, 1);
+            return u;
+        });
+
+        setSections((d) => d.filter(s => s.EndBus != bus && s.StartBus != bus));
+    }
+
+    function editTap(tap: ITap, index: number) {
+        const bus_old = taps[index].Bus;
+        const bus_new = tap.Bus;
+        const station_new = tap.StationID;
+
+        setTaps((d) => {
+            const u = [...d];
+            u.splice(index, 1, tap);
+            return u;
+        });
+
+        setSections((d) => {
+            let u = [...d]
+            u.forEach(s => {
+                if (s.EndBus == bus_old) {
+                    s.EndBus = bus_new;
+                    s.EndStationID = station_new;
+                }
+                if (s.StartBus == bus_old) {
+                    s.StartBus = bus_new;
+                    s.StartStationID = station_new;
+                }
+            });
+            return u;
+        })
+    }
+
+    function editSection(section: ISection, index: number) {
+        setSections((d) => {
+            const u = [...d];
+            const sec = _.cloneDeep(section);
+            sec.StartStationID = taps.find(t => t.Bus == section.StartBus)?.StationID;
+            sec.EndStationID = taps.find(t => t.Bus == section.EndBus)?.StationID;
+            u.splice(index, 1, sec);
+            return u;
+        })
     }
 
     function submitUpdate(): void {
         setShowLoading(true);
+
+        // Todo add Logic that takes care of saving updates to the database
+        /*
         let finishedSegments = [];
         let finishedConnections = [];
 
@@ -179,16 +265,17 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             setShowError(true)
             if (msg.status == 500)
                 console.log(msg.responseJSON.ExceptionMessage)
-        });
+        });*/
         
     }
 
     return (
         <>
 
-            <Modal Title={'FAWG Line Segment Update'} ShowX={true} Show={true} Size={'xlg'}
-                CancelText={'Back'} DisableCancel={step == 'SelectSection'}
-                ConfirmBtnClass={'btn-success'} ConfirmText={step == 'EditSection' && currentSegment == (segments.length-1) ? 'Confirm' : 'Next'}
+            <Modal Title={'Line Segment Wizard'} ShowX={true} Show={true} Size={'xlg'}
+                CancelText={'Back'} DisableCancel={step == 'SetupTap'}
+                ConfirmBtnClass={'btn-success'}
+                ConfirmText={step == 'EditSection' && currentSegment == (sections.length - 1) ? 'Confirm' : 'Next'}
                 CallBack={(conf, btn) => {
                     if (!btn)
                         setShowWarning(true);
@@ -199,16 +286,38 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                 }}
                 DisableConfirm={errors.length > 0}
                 ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((t, i) => <p key={i}><i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> {t} </p>) }
+                ConfirmToolTipContent={errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)}
             >
-                <LoadingScreen Show={showLoading} />
-                {step == 'SelectSection' ? <SectionSelect Segments={segments}
-                    Connections={segmentConnections} Sections={sections} SetSections={SetSections} AddSection={() => { }}
-                    LineID={props.LineID} /> : null}
-                {step == 'EditSection' ? <SectionEdit Segments={segments}
-                    Section={sections[currentSegment]} SetSection={(s) => SetSections((old) => { let updated = _.cloneDeep(old); updated[currentSegment] = s; return updated; })} SetSegments={setSegments}
+                {step == 'SetupTap' ? <TapSelect
+                    Taps={taps} AddTap={(t) => { setTaps((d) => [...d, t]) }}
+                    SaveTap={editTap}
+                    RemoveTap={removeTap}
+                    Locations={locations}
+                External={false} /> : null}
+                {step == 'SelectSection' ? <SectionSelect Taps={taps}
+                    Sections={sections} SaveSection={editSection}
+                    AddSection={() => {
+                        setSections((d) => [...d, {
+                            EndBus: taps[1].Bus,
+                            Segments: [],
+                            StartBus: taps[0].Bus,
+                            StartStationID: taps[0].StationID,
+                            EndStationID: taps[1].StationID
+                        }])
+                    }}
+                    RemoveSections={(i) => (i) =>
+                        setSections((d) => {
+                            const u = [...d];
+                            u.splice(i, 1);
+                            return u;
+                        })}
+                    Locations={locations}
+                    External={false} /> : null}
+                {step == 'EditSection' ? <SectionEdit
+                    Section={sections[currentSegment]} SetSection={(s) => { }} LineKey={props.LineKey} LineName={props.LineName}
                     /> : null}
             </Modal>
+            <LoadingScreen Show={showLoading} />
             <Warning Title={'Cancel FAWG update'} Message={'This will cancel the update and keep the Segments currently in the openXDA'}
                 Show={showWarning} CallBack={(conf) => { setShowWarning(false); if (conf) props.closeWizard(); }} />
             <Warning Title={'Confirm FAWG update'} Message={'This will override any current LineSegments and save the Configuration to openXDA.'}
