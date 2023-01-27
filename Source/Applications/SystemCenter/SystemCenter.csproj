@@ -445,7 +445,8 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingWrapper.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\LineSegmentPage.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\AdditionalFieldsPage.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\MultipleAssetsPage.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\CustomerAssetGroupPage.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteAssetForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteMeterTab.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteAssetTab.tsx" />

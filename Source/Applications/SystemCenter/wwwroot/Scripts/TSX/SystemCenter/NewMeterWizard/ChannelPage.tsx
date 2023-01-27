@@ -57,6 +57,8 @@ export default function ChannelPage(props: IProps) {
     const [selectedTrendFile, setSelectedTrendFile] = React.useState('');
     const [currentChannels, setCurrentChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
 
+    const baseWarnings: string[] = ["Ensure all scaling values are correct.", "Ensure all virtual channels are setup."];
+
     React.useEffect(() => {
         $(fileInput.current).on("change", (evt: any) => {
             let fileName = (evt as React.ChangeEvent<HTMLInputElement>).target.value.split("\\").pop();
@@ -74,7 +76,7 @@ export default function ChannelPage(props: IProps) {
             readSingleFile((evt as React.ChangeEvent<HTMLInputElement>), true);
         });
 
-        props.SetWarning(["Ensure all scaling values are correct.", "Ensure all virtual channels are setup."])
+        props.SetWarning(baseWarnings)
 
 
         return () => {
@@ -87,10 +89,10 @@ export default function ChannelPage(props: IProps) {
     }, [props.Channels, props.TrendChannels]);
 
     React.useEffect(() => {
-        let e = [];
+        let e = baseWarnings;
         if (currentChannels.length == 0 && !props.TrendChannels)
-            e.push('At least 1 event channel has to be set up.');
-        props.SetError(e);
+            e.push('No event channels are set up.');
+        props.SetWarning(e);
     }, [currentChannels]);
 
     function getCurrentChannels(trendChannels: boolean): OpenXDA.Types.Channel[] {

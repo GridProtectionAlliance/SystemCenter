@@ -205,6 +205,41 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
+        [HttpPost, Route("PostCustomerList")]
+        public IHttpActionResult PostList([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        TableOperations<CustomerMeter> connectionTable = new TableOperations<CustomerMeter>(connection);
+                        int[] customerIDs = record["CustomerIDs"].ToObject<int[]>();
+                        int meterID = record["ID"].ToObject<int>();
+                        int result = connectionTable.DeleteRecordWhere("MeterID = {0}", meterID);
+                        CustomerMeter newRecord = new CustomerMeter();
+                        newRecord.MeterID = meterID;
+                        foreach (int customerID in customerIDs)
+                        {
+                            newRecord.CustomerID = customerID;
+                            result += connectionTable.AddNewRecord(newRecord);
+                        }
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 
     [RoutePrefix("api/SystemCenter/CustomerAsset")]
@@ -252,6 +287,121 @@ namespace SystemCenter.Controllers
                         int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete CustomerAsset, 'ID = {id}'");
                         return Ok(result);
 
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        [HttpPost, Route("PostCustomerList")]
+        public IHttpActionResult PostList([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        TableOperations<openXDA.Model.CustomerAsset> connectionTable = new TableOperations<openXDA.Model.CustomerAsset>(connection);
+                        int[] customerIDs = record["CustomerIDs"].ToObject<int[]>();
+                        int assetID = record["ID"].ToObject<int>();
+                        int result = connectionTable.DeleteRecordWhere("AssetID = {0}", assetID);
+                        openXDA.Model.CustomerAsset newRecord = new openXDA.Model.CustomerAsset();
+                        newRecord.AssetID = assetID;
+                        foreach (int customerID in customerIDs)
+                        {
+                            newRecord.CustomerID = customerID;
+                            result += connectionTable.AddNewRecord(newRecord);
+                        }
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
+    [RoutePrefix("api/SystemCenter/AssetGroupMeter")]
+    public class AssetGroupMeterController : ModelController<openXDA.Model.MeterAssetGroupView>
+    {
+        [HttpPost, Route("PostGroupList")]
+        public IHttpActionResult PostList([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        TableOperations<openXDA.Model.MeterAssetGroup> connectionTable = new TableOperations<openXDA.Model.MeterAssetGroup>(connection);
+                        int[] groupIDs = record["GroupIDs"].ToObject<int[]>();
+                        int meterID = record["ID"].ToObject<int>();
+                        int result = connectionTable.DeleteRecordWhere("MeterID = {0}", meterID);
+                        openXDA.Model.MeterAssetGroup newRecord = new openXDA.Model.MeterAssetGroup();
+                        newRecord.MeterID = meterID;
+                        foreach (int groupID in groupIDs)
+                        {
+                            newRecord.AssetGroupID = groupID;
+                            result += connectionTable.AddNewRecord(newRecord);
+                        }
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
+    [RoutePrefix("api/SystemCenter/AssetGroupAsset")]
+    public class AssetGroupAssetController : ModelController<openXDA.Model.AssetAssetGroupView>
+    {
+        [HttpPost, Route("PostGroupList")]
+        public IHttpActionResult PostList([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        TableOperations<openXDA.Model.AssetAssetGroup> connectionTable = new TableOperations<openXDA.Model.AssetAssetGroup>(connection);
+                        int[] groupIDs = record["GroupIDs"].ToObject<int[]>();
+                        int assetID = record["ID"].ToObject<int>();
+                        int result = connectionTable.DeleteRecordWhere("AssetID = {0}", assetID);
+                        openXDA.Model.AssetAssetGroup newRecord = new openXDA.Model.AssetAssetGroup();
+                        newRecord.AssetID = assetID;
+                        foreach (int groupID in groupIDs)
+                        {
+                            newRecord.AssetGroupID = groupID;
+                            result += connectionTable.AddNewRecord(newRecord);
+                        }
+
+                        return Ok(result);
                     }
                 }
                 else

@@ -47,7 +47,7 @@ interface IProps {
     UpdateChannels: (record: OpenXDA.Types.Channel[]) => void,
     UpdateAssets: (record: OpenXDA.Types.Asset[]) => void,
     UpdateAssetConnections: (record: OpenXDA.Types.AssetConnection[]) => void,
-    SetError: (e: string[]) => void,
+    SetWarning: (e: string[]) => void,
     Location: OpenXDA.Types.Location,
     PageID?: string
 }
@@ -111,8 +111,8 @@ export default function AssetPage(props: IProps) {
     React.useEffect(() => {
         let e = [];
         if (props.Assets.length == 0)
-            e.push('At least 1 Assets needs to be set up.');
-        props.SetError(e)
+            e.push('No assets are set up.');
+        props.SetWarning(e)
 
         let assetList: SystemCenter.Types.DetailedAsset[] = [];
         props.Assets.forEach((asset) => {
