@@ -27,7 +27,6 @@ import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Input } from '@gpa-gemstone/react-forms';
 import { ISection, ISegment, ITap } from './Types';
 import { ConfigurableTable } from '@gpa-gemstone/react-interactive';
-import { update } from 'lodash';
 
 declare var homePath: string;
 interface IProps {
@@ -57,7 +56,7 @@ function SectionEdit(props: IProps): JSX.Element {
         if (index == props.Section.Segments.length - 1)
             updated[updated.length - 1].ToBus = props.Section.EndBus;
         else
-            updated[index - 1].ToBus = updated[index].fromBus;
+            updated[index - 1].ToBus = updated[index].FromBus;
         
         props.SetSection({ ...props.Section, Segments: updated })
     }
@@ -85,7 +84,7 @@ function SectionEdit(props: IProps): JSX.Element {
             ThermalRating: 0,
             Length: 0,
             IsEnd: false,
-            fromBus: props.Section.StartBus,
+            FromBus: props.Section.StartBus,
             ToBus: props.Section.EndBus,
             Changed: false
         };
@@ -94,15 +93,15 @@ function SectionEdit(props: IProps): JSX.Element {
         let updated = [...props.Section.Segments];
 
         if (props.Section.Segments.length == 0)
-            newSegment.fromBus = props.Section.StartBus;
+            newSegment.FromBus = props.Section.StartBus;
         else {
             let bus = 'Bus 1';
             let i = 2;
-            while (props.Section.Segments.find(s => s.fromBus == bus) != null) {
+            while (props.Section.Segments.find(s => s.FromBus == bus) != null) {
                 bus = 'Bus ' + i.toFixed(0);
                 i = i + 1;
             }
-            newSegment.fromBus = bus;
+            newSegment.FromBus = bus;
             updated[updated.length - 1].ToBus = bus;
         }
 
@@ -158,8 +157,8 @@ function SectionEdit(props: IProps): JSX.Element {
                                 content: (item, key, fld, style, index) => <Input<ISegment> Record={item} Field={'AssetName'} Label={''} Feedback={'Name must be less than 200 characters and is required.'} Valid={(fld) => valid(item,fld)} Setter={(r) => updateSegment(r, index)} />
                                 },
                                 {
-                                    field: "fromBus", key: "fromBus", label: "From Bus",
-                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'fromBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={index == 0} />
+                                    field: "FromBus", key: "FromBus", label: "From Bus",
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'FromBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={index == 0} />
                                 },
                                 {
                                     field: "ToBus", key: "ToBus", label: "To Bus", content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'ToBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={true} />

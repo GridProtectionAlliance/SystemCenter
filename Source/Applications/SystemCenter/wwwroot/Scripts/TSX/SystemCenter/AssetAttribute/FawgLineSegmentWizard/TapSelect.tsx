@@ -81,8 +81,8 @@ function TapSelect(props: IProps): JSX.Element {
                                     label: '',
                                     headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
                                     rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    content: (item, key, fld, style, i) => <> 
-                                        <button className="btn btn-sm" onClick={(e) => props.RemoveTap(i)}><span>{TrashCan}</span></button>
+                                    content: (item, key, fld, style, i) => <>
+                                        <button className="btn btn-sm" disabled={props.Taps.length < 2} onClick={(e) => props.RemoveTap(i)}><span>{TrashCan}</span></button>
                                     </>
                                 }                                
 

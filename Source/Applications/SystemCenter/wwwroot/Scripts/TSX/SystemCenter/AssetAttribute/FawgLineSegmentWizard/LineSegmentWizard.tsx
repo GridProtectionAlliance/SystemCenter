@@ -30,7 +30,8 @@ import SectionEdit from './SectionEdit';
 import { ISection, ISegment, ITap } from './Types';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import TapSelect from './TapSelect';
-import { promises } from 'stream';
+import { stat } from 'fs';
+
 
 declare var homePath: string;
 interface IProps {
@@ -74,6 +75,9 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             e.push('At least 1 Section of the Line needs to be defined.')
         if (step == 'EditSection' && sections[currentSegment].Segments.length == 0)
             e.push('At least 1 Segment needs to be defined.')
+        if (sections.some(item => item.EndBus == item.StartBus))
+            e.push('A segment can not start and end at the same Tap or Endpoint.');
+        // Potential Issue with 2 Segments connecting same Taps
         setError(e);
     }, [step, sections, taps,]);
 
@@ -90,7 +94,19 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                 async: true
         }).done(data => setLocations(data));
 
-        Promise.all([promiseLocation]).then(() => {
+        const promiseData: JQuery.jqXHR<any> = $.ajax({
+            type: "GET",
+            url: `${homePath}api/LineSegmentWizard/Update/${props.LineID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done(data => {
+            setSections(data["Sections"] as ISection[]);
+            setTaps(data["Taps"] as ITap[])
+        });
+
+        Promise.all([promiseLocation, promiseData]).then(() => {
             setShowLoading(false);
         }, () => {
             setShowError(true);
@@ -148,7 +164,37 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             return u;
         });
 
-        setSections((d) => d.filter(s => s.EndBus != bus && s.StartBus != bus));
+        setSections((d) => {
+            const bus_old = taps[index].Bus;
+            let bus_new = "";
+            let station_new = null;
+            if (index + 1 < taps.length) {
+                bus_new = taps[index + 1].Bus;
+                station_new = taps[index + 1].StationID;
+            }
+            else if (index - 1 >= 0) {
+                bus_new = taps[index - 1].Bus;
+                station_new = taps[index - 1].StationID
+            }
+
+            let u = [...d]
+            u.forEach(s => {
+                if (s.EndBus == bus_old) {
+                    s.EndBus = bus_new;
+                    s.EndStationID = station_new;
+                }
+                if (s.StartBus == bus_old) {
+                    s.StartBus = bus_new;
+                    s.StartStationID = station_new;
+                }
+                if (s.Segments.length > 0 && s.Segments[0].FromBus == bus_old)
+                    s.Segments[0].FromBus == bus_new;
+                if (s.Segments.length > 0 && s.Segments[s.Segments.length - 1].ToBus == bus_old)
+                    s.Segments[s.Segments.length - 1].ToBus == bus_new;
+
+            });
+            return u;
+        });
     }
 
     function editTap(tap: ITap, index: number) {
@@ -173,6 +219,11 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                     s.StartBus = bus_new;
                     s.StartStationID = station_new;
                 }
+                if (s.Segments.length > 0 && s.Segments[0].FromBus == bus_old)
+                    s.Segments[0].FromBus == bus_new;
+                if (s.Segments.length > 0 && s.Segments[s.Segments.length - 1].ToBus == bus_old)
+                    s.Segments[s.Segments.length - 1].ToBus == bus_new;
+                
             });
             return u;
         })
@@ -184,6 +235,10 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             const sec = _.cloneDeep(section);
             sec.StartStationID = taps.find(t => t.Bus == section.StartBus)?.StationID;
             sec.EndStationID = taps.find(t => t.Bus == section.EndBus)?.StationID;
+            if (sec.Segments.length > 0) {
+                sec.Segments[0].FromBus = sec.StartBus;
+                sec.Segments[sec.Segments.length - 1].ToBus = sec.EndBus
+            }
             u.splice(index, 1, sec);
             return u;
         })
@@ -192,70 +247,12 @@ function LineSegmentWizard(props: IProps): JSX.Element {
     function submitUpdate(): void {
         setShowLoading(true);
 
-        // Todo add Logic that takes care of saving updates to the database
-        /*
-        let finishedSegments = [];
-        let finishedConnections = [];
-
-        sections.forEach((sec,secIndex) => {
-            // start by adding the Segments
-            if (sec.Segments.length == 1) {
-                let segment = segments.find(item => item.AssetKey == sec.Segments[0]);
-                segment.LocationFromID = sec.startStationID;
-                segment.LocationToID = sec.endStationID;
-                segment.IsEnd = !sec.endTap || !sec.startTap;
-                finishedSegments.push(segment);
-            }
-            else {
-                let segment = segments.find(item => item.AssetKey == sec.Segments[0]);
-                segment.LocationFromID = sec.startStationID;
-                segment.LocationToID = -1;
-                segment.IsEnd = !sec.startTap;
-                finishedSegments.push(segment);
-
-                for (let i = 1; i < (sec.Segments.length - 1); i++) {
-                    segment = segments.find(item => item.AssetKey == sec.Segments[i]);
-                    segment.LocationFromID = -1;
-                    segment.LocationToID = -1;
-                    segment.IsEnd = false;
-                    finishedSegments.push(segment);
-                    finishedConnections.push({ ChildKey: segment.AssetKey, ParentKey: finishedSegments[finishedSegments.length - 2].AssetKey, BusNumber: 0 } as FawgConnection)
-                }
-                segment = segments.find(item => item.AssetKey == sec.Segments[sec.Segments.length - 1]);
-                segment.LocationFromID = -1;
-                segment.LocationToID = sec.endStationID;
-                segment.IsEnd = !sec.endTap;
-                finishedSegments.push(segment);
-                finishedConnections.push({ ChildKey: segment.AssetKey, ParentKey: finishedSegments[finishedSegments.length - 2].AssetKey, BusNumber: 0 } as FawgConnection)
-            }
-
-            //If this section goes to a Tap add all other connections....
-            if (sec.startTap) {
-                let connectedSections = sections.filter((item, i) => (item.startBus == sec.startBus || item.endBus == sec.startBus) && secIndex != i);
-                let connectedSegments = connectedSections.map(item => item.startBus == sec.startBus ? item.Segments[0] : item.Segments[item.Segments.length - 1]);
-                connectedSegments.filter((cSeg) =>
-                    !finishedConnections.some(seg => (seg.ChildKey == cSeg && seg.ParentKey == sec.Segments[0]) || (seg.ParentKey == cSeg && seg.ChildKey == sec.Segments[0]))
-                ).forEach(cSeg => {
-                    finishedConnections.push({ ChildKey: cSeg, ParentKey: sec.Segments[0], BusNumber: 0 } as FawgConnection)
-                })
-            }
-            if (sec.endTap) {
-                let connectedSections = sections.filter((item, i) => (item.startBus == sec.endBus || item.endBus == sec.endBus) && secIndex != i);
-                let connectedSegments = connectedSections.map(item => item.startBus == sec.endBus ? item.Segments[0] : item.Segments[item.Segments.length - 1]);
-                connectedSegments.filter((cSeg) =>
-                    !finishedConnections.some(seg => (seg.ChildKey == cSeg && seg.ParentKey == sec.Segments[sec.Segments.length - 1]) || (seg.ParentKey == cSeg && seg.ChildKey == sec.Segments[sec.Segments.length - 1]))
-                ).forEach(cSeg => {
-                    finishedConnections.push({ ChildKey: cSeg, ParentKey: sec.Segments[sec.Segments.length - 1], BusNumber: 0 } as FawgConnection)
-                })
-            }
-
-        })
-        $.ajax({
+        const h = $.ajax({
             type: "POST",
-            url: `${homePath}api/ExternalDB/FAWG/LineSegment/ConfirmSegments/${props.LineID}`,
+            url: `${homePath}api/LineSegmentWizard/Save/${props.LineID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ "data": { "segments": finishedSegments, "connections": finishedConnections } }),
+            data: JSON.stringify({ Taps: taps, Sections: sections, UsedFAWG: false }),
             cache: false,
             async: true
         }).done(() => {
@@ -265,13 +262,11 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             setShowError(true)
             if (msg.status == 500)
                 console.log(msg.responseJSON.ExceptionMessage)
-        });*/
-        
+        });
     }
 
     return (
         <>
-
             <Modal Title={'Line Segment Wizard'} ShowX={true} Show={true} Size={'xlg'}
                 CancelText={'Back'} DisableCancel={step == 'SetupTap'}
                 ConfirmBtnClass={'btn-success'}
@@ -314,7 +309,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                     Locations={locations}
                     External={false} /> : null}
                 {step == 'EditSection' ? <SectionEdit
-                    Section={sections[currentSegment]} SetSection={(s) => { }} LineKey={props.LineKey} LineName={props.LineName}
+                    Section={sections[currentSegment]} SetSection={(s) => editSection(s, currentSegment)} LineKey={props.LineKey} LineName={props.LineName}
                     /> : null}
             </Modal>
             <LoadingScreen Show={showLoading} />
