@@ -229,6 +229,7 @@
     <Compile Include="Controllers\ControllerHelpers.cs" />
     <Compile Include="Controllers\ExternalDB\ExternalDBController.cs" />
     <Compile Include="Controllers\ExternalDB\FawgController.cs" />
+    <Compile Include="Controllers\ExternalDB\LineSegmentWizardController.cs" />
     <Compile Include="Controllers\ExternalDB\PQViewController.cs" />
     <Compile Include="Controllers\ExternalDB\MaximoController.cs" />
     <Compile Include="Controllers\OpenMIC\OpenMICController.cs" />
@@ -537,10 +538,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AssetAssetGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\MeterAssetGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AssetGroups\AssetGroupAssetGroup.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\ByCompany.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\Company.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyInfo.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyMeter.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\EventType\ByEventType.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\SearchFields.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\NoteSlice.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\DownloadedFilesPage.tsx" />
@@ -551,7 +549,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDB.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBInfo.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Company\CompanyForm.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\EventType\EventTypeForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterTrendChannel.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\PropertyUI\MeterProperties.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\PropertyUI\MeterLocationProperties.tsx" />

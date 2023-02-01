@@ -59,9 +59,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const Location = React.lazy(() => import(/* webpackChunkName: "Location" */ './Location/Location'));
     const ByAssetGroup = React.lazy(() => import(/* webpackChunkName: "ByAssetGroup" */ './AssetGroups/ByAssetGroup'));
     const AssetGroup = React.lazy(() => import(/* webpackChunkName: "AssetGroup" */ './AssetGroups/AssetGroup'));
-    const ByCompany = React.lazy(() => import(/* webpackChunkName: "ByCompany" */ './Company/ByCompany'));
-    const Company = React.lazy(() => import(/* webpackChunkName: "Company" */ './Company/Company'));
-    const BySettings = React.lazy(() => import(/* webpackChunkName: "ByCompany" */ './Settings/BySetting'));
+    const ByEventType = React.lazy(() => import(/* webpackChunkName: "ByEventType" */ './EventType/ByEventType'));
+    const BySettings = React.lazy(() => import(/* webpackChunkName: "BySetting" */ './Settings/BySetting'));
     const ByValueListGroup = React.lazy(() => import(/* webpackChunkName: "ByValueListGroup" */ './ValueListGroup/ByValueListGroup'));
     const ValueListGroup = React.lazy(() => import(/* webpackChunkName: "ValueListGroup" */ './ValueListGroup/ValueListGroup'));
     const DownloadedFiles = React.lazy(() => import(/* webpackChunkName: "DownloadedFiles" */ './DeviceHealthReport/DownloadedFiles'));
@@ -162,6 +161,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item" hidden={settings.find(s => s.Name == 'SystemCenter.ShowDeviceHealthReport')?.Value != "1" }>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=DeviceHealthReport")} to={controllerViewPath + "?name=DeviceHealthReport"}>Device Health Report</NavLink>
                                 </li>
+                                <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=EventType")} to={controllerViewPath + "?name=EventType"}>Event Types</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -176,9 +178,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <hr />
                             <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading">External Links</h6>
                             <ul style={{ marginLeft: 10 }} className="nav flex-column">
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=Compan")} to={controllerViewPath + "?name=Companies"}>Companies</NavLink>
-                                </li>
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=RemoteXDAInstance")} to={controllerViewPath + "?name=RemoteXDAInstanceMain"}>Remote openXDA Instances</NavLink>
                                 </li>
@@ -258,8 +257,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ByAssetGroup Roles={roles} />
                                 else if (qs['?name'] == "Users")
                                     return <ByUser Roles={roles} />
-                                else if (qs['?name'] == "Companies")
-                                    return <ByCompany Roles={roles} />
+                                else if (qs['?name'] == "EventType")
+                                    return <ByEventType Roles={roles} />
                                 else if (qs['?name'] == "RemoteXDAInstanceMain")
                                     return <RemoteXDAInstanceMain Roles={roles} />
                                 else if (qs['?name'] == "RemoteXDAInstance")
@@ -288,8 +287,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <AssetGroup AssetGroupID={parseInt(qs.AssetGroupID as string)} />
                                 else if (qs['?name'] == "Customer")
                                     return <Customer CustomerID={parseInt(qs.CustomerID as string)} />
-                                else if (qs['?name'] == "Company")
-                                    return <Company CompanyID={parseInt(qs.CompanyID as string)} />
                                 else if (qs['?name'] == "PQViewSites")
                                     return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'PQViewDataLoader.cshtml'}></iframe>
                                 else if (qs['?name'] == "PQViewCustomers")

@@ -50,6 +50,11 @@ namespace SystemCenter.Controllers.OpenXDA
 {
     [RoutePrefix("api/OpenXDA/SourceImpedance")]
     public class SourceImpedanceController : ModelController<SourceImpedance> { }
+    [RoutePrefix("api/OpenXDA/EventType")]
+    public class EventTypeController : ModelController<EventType> { }
+    
+    [RoutePrefix("api/OpenXDA/EventTypeAssetType")]
+    public class EventTypeAssetTypeController : ModelController<EventTypeAssetType> { }
 
     [RoutePrefix("api/OpenXDA/DataOperation")]
     public class DataOperationController : ModelController<DataOperation> { }

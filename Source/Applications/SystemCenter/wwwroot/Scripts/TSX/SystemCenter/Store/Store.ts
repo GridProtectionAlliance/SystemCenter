@@ -59,13 +59,13 @@ export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementTyp
 export const MeasurementCharacteristicSlice = new GenericSlice<OpenXDA.Types.MeasurementCharacteristic>("MeasurementCharacteristic", `${homePath}api/OpenXDA/MeasurementCharacteristic`, 'Name');
 
 export const DataFileSlice = new GenericSlice<OpenXDA.Types.DataFile>("DataFile", `${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", false);
-export const CompanyTypeSlice = new GenericSlice<OpenXDA.Types.CompanyType>("CompanyType", `${homePath}api/OpenXDA/CompanyType`, "Name", false);
+export const EventTypeAssetTypeSlice = new GenericSlice<LocalXDA.EventTypeAssetType>("EventTypeAssetType", `${homePath}api/OpenXDA/EventTypeAssetType`, "ID", false);
 export const CustomerSlice = new GenericSlice<OpenXDA.Types.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
 export const CustomerMeterSlice = new GenericSlice<LocalXDA.CustomerMeter>('CustomerMeter', `${homePath}api/SystemCenter/CustomerMeter`, 'MeterKey', false);
 export const CustomerAssetSlice = new GenericSlice<LocalXDA.CustomerAsset>('CustomerAsset', `${homePath}api/SystemCenter/CustomerAsset`, 'AssetKey', false);
 
 
-export const CompanySlice = new GenericSlice<OpenXDA.Types.Company>("Company", `${homePath}api/OpenXDA/Company`, "CompanyID", false);
+export const EventTypeSlice = new GenericSlice<LocalXDA.EventType>("EventType", `${homePath}api/OpenXDA/EventType`, "Name", false);
 export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location", `${homePath}api/OpenXDA/Location`, "LocationKey", true);
 export const DataOperationSlice = new GenericSlice<OpenXDA.Types.DataOperation>("DataOperation", `${homePath}api/OpenXDA/DataOperation`, "LoadOrder");
 export const DataReaderSlice = new GenericSlice<OpenXDA.Types.DataReader>("DataReader", `${homePath}api/OpenXDA/DataReader`, "LoadOrder");
@@ -101,7 +101,7 @@ export const SourceImpedanceSlice = new GenericSlice<LocalXDA.SourceImpedance>("
 const store = configureStore({
     reducer: {
         LSCVSAccount: LSCVSAccountSlice.Reducer,
-        CompanyType: CompanyTypeSlice.Reducer,
+        EventTypeAssetType: EventTypeAssetTypeSlice.Reducer,
         AssetGroup: AssetGroupSlice.Reducer,
         ByAsset: ByAssetSlice.Reducer,
         ByMeter: ByMeterSlice.Reducer,
@@ -130,7 +130,7 @@ const store = configureStore({
         UserAccounts: UserAccountSlice.Reducer,
         AdditionalUserFields: UserAdditionalFieldSlice.Reducer,
         SCSecurityRole: SCSecurityRoleSlice.Reducer,
-        Company: CompanySlice.Reducer,
+        EventType: EventTypeSlice.Reducer,
         MeasurementCharacteristic: MeasurementCharacteristicSlice.Reducer,
         DataOperation: DataOperationSlice.Reducer,
         DataReader: DataReaderSlice.Reducer,
