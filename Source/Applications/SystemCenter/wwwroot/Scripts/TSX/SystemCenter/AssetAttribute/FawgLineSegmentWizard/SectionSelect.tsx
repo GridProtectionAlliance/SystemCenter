@@ -25,9 +25,10 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import Table from '@gpa-gemstone/react-table';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { TrashCan, Warning } from '@gpa-gemstone/gpa-symbols';
 import { Select } from '@gpa-gemstone/react-forms';
 import { ISection, ITap } from './Types';
+import { WarningWTooltip } from './Common';
 
 
 declare var homePath: string;
@@ -56,6 +57,26 @@ function SectionSelect(props: IProps): JSX.Element {
 
     }, [props.Sections, asc, sortKey])
 
+    function DisplayWarning(section: ISection) {
+        if (!props.External || (section.IsExternal && section.IsXDA && !section.IsDifferent))
+            return <></>
+
+        const errors = [];
+        if (section.EndBus == section.StartBus)
+            errors.push("A Segment can not start and end at the same Tap or Endpoint.");
+
+        if (props.Sections.filter(sec => (sec.EndBus == section.EndBus && sec.StartBus == section.StartBus)
+            || (sec.StartBus == section.EndBus && sec.EndBus == section.StartBus)).length > 1) 
+            errors.push("XDA does not support Parelell Sections.");
+
+        if (section.IsDifferent)
+            return <WarningWTooltip Errors={errors} Warnings={['This Section exists in  FAWG and XDA but the number of Segments differs.']} />
+        if (section.IsExternal)
+            return <WarningWTooltip Errors={errors} Warnings={['This Section exists in  FAWG but can not be found in the XDA.']} />
+
+        return <WarningWTooltip Errors={errors} Warnings={['This Section exists in the XDA but can not be found in FAWG.']} />
+    }
+
     function generateBusLabel(tap: ITap) {
         if (tap.StationID == null)
             return tap.Bus;
@@ -69,23 +90,30 @@ function SectionSelect(props: IProps): JSX.Element {
         <>
             <div className="row">
                 <div className="col">
-                    <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
+                    <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540}}>
                         <Table<ISection>
                             cols={[
                                 {
-                                    key: 'startBus', label: 'Start', field: 'StartBus', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                    key: 'StartBus', label: 'Start', field: 'StartBus', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                                     content: (item, key, field, style, index) => <Select<ISection> Label={""} Field={'StartBus'} Record={item}
                                         Setter={(r) => props.SaveSection(r, index)}
                                         Options={props.Taps.map(l => ({ Value: l.Bus, Label: generateBusLabel(l) }))} EmptyOption={false} />
                                 },
                                 {
-                                    key: 'endBus', label: 'End', field: 'EndBus', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                    key: 'EndBus', label: 'End', field: 'EndBus', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                                     content: (item, key, field, style, index) => <Select<ISection> Label={""} Field={'EndBus'} Record={item}
                                         Setter={(r) => props.SaveSection(r, index)}
                                         Options={props.Taps.map(l => ({ Value: l.Bus, Label: generateBusLabel(l) }))} EmptyOption={false} />
                                 },
                                 { key: 'Segments', label: '# of Segments', field: 'Segments', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.Segments.length },
                                 { key: 'Length', label: 'Length (miles)', field: 'Segments', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.Segments.reduce((acc, seg) => acc + seg.Length, 0).toFixed(3) },
+                                {
+                                    key: 'warning',
+                                    label: '',
+                                    headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
+                                    rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
+                                    content: (item) => DisplayWarning(item)
+                                },
                                 {
                                     key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
                                     content: (item, key, field, style, index) => <> 
@@ -99,7 +127,7 @@ function SectionSelect(props: IProps): JSX.Element {
                             sortKey={sortKey}
                             ascending={asc}
                             onSort={(d) => {
-                                if (d.colKey == 'DeleteButton')
+                                if (d.colKey == 'DeleteButton' || d.colKey == 'warning')
                                     return;
                                 if (d.colKey == sortKey)
                                     setAsc((a) => !a);
@@ -110,7 +138,7 @@ function SectionSelect(props: IProps): JSX.Element {
                             }}
                             onClick={() => { }}
                             theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
                             rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             selected={() => false}
                         />

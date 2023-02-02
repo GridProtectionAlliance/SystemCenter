@@ -23,10 +23,12 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { TrashCan, Warning } from '@gpa-gemstone/gpa-symbols';
 import { Input } from '@gpa-gemstone/react-forms';
 import { ISection, ISegment, ITap } from './Types';
 import { ConfigurableTable } from '@gpa-gemstone/react-interactive';
+import { WarningWTooltip } from './Common';
+import { IsNumber } from '@gpa-gemstone/helper-functions';
 
 declare var homePath: string;
 interface IProps {
@@ -49,7 +51,35 @@ interface IImpedances {
 
 function SectionEdit(props: IProps): JSX.Element {
 
-  
+
+    // ToDo Add Tooltip with Warning
+    function DisplayWarning(segment: ISegment) {
+        if (segment.Warnings.length == 0)
+            return <></>
+        const errors = [];
+
+        if (segment.FromBus == segment.ToBus)
+            errors.push('This Segment can not have the same From Bus and To Bus.')
+
+        if (segment.AssetName == null || segment.AssetName.length == 0)
+            errors.push('This Segment requires a Name.')
+        if (segment.Length == null || !IsNumber(segment.Length))
+            errors.push('This Segment requires a valid Length.')
+        if (segment.R0 == null || !IsNumber(segment.R0))
+            errors.push('This Segment reuqires a valid R0.')
+        if (segment.X0 == null || !IsNumber(segment.X0))
+            errors.push('This Segment reuqires a valid X0.')
+        if (segment.R1 == null || !IsNumber(segment.R1))
+            errors.push('This Segment reuqires a valid R1.')
+        if (segment.X1 == null || !IsNumber(segment.X1))
+            errors.push('This Segment reuqires a valid X1.')
+        if (segment.ThermalRating == null || !IsNumber(segment.ThermalRating))
+            errors.push('This Segment reuqires a valid Thermal Rating.')
+
+        return <WarningWTooltip Errors={errors} Warnings={segment.Warnings} />
+        
+    }
+
     function RemoveSegment(index: number): void {
         let updated = _.cloneDeep(props.Section.Segments);
         updated.splice(index, 1);
@@ -63,6 +93,8 @@ function SectionEdit(props: IProps): JSX.Element {
 
     function updateSegment(segment: ISegment, index: number): void {
         let updated = _.cloneDeep(props.Section.Segments);
+        if (index > 0)
+            updated[index - 1].ToBus = segment.FromBus;
         updated.splice(index, 1, segment);
         props.SetSection({ ...props.Section, Segments: updated })
     }
@@ -86,7 +118,7 @@ function SectionEdit(props: IProps): JSX.Element {
             IsEnd: false,
             FromBus: props.Section.StartBus,
             ToBus: props.Section.EndBus,
-            Changed: false
+            Warnings: []
         };
 
         newSegment.ToBus = props.Section.EndBus;
@@ -136,6 +168,20 @@ function SectionEdit(props: IProps): JSX.Element {
     }
 
     function valid(record: ISegment, field: keyof ISegment) {
+        if (field == 'AssetName')
+            return record.AssetName != null && record.AssetName.length > 0
+        if (field == 'Length')
+            return record.Length != null && IsNumber(record.Length);
+        else if (field == 'R0')
+            return record.R0 != null && IsNumber(record.R0);
+        else if (field == 'X0')
+            return record.X0 != null && IsNumber(record.X0);
+        else if (field == 'R1')
+            return record.R1 != null && IsNumber(record.R1);
+        else if (field == 'X1')
+            return record.X1 != null && IsNumber(record.X1);
+        else if (field == 'ThermalRating')
+            return record.ThermalRating != null && IsNumber(record.ThermalRating);
         return true;
     }
 
@@ -155,6 +201,17 @@ function SectionEdit(props: IProps): JSX.Element {
                             cols={[{
                                 field: "AssetName", key: "AssetName", label: "Segment",
                                 content: (item, key, fld, style, index) => <Input<ISegment> Record={item} Field={'AssetName'} Label={''} Feedback={'Name must be less than 200 characters and is required.'} Valid={(fld) => valid(item,fld)} Setter={(r) => updateSegment(r, index)} />
+                            },
+                                {
+                                    field: "ID", key: "btns", label: " ",
+                                    content: (item, key, fld, style, index) => <button className="btn btn-sm" onClick={(e) => RemoveSegment(index)}><span>{TrashCan}</span></button>
+                                },
+                                {
+                                    key: 'Warning',
+                                    label: ' ',
+                                    headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
+                                    rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
+                                    content: (item) => DisplayWarning(item)
                                 },
                                 {
                                     field: "FromBus", key: "FromBus", label: "From Bus",
@@ -165,7 +222,7 @@ function SectionEdit(props: IProps): JSX.Element {
                                 },
                                 {
                                     field: "Length", key: "Length", label: "Length (mi)",
-                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'Length'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'Length'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
                                 },
                                 {
                                     field: "ID", key: "Z0", label: "Z0 (Ohm)",
@@ -185,11 +242,11 @@ function SectionEdit(props: IProps): JSX.Element {
                                 },
                                 {
                                     field: "ID", key: "Z1", label: "Z1 (Ohm)",
-                                    content: (item) => (item) => computeImpedances(item).Z1.toFixed(2)
+                                    content: (item) => computeImpedances(item).Z1.toFixed(2)
                                 },
                                 {
                                     field: "ID", key: "A1", label: "<Z1 (deg)",
-                                    content: (item) => (item) => computeImpedances(item).A1.toFixed(2)
+                                    content: (item) => computeImpedances(item).A1.toFixed(2)
                                 },
                                 {
                                     field: "ID", key: "R1", label: "R1 (Ohm)",
@@ -218,11 +275,7 @@ function SectionEdit(props: IProps): JSX.Element {
                                 {
                                     field: "ThermalRating", key: "ThermalRating", label: "Thermal Rating",
                                     content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'ThermalRating'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={() => true} />
-                                },
-                                {
-                                    field: "ID", key: "btns", label: "",
-                                    content: (item, key, fld, style, index) => <button className="btn btn-sm" onClick={(e) => RemoveSegment(index)}><span>{TrashCan}</span></button>
-                                },
+                                }                               
                             ]}
                             tableClass="table table-hover"
                             data={props.Section.Segments}
@@ -234,7 +287,7 @@ function SectionEdit(props: IProps): JSX.Element {
                             tbodyStyle={{ display: 'block', overflowY: 'scroll' }}
                             rowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
                             selected={(item) => false}
-                            requiredColumns={["AssetKey"]}
+                            requiredColumns={["Warning","btns","AssetKey"]}
                             defaultColumns={["R0","X0","R1","X1","Length"]}
                         />
                     </div>

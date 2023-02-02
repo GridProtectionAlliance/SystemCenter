@@ -24,13 +24,14 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingScreen, Modal, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, Section, Warning } from '@gpa-gemstone/react-interactive';
 import SectionSelect from './SectionSelect';
 import SectionEdit from './SectionEdit';
 import { ISection, ISegment, ITap } from './Types';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import TapSelect from './TapSelect';
 import { stat } from 'fs';
+import { IsNumber } from '@gpa-gemstone/helper-functions';
 
 
 declare var homePath: string;
@@ -61,6 +62,8 @@ function LineSegmentWizard(props: IProps): JSX.Element {
 
     const [locations, setLocations] = React.useState<OpenXDA.Types.Location[]>([]);
 
+    const [fawgSuccess, setFAWGSucess] = React.useState<boolean>(false);
+
     React.useEffect(() => {
         getData();
     }, [props.LineID]);
@@ -75,12 +78,47 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             e.push('At least 1 Section of the Line needs to be defined.')
         if (step == 'EditSection' && sections[currentSegment].Segments.length == 0)
             e.push('At least 1 Segment needs to be defined.')
-        if (sections.some(item => item.EndBus == item.StartBus))
-            e.push('A segment can not start and end at the same Tap or Endpoint.');
-        // Potential Issue with 2 Segments connecting same Taps
+        if (step == 'SelectSection' && sections.some(item => item.EndBus == item.StartBus))
+            e.push('A Segment can not start and end at the same Tap or Endpoint.');
+        if (step == 'SelectSection' && checkParalells())
+            e.push('XDA does not support Parelell Sections.');
+        if (step == 'EditSection' && sections[currentSegment].Segments.some(s => s.FromBus == s.ToBus))
+            e.push('A Segment can not have the same From Bus and to Bus.')
+
+        if (step == 'EditSection' && sections[currentSegment].Segments.some(s => s.AssetName == null || s.AssetName.length == 0))
+            e.push('All Segments require a Name.')
+        if (step == 'EditSection' && sections[currentSegment].Segments.some(s => s.Length == null || !IsNumber(s.Length)))
+            e.push('All Segments require a valid Length.')
+        if (step == 'EditSection' && sections[currentSegment].Segments.some(s => s.R0 == null || !IsNumber(s.R0)))
+            e.push('All Segments require a valid R0.')
+        if (step == 'EditSection' && sections[currentSegment].Segments.some(s => s.X0 == null || !IsNumber(s.X0)))
+            e.push('All Segments require a valid X0.')
+        if (step == 'EditSection' && sections[currentSegment].Segments.some(s => s.R1 == null || !IsNumber(s.R1)))
+            e.push('All Segments require a valid R1.')
+        if (step == 'EditSection' && sections[currentSegment].Segments.some(s => s.X1 == null || !IsNumber(s.X1)))
+            e.push('All Segments require a valid X1.')
+        if (step == 'EditSection' && sections[currentSegment].Segments.some(s => s.ThermalRating == null || !IsNumber(s.ThermalRating)))
+            e.push('All Segments require a valid Thermal Rating.')
+
         setError(e);
     }, [step, sections, taps,]);
 
+    function checkParalells() {
+        let i, j = 0;
+        const result = [];
+        for (i = 0; i < taps.length; i++) {
+            for (j = 0; j < taps.length; j++) {
+                if (j >= i)
+                    break;
+                result.push(sections.filter(s => (
+                    (s.StartBus == taps[i].Bus && s.EndBus == taps[j].Bus) ||
+                    (s.StartBus == taps[j].Bus && s.EndBus == taps[i].Bus))
+                ).length)
+            }
+        }
+
+        return result.some(n => n > 1)      
+    }
 
     function getData(): void {
         setShowLoading(true);
@@ -104,6 +142,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
         }).done(data => {
             setSections(data["Sections"] as ISection[]);
             setTaps(data["Taps"] as ITap[])
+            setFAWGSucess(data["UsedFAWG"] as boolean)
         });
 
         Promise.all([promiseLocation, promiseData]).then(() => {
@@ -111,24 +150,6 @@ function LineSegmentWizard(props: IProps): JSX.Element {
         }, () => {
             setShowError(true);
         });
-    
-        // ToDo implement logic that loads segments from xda and fawg as appropriate
-        /*$.ajax({
-            type: "GET",
-            url: `${homePath}api/ExternalDB/FAWG/LineSegment/UpdateSegments/${props.LineID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        }).done((data: any) => {
-            setSegments(data["segments"]);
-            setConnections(data["connections"])
-        }).fail((msg) => {
-            setShowError(true)
-            if (msg.status == 500)
-                console.log(msg.responseJSON.ExceptionMessage)
-        });*/       
-
     }
 
     function next(): void {
@@ -288,7 +309,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                     SaveTap={editTap}
                     RemoveTap={removeTap}
                     Locations={locations}
-                External={false} /> : null}
+                    External={fawgSuccess} /> : null}
                 {step == 'SelectSection' ? <SectionSelect Taps={taps}
                     Sections={sections} SaveSection={editSection}
                     AddSection={() => {
@@ -297,17 +318,20 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                             Segments: [],
                             StartBus: taps[0].Bus,
                             StartStationID: taps[0].StationID,
-                            EndStationID: taps[1].StationID
+                            EndStationID: taps[1].StationID,
+                            IsExternal: false,
+                            IsXDA: false,
+                            IsDifferent: false
                         }])
                     }}
-                    RemoveSections={(i) => (i) =>
+                    RemoveSections={(i) =>
                         setSections((d) => {
                             const u = [...d];
                             u.splice(i, 1);
                             return u;
                         })}
                     Locations={locations}
-                    External={false} /> : null}
+                    External={fawgSuccess} /> : null}
                 {step == 'EditSection' ? <SectionEdit
                     Section={sections[currentSegment]} SetSection={(s) => editSection(s, currentSegment)} LineKey={props.LineKey} LineName={props.LineName}
                     /> : null}

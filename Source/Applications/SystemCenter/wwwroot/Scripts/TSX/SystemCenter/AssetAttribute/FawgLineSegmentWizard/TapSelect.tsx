@@ -28,6 +28,8 @@ import Table from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan, Warning } from '@gpa-gemstone/gpa-symbols';
 import { Select, Input } from '@gpa-gemstone/react-forms';
 import { ITap } from './Types';
+import { release } from 'os';
+import { WarningWTooltip } from './Common';
 
 
 declare var homePath: string;
@@ -43,15 +45,24 @@ interface IProps {
 function TapSelect(props: IProps): JSX.Element {
 
     function DisplayWarning(tap: ITap) {
-        return '';
+        if (!props.External || tap.IsExternal && tap.IsXDA)
+            return <></>
+
+        const errors = [];
+        if (props.Taps.filter(t => t.Bus == tap.Bus).length > 1)
+            errors.push('This Tap has to have a unique Bus Name.')
+
+        if (tap.IsExternal)
+            return <WarningWTooltip Errors={errors} Warnings={['This Tap exists in  FAWG but can not be found in the XDA.']} />
+
+        return <WarningWTooltip Errors={errors} Warnings={['This Tap exists in the XDA but can not be found in FAWG.']} />
     }
-    //ToDo Add warnings when a Tap does not exists in XDA but in Fawg, vice versa
 
     return (
         <>
             <div className="row">
                 <div className="col">
-                    <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
+                    <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540 }}>
                         <Table<ITap>
                             cols={[
                                 {
@@ -74,7 +85,7 @@ function TapSelect(props: IProps): JSX.Element {
                                     label: '',
                                     headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
                                     rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    content: (item) => DisplayWarning(item).length > 0 ? <>{Warning}</> : <></>
+                                    content: (item) => DisplayWarning(item)
                                 },
                                 {
                                     key: 'DeleteButton',
@@ -94,7 +105,7 @@ function TapSelect(props: IProps): JSX.Element {
                             onSort={(d) => { }}
                             onClick={() => { }}
                             theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
                             rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             selected={(item) => item.StationID != null}
                         />
@@ -109,7 +120,6 @@ function TapSelect(props: IProps): JSX.Element {
                             Bus: 'Bus',
                             StationID: null,
                             IsExternal: false,
-                            Warnings: []
                         })
                     }}>Add Tap or Endpoint</button>
                 </div>

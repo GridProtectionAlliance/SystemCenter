@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
-//  Types.tsx - Gbtc
+//  Common.tsx - Gbtc
 //
-//  Copyright © 2022, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,33 +16,33 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  12/19/2022 - Christoph Lackner
+//  01/31/2023 - Christoph Lackner
 //       Generated original version of source code.
 //
 //******************************************************************************************************
+import * as React from 'react';
+import { CreateGuid } from '@gpa-gemstone/helper-functions'
+import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { ToolTip } from '@gpa-gemstone/react-interactive';
 
-import { OpenXDA } from '@gpa-gemstone/application-typings';
-
-export interface ITap {
-    Bus: string,
-    StationID: (number | null),
-    IsExternal: boolean,
-    IsXDA: boolean,
-}
-
-// We can update OpenXDA.Types.LineSegment with correct typing duing next update
-export interface ISegment extends OpenXDA.Types.LineSegment {
-    FromBus?: string,
+interface IWarningProps {
+    Errors: string[],
     Warnings: string[]
-};
-
-export interface ISection {
-    StartBus: string,
-    EndBus: string,
-    StartStationID: (number | null),
-    EndStationID: (number | null),
-    Segments: ISegment[],
-    IsExternal: boolean,
-    IsXDA: boolean,
-    IsDifferent: boolean
 }
+export const WarningWTooltip = (props: IWarningProps) => {
+    const [hover, setHover] = React.useState<boolean>(false);
+    const [guid, setGuid] = React.useState<string>(CreateGuid());
+
+    return <>
+        <div style={{ height: 40, width: 40, fontSize: 24 }}
+            data-tooltip={guid}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+        > {Warning} </div>
+        <ToolTip Show={hover} Position={'bottom'} Target={guid} Zindex={9999}>
+            {props.Warnings.map((w, i) => <>{Warning} <p key={i}> {w} </p></>)}
+            {props.Errors.map((e, i) => <> {CrossMark} <p key={i}> {e}</p></>)}
+        </ToolTip>
+    </>
+}
+

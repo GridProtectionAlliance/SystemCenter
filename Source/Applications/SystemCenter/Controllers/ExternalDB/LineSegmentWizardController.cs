@@ -24,6 +24,7 @@
 using GSF.Collections;
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.Security.Model;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
@@ -33,6 +34,7 @@ using System.Data;
 using System.Linq;
 using System.Reflection;
 using System.Web.Http;
+using System.Windows.Forms;
 using SystemCenter.Controllers;
 using SystemCenter.Model;
 
@@ -40,8 +42,10 @@ using SystemCenter.Model;
 public class LineSegmentWizardController : ApiController
 {
     #region [ Members ]
-    private bool useFawg => false;
+    private bool useFawg => true;
+    #endregion
 
+    #region [ Internal Classes ]
     public class LineConfiguration
     {
         public List<Tap> Taps { get; set; }
@@ -58,7 +62,6 @@ public class LineSegmentWizardController : ApiController
 
     }
 
-
     public class Section
     {
         public string StartBus { get; set; }
@@ -66,6 +69,9 @@ public class LineSegmentWizardController : ApiController
         public int? StartStationID { get; set; }
         public int? EndStationID { get; set; }
         public List<Segment> Segments { get; set; }
+        public bool IsExternal { get; set; }
+        public bool IsXDA { get; set; }
+        public bool IsDifferent { get; set; }
     }
 
     public class Segment
@@ -83,6 +89,7 @@ public class LineSegmentWizardController : ApiController
         public string AssetKey { get; set; }
         public string Description { get; set; }
         public string AssetName { get; set; }
+        public List<string> Warnings { get; set; }
     }
 
     class SegmentComparer : IEqualityComparer<LineSegment>
@@ -110,10 +117,8 @@ public class LineSegmentWizardController : ApiController
     {
         public List<int> SegmentID;
         public string Name;
-        public bool IsEnd;
         public List<int> StationID;
     };
-
     #endregion
 
     #region [ Statics ]
@@ -121,7 +126,7 @@ public class LineSegmentWizardController : ApiController
     private const string GetRoles = "Administrator,Transmission SME";
     private const string PostRoles = "Administrator,Transmission SME";
     private static string Connection = typeof(Line).GetCustomAttribute<SettingsCategoryAttribute>()?.SettingsCategory ?? "systemSettings";
-
+    private static string FAWGConnection = "dbFawg";
     #endregion
 
 
@@ -172,10 +177,24 @@ public class LineSegmentWizardController : ApiController
                 }
             }
 
+            Func<string> generatekey = () =>
+            {
+                int i = 1;
+                string key = line.AssetKey + "-S" + i;
+                TableOperations<Asset> assetTbl = new TableOperations<Asset>(connection);
+                while (assetTbl.QueryRecordCountWhere("Assetkey = {0}", key) > 0)
+                {
+                    i++;
+                    key = line.AssetKey + "-S" + i;
+                }
+                return key;
+            };
+
             // Add any new Segments
             List<Segment> newSegments = record.Sections.SelectMany(s => s.Segments).Where(s => s.ID == 0).ToList();
             foreach (Segment newSegment in newSegments)
             {
+                string key = generatekey();
                 LineSegment segment = new LineSegment()
                 {
                     R0 = newSegment.R0,
@@ -183,7 +202,7 @@ public class LineSegmentWizardController : ApiController
                     X1 = newSegment.X1,
                     X0 = newSegment.X0,
                     Length = newSegment.Length,
-                    AssetKey = newSegment.AssetKey,
+                    AssetKey = key,
                     AssetName = newSegment.AssetName,
                     FromBus = newSegment.FromBus,
                     ToBus = newSegment.ToBus,
@@ -193,7 +212,8 @@ public class LineSegmentWizardController : ApiController
                 };
 
                 segmentTbl.AddNewRecord(segment);
-                newSegment.ID = segmentTbl.QueryRecordWhere("AssetKey = {0}", segment.AssetKey).ID;
+                newSegment.ID = segmentTbl.QueryRecordWhere("AssetKey = {0}", key).ID;
+                newSegment.AssetKey = key;
 
                 new TableOperations<AssetConnection>(connection).AddNewRecord(new AssetConnection()
                 {
@@ -323,7 +343,9 @@ public class LineSegmentWizardController : ApiController
             };
 
             LineConfiguration xdaConfig = GetXDAConfiguration(line);
-            line.ConnectionFactory = () => new AdoDataConnection(Connection);
+            if (useFawg)
+                xdaConfig = MergeConfigurations(xdaConfig,GetFAWGConfiguration(line));
+
             return Ok(xdaConfig);
         }
     }
@@ -350,6 +372,8 @@ public class LineSegmentWizardController : ApiController
             Section section = new Section()
             {
                 Segments = new List<Segment>(),
+                IsExternal = false,
+                IsXDA = true
             };
 
             LineSegment start = sectionEnds.First();
@@ -497,7 +521,6 @@ public class LineSegmentWizardController : ApiController
                 {
                     SegmentID = new List<int>() { section.Segments.First().ID },
                     StationID = new List<int>() { },
-                    IsEnd = false,
                     Name = section.Segments.First().FromBus
                 });
             if (taps.FindIndex((t) => t.Name == section.Segments.Last().ToBus) >= 0)
@@ -507,7 +530,6 @@ public class LineSegmentWizardController : ApiController
                 {
                     SegmentID = new List<int>() { section.Segments.Last().ID },
                     StationID = new List<int>() { },
-                    IsEnd = false,
                     Name = section.Segments.Last().ToBus
                 });
 
@@ -519,9 +541,9 @@ public class LineSegmentWizardController : ApiController
         foreach(TmpTap tap in taps.Where(t => t.SegmentID.Count == 1))
         {
             LineSegment segment = segments.Find(s => s.ID == tap.SegmentID[0]);
-            if (!segment.IsEnd)
+            if (!segment.IsEnd || segment.AssetLocations.Count() == 0)
                 continue;
-
+            
             if (segment.AssetLocations.Count == 1)
                 tap.StationID.Add(segment.AssetLocations[0].LocationID);
 
@@ -548,6 +570,342 @@ public class LineSegmentWizardController : ApiController
         return configuration;
     }
 
+    private LineConfiguration GetFAWGConfiguration(Line line)
+    {
+        LineConfiguration configuration = new LineConfiguration()
+        {
+            Sections = new List<Section>() { },
+            Taps = new List<Tap>(),
+            UsedFAWG = false,
+        };
+
+        try
+        {
+            int segment = 0;
+            List<Segment> segments = new List<Segment>();
+
+
+            string fawgQuery = "SELECT * FROM " + GetFawgTableQuery() + " WHERE LNumber = {0}";
+            using (AdoDataConnection connection = new AdoDataConnection(FAWGConnection))
+            {
+                DataTable dataTable = connection.RetrieveData(fawgQuery, line.AssetKey);
+
+                if (dataTable.Rows.Count == 0)
+                    throw (new Exception($"Line {line.AssetKey} not found in FAWG data"));
+
+                foreach (DataRow row in dataTable.AsEnumerable())
+                {
+                    segment++;
+
+                    segments.Add(new Segment()
+                    {
+                        AssetKey = String.Format("{0}-Segment-{1}", line.AssetKey, segment),
+                        Length = double.Parse((row["LengthMiles"].ToString() == "" ? "0" : row["LengthMiles"].ToString())),
+                        X0 = double.Parse((row["ZeroSeqReactance"].ToString() == "" ? "0" : row["ZeroSeqReactance"].ToString())),
+                        X1 = double.Parse((row["PosSeqReactance"].ToString() == "" ? "0" : row["PosSeqReactance"].ToString())),
+                        R0 = double.Parse((row["ZeroSeqResistance"].ToString() == "" ? "0" : row["ZeroSeqResistance"].ToString())),
+                        R1 = double.Parse((row["PosSeqResistance"].ToString() == "" ? "0" : row["PosSeqResistance"].ToString())),
+                        //VoltageKV = double.Parse((row["VoltageValue"].ToString() == "" ? "0" : row["VoltageValue"].ToString())),
+                        AssetName = line.AssetName + String.Format(" Segment {0}", segment),
+                        ThermalRating = double.Parse((row["ConductorSummerContRating"].ToString() == "" ? "0" : row["ConductorSummerContRating"].ToString())),
+                        FromBus = $"{row["fromBusName"].ToString()} ({int.Parse(row["fromBusNumber"].ToString())})",
+                        ToBus = $"{row["toBusName"].ToString()} ({int.Parse(row["ToBusNumber"].ToString())})",
+                        ID = 0,
+                        Warnings = new List<string>()
+                    });
+                }
+            }
+
+            List<string> buses = segments.Select(s => s.FromBus).ToList();
+            buses.AddRange(segments.Select(s => s.ToBus));
+
+            List<Segment> sectionEnds = segments.Where(s => buses.Where( b => b == s.ToBus).Count() != 2 || buses.Where(b => b != s.FromBus).Count() != 2).ToList();
+
+            while (sectionEnds.Count > 0)
+            {
+                Section section = new Section()
+                {
+                    Segments = new List<Segment>(),
+                    IsExternal = true,
+                    IsXDA = false,
+                };
+
+                Segment start = sectionEnds.First();
+
+                while (true)
+                {
+                    section.Segments.Add(start);
+                    Tuple<IEnumerable<Segment>, IEnumerable<Segment>> connections = new Tuple<IEnumerable<Segment>, IEnumerable<Segment>>(
+                        segments.Where(s => (s.ToBus == start.FromBus || s.FromBus == start.FromBus) && s.AssetKey != start.AssetKey),
+                        segments.Where(s => (s.ToBus == start.ToBus || s.FromBus == start.ToBus) && s.AssetKey != start.AssetKey)
+                        );
+
+                    if (connections.Item1.Count() > 1 && connections.Item2.Count() > 1)
+                        break;
+                    if (connections.Item1.Count() == 0 && connections.Item2.Count() == 0)
+                        break;
+
+                    if (connections.Item1.Count() == 0 && connections.Item2.Count() > 1)
+                        break;
+                    if (connections.Item2.Count() == 0 && connections.Item1.Count() > 1)
+                        break;
+
+                    Segment nextSegment = null;
+
+                    if (connections.Item1.Count() == 1)
+                        nextSegment = connections.Item1.First();
+                    else if (connections.Item2.Count() == 1)
+                        nextSegment = connections.Item2.First();
+
+                    if (section.Segments.Find(s => s.AssetKey == nextSegment.AssetKey) is null)
+                    {
+                        start = nextSegment;
+                        continue;
+                    }
+
+                    //Special case if both ends have 1 segment connected to them
+                    if (connections.Item1.Count() == 1 && connections.Item2.Count() == 1)
+                        nextSegment = connections.Item2.First();
+
+                    if (section.Segments.Find(s => s.AssetKey == nextSegment.AssetKey) is null)
+                    {
+                        start = nextSegment;
+                        continue;
+                    }
+                    break;
+                }
+                sectionEnds.RemoveWhere(item => item.AssetKey == section.Segments.Last().AssetKey || item.AssetKey == section.Segments.First().AssetKey);              
+                configuration.Sections.Add(section);
+            }
+
+            List<TmpTap> taps = new List<TmpTap>();
+
+            foreach (Section section in configuration.Sections)
+            {
+                if (taps.FindIndex((t) => t.Name == section.Segments.First().FromBus) >= 0)
+                    taps.Find((t) => t.Name == section.Segments.First().FromBus).SegmentID.Add(section.Segments.First().ID);
+                else
+                    taps.Add(new TmpTap()
+                    {
+                        SegmentID = new List<int>() { section.Segments.First().ID },
+                        StationID = new List<int>() { },
+                        Name = section.Segments.First().FromBus
+                    });
+                if (taps.FindIndex((t) => t.Name == section.Segments.Last().ToBus) >= 0)
+                    taps.Find((t) => t.Name == section.Segments.First().ToBus).SegmentID.Add(section.Segments.First().ID);
+                else
+                    taps.Add(new TmpTap()
+                    {
+                        SegmentID = new List<int>() { section.Segments.Last().ID },
+                        StationID = new List<int>() { },
+                        Name = section.Segments.Last().ToBus
+                    });
+
+                section.StartBus = section.Segments.First().FromBus;
+                section.EndBus = section.Segments.Last().ToBus;
+            }
+
+            
+            configuration.Taps = taps.Select(t =>  new Tap()
+                {
+                    StationID = null,
+                    Bus = t.Name,
+                    IsXDA = false,
+                    IsExternal = true
+                }).ToList();
+
+            return configuration;
+        }
+        catch (Exception ex)
+        {
+            return new LineConfiguration()
+            {
+                Sections = new List<Section>(),
+                UsedFAWG = true,
+                Taps = new List<Tap>()
+            };
+        }
+    }
+
+    private string GetFawgTableQuery()
+    {
+        string tableName = "LineSegment";
+        string result = tableName;
+
+        using (AdoDataConnection connection = new AdoDataConnection(Connection))
+        {
+            TableOperations<SystemCenter.Model.extDBTables> tblTable = new TableOperations<SystemCenter.Model.extDBTables>(connection);
+
+            if (tblTable.QueryRecordCountWhere("ExternalDB = {0} AND TableName = {1}", "Fawg", tableName) > 0)
+                result = tblTable.QueryRecordWhere("ExternalDB = {0} AND TableName = {1}", "Fawg", tableName).Query;
+        }
+        return result;
+    }
+
+    /// <summary>
+    /// Combines local and external Line Configurations
+    /// </summary>
+    /// <returns></returns>
+    private LineConfiguration MergeConfigurations(LineConfiguration local, LineConfiguration external) 
+    {
+        LineConfiguration configuration = new LineConfiguration()
+        {
+            Sections = new List<Section>() { },
+            Taps = new List<Tap>(),
+            UsedFAWG = true,
+        };
+
+        // Start  by combining Taps
+        foreach (Tap localTap in local.Taps)
+        {
+            Tap externalTap = external.Taps.Find(t => t.Bus == localTap.Bus);
+            if (externalTap is null)
+                configuration.Taps.Add(localTap);
+            else
+                configuration.Taps.Add(new Tap() {
+                    Bus = localTap.Bus,
+                    IsXDA = true,
+                    IsExternal = true,
+                    StationID = localTap.StationID});
+        }
+
+        foreach (Tap externalTap in external.Taps)
+        {
+            Tap localTap = local.Taps.Find(t => t.Bus == externalTap.Bus);
+            if (localTap is null)
+                configuration.Taps.Add(externalTap);
+        }
+
+        // Combine Sections as appropriate
+        Func<Section, Section, bool> compareSection = (s1, s2) => (s1.EndBus == s2.EndBus && s1.StartBus == s2.StartBus) || (s1.EndBus == s2.StartBus && s1.StartBus == s2.EndBus);
+
+        foreach (Section localSection in local.Sections)
+        {
+            Section externalSection = external.Sections.Find(s => compareSection(s, localSection));
+            if (externalSection is null)
+            {
+
+                // Special case to consider if you just add a segment at the end or start....
+                externalSection = external.Sections.Find(s =>
+                {
+                    if (s.EndBus != localSection.EndBus && s.StartBus != localSection.StartBus)
+                        return false;
+                    if (s.EndBus == localSection.EndBus)
+                    {
+                        int index = Math.Min(localSection.Segments.Count, s.Segments.Count);
+                        return s.Segments[s.Segments.Count - index].FromBus == localSection.Segments[localSection.Segments.Count - index].FromBus;
+                    }
+                    if (s.StartBus == localSection.StartBus)
+                    {
+                        int index = Math.Min(localSection.Segments.Count, s.Segments.Count);
+                        return s.Segments[index - 1].ToBus == localSection.Segments[index - 1].ToBus;
+                    }
+                    return false;
+                });
+            }
+
+            if (externalSection is null)
+            {
+                configuration.Sections.Add(localSection);
+                continue;
+            }
+
+            Section section = new Section() {
+                IsXDA = true,
+                IsExternal= true,
+                Segments = new List<Segment>(),
+                StartBus = localSection.StartBus,
+                EndBus = localSection.EndBus,  
+                StartStationID = localSection.StartStationID,
+                EndStationID = localSection.EndStationID,
+            };
+            int i = 0;
+
+            foreach (Segment localSegment in localSection.Segments)
+            {
+                Segment segment = new Segment() {
+                    X0= localSegment.X0,
+                    R0= localSegment.R0,
+                    AssetKey= localSegment.AssetKey,
+                    AssetName= localSegment.AssetName, 
+                    Description= localSegment.Description,
+                    FromBus= localSegment.FromBus,
+                    ID = localSegment.ID,
+                    IsEnd= localSegment.IsEnd,
+                    Length= localSegment.Length,
+                    R1= localSegment.R1,
+                    ThermalRating= localSegment.ThermalRating,
+                    ToBus= localSegment.ToBus,
+                    Warnings= new List<string>(),
+                    X1= localSegment.X1,
+                };
+                if (i > externalSection.Segments.Count - 1)
+                {                    
+                    segment.Warnings.Add("This Section does not exist in FAWG and was added manually.");
+                    section.Segments.Add(segment);
+                    i++;
+                    continue;
+                }
+                segment = MergeSegments(segment, externalSection.Segments[i]);
+                section.Segments.Add(segment);
+                i++;
+            }
+
+            while (i < externalSection.Segments.Count - 1)
+            {
+                externalSection.Segments[i].Warnings.Add("This section does not exist in XDA and was removed or recently added to FAWG.");
+                section.Segments.Add(externalSection.Segments[i]);
+                i++;
+            }
+            section.EndBus = section.Segments.Last().ToBus;
+            configuration.Sections.Add(section);
+        }
+
+        foreach (Section externalSection in external.Sections)
+        {
+            Section localSection = local.Sections.Find(s => compareSection(s, externalSection));
+            // Special case to consider if you just add a segment at the end or start....
+            if (localSection is null)
+                localSection = local.Sections.Find(s =>
+                {
+                    if (s.EndBus != externalSection.EndBus && s.StartBus != externalSection.StartBus)
+                        return false;
+                    if (s.EndBus == externalSection.EndBus)
+                    {
+                        int index = Math.Min(externalSection.Segments.Count, s.Segments.Count);
+                        return s.Segments[s.Segments.Count - index].FromBus == externalSection.Segments[externalSection.Segments.Count - index].FromBus;
+                    }
+                    if (s.StartBus == externalSection.StartBus)
+                    {
+                        int index = Math.Min(externalSection.Segments.Count, s.Segments.Count);
+                        return s.Segments[index - 1].ToBus == externalSection.Segments[index - 1].ToBus;
+                    }
+                    return false;
+                });
+
+            if (localSection is null)
+                configuration.Sections.Add(externalSection);
+        }
+        return configuration;
+    }
+
+    private Segment MergeSegments (Segment local, Segment external)
+    {
+        if (local.Length != external.Length)
+            local.Warnings.Add($"This Section has a different Lenght in FAWG ({external.Length}).");
+        if (local.X0 != external.X0)
+            local.Warnings.Add($"This Section has a different X0 un FAWG ({external.X0}).");
+        if (local.R0 != external.R0)
+            local.Warnings.Add($"This Section has a different R0 in FAWG ({external.R0}).");
+        if (local.ThermalRating != external.ThermalRating)
+            local.Warnings.Add($"This Section has a different Thermal Rating FAWG ({external.ThermalRating}).");
+        if (local.X1 != external.X1)
+            local.Warnings.Add($"This Section has a different X1 FAWG ({external.X1}).");
+        if (local.R1 != external.R1)
+            local.Warnings.Add($"This Section has a different R1 FAWG ({external.R1}).");
+
+        return local;
+    }
     private Segment ProcessSegment(LineSegment lineSegment)
     {
         return new Segment()
@@ -565,6 +923,7 @@ public class LineSegmentWizardController : ApiController
             AssetKey = lineSegment.AssetKey,
             AssetName = lineSegment.AssetName,
             Description = lineSegment.Description,
+            Warnings = new List<string>()
         };
 
     }
