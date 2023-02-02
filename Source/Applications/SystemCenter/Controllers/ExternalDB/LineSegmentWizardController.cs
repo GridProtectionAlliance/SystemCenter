@@ -42,7 +42,14 @@ using SystemCenter.Model;
 public class LineSegmentWizardController : ApiController
 {
     #region [ Members ]
-    private bool useFawg => true;
+    private bool useFawg
+    {
+        get 
+        {
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                return bool.Parse(connection.ExecuteScalar<string>("SELECT TOP 1 Value FROM [Systemcenter.Setting] WHERE Name = 'FAWG.Enabled' UNION (SELECT 'False' AS Value)"))
+        }
+    }
     #endregion
 
     #region [ Internal Classes ]
@@ -51,6 +58,7 @@ public class LineSegmentWizardController : ApiController
         public List<Tap> Taps { get; set; }
         public List<Section> Sections { get; set; }
         public bool UsedFAWG { get; set; }
+        public bool FailedFAWG { get; set; }
     }
 
     public class Tap
@@ -340,6 +348,7 @@ public class LineSegmentWizardController : ApiController
                 Sections = new List<Section>() { },
                 Taps = new List<Tap>(),
                 UsedFAWG = false,
+                FailedFAWG = false,
             };
 
             LineConfiguration xdaConfig = GetXDAConfiguration(line);
@@ -577,6 +586,7 @@ public class LineSegmentWizardController : ApiController
             Sections = new List<Section>() { },
             Taps = new List<Tap>(),
             UsedFAWG = false,
+            FailedFAWG= false,
         };
 
         try
@@ -722,7 +732,8 @@ public class LineSegmentWizardController : ApiController
             {
                 Sections = new List<Section>(),
                 UsedFAWG = true,
-                Taps = new List<Tap>()
+                Taps = new List<Tap>(),
+                FailedFAWG = true
             };
         }
     }
@@ -753,6 +764,7 @@ public class LineSegmentWizardController : ApiController
             Sections = new List<Section>() { },
             Taps = new List<Tap>(),
             UsedFAWG = true,
+            FailedFAWG = external.FailedFAWG
         };
 
         // Start  by combining Taps

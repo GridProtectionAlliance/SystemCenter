@@ -30,7 +30,6 @@ import SectionEdit from './SectionEdit';
 import { ISection, ISegment, ITap } from './Types';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import TapSelect from './TapSelect';
-import { stat } from 'fs';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 
 
@@ -63,6 +62,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
     const [locations, setLocations] = React.useState<OpenXDA.Types.Location[]>([]);
 
     const [fawgSuccess, setFAWGSucess] = React.useState<boolean>(false);
+    const [showFawgError, setShowFawgError] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         getData();
@@ -121,6 +121,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
     }
 
     function getData(): void {
+        setShowFawgError(false);
         setShowLoading(true);
         setShowError(false);
         const promiseLocation: JQuery.jqXHR<OpenXDA.Types.Location> =  $.ajax({
@@ -143,6 +144,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             setSections(data["Sections"] as ISection[]);
             setTaps(data["Taps"] as ITap[])
             setFAWGSucess(data["UsedFAWG"] as boolean)
+            setShowFawgError(data["setShowFawgError"] as boolean)
         });
 
         Promise.all([promiseLocation, promiseData]).then(() => {
@@ -304,6 +306,13 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)}
             >
+                {fawgSuccess && showFawgError ? <div className="row">
+                    <div className="col">
+                        <div className="alert alert-danger" role="alert">
+                            <h4 className="alert-heading">Unable to find Line {props.LineName} in FAWG</h4>
+                        </div>
+                    </div>
+                </div> : null}
                 {step == 'SetupTap' ? <TapSelect
                     Taps={taps} AddTap={(t) => { setTaps((d) => [...d, t]) }}
                     SaveTap={editTap}
