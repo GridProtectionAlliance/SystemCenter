@@ -87,22 +87,17 @@ const MeterAssetWindow = (props: IProps) => {
     }, [props.Meter]);
 
     React.useEffect(() => {
-        if (assetStatus === 'unintiated' || assetStatus === 'changed') {
-            setShowLoading(true);
-            reloadSlice();
-        }
+        if (assetStatus === 'unintiated' || assetStatus === 'changed')
+            dispatch(DBSearchAsset({ sortField: sortKey, ascending, filter: filter }));
     }, [assetStatus]);
 
     React.useEffect(() => {
-        if (selectStatus === 'unintiated' || selectStatus === 'changed') {
-            setShowLoading(true);
-            reloadSelect();
-        }
+        if (selectStatus === 'unintiated' || selectStatus === 'changed')
+            dispatch(FetchAsset());
     }, [SelectAssetStatus]);
 
     React.useEffect(() => {
-        setShowLoading(true);
-        reloadSlice();
+        dispatch(DBSearchAsset({ sortField: sortKey, ascending, filter: filter }));
     }, [ascending, sortKey, filter]);
 
     function setActiveAsset(assetID: number, assetType: OpenXDA.Types.AssetTypeName) {
@@ -114,16 +109,6 @@ const MeterAssetWindow = (props: IProps) => {
 
         let h = getAssetWithAdditionalFields(assetID, assetType);
         h.then(record => { changeActiveAsset(record); setNewEdit('Edit') });
-    }
-
-    function reloadSlice() {
-        dispatch(DBSearchAsset({ sortField: sortKey, ascending, filter: filter }));
-        setShowLoading(false);
-    }
-
-    function reloadSelect() {
-        dispatch(FetchAsset());
-        setShowLoading(false);
     }
 
     if (assetResults == undefined)
@@ -189,8 +174,8 @@ const MeterAssetWindow = (props: IProps) => {
                                 selected={(item) => false}
                             />
 
-                                <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove this Asset'} Message={'This will permanently remove this Asset from the Meter.'} />
-                            <LoadingScreen Show={showLoading} />
+                            <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove this Asset'} Message={'This will permanently remove this Asset from the Meter.'} />
+                            <LoadingScreen Show={assetStatus != 'idle' || selectStatus !='idle'} />
                             <Modal Show={showEditNew}
                                 Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + activeAsset.AssetKey + ' for Meter'}
                                 Size={'lg'}
