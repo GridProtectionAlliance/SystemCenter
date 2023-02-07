@@ -120,7 +120,6 @@ namespace SystemCenter.Controllers
             }
         }
 
-        [HttpDelete, Route("Delete")]
         public override IHttpActionResult Delete(Customer record)
         {
             try
