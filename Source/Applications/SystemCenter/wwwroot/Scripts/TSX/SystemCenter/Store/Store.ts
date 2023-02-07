@@ -59,13 +59,13 @@ export const MeasurmentTypeSlice = new GenericSlice<OpenXDA.Types.MeasurementTyp
 export const MeasurementCharacteristicSlice = new GenericSlice<OpenXDA.Types.MeasurementCharacteristic>("MeasurementCharacteristic", `${homePath}api/OpenXDA/MeasurementCharacteristic`, 'Name');
 
 export const DataFileSlice = new GenericSlice<OpenXDA.Types.DataFile>("DataFile", `${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", false);
-export const EventTypeAssetTypeSlice = new GenericSlice<LocalXDA.EventTypeAssetType>("EventTypeAssetType", `${homePath}api/OpenXDA/EventTypeAssetType`, "ID", false);
+export const EventTypeAssetTypeSlice = new GenericSlice<OpenXDA.Types.EventTypeAssetType>("EventTypeAssetType", `${homePath}api/OpenXDA/EventTypeAssetType`, "ID", false);
 export const CustomerSlice = new GenericSlice<OpenXDA.Types.Customer>("Customer", `${homePath}api/SystemCenter/Customer`, "CustomerKey", false);
 export const CustomerMeterSlice = new GenericSlice<LocalXDA.CustomerMeter>('CustomerMeter', `${homePath}api/SystemCenter/CustomerMeter`, 'MeterKey', false);
 export const CustomerAssetSlice = new GenericSlice<LocalXDA.CustomerAsset>('CustomerAsset', `${homePath}api/SystemCenter/CustomerAsset`, 'AssetKey', false);
 
 
-export const EventTypeSlice = new GenericSlice<LocalXDA.EventType>("EventType", `${homePath}api/OpenXDA/EventType`, "Name", false);
+export const EventTypeSlice = new GenericSlice<OpenXDA.Types.EventType>("EventType", `${homePath}api/OpenXDA/EventType`, "Name", false);
 export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location", `${homePath}api/OpenXDA/Location`, "LocationKey", true);
 export const DataOperationSlice = new GenericSlice<OpenXDA.Types.DataOperation>("DataOperation", `${homePath}api/OpenXDA/DataOperation`, "LoadOrder");
 export const DataReaderSlice = new GenericSlice<OpenXDA.Types.DataReader>("DataReader", `${homePath}api/OpenXDA/DataReader`, "LoadOrder");
@@ -96,7 +96,7 @@ export const UserAccountSlice = new UserSlice('UserAccounts', `${homePath}api/Sy
 export const UserAdditionalFieldSlice = new AdditionalUserFieldSlice('AdditionalUserFields', `${homePath}api/SystemCenter`);
 export const SCSecurityRoleSlice = new SecurityRoleSlice('SCSecurityRole', `${homePath}api/SystemCenter`);
 
-export const SourceImpedanceSlice = new GenericSlice<LocalXDA.SourceImpedance>("SourceImpedance", `${homePath}api/OpenXDA/SourceImpedance`, "AssetLocationID", false);
+export const SourceImpedanceSlice = new GenericSlice<OpenXDA.Types.SourceImpedance>("SourceImpedance", `${homePath}api/OpenXDA/SourceImpedance`, "AssetLocationID", false);
 
 const store = configureStore({
     reducer: {

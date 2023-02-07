@@ -27,7 +27,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { LoadingScreen, Modal, Section, Warning } from '@gpa-gemstone/react-interactive';
 import SectionSelect from './SectionSelect';
 import SectionEdit from './SectionEdit';
-import { ISection, ISegment, ITap } from './Types';
+import { ISection, ITap } from './Types';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import TapSelect from './TapSelect';
 import { IsNumber } from '@gpa-gemstone/helper-functions';

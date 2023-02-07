@@ -334,7 +334,8 @@ const MeterEventChannelWindow = (props: IProps) => {
                         MeterID: props.Meter.ID,
                         AssetID: assets.length > 0 ? assets[0].ID : -1,
                         MeasurementTypeID: measurementTypes.length > 0 ? measurementTypes[0].ID : -1,
-                        PhaseID: phases.length > 0 ? phases[0].ID : -1
+                        PhaseID: phases.length > 0 ? phases[0].ID : -1,
+                        Trend: false
                     }
 
                     dispatch(dBAction({ verb: 'POST', record: newChannel }));

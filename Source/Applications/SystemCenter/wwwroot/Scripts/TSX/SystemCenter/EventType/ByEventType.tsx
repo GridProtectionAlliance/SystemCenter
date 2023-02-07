@@ -32,7 +32,6 @@ import EventTypeForm from './EventTypeForm';
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { EventTypeAssetTypeSlice, EventTypeSlice } from '../Store/Store';
-import { OpenXDA as LocalXDA } from '../global';
 import { select } from 'd3';
 
 declare var homePath: string;
@@ -41,15 +40,15 @@ const ByEventType: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
     const dispatch = useAppDispatch();
-    const eventTypes = useAppSelector(EventTypeSlice.Data) as LocalXDA.EventType[];
+    const eventTypes = useAppSelector(EventTypeSlice.Data) as OpenXDA.Types.EventType[];
     const status = useAppSelector(EventTypeSlice.Status) as Application.Types.Status;
-    const [selected, setSelected] = React.useState<LocalXDA.EventType>(null);
+    const [selected, setSelected] = React.useState<OpenXDA.Types.EventType>(null);
   
-    const [sortKey, setSortKey] = React.useState<keyof LocalXDA.EventType>('Name');
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.EventType>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [errors, setErrors] = React.useState<string[]>([]);
 
-    const [assetTypeET, setAssettypeET] = React.useState<LocalXDA.EventTypeAssetType[]>([])
+    const [assetTypeET, setAssettypeET] = React.useState<OpenXDA.Types.EventTypeAssetType[]>([])
     const eventTypeAssetTypeData = useAppSelector(EventTypeAssetTypeSlice.Data);
     const eventTypeAssettypeParentID = useAppSelector(EventTypeAssetTypeSlice.ParentID);
     const atetStatus = useAppSelector(EventTypeAssetTypeSlice.Status) as Application.Types.Status;
@@ -90,7 +89,7 @@ const ByEventType: Application.Types.iByComponent = (props) => {
                 </nav>
             </div>            
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<LocalXDA.EventType>
+                <Table<OpenXDA.Types.EventType>
                     cols={[
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                        

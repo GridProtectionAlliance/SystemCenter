@@ -26,13 +26,12 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { Input, CheckBox, TextArea } from '@gpa-gemstone/react-forms';
 import { AssetTypeSlice, EventTypeAssetTypeSlice, EventTypeSlice  } from '../Store/Store';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { OpenXDA as LocalXDA } from '../global';
 
 interface IProps {
-    Record: LocalXDA.EventType,
-    Setter: (record: LocalXDA.EventType) => void,
+    Record: OpenXDA.Types.EventType,
+    Setter: (record: OpenXDA.Types.EventType) => void,
     setErrors?: (e: string[]) => void,
-    setAssetTypeETs: (records: LocalXDA.EventTypeAssetType[]) => void
+    setAssetTypeETs: (records: OpenXDA.Types.EventTypeAssetType[]) => void
 }
 
 export default function EventTypeForm(props: IProps) {
@@ -42,7 +41,7 @@ export default function EventTypeForm(props: IProps) {
 
     const eventTypeAssetTypeData = useAppSelector(EventTypeAssetTypeSlice.Data);
     const eventTypeAssettypeParentID = useAppSelector(EventTypeAssetTypeSlice.ParentID);
-    const [etAt, setETAT] = React.useState<LocalXDA.EventTypeAssetType[]>([]);
+    const [etAt, setETAT] = React.useState<OpenXDA.Types.EventTypeAssetType[]>([]);
 
     const atStatus = useAppSelector(AssetTypeSlice.Status) as Application.Types.Status;
     const atetStatus = useAppSelector(EventTypeAssetTypeSlice.Status) as Application.Types.Status;
@@ -75,7 +74,7 @@ export default function EventTypeForm(props: IProps) {
     React.useEffect(() => { props.setAssetTypeETs(etAt); }, [etAt])
 
 
-    function Valid(field: keyof (LocalXDA.EventType)): boolean {
+    function Valid(field: keyof (OpenXDA.Types.EventType)): boolean {
         if (field == 'Category')
             return props.Record.Category == null || props.Record.Category.length <= 50;
         else if (field == 'Description')
@@ -88,10 +87,10 @@ export default function EventTypeForm(props: IProps) {
         <>
             <div className="row" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                 <div className="col">
-                    <Input<LocalXDA.EventType> Record={props.Record} Field={'Name'} Label={'Name'} Disabled={true} Help={'Name can not be changed. To change what is displayed in variuos Visualization apps use Label'} Valid={() => true} Setter={() => { } } />
-                    <Input<LocalXDA.EventType> Record={props.Record} Field={'Category'} Label={'Category'} Feedback={'Category must be less than 50 characters.'} Valid={Valid} Setter={props.Setter} />
-                    <CheckBox<LocalXDA.EventType> Label={'Show in User interfaces'} Record={props.Record} Field={'ShowInFilter'} Setter={props.Setter} />
-                    <Input<LocalXDA.EventType> Label={'Label'} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} Feedback={'Label must be less than 50 characters and is required.'} />
+                    <Input<OpenXDA.Types.EventType> Record={props.Record} Field={'Name'} Label={'Name'} Disabled={true} Help={'Name can not be changed. To change what is displayed in variuos Visualization apps use Label'} Valid={() => true} Setter={() => { } } />
+                    <Input<OpenXDA.Types.EventType> Record={props.Record} Field={'Category'} Label={'Category'} Feedback={'Category must be less than 50 characters.'} Valid={Valid} Setter={props.Setter} />
+                    <CheckBox<OpenXDA.Types.EventType> Label={'Show in User interfaces'} Record={props.Record} Field={'ShowInFilter'} Setter={props.Setter} />
+                    <Input<OpenXDA.Types.EventType> Label={'Label'} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} Feedback={'Label must be less than 50 characters and is required.'} />
                 </div>
                 <div className="col">
                     <fieldset className="border" style={{ padding: '10px' }}>

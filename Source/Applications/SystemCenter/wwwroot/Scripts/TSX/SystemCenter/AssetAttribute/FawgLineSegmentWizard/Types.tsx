@@ -30,18 +30,12 @@ export interface ITap {
     IsXDA: boolean,
 }
 
-// We can update OpenXDA.Types.LineSegment with correct typing duing next update
-export interface ISegment extends OpenXDA.Types.LineSegment {
-    FromBus?: string,
-    Warnings: string[]
-};
-
 export interface ISection {
     StartBus: string,
     EndBus: string,
     StartStationID: (number | null),
     EndStationID: (number | null),
-    Segments: ISegment[],
+    Segments: OpenXDA.Types.LineSegment[],
     IsExternal: boolean,
     IsXDA: boolean,
     IsDifferent: boolean

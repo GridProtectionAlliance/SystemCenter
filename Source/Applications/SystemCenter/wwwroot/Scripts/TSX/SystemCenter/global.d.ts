@@ -83,14 +83,6 @@ export namespace OpenXDA {
         CustomerID: number,
         MeterID: number
     }
-
-    //These will move over to gpa-gemstone before the merge
-    interface SourceImpedance { ID: number, AssetLocationID: number, RSrc: number, XSrc: number }
-    interface AssetLocation { ID: number, AssetID: number, LocationID: number }
-
-    // Temporary until next gpa-gemstone update
-    interface EventType extends GemstoneXDA.Types.EventType { ShowInFilter: boolean, Category?: string, Name: string }
-    interface EventTypeAssetType { ID: number, EventTypeID: number, AssetTypeID: number }
 }
 
 export namespace PQView {

@@ -24,7 +24,6 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { OpenXDA as LocalXDA } from '../global';
 import { AssetAttributes } from './Asset';
 import {   } from '../../../TS/Services/Asset';
 import LineSegmentAttributes from './LineSegment';
@@ -37,14 +36,14 @@ import { LocationSlice, SourceImpedanceSlice } from '../Store/Store';
 import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
 import { Input, Select } from '@gpa-gemstone/react-forms';
 
-const newImpedance: LocalXDA.SourceImpedance = { RSrc: 0, XSrc: 0, AssetLocationID: null, ID: 0 }
+const newImpedance: OpenXDA.Types.SourceImpedance = { RSrc: 0, XSrc: 0, AssetLocationID: null, ID: 0 }
 
 function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     const dispatch = useAppDispatch();
     const locations = useAppSelector(LocationSlice.Data);
     const locationStatus = useAppSelector(LocationSlice.Status);
 
-    const [assetLocations, setAssetLocations] = React.useState<LocalXDA.AssetLocation[]>([]);
+    const [assetLocations, setAssetLocations] = React.useState<OpenXDA.Types.AssetLocation[]>([]);
     const [aLStatus, setALStatus] = React.useState<Application.Types.Status>('unintiated');
 
     const sourceImpedances = useAppSelector(SourceImpedanceSlice.SearchResults);
@@ -52,13 +51,13 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
 
     const [asc, setAsc] = React.useState<boolean>(false);
     const [sortKey, setSorKey] = React.useState();
-    const [data, setData] = React.useState<LocalXDA.SourceImpedance[]>([]);
+    const [data, setData] = React.useState<OpenXDA.Types.SourceImpedance[]>([]);
 
 
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [showWarning, setshowWarning] = React.useState<boolean>(false);
 
-    const [newEditImpedance, setNewEditImpedance] = React.useState<LocalXDA.SourceImpedance>(newImpedance);
+    const [newEditImpedance, setNewEditImpedance] = React.useState<OpenXDA.Types.SourceImpedance>(newImpedance);
     const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('New');
 
 
@@ -66,7 +65,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     React.useEffect(() => {
         const filter = [
             { FieldName: "AssetLocationID", Operator: "IN", Type: "number", isPivotColumn: false, SearchText: `(SELECT ID FROM AssetLocation WHERE AssetID=${props.ID})` }
-        ] as Search.IFilter<LocalXDA.SourceImpedance>[]
+        ] as Search.IFilter<OpenXDA.Types.SourceImpedance>[]
         dispatch(SourceImpedanceSlice.DBSearch({ filter }))
     }, [props.ID]);
 
@@ -88,7 +87,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
         if (sourceImpedanceStatus == 'changed' || sourceImpedanceStatus == 'unintiated') {
             const filter = [
                 { FieldName: "AssetLocationID", Operator: "IN", Type: "number", isPivotColumn: false, SearchText: `(SELECT ID FROM AssetLocation WHERE AssetID=${props.ID})` }
-            ] as Search.IFilter<LocalXDA.SourceImpedance>[]
+            ] as Search.IFilter<OpenXDA.Types.SourceImpedance>[]
             dispatch(SourceImpedanceSlice.DBSearch({ filter }))
         }
     }, [sourceImpedanceStatus])
@@ -109,14 +108,14 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
         });
     }
 
-    function sortData(key: keyof LocalXDA.SourceImpedance, ascending: boolean, dat: LocalXDA.SourceImpedance[]) {
+    function sortData(key: keyof OpenXDA.Types.SourceImpedance, ascending: boolean, dat: OpenXDA.Types.SourceImpedance[]) {
         if (key == 'AssetLocationID')
             return _.orderBy(dat, getLocationName, [(!ascending ? "asc" : "desc")]);
         return _.orderBy(dat, [key], [(!ascending ? "asc" : "desc")]);
 
     }
 
-    function getLocationName(si: LocalXDA.SourceImpedance) {
+    function getLocationName(si: OpenXDA.Types.SourceImpedance) {
         const al = assetLocations.find(al => al.ID == si.AssetLocationID);
         if (al == null)
             return "";
@@ -137,7 +136,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
             </div>
         </div>)
 
-    function validImpedance(si: LocalXDA.SourceImpedance) {
+    function validImpedance(si: OpenXDA.Types.SourceImpedance) {
         const e = [];
         if (!valid('XSrc'))
             e.push('X must be a valid number.');
@@ -149,7 +148,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
         return e;
     }
 
-    function valid(key: keyof (LocalXDA.SourceImpedance)) {
+    function valid(key: keyof (OpenXDA.Types.SourceImpedance)) {
         if (key == 'XSrc')
             return newEditImpedance.XSrc != null && IsNumber(newEditImpedance.XSrc);
         if (key == 'RSrc')
@@ -167,7 +166,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                        <Table<LocalXDA.SourceImpedance>
+                        <Table<OpenXDA.Types.SourceImpedance>
                         cols={[
                                 {
                                     key: 'AssetLocationID', field: 'AssetLocationID', label: 'Location',
@@ -231,7 +230,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
             >
             <div className="row">
                     <div className="col">
-                        <Select<LocalXDA.SourceImpedance> Record={newEditImpedance} Label={'Station'} Field={'AssetLocationID'}
+                        <Select<OpenXDA.Types.SourceImpedance> Record={newEditImpedance} Label={'Station'} Field={'AssetLocationID'}
                             Options={assetLocations.map(al => ({
                                 Label: (locations.find(l => al.LocationID == l.ID) == null ? '' : locations.find(l => al.LocationID == l.ID).Name),
                                 Value: al.ID.toString()
@@ -241,11 +240,11 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                         />
                     </div>
                     <div className="col">
-                        <Input<LocalXDA.SourceImpedance> Record={newEditImpedance} Field={'RSrc'} Label={'R (pu)'} Feedback={'A valid Resistance is required.'} Valid={valid} Setter={(r) => setNewEditImpedance(r)} />
+                        <Input<OpenXDA.Types.SourceImpedance> Record={newEditImpedance} Field={'RSrc'} Label={'R (pu)'} Feedback={'A valid Resistance is required.'} Valid={valid} Setter={(r) => setNewEditImpedance(r)} />
 
                 </div>
                     <div className="col">
-                        <Input<LocalXDA.SourceImpedance> Record={newEditImpedance} Field={'XSrc'} Label={'X (pu)'} Feedback={'A valid Reactance is required.'} Valid={valid} Setter={(r) => setNewEditImpedance(r)} />
+                        <Input<OpenXDA.Types.SourceImpedance> Record={newEditImpedance} Field={'XSrc'} Label={'X (pu)'} Feedback={'A valid Reactance is required.'} Valid={valid} Setter={(r) => setNewEditImpedance(r)} />
                     </div>
             </div>
             </Modal>

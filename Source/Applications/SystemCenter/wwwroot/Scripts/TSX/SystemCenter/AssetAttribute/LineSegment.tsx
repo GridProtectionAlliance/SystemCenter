@@ -41,7 +41,7 @@ function LineSegmentAttributes(props: { NewEdit: Application.Types.NewEdit, Asse
             return props.Asset.X1 != null && AssetAttributes.isRealNumber(props.Asset.X1);
         else if (field == 'ThermalRating')
             return props.Asset.ThermalRating != null && AssetAttributes.isRealNumber(props.Asset.ThermalRating);
-        else if (field == 'fromBus' || field == 'ToBus')
+        else if (field == 'FromBus' || field == 'ToBus')
             return true;
         return false;
     }
@@ -53,7 +53,7 @@ function LineSegmentAttributes(props: { NewEdit: Application.Types.NewEdit, Asse
     if (props.Asset == null) return null;
     return (
         <>
-            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Label={'Bus (from)'} Field={'fromBus'} Feedback={''} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Label={'Bus (from)'} Field={'FromBus'} Feedback={''} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Label={'Bus (to)'}  Field={'ToBus'} Feedback={''} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'Length'} Feedback={'Length is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'R0'} Feedback={'R0 is a required numeric field.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
