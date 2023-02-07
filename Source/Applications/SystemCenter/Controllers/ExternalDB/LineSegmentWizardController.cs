@@ -47,7 +47,7 @@ public class LineSegmentWizardController : ApiController
         get 
         {
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-                return bool.Parse(connection.ExecuteScalar<string>("SELECT TOP 1 Value FROM [Systemcenter.Setting] WHERE Name = 'FAWG.Enabled' UNION (SELECT 'False' AS Value)"))
+                return bool.Parse(connection.ExecuteScalar<string>("SELECT TOP 1 Value FROM [Systemcenter.Setting] WHERE Name = 'FAWG.Enabled' UNION (SELECT 'False' AS Value)"));
         }
     }
     #endregion
