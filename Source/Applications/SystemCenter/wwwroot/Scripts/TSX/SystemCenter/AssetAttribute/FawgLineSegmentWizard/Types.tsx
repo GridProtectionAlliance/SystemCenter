@@ -30,12 +30,16 @@ export interface ITap {
     IsXDA: boolean,
 }
 
+export interface ISegment extends OpenXDA.Types.LineSegment {
+    Warnings: string[]
+};
+
 export interface ISection {
     StartBus: string,
     EndBus: string,
     StartStationID: (number | null),
     EndStationID: (number | null),
-    Segments: OpenXDA.Types.LineSegment[],
+    Segments: ISegment[],
     IsExternal: boolean,
     IsXDA: boolean,
     IsDifferent: boolean

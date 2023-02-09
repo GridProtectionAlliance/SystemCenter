@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Input } from '@gpa-gemstone/react-forms';
-import { ISection } from './Types';
+import { ISection, ISegment } from './Types';
 import { ConfigurableTable } from '@gpa-gemstone/react-interactive';
 import { WarningWTooltip } from './Common';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
@@ -54,7 +54,7 @@ function SectionEdit(props: IProps): JSX.Element {
 
 
     // ToDo Add Tooltip with Warning
-    function DisplayWarning(segment: OpenXDA.Types.LineSegment) {
+    function DisplayWarning(segment: ISegment) {
         if (segment.Warnings.length == 0)
             return <></>
         const errors = [];
@@ -92,7 +92,7 @@ function SectionEdit(props: IProps): JSX.Element {
         props.SetSection({ ...props.Section, Segments: updated })
     }
 
-    function updateSegment(segment: OpenXDA.Types.LineSegment, index: number): void {
+    function updateSegment(segment: ISegment, index: number): void {
         let updated = _.cloneDeep(props.Section.Segments);
         if (index > 0)
             updated[index - 1].ToBus = segment.FromBus;
@@ -101,7 +101,7 @@ function SectionEdit(props: IProps): JSX.Element {
     }
 
     function addSegment() {
-        const newSegment: OpenXDA.Types.LineSegment = {
+        const newSegment: ISegment = {
             ID: 0,
             VoltageKV: 0,
             AssetKey: props.LineKey + '-S1',
@@ -145,7 +145,7 @@ function SectionEdit(props: IProps): JSX.Element {
         })
     }
 
-    function computeImpedances(record: OpenXDA.Types.LineSegment): IImpedances {
+    function computeImpedances(record: ISegment): IImpedances {
         const result: IImpedances = {
             Z0: 0,
             Z1: 0,
@@ -168,7 +168,7 @@ function SectionEdit(props: IProps): JSX.Element {
         return result;
     }
 
-    function valid(record: OpenXDA.Types.LineSegment, field: keyof OpenXDA.Types.LineSegment) {
+    function valid(record: ISegment, field: keyof ISegment) {
         if (field == 'AssetName')
             return record.AssetName != null && record.AssetName.length > 0
         if (field == 'Length')
@@ -198,10 +198,10 @@ function SectionEdit(props: IProps): JSX.Element {
             <div className="row">
                 <div className="col">
                     <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                        <ConfigurableTable<OpenXDA.Types.LineSegment>
+                        <ConfigurableTable<ISegment>
                             cols={[{
                                 field: "AssetName", key: "AssetName", label: "Segment",
-                                content: (item, key, fld, style, index) => <Input<OpenXDA.Types.LineSegment> Record={item} Field={'AssetName'} Label={''} Feedback={'Name must be less than 200 characters and is required.'} Valid={(fld) => valid(item,fld)} Setter={(r) => updateSegment(r, index)} />
+                                content: (item, key, fld, style, index) => <Input<ISegment> Record={item} Field={'AssetName'} Label={''} Feedback={'Name must be less than 200 characters and is required.'} Valid={(fld) => valid(item,fld)} Setter={(r) => updateSegment(r, index)} />
                             },
                                 {
                                     field: "ID", key: "btns", label: " ",
@@ -216,14 +216,14 @@ function SectionEdit(props: IProps): JSX.Element {
                                 },
                                 {
                                     field: "FromBus", key: "FromBus", label: "From Bus",
-                                    content: (item, key, fld, style, index) => <Input<OpenXDA.Types.LineSegment> Label={''} Record={item} Field={'FromBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={index == 0} />
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'FromBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={index == 0} />
                                 },
                                 {
-                                    field: "ToBus", key: "ToBus", label: "To Bus", content: (item, key, fld, style, index) => <Input<OpenXDA.Types.LineSegment> Label={''} Record={item} Field={'ToBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={true} />
+                                    field: "ToBus", key: "ToBus", label: "To Bus", content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'ToBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={true} />
                                 },
                                 {
                                     field: "Length", key: "Length", label: "Length (mi)",
-                                    content: (item, key, fld, style, index) => <Input<OpenXDA.Types.LineSegment> Label={''} Record={item} Field={'Length'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'Length'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
                                 },
                                 {
                                     field: "ID", key: "Z0", label: "Z0 (Ohm)",
@@ -235,11 +235,11 @@ function SectionEdit(props: IProps): JSX.Element {
                                 },
                                 {
                                     field: "ID", key: "R0", label: "R0 (Ohm)",
-                                    content: (item, key, fld, style, index) => <Input<OpenXDA.Types.LineSegment> Label={''} Record={item} Field={'R0'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'R0'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
                                 },
                                 {
                                     field: "ID", key: "X0", label: "X0 (Ohm)",
-                                    content: (item, key, fld, style, index) => <Input<OpenXDA.Types.LineSegment> Label={''} Record={item} Field={'X0'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'X0'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
                                 },
                                 {
                                     field: "ID", key: "Z1", label: "Z1 (Ohm)",
@@ -251,11 +251,11 @@ function SectionEdit(props: IProps): JSX.Element {
                                 },
                                 {
                                     field: "ID", key: "R1", label: "R1 (Ohm)",
-                                    content: (item, key, fld, style, index) => <Input<OpenXDA.Types.LineSegment> Label={''} Record={item} Field={'R1'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'R1'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
                                 },
                                 {
                                     field: "ID", key: "X1", label: "X1 (Ohm)",
-                                    content: (item, key, fld, style, index) => <Input<OpenXDA.Types.LineSegment> Label={''} Record={item} Field={'X1'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'X1'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
                                 },
                                 {
                                     field: "ID", key: "Zs", label: "Zs (Ohm)",
@@ -275,7 +275,7 @@ function SectionEdit(props: IProps): JSX.Element {
                                 },
                                 {
                                     field: "ThermalRating", key: "ThermalRating", label: "Thermal Rating",
-                                    content: (item, key, fld, style, index) => <Input<OpenXDA.Types.LineSegment> Label={''} Record={item} Field={'ThermalRating'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={() => true} />
+                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'ThermalRating'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={() => true} />
                                 }                               
                             ]}
                             tableClass="table table-hover"
