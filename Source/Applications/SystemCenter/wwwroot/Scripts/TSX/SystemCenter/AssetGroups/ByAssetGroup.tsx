@@ -341,7 +341,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalMeterFields} />
 
-            <AssetSelect Type='multiple' SessionStorageID='ByAssetGroup.Asset' ShowModal={showFilter == 'Asset'} SelectedAssets={newAssetGroup.AssetList}
+            <AssetSelect Type='multiple' StorageID='ByAssetGroup.Asset' ShowModal={showFilter == 'Asset'} SelectedAssets={newAssetGroup.AssetList}
                 Title={"Add Transmission Assets to " + (newAssetGroup.Name == undefined || newAssetGroup.Name.length == 0 ? "Asset Group" : newAssetGroup.Name)}
                 OnCloseFunction={(selected, conf) => {
                     setFilter('None')

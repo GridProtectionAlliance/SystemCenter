@@ -71,12 +71,10 @@ namespace SystemCenter.Controllers
 
         private class FawgLineSegment : LineSegment
         {
-            public int FromBus { get; set; }
-            public int ToBus { get; set; }
+            public int FromBusNumber { get; set; }
+            public int ToBusNumber { get; set; }
             public int LocationFromID { get; set; }
             public int LocationToID { get; set; }
-            public string FromBusName { get; set; }
-            public string ToBusName { get; set; }
             public bool Changed { get; set; }
         }
 
@@ -127,10 +125,10 @@ namespace SystemCenter.Controllers
                             VoltageKV = double.Parse((row["VoltageValue"].ToString() == "" ? "0" : row["VoltageValue"].ToString())),
                             AssetName = line.AssetName + String.Format(" Segment {0}", segment),
                             ThermalRating = double.Parse((row["ConductorSummerContRating"].ToString() == "" ? "0" : row["ConductorSummerContRating"].ToString())),
-                            FromBus = int.Parse(row["fromBusNumber"].ToString()),
-                            ToBus = int.Parse(row["ToBusNumber"].ToString()),
-                            FromBusName = row["fromBusName"].ToString(),
-                            ToBusName = row["toBusName"].ToString()
+                            FromBusNumber = int.Parse(row["fromBusNumber"].ToString()),
+                            ToBusNumber = int.Parse(row["ToBusNumber"].ToString()),
+                            FromBus = row["fromBusName"].ToString(),
+                            ToBus = row["toBusName"].ToString()
                         });
                     }
                 }
@@ -144,14 +142,14 @@ namespace SystemCenter.Controllers
                         segments[i].Changed = SegmentChanged(segments[i], assetID);
 
                     //Set end of Line Segments correctly
-                    int nFromBus = segments.Count(item => item.FromBus == segments[i].FromBus) + segments.Count(item => item.ToBus == segments[i].FromBus);
-                    int nToBus = segments.Count(item => item.FromBus == segments[i].ToBus) + segments.Count(item => item.ToBus == segments[i].ToBus);
+                    int nFromBus = segments.Count(item => item.FromBusNumber == segments[i].FromBusNumber) + segments.Count(item => item.ToBusNumber == segments[i].FromBusNumber);
+                    int nToBus = segments.Count(item => item.FromBusNumber == segments[i].ToBusNumber) + segments.Count(item => item.ToBusNumber == segments[i].ToBusNumber);
                     if (nToBus == 1 || nFromBus == 1)
                         segments[i].IsEnd = true;
 
                     //Get all Connected Segments
                     List<FawgLineSegment> connectedSegments = segments.Where((item, index) =>
-                        (item.FromBus == segments[i].FromBus || item.ToBus == segments[i].FromBus || item.FromBus == segments[i].ToBus || item.ToBus == segments[i].ToBus) && (i != index)).ToList();
+                        (item.FromBusNumber == segments[i].FromBusNumber || item.ToBusNumber == segments[i].FromBusNumber || item.FromBusNumber == segments[i].ToBusNumber || item.ToBusNumber == segments[i].ToBusNumber) && (i != index)).ToList();
 
                     //Set Connections if they don't already exist
                     foreach (FawgLineSegment seg in connectedSegments)
@@ -160,7 +158,7 @@ namespace SystemCenter.Controllers
                         (item.ParentKey == segments[i].AssetKey && item.ChildKey == seg.AssetKey) ||
                         (item.ChildKey == segments[i].AssetKey && item.ParentKey == seg.AssetKey)));
 
-                        int bus = (segments[i].FromBus == seg.FromBus || segments[i].ToBus == seg.FromBus) ? seg.FromBus : seg.ToBus;
+                        int bus = (segments[i].FromBusNumber == seg.FromBusNumber || segments[i].ToBusNumber == seg.FromBusNumber) ? seg.FromBusNumber : seg.ToBusNumber;
                         if (nConnections == 0)
                             connections.Add(new TempConnection() { ChildKey = segments[i].AssetKey, ParentKey = seg.AssetKey, BusNumber=bus });
                     }
@@ -308,13 +306,13 @@ namespace SystemCenter.Controllers
                     (
                         SELECT Value 
                         FROM [AdditionalFieldValue] AFV LEFT JOIN [AdditionalField] AF ON AFV.AdditionalFieldID = AF.ID
-                        WHERE AF.ParentTable='LineSegment' and AF.FieldName = 'FromBus' AND AFV.ParentTableID = LineSegment.ID 
-                    ) = '{Segment.FromBus}' AND 
+                        WHERE AF.ParentTable='LineSegment' and AF.FieldName = 'FromBusNumber' AND AFV.ParentTableID = LineSegment.ID 
+                    ) = '{Segment.FromBusNumber}' AND 
                     (
                         SELECT Value
                         FROM [AdditionalFieldValue] AFV LEFT JOIN [AdditionalField] AF ON AFV.AdditionalFieldID = AF.ID
-                        WHERE AF.ParentTable='LineSegment' and AF.FieldName = 'ToBus' AND AFV.ParentTableID = LineSegment.ID 
-                    ) = '{Segment.ToBus}'") ?? -1;
+                        WHERE AF.ParentTable='LineSegment' and AF.FieldName = 'ToBusNumber' AND AFV.ParentTableID = LineSegment.ID 
+                    ) = '{Segment.ToBusNumber}'") ?? -1;
 
         }
 

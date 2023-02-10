@@ -86,10 +86,8 @@ GO
 
 /* LineSegment Fawg Fields */
 INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('LineSegment', 'FromBusName','Fawg','LineSegment','FromBusName'),
-('LineSegment', 'ToBusName','Fawg','LineSegment','ToBusName'),
-('LineSegment', 'FromBus','Fawg','LineSegment','FromBus'),
-('LineSegment', 'ToBus','Fawg','LineSegment','ToBus')
+('LineSegment', 'FromBusNumber','Fawg','LineSegment','FromBusName'),
+('LineSegment', 'ToBusNumber','Fawg','LineSegment','ToBusName')
 GO
 
 /* Fields From Maximo for Meter */

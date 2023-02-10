@@ -65,6 +65,19 @@ namespace SystemCenter.Controllers.OpenXDA
                 return Unauthorized();
         }
 
+        [HttpGet, Route("{assetID:int}/AssetLocations")]
+        public IHttpActionResult GetAssetLocationModels(int assetID)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            { 
+                    IEnumerable<AssetLocation> records = new TableOperations<AssetLocation>(connection).QueryRecordsWhere("AssetID = {0}", assetID);
+                    return Ok(records);
+            } 
+        }
+
         [HttpGet, Route("{assetID:int}/AssetNear")]
         public IHttpActionResult GetAssetsNearAnAsset(int assetID)
         {

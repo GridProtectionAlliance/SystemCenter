@@ -83,7 +83,6 @@ export namespace OpenXDA {
         CustomerID: number,
         MeterID: number
     }
-
 }
 
 export namespace PQView {

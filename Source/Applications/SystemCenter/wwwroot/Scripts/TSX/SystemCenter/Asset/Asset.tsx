@@ -36,9 +36,10 @@ import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import { getAssetTypes } from '../../../TS/Services/Asset';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
 import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import SourceImpedanceWindow from '../AssetAttribute/SourceImpedanceWindow';
 
 declare var homePath: string;
-declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'Segments'
+declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'Segments' | 'SourceImpedances'
 
 function Asset(props: { AssetID: number }) {
     let history = useHistory();
@@ -130,11 +131,13 @@ function Asset(props: { AssetID: number }) {
         { Id: "connections", Label: "Connections" },
        ];
 
-    if (assetType == 'Line')
+    if (assetType == 'Line') {
         Tabs.push({ Id: "Segments", Label: "Line Segments" });
+        Tabs.push({ Id: "SourceImpedances", Label: "Source Impedances" });
+    }
     if (assetType == 'Breaker' || assetType == 'CapacitorBank' || assetType == 'Line' || assetType == 'Transformer' || assetType == 'Bus')
         Tabs.push({ Id: "extDB", Label: "External DB" });
-
+    
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
@@ -174,6 +177,9 @@ function Asset(props: { AssetID: number }) {
                 </div>
                 <div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
                     <ExternalDBUpdate ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab} />
+                </div>
+                <div className={"tab-pane " + (tab == "SourceImpedances" ? " active" : "fade")} id="SourceImpedances">
+                    <SourceImpedanceWindow ID={asset.ID} />
                 </div>
                 <div className={"tab-pane " + (tab == "Segments" ? " active" : "fade")} id="Segments">
                     <LineSegmentWindow ID={asset.ID}/>
