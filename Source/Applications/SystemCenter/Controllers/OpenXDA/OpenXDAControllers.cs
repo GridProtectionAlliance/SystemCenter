@@ -809,6 +809,9 @@ namespace SystemCenter.Controllers.OpenXDA
 
     [RoutePrefix("api/OpenXDA/MetersToDataPush")]
     public class MetersToDataPushController : ModelController<MetersToDataPush> { }
+
+    [RoutePrefix("api/OpenXDA/MaintenanceWindow")]
+    public class MaintenanceWindowController : ModelController<MaintenanceWindow> { }
 }
 
 
