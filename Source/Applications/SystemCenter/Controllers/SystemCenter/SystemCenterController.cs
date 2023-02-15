@@ -677,6 +677,7 @@ namespace SystemCenter.Controllers
                     Guid minType = SeriesValueType.Min;
                     Guid avgType = SeriesValueType.Avg;
 
+                    bool trend = false;
                     Func<Guid, string> SeriesType = (Guid g) =>
                     {
                         if (g == SeriesValueType.Val)
@@ -699,11 +700,16 @@ namespace SystemCenter.Controllers
                         .FirstOrDefault(channelGroupIndex => channelGroupIndex != 0);
 
                     var series = cd.SeriesDefinitions.Where(s => s.ValueTypeID == SeriesValueType.Val || s.ValueTypeID == SeriesValueType.Max || s.ValueTypeID == SeriesValueType.Min || s.ValueTypeID == SeriesValueType.Avg)
-                    .Select(d => new {
-                        ID = 0,
-                        ChannelID = 0,
-                        SeriesType = SeriesType(d.ValueTypeID),
-                        SourceIndexes = ""
+                    .Select(d => {
+                        string seriesType = SeriesType(d.ValueTypeID);
+                        if (!seriesType.Equals("Values")) trend = true;
+                        return new
+                        {
+                            ID = 0,
+                            ChannelID = 0,
+                            SeriesType = seriesType,
+                            SourceIndexes = ""
+                        };
                     });
                     
                     return new
@@ -723,7 +729,8 @@ namespace SystemCenter.Controllers
                         Enabled = true,
                         Adder = 0,
                         Multiplier = 1,
-                        Series = series
+                        Series = series,
+                        Trend = trend
                     };
                     
                 });

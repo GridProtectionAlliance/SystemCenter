@@ -275,7 +275,7 @@ export default function ChannelPage(props: IProps) {
                 <div className="col-6">
                     <div className="form-group" style={{ width: '100%' }}>
                         <div className="custom-file" style={IsPQD ? { width: '50%' } : {}}>
-                            <input type="file" className="custom-file-input" ref={fileInput} accept=".cfg,.pqd" />
+                            <input type="file" className="custom-file-input" ref={fileInput} accept=".cfg,.pqd,.par" />
                             <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile : 'Choose cfg or pqd file for event data.'}</label>
                         </div>
                         <div className="custom-file" style={{ width: '50%', visibility: (IsPQD? undefined : 'hidden') }}>
@@ -305,7 +305,7 @@ export default function ChannelPage(props: IProps) {
                 {props.TrendChannels ? null :
                     <div className="col-1">
                         <button className="btn btn-primary pull-right" onClick={() => {
-                            let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel
+                            let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0, Trend: false } as OpenXDA.Types.Channel
                             let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
                             channels.push(channel);
                             props.UpdateChannels(channels);
