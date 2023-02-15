@@ -36,7 +36,6 @@ import ChannelPage from './ChannelPage';
 import AssetPage from './AssetPage';
 import ConnectionPage from './ConnectionPage';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import LineSegmentPage from './LineSegmentPage';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import MultipleAssetsPage from './MultipleAssetsPage';
 import CustomerAssetGroupPage from './CustomerAssetGroupPage';
