@@ -97,7 +97,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
             async: true
         });
         handle.done((data) => {
-            setReset(reset + 1);
+            setReset(x => x + 1);
         }).fail(() => setStatus('error'));
         return handle;
     }
