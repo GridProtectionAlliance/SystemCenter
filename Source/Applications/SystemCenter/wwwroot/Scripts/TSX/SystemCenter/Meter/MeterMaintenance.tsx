@@ -102,29 +102,6 @@ const MeterMaintenanceWindow = (props: IProps) => {
         return handle;
     }
 
-    interface ITimeProps<T> {
-        Record: T,
-        Setter: (T) => void,
-        Field: keyof T,
-        CheckLabel: string,
-        DateLabel: string,
-    }
-    function EnableTimeElement<T>(props: ITimeProps<T>): JSX.Element {
-        const [showElement, setShowElement] = React.useState<{ checked: boolean }>({ checked: props.Record[props.Field] !== null });
-        return (
-            <>
-                <div className="row" style={{ paddingLeft: 20 }}>
-                    <CheckBox<{ checked: boolean }> Record={showElement} Field='checked' Label={props.CheckLabel} Setter={(newShow) => {
-                        if (!newShow.checked) props.Setter({ ...props.Record, [props.Field]: null });
-                        setShowElement(newShow);
-                    }} />
-                </div>
-                <div className="row" style={{ paddingLeft: 20 }}>
-                    <DatePicker Record={props.Record} Field={props.Field} Setter={props.Setter} Valid={() => true} Label={props.DateLabel} Disabled={!showElement.checked}/>
-                </div>
-            </>);
-    }
-
     let cardBody;
     if (status === 'error') {
         cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
@@ -252,6 +229,29 @@ const MeterMaintenanceWindow = (props: IProps) => {
             </>
         );
     }
+}
+
+interface ITimeProps<T> {
+    Record: T,
+    Setter: (T) => void,
+    Field: keyof T,
+    CheckLabel: string,
+    DateLabel: string,
+}
+function EnableTimeElement<T>(props: ITimeProps<T>): React.ReactElement {
+    const [showElement, setShowElement] = React.useState<{ checked: boolean }>({ checked: props.Record[props.Field] !== null });
+    return (
+        <>
+            <div className="row" style={{ paddingLeft: 20 }}>
+                <CheckBox<{ checked: boolean }> Record={showElement} Field='checked' Label={props.CheckLabel} Setter={(newShow) => {
+                    if (!newShow.checked) props.Setter({ ...props.Record, [props.Field]: null });
+                    setShowElement(newShow);
+                }} />
+            </div>
+            <div className="row" style={{ paddingLeft: 20 }}>
+                <DatePicker Record={props.Record} Field={props.Field} Setter={props.Setter} Valid={() => true} Label={props.DateLabel} Disabled={!showElement.checked} />
+            </div>
+        </>);
 }
 
 export default MeterMaintenanceWindow;
