@@ -432,39 +432,6 @@ namespace SystemCenter.Controllers.OpenXDA
 
     }
 
-    [RoutePrefix("api/OpenXDA/CompanyType")]
-    public class CompanyTypeController : ModelController<CompanyType> { }
-
-
-
-    [AllowSearch,TableName("Company")]
-    public class SCCompany : Company { }
-    [RoutePrefix("api/OpenXDA/Company")]
-    public class CompanyController : ModelController<SCCompany> {}
-
-    [RoutePrefix("api/OpenXDA/CompanyMeter")]
-    public class CompanyMeterController : ModelController<CompanyMeter>
-    {
-        [HttpPost, Route("AddMultiple")]
-        public IHttpActionResult AddMultipleCompanyMeter(IEnumerable<CompanyMeter> companyMeters)
-        {
-            try
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    foreach (CompanyMeter companyMeter in companyMeters)
-                        new TableOperations<CompanyMeter>(connection).AddNewRecord(companyMeter);
-
-                    return Ok("Added all records without error.");
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-    }
-
     [RoutePrefix("api/OpenXDA/PQViewSite")]
     public class PQViewSiteCotnroller : ModelController<Site> { }
 
