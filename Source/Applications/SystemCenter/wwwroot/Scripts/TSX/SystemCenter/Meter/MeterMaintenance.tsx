@@ -27,7 +27,9 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import Table from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Warning, Modal, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { CheckBox, DatePicker } from '@gpa-gemstone/react-forms';
+import { Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols';
+import { DatePicker, Select } from '@gpa-gemstone/react-forms';
+import moment from 'moment';
 
 declare var homePath: string;
 
@@ -53,6 +55,8 @@ const MeterMaintenanceWindow = (props: IProps) => {
     const [showDeleteWarning, setShowDeleteWarning] = React.useState<boolean>(false);
     const [activeWindow, setActiveWindow] = React.useState<MaintenanceWindow>(null);
     const [reset, setReset] = React.useState<number>(0);
+
+    const defaultFormat = 'YYYY-MM-DD[T]hh:mm:ss';
 
     React.useEffect(() => {
         let handle = getMaintenanceWindows();
@@ -102,6 +106,14 @@ const MeterMaintenanceWindow = (props: IProps) => {
         return handle;
     }
 
+    function hasError(): boolean {
+        return (
+            activeWindow.StartTime !== null &&
+            activeWindow.EndTime !== null &&
+            moment(activeWindow.StartTime, defaultFormat).valueOf() > moment(activeWindow.EndTime, defaultFormat).valueOf()
+        );
+    }
+
     let cardBody;
     if (status === 'error') {
         cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
@@ -116,11 +128,11 @@ const MeterMaintenanceWindow = (props: IProps) => {
                             cols={[
                                 {
                                     key: 'StartTime', field: 'StartTime', label: 'Start Window Time', headerStyle: { width: 'calc(50%-40px)' }, rowStyle: { width: 'calc(50%-40px)' },
-                                    content: (item) => item.StartTime ?? 'This window has no start time'
+                                    content: (item) => item.StartTime ? moment(item.StartTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window starts at meter creation'
                                 },
                                 {
                                     key: 'EndTime', field: 'EndTime', label: 'End Window Time', headerStyle: { width: 'calc(50%-40x)' }, rowStyle: { width: 'calc(50%-40x)' },
-                                    content: (item) => item.EndTime ?? 'This window has no end time'
+                                    content: (item) => item.EndTime ? moment(item.EndTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window has no end time'
                                 },
                                 {
                                     key: 'EditDelete', label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
@@ -184,7 +196,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                                 setActiveWindow({
                                     ID: -1,
                                     MeterID: props.Meter.ID,
-                                    StartTime: null,
+                                    StartTime: moment().format('YYYY-MM-DD'),
                                     EndTime: null
                                 });
                                 setShowEditNew(true);
@@ -210,6 +222,9 @@ const MeterMaintenanceWindow = (props: IProps) => {
                         Size={'lg'}
                         ShowX={true}
                         ShowCancel={false}
+                        DisableConfirm={hasError()}
+                        ConfirmShowToolTip={hasError()}
+                        ConfirmToolTipContent={<div>{WarningIcon} Start time cannot be in the future of the end time.</div>}
                         ConfirmText={'Save'}
                         CallBack={(confirmed) => {
                             setShowEditNew(false);
@@ -222,8 +237,8 @@ const MeterMaintenanceWindow = (props: IProps) => {
                             }
                         }}
                     >
-                        <EnableTimeElement Record={activeWindow} Setter={setActiveWindow} Field={'StartTime'} CheckLabel={'Set start time for window?'} DateLabel={'Start Time'} />
-                        <EnableTimeElement Record={activeWindow} Setter={setActiveWindow} Field={'EndTime'} CheckLabel={'Set end time for window?'} DateLabel={'End Time'} />
+                        <EnableTimeElement<MaintenanceWindow> Record={activeWindow} Setter={setActiveWindow} Field={'StartTime'} SelectLabel={'Start at Meter Creation'} DateLabel={'Start at Specified Date'} />
+                        <EnableTimeElement<MaintenanceWindow> Record={activeWindow} Setter={setActiveWindow} Field={'EndTime'} SelectLabel={'Have no End Date'} DateLabel={'End at Specified Date'} />
                     </Modal>
                 </>}
             </>
@@ -235,23 +250,29 @@ interface ITimeProps<T> {
     Record: T,
     Setter: (T) => void,
     Field: keyof T,
-    CheckLabel: string,
-    DateLabel: string,
+    SelectLabel: string,
+    DateLabel: string
 }
 function EnableTimeElement<T>(props: ITimeProps<T>): React.ReactElement {
-    const [showElement, setShowElement] = React.useState<{ checked: boolean }>({ checked: props.Record[props.Field] !== null });
+    const [showElement, setShowElement] = React.useState<{ checked: string }>({ checked: props.Record[props.Field] !== null ? '1' : ''});
+    const options = [{ Value: '1', Label: props.DateLabel }, {Value: '', Label: props.SelectLabel}]
     return (
-        <>
-            <div className="row" style={{ paddingLeft: 20 }}>
-                <CheckBox<{ checked: boolean }> Record={showElement} Field='checked' Label={props.CheckLabel} Setter={(newShow) => {
-                    if (!newShow.checked) props.Setter({ ...props.Record, [props.Field]: null });
+        <div className="row" style={{ paddingLeft: 20 }}>
+            <div className="col" style={{ paddingRight: 20, width: '50%' }}>
+                <Select<{ checked: string }> Record={showElement} Field='checked' Label={''} Setter={(newShow) => {
+                    if (!newShow.checked)
+                        props.Setter({ ...props.Record, [props.Field]: null });
+                    else
+                        props.Setter({ ...props.Record, [props.Field]: moment().format('YYYY-MM-DD') });
                     setShowElement(newShow);
-                }} />
+                }} Options={options} />
             </div>
-            <div className="row" style={{ paddingLeft: 20 }}>
-                <DatePicker Record={props.Record} Field={props.Field} Setter={props.Setter} Valid={() => true} Label={props.DateLabel} Disabled={!showElement.checked} />
+            <div className="col" style={{ paddingLeft: 20, width: '50%' }}>
+                {showElement.checked ?
+                    <DatePicker Record={props.Record} Field={props.Field} Setter={props.Setter} Valid={() => true} Label={''} Type='datetime-local' Disabled={!showElement.checked} />
+                : null}
             </div>
-        </>);
+        </div>);
 }
 
 export default MeterMaintenanceWindow;
