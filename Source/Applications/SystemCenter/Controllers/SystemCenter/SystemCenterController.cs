@@ -691,7 +691,6 @@ namespace SystemCenter.Controllers
                         return "Values";
                     };
 
-                    int harmonic = 0;
                     int harmonicGroup = observations
                         .Where(observation => ReferenceEquals(observation.DataSource, cd.DataSource))
                         .SelectMany(observation => observation.ChannelInstances)
@@ -724,7 +723,7 @@ namespace SystemCenter.Controllers
                         Name = cd.ChannelName,
                         SamplesPerHour = 0,
                         PerUnitValue = 1,
-                        HarmonicGroup = harmonic,
+                        HarmonicGroup = harmonicGroup,
                         Description = (cd.DataSource.DataSourceName) + " - " + cd.ChannelName,
                         Enabled = true,
                         Adder = 0,
