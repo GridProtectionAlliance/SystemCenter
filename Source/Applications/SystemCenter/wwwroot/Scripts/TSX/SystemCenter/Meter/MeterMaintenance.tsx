@@ -224,7 +224,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                         ShowCancel={false}
                         DisableConfirm={hasError()}
                         ConfirmShowToolTip={hasError()}
-                        ConfirmToolTipContent={<div>{WarningIcon} Start time cannot be in the future of the end time.</div>}
+                        ConfirmToolTipContent={<p>{WarningIcon} Start time cannot be in the future of the end time.</p>}
                         ConfirmText={'Save'}
                         CallBack={(confirmed) => {
                             setShowEditNew(false);
