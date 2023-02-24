@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA, PqDiff } from '@gpa-gemstone/application-typings';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import CFGParser from '../../../TS/CFGParser';
 
 import Table from '@gpa-gemstone/react-table'
@@ -48,36 +48,30 @@ interface IProps {
 
 export default function ChannelPage(props: IProps) {
     const fileInput = React.useRef(null);
-    const trendFileInput = React.useRef(null);
-
     const [showCFGError, setShowCFGError] = React.useState<boolean>(false);
     const [showSpareWarning, setShowSpareWarning] = React.useState<boolean>(false);
     const [showScaling, setShowScaling] = React.useState<boolean>(false);
+    const [showDialog, setShowDialog] = React.useState<boolean>(false);
     const [selectedFile, setSelectedFile] = React.useState('');
-    const [selectedTrendFile, setSelectedTrendFile] = React.useState('');
     const [currentChannels, setCurrentChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
+    const [parsedChannels, setParsedChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
 
     const baseWarnings: string[] = ["Ensure all scaling values are correct.", "Ensure all virtual channels are setup."];
+    const serverParsedExtensions: string[] = ['pqd', 'sel', 'cev', 'eve', 'ctl', 'txt'];
+    const webParsedExtensions: string[] = ['cfg', 'par'];
+    const allTypes: string = webParsedExtensions.join(", ") + ", " + serverParsedExtensions.join(", ");
 
     React.useEffect(() => {
+        props.SetWarning(baseWarnings)
+
+        // Need two seperate inputs because the page is expected to go between event and trend mode, thus if the same file is used it won't trigger the event
         $(fileInput.current).on("change", (evt: any) => {
             let fileName = (evt as React.ChangeEvent<HTMLInputElement>).target.value.split("\\").pop();
             if (fileName == "")
                 return;
             setSelectedFile(fileName);
-            readSingleFile((evt as React.ChangeEvent<HTMLInputElement>), false)
+            readSingleFile(evt as React.ChangeEvent<HTMLInputElement>);
         });
-
-        $(trendFileInput.current).on("change", (evt: any) => {
-            let fileName = (evt as React.ChangeEvent<HTMLInputElement>).target.value.split("\\").pop();
-            if (fileName == "")
-                return;
-            setSelectedTrendFile(fileName);
-            readSingleFile((evt as React.ChangeEvent<HTMLInputElement>), true);
-        });
-
-        props.SetWarning(baseWarnings)
-
 
         return () => {
             $(".custom-file-input").off('change');
@@ -96,68 +90,79 @@ export default function ChannelPage(props: IProps) {
     }, [currentChannels]);
 
     function getCurrentChannels(trendChannels: boolean): OpenXDA.Types.Channel[] {
-        return props.Channels.filter((item) => (item.Series.filter(s => s.SeriesType != 'Values').length > 0) ? trendChannels : !trendChannels);
+        return props.Channels.filter((item) => (item.Trend === trendChannels));
     }
 
-    function readSingleFile(evt: React.ChangeEvent<HTMLInputElement>, isTrend: boolean) {
+    function readSingleFile(evt: React.ChangeEvent<HTMLInputElement>) {
         //Retrieve the first (and only!) File from the FileList object
         var f = evt.target.files[0];
 
         if (!f) {
             return;
         }
-        if (f.name.toLowerCase().indexOf('.cfg') >= 0 && !isTrend) {
+        if (f.name.indexOf('.') < 0) {
+            setShowCFGError(true);
+            return;
+        }
+        let extension = f.name.toLowerCase().substring(f.name.lastIndexOf('.') + 1, f.name.length);
+        // Handle js parsed files
+        if (webParsedExtensions.indexOf(extension) >= 0) {
             let r = new FileReader();
             r.onload = (e) => {
 
                 let contents = e.target.result as string;
+                let parser;
+                if (extension === 'cfg')
+                    parser = new CFGParser(contents, props.MeterKey);
+                else
+                    parser = new PARParser(contents, props.MeterKey);
 
-                let parser = new CFGParser(contents, props.MeterKey);
-                props.UpdateChannels(parser.Channels);
-                clearAssetsChannels();
+                handleParsedChannels(parser.Channels);
             }
             r.readAsText(f);
         }
-        else if (f.name.toLowerCase().indexOf('.par') >= 0 && !isTrend) {
-            let r = new FileReader();
-            r.onload = (e) => {
-
-                let contents = e.target.result as string;
-                let parser = new PARParser(contents, props.MeterKey);
-                props.UpdateChannels(parser.Channels);
-                clearAssetsChannels();
-            }
-            r.readAsText(f);
-        }
-        else if (f.name.toLowerCase().indexOf('.pqd') >= 0) {
+        // Handle server parsed files
+        else if (serverParsedExtensions.indexOf(extension) >= 0) {
             let r = new FileReader();
             r.onload = async (e) => {
-
                 let contents = e.target.result as ArrayBuffer;
-                let parser = new PQDIFParser(contents, props.MeterKey);
-                await parser.LoadChannels();
-                clearAssetsChannels();
-
-                if (isTrend) 
-                    props.UpdateChannels((c) => {
-                        const u = c.filter(c => c.MeasurementCharacteristic == 'Instantaneous').concat(parser.Channels);
-                        // ID's need to update due to the filtering
-                        u.forEach((c, i) => c.ID = i);
-                        return u;
-                    });
-                else
-                    props.UpdateChannels((c) => {
-                        const u = c.filter(c => c.MeasurementCharacteristic != 'Instantaneous').concat(parser.Channels);
-                        u.forEach((c, i) => c.ID = i);
-                        return u;
-                    });               
-
+                $.ajax({
+                    type: 'POST',
+                    url: `${homePath}api/SystemCenter/Parse/${extension}/${props.MeterKey}`,
+                    contentType: "application/octet-stream",
+                    processData: false,
+                    data: contents,
+                    cache: false,
+                    async: true
+                }).done((data: OpenXDA.Types.Channel[]) => { handleParsedChannels(data); }
+                ).fail(msg => {
+                    if (msg.status == 500)
+                        alert(msg.responseJSON.ExceptionMessage)
+                });
             }
             r.readAsArrayBuffer(f);
-
         }
         else
             setShowCFGError(true);
+    }
+
+    function handleParsedChannels(newChannels: OpenXDA.Types.Channel[]) {
+        if (newChannels.findIndex(chan => (chan.Trend !== props.TrendChannels)) >= 0) {
+            setParsedChannels(newChannels);
+            setShowDialog(true);
+        } else
+            addChannels(newChannels, false);
+    }
+
+    // Note: This will only add channels of the type (Trend or event) that match the mode of the component defined in props.TrendChannels
+    function addChannels(newChannels: OpenXDA.Types.Channel[], addAll: boolean) {
+        const filteredChannels = addAll ? newChannels : newChannels.filter(chan => (chan.Trend === props.TrendChannels));
+        const otherChannels = addAll ? [] : getCurrentChannels(!props.TrendChannels);
+        const allChannels: OpenXDA.Types.Channel[] = [...otherChannels, ...filteredChannels];
+        // ID's need to update due to filtering and combining
+        allChannels.forEach((chan, index) => chan.ID = index);
+        props.UpdateChannels(allChannels);
+        clearAssetsChannels();
     }
 
     function deleteChannel(index:number): void {
@@ -250,15 +255,12 @@ export default function ChannelPage(props: IProps) {
 
     const NSpare = props.Channels.filter(c => IsSpare(c)).length;
 
-    const IsPQD = selectedFile.length > 0 ? selectedFile.toLowerCase().indexOf('.pqd') >= 0 : false;
-
     return (
         <>
             <div className="row">
                 <div className="col-2">
                     <button className="btn btn-primary" onClick={() => {
                         setSelectedFile('');
-                        setSelectedTrendFile('');
                         let channels: Array<OpenXDA.Types.Channel> = [
                             { ID: 0, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
                             { ID: 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'VBN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage BN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
@@ -274,13 +276,9 @@ export default function ChannelPage(props: IProps) {
                 </div>
                 <div className="col-6">
                     <div className="form-group" style={{ width: '100%' }}>
-                        <div className="custom-file" style={IsPQD ? { width: '50%' } : {}}>
-                            <input type="file" className="custom-file-input" ref={fileInput} accept=".cfg,.pqd,.par" />
-                            <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile : 'Choose cfg or pqd file for event data.'}</label>
-                        </div>
-                        <div className="custom-file" style={{ width: '50%', visibility: (IsPQD? undefined : 'hidden') }}>
-                            <input type="file" className="custom-file-input" ref={trendFileInput} accept=".pqd" />
-                            <label className={"custom-file-label" + (selectedTrendFile.length > 0 ? " selected" : "")} > {selectedTrendFile.length > 0 ? selectedTrendFile : 'Choose pqd trending file.'}</label>
+                        <div className="custom-file">
+                            <input type="file" className="custom-file-input" ref={fileInput} />
+                            <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile : 'Choose file for trend channel data.'}</label>
                         </div>
                     </div>
                 </div>
@@ -288,10 +286,9 @@ export default function ChannelPage(props: IProps) {
                     <button className="btn btn-primary pull-right" disabled={NSpare == 0} onClick={() => setShowSpareWarning(true)}>Remove Spare</button>
                 </div>
                 <div className="col-1">
-                    <button className="btn btn-primary pull-right" disabled={props.Channels.length == 0} onClick={() => {
+                    <button className="btn btn-primary pull-right" disabled={currentChannels.length === 0} onClick={() => {
                         props.UpdateChannels(getCurrentChannels(!props.TrendChannels)); // Set props to only non-shown channels for current page
                         setSelectedFile('');
-                        setSelectedTrendFile('');
                     }
                     }>Clear Channels</button>
                 </div>
@@ -356,11 +353,18 @@ export default function ChannelPage(props: IProps) {
                     selected={(item) => false}
                 />
             </div>
-            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={'File is not of type cfg, par, or pqd. Please only use cfg, or pqd files.'} CallBack={() => setShowCFGError(false)} />
+            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File is not one of following types ${allTypes}. Please only use files of those types.`} CallBack={() => setShowCFGError(false)} />
             <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare channels. This will remove ${NSpare} Channels from the Configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
             <Modal Title="Scale Channels for New Meter" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Leave Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
                 <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels}/>
             </Modal>
+            <Modal Title={"Add All Channels"} ShowX={true} ShowCancel={true} Show={showDialog} CancelText={"Only " + (props.TrendChannels ? "Trend" : "Event")} ConfirmText="Add All" Size='sm' CallBack={(all) => {
+                addChannels(parsedChannels, all);
+                setShowDialog(false);
+            }}>
+                {"Add all channels or only " + (props.TrendChannels ? "trend" : "event") + " channels?"}
+            </Modal>
+
         </>
         );
 

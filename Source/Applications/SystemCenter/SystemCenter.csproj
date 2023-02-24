@@ -120,6 +120,9 @@
     <Reference Include="GSF.Core">
       <HintPath>..\..\Dependencies\GSF\GSF.Core.dll</HintPath>
     </Reference>
+    <Reference Include="GSF.EMAX">
+      <HintPath>..\..\Dependencies\GSF\GSF.EMAX.dll</HintPath>
+    </Reference>
     <Reference Include="GSF.PhasorProtocols">
       <HintPath>..\..\Dependencies\GSF\GSF.PhasorProtocols.dll</HintPath>
     </Reference>
@@ -128,6 +131,9 @@
     </Reference>
     <Reference Include="GSF.Security">
       <HintPath>..\..\Dependencies\GSF\GSF.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="GSF.SELEventParser">
+      <HintPath>..\..\Dependencies\GSF\GSF.SELEventParser.dll</HintPath>
     </Reference>
     <Reference Include="GSF.ServiceProcess">
       <HintPath>..\..\Dependencies\GSF\GSF.ServiceProcess.dll</HintPath>
@@ -171,6 +177,10 @@
     </Reference>
     <Reference Include="openXDA.APIAuthentication">
       <HintPath>..\..\Dependencies\openXDA\openXDA.APIAuthentication.dll</HintPath>
+    </Reference>
+    <Reference Include="openXDA.Configuration, Version=3.0.3.330, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependencies\openXDA\openXDA.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="openXDA.Model, Version=3.0.3.2, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

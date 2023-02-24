@@ -41,7 +41,7 @@ export default class PQDIFParser {
         return new Promise<OpenXDA.Types.Channel[]>((resolve, reject) => {
 
             var xhr = new XMLHttpRequest();
-            xhr.open('POST', `${homePath}api/SystemCenter/PQDIFFile/${this.MeterKey}`);
+            xhr.open('POST', `${homePath}api/SystemCenter/Parse/pqd/${this.MeterKey}`);
             xhr.setRequestHeader('Content-Type', 'application/octet-stream');
             xhr.onreadystatechange = () => {
                 if (xhr.readyState == 4) {
