@@ -1,0 +1,157 @@
+﻿// ******************************************************************************************************
+//  ByUserGroup.tsx - Gbtc
+//
+//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  02/23/2023 - C. Lackner
+//       Generated original version of source code.
+// ******************************************************************************************************
+
+import * as React from 'react';
+import Table from '@gpa-gemstone/react-table';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
+import * as CryptoJS from 'crypto-js';
+import * as _ from 'lodash';
+import UserForm from '../UserForm';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { useHistory } from "react-router-dom";
+import { ValueListSlice, ValueListGroupSlice, UserAdditionalFieldSlice, UserAccountSlice, SecurityGroupSlice } from '../../Store/Store';
+import { UserValidation } from '@gpa-gemstone/common-pages/lib/SliceInterfaces';
+import { stat } from 'fs';
+import { ISecurityGroup } from './Types';
+import { useSelector } from 'react-redux';
+import GroupForm from './GroupForm';
+
+const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
+    { label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false },
+    { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+    { label: 'Type', key: 'Type', type: 'string', isPivotField: false },
+];
+
+const emptyGroup: ISecurityGroup = { Name: "", CreatedBy: "", CreatedOn: new Date(), Description: "", DisplayName: "", ID: "00000000-0000-0000-0000-000000000000", Type: "Database", UpdatedOn: new Date() };
+
+
+const ByUser: Application.Types.iByComponent = (props) => {
+    let history = useHistory();
+    const dispatch = useAppDispatch();
+
+    const search = useSelector(SecurityGroupSlice.SearchFilters);
+    const data = useSelector(SecurityGroupSlice.SearchResults);
+    const allGroups = useSelector(SecurityGroupSlice.Data);
+
+    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const searchStatus = useSelector(SecurityGroupSlice.SearchStatus);
+
+    const sortField = useSelector(SecurityGroupSlice.SortField);
+    const ascending = useSelector(SecurityGroupSlice.Ascending);
+
+    const [showModal, setShowModal] = React.useState<boolean>(false);
+    const [groupError, setGroupError] = React.useState<string[]>([]);
+
+    const [newGroup, setNewGroup] = React.useState<ISecurityGroup>(emptyGroup);
+
+    const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('unintiated');
+
+    React.useEffect(() => {
+        if (status === 'error')
+            setPageStatus('error')
+        else if (status === 'loading' )
+            setPageStatus('loading')
+        else
+            setPageStatus('idle');
+    }, [status])
+
+    React.useEffect(() => {
+        if (searchStatus == 'unintiated' || searchStatus == 'changed')
+            dispatch(SecurityGroupSlice.DBSearch({ filter: search }))
+    }, [searchStatus])
+
+    if (pageStatus === 'error')
+        return <div style={{ width: '100%', height: '100%' }}>
+            <ServerErrorIcon Show={true} Label={'A Server Error Occured. Please Reload the Application'} />
+        </div>;
+
+    return (
+        <div style={{ width: '100%', height: '100%' }}>
+            <LoadingScreen Show={pageStatus === 'loading'} />
+            <SearchBar<ISecurityGroup> CollumnList={defaultSearchcols} SetFilter={(flds) => dispatch(SecurityGroupSlice.DBSearch({ filter: flds }))}
+                Direction={'left'} defaultCollumn={{ label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
+                ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Groups'}
+                GetEnum={() => {
+                    return () => { }
+                }}
+            >
+                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                        <form>
+                            <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowModal(true) }}>Add Group</button>
+                        </form>
+                    </fieldset>
+                </li>
+            </SearchBar>
+
+            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
+                <Table<ISecurityGroup>
+                    cols={[
+                        { key: 'Name', field: 'DisplayName', label: 'Group Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'CreatedOn', field: 'CreatedOn', label: 'Added On', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'CreatedBy', field: 'CreatedBy', label: 'Created By', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    ]}
+                    tableClass="table table-hover"
+                    data={data}
+                    sortKey={sortField}
+                    ascending={ascending}
+                    onSort={(d) => {
+                        if (d.colKey === 'scroll' || d.colField == undefined)
+                            return;
+                        if (d.colField === sortField)
+                            dispatch(SecurityGroupSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
+                        else
+                            dispatch(SecurityGroupSlice.Sort({SortField: d.colField, Ascending: true }));
+                    }}
+                    onClick={(d) => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Group&GroupID=' + d.row.ID })}
+                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    selected={(item) => false}
+                />
+            </div>
+            <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
+                Title={'Add Group'} CallBack={(confirm) => {
+                    if (confirm)
+                        dispatch(SecurityGroupSlice.DBAction({ verb: 'POST', record: { ...newGroup, Name: newGroup.DisplayName } }))
+                    setShowModal(false);
+                }}
+                ConfirmShowToolTip={groupError.length > 0}
+                ConfirmToolTipContent={<>
+                    {groupError.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+                </>}
+                DisableConfirm={groupError.length > 0}
+            >
+                <GroupForm Group={newGroup} Setter={(u) => setNewGroup(u)} Edit={false} SetErrors={setGroupError} />
+            </Modal>
+        </div>
+    )
+
+}
+
+export default ByUser;

@@ -36,6 +36,7 @@ import { DBCleanup } from '../DB/DBCleanup';
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
 import { OpenXDA as LocalXDA } from '../global'
 import PQISlice from './PQISlice';
+import { IApplicationRole, ISecurityGroup } from '../User/UserGroup/Types';
 
 
 declare var homePath: string;
@@ -97,6 +98,9 @@ export const UserAdditionalFieldSlice = new AdditionalUserFieldSlice('Additional
 export const SCSecurityRoleSlice = new SecurityRoleSlice('SCSecurityRole', `${homePath}api/SystemCenter`);
 
 export const SourceImpedanceSlice = new GenericSlice<OpenXDA.Types.SourceImpedance>("SourceImpedance", `${homePath}api/OpenXDA/SourceImpedance`, "AssetLocationID", false);
+export const SecurityGroupSlice = new GenericSlice<ISecurityGroup>("SecurityGroup", `${homePath}api/SystemCenter/FullSecurityGroup`, "Type", false)
+export const ApplicationRoleSlice = new GenericSlice<IApplicationRole>("ApplicationRole", `${homePath}api/SystemCenter/ApplicationRole`, "Name", false)
+
 
 const store = configureStore({
     reducer: {
@@ -148,6 +152,8 @@ const store = configureStore({
         CustomerAsset: CustomerAssetSlice.Reducer,
         PQI: PQISlice,
         SourceImpedance: SourceImpedanceSlice.Reducer,
+        SecurityGroup: SecurityGroupSlice.Reducer,
+        ApplicationRole: ApplicationRoleSlice.Reducer
     }
 });
 export default store;

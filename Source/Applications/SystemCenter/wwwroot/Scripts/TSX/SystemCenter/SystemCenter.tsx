@@ -49,9 +49,11 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ByExternalDB = React.lazy(() => import(/* webpackChunkname: "ByExternalDB" */ './ExternalDB/ByExternalDB'))
     const ExternalDB = React.lazy(() => import(/* webpackChunkname: "ExternalDB" */ './ExternalDB/ExternalDB'))
     const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/ByUser'));
+    const BySecuritytGroup = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/UserGroup/ByUserGroup'));
     const UserStatistics = React.lazy(() => import(/* webpackChunkName: "UserStatistics" */ './UserStatistics/UserStatistics'));
     const Customer = React.lazy(() => import(/* webpackChunkName: "Customer" */ './Customer/Customer'));
     const User = React.lazy(() => import(/* webpackChunkName: "User" */ './User/User'));
+    const UserGroup = React.lazy(() => import(/* webpackChunkName: "UserGroup" */ './User/UserGroup/UserGroup'));
     const Asset = React.lazy(() => import(/* webpackChunkName: "Asset" */ './Asset/Asset'));
     const NewMeterWizard = React.lazy(() => import( /* webpackChunkName: "NewMeterWizard" */ './NewMeterWizard/NewMeterWizard'));
     const ConfigurationHistory = React.lazy(() => import(/* webpackChunkName: "ConfigurationHistory" */ './ConfigurationHistory/ConfigurationHistory'));
@@ -230,8 +232,11 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
                                 </li>
                                 <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=User") && (location.pathname + location.search != controllerViewPath + "?name=UserStatistics")} to={controllerViewPath + "?name=Users"}>Users</NavLink>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=User") && (location.pathname + location.search != controllerViewPath + "?name=Users")} to={controllerViewPath + "?name=Users"}>Users</NavLink>
 
+                                </li>
+                                <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=Group") && (location.pathname + location.search != controllerViewPath + "?name=Groups")} to={controllerViewPath + "?name=Groups"}>Groups</NavLink>
                                 </li>
                             </ul>
                         </div>
@@ -269,6 +274,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ExternalDB ID={parseInt(qs.ID as string)} />
                                 else if (qs['?name'] == "User")
                                     return <User UserID={qs.UserAccountID as string} />
+                                else if (qs['?name'] == "Group")
+                                    return <UserGroup GroupID={qs.GroupID as string} />
                                 else if (qs['?name'] == "ByApplicationCategory")
                                     return <ByApplicationCategory Roles={roles} />
                                 else if (qs['?name'] == "DBCleanup")
@@ -303,6 +310,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <DataReaders Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
                                 else if (qs['?name'] == "ApplicationNodes")
                                     return <ByApplicationNode Roles={roles} />
+                                else if (qs['?name'] == "Groups")
+                                    return <BySecuritytGroup Roles={roles} />
                                 else if (qs['?name'] == "DeviceHealthReport") {
                                     return <DeviceHealthReport Roles={roles} />
                                 }

@@ -476,12 +476,6 @@ namespace SystemCenter.Model.Security
 
     }
 
-    [MetadataType(typeof(GSF.Security.Model.ApplicationRole))]
-    [SettingsCategory("securityProvider")]
-    public class ApplicationRole : GSF.Security.Model.ApplicationRole
-    { }
-
-    [RoutePrefix("api/SystemCenter/ApplicationRole")]
-    public class SystemCenterApplicationRoleController : ModelController<ApplicationRole> { }
+  
 
 }
