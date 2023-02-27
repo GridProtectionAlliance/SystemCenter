@@ -45,6 +45,7 @@ interface IProps {
     HideResetButton?: boolean,
     HideAddAdditionalFieldButton?: boolean,
     HideEditButton?: boolean
+    HideSaveButton?: boolean
 }
 
 function AdditionalFieldsWindow(props: IProps): JSX.Element {
@@ -75,6 +76,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     const EmptyField: SystemCenter.Types.AdditionalField = { ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false, Searchable: false };
 
     React.useEffect(() => {
+        // This line autosaves data on navigation away via props.Tab
         return getData();
     }, [props.ID, props.Type, props.Tab]);
 
@@ -84,12 +86,27 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         let h = getFields();
 
         return () => { if (h.abort != undefined) h.abort() }
-    }, [sortKey, ascending])
+    }, [sortKey, ascending]);
 
     React.useEffect(() => {
         let h = validateFieldName();
         return () => { if (h != null && h.abort != null) h.abort(); }
-    }, [newField.ID, newField.FieldName])
+    }, [newField.ID, newField.FieldName]);
+
+    // Should save while typing in the fields (assuming edit mode and save button is hidden), timeout to avoid hitting the server with too many requests
+    React.useEffect(() => {
+        let handle: any = null;
+        console.log("something changed")
+        if (HasValueChanged() && !HasInvalidChanges() && edit && (props.HideSaveButton ?? false)) {
+            console.log("handle made");
+            handle = setTimeout(() => {
+                addOrUpdateValues();
+                console.log("handle exec");
+            }, 500);
+        }
+
+        return () => { if (handle !== null) clearTimeout(handle); };
+    }, [additionalFieldValuesWorking]);
 
     function getData() {
         setState('loading');
@@ -463,8 +480,9 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                         </ToolTip>
                     </div>
                     <div className="btn-group mr-2">
-                        <button className={"btn btn-primary" + (!HasValueChanged() || !edit || HasInvalidChanges() ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && !HasInvalidChanges() && edit) addOrUpdateValues(); }}
-                            onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>
+                        {props.HideSaveButton ?? false ? null :
+                            <button className={"btn btn-primary" + (!HasValueChanged() || !edit || HasInvalidChanges() ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && !HasInvalidChanges() && edit) addOrUpdateValues(); }}
+                                onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>}
                         <ToolTip Show={hover == 'Save' && (!edit || HasValueChanged())} Position={'top'} Theme={'dark'} Target={"SaveValues"}>
                             {!edit ? <p> To change any Fields switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
                             {HasValueChanged() && !HasInvalidChanges() ? ChangedValues(false) : null}

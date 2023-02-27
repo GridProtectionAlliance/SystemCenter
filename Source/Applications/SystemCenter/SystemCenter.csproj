@@ -111,6 +111,10 @@
       <HintPath>..\..\Dependencies\GSF\Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="ExpressionEvaluator, Version=2.0.4.0, Culture=neutral, PublicKeyToken=90d9f15d622e2348" />
+    <Reference Include="FaultData, Version=3.0.3.330, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependencies\openXDA\FaultData.dll</HintPath>
+    </Reference>
     <Reference Include="GSF.Communication">
       <HintPath>..\..\Dependencies\GSF\GSF.Communication.dll</HintPath>
     </Reference>

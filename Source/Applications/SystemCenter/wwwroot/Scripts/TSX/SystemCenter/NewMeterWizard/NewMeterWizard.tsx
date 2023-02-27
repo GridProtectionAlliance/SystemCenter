@@ -23,11 +23,12 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { LoadingScreen, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CrossMark, Warning as WarningSymbol } from '@gpa-gemstone/gpa-symbols';
-import { SelectMeterKeysLowerCase, SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
+import { SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
+import { useHistory } from "react-router-dom";
 import { LocationSlice } from '../Store/Store';
 
 import MeterInfoPage from './MeterInfoPage';
@@ -50,6 +51,7 @@ export interface AssetLists {
 }
 
 export default function NewMeterWizard(props: {}) {
+    let history = useHistory();
     const dispatch = useAppDispatch();
 
     const mStatus = useAppSelector(SelectMeterStatus);
@@ -138,7 +140,11 @@ export default function NewMeterWizard(props: {}) {
     }, [assets]);
     React.useEffect(() => {
         localStorage.setItem('NewMeterWizard.AssetConnections', JSON.stringify(assetConnections));
-    }, [ assetConnections]);
+    }, [assetConnections]);
+
+    function returnToMeters() {
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meters' })
+    }
 
     function getCurrentStep(): number {
         if (localStorage.hasOwnProperty('NewMeterWizard.CurrentStep'))
@@ -175,8 +181,8 @@ export default function NewMeterWizard(props: {}) {
                 Name: null,
                 Alias: null,
                 ShortName: null,
-                Latitude: null,
-                Longitude: null,
+                Latitude: 0,
+                Longitude: 0,
                 Description: null,
             }
     }
@@ -245,7 +251,8 @@ export default function NewMeterWizard(props: {}) {
     function next() {
         if (disableNext())
             return;
-        setErrorWarning();
+        setError([]);
+        setWarning([]);
         // Make sure currentStep is set to something reasonable
         if (isSubmitStep())
             setCurrentStep(saveStep + 1);
@@ -256,11 +263,11 @@ export default function NewMeterWizard(props: {}) {
 
         if (isFinalStep())
             clearData();
-
     }
 
     function prev() {
-        setErrorWarning();
+        setError([]);
+        setWarning([]);
         if (currentStep == saveStep + 1) return;
         if (currentStep <= 1) {
             setCurrentStep(1);
@@ -269,15 +276,6 @@ export default function NewMeterWizard(props: {}) {
         }
 
         localStorage.setItem('NewMeterWizard.CurrentStep', currentStep.toString())
-    }
-
-    function setErrorWarning() {
-        setError([]);
-        // For Additional Fields Step
-        if (currentStep == saveStep)
-            setWarning(["Ensure that any changes made are saved using the save button."]);
-        else
-            setWarning([]);
     }
 
     function clearData(): void {
@@ -289,6 +287,10 @@ export default function NewMeterWizard(props: {}) {
         setChannels(getChannels());
         setCurrentStep(getCurrentStep());
         setAssets(getAssets());
+
+        //Take us back to meter page when done
+        if (currentStep > saveStep)
+            returnToMeters();
     }
 
     function clearLocalStorage() {
@@ -354,13 +356,13 @@ export default function NewMeterWizard(props: {}) {
             case connectionStep:
                 return <ConnectionPage Assets={assets} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />
             case additionalFieldMeterStep:
-                return <AdditionalFieldsWindow ID={meterInfo.ID} Type='Meter' Tab={currentStep.toString()} DefaultEdit={true} HideExternal={true} HideAddAdditionalFieldButton={true} HideEditButton={true} HideResetButton={true} />
+                return <AdditionalFieldsWindow ID={meterInfo.ID} Type='Meter' Tab={currentStep.toString()} DefaultEdit={true} HideExternal={true} HideAddAdditionalFieldButton={true} HideEditButton={true} HideResetButton={true} HideSaveButton={true} />
             case externalFieldStep:
                 return <ExternalDBUpdate ID={meterInfo.ID} Type='Meter' Tab={currentStep.toString()} />
             case lineSegmentStep:
                 return <MultipleAssetsPage Assets={newLines} GetInnerComponent={(currentAsset) => <LineSegmentWindow ID={currentAsset.ID} AssetName={currentAsset.AssetName} />} />
             case additionalFieldAssetStep:
-                return <MultipleAssetsPage Assets={newAssets} GetInnerComponent={(currentAsset) => <AdditionalFieldsWindow ID={currentAsset.ID} Type='Asset' Name={currentAsset.AssetKey} Tab={currentAsset.ID.toString()} DefaultEdit={true} HideExternal={true} HideAddAdditionalFieldButton={true} HideEditButton={true} HideResetButton={true} />}/>
+                return <MultipleAssetsPage Assets={newAssets} GetInnerComponent={(currentAsset) => <AdditionalFieldsWindow ID={currentAsset.ID} Type='Asset' Name={currentAsset.AssetKey} Tab={currentAsset.ID.toString()} DefaultEdit={true} HideExternal={true} HideAddAdditionalFieldButton={true} HideEditButton={true} HideResetButton={true} HideSaveButton={true}/>}/>
             case customerAssetGroupMeterStep:
                 return <CustomerAssetGroupPage ID={meterInfo.ID} Type={'Meter'} Name={meterInfo.AssetKey} SetWarning={setWarning} />
             case customerAssetGroupAssetStep:
@@ -387,7 +389,7 @@ export default function NewMeterWizard(props: {}) {
             <div className="card" style={{ height: 'calc(100% - 75px)' }}>
                 <LoadingScreen Show={loading} />
                 <div className="card-header">
-                    <button className="btn btn-primary pull-right" onClick={clearData} >Clear Data</button>
+                    <button className="btn btn-primary pull-right" onClick={clearData} >{(currentStep > saveStep) ? "Close Wizard" : "Clear Data"}</button>
                     <h4 style={{width: '90%'}}>{getHeader()}</h4>
                 </div>
                 <div className="card-body" style={{maxHeight: 'calc(100% - 126px)'}}>
