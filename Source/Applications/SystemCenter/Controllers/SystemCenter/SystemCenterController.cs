@@ -683,6 +683,7 @@ namespace SystemCenter.Controllers
             public double Adder { get; set; }
             public double Multiplier { get; set; }
             public IEnumerable<ParsedSeries> Series { get; set; }
+            public int ConnectionPriority { get; set; }
             public bool Trend { get; set; }
         }
 
@@ -797,6 +798,7 @@ namespace SystemCenter.Controllers
                         Adder = 0,
                         Multiplier = 1,
                         Series = series,
+                        ConnectionPriority = 0,
                         Trend = trend
                     };
 
@@ -809,7 +811,7 @@ namespace SystemCenter.Controllers
         private IEnumerable<ParsedChannel> ParseSELEVE(string fileText, string extension, string meterKey)
         {
             // TODO: this config doesn't work, but it won't be an issue for the time being, the parts we are parsing do not rely on these settings
-            EventFile eventFile = EventFile.Parse(fileText, extension, DataAnalysisSettings.SystemFrequency, DataAnalysisSettings.MaxEventDuration);
+            EventFile eventFile = EventFile.Parse(extension, fileText, DataAnalysisSettings.SystemFrequency, DataAnalysisSettings.MaxEventDuration);
 
             if (!eventFile.EventReports.Any() && !eventFile.CommaSeparatedEventReports.Any())
                 throw new InvalidDataException("No event reports specified in file.");
@@ -904,6 +906,7 @@ namespace SystemCenter.Controllers
                     Adder = 0,
                     Multiplier = 1,
                     Series = series,
+                    ConnectionPriority = 0,
                     Trend = false
                 };
             };
@@ -935,6 +938,7 @@ namespace SystemCenter.Controllers
                     Adder = 0,
                     Multiplier = 1,
                     Series = series,
+                    ConnectionPriority = 0,
                     Trend = false
                 };
             };
@@ -977,7 +981,10 @@ namespace SystemCenter.Controllers
         {
             ControlFile controlFile;
             using (MemoryStream stream = new MemoryStream(bytes))
-                controlFile = new ControlFile(stream);
+            {
+                controlFile = new ControlFile();
+                controlFile.Parse(stream);
+            }
 
             List<ANLG_CHNL_NEW> analogChannels = controlFile.AnalogChannelSettings
                 .OrderBy(kvp => kvp.Key)
@@ -1020,6 +1027,7 @@ namespace SystemCenter.Controllers
                     Adder = 0,
                     Multiplier = 1,
                     Series = series,
+                    ConnectionPriority = 0,
                     Trend = false
                 };
             };
@@ -1068,6 +1076,7 @@ namespace SystemCenter.Controllers
                     Adder = chan.Adder,
                     Multiplier = chan.Multiplier,
                     Series = series,
+                    ConnectionPriority = chan.ConnectionPriority,
                     Trend = trend
                 };
             });
