@@ -1,7 +1,7 @@
 ﻿// ******************************************************************************************************
 //  Permission.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -25,21 +25,21 @@ import Permission from '../Permissions';
 declare var homePath: string;
 
 interface IProps {
-    GroupID: string,
+    UserID: string,
 }
 
-const GroupPermission = (props: IProps) => Permission({
-    ID: props.GroupID,
+const UserPermission = (props: IProps) => Permission({
+    ID: props.UserID,
     GetRoles: (id: string) => $.ajax({
         type: "GET",
-        url: `${homePath}api/SystemCenter/FullSecurityGroup/Roles/${id}`,
+        url: `${homePath}api/SystemCenter/UserAccount/Roles/${id}`,
         contentType: "application/json; charset=utf-8",
         cache: false,
         async: true
     }),
     SaveRoles: (id: string, roles: IApplicationRole[]) => $.ajax({
         type: "POST",
-        url: `${homePath}api/SystemCenter/FullSecurityGroup/${id}/PostRoles`,
+        url: `${homePath}api/SystemCenter/UserAccount/PostRoles/${id}`,
         contentType: "application/json; charset=utf-8",
         dataType: 'json',
         data: JSON.stringify(roles),
@@ -48,4 +48,4 @@ const GroupPermission = (props: IProps) => Permission({
     })
 });
 
-export default GroupPermission;
+export default UserPermission;

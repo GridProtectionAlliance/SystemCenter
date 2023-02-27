@@ -28,3 +28,8 @@ export interface ISecurityGroup extends Application.Types.iSecurityGroup {
 }
 
 export interface IApplicationRole extends Application.Types.iApplicationRole<Application.Types.SecurityRoleName> { }
+
+export interface IUserAccount extends Application.Types.iUserAccount {
+    Type: string,
+    DisplayName: string
+}

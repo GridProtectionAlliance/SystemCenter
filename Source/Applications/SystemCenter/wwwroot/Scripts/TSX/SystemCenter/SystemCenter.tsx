@@ -48,11 +48,11 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const RemoteXDAInstance = React.lazy(() => import(/* webpackChunkname: "RemoteXDA" */ './RemoteXDA/RemoteXDAInstance'))
     const ByExternalDB = React.lazy(() => import(/* webpackChunkname: "ByExternalDB" */ './ExternalDB/ByExternalDB'))
     const ExternalDB = React.lazy(() => import(/* webpackChunkname: "ExternalDB" */ './ExternalDB/ExternalDB'))
-    const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/ByUser'));
+    const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/User/ByUser'));
     const BySecuritytGroup = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/UserGroup/ByUserGroup'));
     const UserStatistics = React.lazy(() => import(/* webpackChunkName: "UserStatistics" */ './UserStatistics/UserStatistics'));
     const Customer = React.lazy(() => import(/* webpackChunkName: "Customer" */ './Customer/Customer'));
-    const User = React.lazy(() => import(/* webpackChunkName: "User" */ './User/User'));
+    const User = React.lazy(() => import(/* webpackChunkName: "User" */ './User/User/User'));
     const UserGroup = React.lazy(() => import(/* webpackChunkName: "UserGroup" */ './User/UserGroup/UserGroup'));
     const Asset = React.lazy(() => import(/* webpackChunkName: "Asset" */ './Asset/Asset'));
     const NewMeterWizard = React.lazy(() => import( /* webpackChunkName: "NewMeterWizard" */ './NewMeterWizard/NewMeterWizard'));

@@ -25,13 +25,13 @@ import Table from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
-import * as CryptoJS from 'crypto-js';
 import * as _ from 'lodash';
 import UserForm from './UserForm';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { useHistory } from "react-router-dom";
-import { ValueListSlice, ValueListGroupSlice, UserAdditionalFieldSlice, UserAccountSlice } from '../Store/Store';
-import { UserValidation } from '@gpa-gemstone/common-pages/lib/SliceInterfaces';
+import { ValueListSlice, ValueListGroupSlice, UserAdditionalFieldSlice, UserAccountSlice } from '../../Store/Store';
+import { IUserAccount } from '../Types';
+import moment from 'moment';
 
 const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
@@ -42,27 +42,43 @@ const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
     { label: 'Email', key: 'Email', type: 'string', isPivotField: false },
 ];
 
+const newAcct: IUserAccount = {
+    UseADAuthentication: false,
+    AccountName: '',
+    FirstName: '',
+    LastName: '',
+    LockedOut: false,
+    Approved: true,
+    ID: '00000000-0000-0000-0000-000000000000',
+    EmailConfirmed: false,
+    ChangePasswordOn: moment().add(1, 'year').format('YYYY-MM-DD'),
+    Email: '',
+    Name: '',
+    Password: '',
+    Phone: '',
+    PhoneConfirmed: false,
+    DefaultNodeID: '00000000-0000-0000-0000-000000000000',
+    Type: 'Database',
+    DisplayName: ''
+}
 
 const ByUser: Application.Types.iByComponent = (props) => {
     let history = useHistory();
     const dispatch = useAppDispatch();
 
-    const search: Search.IFilter<Application.Types.iUserAccount>[] = useAppSelector(UserAccountSlice.SearchFilters);
+    const search = useAppSelector(UserAccountSlice.SearchFilters);
 
-    const data: Application.Types.iUserAccount[] = useAppSelector(UserAccountSlice.SearchResults);
+    const data = useAppSelector(UserAccountSlice.SearchResults);
     const userStatus: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
     const searchStatus: Application.Types.Status = useAppSelector(UserAccountSlice.SearchStatus);
-    const allUsers: Application.Types.iUserAccount[] = useAppSelector(UserAccountSlice.Data);
 
-    const [sortField, setSortField] = React.useState<keyof Application.Types.iUserAccount>('Name');
-    const [ascending, setAscending] = React.useState<boolean>(true);
+    const sortField = useAppSelector(UserAccountSlice.SortField)
+    const ascending = useAppSelector(UserAccountSlice.Ascending)
 
-    const currentUserAccount: Application.Types.iUserAccount = useAppSelector(UserAccountSlice.CurrentUser);
-    const adStatus: UserValidation = useAppSelector(UserAccountSlice.ADValidation);
     const adlFields: Application.Types.iAdditionalUserField[] = useAppSelector(UserAdditionalFieldSlice.Fields)
     const adlFieldStatus: Application.Types.Status = useAppSelector(UserAdditionalFieldSlice.FieldStatus)
 
-    const [filterableList, setFilterableList] = React.useState<Search.IField<Application.Types.iUserAccount>[]>(defaultSearchcols);
+    const [filterableList, setFilterableList] = React.useState<Search.IField<IUserAccount>[]>(defaultSearchcols);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [userError, setUserError] = React.useState<string[]>([]);
@@ -73,6 +89,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
     const valueListGroups: SystemCenter.Types.ValueListGroup[] = useAppSelector(ValueListGroupSlice.Data);
     const valueListGroupStatus: Application.Types.Status = useAppSelector(ValueListGroupSlice.Status);
 
+    const [act, setAct] = React.useState < IUserAccount>(newAcct)
 
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('unintiated');
 
@@ -93,36 +110,17 @@ const ByUser: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (adlFieldStatus === 'unintiated' || adlFieldStatus === 'changed')
             dispatch(UserAdditionalFieldSlice.FetchField());
-    }, [dispatch, adlFieldStatus]);
+    }, [adlFieldStatus]);
 
-    React.useEffect(() => {
-        dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: search }));
-        dispatch(UserAccountSlice.SetNewUser());
-    }, [dispatch, ascending, sortField]);
-
-    React.useEffect(() => {
-        dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: search }));
-    }, [ascending, sortField]);
-
-    React.useEffect(() => {
-        if (searchStatus == 'unintiated' || searchStatus == 'changed')
-            dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: search }));
-    }, [searchStatus])
-
-    React.useEffect(() => {
-        if (userStatus === 'unintiated' || userStatus === 'changed') 
-            dispatch(UserAccountSlice.Fetch());        
-    }, [userStatus]);
-
-    React.useEffect(() => {
+     React.useEffect(() => {
         if (valueListItemStatus === 'unintiated' || valueListItemStatus === 'changed')
             dispatch(ValueListSlice.Fetch());
-    }, [dispatch, valueListItemStatus]);
+    }, [valueListItemStatus]);
 
     React.useEffect(() => {
         if (valueListGroupStatus === 'unintiated' || valueListGroupStatus === 'changed')
             dispatch(ValueListGroupSlice.Fetch());
-    }, [dispatch, valueListGroupStatus]);
+    }, [valueListGroupStatus]);
 
 
     React.useEffect(() => {
@@ -132,8 +130,9 @@ const ByUser: Application.Types.iByComponent = (props) => {
             return { type: 'enum', enum: [{ Label: type, Value: type }] }
         }
         const ordered = _.orderBy(defaultSearchcols.concat(adlFields.map(item => (
-            { label: `[AF] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<Application.Types.iUserAccount>
+            { label: `[AF] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<IUserAccount>
         ))), ['label'], ["asc"]);
+
         setFilterableList(ordered)
     }, [adlFields]);
 
@@ -142,12 +141,10 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <ServerErrorIcon Show={true} Label={'A Server Error Occured. Please Reload the Application'} />
         </div>;
 
-    const userAlreadyExists = currentUserAccount != null && currentUserAccount.UseADAuthentication? allUsers.findIndex(u => currentUserAccount.AccountName == u.AccountName) > -1 && (adStatus == 'Valid' || adStatus == 'Unknown') : false;
-
-    return (
+     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <LoadingScreen Show={pageStatus === 'loading'} />
-            <SearchBar<Application.Types.iUserAccount> CollumnList={filterableList} SetFilter={(flds) => dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: flds }))}
+             <LoadingScreen Show={pageStatus === 'loading'} />
+             <SearchBar<IUserAccount> CollumnList={filterableList} SetFilter={(flds) => dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: flds }))}
                 Direction={'left'} defaultCollumn={{ label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                 ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' User Accounts'}
                 GetEnum={(setOptions, field) => {
@@ -176,13 +173,14 @@ const ByUser: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<Application.Types.iUserAccount>
+                <Table<IUserAccount>
                     cols={[
-                        { key: 'Name', field: 'AccountName', label: 'User Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                         { key: 'DisplayName', field: 'DisplayName', label: 'User Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Email', field: 'Email', label: 'Email', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                         { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"
@@ -193,38 +191,34 @@ const ByUser: Application.Types.iByComponent = (props) => {
                         if (d.colKey === 'scroll' || d.colField == undefined)
                             return;
                         if (d.colField === sortField)
-                            setAscending(!ascending);
-                        else {
-                            setAscending(true);
-                            setSortField(d.colField);
-                        }
+                            dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
+                        else
+                            dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: true }));
                     }}
                     onClick={(d) => history.push({pathname: homePath + 'index.cshtml', search: '?name=User&UserAccountID=' + d.row.ID })}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
+                    selected={() => false}
                 />
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
                 Title={'Add User'} CallBack={(confirm) => {
                     if (confirm)
-                        dispatch(UserAccountSlice.DBAction({ verb: 'POST', record: { ...currentUserAccount, Password: CryptoJS.SHA256(currentUserAccount.Password + "0").toString(CryptoJS.enc.Base64) } }))
-                    dispatch(UserAccountSlice.SetNewUser());
+                        dispatch(UserAccountSlice.DBAction({ verb: 'POST', record: { ...act, Name: act.DisplayName } }))
+                    setAct(newAcct);
                     setShowModal(false);
                 }}
-                ConfirmShowToolTip={userError.length > 0 || userAlreadyExists}
+                ConfirmShowToolTip={userError.length > 0}
                 ConfirmToolTipContent={<>
                     {userError.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
-                    {userAlreadyExists? <p>{CrossMark} This User already exists.</p> : null}
                 </>}
-                DisableConfirm={userError.length > 0 || userAlreadyExists}
+                DisableConfirm={userError.length > 0}
             >
-                {currentUserAccount !== undefined ? <UserForm
-                    UserAccount={currentUserAccount} Setter={(u) => dispatch(UserAccountSlice.SetCurrentUser(u))}
+                <UserForm
+                    UserAccount={act} Setter={setAct}
                     Edit={false} SetErrors={setUserError} 
-
-                /> : null}
+                /> 
             </Modal>
         </div>
     )

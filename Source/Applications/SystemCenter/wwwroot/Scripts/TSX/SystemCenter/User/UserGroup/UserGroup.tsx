@@ -29,10 +29,10 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { CheckBox } from '@gpa-gemstone/react-forms';
 import { useHistory } from "react-router-dom";
 import { SecurityGroupSlice } from '../../Store/Store';
-import { ISecurityGroup } from './Types';
+import { ISecurityGroup } from '../Types';
 import GroupInfo from './Info';
 import GroupUser from './GroupUsers';
-import Permission from './Permissions';
+import GroupPermission from './Permissions';
 
 interface IProps {
 	GroupID: string
@@ -86,7 +86,7 @@ function UserGroup(props: IProps) {
 					{group == null ? null : <GroupUser Group={group} />}
 				</div>
 				<div className={"tab-pane " + (tab === "roles" ? " active" : "fade")} style={{ maxHeight: window.innerHeight - 215 }}>
-					{group != null ? <Permission GroupID={group.ID} /> : null }
+					{group != null ? <GroupPermission GroupID={group.ID} /> : null }
 				</div>
 
 			</div>

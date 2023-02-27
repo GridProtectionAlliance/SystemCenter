@@ -28,7 +28,6 @@ import { GenericSlice } from '@gpa-gemstone/react-interactive'
 import { EventChannelSlice } from './EventChannelSlice';
 import { SystemCenter, OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import NoteSlice from './NoteSlice';
-import UserSlice from './UserSlice';
 import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
 import SecurityRoleSlice from './SecurityRoleSlice';
 import { PQApplications } from '../ApplicationCategory/Applications';
@@ -36,7 +35,7 @@ import { DBCleanup } from '../DB/DBCleanup';
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
 import { OpenXDA as LocalXDA } from '../global'
 import PQISlice from './PQISlice';
-import { IApplicationRole, ISecurityGroup } from '../User/UserGroup/Types';
+import { IApplicationRole, ISecurityGroup, IUserAccount } from '../User/Types';
 
 
 declare var homePath: string;
@@ -93,7 +92,7 @@ export const UserNoteSlice = new NoteSlice('User');
 export const LocationNoteSlice = new NoteSlice('Location');
 export const CustomerNoteSlice = new NoteSlice('Customer');
 export const CompanyNoteSlice = new NoteSlice('Company');
-export const UserAccountSlice = new UserSlice('UserAccounts', `${homePath}api/SystemCenter/UserAccount`);
+export const UserAccountSlice = new GenericSlice<IUserAccount>('UserAccounts', `${homePath}api/SystemCenter/UserAccount`, "AccountName", false);
 export const UserAdditionalFieldSlice = new AdditionalUserFieldSlice('AdditionalUserFields', `${homePath}api/SystemCenter`);
 export const SCSecurityRoleSlice = new SecurityRoleSlice('SCSecurityRole', `${homePath}api/SystemCenter`);
 

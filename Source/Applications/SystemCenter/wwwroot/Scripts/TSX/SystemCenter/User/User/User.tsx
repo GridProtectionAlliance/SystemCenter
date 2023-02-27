@@ -24,12 +24,12 @@ import * as React from 'react';
 import { LoadingScreen, ServerErrorIcon, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
-import UserInfo from './UserInfo';
-import UserPermissions from './UserPermissions';
-import AdditionalField from './AdditionalUserFieldsWindow'
-import { useAppDispatch, useAppSelector } from '../hooks';
+import UserInfo from './Info';
+import UserPermissions from './Permissions';
+import AdditionalField from '../AdditionalUserFieldsWindow'
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import { CheckBox } from '@gpa-gemstone/react-forms';
-import { UserAccountSlice } from '../Store/Store';
+import { UserAccountSlice } from '../../Store/Store';
 import { useHistory } from "react-router-dom";
 
 interface IProps {
@@ -40,16 +40,18 @@ function User(props: IProps) {
 	const history = useHistory();
 	const dispatch = useAppDispatch();
 
-	const user: Application.Types.iUserAccount = useAppSelector(UserAccountSlice.CurrentUser);
+	const user = useAppSelector((state) => UserAccountSlice.Datum(state, props.UserID));
 	const status: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
 
 	const [tab, setTab] = React.useState<string>('userInfo')
 
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
+
 	React.useEffect(() => {
-		dispatch(UserAccountSlice.LoadExistingUser(props.UserID))
-	}, [dispatch, props.UserID])
+		if (status === 'unintiated' || status === 'changed')
+			dispatch(UserAccountSlice.Fetch());
+	}, [status]);
 
 	if (status === 'error')
 		return <div style={{ width: '100%', height: '100%' }}>
@@ -66,7 +68,7 @@ function User(props: IProps) {
 		<div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
 			<div className="row">
 				<div className="col">
-					<h2>{user != null ? `${user.FirstName} ${user.LastName}` : ''}</h2>
+					<h2>{user != null ? `${user.FirstName} ${user.LastName} (${user.DisplayName})` : ''}</h2>
 				</div>
 				<div className="col">
 					<button className="btn btn-danger pull-right" hidden={user == null} onClick={() => setShowWarning(true)}>Delete User</button>
@@ -77,7 +79,7 @@ function User(props: IProps) {
 			<TabSelector CurrentTab={tab} SetTab={(t) => setTab(t)} Tabs={Tabs} />
 			<div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
 				<div className={"tab-pane " + (tab === "userInfo" ? " active" : "fade")}>
-					<UserInfo />
+					<UserInfo AccountId={props.UserID} />
 				</div>
 				<div className={"tab-pane " + (tab === "permissions" ? " active" : "fade")}>
 					{user == null ? null : <UserPermissions UserID={user.ID} />}
@@ -91,12 +93,15 @@ function User(props: IProps) {
 						FieldKeySelector={(field) => (field.ID === -1 ? 'new' : field.ID.toString())}
 						ValidateField={() => []}
 						FieldUI={(fld, setter) => <CheckBox<Application.Types.iAdditionalUserField> Record={fld} Field='IsSecure' Label="Secure Data" Setter={setter} />}
-						CreateValue={(fld) => ({ Value: '', ID: -1, UserAccountID: props.UserID, AdditionalUserFieldID: fld.ID })}
+						CreateValue={(fld) => ({ Value: '', ID: 0, UserAccountID: props.UserID, AdditionalUserFieldID: fld.ID })}
 					/>
 				</div>
 
 			</div>
-			<Warning Message={'This will permanently remove the User. Are you sure you want to continue?'} Title={'Warning'} Show={showWarning} CallBack={(c) => {
+			<Warning Message={
+				(user == null || user.Type == 'Database' ? 'This will permanently remove the User. Are you sure you want to continue?' :
+					'This will remove the user from the xda suite. However the user may still have rights and can log into the system if they are in an azure or Active Directory group. contact your domain Administrator to have the user removed from Azure or AD.')
+					} Title={'Warning'} Show={showWarning} CallBack={(c) => {
 				setShowWarning(false);
 				if (c) {
 					dispatch(UserAccountSlice.DBAction({ verb: 'DELETE', record: user }));

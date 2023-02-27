@@ -21,15 +21,12 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { Application } from '@gpa-gemstone/application-typings';
-import * as CryptoJS from 'crypto-js'
 import * as _ from 'lodash';
-import UserForm from './GroupForm';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
-import { SecurityGroupSlice, UserAccountSlice } from '../../Store/Store';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { ISecurityGroup } from './Types';
+import { SecurityGroupSlice } from '../../Store/Store';
+import { useAppDispatch } from '../../hooks';
+import { ISecurityGroup } from '../Types';
 import GroupForm from './GroupForm';
 
 const GroupInfo = (props: {Group: ISecurityGroup}) => {

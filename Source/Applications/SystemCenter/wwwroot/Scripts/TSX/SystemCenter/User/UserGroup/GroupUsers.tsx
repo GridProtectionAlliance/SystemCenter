@@ -22,19 +22,14 @@
 
 import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
-import * as CryptoJS from 'crypto-js'
 import * as _ from 'lodash';
-import UserForm from './GroupForm';
-import { LoadingScreen, ToolTip } from '@gpa-gemstone/react-interactive';
-import { Warning } from '@gpa-gemstone/gpa-symbols';
-import { SecurityGroupSlice, UserAccountSlice, UserAccountSliceRemote } from '../../Store/Store';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { ISecurityGroup } from './Types';
+import { LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { UserAccountSliceRemote } from '../../Store/Store';
+import { ISecurityGroup } from '../Types';
 import Table from '@gpa-gemstone/react-table';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 
 const GroupUser = (props: {Group: ISecurityGroup}) => {
-    const dispatch = useAppDispatch();
 
     const [showSelect, setShowSelect] = React.useState<boolean>(false);
     const [users, setUsers] = React.useState<Application.Types.iUserAccount[]>([]);

@@ -667,10 +667,10 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Customer\CustomerMeter.tsx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\ByUser.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\User\ByUser.tsx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\User.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\User\User.tsx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\UserStatistics\UserStatistics.tsx" />
@@ -741,15 +741,16 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\SecurityRoleSlice.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\AdditionalUserFieldsWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\UserGroup\ByUserGroup.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\UserForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\User\Permissions.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\User\UserForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\UserGroup\UserGroup.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\UserGroup\Types.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\Types.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\UserGroup\GroupUsers.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\UserGroup\Info.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\UserGroup\GroupForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\UserGroup\Permissions.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\UserInfo.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\UserPermissions.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\User\Info.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\Permissions.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupForm.tsx" />

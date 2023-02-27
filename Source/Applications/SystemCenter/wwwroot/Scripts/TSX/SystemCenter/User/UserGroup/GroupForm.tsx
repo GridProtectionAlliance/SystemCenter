@@ -25,8 +25,7 @@ import { Input, TextArea } from '@gpa-gemstone/react-forms'
 import * as _ from 'lodash';
 import { SecurityGroupSlice } from '../../Store/Store';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { ISecurityGroup } from './Types';
-import { verify } from 'crypto';
+import { ISecurityGroup } from '../Types';
 
 interface IProps {
     Group: ISecurityGroup,

@@ -1,5 +1,5 @@
 ﻿// ******************************************************************************************************
-//  UserInfo.tsx - Gbtc
+//  Info.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -21,20 +21,19 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import { Application } from '@gpa-gemstone/application-typings';
-import * as CryptoJS from 'crypto-js'
 import * as _ from 'lodash';
 import UserForm from './UserForm';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 import { Warning } from '@gpa-gemstone/gpa-symbols';
-import { UserAccountSlice } from '../Store/Store';
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { UserAccountSlice } from '../../Store/Store';
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { IUserAccount } from '../Types';
 
-const UserInfo = () => {
+const UserInfo = (props: { AccountId: string }) => {
     const dispatch = useAppDispatch();
 
-    const currentUser = useAppSelector(UserAccountSlice.CurrentUser);
-    const [user, setUser] = React.useState<Application.Types.iUserAccount>(currentUser);
+    const currentUser = useAppSelector((state) => UserAccountSlice.Datum(state,props.AccountId));
+    const [user, setUser] = React.useState<IUserAccount>(currentUser);
     const [warnings, setWarning] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('None' | 'Clear')>('None');
 
@@ -42,8 +41,6 @@ const UserInfo = () => {
     React.useEffect(() => {
         if (currentUser == null || user == null)
             return;
-
-        const encryptedPwd = (user.Password !== currentUser.Password ? CryptoJS.SHA256(user.Password + "0").toString(CryptoJS.enc.Base64) : user.Password)
 
         const w = [];
         if (currentUser.FirstName !== user.FirstName)
@@ -64,7 +61,7 @@ const UserInfo = () => {
             w.push('Changes to Phone Confirmed Status will be lost.')
         if (currentUser.EmailConfirmed !== user.EmailConfirmed)
             w.push('Changes to Email confirmed Status will be lost.')
-        if (!currentUser.UseADAuthentication && currentUser.Password !== encryptedPwd)
+        if (currentUser.Type == 'Database' && currentUser.Password !== user.Password)
             w.push('Changes to Password will be lost.')
 
         setWarning(w);
@@ -73,9 +70,7 @@ const UserInfo = () => {
     React.useEffect(() => { setUser(currentUser) }, [currentUser])
 
     function updateUser() {
-        const encryptedPwd = (user.Password !== currentUser.Password ? CryptoJS.SHA256(user.Password + "0").toString(CryptoJS.enc.Base64) : user.Password)
-        dispatch(UserAccountSlice.SetCurrentUser({ ...user, Name: currentUser.Name, Password: encryptedPwd }));
-        dispatch(UserAccountSlice.DBAction({ verb: 'PATCH', record: { ...user, Name: currentUser.Name, Password: encryptedPwd } }))
+        dispatch(UserAccountSlice.DBAction({ verb: 'PATCH', record: { ...user, Name: currentUser.DisplayName } }))
     }
 
     return (
@@ -88,7 +83,7 @@ const UserInfo = () => {
                 </div>
             </div>
             <div className="card-body" style={{ height: window.innerHeight - 440, maxHeight: window.innerHeight - 440, overflowY: 'auto' }}>
-                <UserForm UserAccount={user} Setter={(u) => setUser(u)} Edit={true} />
+                {user != null ? <UserForm UserAccount={user} Setter={(u) => setUser(u)} Edit={true} /> : null}
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
