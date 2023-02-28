@@ -1,4 +1,6 @@
-﻿using System;
+﻿using GSF.Web.Security;
+using System;
+using System.Threading;
 using System.Web.Mvc;
 
 namespace SystemCenter.Notifications.Controllers
@@ -15,7 +17,7 @@ namespace SystemCenter.Notifications.Controllers
         }
 
         [Route("~/AuthTest")]
-        [Authorize]
+        [AuthorizeControllerRole]
         public ActionResult AuthTest()
         {
             return View();
@@ -25,6 +27,14 @@ namespace SystemCenter.Notifications.Controllers
         [AllowAnonymous]
         public ActionResult Logout()
         {
+            return View();
+        }
+
+        [Route("~/UserInfo")]
+        [AuthorizeControllerRole]
+        public ActionResult UserInfo()
+        {
+            Thread.CurrentPrincipal = ViewBag.SecurityPrincipal = User;
             return View();
         }
     }

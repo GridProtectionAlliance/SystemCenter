@@ -43,7 +43,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web.Http;
 using SystemCenter.Controllers;
-using Microsoft.Graph;
+
 
 namespace SystemCenter.Model.Security
 {

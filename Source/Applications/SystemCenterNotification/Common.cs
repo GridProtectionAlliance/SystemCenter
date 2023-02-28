@@ -28,8 +28,8 @@ namespace SystemCenter.Notifications
         private static string GetAnonymousResourceExpression() =>
             GetSettingValue("SystemSettings", "AnonymousResourceExpression", AuthenticationOptions.DefaultAnonymousResourceExpression);
 
-        private static string GetLoginPage()  =>
-            GetSettingValue("SystemSettings", "LoginPage", AuthenticationOptions.DefaultLoginPage);
+        private static string GetLoginPage() =>
+            GetSettingValue("SystemSettings", "LoginPage", "/Login");
 
         private static string GetLoginIcon() =>
            GetSettingValue("SystemSettings", "LoginIcon", $"{Resources.Root}/Shared/Images/gpa-smalllock.png");
