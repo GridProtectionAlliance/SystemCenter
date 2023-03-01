@@ -23,8 +23,8 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingScreen, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { LoadingScreen, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CrossMark, Warning as WarningSymbol } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
@@ -59,12 +59,12 @@ export default function NewMeterWizard(props: {}) {
 
     // Meter Info
     const [currentStep, setCurrentStep] = React.useState<number>(getCurrentStep());
+    const [meterID, setMeterID] = React.useState<number>(getMeterID()); // This in particular indicates a post submission state, we want to seperate this out to ensure we don't use old data
     const [meterInfo, setMeterInfo] = React.useState<OpenXDA.Types.Meter>(getMeterInfo());
     const [locationInfo, setLocationInfo] = React.useState<OpenXDA.Types.Location>(getLocationInfo());
     const [channels, setChannels] = React.useState<OpenXDA.Types.Channel[]>(getChannels());
     const [assets, setAssets] = React.useState<OpenXDA.Types.Asset[]>(getAssets());
-    const [newAssets, setNewAssets] = React.useState<OpenXDA.Types.Asset[]>([]);
-    const [newLines, setNewLines] = React.useState<OpenXDA.Types.Asset[]>([]);
+    const [lines, setLines] = React.useState<OpenXDA.Types.Asset[]>();
     const [assetConnections, setAssetConnections] = React.useState<OpenXDA.Types.AssetConnection[]>(getAssetConnections());
 
     // Wizard Page Control
@@ -72,7 +72,7 @@ export default function NewMeterWizard(props: {}) {
     const [warning, setWarning] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev'>('None');
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
-    const [loading, setLoading] = React.useState<boolean>(false);
+    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
 
     const portalID: string = "NewMeterWizardPortalID";
     const assetPageID: string = "NewMeterWizard.AssetPage";
@@ -94,24 +94,17 @@ export default function NewMeterWizard(props: {}) {
     // Define Special Steps
     const saveStepNoAsset: number = assetStep;
     const saveStep: number = connectionStep;
-    const finalStepNoNewAsset: number = customerAssetGroupMeterStep;
-    const finalStepNoNewLine: number = customerAssetGroupAssetStep;
+    const finalStepNoLine: number = customerAssetGroupAssetStep;
     const finalStep: number = lineSegmentStep;
 
     React.useEffect(() => {
-        if (mStatus === 'unintiated' || mStatus === 'changed') {
+        if (mStatus === 'unintiated' || mStatus === 'changed')
             dispatch(FetchMeter());
-            return function () {
-            }
-        }
     }, [mStatus, dispatch]);
 
     React.useEffect(() => {
-        if (lStatus === 'unintiated' || lStatus === 'changed') {
+        if (lStatus === 'unintiated' || lStatus === 'changed')
             dispatch(LocationSlice.Fetch());
-            return function () {
-            }
-        }
     }, [lStatus, dispatch]);
 
     React.useEffect(() => {
@@ -119,31 +112,45 @@ export default function NewMeterWizard(props: {}) {
     }, [currentStep]);
 
     React.useEffect(() => {
-        return () => {
-            sessionStorage.clear();
+        if (meterID > 0) {
+            localStorage.setItem('NewMeterWizard.MeterID', JSON.stringify(meterID));
+            let handle = loadAssetsFromServer(meterID);
+            return () => {
+                if (handle != null && handle.abort != null)
+                    handle.abort();
+            };
         }
-    }, []);
+    }, [meterID]);
 
     React.useEffect(() => {
-        localStorage.setItem('NewMeterWizard.MeterInfo', JSON.stringify(meterInfo));
+        if (meterID <= 0)
+            localStorage.setItem('NewMeterWizard.MeterInfo', JSON.stringify(meterInfo));
     }, [meterInfo]);
+
     React.useEffect(() => {
-        localStorage.setItem('NewMeterWizard.LocationInfo', JSON.stringify(locationInfo));
-    }, [ locationInfo]);
+        if (meterID <= 0)
+            localStorage.setItem('NewMeterWizard.LocationInfo', JSON.stringify(locationInfo));
+    }, [locationInfo]);
+
     React.useEffect(() => {
-        localStorage.setItem('NewMeterWizard.Channels', JSON.stringify(channels));
+        if (meterID <= 0)
+            localStorage.setItem('NewMeterWizard.Channels', JSON.stringify(channels));
     }, [channels]);
+
     React.useEffect(() => {
-        localStorage.setItem('NewMeterWizard.Assets', JSON.stringify(assets));
-        setNewAssets(assets.filter((asset) => asset.ID < 1));
-        setNewLines(assets.filter((asset) => (asset.ID < 1) && asset.AssetType == 'Line'));
+        if (meterID <= 0)
+            localStorage.setItem('NewMeterWizard.Assets', JSON.stringify(assets));
+        else
+            setLines(assets.filter((asset) => asset.AssetType == 'Line'));
     }, [assets]);
+
     React.useEffect(() => {
-        localStorage.setItem('NewMeterWizard.AssetConnections', JSON.stringify(assetConnections));
+        if (meterID <= 0)
+            localStorage.setItem('NewMeterWizard.AssetConnections', JSON.stringify(assetConnections));
     }, [assetConnections]);
 
     function returnToMeters() {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meters' })
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meters' });
     }
 
     function getCurrentStep(): number {
@@ -153,9 +160,16 @@ export default function NewMeterWizard(props: {}) {
             return 1
     }
 
+    function getMeterID(): number {
+        if (localStorage.hasOwnProperty('NewMeterWizard.MeterID'))
+            return JSON.parse(localStorage.getItem('NewMeterWizard.MeterID'))
+        else
+            return 0
+    }
+
     function getMeterInfo(): OpenXDA.Types.Meter {
         if (localStorage.hasOwnProperty('NewMeterWizard.MeterInfo'))
-            return JSON.parse(localStorage.getItem('NewMeterWizard.MeterInfo'))
+            return JSON.parse(localStorage.getItem('NewMeterWizard.MeterInfo'));
         else
             return {
                 ID: 0,
@@ -173,7 +187,7 @@ export default function NewMeterWizard(props: {}) {
 
     function getLocationInfo(): OpenXDA.Types.Location {
         if (localStorage.hasOwnProperty('NewMeterWizard.LocationInfo'))
-            return JSON.parse(localStorage.getItem('NewMeterWizard.LocationInfo'))
+            return JSON.parse(localStorage.getItem('NewMeterWizard.LocationInfo'));
         else
             return {
                 ID: 0,
@@ -189,7 +203,7 @@ export default function NewMeterWizard(props: {}) {
 
     function getChannels(): Array<OpenXDA.Types.Channel> {
         if (localStorage.hasOwnProperty('NewMeterWizard.Channels'))
-            return JSON.parse(localStorage.getItem('NewMeterWizard.Channels'))
+            return JSON.parse(localStorage.getItem('NewMeterWizard.Channels'));
         else
             return [];
     }
@@ -197,28 +211,28 @@ export default function NewMeterWizard(props: {}) {
     function getAssets(): Array<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer>
     {
         if (localStorage.hasOwnProperty('NewMeterWizard.Assets'))
-            return JSON.parse(localStorage.getItem('NewMeterWizard.Assets'))
+            return JSON.parse(localStorage.getItem('NewMeterWizard.Assets'));
         else
             return [];
     }
 
     function getAssetConnections(): Array<OpenXDA.Types.AssetConnection> {
         if (localStorage.hasOwnProperty('NewMeterWizard.AssetConnections'))
-            return JSON.parse(localStorage.getItem('NewMeterWizard.AssetConnections'))
+            return JSON.parse(localStorage.getItem('NewMeterWizard.AssetConnections'));
         else
             return [];
     }
 
     function isFinalStep(): boolean {
-        return currentStep === (newAssets.length > 0 ? (newLines.length > 0 ? finalStep : finalStepNoNewLine) : finalStepNoNewAsset);
+        return currentStep === ((lines ?? []).length > 0 ? finalStep : finalStepNoLine);
     }
 
     function isSubmitStep(): boolean {
-        return currentStep === (assets.length > 0 ? saveStep : saveStepNoAsset);
+        return currentStep === ((assets ?? []).length > 0 ? saveStep : saveStepNoAsset);
     }
 
     function addNewMeter() {
-        setLoading(true);
+        setStatus('loading');
         let handle = $.ajax({
             type: "POST",
             url: `${homePath}api/OpenXDA/Meter/New`,
@@ -234,11 +248,12 @@ export default function NewMeterWizard(props: {}) {
             cache: true,
             async: true
         }).done((meterID) => {
+            clearLocalStorage();
+            setStatus('idle');
+            setMeterID(meterID);
             next();
-            setLoading(false);
-            setMeterInfo({ ...meterInfo, ID: meterID });
         }).fail(msg => {
-            setLoading(false);
+            setStatus('idle');
             if (msg.status == 500)
                 alert(msg.responseJSON.ExceptionMessage)
         });
@@ -246,6 +261,30 @@ export default function NewMeterWizard(props: {}) {
         return () => {
             if (handle != null && handle.abort != null) handle.abort();
         };
+    }
+
+    function loadAssetsFromServer(meterID: number): JQuery.jqXHR<OpenXDA.Types.Asset[]> {
+        setStatus('loading');
+        let handle = $.ajax({
+            type: 'POST',
+            url: `${homePath}api/OpenXDA/ByAsset/SearchableList`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                Searches: [{ FieldName: "ID", Operator: "in", SearchText: `(SELECT AssetID FROM MeterAsset WHERE MeterID = ${meterID})`, Type: 'number', isPivotColumn: false }],
+                OrderBy: "ID",
+                Ascending: "true"
+            }),
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+        handle.done((data) => {
+            setAssets(JSON.parse(data.toString()));
+            setStatus('idle');
+        }).fail(() => {
+            setStatus('error');
+        });
+        return handle;
     }
 
     function next() {
@@ -280,7 +319,6 @@ export default function NewMeterWizard(props: {}) {
 
     function clearData(): void {
         clearLocalStorage();
-        sessionStorage.clear();
 
         setMeterInfo(getMeterInfo());
         setLocationInfo(getLocationInfo());
@@ -306,6 +344,8 @@ export default function NewMeterWizard(props: {}) {
             localStorage.removeItem('NewMeterWizard.AssetConnections')
         if (localStorage.hasOwnProperty('NewMeterWizard.CurrentStep'))
             localStorage.removeItem('NewMeterWizard.CurrentStep')
+        if (localStorage.hasOwnProperty('NewMeterWizard.MeterID'))
+            localStorage.removeItem('NewMeterWizard.MeterID')
         if (localStorage.hasOwnProperty(assetPageID))
             localStorage.removeItem(assetPageID)
     }
@@ -342,6 +382,13 @@ export default function NewMeterWizard(props: {}) {
     }
 
     function getPage() {
+        if (status === 'error')
+            return (
+                <div style={{ width: '100%', height: '200px' }}>
+                    <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                    </div>
+                </div>);
         switch (currentStep) {
             case generalStep:
                 return <MeterInfoPage MeterInfo={meterInfo} UpdateMeterInfo={setMeterInfo} SetError={setError} />
@@ -354,19 +401,19 @@ export default function NewMeterWizard(props: {}) {
             case assetStep:
                 return <AssetPage AssetConnections={assetConnections} Location={locationInfo} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} SetWarning={setWarning} PageID={assetPageID} />
             case connectionStep:
-                return <ConnectionPage Assets={assets} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />
+                return <MultipleAssetsPage Assets={assets} GetInnerComponent={(currentAsset) => <ConnectionPage AllAssets={assets} CurrentAsset={currentAsset} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />} />
             case additionalFieldMeterStep:
-                return <AdditionalFieldsWindow ID={meterInfo.ID} Type='Meter' Tab={currentStep.toString()} DefaultEdit={true} HideExternal={true} HideAddAdditionalFieldButton={true} HideEditButton={true} HideResetButton={true} HideSaveButton={true} />
+                return <AdditionalFieldsWindow ID={meterID} Type='Meter' HideExternal={true} InnerOnly={true} />
             case externalFieldStep:
-                return <ExternalDBUpdate ID={meterInfo.ID} Type='Meter' Tab={currentStep.toString()} />
+                return <ExternalDBUpdate ID={meterID} Type='Meter' InnerOnly={true} />
             case lineSegmentStep:
-                return <MultipleAssetsPage Assets={newLines} GetInnerComponent={(currentAsset) => <LineSegmentWindow ID={currentAsset.ID} AssetName={currentAsset.AssetName} />} />
+                return <MultipleAssetsPage Assets={lines} GetInnerComponent={(currentAsset) => <LineSegmentWindow ID={currentAsset.ID} InnerOnly={true} />} />
             case additionalFieldAssetStep:
-                return <MultipleAssetsPage Assets={newAssets} GetInnerComponent={(currentAsset) => <AdditionalFieldsWindow ID={currentAsset.ID} Type='Asset' Name={currentAsset.AssetKey} Tab={currentAsset.ID.toString()} DefaultEdit={true} HideExternal={true} HideAddAdditionalFieldButton={true} HideEditButton={true} HideResetButton={true} HideSaveButton={true}/>}/>
+                return <MultipleAssetsPage Assets={assets} GetInnerComponent={(currentAsset) => <AdditionalFieldsWindow ID={currentAsset.ID} Type='Asset' InnerOnly={true} HideExternal={true} />}/>
             case customerAssetGroupMeterStep:
-                return <CustomerAssetGroupPage ID={meterInfo.ID} Type={'Meter'} Name={meterInfo.AssetKey} SetWarning={setWarning} />
+                return <CustomerAssetGroupPage ID={meterID} Type={'Meter'} Name={meterInfo.AssetKey} SetWarning={setWarning} />
             case customerAssetGroupAssetStep:
-                return <MultipleAssetsPage Assets={newAssets} GetInnerComponent={(currentAsset) => <CustomerAssetGroupPage ID={currentAsset.ID} Type={'Asset'} Name={currentAsset.AssetKey} SetWarning={setWarning} />} />
+                return <MultipleAssetsPage Assets={assets} Style={{width: '30%'}} GetInnerComponent={(currentAsset) => <CustomerAssetGroupPage ID={currentAsset.ID} Type={'Asset'} Name={currentAsset.AssetKey} SetWarning={setWarning} />} />
         }
     };
 
@@ -387,7 +434,7 @@ export default function NewMeterWizard(props: {}) {
             <h2>New Meter Wizard</h2>
             <hr />
             <div className="card" style={{ height: 'calc(100% - 75px)' }}>
-                <LoadingScreen Show={loading} />
+                <LoadingScreen Show={status === 'loading'} />
                 <div className="card-header">
                     <button className="btn btn-primary pull-right" onClick={clearData} >{(currentStep > saveStep) ? "Close Wizard" : "Clear Data"}</button>
                     <h4 style={{width: '90%'}}>{getHeader()}</h4>

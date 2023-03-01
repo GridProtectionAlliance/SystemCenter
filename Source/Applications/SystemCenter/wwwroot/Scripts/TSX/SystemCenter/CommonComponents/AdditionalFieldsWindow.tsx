@@ -37,15 +37,9 @@ interface IProps {
     ID: number,
     Type: AdditionalFieldType,
     Tab?: string,
-    Name?: string,
     //Change properties of page
-    DefaultEdit?: boolean,
-    HideExternal?: boolean,
-    //Hide different buttons
-    HideResetButton?: boolean,
-    HideAddAdditionalFieldButton?: boolean,
-    HideEditButton?: boolean
-    HideSaveButton?: boolean
+    InnerOnly?: boolean,
+    HideExternal?: boolean
 }
 
 function AdditionalFieldsWindow(props: IProps): JSX.Element {
@@ -57,7 +51,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     const [additionalFieldValues, setAdditionalFieldVaules] = React.useState<Array<SystemCenter.Types.AdditionalFieldValue>>([]);
 
     const [additionalFieldValuesWorking, setAdditionalFieldValuesWorking] = React.useState<Array<SystemCenter.Types.AdditionalFieldValue>>([]);
-    const [edit, setEdit] = React.useState<boolean>(props.DefaultEdit ?? false);
+    const [edit, setEdit] = React.useState<boolean>(props.InnerOnly ?? false);
 
     const [sortKey, setSortKey] = React.useState<string>('FieldName');
     const [ascending, setAscending] = React.useState<boolean>(false);
@@ -76,7 +70,9 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     const EmptyField: SystemCenter.Types.AdditionalField = { ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false, Searchable: false };
 
     React.useEffect(() => {
-        // This line autosaves data on navigation away via props.Tab
+        // This line autosaves data on navigation away via props.ID so that anything unsaved is saved before it goes away
+        if (HasValueChanged() && !HasInvalidChanges() && edit && (props.InnerOnly ?? false))
+            addOrUpdateValues();
         return getData();
     }, [props.ID, props.Type, props.Tab]);
 
@@ -93,18 +89,11 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         return () => { if (h != null && h.abort != null) h.abort(); }
     }, [newField.ID, newField.FieldName]);
 
-    // Should save while typing in the fields (assuming edit mode and save button is hidden), timeout to avoid hitting the server with too many requests
+    // Should save while typing in the fields (assuming edit mode and save button is hidden due to not returning these elements), timeout to avoid hitting the server with too many requests
     React.useEffect(() => {
         let handle: any = null;
-        console.log("something changed")
-        if (HasValueChanged() && !HasInvalidChanges() && edit && (props.HideSaveButton ?? false)) {
-            console.log("handle made");
-            handle = setTimeout(() => {
-                addOrUpdateValues();
-                console.log("handle exec");
-            }, 500);
-        }
-
+        if (HasValueChanged() && !HasInvalidChanges() && edit && (props.InnerOnly ?? false))
+            handle = setTimeout(() => addOrUpdateValues(), 500);
         return () => { if (handle !== null) clearTimeout(handle); };
     }, [additionalFieldValuesWorking]);
 
@@ -401,16 +390,73 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 </div>
             </div>);
 
+    let tableComponent = (
+        <Table<SystemCenter.Types.AdditionalField>
+            cols={[
+                { key: 'FieldName', field: 'FieldName', label: 'Field', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                {
+                    key: 'ExternalDB', field: 'ExternalDB', label: (props.HideExternal ?? false) ? '' : 'Ext DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
+                        return (props.HideExternal ?? false) ? '' : item.ExternalDB
+                    }
+                },
+                { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                {
+                    key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
+                        return item.Searchable ? HeavyCheckMark : ''
+                    }
+                },
+
+                {
+                    key: 'IsSecure', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
+                        let index: number = additionalFieldValues.findIndex(value => value.AdditionalFieldID == item.ID);
+                        if (!edit)
+                            return (index > -1 && additionalFieldValues[index].Value != null ? additionalFieldValues[index].Value.toString() : '');
+                        return <ValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
+                    }
+                },
+
+                { key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit && !(props.InnerOnly ?? false) ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span>{Pencil}</span></button> : '') },
+                { key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (edit && !(props.InnerOnly ?? false) ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '') },
+
+            ]}
+            tableClass="table table-hover"
+            data={additionalFields}
+            sortKey={sortKey}
+            ascending={ascending}
+            onSort={(d) => {
+                if (d.colKey === 'EditButton' || d.colKey === 'DeleteButton' || d.colKey === 'IsSecure')
+                    return;
+
+                if (d.colKey === sortKey)
+                    setAscending(!ascending);
+                else {
+                    setAscending(true);
+                    setSortKey(d.colKey);
+                }
+            }}
+            onClick={(fld) => { }}
+            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
+            rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+            selected={(item) => false}
+        />);
+
+    if (props.InnerOnly ?? false) return (
+        <>
+            <h4 style={{ width: '100%', padding: '10px' }}>Additional Fields: </h4>
+            {tableComponent}
+        </>);
+
     return (
         <>
             <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215, height: '100%'}}>
                 <div className="card-header">
                     <div className="row">
                         <div className="col">
-                            <h4>{"Additional Fields" + (props.Name === undefined ? "" : " for " + props.Name) + ":"}</h4>
+                            <h4>Additional Fields:</h4>
                         </div>
                         <div className="col">
-                            {(props.HideEditButton ?? false) ? null :
+                            {(props.InnerOnly ?? false) ? null :
                                 (edit ? <button className="btn btn-default pull-right" data-tooltip='View' onClick={() => { setEdit(false); getFieldValues(); }} onMouseEnter={() => setHover('View')} onMouseLeave={() => setHover('None')}>View</button>
                                     : <button className="btn btn-primary pull-right" onClick={() => setEdit(true)}>Edit</button>)}
                             <ToolTip Show={hover == 'View' && (HasValueChanged())} Position={'left'} Theme={'dark'} Target={"View"}>
@@ -420,69 +466,19 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                     </div>
                 </div>
                 <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-                    <Table<SystemCenter.Types.AdditionalField>
-                        cols={[
-                            { key: 'FieldName', field: 'FieldName', label: 'Field', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            {
-                                key: 'ExternalDB', field: 'ExternalDB', label: (props.HideExternal ?? false) ? '' : 'Ext DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
-                                    return (props.HideExternal ?? false) ? '' : item.ExternalDB
-                                }
-                            },
-                            { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            {
-                                key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
-                                    return item.Searchable ? HeavyCheckMark : ''
-                                }
-                            },
-
-                            {
-                                key: 'IsSecure', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
-                                    let index: number = additionalFieldValues.findIndex(value => value.AdditionalFieldID == item.ID);
-                                    if (!edit)
-                                        return (index > -1 && additionalFieldValues[index].Value != null ? additionalFieldValues[index].Value.toString() : '');
-                                    return <ValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
-                                }                            
-                            },
-
-                            { key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span>{Pencil}</span></button> : '') },
-                            { key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (edit ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '') },
-
-                        ]}
-                        tableClass="table table-hover"
-                        data={additionalFields}
-                        sortKey={sortKey}
-                        ascending={ascending}
-                        onSort={(d) => {
-                            if (d.colKey === 'EditButton' || d.colKey === 'DeleteButton' || d.colKey === 'IsSecure')
-                                return;
-
-                            if (d.colKey === sortKey)
-                                setAscending(!ascending);
-                            else {
-                                setAscending(true);
-                                setSortKey(d.colKey);
-                            }
-                        }}
-                        onClick={(fld) => { }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455,}}
-                        rowStyle={{display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                    />
+                    {tableComponent}
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
-                        {props.HideAddAdditionalFieldButton ?? false ? null :
-                            <button className={"btn btn-primary" + (!edit ? ' disabled' : '')} onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')}
-                                onClick={() => { if (edit) { setShowEdit(true); setNewField(EmptyField) } }} data-tooltip={'New'} >Add Field</button>}
+                        <button className={"btn btn-primary" + (!edit ? ' disabled' : '')} onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')}
+                            onClick={() => { if (edit) { setShowEdit(true); setNewField(EmptyField) } }} data-tooltip={'New'} >Add Field</button>
                         <ToolTip Show={hover == 'New' && !edit} Position={'top'} Theme={'dark'} Target={"New"}>
                             {!edit ? <p> To add a new Field switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
                         </ToolTip>
                     </div>
                     <div className="btn-group mr-2">
-                        {props.HideSaveButton ?? false ? null :
-                            <button className={"btn btn-primary" + (!HasValueChanged() || !edit || HasInvalidChanges() ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && !HasInvalidChanges() && edit) addOrUpdateValues(); }}
-                                onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>}
+                        <button className={"btn btn-primary" + (!HasValueChanged() || !edit || HasInvalidChanges() ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && !HasInvalidChanges() && edit) addOrUpdateValues(); }}
+                            onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>
                         <ToolTip Show={hover == 'Save' && (!edit || HasValueChanged())} Position={'top'} Theme={'dark'} Target={"SaveValues"}>
                             {!edit ? <p> To change any Fields switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
                             {HasValueChanged() && !HasInvalidChanges() ? ChangedValues(false) : null}
@@ -490,9 +486,8 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                         </ToolTip>
                     </div>
                     <div className="btn-group mr-2">
-                        {props.HideResetButton ?? false ? null :
-                            <button className={"btn btn-default" + (!(HasValueChanged()) || !edit ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && edit) getFieldValues(); }} onMouseEnter={() => setHover('Clear')}
-                                onMouseLeave={() => setHover('None')} data-tooltip={'Clear'}>Reset</button>}
+                        <button className={"btn btn-default" + (!(HasValueChanged()) || !edit ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && edit) getFieldValues(); }} onMouseEnter={() => setHover('Clear')}
+                            onMouseLeave={() => setHover('None')} data-tooltip={'Clear'}>Reset</button>
                         <ToolTip Show={hover == 'Clear' && (!edit || HasValueChanged())} Position={'top'} Theme={'dark'} Target={"Clear"}>
                             {!edit ? <p> To change any Fields switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
                             {HasValueChanged() ? ChangedValues(true) : null}

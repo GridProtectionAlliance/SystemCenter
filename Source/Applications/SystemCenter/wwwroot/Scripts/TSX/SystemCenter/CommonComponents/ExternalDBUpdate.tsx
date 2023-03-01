@@ -32,7 +32,8 @@ import moment from 'moment';
 function ExternalDataBaseWindow(props: {
     ID: number,
     Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | OpenXDA.Types.AssetTypeName,
-    Tab: string
+    Tab?: string,
+    InnerOnly?: boolean
 }): JSX.Element {
     const [externalDB, setexternalDB] = React.useState<Array<SystemCenter.Types.ExternalDB>>([]);
     const [externalDBFields, setFields] = React.useState<Array<SystemCenter.Types.ExternalDBField>>([]);
@@ -45,7 +46,12 @@ function ExternalDataBaseWindow(props: {
         setChanged(false);
         setFields([]);
         return getExternalDBs();
-    }, [props.ID, props.Type, props.Tab]); 
+    }, [props.ID, props.Type, props.Tab]);
+
+    React.useEffect(() => {
+        if (changed && (props.InnerOnly ?? false))
+            submitUpdate();
+    }, [changed]);
 
     function getExternalDBs() {
        setStatus('loading')
@@ -94,10 +100,6 @@ function ExternalDataBaseWindow(props: {
             if (handle.abort != undefined) handle.abort();
         }
     }
-
-    
-
-   
     
     function cancelUpdate(): void {
         setFields([])
@@ -172,6 +174,20 @@ function ExternalDataBaseWindow(props: {
             </div>
         </div>
 
+    let baseTableBody = (
+        <table id="overview" className='table'>
+            <thead>
+                <tr><th>External DB</th><th style={{ width: 250 }}>Last Updated</th><th style={{ width: 300 }}></th></tr>
+            </thead>
+            <tbody>
+                {externalDB.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} ExternalDB={a.name} updated={a.lastupdate} Update={(dbType) => {
+                    updateExternalDB(dbType);
+                }} />)}
+            </tbody>
+        </table>);
+
+    if (props.InnerOnly ?? false) return baseTableBody;
+
     return (
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -179,7 +195,7 @@ function ExternalDataBaseWindow(props: {
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                    {(changed? (
+                    {changed ? (
                         <table id="fields" className='table'>
                             <thead>
                                 <tr>
@@ -196,18 +212,7 @@ function ExternalDataBaseWindow(props: {
                             <tbody>
                                 {externalDBFields.map((a, i) => <TableRowField key={i} ParentTableID={props.ID} Field={a} Values={externalDBFields} Setter={checkUpdate} />)}
                             </tbody>
-                        </table>):(
-                        <table id="overview" className='table'>
-                            <thead>
-                                <tr><th>External DB</th><th style={{ width: 250 }}>Last Updated</th><th style={{ width: 300 }}></th></tr>
-                            </thead>
-                            <tbody>
-                                    {externalDB.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} ExternalDB={a.name} updated={a.lastupdate} Update={(dbType) => {
-                                        updateExternalDB(dbType);
-                                }} />)}
-                            </tbody>
-                        </table>)
-                    )}
+                        </table>) : baseTableBody}
                 </div>
             </div>
             {(changed ?

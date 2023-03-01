@@ -204,163 +204,130 @@ export default function CustomerAssetGroupPage(props: IProps) {
         return handle;
     }
 
-    let cardBody;
     if (state == 'loading')
-        cardBody = (
+        return (
             <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
                 <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
                     <LoadingIcon Show={true} Size={40} />
                 </div>
             </div>);
-    else if (state == 'error')
-        cardBody = (
+    if (state == 'error')
+        return (
             <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
                     <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
                 </div>
             </div>);
     else
-        cardBody = (
+        return (
             <>
                 <div className="row" style={{ height: '100%' }}>
                     <div className="col" style={{width: '50%'}}>
-                        <div className="card" style={{ marginBottom: 10, height: '100%', maxHeight: window.innerHeight - 215 }}>
-                            <div className="card-header">
-                                <h4>{"Customers Assigned:"}</h4>
-                            </div>
-                            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-                                <Table<CommonCustomerAssetMeter>
-                                    cols={[
-                                        { key: 'CustomerName', field: 'CustomerName', label: 'Customer', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                        { key: 'CustomerKey', field: 'CustomerKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }
-                                    ]}
-                                    tableClass="table table-hover"
-                                    data={customerList}
-                                    sortKey={customerKey}
-                                    ascending={customerAsc}
-                                    onSort={(d) => {
-                                        if (d.colKey === customerKey)
-                                            setCustomerAsc(!customerAsc);
-                                        else {
-                                            setCustomerAsc(true);
-                                            setCustomerKey(d.colKey);
-                                        }
-                                    }}
-                                    onClick={() => { }}
-                                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
-                                    rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                    selected={() => false}
-                                />
-                            </div>
-                            <div className="card-footer">
-                                <div className="col-1 pull-right">
-                                    <button className="btn btn-primary pull-right" onClick={() => { setShowCustomer(true); }}>Assign to Customers</button>
-                                </div>
-                            </div>
-                        </div>
+                        <button className="btn btn-primary pull-right" onClick={() => { setShowCustomer(true); }}>Assign to Customers</button>
+                        <h4 style={{ width: '100%', padding: '10px' }}>{"Customers Assigned:"}</h4>
+                        <Table<CommonCustomerAssetMeter>
+                            cols={[
+                                { key: 'CustomerName', field: 'CustomerName', label: 'Customer', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'CustomerKey', field: 'CustomerKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }
+                            ]}
+                            tableClass="table table-hover"
+                            data={customerList}
+                            sortKey={customerKey}
+                            ascending={customerAsc}
+                            onSort={(d) => {
+                                if (d.colKey === customerKey)
+                                    setCustomerAsc(!customerAsc);
+                                else {
+                                    setCustomerAsc(true);
+                                    setCustomerKey(d.colKey);
+                                }
+                            }}
+                            onClick={() => { }}
+                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
+                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            selected={() => false}
+                        />
                     </div>
                     <div className="col" style={{ width: '50%' }}>
-                        <div className="card" style={{ marginBottom: 10, height: '100%', maxHeight: window.innerHeight - 215 }}>
-                            <div className="card-header">
-                                <h4>{"Asset Groups Assigned:"}</h4>
-                            </div>
-                            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-                                <Table<CommonAssetGroupAssetMeter>
-                                    cols={[
-                                        { key: 'Name', field: 'Name', label: 'Asset Group', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                        { key: 'DisplayDashboard', field: 'DisplayDashboard', label: 'Show in PQ Dashboard', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }
-                                    ]}
-                                    tableClass="table table-hover"
-                                    data={groupList}
-                                    sortKey={groupKey}
-                                    ascending={groupAsc}
-                                    onSort={(d) => {
-                                        if (d.colKey === groupKey)
-                                            setGroupAsc(!groupAsc);
-                                        else {
-                                            setGroupAsc(true);
-                                            setGroupKey(d.colKey);
-                                        }
-                                    }}
-                                    onClick={() => { }}
-                                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
-                                    rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                    selected={() => false}
-                                />
-                            </div>
-                            <div className="card-footer">
-                                <div className="col-1 pull-right">
-                                    <button className="btn btn-primary pull-right" onClick={() => { setShowGroup(true); }}>Assign to Asset Groups</button>
-                                </div>
-                            </div>
-                        </div>
-                        </div>
+                        <button className="btn btn-primary pull-right" onClick={() => { setShowGroup(true); }}>Assign to Asset Groups</button>
+                        <h4 style={{ width: '100%', padding: '10px' }}>{"Asset Groups Assigned:"}</h4>
+                        <Table<CommonAssetGroupAssetMeter>
+                            cols={[
+                                { key: 'Name', field: 'Name', label: 'Asset Group', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'DisplayDashboard', field: 'DisplayDashboard', label: 'Show in PQ Dashboard', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }
+                            ]}
+                            tableClass="table table-hover"
+                            data={groupList}
+                            sortKey={groupKey}
+                            ascending={groupAsc}
+                            onSort={(d) => {
+                                if (d.colKey === groupKey)
+                                    setGroupAsc(!groupAsc);
+                                else {
+                                    setGroupAsc(true);
+                                    setGroupKey(d.colKey);
+                                }
+                            }}
+                            onClick={() => { }}
+                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
+                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            selected={() => false}
+                        />
                     </div>
+                </div>
+                <DefaultSelects.Customer
+                    Slice={CustomerSlice}
+                    Selection={selectedCustomers}
+                    OnClose={(selected, conf) => {
+                        setShowCustomer(false);
+                        if (conf) {
+                            let customerHandle = postCustomerIdList(selected);
+                            return () => {
+                                if (customerHandle != null && customerHandle.abort != null)
+                                    customerHandle.abort();
+                            }
+                        }
+                    }}
+                    Show={showCustomer}
+                    Type={'multiple'}
+                    Columns={[
+                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'CustomerKey', field: 'CustomerKey', label: 'Customer Key', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
+                        { key: 'LSCVS', field: 'LSCVS', label: 'LSCVS', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    ]}
+                    Title={"Assign to Customers"}
+                    GetEnum={() => { return () => { } }}
+                    GetAddlFields={() => { return () => { } }} />
+                <DefaultSelects.AssetGroup
+                    Slice={AssetGroupSlice}
+                    Selection={selectedGroups}
+                    OnClose={(selected, conf) => {
+                        setShowGroup(false);
+                        if (conf) {
+                            let groupHandle = postGroupIdList(selected);
+                            return () => {
+                                if (groupHandle != null && groupHandle.abort != null)
+                                    groupHandle.abort();
+                            }
+                        }
+                    }}
+                    Show={showGroup}
+                    Type={'multiple'}
+                    Columns={[
+                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Users', field: 'Users', label: 'Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'AssetGroups', field: 'AssetGroups', label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    ]}
+                    Title={"Assign to Groups"}
+                    GetEnum={() => { return () => { } }}
+                    GetAddlFields={() => { return () => { } }} />
             </>
         );
-
-    return (
-        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215, height: '100%'  }}>
-            <div className="card-header">
-                <div className="row">
-                    <h4>{`Assign ${props.Name} to Customers and Asset Groups:`}</h4>
-                </div>
-            </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto', height: '100%' }}>
-                {cardBody}
-            </div>
-            <DefaultSelects.Customer
-                Slice={CustomerSlice}
-                Selection={selectedCustomers}
-                OnClose={(selected, conf) => {
-                    setShowCustomer(false);
-                    if (conf) {
-                        let customerHandle = postCustomerIdList(selected);
-                        return () => {
-                            if (customerHandle != null && customerHandle.abort != null)
-                                customerHandle.abort();
-                        }
-                    }
-                }}
-                Show={showCustomer}
-                Type={'multiple'}
-                Columns={[
-                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'CustomerKey', field: 'CustomerKey', label: 'Customer Key', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
-                    { key: 'LSCVS', field: 'LSCVS', label: 'LSCVS', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                    { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
-                Title={"Assign to Customers"}
-                GetEnum={() => { return () => { } }}
-                GetAddlFields={() => { return () => { } }} />
-            <DefaultSelects.AssetGroup
-                Slice={AssetGroupSlice}
-                Selection={selectedGroups}
-                OnClose={(selected, conf) => {
-                    setShowGroup(false);
-                    if (conf) {
-                        let groupHandle = postGroupIdList(selected);
-                        return () => {
-                            if (groupHandle != null && groupHandle.abort != null)
-                                groupHandle.abort();
-                        }
-                    }
-                }}
-                Show={showGroup}
-                Type={'multiple'}
-                Columns={[
-                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Users', field: 'Users', label: 'Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetGroups', field: 'AssetGroups', label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
-                Title={"Assign to Groups"}
-                GetEnum={() => { return () => { } }}
-                GetAddlFields={() => { return () => { } }} />
-        </div>);
 }

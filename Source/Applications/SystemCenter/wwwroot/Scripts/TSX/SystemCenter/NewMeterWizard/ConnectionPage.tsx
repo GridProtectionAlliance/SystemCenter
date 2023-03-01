@@ -35,7 +35,14 @@ interface AssetConnectionByID {
     AssetRelationshipTypeID: number
 }
 
-export default function ConnectionPage(props: { Assets: Array<OpenXDA.Types.Asset>, AssetConnections: Array<OpenXDA.Types.AssetConnection>, UpdateAssetConnections: (record: OpenXDA.Types.AssetConnection[]) => void }) {
+interface IProps {
+    AllAssets: Array<OpenXDA.Types.Asset>,
+    CurrentAsset: OpenXDA.Types.Asset, AssetConnections:
+    Array<OpenXDA.Types.AssetConnection>,
+    UpdateAssetConnections: (record: OpenXDA.Types.AssetConnection[]) => void
+}
+
+export default function ConnectionPage(props: IProps) {
 
     const dispatch = useAppDispatch();
     const assetConnectionTypes = useAppSelector(AssetConnectionTypeSlice.SearchResults);
@@ -43,11 +50,9 @@ export default function ConnectionPage(props: { Assets: Array<OpenXDA.Types.Asse
     const allConnectionTypes = useAppSelector(AssetConnectionTypeSlice.Data);
 
     const [selectedTypeID, setSelectedTypeID] = React.useState<number>(0);
-    const [selectedAssetKey, setSelectedAssetKey] = React.useState<string>((props.Assets[0].AssetKey));
+    const [selectedAssetKey, setSelectedAssetKey] = React.useState<string>((props.CurrentAsset.AssetKey));
 
     const [showAssetConnection, setShowAssetConnection] = React.useState<boolean>(false);
-
-    const [assetIndex, setAssetIndex] = React.useState<number>(0);
 
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
     const [currentConnections, setCurrentConnections] = React.useState<OpenXDA.Types.AssetConnection[]>([]);
@@ -60,27 +65,20 @@ export default function ConnectionPage(props: { Assets: Array<OpenXDA.Types.Asse
 
     React.useEffect(() => {
         const typeFilter: Search.IFilter<OpenXDA.Types.AssetConnection>[] = [
-            { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${props.Assets[assetIndex].AssetType}')`, Operator: 'IN', Type: 'number', isPivotColumn: false },
-            { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${props.Assets.find(a => a.AssetKey == selectedAssetKey).AssetType}')`, Operator: 'IN', Type: 'number', isPivotColumn: false }
+            { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${props.CurrentAsset.AssetType}')`, Operator: 'IN', Type: 'number', isPivotColumn: false },
+            { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${props.AllAssets.find(a => a.AssetKey == selectedAssetKey).AssetType}')`, Operator: 'IN', Type: 'number', isPivotColumn: false }
         ]
         dispatch(AssetConnectionTypeSlice.DBSearch({ filter: typeFilter }));
 
         const connFilter: Search.IFilter<OpenXDA.Types.AssetConnection>[] = [
-            { FieldName: 'ID', SearchText: `ParentID OR ChildID = ${props.Assets[assetIndex].ID}`, Operator: '=', Type: 'number', isPivotColumn: false },
+            { FieldName: 'ID', SearchText: `ParentID OR ChildID = ${props.CurrentAsset.ID}`, Operator: '=', Type: 'number', isPivotColumn: false },
         ];
         let handle = getAssetConnections(connFilter);
         return () => {
             if (handle != null && handle.abort != null)
                 handle.abort();
         };
-    }, [assetIndex, selectedAssetKey]);
-
-    React.useEffect(() => {
-        if (assetIndex == 0 && props.Assets.length < 1)
-            setSelectedAssetKey(props.Assets[1].AssetKey)
-        else
-            setSelectedAssetKey(props.Assets[0].AssetKey)
-    }, [assetIndex]);
+    }, [props.CurrentAsset, selectedAssetKey]);
 
     React.useEffect(() => {
         if (assetConnectionTypes.length == 0)
@@ -108,7 +106,7 @@ export default function ConnectionPage(props: { Assets: Array<OpenXDA.Types.Asse
             async: true
         }).done((data: AssetConnectionByID) => {
             setStatus('idle');
-            let newConnections = props.AssetConnections.filter(ac => ac.ID >= 0 && (ac.Parent == currentAsset.AssetKey || ac.Child == currentAsset.AssetKey));
+            let newConnections = props.AssetConnections.filter(ac => ac.ID >= 0 && (ac.Parent == props.CurrentAsset.AssetKey || ac.Child == props.CurrentAsset.AssetKey));
             let oldConnections = getRelevantConnections(JSON.parse(data.toString()));
             setCurrentConnections([...oldConnections, ...newConnections]);
         }).fail(() => setStatus('error'));
@@ -116,8 +114,8 @@ export default function ConnectionPage(props: { Assets: Array<OpenXDA.Types.Asse
 
     function getRelevantConnections(connections: AssetConnectionByID[]): OpenXDA.Types.AssetConnection[] {
         return connections.map((conn) => {
-            let parentAsset = props.Assets.find((asset) => (conn.ParentID === asset.ID));
-            let childAsset = props.Assets.find((asset) => (conn.ChildID === asset.ID));
+            let parentAsset = props.AllAssets.find((asset) => (conn.ParentID === asset.ID));
+            let childAsset = props.AllAssets.find((asset) => (conn.ChildID === asset.ID));
             //This means that this is irrelevant, since one asset exists outside of what we care about
             if (parentAsset === undefined || childAsset === undefined) return null;
             return {
@@ -129,122 +127,84 @@ export default function ConnectionPage(props: { Assets: Array<OpenXDA.Types.Asse
         }).filter((newConn) => newConn !== null);
     }
 
-    function next() {
-        // Make sure currentStep is set to something reasonable
-        if (assetIndex >= props.Assets.length - 1) {
-            setAssetIndex( props.Assets.length - 1);
-        } else {
-            setAssetIndex(assetIndex + 1);
-        }
-    }
-
-    function prev() {
-        if (assetIndex <= 0) {
-        } else {
-            setAssetIndex(assetIndex - 1);
-        }
-    }
-
     function deleteAssetConnection(ac: OpenXDA.Types.AssetConnection): void {
         let list: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
-        let index = list.findIndex(a => a == ac);
+        let index = list.findIndex(conn => conn == ac);
         list.splice(index, 1);
         props.UpdateAssetConnections(list);
 
         let currentList: Array<OpenXDA.Types.AssetConnection> = _.clone(currentConnections);
-        let currentIndex = currentList.findIndex(a => a == ac);
+        let currentIndex = currentList.findIndex(conn => conn == ac);
         currentList.splice(currentIndex, 1);
         setCurrentConnections(currentList);
     }
 
-    let currentAsset = props.Assets[assetIndex];
-
-    let cardBody;
+    let tableBody;
     if (status === 'loading' || actStatus === 'loading')
-        cardBody = (
+        tableBody = (
             <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
                 <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
                     <LoadingIcon Show={true} Size={40} />
                 </div>
             </div>);
     else if (status === 'error' || actStatus === 'error')
-        cardBody = (
+        tableBody = (
             <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
                     <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
                 </div>
             </div>);
     else
-        cardBody = (
+        tableBody = (
             <div className="col" style={{ width: '100%', height: '100%' }}>
-                <h4 style={{ width: '100%' }}>Connected Assets</h4>
-                <table className="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Asset</th>
-                            <th>Type</th>
-                            <th>Connection</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {
-                            currentConnections.map((ac: OpenXDA.Types.AssetConnection, index, array) => {
-                                let connectionAsset;
-                                if (ac.Parent == currentAsset.AssetKey) {
-                                    connectionAsset = props.Assets.find(asset => asset.AssetKey == ac.Child);
-                                    console.log(ac.Parent);
-                                }
-                                else {
-                                    connectionAsset = props.Assets.find(asset => asset.AssetKey == ac.Parent);
-                                    console.log(ac.Child);
-                                }
+                <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
+                    <button className="btn btn-primary pull-right" onClick={() => setShowAssetConnection(true)} disabled={props.AllAssets.length <= 1}>Add Connection</button>
+                    <h4 style={{ width: '100%', padding: '10px' }}>Assets Connected to Asset - {props.CurrentAsset.AssetName} </h4>
+                    <table className="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Asset Name</th>
+                                <th>Asset Key</th>
+                                <th>Asset Type</th>
+                                <th>Voltage (kV)</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                currentConnections.map((ac: OpenXDA.Types.AssetConnection, index, array) => {
+                                    let connectionAsset;
+                                    if (ac.Parent == props.CurrentAsset.AssetKey)
+                                        connectionAsset = props.AllAssets.find(asset => asset.AssetKey == ac.Child);
+                                    else
+                                        connectionAsset = props.AllAssets.find(asset => asset.AssetKey == ac.Parent);
 
-                                let connectionType = allConnectionTypes.find(act => act.ID == ac.AssetRelationshipTypeID);
-                                return (
-                                    <tr key={index}>
-                                        <td style={{ width: '20%' }}>{connectionAsset.AssetKey}</td>
-                                        <td style={{ width: '20%' }}>{connectionAsset.AssetType}</td>
-                                        <td style={{ width: '50%' }}>{connectionType != undefined ? connectionType.Name : ''}</td>
-                                        <td style={{ width: '10%' }}>
-                                            {ac.ID > 0 ? null : <button className="btn btn-sm" onClick={(e) => deleteAssetConnection(ac)}><span><i className="fa fa-times"></i></span></button>}
-                                        </td>
-                                    </tr>
-                                )
-                            })
-                        }
-                    </tbody>
-                </table>
+                                    if (connectionAsset === undefined) {
+                                        setStatus('error');
+                                        return;
+                                    }
+                                    return (
+                                        <tr key={index}>
+                                            <td style={{ width: '25%' }}>{connectionAsset.AssetName}</td>
+                                            <td style={{ width: '25%' }}>{connectionAsset.AssetKey}</td>
+                                            <td style={{ width: '20%' }}>{connectionAsset.AssetType}</td>
+                                            <td style={{ width: '20%' }}>{connectionAsset.VoltageKV}</td>
+                                            <td style={{ width: '10%' }}>
+                                                {ac.ID > 0 ? null : <button className="btn btn-sm" onClick={(e) => deleteAssetConnection(ac)}><span><i className="fa fa-times"></i></span></button>}
+                                            </td>
+                                        </tr>
+                                    )
+                                })
+                            }
+                        </tbody>
+                    </table>
+                </div>
             </div>);
 
     return (
         <>
-            <div className="row" style={{ margin: -20, height: '100%' }}>
-                <div className="col-lg-2" style={{height: '100%' }}>
-                    <ul style={{ width: '100%', height: '100%', maxHeight: window.innerHeight - 285, overflowY: 'auto', padding: 0, margin: 0 }}>
-                        {
-                            props.Assets.map((asset, index) => <li style={{ textDecoration: (index <= assetIndex ? 'line-through' : null) }} key={index}>{asset.AssetKey}</li>)
-                        }
-                    </ul>
-                </div>
-                <div className="col" style={{ padding: 0, height: '100%' }}>
-                    <div className="card" style={{ height: '100%' }}>
-                        <div className="card-header">
-                            <button className="btn btn-primary pull-right" onClick={() => setShowAssetConnection(true)} disabled={props.Assets.length <= 1}>Add Connection</button>
-                            <h4 style={{ width: '100%' }}>{currentAsset.AssetType} - {currentAsset.AssetKey} </h4>
-                        </div>
-                        <div className="card-body" style={{ overflowY: 'scroll', maxHeight: window.innerHeight - 415 }}>
-                            {cardBody}
-                        </div>
-                        <div className="card-footer">
-                            <button className="btn btn-primary pull-left" onClick={prev} hidden={false} disabled={assetIndex < 1}>Previous Asset</button>
-                            <button className="btn btn-primary pull-right" onClick={next} disabled={assetIndex == props.Assets.length - 1}>Next Asset</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <Modal Show={showAssetConnection} Size={'sm'} Title={'Add a Connection to ' + currentAsset.AssetKey}
+            {tableBody}
+            <Modal Show={showAssetConnection} Size={'sm'} Title={'Add a Connection to ' + props.CurrentAsset.AssetKey}
                 ConfirmText={'Save'} DisableConfirm={assetConnectionTypes.length == 0} ShowX={true} ShowCancel={false}
                 CallBack={(confirmed) => {
                     setShowAssetConnection(false);
@@ -254,7 +214,7 @@ export default function ConnectionPage(props: { Assets: Array<OpenXDA.Types.Asse
                     let childConnection = selectedAssetKey;
                     let connectionType = selectedTypeID;
                     let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
-                    let newConnection: OpenXDA.Types.AssetConnection = { ID: 0, AssetRelationshipTypeID: connectionType, Parent: currentAsset.AssetKey, Child: childConnection };
+                    let newConnection: OpenXDA.Types.AssetConnection = { ID: 0, AssetRelationshipTypeID: connectionType, Parent: props.CurrentAsset.AssetKey, Child: childConnection };
                     setCurrentConnections([...currentConnections, newConnection]);
                     assetConnections.push(newConnection);
                     props.UpdateAssetConnections(assetConnections);
@@ -265,7 +225,7 @@ export default function ConnectionPage(props: { Assets: Array<OpenXDA.Types.Asse
                     <label>Select Connecting Asset</label>
                     <select value={selectedAssetKey} className="form-control" onChange={(evt) => { setSelectedAssetKey((evt.target.value) as string); }}>
                         {
-                            props.Assets.filter(asset => asset.AssetKey != currentAsset.AssetKey).map((asset, index) => <option key={index} value={asset.AssetKey} >{asset.AssetKey}</option>)
+                            props.AllAssets.filter(asset => asset.AssetKey != props.CurrentAsset.AssetKey).map((asset, index) => <option key={index} value={asset.AssetKey} >{asset.AssetKey}</option>)
                         }
                     </select>
                 </div>
