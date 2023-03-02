@@ -1,0 +1,117 @@
+﻿// ******************************************************************************************************
+//  User.tsx - Gbtc
+//
+//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  07/14/2021 - C. Lackner
+//       Generated original version of source code.
+// ******************************************************************************************************
+
+import * as React from 'react';
+import { LoadingScreen, ServerErrorIcon, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
+import * as _ from 'lodash';
+import UserInfo from './Info';
+import UserPermissions from './Permissions';
+import AdditionalField from '../AdditionalUserFieldsWindow'
+import { useAppDispatch, useAppSelector } from '../../hooks';
+import { CheckBox } from '@gpa-gemstone/react-forms';
+import { UserAccountSlice } from '../../Store/Store';
+import { useHistory } from "react-router-dom";
+
+interface IProps {
+	UserID: string
+}
+
+function User(props: IProps) {
+	const history = useHistory();
+	const dispatch = useAppDispatch();
+
+	const user = useAppSelector((state) => UserAccountSlice.Datum(state, props.UserID));
+	const status: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
+
+	const [tab, setTab] = React.useState<string>('userInfo')
+
+	const [showWarning, setShowWarning] = React.useState<boolean>(false);
+
+
+	React.useEffect(() => {
+		if (status === 'unintiated' || status === 'changed')
+			dispatch(UserAccountSlice.Fetch());
+	}, [status]);
+
+	if (status === 'error')
+		return <div style={{ width: '100%', height: '100%' }}>
+			<ServerErrorIcon Show={true} Label={'A Server Error Occured. Please Reload the Application'} />
+		</div>;
+
+	const Tabs = [
+		{ Id: "userInfo", Label: "User Info" },
+		{ Id: "permissions", Label: "Permissions" },
+		{ Id: "additionalFields", Label: "Additional Fields" }
+	];
+
+	return (
+		<div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+			<div className="row">
+				<div className="col">
+					<h2>{user != null ? `${user.FirstName} ${user.LastName} (${user.DisplayName})` : ''}</h2>
+				</div>
+				<div className="col">
+					<button className="btn btn-danger pull-right" hidden={user == null} onClick={() => setShowWarning(true)}>Delete User</button>
+				</div>
+			</div>
+			<LoadingScreen Show={status === 'loading'} />
+			<hr />
+			<TabSelector CurrentTab={tab} SetTab={(t) => setTab(t)} Tabs={Tabs} />
+			<div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
+				<div className={"tab-pane " + (tab === "userInfo" ? " active" : "fade")}>
+					<UserInfo AccountId={props.UserID} />
+				</div>
+				<div className={"tab-pane " + (tab === "permissions" ? " active" : "fade")}>
+					{user == null ? null : <UserPermissions UserID={user.ID} />}
+				</div>
+				<div className={"tab-pane " + (tab === "additionalFields" ? " active" : "fade")} style={{ maxHeight: window.innerHeight - 215 }}>
+					<AdditionalField
+						Id={props.UserID}
+						EmptyField={{ ID: -1, IsSecure: false, FieldName: '', Type: 'string' }}
+						GetFieldValueIndex={(field, values) => values.findIndex(v => v.AdditionalUserFieldID === field.ID)}
+						GetFieldIndex={(value, fields) => fields.findIndex(f => f.ID === value.AdditionalUserFieldID)}
+						FieldKeySelector={(field) => (field.ID === -1 ? 'new' : field.ID.toString())}
+						ValidateField={() => []}
+						FieldUI={(fld, setter) => <CheckBox<Application.Types.iAdditionalUserField> Record={fld} Field='IsSecure' Label="Secure Data" Setter={setter} />}
+						CreateValue={(fld) => ({ Value: '', ID: 0, UserAccountID: props.UserID, AdditionalUserFieldID: fld.ID })}
+					/>
+				</div>
+
+			</div>
+			<Warning Message={
+				(user == null || user.Type == 'Database' ? 'This will permanently remove the User. Are you sure you want to continue?' :
+					'This will remove the user from the xda suite. However the user may still have rights and can log into the system if they are in an azure or Active Directory group. contact your domain Administrator to have the user removed from Azure or AD.')
+					} Title={'Warning'} Show={showWarning} CallBack={(c) => {
+				setShowWarning(false);
+				if (c) {
+					dispatch(UserAccountSlice.DBAction({ verb: 'DELETE', record: user }));
+					history.push({ pathname: homePath + 'index.cshtml?name=Users' });
+				}
+			}} />
+		</div>
+	)
+
+
+}
+
+export default User;

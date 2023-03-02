@@ -28,7 +28,6 @@ import { GenericSlice } from '@gpa-gemstone/react-interactive'
 import { EventChannelSlice } from './EventChannelSlice';
 import { SystemCenter, OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import NoteSlice from './NoteSlice';
-import UserSlice from './UserSlice';
 import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
 import SecurityRoleSlice from './SecurityRoleSlice';
 import { PQApplications } from '../ApplicationCategory/Applications';
@@ -36,6 +35,7 @@ import { DBCleanup } from '../DB/DBCleanup';
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
 import { OpenXDA as LocalXDA } from '../global'
 import PQISlice from './PQISlice';
+import { IApplicationRole, ISecurityGroup, IUserAccount } from '../User/Types';
 
 
 declare var homePath: string;
@@ -92,11 +92,14 @@ export const UserNoteSlice = new NoteSlice('User');
 export const LocationNoteSlice = new NoteSlice('Location');
 export const CustomerNoteSlice = new NoteSlice('Customer');
 export const CompanyNoteSlice = new NoteSlice('Company');
-export const UserAccountSlice = new UserSlice('UserAccounts', `${homePath}api/SystemCenter/UserAccount`);
+export const UserAccountSlice = new GenericSlice<IUserAccount>('UserAccounts', `${homePath}api/SystemCenter/UserAccount`, "AccountName", false);
 export const UserAdditionalFieldSlice = new AdditionalUserFieldSlice('AdditionalUserFields', `${homePath}api/SystemCenter`);
 export const SCSecurityRoleSlice = new SecurityRoleSlice('SCSecurityRole', `${homePath}api/SystemCenter`);
 
 export const SourceImpedanceSlice = new GenericSlice<OpenXDA.Types.SourceImpedance>("SourceImpedance", `${homePath}api/OpenXDA/SourceImpedance`, "AssetLocationID", false);
+export const SecurityGroupSlice = new GenericSlice<ISecurityGroup>("SecurityGroup", `${homePath}api/SystemCenter/FullSecurityGroup`, "Type", false)
+export const ApplicationRoleSlice = new GenericSlice<IApplicationRole>("ApplicationRole", `${homePath}api/SystemCenter/ApplicationRole`, "Name", false)
+
 
 const store = configureStore({
     reducer: {
@@ -148,6 +151,8 @@ const store = configureStore({
         CustomerAsset: CustomerAssetSlice.Reducer,
         PQI: PQISlice,
         SourceImpedance: SourceImpedanceSlice.Reducer,
+        SecurityGroup: SecurityGroupSlice.Reducer,
+        ApplicationRole: ApplicationRoleSlice.Reducer
     }
 });
 export default store;

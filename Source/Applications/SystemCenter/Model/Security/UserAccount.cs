@@ -28,6 +28,7 @@ using GSF.Identity;
 using GSF.Security;
 using GSF.Security.Model;
 using GSF.Web.Model;
+using Microsoft.Graph;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -36,8 +37,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
+using System.Security;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Web.Http;
 using SystemCenter.Controllers;
 
@@ -72,416 +75,333 @@ namespace SystemCenter.Model.Security
         public string DepartmentNumber { get; set; }
         public string MobilePhone { get; set; }
         public bool ReceiveNotifications { get; set; }
+
+        [NonRecordField]
+        public string Type { get; set; }
+
+        [NonRecordField]
+        public string DisplayName { get; set; }
     }
 
     [RoutePrefix("api/SystemCenter/UserAccount")]
     public class UserAccountController : ModelController<UserAccount>
     {
-        [HttpGet, Route("UpdateMetaData")]
-        public IHttpActionResult GetUdateMetaData()
+        private AzureADSettings m_azureADSettings;
+        private GraphServiceClient m_graphClient;
+
+        public string LDAPPath
         {
-            if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
-            try
+            get
             {
-                UserAccountMetaDataUpdater metaData = new UserAccountMetaDataUpdater();
-                metaData.Update();
-                return Ok("Metadata updated");
+                ConfigurationFile configFile = ConfigurationFile.Current;
+                CategorizedSettingsElementCollection securityProviderSettings = configFile.Settings["securityProvider"];
+                securityProviderSettings.Add("LdapPath", "", "Specifies the LDAP path used to initialize the security provider.");
+                return securityProviderSettings["LdapPath"].Value;
             }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
+        }
+
+        /// <summary>
+        /// Gets Azure AD settings.
+        /// </summary>
+        public AzureADSettings AzureADSettings => m_azureADSettings ??= AzureADSettings.Load();
+
+        /// <summary>
+        /// Gets Graph client.
+        /// </summary>
+        public GraphServiceClient GraphClient => m_graphClient ??= AzureADSettings.GetGraphClient();
+
+        protected override IEnumerable<UserAccount> QueryRecords(string sortBy, bool ascending)
+        {
+            IEnumerable<UserAccount> baseResult;
+            if (!IsInDatabase(sortBy))
+                baseResult = base.QueryRecords("Name", ascending);
+            else
+                baseResult = base.QueryRecords(sortBy, ascending);
+
+            baseResult = baseResult.Select(g => ExtendAcct(g));
+
+            if (string.Equals(sortBy, "DisplayName", StringComparison.OrdinalIgnoreCase) && ascending)
+                baseResult = baseResult.OrderBy(g => g.DisplayName);
+            if (string.Equals(sortBy, "DisplayName", StringComparison.OrdinalIgnoreCase) && !ascending)
+                baseResult = baseResult.OrderByDescending(g => g.DisplayName);
+
+            if (string.Equals(sortBy, "Type", StringComparison.OrdinalIgnoreCase) && ascending)
+                baseResult = baseResult.OrderBy(g => g.Type);
+            if (string.Equals(sortBy, "Type", StringComparison.OrdinalIgnoreCase) && !ascending)
+                baseResult = baseResult.OrderByDescending(g => g.Type);
+
+            return baseResult;
+        }
+
+        protected override UserAccount QueryRecordWhere(string filterExpression, params object[] parameters) =>
+            ExtendAcct(base.QueryRecordWhere(filterExpression, parameters));
+
+
+        protected override IEnumerable<UserAccount> QueryRecordsWhere(string orderBy, bool ascending, string filterExpression, params object[] parameters)
+        {
+            IEnumerable<UserAccount> baseResult;
+            if (!IsInDatabase(orderBy))
+                baseResult = base.QueryRecordsWhere("Name", ascending, filterExpression, parameters);
+            else
+                baseResult = base.QueryRecordsWhere(orderBy, ascending, filterExpression, parameters);
+
+            baseResult = baseResult.Select(g => ExtendAcct(g));
+
+            if (string.Equals(orderBy, "DisplayName", StringComparison.OrdinalIgnoreCase) && ascending)
+                baseResult = baseResult.OrderBy(g => g.DisplayName);
+            if (string.Equals(orderBy, "DisplayName", StringComparison.OrdinalIgnoreCase) && !ascending)
+                baseResult = baseResult.OrderByDescending(g => g.DisplayName);
+
+            if (string.Equals(orderBy, "Type", StringComparison.OrdinalIgnoreCase) && ascending)
+                baseResult = baseResult.OrderBy(g => g.Type);
+            if (string.Equals(orderBy, "Type", StringComparison.OrdinalIgnoreCase) && !ascending)
+                baseResult = baseResult.OrderByDescending(g => g.Type);
+
+            return baseResult;
 
         }
 
-        [HttpGet, Route("TSC/{tscid:int}")]
-        public IHttpActionResult GetUsersForTSC(int tscid)
+        protected override DataTable GetSearchResults(PostData postData)
         {
-            if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
+            string orderBy = postData.OrderBy;
+            if (!IsInDatabase(orderBy))
+                orderBy = "Name";
+
+            PostData filteredPostData = new ModelController<UserAccount>.PostData()
+            {
+                Ascending = postData.Ascending,
+                OrderBy = orderBy,
+                Searches = postData.Searches.Where(flt => IsInDatabase(flt.FieldName)),
+            };
+
+            DataTable dataTable = base.GetSearchResults(filteredPostData);
+            dataTable.Columns.Add("DisplayName", typeof(string));
+            dataTable.Columns.Add("Type", typeof(string));
+
+            foreach (DataRow row in dataTable.Rows)
+            {
+                UserAccount group = ExtendAcct(TableOperations<UserAccount>.LoadRecordFunction()(row));
+                row["Type"] = group.Type;
+                row["DisplayName"] = group.DisplayName;
+            }
+
+            // #ToDo Add Filtering by DisplayName and Type
+
+            if (!IsInDatabase(orderBy))
+            {
+                dataTable.DefaultView.Sort = orderBy + (postData.Ascending ? " ASC" : " DESC");
+                dataTable = dataTable.DefaultView.ToTable();
+            }
+
+            return dataTable;
+        }
+
+        private UserAccount ExtendAcct(UserAccount user)
+        {
+            user.DisplayName = user.AccountName;
+            user.Type = "Database";
+
+            if (!string.Equals(user.Name, user.AccountName))
+                user.Type = "AD";
+            else if (IsValidAzureADUserName(user.Name).Result)
+                user.Type = "Azure";
+
+            return user;
+        }
+
+        /// <summary>
+        /// Gets flag that determines if specified group name can be found on Azure AD.
+        /// </summary>
+        /// <param name="groupName">Group name to lookup</param>
+        /// <returns><c>true</c> if group name was found in Azure AD; otherwise, <c>false</c>.</returns>
+        private async Task<bool> IsValidAzureADUserName(string userName)
+        {
+            GraphServiceClient graphClient = GraphClient;
+
+            if (graphClient is null)
+                return false;
+
             try
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    string uaTableName = TableOperations<UserAccount>.GetTableName();
-                    string aufvTableName = TableOperations<AdditionalUserFieldValue>.GetTableName();
-                    string aufTableName = TableOperations<AdditionalUserField>.GetTableName();
+                IUserRequest request = graphClient.Users[userName].Request();
 
-                    string sql = $@"
-                        SELECT
-	                        UA.*
-                        FROM
-	                        {uaTableName} as UA JOIN
-	                        {aufvTableName} as AUFV ON UA.ID = AUFV.UserAccountID JOIN
-	                        {aufTableName} as AUF ON AUFV.AdditionalUserFieldID = AUF.ID
-                        WHERE
-	                        AUF.FieldName = 'TSC' AND AUFV.Value = {{0}}
-                    ";
+                // Load user data - note that external users need to be looked up by userPrincipalName
+                User user = userName.Contains("#EXT#") ?
+                    (await graphClient.Users.Request().Filter($"userPrincipalName eq '{userName}'").GetAsync()).FirstOrDefault() :
+                    await request.GetAsync();
 
-
-                    DataTable table = connection.RetrieveData(sql, tscid);
-                    return Ok(table);
-                }
+                return user is not null;
+            }
+            catch (ServiceException ex)
+            {
+                if (ex.Error.Code == "Request_ResourceNotFound")
+                    return false;
+                else
+                    throw new Exception("Unable to query Azure", ex);
             }
             catch (Exception ex)
             {
-                return InternalServerError(ex);
+                throw new Exception("Exception attempting to query Azure", ex);
             }
-
         }
 
-        [HttpGet, Route("Sector/{sectorID:int}")]
-        public IHttpActionResult GetUsersForSector(int sectorID)
+        private bool IsValidADUser(string userName)
         {
-            if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
-            try
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    string uaTableName = TableOperations<UserAccount>.GetTableName();
-                    string aufvTableName = TableOperations<AdditionalUserFieldValue>.GetTableName();
-                    string aufTableName = TableOperations<AdditionalUserField>.GetTableName();
-
-                    string sql = $@"
-                        SELECT
-	                        UA.*
-                        FROM
-	                        {uaTableName} as UA JOIN
-	                        {aufvTableName} as AUFV ON UA.ID = AUFV.UserAccountID JOIN
-	                        {aufTableName} as AUF ON AUFV.AdditionalUserFieldID = AUF.ID
-                        WHERE
-	                        AUF.FieldName = 'Sector' AND AUFV.Value = {{0}}
-                    ";
-
-                    DataTable table = connection.RetrieveData(sql, sectorID);
-                    return Ok(table);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-
+            string sid = UserInfo.GroupNameToSID(userName);
+            return UserInfo.IsUserSID(sid);
         }
 
-
-        [HttpPost, Route("SID")]
-        public IHttpActionResult GetSIDFromUserName([FromBody] string userName)
+        private UserAccount LoadADUser(string username)
         {
-            if (PostRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
-            try
+            UserAccount user = new UserAccount()
             {
-                return Ok(UserInfo.UserNameToSID(userName));
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
+                Name = username,
+                Approved = true,
+                UseADAuthentication = true,
+            };
 
+            UserInfo userInfo = new UserInfo(UserInfo.SIDToAccountName(username), LDAPPath);
+            user.Phone = userInfo.Telephone;
+            user.MobilePhone = userInfo.GetUserPropertyValue("mobile");
+
+            user.Title = userInfo.Title;
+            user.FirstName = userInfo.FirstName;
+            user.LastName = userInfo.LastName;
+            user.Email = userInfo.Email;
+            user.EmailConfirmed = true;
+            user.PhoneConfirmed = true;
+            user.ReceiveNotifications = true;
+            user.Approved = true;
+            user.Department = userInfo.Department;
+            user.DepartmentNumber = userInfo.GetUserPropertyValue("departmentnumber");
+            return user;
         }
 
-        [HttpPost, Route("FilledUserAccount")]
-        public IHttpActionResult GetUserInfo([FromBody] UserAccount userAccount)
+        private UserAccount LoadAzureUser(string username)
         {
-            if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
+            GraphServiceClient graphClient = GraphClient;
+
+            User user = username.Contains("#EXT#") ?
+                               graphClient.Users.Request().Filter($"userPrincipalName eq '{username}'").GetAsync().Result.FirstOrDefault() :
+                               graphClient.Users[username].Request().GetAsync().Result;
+          
+            return new UserAccount() {
+                Name = user.UserPrincipalName,
+                Approved = true,
+                UseADAuthentication = false,
+                FirstName = user.GivenName,
+                LastName = user.Surname,
+                Phone = user.MobilePhone,
+                DisplayName = username,
+                Email = user.Mail,
+            };
+
+        }
+        private bool IsInDatabase(string collumn)
+        {
+            return !string.Equals(collumn, "DisplayName", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(collumn, "Type", StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(collumn, "AccountName", StringComparison.OrdinalIgnoreCase); ;
+        }
+
+        [HttpPost]
+        [Route("PostRoles/{userID}")]
+        public IHttpActionResult PostAccountRoles([FromBody] IEnumerable<JObject> record, string userID)
+        {
+            if (!PostAuthCheck())
+            {
+                return Unauthorized();
+            }
+
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
-            using (AdoDataConnection connection2 = new AdoDataConnection("systemSettings"))
             {
-                try
+                TableOperations<ApplicationRoleUserAccount> tbl = new TableOperations<ApplicationRoleUserAccount>(connection);
+                IEnumerable<ApplicationRole> roles = record.Select(r => r.ToObject<ApplicationRole>());
+                foreach (ApplicationRole role in roles)
                 {
-                    // Grab LdapPath From Configuration File
-                    ConfigurationFile configFile = ConfigurationFile.Current;
-                    CategorizedSettingsElementCollection securityProviderSettings = configFile.Settings["securityProvider"];
-                    securityProviderSettings.Add("LdapPath", "", "Specifies the LDAP path used to initialize the security provider.");
-                    string ldapPath = securityProviderSettings["LdapPath"].Value;
-
-                    UserInfo userInfo = new UserInfo(UserInfo.SIDToAccountName(userAccount.Name), ldapPath);
-                    userAccount.Phone = userInfo.Telephone;
-                    userAccount.MobilePhone = userInfo.GetUserPropertyValue("mobile");
-
-                    userAccount.Title = userInfo.Title;
-                    userAccount.FirstName = userInfo.FirstName;
-                    userAccount.LastName = userInfo.LastName;
-                    userAccount.Email = userInfo.Email;
-                    userAccount.EmailConfirmed = true;
-                    userAccount.PhoneConfirmed = true;
-                    userAccount.ReceiveNotifications = true;
-                    userAccount.Approved = true;
-                    userAccount.Department = userInfo.Department;
-                    userAccount.DepartmentNumber = userInfo.GetUserPropertyValue("departmentnumber");
-
-                    return Ok(userAccount);
+                    ApplicationRoleUserAccount current = tbl
+                        .QueryRecordWhere("ApplicationRoleID = {0} AND UserAccountID = {1}", role.ID, userID);
+                    if (current is null)
+                        tbl.AddNewRecord(new ApplicationRoleUserAccount() { ApplicationRoleID = role.ID, UserAccountID = new Guid(userID) });
                 }
-                catch (Exception ex)
+
+                foreach (ApplicationRoleUserAccount role in tbl.QueryRecordsWhere("UserAccountID = {0}", userID))
                 {
-                    return InternalServerError(ex);
+                    if (roles.FirstOrDefault(r => r.ID == role.ApplicationRoleID) is null)
+                        tbl.DeleteRecord(role);
                 }
+
+                return Ok(1);
             }
 
         }
 
 
-        [HttpPost, Route("IsUser")]
-        public IHttpActionResult GetIsUser([FromBody] string sid)
+        [HttpGet]
+        [Route("Roles/{userID}")]
+        public IHttpActionResult GetAccountRoles(string userID)
         {
-            if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
-            try
-            {
-
-                return Ok(UserInfo.IsUserSID(sid));
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-
-        }
-
-        public class UA : UserAccount
-        {
-            public string Role { get; set; }
-            public string TSC { get; set; }
-
-        }
-
-        public override IHttpActionResult GetSearchableList([FromBody] PostData postData)
-        {
-
             if (!GetAuthCheck())
                 return Unauthorized();
 
-            try
-            {
-                PostData searchParam = new ModelController<UserAccount>.PostData()
-                {
-                    Ascending = postData.Ascending,
-                    OrderBy = postData.OrderBy == "AccountName" ? "Name" : postData.OrderBy,
-                    Searches = postData.Searches.Where(item => item.FieldName != "AccountName")
-                };
-
-                DataTable table = GetSearchResults(searchParam);
-
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    IEnumerable<UserAccount> records = table.Select().Select(row => new TableOperations<UserAccount>(connection).LoadRecord(row));
-
-                    if (postData.Searches.Any(item => item.FieldName == "AccountName"))
-                    {
-                        postData.Searches.Where(item => item.FieldName == "AccountName").ToList().ForEach(search =>
-                        {
-                            if (search.Operator == "=")
-                            {
-                                Regex regex = new Regex($"^{search.SearchText}$");
-                                records = records.Where(userAccount => regex.IsMatch(userAccount.AccountName.ToLower()));
-                            }
-                            else if (search.Operator == "LIKE")
-                            {
-                                Regex regex = new Regex($"^{search.SearchText}$");
-                                records = records.Where(userAccount => regex.IsMatch(userAccount.AccountName.ToLower()));
-                            }
-                            else
-                            {
-                                Regex regex = new Regex($"^{search.SearchText}$");
-                                records = records.Where(userAccount => !regex.IsMatch(userAccount.AccountName.ToLower()));
-                            }
-
-                        });
-                    }
-
-                    if (postData.OrderBy == "AccountName" && postData.Ascending)
-                        records = records.OrderBy(u => u.AccountName);
-                    if (postData.OrderBy == "AccountName" && !postData.Ascending)
-                        records = records.OrderByDescending(u => u.AccountName);
-
-                    return Ok(JsonConvert.SerializeObject(records));
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                return Ok(new TableOperations<ApplicationRole>(connection).QueryRecords("Name", new RecordRestriction(
+                    "(SELECT COUNT(ID) FROM ApplicationRoleUserAccount WHERE UserAccountID = {0} AND ApplicationRoleID = ApplicationRole.ID) > 0", userID)));
         }
 
-        [HttpPost, Route("SecureSearchableList")]
-        public IHttpActionResult GetUserAccountsUsingSearchableList([FromBody] PostData postData)
+        [HttpPost]
+        [Route("Verify")]
+        public IHttpActionResult GetVerifyUser([FromBody] string userName)
         {
-            if (GetRoles != string.Empty && !User.IsInRole(GetRoles)) return Unauthorized();
-            try
-            {
-                string whereClause = BuildWhereClause(postData.Searches.Where(search => search.FieldName != "UserAccount.Name"));
+            if (userName is null || !GetAuthCheck())
+                return Unauthorized();
 
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    DataTable table = connection.RetrieveData(@"
-                        SELECT
-	                        DISTINCT
-	                        UserAccount. *,
-	                        Role.Name as Role,
-	                        TSC.Name as TSC
-                        FROM
-	                        UserAccount LEFT JOIN 
-	                        Role ON UserAccount.RoleID = Role.ID LEFT JOIN
-	                        TSC ON UserAccount.TSCID = TSC.ID LEFT JOIN
-	                        ApplicationRoleUserAccount ON UserAccount.ID = ApplicationRoleUserAccount.UserAccountID LEFT JOIN
-	                        ApplicationRole ON ApplicationRoleUserAccount.ApplicationRoleID = ApplicationRole.ID 
-                    " + whereClause + $@" ORDER BY {postData.OrderBy} {(postData.Ascending ? "ASC" : "DESC")}
-                    ");
+          
+            if (IsValidADUser(userName))
+                return Ok(LoadADUser(userName));
 
-                    IEnumerable<UA> records = table.Select().Select(row => new TableOperations<UA>(connection).LoadRecord(row));
-                    if (postData.Searches.Where(search => search.FieldName == "UserAccount.Name").Any())
-                    {
-                        string search = postData.Searches.First(s => s.FieldName == "UserAccount.Name").SearchText;
-                        if (search == string.Empty)
-                        {
-                            Regex regex = new Regex("^.*$");
-                            records = records.Where(userAccount => regex.IsMatch(userAccount.AccountName.ToLower()));
-                        }
-                        else if (search[0] == '!' || search[0] == '_')
-                        {
-                            search = search.Replace("*", ".*");
-                            Regex regex = new Regex("^" + search + "$");
-                            records = records.Where(userAccount => !regex.IsMatch(userAccount.AccountName.ToLower()));
-                        }
-                        else
-                        {
-                            search = search.Replace("*", ".*");
-                            Regex regex = new Regex("^" + search + "$");
-                            records = records.Where(userAccount => regex.IsMatch(userAccount.AccountName.ToLower()));
-                        }
-                    }
+            if (IsValidAzureADUserName(userName).Result)
+                return Ok(LoadAzureUser(userName));
 
-                    return Ok(records);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
+            return Ok((UserAccount)null);
         }
 
         public override IHttpActionResult Post([FromBody] JObject record)
         {
-            if (!PostAuthCheck())
+            if (!PostAuthCheck() || ViewOnly)
                 return Unauthorized();
-            try
-            {
 
-                if (record["ID"].Value<string>() == "new")
-                    record["ID"] = System.Guid.NewGuid();
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
                 UserAccount newRecord = record.ToObject<UserAccount>();
-                if (newRecord.UseADAuthentication)
-                    newRecord.Name = UserInfo.UserNameToSID(newRecord.Name);
-                newRecord.CreatedOn = DateTime.UtcNow;
-                newRecord.UpdatedOn = DateTime.UtcNow;
-                newRecord.CreatedBy = User.Identity.Name;
-                newRecord.UpdatedBy = User.Identity.Name;
-
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                newRecord = new UserAccount()
                 {
-                    int result = new TableOperations<UserAccount>(connection).AddNewRecord(newRecord);
-                    ConfigurationFile configFile = ConfigurationFile.Current;
-                    CategorizedSettingsElementCollection systemSettings = configFile.Settings["systemSettings"];
-                    systemSettings.Add("CompanyAcronym", "", "The acronym representing the company who owns this instance of the SystemCenter.");
-                    string companyAcronym = systemSettings["CompanyAcronym"].Value;
-
-
-                    using (AdoDataConnection connection2 = new AdoDataConnection("systemSettings"))
-                    {
-                        if (companyAcronym == "TVA")
-                        {
-                            if (newRecord.Title != string.Empty)
-                            {
-                                AdditionalUserFieldValue additionalFieldValue = new TableOperations<AdditionalUserFieldValue>(connection).GetValue(newRecord.Name, "Role");
-                                ValueList roleValue = new TableOperations<ValueList>(connection2).GetAltValue("Role", newRecord.Title, true);
-                                if (roleValue != null && roleValue.Value != additionalFieldValue.Value)
-                                {
-                                    additionalFieldValue.Value = roleValue.ID.ToString();
-                                    new TableOperations<AdditionalUserFieldValue>(connection).AddNewOrUpdateRecord(additionalFieldValue);
-                                }
-                            }
-                            if (newRecord.DepartmentNumber != string.Empty)
-                            {
-                                AdditionalUserFieldValue additionalFieldValue = new TableOperations<AdditionalUserFieldValue>(connection).GetValue(newRecord.Name, "TSC");
-                                ValueList roleValue = new TableOperations<ValueList>(connection2).GetAltValue("TSC", newRecord.DepartmentNumber, true);
-                                if (roleValue != null && roleValue.Value != additionalFieldValue.Value)
-                                {
-                                    additionalFieldValue.Value = roleValue.ID.ToString();
-                                    new TableOperations<AdditionalUserFieldValue>(connection).AddNewOrUpdateRecord(additionalFieldValue);
-                                }
-
-                            }
-                        }
-                    }
-
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-
-
-        }
-
-    }
-
-    [MetadataType(typeof(GSF.Security.Model.ApplicationRoleUserAccount))]
-    [SettingsCategory("securityProvider")]
-    public class ApplicationRoleUserAccount : GSF.Security.Model.ApplicationRoleUserAccount
-    { }
-
-    [RoutePrefix("api/SystemCenter/ApplicationRoleUserAccount")]
-    public class SystemCenterApplicationRoleUserAccountController : ModelController<ApplicationRoleUserAccount>
-    {
-
-        [HttpPatch, Route("UpdateArray")]
-        public IHttpActionResult PatchArray([FromBody] IEnumerable<ApplicationRoleUserAccount> records)
-        {
-            try
-            {
-                if (PatchRoles == string.Empty || User.IsInRole(PatchRoles))
-                {
-
-                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                    {
-                        IEnumerable<ApplicationRoleUserAccount> applicationRoles = new TableOperations<ApplicationRoleUserAccount>(connection).QueryRecordsWhere("UserAccountID = {0}", records.First().UserAccountID);
-
-                        foreach (ApplicationRoleUserAccount applicationRole in applicationRoles)
-                        {
-                            if (records.FirstOrDefault(r => r.ApplicationRoleID == applicationRole.ApplicationRoleID) == null)
-                                new TableOperations<ApplicationRoleUserAccount>(connection).DeleteRecord(applicationRole);
-                        }
-
-                        foreach (ApplicationRoleUserAccount record in records)
-                        {
-                            if (applicationRoles.FirstOrDefault(r => r.ApplicationRoleID == record.ApplicationRoleID) == null)
-                                new TableOperations<ApplicationRoleUserAccount>(connection).AddNewRecord(record);
-                        }
-
-                        return Ok("Updated Roles without error.");
-                    }
-                }
-                else
-                {
-                    return Unauthorized();
-                }
-
-
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
+                    Name = newRecord.Name,
+                    Approved= newRecord.Approved,
+                    UseADAuthentication= IsValidADUser(newRecord.Name),
+                    ChangePasswordOn = newRecord.ChangePasswordOn,
+                    DefaultNodeID= newRecord.DefaultNodeID,
+                    Department = "",
+                    Email= newRecord.Email,
+                    EmailConfirmed= newRecord.EmailConfirmed,
+                    Phone= newRecord.Phone,
+                    PhoneConfirmed= newRecord.PhoneConfirmed,   
+                    LockedOut= newRecord.LockedOut,
+                    Password= newRecord.Password,
+                    ReceiveNotifications= newRecord.ReceiveNotifications,
+                    MobilePhone = newRecord.MobilePhone,
+                    FirstName   = newRecord.FirstName,
+                    CreatedBy = User.Identity.Name,
+                    CreatedOn = DateTime.UtcNow,
+                    UpdatedBy = User.Identity.Name,
+                    UpdatedOn = DateTime.UtcNow
+                };
+                int result = new TableOperations<UserAccount>(connection).AddNewRecord(newRecord);
+                return Ok(result);
             }
         }
 
+
+
     }
-
-    [MetadataType(typeof(GSF.Security.Model.ApplicationRole))]
-    [SettingsCategory("securityProvider")]
-    public class ApplicationRole : GSF.Security.Model.ApplicationRole
-    { }
-
-    [RoutePrefix("api/SystemCenter/ApplicationRole")]
-    public class SystemCenterApplicationRoleController : ModelController<ApplicationRole> { }
-
 }
