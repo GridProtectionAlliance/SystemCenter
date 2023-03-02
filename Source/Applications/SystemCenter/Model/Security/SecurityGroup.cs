@@ -65,18 +65,18 @@ namespace SystemCenter.Model.Security
     {
         // #ToDo: Add Graph Connectivity once GSF is merged
 
-        //private AzureADSettings m_azureADSettings;
+        private AzureADSettings m_azureADSettings;
         private GraphServiceClient m_graphClient;
 
         // <summary>
         /// Gets Azure AD settings.
         /// </summary>
-        //public AzureADSettings AzureADSettings => m_azureADSettings ??= AzureADSettings.Load();
+        public AzureADSettings AzureADSettings => m_azureADSettings ??= AzureADSettings.Load();
 
         /// <summary>
         /// Gets Graph client.
         /// </summary>
-        //public GraphServiceClient GraphClient => m_graphClient ??= AzureADSettings.GetGraphClient();
+        public GraphServiceClient GraphClient => m_graphClient ??= AzureADSettings.GetGraphClient();
 
         [HttpGet]
         [Route("Roles/{groupID}")]
@@ -308,8 +308,24 @@ namespace SystemCenter.Model.Security
         /// <returns><c>true</c> if group name was found in Azure AD; otherwise, <c>false</c>.</returns>
         private async Task<bool> IsValidAzureADGroupName(string groupName)
         {
-            //GraphServiceClient graphClient = new GraphClient();
-            //return !(graphClient is null) && await !(graphClient.Groups[groupName].Request().GetAsync() is null);
+            GraphServiceClient graphClient = GraphClient;
+
+            if (graphClient is null)
+                return false;
+
+            IGraphServiceGroupsCollectionPage groups = await graphClient.Groups.Request().GetAsync();
+
+            while (groups.Count > 0)
+            {
+                if (groups.Any(group => group.DisplayName.Equals(groupName, StringComparison.OrdinalIgnoreCase)))
+                    return true;
+
+                if (groups.NextPageRequest is not null)
+                    groups = await groups.NextPageRequest.GetAsync();
+                else
+                    break;
+            }
+
             return false;
         }
 

@@ -28,6 +28,7 @@ using GSF.Identity;
 using GSF.Security;
 using GSF.Security.Model;
 using GSF.Web.Model;
+using Microsoft.Graph;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
@@ -36,6 +37,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Linq;
 using System.Net.Http;
+using System.Security;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -84,6 +86,9 @@ namespace SystemCenter.Model.Security
     [RoutePrefix("api/SystemCenter/UserAccount")]
     public class UserAccountController : ModelController<UserAccount>
     {
+        private AzureADSettings m_azureADSettings;
+        private GraphServiceClient m_graphClient;
+
         public string LDAPPath
         {
             get
@@ -95,6 +100,15 @@ namespace SystemCenter.Model.Security
             }
         }
 
+        /// <summary>
+        /// Gets Azure AD settings.
+        /// </summary>
+        public AzureADSettings AzureADSettings => m_azureADSettings ??= AzureADSettings.Load();
+
+        /// <summary>
+        /// Gets Graph client.
+        /// </summary>
+        public GraphServiceClient GraphClient => m_graphClient ??= AzureADSettings.GetGraphClient();
 
         protected override IEnumerable<UserAccount> QueryRecords(string sortBy, bool ascending)
         {
@@ -200,11 +214,35 @@ namespace SystemCenter.Model.Security
         /// </summary>
         /// <param name="groupName">Group name to lookup</param>
         /// <returns><c>true</c> if group name was found in Azure AD; otherwise, <c>false</c>.</returns>
-        private async Task<bool> IsValidAzureADUserName(string groupName)
+        private async Task<bool> IsValidAzureADUserName(string userName)
         {
-            //GraphServiceClient graphClient = new GraphClient();
-            //return !(graphClient is null) && await !(graphClient.Groups[groupName].Request().GetAsync() is null);
-            return false;
+            GraphServiceClient graphClient = GraphClient;
+
+            if (graphClient is null)
+                return false;
+
+            try
+            {
+                IUserRequest request = graphClient.Users[userName].Request();
+
+                // Load user data - note that external users need to be looked up by userPrincipalName
+                User user = userName.Contains("#EXT#") ?
+                    (await graphClient.Users.Request().Filter($"userPrincipalName eq '{userName}'").GetAsync()).FirstOrDefault() :
+                    await request.GetAsync();
+
+                return user is not null;
+            }
+            catch (ServiceException ex)
+            {
+                if (ex.Error.Code == "Request_ResourceNotFound")
+                    return false;
+                else
+                    throw new Exception("Unable to query Azure", ex);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Exception attempting to query Azure", ex);
+            }
         }
 
         private bool IsValidADUser(string userName)
@@ -241,15 +279,21 @@ namespace SystemCenter.Model.Security
 
         private UserAccount LoadAzureUser(string username)
         {
+            GraphServiceClient graphClient = GraphClient;
+
+            User user = username.Contains("#EXT#") ?
+                               graphClient.Users.Request().Filter($"userPrincipalName eq '{username}'").GetAsync().Result.FirstOrDefault() :
+                               graphClient.Users[username].Request().GetAsync().Result;
+          
             return new UserAccount() {
-                Name = username,
+                Name = user.UserPrincipalName,
                 Approved = true,
                 UseADAuthentication = false,
-                FirstName = username,
-                LastName = username,
-                Phone = "0000000000",
+                FirstName = user.GivenName,
+                LastName = user.Surname,
+                Phone = user.MobilePhone,
                 DisplayName = username,
-                Email = username,
+                Email = user.Mail,
             };
 
         }
