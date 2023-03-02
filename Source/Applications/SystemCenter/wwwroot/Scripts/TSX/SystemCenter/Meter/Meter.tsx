@@ -32,6 +32,7 @@ import MeterEventChannelWindow from '../Meter/MeterEventChannel';
 import MeterTrendChannelWindow from '../Meter/MeterTrendChannel';
 import ChannelScalingWindow from './ChannelScaling/ChannelScalingWindow';
 import MeterAssetWindow from '../Meter/MeterAsset';
+import MeterMaintenanceWindow from '../Meter/MeterMaintenance';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import MeterConfigurationHistoryWindow from './MeterConfigurationHistory';
@@ -175,7 +176,8 @@ function Meter(props: IProps) {
         { Id: "trendChannels", Label: "Trend Channels" },
         { Id: "channelScaling", Label: "Scale Channels" },
         { Id: "configurationHistory", Label: "Configuration History" },
-        { Id: "extDB", Label: "External DB" }];
+        { Id: "extDB", Label: "External DB" },
+        { Id: "maintenance", Label: "Maintenance" }];
 
     return (
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15 }}>
@@ -231,6 +233,9 @@ function Meter(props: IProps) {
                 </div>
                 <div className={"tab-pane " + (Tab == "dataDelete" ? " active" : "fade")} id="dataDelete">
                     {dataDeleteWindow}
+                </div>
+                <div className={"tab-pane " + (Tab == "maintenance" ? " active" : "fade")} id="maintenance">
+                    <MeterMaintenanceWindow Meter={meter} />
                 </div>
             </div>
             <Modal Title={'Advanced options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
