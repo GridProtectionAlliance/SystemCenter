@@ -175,7 +175,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<IUserAccount>
                     cols={[
-                         { key: 'DisplayName', field: 'DisplayName', label: 'User Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'DisplayName', field: 'DisplayName', label: 'User Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
