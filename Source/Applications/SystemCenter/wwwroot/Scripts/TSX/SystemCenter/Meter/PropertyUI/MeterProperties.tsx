@@ -36,12 +36,20 @@ const MeterProperties = (props: IProps) => {
     const [assetKeyValid, setAssetKeyValid] = React.useState<boolean>(true);
     const [assetKey, setAssetKey] = React.useState<string>(props.Meter.AssetKey);
     const [timeZones, setTimeZones] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
+    const [makeList, setMakeList] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
+    const [modelList, setModelList] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
    
 
     React.useEffect(() => {
-        let handle = getTimeZones();
+        let timeHandle = getValueList("TimeZones", setTimeZones);
+        let makeHandle = getValueList("Make", setMakeList);
+        let modelHandle = getValueList("Model", setModelList);
 
-        return () => { if (handle != null && handle.abort != null) handle.abort();}
+        return () => {
+            if (timeHandle != null && timeHandle.abort != null) timeHandle.abort();
+            if (makeHandle != null && makeHandle.abort != null) makeHandle.abort();
+            if (modelHandle != null && modelHandle.abort != null) modelHandle.abort();
+        }
     }, [])
 
     React.useEffect(() => {
@@ -55,23 +63,23 @@ const MeterProperties = (props: IProps) => {
 
     }, [assetKey]);
 
-    function getTimeZones(): JQuery.jqXHR<Array<SystemCenter.Types.ValueListItem>> {
-        if (sessionStorage.hasOwnProperty('SystemCenter.TimeZones')) {
-            setTimeZones(JSON.parse(sessionStorage.getItem('SystemCenter.TimeZones')));
+    function getValueList(listName: string, setter: (value: Array<SystemCenter.Types.ValueListItem>) => void): JQuery.jqXHR<Array<SystemCenter.Types.ValueListItem>> {
+        if (sessionStorage.hasOwnProperty(`SystemCenter.${listName}`)) {
+            setter(JSON.parse(sessionStorage.getItem(`SystemCenter.${listName}`)));
             return null;
         }
 
         let h = $.ajax({
             type: "GET",
-            url: `${homePath}api/ValueList/Group/TimeZones`,
+            url: `${homePath}api/ValueList/Group/${listName}`,
             contentType: "application/json; charset=utf-8",
-            dataType: 'json',
+            dataType: `json`,
             cache: true,
             async: true
         });
         h.done((tzs: Array<SystemCenter.Types.ValueListItem>) => {
-            setTimeZones(tzs);
-            sessionStorage.setItem('SystemCenter.TimeZones', JSON.stringify(tzs));
+            setter(tzs);
+            sessionStorage.setItem(`SystemCenter.${listName}`, JSON.stringify(tzs));
 
         });
         return h;
@@ -118,9 +126,9 @@ const MeterProperties = (props: IProps) => {
         else if (field == 'ShortName')
             return props.Meter.ShortName == null || props.Meter.ShortName.length <= 50;
         else if (field == 'Make')
-            return props.Meter.Make != null && props.Meter.Make.length > 0 && props.Meter.Make.length <= 200;
+            return props.Meter.Make != null;
         else if (field == 'Model')
-            return props.Meter.Model != null && props.Meter.Model.length > 0 && props.Meter.Model.length <= 200;
+            return props.Meter.Model != null;
         else if (field == 'Description')
             return true;
         return false;
@@ -139,8 +147,8 @@ const MeterProperties = (props: IProps) => {
                 <Input<OpenXDA.Types.Meter> Record={props.Meter} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
                 </div>
                 <div className="col">
-                <Input<OpenXDA.Types.Meter> Record={props.Meter} Field={'Make'} Feedback={'Make must be less than 200 characters.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
-                <Input<OpenXDA.Types.Meter> Record={props.Meter} Field={'Model'} Feedback={'Model must be less than 200 characters.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
+                <Select<OpenXDA.Types.Meter> Record={props.Meter} Field={'Make'} Options={makeList.map(item => { return { Value: item.Value, Label: item.AltValue } })} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)}/>
+                <Select<OpenXDA.Types.Meter> Record={props.Meter} Field={'Model'} Options={modelList.map(item => { return { Value: item.Value, Label: item.AltValue } })} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)}/>
                 <Select<OpenXDA.Types.Meter> Help={'The Timezone needs to match the Timezone the meter is configured in.'} Record={props.Meter} Field={'TimeZone'} Options={timeZones.map(item => { return { Value: item.Value, Label: item.AltValue } })}
                     Label={'Time Zone'} Setter={(meter) => props.StateSetter(meter)} EmptyOption={true} EmptyLabel={'None Selected'} />
                             

@@ -111,6 +111,10 @@
       <HintPath>..\..\Dependencies\GSF\Antlr3.Runtime.dll</HintPath>
     </Reference>
     <Reference Include="ExpressionEvaluator, Version=2.0.4.0, Culture=neutral, PublicKeyToken=90d9f15d622e2348" />
+    <Reference Include="FaultData, Version=3.0.3.330, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependencies\openXDA\FaultData.dll</HintPath>
+    </Reference>
     <Reference Include="GSF.Communication">
       <HintPath>..\..\Dependencies\GSF\GSF.Communication.dll</HintPath>
     </Reference>
@@ -120,6 +124,9 @@
     <Reference Include="GSF.Core">
       <HintPath>..\..\Dependencies\GSF\GSF.Core.dll</HintPath>
     </Reference>
+    <Reference Include="GSF.EMAX">
+      <HintPath>..\..\Dependencies\GSF\GSF.EMAX.dll</HintPath>
+    </Reference>
     <Reference Include="GSF.PhasorProtocols">
       <HintPath>..\..\Dependencies\GSF\GSF.PhasorProtocols.dll</HintPath>
     </Reference>
@@ -128,6 +135,9 @@
     </Reference>
     <Reference Include="GSF.Security">
       <HintPath>..\..\Dependencies\GSF\GSF.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="GSF.SELEventParser">
+      <HintPath>..\..\Dependencies\GSF\GSF.SELEventParser.dll</HintPath>
     </Reference>
     <Reference Include="GSF.ServiceProcess">
       <HintPath>..\..\Dependencies\GSF\GSF.ServiceProcess.dll</HintPath>
@@ -171,6 +181,10 @@
     </Reference>
     <Reference Include="openXDA.APIAuthentication">
       <HintPath>..\..\Dependencies\openXDA\openXDA.APIAuthentication.dll</HintPath>
+    </Reference>
+    <Reference Include="openXDA.Configuration, Version=3.0.3.330, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Dependencies\openXDA\openXDA.Configuration.dll</HintPath>
     </Reference>
     <Reference Include="openXDA.Model, Version=3.0.3.2, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -440,7 +454,12 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\Types.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\TapSelect.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\SourceImpedanceWindow.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\hooks.ts" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingWrapper.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingForm.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\MultipleAssetsPage.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\CustomerAssetGroupPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterMaintenance.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteAssetForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteMeterTab.tsx" />
@@ -473,7 +492,6 @@
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetConnection.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetInfo.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetMeter.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsWindow.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\NoteWindow.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\ConfigurationHistory\ConfigurationHistory.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\Location.tsx" />
@@ -485,11 +503,11 @@
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterEventChannel.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterAsset.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\NewMeterWizard.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page5.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page4.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page3.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page2.tsx" />
-    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\Page1.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\ConnectionPage.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\AssetPage.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\ChannelPage.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\LocationPage.tsx" />
+    <None Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\MeterInfoPage.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Location\ByLocation.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterLocation.tsx" />
     <None Include="wwwroot\Scripts\TSX\SystemCenter\Asset\ByAsset.tsx" />
@@ -556,7 +574,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\PropertyUI\MeterProperties.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\PropertyUI\MeterLocationProperties.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Settings\BySetting.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterChannelScaling.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationDrawings.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceHealthReport\DeviceHealthReport.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\DeviceIssuesPage.tsx" />

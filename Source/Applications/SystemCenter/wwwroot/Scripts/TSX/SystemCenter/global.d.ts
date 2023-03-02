@@ -62,6 +62,7 @@ export namespace OpenXDA {
     interface DataRescueOperation { ID: number, MeterID: number, StartTime: Date, EndTime: Date, TimeShift: number, TimeShiftUnits: string, ChannelAdjustments: DataRescueChannelAdjustment[] }
     interface DataRescueChannelAdjustment { ID: number, ChannelID: number, Channel: string, Multiplier: number, Adder: number }
 
+    //Todo: Move the following to application typings in gemstone?
     interface CustomerAsset {
         ID: number,
         CustomerKey: string,
@@ -83,6 +84,29 @@ export namespace OpenXDA {
         CustomerID: number,
         MeterID: number
     }
+
+    interface AssetAssetGroup {
+        ID: number,
+        AssetID: number,
+        AssetGroupID: number,
+        Name: string,
+        DisplayDashboard: boolean,
+        AssetName: string,
+        LongAssetName: string,
+        AssetType: string,
+        AssetLocation: string
+    }
+
+    interface MeterAssetGroup {
+        ID: number,
+        MeterID: number,
+        AssetGroupID: number,
+        Name: string,
+        DisplayDashboard: boolean,
+        MeterName: string,
+        Location: string
+    }
+
 }
 
 export namespace PQView {

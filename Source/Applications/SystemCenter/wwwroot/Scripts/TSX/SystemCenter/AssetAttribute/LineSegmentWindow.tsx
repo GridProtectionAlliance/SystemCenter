@@ -29,7 +29,7 @@ import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
 import moment from 'moment';
 
-function LineSegmentWindow(props: { ID: number }): JSX.Element {
+function LineSegmentWindow(props: { ID: number, InnerOnly?: boolean }): JSX.Element {
     const [segments, setSegments] = React.useState<Array<OpenXDA.Types.LineSegment>>([]);
     const [showFawg, setShowFawg] = React.useState<boolean>(false);
 
@@ -56,46 +56,58 @@ function LineSegmentWindow(props: { ID: number }): JSX.Element {
        });
     }
 
-    return (
+    let header = (<h4 style={(props.InnerOnly ?? false) ? { width: '100%', padding: '10px' } : null}>{"Line Segments: "}</h4>);
+    let tableContent = (
         <>
+            <Table<OpenXDA.Types.LineSegment>
+                cols={[
+                    { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Length', field: 'Length', label: 'Length (miles)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'R1', field: 'R1', label: 'R1', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'X1', field: 'X1', label: 'X1', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'R0', field: 'R0', label: 'R0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'X0', field: 'X0', label: 'X0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'IsEnd', field: 'IsEnd', label: 'End?', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.IsEnd ? HeavyCheckMark : "" }
+                ]}
+                tableClass="table table-hover"
+                data={segments}
+                sortKey={'AssetName'}
+                ascending={true}
+                onSort={(d) => { }}
+                onClick={() => { }}
+                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                selected={(item) => false}
+            />
+            {showFawg ? <LineSegmentWizard LineID={props.ID} closeWizard={() => { setShowFawg(false); getData(); }} LineKey={''} LineName={''} /> : null}
+        </>);
+    let wizardButton = (<button className={"btn btn-primary" + ((props.InnerOnly ?? false) ? " pull-right" : "")} onClick={(evt) => setShowFawg(true)}>Linesegment Wizard</button>);
+
+    if (props.InnerOnly ?? false) return (
+        <>
+            {wizardButton}
+            {header}
+            {tableContent}
+        </>
+        )
+
+    return (
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
-                <h4>Line Segments:</h4>
+                    {header}
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                    <Table<OpenXDA.Types.LineSegment>
-                        cols={[
-                            { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Length', field: 'Length', label: 'Length (miles)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'R1', field: 'R1', label: 'R1', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'X1', field: 'X1', label: 'X1', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'R0', field: 'R0', label: 'R0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'X0', field: 'X0', label: 'X0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'IsEnd', field: 'IsEnd', label: 'End?', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.IsEnd ? HeavyCheckMark : "" }
-                        ]}
-                        tableClass="table table-hover"
-                        data={segments}
-                        sortKey={'AssetName'}
-                        ascending={true}
-                        onSort={(d) => { }}
-                        onClick={() => {}}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                    />
+                    {tableContent}
                 </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={(evt) => setShowFawg(true)}>Linesegment Wizard</button>
+                    {wizardButton}
                 </div>
-
             </div>
         </div>
-       {showFawg ? <LineSegmentWizard LineID={props.ID} closeWizard={() => { setShowFawg(false); getData(); }} LineKey={''} LineName={''} /> : null}
-        </>
     );
 }
 

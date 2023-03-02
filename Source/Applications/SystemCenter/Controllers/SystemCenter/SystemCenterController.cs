@@ -21,20 +21,26 @@
 //
 //******************************************************************************************************
 
+using FaultData.DataReaders;
+using FaultData.DataSets;
+using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
-using GSF.PhasorProtocols;
+using GSF.EMAX;
 using GSF.PQDIF.Logical;
+using GSF.SELEventParser;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
+using openXDA.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web.Http;
 using SystemCenter.Model;
-using Channel = openXDA.Model.Channel;
 
 namespace SystemCenter.Controllers
 {
@@ -205,6 +211,41 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
+        [HttpPost, Route("PostCustomerList")]
+        public IHttpActionResult PostList([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        TableOperations<CustomerMeter> connectionTable = new TableOperations<CustomerMeter>(connection);
+                        int[] customerIDs = record["CustomerIDs"].ToObject<int[]>();
+                        int meterID = record["ID"].ToObject<int>();
+                        int result = connectionTable.DeleteRecordWhere("MeterID = {0}", meterID);
+                        CustomerMeter newRecord = new CustomerMeter();
+                        newRecord.MeterID = meterID;
+                        foreach (int customerID in customerIDs)
+                        {
+                            newRecord.CustomerID = customerID;
+                            result += connectionTable.AddNewRecord(newRecord);
+                        }
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 
     [RoutePrefix("api/SystemCenter/CustomerAsset")]
@@ -252,6 +293,121 @@ namespace SystemCenter.Controllers
                         int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete CustomerAsset, 'ID = {id}'");
                         return Ok(result);
 
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        [HttpPost, Route("PostCustomerList")]
+        public IHttpActionResult PostList([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        TableOperations<openXDA.Model.CustomerAsset> connectionTable = new TableOperations<openXDA.Model.CustomerAsset>(connection);
+                        int[] customerIDs = record["CustomerIDs"].ToObject<int[]>();
+                        int assetID = record["ID"].ToObject<int>();
+                        int result = connectionTable.DeleteRecordWhere("AssetID = {0}", assetID);
+                        openXDA.Model.CustomerAsset newRecord = new openXDA.Model.CustomerAsset();
+                        newRecord.AssetID = assetID;
+                        foreach (int customerID in customerIDs)
+                        {
+                            newRecord.CustomerID = customerID;
+                            result += connectionTable.AddNewRecord(newRecord);
+                        }
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
+    [RoutePrefix("api/SystemCenter/AssetGroupMeter")]
+    public class AssetGroupMeterController : ModelController<openXDA.Model.MeterAssetGroupView>
+    {
+        [HttpPost, Route("PostGroupList")]
+        public IHttpActionResult PostList([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        TableOperations<openXDA.Model.MeterAssetGroup> connectionTable = new TableOperations<openXDA.Model.MeterAssetGroup>(connection);
+                        int[] groupIDs = record["GroupIDs"].ToObject<int[]>();
+                        int meterID = record["ID"].ToObject<int>();
+                        int result = connectionTable.DeleteRecordWhere("MeterID = {0}", meterID);
+                        openXDA.Model.MeterAssetGroup newRecord = new openXDA.Model.MeterAssetGroup();
+                        newRecord.MeterID = meterID;
+                        foreach (int groupID in groupIDs)
+                        {
+                            newRecord.AssetGroupID = groupID;
+                            result += connectionTable.AddNewRecord(newRecord);
+                        }
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
+    [RoutePrefix("api/SystemCenter/AssetGroupAsset")]
+    public class AssetGroupAssetController : ModelController<openXDA.Model.AssetAssetGroupView>
+    {
+        [HttpPost, Route("PostGroupList")]
+        public IHttpActionResult PostList([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck())
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        TableOperations<openXDA.Model.AssetAssetGroup> connectionTable = new TableOperations<openXDA.Model.AssetAssetGroup>(connection);
+                        int[] groupIDs = record["GroupIDs"].ToObject<int[]>();
+                        int assetID = record["ID"].ToObject<int>();
+                        int result = connectionTable.DeleteRecordWhere("AssetID = {0}", assetID);
+                        openXDA.Model.AssetAssetGroup newRecord = new openXDA.Model.AssetAssetGroup();
+                        newRecord.AssetID = assetID;
+                        foreach (int groupID in groupIDs)
+                        {
+                            newRecord.AssetGroupID = groupID;
+                            result += connectionTable.AddNewRecord(newRecord);
+                        }
+
+                        return Ok(result);
                     }
                 }
                 else
@@ -490,25 +646,92 @@ namespace SystemCenter.Controllers
 
     }
 
-    [RoutePrefix("api/SystemCenter/PQDIFFile")]
-    public class PQDiffFileController: ApiController { 
-        [HttpPost, Route("{meterKey}")]
-        public IHttpActionResult Post([FromUri] string meterKey)
-        {
-            //string file = Request.Content.ReadAsStringAsync().Result;
-            //byte[] bytes = System.Text.Encoding.UTF8.GetBytes(file);
-            byte[] bytes = Request.Content.ReadAsByteArrayAsync().Result;
+    [RoutePrefix("api/SystemCenter/Parse")]
+    public class ParseController: ApiController
+    {
+        #region [ Properties ]
 
+        [System.ComponentModel.Category]
+        [SettingName(DataAnalysisSection.CategoryName)]
+        public DataAnalysisSection DataAnalysisSettings { get; }
+            = new DataAnalysisSection();
+
+        #endregion
+
+        #region [ Members ]
+        private class ParsedSeries
+        {
+            public int ID { get; set; }
+            public int ChannelID { get; set; }
+            public string SeriesType { get; set; }
+            public string SourceIndexes { get; set; }
+        }
+        private class ParsedChannel
+        {
+            public int ID { get; set; }
+            public string Meter { get; set; }
+            public string Asset { get; set; }
+            public string MeasurementType { get; set; }
+            public string MeasurementCharacteristic { get; set; }
+            public string Phase { get; set; }
+            public string Name { get; set; }
+            public double SamplesPerHour { get; set; }
+            public double PerUnitValue { get; set; }
+            public int HarmonicGroup { get; set; }
+            public string Description { get; set; }
+            public bool Enabled { get; set; }
+            public double Adder { get; set; }
+            public double Multiplier { get; set; }
+            public IEnumerable<ParsedSeries> Series { get; set; }
+            public int ConnectionPriority { get; set; }
+            public bool Trend { get; set; }
+        }
+
+        #endregion
+
+        #region [ Http Methods ]
+
+        [HttpPost, Route("{extension}/{meterKey}")]
+        public IHttpActionResult Post([FromUri] string extension, [FromUri] string meterKey)
+        {
+            IEnumerable<ParsedChannel> channels;
+            if (extension == "pqd")
+            {
+                byte[] bytes = Request.Content.ReadAsByteArrayAsync().Result;
+                channels = ParsePQDiff(bytes, meterKey);
+            }
+            else if (extension == "sel" || extension == "cev" || extension == "eve")
+            {
+                string fileText = Request.Content.ReadAsStringAsync().Result;
+                channels = ParseSELEVE(fileText, extension, meterKey);
+            }
+            else if (extension == "ctl")
+            {
+                byte[] bytes = Request.Content.ReadAsByteArrayAsync().Result;
+                channels = ParseEMAX(bytes, meterKey);
+            }
+            else if (extension == "txt")
+            {
+                string fileText = Request.Content.ReadAsStringAsync().Result;
+                channels = ParseLDP(fileText, meterKey);
+            }
+            else
+                throw new InvalidDataException("File type not supported.");
+
+            return Ok(channels);
+        }
+        private IEnumerable<ParsedChannel> ParsePQDiff(byte[] bytes, string meterKey)
+        {
             ContainerRecord containerRecord;
             using (Stream stream = new MemoryStream(bytes))
             using (LogicalParser parser = new LogicalParser(stream))
             {
                 containerRecord = parser.ContainerRecord;
-                while(parser.HasNextObservationRecord())
+                while (parser.HasNextObservationRecord())
                     parser.NextObservationRecord();
 
                 if (parser.DataSourceRecords.Count == 0)
-                    return BadRequest("File contained no useable channel definitions");
+                    throw new InvalidDataException("File contained no useable channel definitions");
 
                 IEnumerable<ChannelDefinition> channelDefinitions = parser.DataSourceRecords.First().ChannelDefinitions
                     .Where(cd => cd.SeriesDefinitions.Where(ser => ser.QuantityCharacteristicID == QuantityCharacteristic.Instantaneous).Any());
@@ -517,7 +740,7 @@ namespace SystemCenter.Controllers
                 while (parser.HasNextObservationRecord())
                     observations.Add(parser.NextObservationRecord());
 
-                var channels = channelDefinitions.Select((cd,index) => {
+                IEnumerable<ParsedChannel> channels = channelDefinitions.Select((cd, index) => {
 
                     Guid characteristic = cd.SeriesDefinitions
                     .Where(item => item.ValueTypeID != SeriesValueType.Time).FirstOrDefault()?.QuantityCharacteristicID
@@ -540,7 +763,6 @@ namespace SystemCenter.Controllers
                         return "Values";
                     };
 
-                    int harmonic = 0;
                     int harmonicGroup = observations
                         .Where(observation => ReferenceEquals(observation.DataSource, cd.DataSource))
                         .SelectMany(observation => observation.ChannelInstances)
@@ -548,39 +770,320 @@ namespace SystemCenter.Controllers
                         .Select(channelInstance => channelInstance.ChannelGroupID)
                         .FirstOrDefault(channelGroupIndex => channelGroupIndex != 0);
 
-                    var series = cd.SeriesDefinitions.Where(s => s.ValueTypeID == SeriesValueType.Val || s.ValueTypeID == SeriesValueType.Max || s.ValueTypeID == SeriesValueType.Min || s.ValueTypeID == SeriesValueType.Avg)
-                    .Select(d => new {
+                    IEnumerable<ParsedSeries> series = cd.SeriesDefinitions.Where(s => s.ValueTypeID == SeriesValueType.Val || s.ValueTypeID == SeriesValueType.Max || s.ValueTypeID == SeriesValueType.Min || s.ValueTypeID == SeriesValueType.Avg)
+                    .Select(d => new ParsedSeries()
+                    {
                         ID = 0,
                         ChannelID = 0,
                         SeriesType = SeriesType(d.ValueTypeID),
                         SourceIndexes = ""
                     });
-                    
-                    return new
+
+                    bool trend = series.Any(item => item.SeriesType != "Values");
+
+                    return new ParsedChannel()
                     {
                         ID = index + 1,
                         Meter = meterKey,
                         Asset = "",
                         MeasurementType = cd.QuantityMeasured.ToString(),
-                        // If anything is not a
                         MeasurementCharacteristic = QuantityCharacteristic.ToName(characteristic),
                         Phase = cd.Phase.ToString(),
                         Name = cd.ChannelName,
                         SamplesPerHour = 0,
                         PerUnitValue = 1,
-                        HarmonicGroup = harmonic,
+                        HarmonicGroup = harmonicGroup,
                         Description = (cd.DataSource.DataSourceName) + " - " + cd.ChannelName,
                         Enabled = true,
                         Adder = 0,
                         Multiplier = 1,
-                        Series = series
+                        Series = series,
+                        ConnectionPriority = 0,
+                        Trend = trend
                     };
-                    
+
                 });
 
-                return Ok(channels);
+                return channels;
             }
         }
+
+        private IEnumerable<ParsedChannel> ParseSELEVE(string fileText, string extension, string meterKey)
+        {
+            // TODO: this config doesn't work, but it won't be an issue for the time being, the parts we are parsing do not rely on these settings
+            EventFile eventFile = EventFile.Parse(extension, fileText, DataAnalysisSettings.SystemFrequency, DataAnalysisSettings.MaxEventDuration);
+
+            if (!eventFile.EventReports.Any() && !eventFile.CommaSeparatedEventReports.Any())
+                throw new InvalidDataException("No event reports specified in file.");
+
+            Func<string, int, ParsedChannel> ParseAnalog = (string channelName, int index) =>
+            {
+                string measurementType;
+                switch (channelName)
+                {
+                    case "VA":
+                    case "VB":
+                    case "VC":
+                    case "VS":
+                    case "VDC":
+                    case "Freq":
+                        measurementType = "Voltage";
+                        break;
+                    case "IA":
+                    case "IB":
+                    case "IC":
+                    case "IN":
+                    case "IG":
+                    case "IR":
+                        measurementType = "Current";
+                        break;
+                    default:
+                        measurementType = "None";
+                        break;
+                }
+
+                string phase;
+                switch (channelName)
+                {
+                    case "VA":
+                    case "IA":
+                    case "Freq":
+                        phase = "AN";
+                        break;
+                    case "VB":
+                    case "IB":
+                        phase = "BN";
+                        break;
+                    case "VC":
+                    case "IC":
+                        phase = "CN";
+                        break;
+                    case "IN":
+                        phase = "NG";
+                        break;
+                    case "IG":
+                        phase = "Ground";
+                        break;
+                    case "IR":
+                        phase = "Residual";
+                        break;
+                    default:
+                    case "VS":
+                    case "VDC":
+                        phase = "None";
+                        break;
+                }
+
+                string measurementCharacteristic;
+                if (channelName == "Freq")
+                    measurementCharacteristic = "Frequency";
+                else
+                    measurementCharacteristic = "Instantaneous";
+
+                List<ParsedSeries> series = new List<ParsedSeries>();
+                series.Add(new ParsedSeries()
+                {
+                    ID = 0,
+                    ChannelID = 0,
+                    SeriesType = "Values",
+                    SourceIndexes = index.ToString()
+                });
+
+                return new ParsedChannel()
+                {
+                    ID = index + 1,
+                    Meter = meterKey,
+                    Asset = "",
+                    MeasurementType = measurementType,
+                    MeasurementCharacteristic = measurementCharacteristic,
+                    Phase = phase,
+                    Name = channelName,
+                    SamplesPerHour = 0,
+                    PerUnitValue = 1,
+                    HarmonicGroup = 0,
+                    Description = channelName,
+                    Enabled = true,
+                    Adder = 0,
+                    Multiplier = 1,
+                    Series = series,
+                    ConnectionPriority = 0,
+                    Trend = false
+                };
+            };
+            Func<string, int, ParsedChannel> ParseDigital = (string channelName, int index) =>
+            {
+                List<ParsedSeries> series = new List<ParsedSeries>();
+                series.Add(new ParsedSeries()
+                {
+                    ID = 0,
+                    ChannelID = 0,
+                    SeriesType = "Values",
+                    SourceIndexes = index.ToString()
+                });
+
+                return new ParsedChannel()
+                {
+                    ID = index + 1,
+                    Meter = meterKey,
+                    Asset = "",
+                    MeasurementType = "Digital",
+                    MeasurementCharacteristic = "Instantaneous",
+                    Phase = "None",
+                    Name = channelName,
+                    SamplesPerHour = 0,
+                    PerUnitValue = 1,
+                    HarmonicGroup = 0,
+                    Description = channelName,
+                    Enabled = true,
+                    Adder = 0,
+                    Multiplier = 1,
+                    Series = series,
+                    ConnectionPriority = 0,
+                    Trend = false
+                };
+            };
+
+            IEnumerable<ParsedChannel> reportChannels = eventFile.EventReports.SelectMany((report) =>
+            {
+                List<ParsedChannel> channels = report.AnalogSection.AnalogChannels.Select((chan, index) => ParseAnalog(chan.Name, index)).ToList();
+                for (int index = 0; index < report.AnalogSection.DigitalChannels.Count; index++)
+                {
+                    ParsedChannel digiChan = ParseDigital(report.AnalogSection.DigitalChannels[index].Name, index);
+                    if (digiChan.Name == "*")
+                        continue;
+                    channels.Add(digiChan);
+                }
+                return channels;
+            });
+
+            IEnumerable<ParsedChannel> commaChannels = eventFile.CommaSeparatedEventReports.SelectMany((report) =>
+            {
+                List<ParsedChannel> channels = report.AnalogSection.AnalogChannels.Select((chan, index) => {
+                    const string ChannelWithUnitsPattern = @"(?<Name>\S+)\s*\((?<Units>\S+)\)";
+                    Match regexMatch = Regex.Match(chan.Name, ChannelWithUnitsPattern);
+                    string channelName = regexMatch.Success ? regexMatch.Groups["Name"].Value : chan.Name;
+                    return ParseAnalog(channelName, index);
+                }).ToList();
+                for (int index = 0; index < report.AnalogSection.DigitalChannels.Count; index++)
+                {
+                    ParsedChannel digiChan = ParseDigital(report.AnalogSection.DigitalChannels[index].Name, index);
+                    if (digiChan.Name == "*")
+                        continue;
+                    channels.Add(digiChan);
+                }
+                return channels;
+            });
+
+            return reportChannels.Concat(commaChannels);
+        }
+
+        private IEnumerable<ParsedChannel> ParseEMAX(byte[] bytes, string meterKey)
+        {
+            ControlFile controlFile;
+            using (MemoryStream stream = new MemoryStream(bytes))
+            {
+                controlFile = new ControlFile();
+                controlFile.Parse(stream);
+            }
+
+            List<ANLG_CHNL_NEW> analogChannels = controlFile.AnalogChannelSettings
+                .OrderBy(kvp => kvp.Key)
+                .Select(kvp => kvp.Value)
+                .ToList();
+
+            List<EVNT_CHNL_NEW> digitalChannels = controlFile.EventChannelSettings
+                .OrderBy(kvp => kvp.Key)
+                .Select(kvp => kvp.Value)
+                .ToList();
+
+            if (!analogChannels.Any() && !digitalChannels.Any())
+                throw new InvalidDataException("No channels specified in file.");
+
+            Func<string, string, int, ParsedChannel> ParseChannel = (string channelName, string measurementType, int index) =>
+            {
+                List<ParsedSeries> series = new List<ParsedSeries>();
+                series.Add(new ParsedSeries()
+                {
+                    ID = 0,
+                    ChannelID = 0,
+                    SeriesType = "Instantaneous",
+                    SourceIndexes = index.ToString()
+                });
+
+                return new ParsedChannel()
+                {
+                    ID = index + 1,
+                    Meter = meterKey,
+                    Asset = "",
+                    MeasurementType = measurementType,
+                    MeasurementCharacteristic = "None",
+                    Phase = "None",
+                    Name = channelName,
+                    SamplesPerHour = 0,
+                    PerUnitValue = 1,
+                    HarmonicGroup = 0,
+                    Description = channelName,
+                    Enabled = true,
+                    Adder = 0,
+                    Multiplier = 1,
+                    Series = series,
+                    ConnectionPriority = 0,
+                    Trend = false
+                };
+            };
+
+            IEnumerable<ParsedChannel> parsedAnalog = analogChannels.Select((chan, index) => ParseChannel(chan.title, "None",  index));
+            IEnumerable<ParsedChannel> parsedDigital = digitalChannels.Select((chan, index) => ParseChannel(chan.e_title, "Digital", index));
+
+            return parsedAnalog.Concat(parsedDigital);
+        }
+
+        private IEnumerable<ParsedChannel> ParseLDP(string fileText, string meterKey)
+        {
+            //TODO: Channel parsing may disappear from the MeterDataSet parser, if that happens it'll move out to its own function, replace this with that
+            SELLDPReader parser = new SELLDPReader();
+            MeterDataSet dataSet = parser.Parse(fileText);
+
+            if (!dataSet.Meter.Channels.Any())
+                throw new InvalidDataException("No channels specified in file.");
+
+
+            return dataSet.Meter.Channels.Select((chan, index) => {
+                IEnumerable<ParsedSeries> series = chan.Series.Select((single) => new ParsedSeries()
+                {
+                    ID = single.ID,
+                    ChannelID = single.ChannelID,
+                    SeriesType = single.SeriesType.Name,
+                    SourceIndexes = single.SourceIndexes
+                });
+
+                bool trend = series.Any(item => item.SeriesType != "Values");
+
+                return new ParsedChannel()
+                {
+                    ID = index + 1,
+                    Meter = meterKey,
+                    Asset = "",
+                    MeasurementType = chan.MeasurementType.Name,
+                    MeasurementCharacteristic = chan.MeasurementCharacteristic.Name,
+                    Phase = chan.Phase.Name,
+                    Name = chan.Name,
+                    SamplesPerHour = chan.SamplesPerHour,
+                    PerUnitValue = chan.PerUnitValue ?? 1,
+                    HarmonicGroup = chan.HarmonicGroup,
+                    Description = chan.Description,
+                    Enabled = chan.Enabled,
+                    Adder = chan.Adder,
+                    Multiplier = chan.Multiplier,
+                    Series = series,
+                    ConnectionPriority = chan.ConnectionPriority,
+                    Trend = trend
+                };
+            });
+
+        }
+        
+        #endregion
     }
 
 }

@@ -94,15 +94,22 @@ namespace SystemCenter.Controllers.OpenXDA
                             (new TableOperations<Location>(connection)).AddNewRecord(location);
 
                         JToken Assets = record["Assets"];
-                        int locationID = connection.ExecuteScalar<int>($"SELECT ID FROM Location WHERE LocationKey = '{location.LocationKey}'");
-                        meter.LocationID = locationID;
+                        meter.LocationID = connection.ExecuteScalar<int>($"SELECT ID FROM Location WHERE LocationKey = '{location.LocationKey}'");
 
                         (new TableOperations<Meter>(connection)).AddNewRecord(meter);
-                        int meterId = connection.ExecuteScalar<int>($"SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'");
+                        meter.ID = connection.ExecuteScalar<int>($"SELECT ID FROM Meter WHERE AssetKey = '{meter.AssetKey}'");
 
                         foreach (var asset in Assets)
                         {
-                            string assetType = asset["AssetType"].ToString();
+                            string assetType;
+                            try
+                            {
+                                assetType = asset["AssetType"].ToString();
+                            } catch
+                            {
+                                assetType = asset["AssetTypeID"].ToString();
+                                assetType = (new TableOperations<AssetTypes>(connection)).QueryRecordWhere("ID = {0}", assetType).Name;
+                            }
                             if (asset["ID"].ToString() == "0")
                             {
                                 if (assetType == "Line")
@@ -134,12 +141,12 @@ namespace SystemCenter.Controllers.OpenXDA
                             (new TableOperations<MeterAsset>(connection)).AddNewRecord(new MeterAsset()
                             {
                                 AssetID = assetID,
-                                MeterID = meterId
+                                MeterID = meter.ID
                             });
                             (new TableOperations<AssetLocation>(connection)).AddNewRecord(new AssetLocation()
                             {
                                 AssetID = assetID,
-                                LocationID = locationID
+                                LocationID = meter.LocationID
                             });
                         }
 
@@ -198,7 +205,7 @@ namespace SystemCenter.Controllers.OpenXDA
                                 ) VALUES 
                             ((SELECT ID FROM Asset WHERE AssetKey = '{assetKey}'),
                             (SELECT ID FROM MeasurementType WHERE Name = '{measurementType}'),
-                            {meterId},
+                            {meter.ID},
                             (SELECT ID FROM MeasurementCharacteristic WHERE Name = '{measurementcharacteristic}'),
                             (SELECT ID FROM Phase WHERE Name = '{phase}'),
                             '{name}', {adder}, {multiplier}, 0,0,{description}, 1,{conPriority} )");
@@ -211,7 +218,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     }
                 }                
 
-                return Ok("Completed without errors.");
+                return Ok(meter.ID);
             }
             catch (Exception ex)
             {

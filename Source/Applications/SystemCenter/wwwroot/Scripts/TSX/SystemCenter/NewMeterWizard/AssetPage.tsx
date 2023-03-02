@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Page4.tsx - Gbtc
+//  AssetPage.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import BusAttributes from '../AssetAttribute/Bus';
 import CapBankAttributes from '../AssetAttribute/CapBank';
@@ -32,38 +32,59 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { AssetTypeSlice } from '../Store/Store';
+import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { Modal, Search } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
+import AssetSelect from '../Asset/AssetSelect';
 
 declare var homePath: string;
 
-interface Page4Props {
-    Assets: Array<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay>,
+interface IProps {
+    Assets: Array<AssetType>,
     Channels: OpenXDA.Types.Channel[],
     AssetConnections: Array<OpenXDA.Types.AssetConnection>,
     UpdateChannels: (record: OpenXDA.Types.Channel[]) => void,
     UpdateAssets: (record: OpenXDA.Types.Asset[]) => void,
     UpdateAssetConnections: (record: OpenXDA.Types.AssetConnection[]) => void,
-    SetError: (e: string[]) => void
-
+    SetWarning: (e: string[]) => void,
+    Location: OpenXDA.Types.Location,
+    PageID?: string
 }
 
 type AssetType = OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay;
 
-export default function Page4(props: Page4Props) {
+export default function AssetPage(props: IProps) {
     const dispatch = useAppDispatch();
     const assetTypes = useAppSelector(AssetTypeSlice.Data);
     const atStatus = useAppSelector(AssetTypeSlice.Status);
     const assets = useAppSelector(SelectAssets);
     const aStatus = useAppSelector(SelectAssetStatus);
+    const byAssetStatus = useAppSelector(ByAssetSlice.Status);
+    const detailedAssets = useAppSelector(ByAssetSlice.Data);
 
     const [newEditAsset, setNewEditAsset] = React.useState<AssetType>(AssetAttributes.getNewAsset('Line'));
     const [editAssetKey, setEditAssetKey] = React.useState<string>('');
 
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
+
+    const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(false);
+    const [selectedAssets, setSelectedAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
+
+    const defaultFilt: Search.IFilter<SystemCenter.Types.DetailedAsset> = {
+        FieldName: 'ID',
+        SearchText: `(SELECT AssetID FROM AssetLocation WHERE LocationID = ${props.Location.ID})`,
+        Operator: 'IN',
+        Type: 'number',
+        isPivotColumn: false
+    }
+
+    React.useEffect(() => {
+        if (props.PageID !== undefined && !localStorage.hasOwnProperty(props.PageID))
+            localStorage.setItem(props.PageID, JSON.stringify([defaultFilt]));
+        setShowAssetSelect(props.Assets.length === 0);
+    }, []);
 
     React.useEffect(() => {
         if (atStatus === 'unintiated' || atStatus === 'changed') {
@@ -72,6 +93,7 @@ export default function Page4(props: Page4Props) {
             }
         }
     }, [dispatch, atStatus]);
+
     React.useEffect(() => {
         if (aStatus === 'unintiated' || aStatus === 'changed') {
             dispatch(FetchAsset());
@@ -81,11 +103,24 @@ export default function Page4(props: Page4Props) {
     }, [dispatch, aStatus]);
 
     React.useEffect(() => {
+        if (byAssetStatus === 'unintiated' || byAssetStatus === 'changed') {
+            dispatch(ByAssetSlice.Fetch());
+        }
+    }, [dispatch, byAssetStatus]);
+
+    React.useEffect(() => {
         let e = [];
         if (props.Assets.length == 0)
-            e.push('At least 1 Assets needs to be set up.');
-        props.SetError(e)
-    }, [props.Assets.length]);
+            e.push('No assets are set up.');
+        props.SetWarning(e)
+
+        let assetList: SystemCenter.Types.DetailedAsset[] = [];
+        props.Assets.forEach((asset) => {
+            if (asset.ID > 0)
+                assetList.push(detailedAssets.find(detailedAsset => detailedAsset.ID === asset.ID));
+        });
+        setSelectedAssets(assetList);
+    }, [props.Assets]);
 
     React.useEffect(() => {
         if (newEditAsset.AssetType == 'Breaker') {
@@ -155,9 +190,6 @@ export default function Page4(props: Page4Props) {
 
     }
 
-
-    
-
     function getDifferentAsset(assetID: number): void {
         let assetTypeID = assets.find(a => a.ID == assetID)['AssetTypeID']; 
         let assetType = assetTypes.find(at => at.ID == assetTypeID)
@@ -197,8 +229,6 @@ export default function Page4(props: Page4Props) {
         })
     }
 
-   
-
     function showAttributes(): JSX.Element {
         if (newEditAsset.AssetType == 'Breaker')
             return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Breaker} UpdateState={setNewEditAsset} />;
@@ -214,10 +244,7 @@ export default function Page4(props: Page4Props) {
             return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'DER')
             return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} />;
-
     }
-
-
 
         return (
             <>
@@ -231,7 +258,9 @@ export default function Page4(props: Page4Props) {
                     </div>
                     <div className="col" style={{padding: 20}}>
                         <div style={{ width: '100%', height: 38 }}>
-                            <button className="btn btn-primary pull-right" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add Asset</button>
+                            <div className="col-1 pull-right">
+                                <button className="btn btn-primary pull-right" onClick={() => { setShowAssetSelect(true); }}>Add Assets</button>
+                            </div>
                         </div>
 
                         <div style={{ width: '100%', maxHeight: window.innerHeight - 350, padding: 30, overflowY: 'auto' }}>
@@ -251,7 +280,7 @@ export default function Page4(props: Page4Props) {
                                     {
                                         props.Assets.map((asset: OpenXDA.Types.Asset, index, array) => {
                                             return (
-                                                <tr key={index}>
+                                                <tr key={index} onClick={(e) => {e.stopPropagation(); editAsset(index);}}>
                                                     <td style={{ width: '10%' }}>{(asset.ID == 0 ? 'New' : 'Existing')}</td>
                                                     <td style={{ width: '20%' }}>{asset.AssetKey}</td>
                                                     <td style={{ width: '30%' }}>{asset.AssetName}</td>
@@ -260,7 +289,7 @@ export default function Page4(props: Page4Props) {
                                                     <td style={{ width: '10%' }}>{asset.Channels.length}</td>
                                                     <td style={{ width: '10%' }}>
                                                         <button className="btn btn-sm" data-toggle='modal' data-target='#assetModal' onClick={(e) => editAsset(index)}><span><i className="fa fa-pencil"></i></span></button>
-                                                        <button className="btn btn-sm" onClick={(e) => deleteAsset(index)}><span><i className="fa fa-times"></i></span></button>
+                                                        <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span><i className="fa fa-times"></i></span></button>
                                                     </td>
                                                 </tr>
                                             )
@@ -272,6 +301,62 @@ export default function Page4(props: Page4Props) {
                     </div>
 
                 </div>
+                <AssetSelect Type='multiple' StorageID={props.PageID} Title="Add Transmission Assets to New Meter" ShowModal={showAssetSelect} SelectedAssets={selectedAssets}
+                    OnCloseFunction={(selected, confirm) => {
+                        setShowAssetSelect(false);
+                        if (!confirm) return;
+
+                        let list: Array<OpenXDA.Types.Asset> = [];
+                        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
+                        let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
+
+                        let removedAssets: Array<OpenXDA.Types.Asset> = props.Assets.filter((asset) =>  asset.ID > 0 && selected.findIndex((selectedAsset) => (asset.ID === selectedAsset.ID)) < 0);
+
+                        //Deal with removed assets
+                        $.each(removedAssets, (index, asset) => {
+                            $.each(channels, (index, channel) => {
+                                if (channel.Asset == asset.AssetKey)
+                                    channel.Asset = '';
+                            });
+
+                            var index = assetConnections.findIndex(assetConnection => assetConnection.Parent == asset.AssetKey || assetConnection.Child == asset.AssetKey);
+                            while (index >= 0) {
+                                assetConnections.splice(index, 1);
+                                index = assetConnections.findIndex(assetConnection => assetConnection.Parent == asset.AssetKey || assetConnection.Child == asset.AssetKey);
+                            }
+                        });
+
+                        //Convert assets from slice to correct typing
+                        $.each(selected, (index, record) => {
+                            let assetRecord = { ...assets.find((asset) => asset.ID === record.ID), AssetType: record.AssetType as OpenXDA.Types.AssetTypeName, Channels: channels.filter((channel) => channel.Asset == record.AssetKey) };
+                            //Push converted asset to list
+                            list.push(assetRecord);
+                        });
+
+                        //Add the new assets that have been created by the user
+                        $.each(props.Assets.filter((asset) => asset.ID <= 0), (index, asset) => {
+                            list.push(asset);
+                        });
+
+                        //Update selected
+                        setSelectedAssets(selected);
+
+                        //Update props
+                        props.UpdateAssets(list);
+                        props.UpdateChannels(channels);
+                        props.UpdateAssetConnections(assetConnections);
+                    }}>
+                    <li className="nav-item" style={{ width: '30%', paddingRight: 10 }}>
+                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                            <legend className="w-auto" style={{ fontSize: 'large' }}>New Asset:</legend>
+                            <form>
+                                <div className="form-group">
+                                    <button className="btn btn-primary" onClick={(e) => { e.preventDefault(); setNewEdit('New'); setShowAssetModal(true); setShowAssetSelect(false); }}>Create Asset</button>
+                                </div>
+                            </form>
+                        </fieldset>
+                    </li>
+                </AssetSelect>
                 <Modal Show={showAssetModal}
                     Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + newEditAsset.AssetKey + ' for Meter'}
                     ConfirmBtnClass={'btn-success'}
@@ -333,14 +418,13 @@ export default function Page4(props: Page4Props) {
                                     }
                                     
                                 }}
-                                GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={false} />
+                                GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
                         </div>
                         <div className="col">
                             {showAttributes()}
                         </div>
                         {newEditAsset.AssetType != 'Transformer' && newEditAsset.AssetType != 'Breaker' ?
                             <div className="col">
-
                                 <label>Associated Channels</label>
                                 <select multiple style={{ height: innerHeight - 330, width: '100%' }} onChange={(evt) => {
                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -357,7 +441,6 @@ export default function Page4(props: Page4Props) {
                             </div> : null}
                         {newEditAsset.AssetType == 'Breaker'?
                             <div className="col">
-
                                 <label>Associated Channels Bus Side</label>
                                 <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -393,59 +476,66 @@ export default function Page4(props: Page4Props) {
                             </div> : null}
                         {newEditAsset.AssetType == 'Transformer' ?
                             <div className="col">
+                                <div className="row">
+                                    <div className="col" style={{ width: "33.3%" }}>
+                                        <label>Associated Channels Primary Side</label>
+                                        <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
+                                            let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
+                                            const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
+                                            let channels = _.clone(props.Channels);
+                                            channels = channels.map(ch => ({ ...ch, ConnectionPriority: (selectedID.indexOf(ch.ID) == -1 ? ch.ConnectionPriority : 0) }));
 
-                                <label>Associated Channels Primary Side</label>
-                                <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
-                                    let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                    const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
-                                    let channels = _.clone(props.Channels);
-                                    channels = channels.map(ch => ({ ...ch, ConnectionPriority: (selectedID.indexOf(ch.ID) == -1 ? ch.ConnectionPriority : 0) }));
+                                            asset.Channels = asset.Channels.filter(ch => ch.ConnectionPriority == 1 || ch.ConnectionPriority == 2).concat(selectedID.map(a => channels.find(ch => ch.ID == a)));
+                                            setNewEditAsset(asset);
 
-                                    asset.Channels = asset.Channels.filter(ch => ch.ConnectionPriority == 1 || ch.ConnectionPriority == 2).concat(selectedID.map(a => channels.find(ch => ch.ID == a)));
-                                    setNewEditAsset(asset);
+                                            props.UpdateChannels(channels);
+                                        }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0).map(a => a.ID.toString())}>
+                                            {
+                                                props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
+                                            }
+                                        </select>
+                                    </div>
+                                    <div className="col" style={{ width: "33.3%" }}>
+                                        <label>Associated Channels Secondary Side</label>
+                                        <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
+                                            let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
+                                            const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
+                                            let channels = _.clone(props.Channels);
+                                            channels = channels.map(ch => ({ ...ch, ConnectionPriority: (selectedID.indexOf(ch.ID) == -1 ? ch.ConnectionPriority : 1) }));
 
-                                    props.UpdateChannels(channels);
-                                }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0).map(a => a.ID.toString())}>
-                                    {
-                                        props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
-                                    }
-                                </select>
-                                <label>Associated Channels Secondary Side</label>
-                                <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
-                                    let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                    const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
-                                    let channels = _.clone(props.Channels);
-                                    channels = channels.map(ch => ({ ...ch, ConnectionPriority: (selectedID.indexOf(ch.ID) == -1 ? ch.ConnectionPriority : 1) }));
+                                            asset.Channels = asset.Channels.filter(ch => ch.ConnectionPriority == 0 || ch.ConnectionPriority == 2).concat(selectedID.map(a => channels.find(ch => ch.ID == a)));
+                                            setNewEditAsset(asset);
 
-                                    asset.Channels = asset.Channels.filter(ch => ch.ConnectionPriority == 0 || ch.ConnectionPriority == 2).concat(selectedID.map(a => channels.find(ch => ch.ID == a)));
-                                    setNewEditAsset(asset);
+                                            props.UpdateChannels(channels);
+                                        }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1).map(a => a.ID.toString())}>
+                                            {
+                                                props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
+                                            }
+                                        </select>
+                                    </div>
+                                    <div className="col" style={{ width: "33.3%" }}>
+                                        <label>Associated Channels Tertiary Side</label>
+                                        <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
+                                            let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
+                                            const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
+                                            let channels = _.clone(props.Channels);
+                                            channels = channels.map(ch => ({ ...ch, ConnectionPriority: (selectedID.indexOf(ch.ID) == -1 ? ch.ConnectionPriority : 2) }));
 
-                                    props.UpdateChannels(channels);
-                                }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1).map(a => a.ID.toString())}>
-                                    {
-                                        props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
-                                    }
-                                </select>
-                                <label>Associated Channels Tertiary Side</label>
-                                <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
-                                    let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
-                                    const selectedID = ($(evt.target).val() as Array<string>).map(a => parseInt(a));
-                                    let channels = _.clone(props.Channels);
-                                    channels = channels.map(ch => ({ ...ch, ConnectionPriority: (selectedID.indexOf(ch.ID) == -1 ? ch.ConnectionPriority : 2) }));
+                                            asset.Channels = asset.Channels.filter(ch => ch.ConnectionPriority == 0 || ch.ConnectionPriority == 1).concat(selectedID.map(a => channels.find(ch => ch.ID == a)));
+                                            setNewEditAsset(asset);
 
-                                    asset.Channels = asset.Channels.filter(ch => ch.ConnectionPriority == 0 || ch.ConnectionPriority == 1).concat(selectedID.map(a => channels.find(ch => ch.ID == a)));
-                                    setNewEditAsset(asset);
-
-                                    props.UpdateChannels(channels);
-                                }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 2).map(a => a.ID.toString())}>
-                                    {
-                                        props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
-                                    }
-                                </select>
+                                            props.UpdateChannels(channels);
+                                        }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 2).map(a => a.ID.toString())}>
+                                            {
+                                                props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
+                                            }
+                                        </select>
+                                    </div>
+                                </div>
                             </div> : null}
-                    </div>
-                </Modal>
-        </>
+                        </div>
+                    </Modal>
+            </>
         );
 
 }
