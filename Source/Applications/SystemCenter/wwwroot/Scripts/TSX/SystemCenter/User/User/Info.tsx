@@ -61,7 +61,7 @@ const UserInfo = (props: { AccountId: string }) => {
             w.push('Changes to Phone Confirmed Status will be lost.')
         if (currentUser.EmailConfirmed !== user.EmailConfirmed)
             w.push('Changes to Email confirmed Status will be lost.')
-        if (currentUser.Type == 'Database' && currentUser.Password !== user.Password)
+        if (currentUser.Type === 'Database' && currentUser.Password !== user.Password)
             w.push('Changes to Password will be lost.')
 
         setWarning(w);
