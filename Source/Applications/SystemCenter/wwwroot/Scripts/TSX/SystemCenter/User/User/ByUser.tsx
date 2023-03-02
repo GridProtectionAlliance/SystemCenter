@@ -89,7 +89,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
     const valueListGroups: SystemCenter.Types.ValueListGroup[] = useAppSelector(ValueListGroupSlice.Data);
     const valueListGroupStatus: Application.Types.Status = useAppSelector(ValueListGroupSlice.Status);
 
-    const [act, setAct] = React.useState < IUserAccount>(newAcct)
+    const [act, setAct] = React.useState<IUserAccount>(newAcct)
 
     const [pageStatus, setPageStatus] = React.useState<Application.Types.Status>('unintiated');
 
