@@ -68,7 +68,7 @@ namespace SystemCenter.Notifications
             app.UseWebApi(config);
         }
 
-    public class CustomDirectRouteProvider : DefaultDirectRouteProvider
+        public class CustomDirectRouteProvider : DefaultDirectRouteProvider
         {
             protected override IReadOnlyList<IDirectRouteFactory>
 
