@@ -278,7 +278,7 @@ export default function ChannelPage(props: IProps) {
                     <div className="form-group" style={{ width: '100%' }}>
                         <div className="custom-file">
                             <input type="file" className="custom-file-input" ref={fileInput} />
-                            <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile : 'Choose file for trend channel data.'}</label>
+                            <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile :`Choose file for ${props.TrendChannels ? 'trend' : 'event'} channel data.`}</label>
                         </div>
                     </div>
                 </div>
