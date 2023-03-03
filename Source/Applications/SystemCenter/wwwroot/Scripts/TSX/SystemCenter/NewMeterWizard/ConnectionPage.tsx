@@ -217,7 +217,7 @@ export default function ConnectionPage(props: IProps) {
                     <label>Select Connecting Asset</label>
                     <select value={selectedAssetKey} className="form-control" onChange={(evt) => { setSelectedAssetKey((evt.target.value) as string); }}>
                         {
-                            props.AllAssets.filter(asset => asset.AssetKey != props.CurrentAsset.AssetKey).map((asset, index) => <option key={index} value={asset.AssetKey} >{asset.AssetName}</option>)
+                            props.AllAssets.filter(asset => asset.AssetKey != props.CurrentAsset.AssetKey).map((asset, index) => <option key={index} value={asset.AssetKey} >{`${asset.AssetName} (${asset.AssetKey})`}</option>)
                         }
                     </select>
                 </div>
