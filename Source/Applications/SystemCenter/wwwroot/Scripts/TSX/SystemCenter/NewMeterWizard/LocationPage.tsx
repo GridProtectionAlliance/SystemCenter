@@ -49,7 +49,6 @@ export default function LocationPage(props: IProps) {
 
     React.useEffect(() => {
         const error = [];
-        const warning = [];
 
         if (props.LocationInfo.LocationKey == null || props.LocationInfo.LocationKey.length == 0 || props.LocationInfo.LocationKey.length > 50)
             error.push('Key is required and needs to be less than 50 characters.')
@@ -69,12 +68,8 @@ export default function LocationPage(props: IProps) {
             error.push('Latitude needs to be between -180 and 180.')
         if (props.LocationInfo.Longitude != null && AssetAttributes.isRealNumber(props.LocationInfo.Longitude) && (props.LocationInfo.Longitude > 180 || props.LocationInfo.Longitude < -180))
             error.push('Longitude needs to be between -180 and 180.')
-        if (props.LocationInfo.ID == 0)
-            warning.push("New location information will be saved upon meter submission.");
 
         props.SetError(error);
-        props.SetWarning(warning);
-
     }, [props.LocationInfo]);
 
 
