@@ -164,8 +164,8 @@ const MeterInforWindow = (props: IProps) => {
                     {!valid('Name') ? <p> <ErrorSymbol /> Name must be less than 200 characters and is required.</p> : null}
                     {!valid('ShortName') ? <p> <ErrorSymbol />ShortName must be less than 50 characters.</p> : null}
                     {!valid('Alias') ? <p> <ErrorSymbol />Alias must be less than 200 characters.</p> : null}
-                    {!valid('Make') ? <p> <ErrorSymbol />Make requires configuration to be setup with valuelists.</p> : null}
-                    {!valid('Model') ? <p> <ErrorSymbol />Model requires configuration to be setup with valuelists.</p> : null}
+                    {!valid('Make') ? <p> <ErrorSymbol />Make is required.</p> : null}
+                    {!valid('Model') ? <p> <ErrorSymbol />Model is required.</p> : null}
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className={"btn btn-default" + (hasChanged() ? '' : ' disabled')} data-tooltip="clear" onClick={() => setMeter(props.Meter)} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
