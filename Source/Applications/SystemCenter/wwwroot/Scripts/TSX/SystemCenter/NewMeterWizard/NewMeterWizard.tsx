@@ -393,7 +393,7 @@ export default function NewMeterWizard(props: {}) {
             case generalStep:
                 return <MeterInfoPage MeterInfo={meterInfo} UpdateMeterInfo={setMeterInfo} SetError={setError} />
             case locationStep:
-                return <LocationPage LocationInfo={locationInfo} UpdateLocationInfo={setLocationInfo} SetError={(e) => { setError(e) }} />
+                return <LocationPage LocationInfo={locationInfo} UpdateLocationInfo={setLocationInfo} SetError={(e) => { setError(e) }} SetWarning={setWarning} />
             case eventChannelsStep:
                 // The uses the same page as the next step for now
             case trendChannelsStep:

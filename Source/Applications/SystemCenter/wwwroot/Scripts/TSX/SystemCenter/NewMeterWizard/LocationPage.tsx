@@ -29,7 +29,14 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { LocationSlice } from '../Store/Store';
 import MeterLocationProperties from '../Meter/PropertyUI/MeterLocationProperties';
 
-export default function LocationPage(props: { LocationInfo: OpenXDA.Types.Location, UpdateLocationInfo: (record: OpenXDA.Types.Location) => void, SetError: (e: string[]) => void  }) {
+interface IProps {
+    LocationInfo: OpenXDA.Types.Location,
+    UpdateLocationInfo: (record: OpenXDA.Types.Location) => void,
+    SetError: (e: string[]) => void,
+    SetWarning: (e: string[]) => void
+}
+
+export default function LocationPage(props: IProps) {
     const dispatch = useAppDispatch();
     const locations = useAppSelector(LocationSlice.Data);
     const lStatus = useAppSelector(LocationSlice.Status);
@@ -42,6 +49,7 @@ export default function LocationPage(props: { LocationInfo: OpenXDA.Types.Locati
 
     React.useEffect(() => {
         const error = [];
+        const warning = [];
 
         if (props.LocationInfo.LocationKey == null || props.LocationInfo.LocationKey.length == 0 || props.LocationInfo.LocationKey.length > 50)
             error.push('Key is required and needs to be less than 50 characters.')
@@ -61,9 +69,11 @@ export default function LocationPage(props: { LocationInfo: OpenXDA.Types.Locati
             error.push('Latitude needs to be between -180 and 180.')
         if (props.LocationInfo.Longitude != null && AssetAttributes.isRealNumber(props.LocationInfo.Longitude) && (props.LocationInfo.Longitude > 180 || props.LocationInfo.Longitude < -180))
             error.push('Longitude needs to be between -180 and 180.')
-
+        if (props.LocationInfo.ID == 0)
+            warning.push("New location information will be saved upon meter submission.");
 
         props.SetError(error);
+        props.SetWarning(warning);
 
     }, [props.LocationInfo]);
 

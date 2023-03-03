@@ -74,7 +74,7 @@ export default function MultipleAssetsPage(props: IProps) {
         <>
             <div className="row" style={{ margin: -20, height: '100%' }}>
                 <div className="col" style={{ ...props.Style, ...{ padding: 0, height: '100%' } }}>
-                    <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
+                    <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540}}>
                         <h4 style={{ width: '100%', padding: '10px' }}>Select Asset: </h4>
                         <Table<OpenXDA.Types.Asset>
                             cols={[

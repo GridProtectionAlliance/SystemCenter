@@ -294,6 +294,8 @@
       <ComponentRef Id="openXDA.Model" />
       <ComponentRef Id="openXDA.PQI" />
       <ComponentRef Id="openXDA.APIAuthentication" />
+      <ComponentRef Id="openXDA.Configuration" />
+      <ComponentRef Id="FaultData" />
       <ComponentRef Id="Oracle.ManagedDataAccess" />
       
       <!-- Self Hosting SignalR, WebAPI and Razor Engine Components (provided via GSF.Web) -->
@@ -399,8 +401,14 @@
       <Component Id="openXDA.Model">
         <File Id="openXDA.Model.dll" Name="openXDA.Model.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.Model.dll" />
       </Component>
-       <Component Id="openXDA.APIAuthentication">
+      <Component Id="openXDA.APIAuthentication">
         <File Id="openXDA.APIAuthentication.dll" Name="openXDA.APIAuthentication.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.APIAuthentication.dll" />
+      </Component>
+      <Component Id="openXDA.Configuration">
+        <File Id="openXDA.Configuration.dll" Name="openXDA.Configuration.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.Configuration.dll" />
+      </Component>
+      <Component Id="FaultData">
+        <File Id="FaultData.dll" Name="FaultData.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\FaultData.dll" />
       </Component>
        <Component Id="openXDA.PQI">
         <File Id="openXDA.PQI.dll" Name="openXDA.PQI.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.PQI.dll" />

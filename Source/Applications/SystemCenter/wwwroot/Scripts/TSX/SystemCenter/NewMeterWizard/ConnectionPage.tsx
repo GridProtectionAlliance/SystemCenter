@@ -37,8 +37,8 @@ interface AssetConnectionByID {
 
 interface IProps {
     AllAssets: Array<OpenXDA.Types.Asset>,
-    CurrentAsset: OpenXDA.Types.Asset, AssetConnections:
-    Array<OpenXDA.Types.AssetConnection>,
+    CurrentAsset: OpenXDA.Types.Asset,
+    AssetConnections: Array<OpenXDA.Types.AssetConnection>,
     UpdateAssetConnections: (record: OpenXDA.Types.AssetConnection[]) => void
 }
 
@@ -46,8 +46,6 @@ export default function ConnectionPage(props: IProps) {
 
     const dispatch = useAppDispatch();
     const assetConnectionTypes = useAppSelector(AssetConnectionTypeSlice.SearchResults);
-    const actStatus = useAppSelector(AssetConnectionTypeSlice.Status);
-    const allConnectionTypes = useAppSelector(AssetConnectionTypeSlice.Data);
 
     const [selectedTypeID, setSelectedTypeID] = React.useState<number>(0);
     const [selectedAssetKey, setSelectedAssetKey] = React.useState<string>((props.CurrentAsset.AssetKey));
@@ -56,12 +54,6 @@ export default function ConnectionPage(props: IProps) {
 
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
     const [currentConnections, setCurrentConnections] = React.useState<OpenXDA.Types.AssetConnection[]>([]);
-
-    React.useEffect(() => {
-        if (actStatus === 'unintiated' || actStatus === 'changed') {
-            dispatch(AssetConnectionTypeSlice.Fetch());
-        }
-    }, []);
 
     React.useEffect(() => {
         const typeFilter: Search.IFilter<OpenXDA.Types.AssetConnection>[] = [
@@ -140,14 +132,14 @@ export default function ConnectionPage(props: IProps) {
     }
 
     let tableBody;
-    if (status === 'loading' || actStatus === 'loading')
+    if (status === 'loading')
         tableBody = (
             <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
                 <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
                     <LoadingIcon Show={true} Size={40} />
                 </div>
             </div>);
-    else if (status === 'error' || actStatus === 'error')
+    else if (status === 'error')
         tableBody = (
             <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
@@ -157,7 +149,7 @@ export default function ConnectionPage(props: IProps) {
     else
         tableBody = (
             <div className="col" style={{ width: '100%', height: '100%' }}>
-                <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
+                <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540}}>
                     <button className="btn btn-primary pull-right" onClick={() => setShowAssetConnection(true)} disabled={props.AllAssets.length <= 1}>Add Connection</button>
                     <h4 style={{ width: '100%', padding: '10px' }}>Assets Connected to Asset - {props.CurrentAsset.AssetName} </h4>
                     <table className="table table-hover">
@@ -170,7 +162,7 @@ export default function ConnectionPage(props: IProps) {
                                 <th></th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody style={{ overflowY: 'auto' }}>
                             {
                                 currentConnections.map((ac: OpenXDA.Types.AssetConnection, index, array) => {
                                     let connectionAsset;
@@ -225,7 +217,7 @@ export default function ConnectionPage(props: IProps) {
                     <label>Select Connecting Asset</label>
                     <select value={selectedAssetKey} className="form-control" onChange={(evt) => { setSelectedAssetKey((evt.target.value) as string); }}>
                         {
-                            props.AllAssets.filter(asset => asset.AssetKey != props.CurrentAsset.AssetKey).map((asset, index) => <option key={index} value={asset.AssetKey} >{asset.AssetKey}</option>)
+                            props.AllAssets.filter(asset => asset.AssetKey != props.CurrentAsset.AssetKey).map((asset, index) => <option key={index} value={asset.AssetKey} >{asset.AssetName}</option>)
                         }
                     </select>
                 </div>

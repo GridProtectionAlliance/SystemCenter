@@ -59,6 +59,12 @@ export default function MeterInfoPage(props: { MeterInfo: OpenXDA.Types.Meter, U
         if (!valid('Alias'))
             error.push('Alias must be less than 200 characters.');
 
+        if (!valid('Make'))
+            error.push('Make requires configuration to be setup with valuelists.');
+
+        if (!valid('Model'))
+            error.push('Model requires configuration to be setup with valuelists.');
+
         props.SetError(error);
     }, [props.MeterInfo, meterKeys])
 
