@@ -65,11 +65,18 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
                 </div>
             </div>
             <div className="card-body">
-                <ul className='list' style={{ listStyleType: 'none' }}>
-                    {images.map((img, i) => <li key={i}><button className='btn btn-link' data-toggle="modal" data-target="#imgModal" onClick={() => {
-                        setImage(img);
-                    }}>{img}</button></li>)}
-                </ul>
+                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
+                    {images.map((img, i) => <div className="col-xs-6 col-md-4 col-lg-2" key={i}>
+                        <a data-toggle="modal" data-target="#imgModal" className="thumbnail" onClick={() => {
+                            setImage(img);
+                        }}> 
+                            <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`} alt={img} />
+                            <div className="caption">
+                                <h3>{img}</h3>
+                            </div>
+                        </a>
+                    </div>)}
+                </div>
             </div>
             <div id="imgModal" className="modal">
                 <button type="button" style={{ position: 'absolute', top: 15, right: 35 }} data-dismiss="modal" aria-label="Close">
