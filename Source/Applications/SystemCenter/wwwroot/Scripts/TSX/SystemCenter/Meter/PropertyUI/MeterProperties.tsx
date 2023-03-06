@@ -24,9 +24,11 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { Search } from '@gpa-gemstone/react-interactive';
+import { ValueListGroupSlice, ValueListSlice } from '../../Store/Store'
+import { useAppDispatch, useAppSelector } from '../../hooks';
 
 declare var homePath: string;
 
@@ -38,19 +40,51 @@ const MeterProperties = (props: IProps) => {
     const [timeZones, setTimeZones] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
     const [makeList, setMakeList] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
     const [modelList, setModelList] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
-   
+    const [filterId, setFilterId] = React.useState<number[]>([]);
+
+    const dispatch = useAppDispatch();
+    const groupStatus = useAppSelector(ValueListGroupSlice.Status) as Application.Types.Status;
+    const groupList = useAppSelector(ValueListGroupSlice.Data) as SystemCenter.Types.ValueListGroup[];
+    const listStatus = useAppSelector(ValueListSlice.SearchStatus) as Application.Types.Status;
+    const listResults = useAppSelector(ValueListSlice.SearchResults) as SystemCenter.Types.ValueListItem[];
 
     React.useEffect(() => {
-        let timeHandle = getValueList("TimeZones", setTimeZones);
-        let makeHandle = getValueList("Make", setMakeList);
-        let modelHandle = getValueList("Model", setModelList);
+        if (groupStatus === 'unintiated' || groupStatus === 'changed')
+            dispatch(ValueListGroupSlice.Fetch());
+    }, [groupStatus]);
 
-        return () => {
-            if (timeHandle != null && timeHandle.abort != null) timeHandle.abort();
-            if (makeHandle != null && makeHandle.abort != null) makeHandle.abort();
-            if (modelHandle != null && modelHandle.abort != null) modelHandle.abort();
+    React.useEffect(() => {
+        if ((listStatus === 'unintiated' || listStatus === 'changed') && filterId.length === 3)
+            dispatch(ValueListSlice.DBSearch({
+                filter: [{
+                    FieldName: 'GroupId',
+                    Operator: 'IN',
+                    Type: 'number',
+                    SearchText: `(${filterId.join(',')})`,
+                    isPivotColumn: false
+                }]
+            }));
+    }, [listStatus, filterId]);
+
+    React.useEffect(() => {
+        if (groupStatus === 'idle') {
+            let timeZoneId = getIdOrMakeGroup("TimeZones");
+            if (timeZoneId === -1) return;
+            let makeId = getIdOrMakeGroup("Make");
+            if (makeId === -1) return;
+            let modelId = getIdOrMakeGroup("Model");
+            if (modelId === -1) return;
+            setFilterId([timeZoneId, makeId, modelId]);
         }
-    }, [])
+    }, [groupList]);
+
+    React.useEffect(() => {
+        if (listStatus === 'idle' && filterId.length === 3) {
+            setTimeZones(listResults.filter(item => item.GroupID === filterId[0]));
+            setMakeList(listResults.filter(item => item.GroupID === filterId[1]));
+            setModelList(listResults.filter(item => item.GroupID === filterId[2]));
+        }
+    }, [listStatus, listResults, filterId]);
 
     React.useEffect(() => {
         if (assetKey != props.Meter.AssetKey)
@@ -63,28 +97,20 @@ const MeterProperties = (props: IProps) => {
 
     }, [assetKey]);
 
-    function getValueList(listName: string, setter: (value: Array<SystemCenter.Types.ValueListItem>) => void): JQuery.jqXHR<Array<SystemCenter.Types.ValueListItem>> {
-        if (sessionStorage.hasOwnProperty(`SystemCenter.${listName}`)) {
-            setter(JSON.parse(sessionStorage.getItem(`SystemCenter.${listName}`)));
-            return null;
-        }
-
-        let h = $.ajax({
-            type: "GET",
-            url: `${homePath}api/ValueList/Group/${listName}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: `json`,
-            cache: true,
-            async: true
-        });
-        h.done((tzs: Array<SystemCenter.Types.ValueListItem>) => {
-            setter(tzs);
-            sessionStorage.setItem(`SystemCenter.${listName}`, JSON.stringify(tzs));
-
-        });
-        return h;
+    function getIdOrMakeGroup(groupName: string) {
+        let currentGroup = groupList.find(group => group.Name === groupName);
+        if (currentGroup !== undefined)
+            return currentGroup.ID;
+        dispatch(ValueListGroupSlice.DBAction({
+            verb: "POST",
+            record: {
+                ID: -1,
+                Name: groupName,
+                Description: ""
+            }
+        }));
+        return -1;
     }
-
 
     function validateAssetKey(): JQuery.jqXHR<string> {
         if (assetKey == null || assetKey.length == 0 || assetKey.length > 50)
