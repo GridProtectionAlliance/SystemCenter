@@ -47,17 +47,46 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/ValueList")]
     public class ValueListController : ModelController<ValueList>
     {
+        private IDictionary<string, string> RequiredGroups = new Dictionary<string, string>
+        {
+            {"TimeZones", "UTC"},
+            {"Make", "GPA"},
+            {"Model", "PQMeter"}
+        };
+
         [HttpGet, Route("Group/{groupName}")]
         public IHttpActionResult GetValueListForGroup(string groupName)
         {
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            using AdoDataConnection connection = new AdoDataConnection(Connection);
+            TableOperations<ValueListGroup> groupTable = new TableOperations<ValueListGroup>(connection);
+            TableOperations<ValueList> valueTable = new TableOperations<ValueList>(connection);
+            List<int> groupIds = groupTable.QueryRecordsWhere("Name = {0}", groupName).Select(group => group.ID).ToList();
+            if (groupIds.Count() == 0)
             {
-                string tableName = new TableOperations<ValueListGroup>(connection).TableName;
-                IEnumerable<ValueList> records = new TableOperations<ValueList>(connection).QueryRecordsWhere($"GroupID = ( SELECT ID FROM {tableName} WHERE Name = {{0}})", groupName);
-                return Ok(records);
+                if (RequiredGroups.ContainsKey(groupName))
+                {
+                    groupTable.AddNewRecord(
+                        new ValueListGroup()
+                        {
+                            Description = "",
+                            Name = groupName
+                        });
+                    groupIds.Add(connection.ExecuteScalar<int>("SELECT @@IDENTITY"));
+                    valueTable.AddNewRecord(
+                        new ValueList()
+                        {
+                            GroupID = groupIds[0],
+                            Value = RequiredGroups[groupName],
+                            AltValue = RequiredGroups[groupName],
+                            SortOrder = 1
+                        });
+                }
+                else
+                    return Ok(new List<ValueList>());
             }
+            IEnumerable<ValueList> records = valueTable.QueryRecordsWhere("GroupID in ({0})", string.Join(", ", groupIds));
+            return Ok(records);
         }
-
     }
 
     [RoutePrefix("api/LSCVSAccount")]
