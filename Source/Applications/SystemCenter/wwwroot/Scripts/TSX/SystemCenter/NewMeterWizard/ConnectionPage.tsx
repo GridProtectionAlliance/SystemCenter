@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  Page5.tsx - Gbtc
+//  ConnectionPage.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -48,7 +48,7 @@ export default function ConnectionPage(props: IProps) {
     const assetConnectionTypes = useAppSelector(AssetConnectionTypeSlice.SearchResults);
 
     const [selectedTypeID, setSelectedTypeID] = React.useState<number>(0);
-    const [selectedAssetKey, setSelectedAssetKey] = React.useState<string>((props.CurrentAsset.AssetKey));
+    const [selectedAssetKey, setSelectedAssetKey] = React.useState<string>(undefined);
 
     const [showAssetConnection, setShowAssetConnection] = React.useState<boolean>(false);
 
@@ -56,12 +56,34 @@ export default function ConnectionPage(props: IProps) {
     const [currentConnections, setCurrentConnections] = React.useState<OpenXDA.Types.AssetConnection[]>([]);
 
     React.useEffect(() => {
-        const typeFilter: Search.IFilter<OpenXDA.Types.AssetConnection>[] = [
-            { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${props.CurrentAsset.AssetType}')`, Operator: 'IN', Type: 'number', isPivotColumn: false },
-            { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${props.AllAssets.find(a => a.AssetKey == selectedAssetKey).AssetType}')`, Operator: 'IN', Type: 'number', isPivotColumn: false }
-        ]
+        if (selectedAssetKey === undefined) return;
+        const selectedType = props.AllAssets.find(a => a.AssetKey == selectedAssetKey).AssetType;
+        let typeFilter: Search.IFilter<OpenXDA.Types.AssetConnection>[] =
+            [
+                {
+                    FieldName: 'ID',
+                    SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID ${selectedType !== props.CurrentAsset.AssetType ? "WHERE" : "GROUP BY AssetTypeID, AssetRelationshipTypeID, Name HAVING Count(Name) > 1 AND"} Name = '${props.CurrentAsset.AssetType}')`,
+                    Operator: 'IN',
+                    Type: 'number',
+                    isPivotColumn: false
+                }
+            ]
+        if (selectedType !== props.CurrentAsset.AssetType)
+            typeFilter.push(
+                {
+                    FieldName: 'ID',
+                    SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${selectedType}')`,
+                    Operator: 'IN',
+                    Type: 'number',
+                    isPivotColumn: false
+                });
         dispatch(AssetConnectionTypeSlice.DBSearch({ filter: typeFilter }));
 
+    }, [props.CurrentAsset, selectedAssetKey]);
+
+    React.useEffect(() => {
+        // Asset Needs a default that isn't the current asset
+        setSelectedAssetKey(props.AllAssets.find(asset => asset.ID !== props.CurrentAsset.ID).AssetKey);
         const connFilter: Search.IFilter<OpenXDA.Types.AssetConnection>[] = [
             { FieldName: 'ID', SearchText: `ParentID OR ChildID = ${props.CurrentAsset.ID}`, Operator: '=', Type: 'number', isPivotColumn: false },
         ];
@@ -70,7 +92,7 @@ export default function ConnectionPage(props: IProps) {
             if (handle != null && handle.abort != null)
                 handle.abort();
         };
-    }, [props.CurrentAsset, selectedAssetKey]);
+    }, [props.CurrentAsset])
 
     React.useEffect(() => {
         if (assetConnectionTypes.length == 0)
