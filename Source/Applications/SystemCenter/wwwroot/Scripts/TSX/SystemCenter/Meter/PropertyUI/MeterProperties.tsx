@@ -64,22 +64,16 @@ const MeterProperties = (props: IProps) => {
     }, [assetKey]);
 
     function getValueList(listName: string, setter: (value: Array<SystemCenter.Types.ValueListItem>) => void): JQuery.jqXHR<Array<SystemCenter.Types.ValueListItem>> {
-        if (sessionStorage.hasOwnProperty(`SystemCenter.${listName}`)) {
-            setter(JSON.parse(sessionStorage.getItem(`SystemCenter.${listName}`)));
-            return null;
-        }
-
         let h = $.ajax({
             type: "GET",
             url: `${homePath}api/ValueList/Group/${listName}`,
             contentType: "application/json; charset=utf-8",
             dataType: `json`,
-            cache: true,
+            cache: false,
             async: true
         });
         h.done((tzs: Array<SystemCenter.Types.ValueListItem>) => {
             setter(tzs);
-            sessionStorage.setItem(`SystemCenter.${listName}`, JSON.stringify(tzs));
 
         });
         return h;
