@@ -274,6 +274,9 @@
       <!-- log4net Dependencies -->
       <ComponentRef Id="log4net" />
 
+      <!-- ValidateAssemblyBindings Tool -->
+      <ComponentRef Id="ValidateAssemblyBindings" />
+
       <!-- GSF Dependencies -->
       <ComponentRef Id="AjaxMin"/>
       <ComponentRef Id="Antlr3.Runtime" />
@@ -346,6 +349,11 @@
       <!-- log4net Dependencies -->
       <Component Id="log4net">
         <File Id="log4net.dll" Name="log4net.dll" Source="$(var.SolutionDir)\Dependencies\NuGet\log4net.2.0.3\lib\net40-full\log4net.dll" />
+      </Component>
+
+      <!-- ValidateAssemblyBindings Tool -->
+      <Component Id="ValidateAssemblyBindings">
+        <File Id="ValidateAssemblyBindings.exe" Name="ValidateAssemblyBindings.exe" Source="$(var.SolutionDir)\Dependencies\GSF\ValidateAssemblyBindings.exe" />
       </Component>
 
       <!-- GSF Dependencies -->
