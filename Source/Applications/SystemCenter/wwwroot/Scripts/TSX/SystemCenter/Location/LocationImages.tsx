@@ -25,9 +25,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { AssetAttributes } from '../AssetAttribute/Asset';
-import TextArea from '@gpa-gemstone/react-forms';
-import Input from '@gpa-gemstone/react-forms';
+import { Modal } from '@gpa-gemstone/react-interactive';
 declare var homePath: string;
 
 const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
@@ -35,6 +33,7 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
 
     const [images, setImages] = React.useState<string[]>([]);
     const [image, setImage] = React.useState<string>('');
+
     React.useEffect(() => {
         let handle = getImages();
         handle.done(i => setImages(i));
@@ -66,24 +65,24 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    {images.map((img, i) => <div className="col-xs-6 col-md-4 col-lg-2" key={i}>
-                        <a data-toggle="modal" data-target="#imgModal" className="thumbnail" onClick={() => {
-                            setImage(img);
-                        }}> 
-                            <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`} alt={img} />
-                            <div className="caption">
-                                <h3>{img}</h3>
-                            </div>
-                        </a>
+                    {images.map((img, i) => <div className="col-xs-6 col-md-4 col-lg-2" key={i} onClick={() => {
+                        setImage(img);
+                    }}>
+                        <img src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${img}`} alt={img}
+                            className={'img-thumbnail'} style={{ maxHeight: 150 }} />
+                        <div className="caption">
+                            <h3>{img}</h3>
+                        </div>
                     </div>)}
                 </div>
             </div>
-            <div id="imgModal" className="modal">
-                <button type="button" style={{ position: 'absolute', top: 15, right: 35 }} data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-                <img style={{ height: '75%', display: 'block', margin: 'auto' }} src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${image}`} />
-            </div>
+            <Modal
+                ConfirmBtnClass={'btn-primary'}
+                Show={image.length > 0} ShowCancel={false} ShowX={true} ConfirmText={'Close'} Title={image}
+                CallBack={() => setImage('') }>
+                 <img style={{ height: '75%', display: 'block', margin: 'auto' }}
+                    src={`${homePath}api/OpenXDA/Location/${props.Location.ID}/Images/${image}`} />
+            </Modal>
         </div>
     );
 }
