@@ -136,8 +136,14 @@
     <CustomAction Id="ServiceAccountAction.SetProperty" Property="ServiceAccountAction" Value="SERVICENAME=[SERVICENAME];SERVICEACCOUNT=[SERVICEACCOUNT];HTTPSERVICEPORTS=[HTTPSERVICEPORTS]" />
     <CustomAction Id="ServiceAccountAction" BinaryKey="InstallerActions" DllEntry="ServiceAccountAction" Execute="deferred" Impersonate="no" />
 
-    <!-- CustomAction Id="ValidateAssemblyBindingsAction.SetProperty" Property="ValidateAssemblyBindingsAction" Value="ProcessStartInfo=FileName={[#ValidateAssemblyBindings.exe]};Arguments=&quot;[#SystemCenter.exe.config]&quot;;SERVICENAME=[SERVICENAME]" / -->
-    <CustomAction Id="ValidateAssemblyBindingsAction.SetProperty" Property="ValidateAssemblyBindingsAction" Value="ProcessStartInfo=FileName=C:\Program Files\SystemCenter\ValidateAssemblyBindingsDebug.exe;;Arguments=SystemCenter.exe.config;SERVICENAME=[SERVICENAME]" />
+    <!--
+        You can try passing in full path to config file with triple quote encoding, as needed by ProcessStartInfo.Arguments, like the following:
+
+            &quot;&quot;&quot;[#ValidateAssemblyBindings.exe]&quot;&quot;&quot;
+
+        But could never get this to work, so we are passing in the file name with no path assuming it is in the same directory as the executable.
+    -->
+    <CustomAction Id="ValidateAssemblyBindingsAction.SetProperty" Property="ValidateAssemblyBindingsAction" Value="ProcessStartInfo=FileName={[#ValidateAssemblyBindings.exe]};;Arguments=SystemCenter.exe.config;SERVICENAME=[SERVICENAME]" />
     <CustomAction Id="ValidateAssemblyBindingsAction" BinaryKey="InstallerActions" DllEntry="StartProcessAction" Execute="deferred" Impersonate="no" />
 
     <CustomAction Id="CreateDatabase.SetProperty" Property="CreateDatabase" Value="SERVICENAME=[SERVICENAME];CONNECTIONSTRING=[SERVERCONNECTIONSTRING];DATAPROVIDERSTRING=[DATAPROVIDERSTRING];DBQUERY=[CREATEDBQUERY]" />
