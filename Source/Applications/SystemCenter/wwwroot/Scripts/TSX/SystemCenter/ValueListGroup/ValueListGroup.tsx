@@ -29,6 +29,7 @@ import ValueListGroupInfo from './ValueListGroupInfo';
 import ValueListGroupItems from './ValueListGroupItem';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListGroupSlice } from '../Store/Store';
+import { Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
@@ -36,11 +37,10 @@ export default function ValueListGroup(props: { GroupID: number }) {
     const dispatch = useAppDispatch();
     const record = useAppSelector((state) => ValueListGroupSlice.Datum(state, props.GroupID));
 
-    const data = useAppSelector(ValueListGroupSlice.Data);
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
 
     const [tab, setTab] = React.useState<'items' | 'info'>('items');
-
+    const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
@@ -54,6 +54,10 @@ export default function ValueListGroup(props: { GroupID: number }) {
         sessionStorage.setItem('ValueListGroup.Tab', JSON.stringify(tab));
     }, [tab]);
 
+    function Delete() {
+        dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record }))
+        window.location.href = homePath + 'index.cshtml?name=ValueListGroups';
+    }
 
     if (record == null) return null;
     return (
@@ -63,10 +67,8 @@ export default function ValueListGroup(props: { GroupID: number }) {
                     <h2>{record.Name}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" hidden={record == null} onClick={() => {
-                        dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record }))
-                        window.location.href = homePath + 'index.cshtml?name=ValueListGroups';
-                    }}>Delete Value List Group (Permanent)</button>
+                    <button className="btn btn-danger pull-right" hidden={record == null}
+                        onClick={() => setShowRemove(true)}>Delete Value List Group (Permanent)</button>
                 </div>
             </div>
 
@@ -89,6 +91,10 @@ export default function ValueListGroup(props: { GroupID: number }) {
                     <ValueListGroupItems Record={record} />
                 </div>
             </div>
+            <Warning
+                Message={'This will permanently Delete this ValueList Group and can not be undone.'}
+                Show={showRemove} Title={'Delete ' + record.Name}
+                CallBack={(conf) => { if (conf) Delete(); setShowRemove(false); }} />
         </div>
     )
 }
