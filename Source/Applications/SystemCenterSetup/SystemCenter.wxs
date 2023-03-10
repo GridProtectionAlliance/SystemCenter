@@ -66,8 +66,6 @@
     <Property Id="INSTALLDATABASEFEATURE" Secure="yes" />
     <Property Id="INSTALLSERVICEFEATURE" Secure="yes" />
 
-    <Property Id="VABARGUMENTS" Value="&quot;$(var.SystemCenter.TargetPath).config&quot;" />
-
     <Property Id="SERVICEACCOUNT" Secure="yes" />
     <Property Id="SERVICENAME" Value="$(var.SystemCenter.TargetName)" />
     <Property Id="SERVICEPASSWORD" Hidden="yes" />
@@ -138,7 +136,8 @@
     <CustomAction Id="ServiceAccountAction.SetProperty" Property="ServiceAccountAction" Value="SERVICENAME=[SERVICENAME];SERVICEACCOUNT=[SERVICEACCOUNT];HTTPSERVICEPORTS=[HTTPSERVICEPORTS]" />
     <CustomAction Id="ServiceAccountAction" BinaryKey="InstallerActions" DllEntry="ServiceAccountAction" Execute="deferred" Impersonate="no" />
 
-    <CustomAction Id="ValidateAssemblyBindingsAction.SetProperty" Property="ValidateAssemblyBindingsAction" Value="ProcessStartInfo=FileName={[#ValidateAssemblyBindings.exe]};Arguments=[VABARGUMENTS];UseShellExecute=True;Verb=runas" />
+    <!-- CustomAction Id="ValidateAssemblyBindingsAction.SetProperty" Property="ValidateAssemblyBindingsAction" Value="ProcessStartInfo=FileName={[#ValidateAssemblyBindings.exe]};Arguments=&quot;[#SystemCenter.exe.config]&quot;;SERVICENAME=[SERVICENAME]" / -->
+    <CustomAction Id="ValidateAssemblyBindingsAction.SetProperty" Property="ValidateAssemblyBindingsAction" Value="ProcessStartInfo=FileName=C:\Program Files\SystemCenter\ValidateAssemblyBindingsDebug.exe;;Arguments=SystemCenter.exe.config;SERVICENAME=[SERVICENAME]" />
     <CustomAction Id="ValidateAssemblyBindingsAction" BinaryKey="InstallerActions" DllEntry="StartProcessAction" Execute="deferred" Impersonate="no" />
 
     <CustomAction Id="CreateDatabase.SetProperty" Property="CreateDatabase" Value="SERVICENAME=[SERVICENAME];CONNECTIONSTRING=[SERVERCONNECTIONSTRING];DATAPROVIDERSTRING=[DATAPROVIDERSTRING];DBQUERY=[CREATEDBQUERY]" />
@@ -157,6 +156,7 @@
     <CustomAction Id="SystemCenter.sql" BinaryKey="InstallerActions" DllEntry="DatabaseScriptAction" Execute="deferred" Impersonate="yes" />
     
     <UI>
+      <ProgressText Action="ValidateAssemblyBindingsAction">Validating assembly bindings...</ProgressText>
       <ProgressText Action="CreateDatabase">Creating database [DATABASENAME]...</ProgressText>
       <ProgressText Action="AlterDatabase">Setting database as trustworthy...</ProgressText>
       <ProgressText Action="CreateDBLogin">Creating login [XDASERVICELOGIN]...</ProgressText>
@@ -176,7 +176,7 @@
       <Custom Action="ServiceAccountAction.SetProperty" After="ConfigureServiceAction">INSTALLSERVICEFEATURE</Custom>
       <Custom Action="ServiceAccountAction" After="ServiceAccountAction.SetProperty">INSTALLSERVICEFEATURE</Custom>
 
-      <Custom Action="ValidateAssemblyBindingsAction.SetProperty" After="InstallFiles">INSTALLSERVICEFEATURE</Custom>
+      <Custom Action="ValidateAssemblyBindingsAction.SetProperty" After="UpdateConfigFileAction">INSTALLSERVICEFEATURE</Custom>
       <Custom Action="ValidateAssemblyBindingsAction" After="ValidateAssemblyBindingsAction.SetProperty">INSTALLSERVICEFEATURE</Custom>
 
       <Custom Action="CreateDatabase.SetProperty" After="InstallFiles">INSTALLDATABASEFEATURE</Custom>
