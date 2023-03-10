@@ -69,7 +69,7 @@
     <Property Id="SERVICEACCOUNT" Secure="yes" />
     <Property Id="SERVICENAME" Value="$(var.SystemCenter.TargetName)" />
     <Property Id="SERVICEPASSWORD" Hidden="yes" />
-        
+
     <Property Id="HTTPSERVICEPORTS" Value="8987" />
     <Property Id="SERVERNAME" Value="localhost" />
     <Property Id="WINDOWSAUTH" Value="1" />
@@ -111,7 +111,7 @@
     <SetProperty Action="INSTALLDATABASEFEATURE1" Id="INSTALLDATABASEFEATURE" Value="" After="CostFinalize" Sequence="both"><![CDATA[NOT(&DatabaseFeature=3)]]></SetProperty>
     <SetProperty Action="INSTALLSERVICEFEATURE0" Id="INSTALLSERVICEFEATURE" Value="1" After="CostFinalize" Sequence="both"><![CDATA[&ServiceFeature=3 OR (!ServiceFeature=3 AND &ServiceFeature=-1)]]></SetProperty>
     <SetProperty Action="INSTALLSERVICEFEATURE1" Id="INSTALLSERVICEFEATURE" Value="" After="CostFinalize" Sequence="both"><![CDATA[NOT(&ServiceFeature=3 OR (!ServiceFeature=3 AND &ServiceFeature=-1))]]></SetProperty>
-    
+
     <WixVariable Id="WixUIBannerBmp" Value="$(var.ProjectDir)\SystemCenterSetupBanner.bmp" />
     <WixVariable Id="WixUIDialogBmp" Value="$(var.ProjectDir)\SystemCenterSetupDialog.bmp" />
     <WixVariable Id="WixUILicenseRtf" Value="$(var.ProjectDir)\INSTALL_LICENSE.rtf" />
@@ -135,7 +135,17 @@
     <CustomAction Id="ConfigureServiceAction" BinaryKey="InstallerActions" DllEntry="ConfigureServiceAction" Execute="deferred" Impersonate="no" />
     <CustomAction Id="ServiceAccountAction.SetProperty" Property="ServiceAccountAction" Value="SERVICENAME=[SERVICENAME];SERVICEACCOUNT=[SERVICEACCOUNT];HTTPSERVICEPORTS=[HTTPSERVICEPORTS]" />
     <CustomAction Id="ServiceAccountAction" BinaryKey="InstallerActions" DllEntry="ServiceAccountAction" Execute="deferred" Impersonate="no" />
-    
+
+    <!--
+        You can try passing in full path to config file with triple quote encoding, as needed by ProcessStartInfo.Arguments, like the following:
+
+            &quot;&quot;&quot;[#ValidateAssemblyBindings.exe]&quot;&quot;&quot;
+
+        But could never get this to work, so we are passing in the file name with no path assuming it is in the same directory as the executable.
+    -->
+    <CustomAction Id="ValidateAssemblyBindingsAction.SetProperty" Property="ValidateAssemblyBindingsAction" Value="ProcessStartInfo=FileName={[#ValidateAssemblyBindings.exe]};;Arguments=SystemCenter.exe.config;SERVICENAME=[SERVICENAME]" />
+    <CustomAction Id="ValidateAssemblyBindingsAction" BinaryKey="InstallerActions" DllEntry="StartProcessAction" Execute="deferred" Impersonate="no" />
+
     <CustomAction Id="CreateDatabase.SetProperty" Property="CreateDatabase" Value="SERVICENAME=[SERVICENAME];CONNECTIONSTRING=[SERVERCONNECTIONSTRING];DATAPROVIDERSTRING=[DATAPROVIDERSTRING];DBQUERY=[CREATEDBQUERY]" />
     <CustomAction Id="CreateDatabase" BinaryKey="InstallerActions" DllEntry="DatabaseQueryAction" Execute="deferred" Impersonate="yes" />
     <CustomAction Id="AlterDatabase.SetProperty" Property="AlterDatabase" Value="SERVICENAME=[SERVICENAME];CONNECTIONSTRING=[SERVERCONNECTIONSTRING];DATAPROVIDERSTRING=[DATAPROVIDERSTRING];DBQUERY=[ALTERDBQUERY]" />
@@ -152,6 +162,7 @@
     <CustomAction Id="SystemCenter.sql" BinaryKey="InstallerActions" DllEntry="DatabaseScriptAction" Execute="deferred" Impersonate="yes" />
     
     <UI>
+      <ProgressText Action="ValidateAssemblyBindingsAction">Validating assembly bindings...</ProgressText>
       <ProgressText Action="CreateDatabase">Creating database [DATABASENAME]...</ProgressText>
       <ProgressText Action="AlterDatabase">Setting database as trustworthy...</ProgressText>
       <ProgressText Action="CreateDBLogin">Creating login [XDASERVICELOGIN]...</ProgressText>
@@ -170,7 +181,10 @@
       <Custom Action="ConfigureServiceAction" After="ConfigureServiceAction.SetProperty"><![CDATA[&ServiceFeature=3]]></Custom>
       <Custom Action="ServiceAccountAction.SetProperty" After="ConfigureServiceAction">INSTALLSERVICEFEATURE</Custom>
       <Custom Action="ServiceAccountAction" After="ServiceAccountAction.SetProperty">INSTALLSERVICEFEATURE</Custom>
-      
+
+      <Custom Action="ValidateAssemblyBindingsAction.SetProperty" After="UpdateConfigFileAction">INSTALLSERVICEFEATURE</Custom>
+      <Custom Action="ValidateAssemblyBindingsAction" After="ValidateAssemblyBindingsAction.SetProperty">INSTALLSERVICEFEATURE</Custom>
+
       <Custom Action="CreateDatabase.SetProperty" After="InstallFiles">INSTALLDATABASEFEATURE</Custom>
       <Custom Action="CreateDatabase" After="CreateDatabase.SetProperty">INSTALLDATABASEFEATURE</Custom>
       <Custom Action="AlterDatabase.SetProperty" After="CreateDatabase">INSTALLDATABASEFEATURE</Custom>
