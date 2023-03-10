@@ -436,7 +436,7 @@ export default function NewMeterWizard(props: {}) {
             <div className="card" style={{ height: 'calc(100% - 75px)' }}>
                 <LoadingScreen Show={status === 'loading'} />
                 <div className="card-header">
-                    <button className="btn btn-primary pull-right" onClick={clearData} >{(currentStep > saveStep) ? "Close Wizard" : "Clear Data"}</button>
+                    <button className="btn btn-primary pull-right" onClick={clearData} >{(currentStep > saveStep) ? "Save and Close Wizard" : "Reset Wizard"}</button>
                     <h4 style={{width: '90%'}}>{getHeader()}</h4>
                 </div>
                 <div className="card-body" style={{maxHeight: 'calc(100% - 126px)'}}>
