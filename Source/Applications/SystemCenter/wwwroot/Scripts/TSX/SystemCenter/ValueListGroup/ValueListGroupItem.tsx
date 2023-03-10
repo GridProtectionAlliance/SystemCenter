@@ -28,28 +28,36 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
+import Table from '@gpa-gemstone/react-table';
+import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
-export default function ValueListGroupItems(props: { Record: SystemCenter.Types.ValueListGroup }) {
+interface IProps { Record: SystemCenter.Types.ValueListGroup }
+export default function ValueListGroupItems(props: IProps) {
     const dispatch = useAppDispatch();
 
     const data = useAppSelector(ValueListSlice.Data);
+    const sortKey = useAppSelector(ValueListSlice.SortField);
+    const asc = useAppSelector(ValueListSlice.Ascending);
     const status = useAppSelector(ValueListSlice.Status);
     const parentID= useAppSelector(ValueListSlice.ParentID);
 
-    const emptyRecord: SystemCenter.Types.ValueListItem = { ID: 0, GroupID: 0, Value: '', AltValue: '', SortOrder: 0 };
+    const emptyRecord: SystemCenter.Types.ValueListItem = { ID: 0, GroupID: parentID as number, Value: '', AltValue: '', SortOrder: 0 };
     const [record, setRecord] = React.useState<SystemCenter.Types.ValueListItem>(emptyRecord);
-
-    const [searchTextAS, setSearchTextAS] = React.useState<string>('');
-
+    const [showWarning, setShowWarning] = React.useState<boolean>(false);
+    const [showModal, setShowModal] = React.useState<boolean>(false);
+    const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || parentID != props.Record.ID)
             dispatch(ValueListSlice.Fetch(props.Record.ID));
+    }, [status, parentID, props.Record.ID]);
 
-        return function () {
-        }
-    }, [dispatch, status]);
-
+    function Delete() {
+        dispatch(ValueListSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
+        setShowWarning(false);
+        setRecord(emptyRecord);
+    }
 
     return (
         <div className="card" style={{ marginBottom: 10 }}>
@@ -63,52 +71,77 @@ export default function ValueListGroupItems(props: { Record: SystemCenter.Types.
             <div className="card-body">
                 <div className="row">
                     <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0, overflowY: 'auto' }}>
-                        <input className="form-control" placeholder="Search filter for select box ..." value={searchTextAS} onChange={(e) => setSearchTextAS(e.target.value)} />
-
-                        <table className="table">
-                            <thead><tr><th>Value</th><th>Alternate Value</th><th>Sort Order</th><th></th></tr></thead>
-                            <tbody>
-                                {data.length > 0 ? data.filter(s => s.Value.toLowerCase().indexOf(searchTextAS.toLowerCase()) >= 0).map((site, i) =>
-                                    <tr key={i}>
-                                        <td>{site.Value}</td>
-                                        <td>{site.AltValue}</td>
-                                        <td>{site.SortOrder}</td>
-                                        <td><button className="btn btn-sm" onClick={(e) => {
+                        <Table<SystemCenter.Types.ValueListItem>
+                            cols={[
+                                { key: 'Value', field: 'Value', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'AltValue', field: 'AltValue', label: 'Alternate Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'SortOrder', field: 'SortOrder', label: 'Sort Order', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                {
+                                    key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                    content: (item) => <>
+                                        <button className="btn btn-sm" onClick={(e) => {
                                             e.preventDefault();
-                                            dispatch(ValueListSlice.DBAction({ verb: 'DELETE', record: site }));
-                                        }}><span><i className="fa fa-times"></i></span></button></td>
-                                    </tr>) : null}
-                            </tbody>
-                        </table>
+                                            setRecord(item);
+                                            setShowWarning(true)
+                                        }}>{TrashCan}</button>
+                                        <button className="btn btn-sm" onClick={(e) => {
+                                            e.preventDefault();
+                                            setRecord(item);
+                                            setShowModal(true);
+                                        }}>{Pencil}</button>
+                                    </>
+                                },
+                                { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                            ]}
+                            tableClass="table table-hover"
+                            data={data}
+                            sortKey={sortKey}
+                            ascending={asc}
+                            onSort={(d) => {
+                                if (d.colKey == 'btns' || d.colKey == 'scroll')
+                                    return;
+                                if (d.colKey === sortKey)
+                                    dispatch(ValueListSlice.Sort({ SortField: d.colField, Ascending: !asc }));
+                                else
+                                    dispatch(ValueListSlice.Sort({ SortField: d.colField, Ascending: true }));
+                            }}
+                            onClick={() => { }}
+                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
+                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            selected={() => false}
+                        />
                     </div>
                 </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right" data-toggle="modal" data-target="#exampleModal" onClick={() => setRecord({ ...emptyRecord, GroupID: props.Record.ID })}>Add Item</button>
+                    <button className="btn btn-primary pull-right"
+                        onClick={() => { setRecord({ ...emptyRecord, GroupID: props.Record.ID }); setShowModal(true); }}
+                    >Add Item</button>
                 </div>
             </div>
-
-            <div className="modal" id="exampleModal" role="dialog">
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title">Add new list item</h5>
-                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <ValueListForm Record={record} Setter={setRecord} />
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => dispatch(ValueListSlice.DBAction({ verb: 'POST', record }))}>Save changes</button>
-                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
+            <Warning
+                Message={'This will permanently Delete this Item and can not be undone.'}
+                Show={showWarning} Title={'Delete ' + record.Value}
+                CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }} />
+            <Modal Title="" Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
+                ConfirmShowToolTip={errors.length > 0}
+                CancelToolTipContent={<> {errors.map(e => <p>{CrossMark} {e}</p>)}</>}
+                DisableConfirm={errors.length > 0}
+                ShowX={true} CallBack={(conf) => {
+                    setShowModal(false);
+                    if (conf && record.ID > 0)
+                        dispatch(ValueListSlice.DBAction({ verb: 'PATCH', record }));
+                    else if (conf && record.ID == 0)
+                        dispatch(ValueListSlice.DBAction({ verb: 'POST', record }));
+                }}
+            >             
+                <ValueListForm Record={record} Setter={setRecord} SetErrors={setErrors} />
+            </Modal>
             </div>
-        </div>
+        
 
     );
 
