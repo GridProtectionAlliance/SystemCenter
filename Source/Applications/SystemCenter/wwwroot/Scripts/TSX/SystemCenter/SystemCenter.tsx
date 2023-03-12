@@ -232,7 +232,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
                                 </li>
                                 <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=User") && (location.pathname + location.search != controllerViewPath + "?name=Users")} to={controllerViewPath + "?name=Users"}>Users</NavLink>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=User")
+                                        && !(location.pathname + location.search).includes(controllerViewPath + "?name=UserStatistics")
+                                       } to={controllerViewPath + "?name=Users"}>Users</NavLink>
 
                                 </li>
                                 <li className="nav-item">
