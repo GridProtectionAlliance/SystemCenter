@@ -219,7 +219,11 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             url: `${homePath}api/SystemCenter/AdditionalField/SearchableList`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ Searches: [{ FieldName: 'FieldName', Operator: "=", SearchText: newField.FieldName, Type: 'string' } as Search.IFilter<SystemCenter.Types.AdditionalField>], OrderBy: "FieldName", Ascending: true }),
+            data: JSON.stringify({ Searches: [
+                { FieldName: 'FieldName', Operator: "=", SearchText: newField.FieldName, Type: 'string' },
+                { FieldName: 'ParentTable', Operator: "<>", SearchText: props.Type, Type: 'string' },
+            ] as Search.IFilter<SystemCenter.Types.AdditionalField>[],
+                 OrderBy: "FieldName", Ascending: true }),
             cache: false,
             async: true
         });
