@@ -1,0 +1,110 @@
+﻿//******************************************************************************************************
+//  Meter.tsx - Gbtc
+//
+//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  03/15/2023 - Billy Ernest
+//       Generated original version of source code.
+//
+//******************************************************************************************************
+
+import * as React from 'react';
+import * as _ from 'lodash';
+import { useAppSelector, useAppDispatch } from '../hooks';
+import { WidgetCategorySlice } from '../Store/Store';
+import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { Application } from '@gpa-gemstone/application-typings'
+import CategoryInfo from './CategoryInfo';
+import WidgetByCategory from './WidgetByCategory';
+
+declare var homePath: string;
+
+interface IProps { TabID: number }
+
+const Tabs = [
+    { Id: "info", Label: "Info" },
+    { Id: "widgets", Label: "Widgets" },
+]
+
+export default function WidgetCategory(props: IProps) {
+    const dispatch = useAppDispatch();
+
+    const [tab, setTab] = React.useState<string>(getTab());
+    const category = useAppSelector((state) => WidgetCategorySlice.Datum(state, props.TabID));
+    const cStatus = useAppSelector(WidgetCategorySlice.Status) as Application.Types.Status;
+    const [showWarning, setShowWarning] = React.useState<boolean>(false);
+
+    React.useEffect(() => {
+        if (getTab() != tab)
+            sessionStorage.setItem('WidgetCategory.Tab', JSON.stringify(tab));
+
+    }, [tab])
+
+    React.useEffect(() => {
+        if (cStatus == 'unintiated' || cStatus == 'changed')
+            dispatch(WidgetCategorySlice.Fetch());
+    }, [cStatus])
+
+    function getTab(): string {
+        if (sessionStorage.hasOwnProperty('WidgetCategory.Tab'))
+            return JSON.parse(sessionStorage.getItem('WidgetCategory.Tab'));
+        else
+            return 'info';
+    }
+
+    function deleteTab() {
+        dispatch(WidgetCategorySlice.DBAction({
+            verb: 'DELETE', record: category
+        }));
+        window.location.href = homePath + 'index.cshtml?name=SEBrowserTabs'
+    }
+
+    if (cStatus == 'unintiated' || cStatus == 'loading')
+        return null;
+
+    if (cStatus == 'error')
+        return null;
+
+    if (category == null)
+        return null
+    return (
+        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+            <div className="row">
+                <div className="col">
+                    <h2>{category != null ? category.Name : ''}</h2>
+                </div>
+                <div className="col">
+                    <button className="btn btn-danger pull-right" hidden={category == null} onClick={() => setShowWarning(true)}>Delete Tab</button>
+                </div>
+            </div>
+
+
+            <hr />
+            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
+            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
+                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="customerInfo">
+                    <CategoryInfo Tab={category} stateSetter={(record) => dispatch(WidgetCategorySlice.DBAction({ verb: 'PATCH', record: record }))} />
+                </div>
+                
+                <div className={"tab-pane " + (tab == "widgets" ? " active" : "fade")} id="widgets" >
+                    <WidgetByCategory CategoryID={category.ID} />
+                </div>
+            </div>
+            <Warning Title={'Confirm'} Show={showWarning} Message={'This will permanently delete this SEBrowser Tab.'} CallBack={(c) => { if (c) deleteTab(); setShowWarning(false) }} />
+        </div>
+    )
+
+}

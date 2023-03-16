@@ -76,6 +76,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const DBCleanup = React.lazy(() => import(/* webpackChunkName: "DBCleanup" */ './DB/DBCleanup'));
     const DataFile = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './ProcessedFile/ByFile'));
 
+    const SEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/WidgetCategory'));
+    const BySEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/ByWidgetCategory'));
+
 
     const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
@@ -212,7 +215,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataReaders&System=OpenXDA"} to={controllerViewPath + "?name=DataReaders&System=OpenXDA"}>OpenXDA Data Readers</NavLink>
                                 </li>
-
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=MiMD"} to={controllerViewPath + "?name=Settings&System=MiMD"}>MiMD</NavLink>
                                 </li>
@@ -221,6 +223,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DBCleanup"} to={controllerViewPath + "?name=DBCleanup"}>DB Cleanup</NavLink>
+                                </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=SEBrowserTab")} to={controllerViewPath + "?name=SEBrowserTabs"}>SEB Tabs</NavLink>
                                 </li>
                             </ul>
 
@@ -317,6 +322,12 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "DeviceHealthReport") {
                                     return <DeviceHealthReport Roles={roles} />
                                 }
+                                else if (qs['?name'] == "SEBrowserTabs")
+                                    return <BySEBrowserCategory Roles={roles} />
+                                else if (qs['?name'] == "SEBrowserTab")
+                                    return <SEBrowserCategory TabID={parseInt(qs.TabID as string)} />
+                                else if (qs['?name'] == "Groups")
+                                    return <BySecuritytGroup Roles={roles} />
                                 else if (qs['?name'] == "DownloadedFiles")
                                     return <DownloadedFiles MeterID={parseInt(qs.MeterID as string)} MeterName={qs.MeterName as string } />
                                 else if (qs['?name'] == "DeviceContacts")

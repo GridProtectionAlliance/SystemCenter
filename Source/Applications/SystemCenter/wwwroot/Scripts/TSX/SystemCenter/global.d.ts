@@ -107,6 +107,19 @@ export namespace OpenXDA {
         Location: string
     }
 
+    interface IWidgetCategory {
+        ID: number,
+        Name: string,
+        OrderBy: number
+    }
+
+    interface IWidget {
+        CategoryID?: number,
+        ID: number,
+        Name: string,
+        Setting: string,
+        Enabled: boolean
+    }
 }
 
 export namespace PQView {

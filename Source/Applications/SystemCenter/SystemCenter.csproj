@@ -615,6 +615,12 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DB\DBCleanup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\Reason.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ProcessedFile\ByFile.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\ByWidgetCategory.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetCategory.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\CategoryForm.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\CategoryInfo.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetForm.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetByCategory.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataOperations.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataReaders.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\Setting.tsx" />

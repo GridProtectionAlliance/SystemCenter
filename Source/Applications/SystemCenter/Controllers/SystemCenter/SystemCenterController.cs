@@ -32,6 +32,7 @@ using GSF.SELEventParser;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Configuration;
+using SEBrowser.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -1115,4 +1116,90 @@ namespace SystemCenter.Controllers
         #endregion
     }
 
+    [RoutePrefix("api/SystemCenter/WidgetCategory")]
+    public class SEBrowserWidgetCategoryController : ModelController<SEBrowser.Model.WidgetCategory> { }
+
+    [RoutePrefix("api/SystemCenter/WidgetView")]
+    public class SEBrowserWidgetController : ModelController<SEBrowser.Model.WidgetView> 
+    {
+        public override IHttpActionResult Delete(WidgetView record)
+        {
+            // We use GET permissions since this only deletes the WidgetWidgetCategory
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                TableOperations<WidgetWidgetCategory> tbl = new TableOperations<WidgetWidgetCategory>(connection);
+                WidgetWidgetCategory model = tbl.QueryRecordWhere("WidgetID = {0} AND CategoryID = {1}", record.ID, record.CategoryID);
+                if (model is null)
+                    return InternalServerError();
+
+                return Ok(tbl.DeleteRecord(model));
+            }
+        }
+
+        public override IHttpActionResult Patch([FromBody] WidgetView record)
+        {
+            // We may want to switch to PATCH Auth checks but that would require an XDA update so defered it 
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                TableOperations<Widget> tbl = new TableOperations<Widget>(connection);
+                Widget model = tbl.QueryRecordWhere("ID = {0}", record.ID);
+                if (model is null)
+                    return InternalServerError();
+
+                model.Setting = record.Setting;
+                model.Enabled = record.Enabled;
+                return Ok(tbl.UpdateRecord(model));
+            }
+
+            return base.Patch(record);
+        }
+
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            // We use GET permissions since this only adds the WidgetWidgetCategory
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                TableOperations<WidgetWidgetCategory> tbl = new TableOperations<WidgetWidgetCategory>(connection);
+                tbl.AddNewRecord(new WidgetWidgetCategory()
+                {
+                    CategoryID = record["CategoryID"].Value<int>(),
+                    WidgetID = record["ID"].Value<int>()
+                });
+
+                //Save Settings And Enabled 
+                TableOperations<Widget> widgetTbl = new TableOperations<Widget>(connection);
+                Widget model = widgetTbl.QueryRecordWhere("ID = {0}", record["ID"].Value<int>());
+
+                if (model is null)
+                    return InternalServerError();
+
+                model.Setting = record["Setting"].Value<string>();
+                model.Enabled = record["Enabled"].Value<bool>();
+                widgetTbl.UpdateRecord(model);
+
+                return Ok(1);
+            }
+        }
+
+        [HttpGet, Route("All")]
+        public IHttpActionResult GetAll()
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                TableOperations<Widget> tbl = new TableOperations<Widget>(connection);
+                return Ok(tbl.QueryRecords());
+            }
+        }
+    }
 }

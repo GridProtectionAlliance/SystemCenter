@@ -100,6 +100,9 @@ export const SourceImpedanceSlice = new GenericSlice<OpenXDA.Types.SourceImpedan
 export const SecurityGroupSlice = new GenericSlice<ISecurityGroup>("SecurityGroup", `${homePath}api/SystemCenter/FullSecurityGroup`, "Type", false)
 export const ApplicationRoleSlice = new GenericSlice<IApplicationRole>("ApplicationRole", `${homePath}api/SystemCenter/ApplicationRole`, "Name", false)
 
+export const WidgetCategorySlice = new GenericSlice<LocalXDA.IWidgetCategory>("WidgetCategory", `${homePath}api/SystemCenter/WidgetCategory`, "OrderBy", true)
+export const SEBrowserWidgetSlice = new GenericSlice<LocalXDA.IWidget>("SEBrowserWidget", `${homePath}api/SystemCenter/WidgetView`, "Name", true)
+
 
 const store = configureStore({
     reducer: {
@@ -152,7 +155,9 @@ const store = configureStore({
         PQI: PQISlice,
         SourceImpedance: SourceImpedanceSlice.Reducer,
         SecurityGroup: SecurityGroupSlice.Reducer,
-        ApplicationRole: ApplicationRoleSlice.Reducer
+        WidgetCategory: WidgetCategorySlice.Reducer,
+        ApplicationRole: ApplicationRoleSlice.Reducer,
+        SEBrowserWidget: SEBrowserWidgetSlice.Reducer,
     }
 });
 export default store;
