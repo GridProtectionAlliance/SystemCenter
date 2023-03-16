@@ -29,7 +29,6 @@ import { EventChannelSlice } from './EventChannelSlice';
 import { SystemCenter, OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import NoteSlice from './NoteSlice';
 import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
-import SecurityRoleSlice from './SecurityRoleSlice';
 import { PQApplications } from '../ApplicationCategory/Applications';
 import { DBCleanup } from '../DB/DBCleanup';
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
@@ -94,7 +93,6 @@ export const CustomerNoteSlice = new NoteSlice('Customer');
 export const CompanyNoteSlice = new NoteSlice('Company');
 export const UserAccountSlice = new GenericSlice<IUserAccount>('UserAccounts', `${homePath}api/SystemCenter/UserAccount`, "AccountName", false);
 export const UserAdditionalFieldSlice = new AdditionalUserFieldSlice('AdditionalUserFields', `${homePath}api/SystemCenter`);
-export const SCSecurityRoleSlice = new SecurityRoleSlice('SCSecurityRole', `${homePath}api/SystemCenter`);
 
 export const SourceImpedanceSlice = new GenericSlice<OpenXDA.Types.SourceImpedance>("SourceImpedance", `${homePath}api/OpenXDA/SourceImpedance`, "AssetLocationID", false);
 export const SecurityGroupSlice = new GenericSlice<ISecurityGroup>("SecurityGroup", `${homePath}api/SystemCenter/FullSecurityGroup`, "Type", false)
@@ -135,7 +133,6 @@ const store = configureStore({
         CompanyNote: CompanyNoteSlice.Reducer,
         UserAccounts: UserAccountSlice.Reducer,
         AdditionalUserFields: UserAdditionalFieldSlice.Reducer,
-        SCSecurityRole: SCSecurityRoleSlice.Reducer,
         EventType: EventTypeSlice.Reducer,
         MeasurementCharacteristic: MeasurementCharacteristicSlice.Reducer,
         DataOperation: DataOperationSlice.Reducer,

@@ -22,7 +22,7 @@
 import * as React from 'react';
 import { Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
-import { ApplicationNodeSlice, ApplicationRoleSlice, SCSecurityRoleSlice } from '../Store/Store';
+import { ApplicationNodeSlice, ApplicationRoleSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { IApplicationRole } from './Types';
