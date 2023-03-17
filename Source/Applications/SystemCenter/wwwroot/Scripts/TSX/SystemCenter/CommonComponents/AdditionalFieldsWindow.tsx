@@ -523,8 +523,9 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 ConfirmToolTipContent={
                     <>
                         {newField.FieldName == null || newField.FieldName.length == 0 || !newFieldNameValid ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Field Name is required and has to be unique.</p> : null}
-                        {newField.ExternalDB != null && newField.ExternalDBTable == null ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Field from an External Database requires an External Database Table.</p> : null}
-                        {newField.ExternalDB != null && newField.ExternalDBTableKey == null ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Field from an External Database requires an External Database Table Key.</p> : null}
+                        {newField.ExternalDB != null && (newField.ExternalDBTable == null || newField.ExternalDBTable .length == 0)? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Field from an External Database requires an External Database Table.</p> : null}
+                        {newField.ExternalDB != null && (newField.ExternalDBTableKey == null || newField.ExternalDBTableKey.length == 0) ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Field from an External Database requires an External Database Table Key.</p> : null}
+
                     </>
                 }
 
