@@ -36,36 +36,33 @@ interface IProps {
 }
 
 const ChannelScalingWindow = (props: IProps) => {
-    const [status, setStatus] = React.useState<Application.Types.Status>('idle');
+    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
     const [channels, setChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
 
     React.useEffect(() => {
-        let handle = null;
         if (props.IsVisible)
-            handle = loadChannels();
-        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+            return loadChannels();
     }, [props.IsVisible]);
 
-
-
-    function loadChannels(): JQuery.jqXHR<OpenXDA.Types.Channel> {
+    function loadChannels() {
         setStatus('loading');
-        const h = $.ajax({
+        const handle = $.ajax({
             type: "GET",
             url: `${homePath}api/OpenXDA/Meter/${props.Meter.ID}/Channels`,
             contentType: "application/json; charset=utf-8",
             dataType: "json",
-            cache: true,
+            cache: false,
             async: true
         });
 
-        h.done((d) => {
+        handle.done((d) => {
             setChannels(d);
             setStatus('idle');
-        })
+        });
 
-        h.fail(() => { setStatus('error'); })
-        return h;
+        handle.fail(() => { setStatus('error'); });
+
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }
 
     function updateChannels(channels: OpenXDA.Types.Channel[]) {
@@ -80,7 +77,10 @@ const ChannelScalingWindow = (props: IProps) => {
             async: true
         });
 
-        h.done(() => setStatus('idle'));
+        h.done(() => {
+            setStatus('idle');
+            setChannels(channels);
+        });
         h.fail(() => setStatus('error'));
     
     }

@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import CFGParser from '../../../TS/CFGParser';
 
 import Table from '@gpa-gemstone/react-table'
@@ -55,6 +55,7 @@ export default function ChannelPage(props: IProps) {
     const [selectedFile, setSelectedFile] = React.useState('');
     const [currentChannels, setCurrentChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [parsedChannels, setParsedChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
+    const [channelStatus, setChannelStatus] = React.useState<Application.Types.Status>('idle');
 
     const baseWarnings: string[] = ["Ensure all scaling values are correct.", "Ensure all virtual channels are setup."];
     const serverParsedExtensions: string[] = ['pqd', 'sel', 'cev', 'eve', 'ctl', 'txt'];
@@ -83,6 +84,7 @@ export default function ChannelPage(props: IProps) {
     }, [props.Channels, props.TrendChannels]);
 
     React.useEffect(() => {
+        setChannelStatus('idle');
         let e = baseWarnings;
         if (currentChannels.length == 0 && !props.TrendChannels)
             e.push('No event channels are set up.');
@@ -104,6 +106,7 @@ export default function ChannelPage(props: IProps) {
             setShowCFGError(true);
             return;
         }
+        setChannelStatus('loading');
         let extension = f.name.toLowerCase().substring(f.name.lastIndexOf('.') + 1, f.name.length);
         // Handle js parsed files
         if (webParsedExtensions.indexOf(extension) >= 0) {
@@ -137,13 +140,16 @@ export default function ChannelPage(props: IProps) {
                 }).done((data: OpenXDA.Types.Channel[]) => { handleParsedChannels(data); }
                 ).fail(msg => {
                     if (msg.status == 500)
-                        alert(msg.responseJSON.ExceptionMessage)
+                        alert(msg.responseJSON.ExceptionMessage);
+                    setChannelStatus('idle');
                 });
             }
             r.readAsArrayBuffer(f);
         }
-        else
+        else {
             setShowCFGError(true);
+            setChannelStatus('idle');
+        }
     }
 
     function handleParsedChannels(newChannels: OpenXDA.Types.Channel[]) {
@@ -293,7 +299,7 @@ export default function ChannelPage(props: IProps) {
                     }>Clear Channels</button>
                 </div>
                 <div className="col-1">
-                    <button className="btn btn-primary pull-right" disabled={props.Channels.length == 0} onClick={() => {
+                    <button className="btn btn-primary pull-right" disabled={currentChannels.length == 0} onClick={() => {
                         setShowScaling(true);
                     }
                     }>Scale Channels</button>
@@ -356,7 +362,7 @@ export default function ChannelPage(props: IProps) {
             <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File is not one of following types ${allTypes}. Please only use files of those types.`} CallBack={() => setShowCFGError(false)} />
             <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare channels. This will remove ${NSpare} Channels from the Configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
             <Modal Title="Scale Channels for New Meter" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Leave Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
-                <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels}/>
+                <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels} ChannelStatus={channelStatus}/>
             </Modal>
             <Modal Title={"Add All Channels"} ShowX={true} ShowCancel={true} Show={showDialog} CancelText={"Only " + (props.TrendChannels ? "Trend" : "Event")} ConfirmText="Add All" Size='sm' CallBack={(all) => {
                 addChannels(parsedChannels, all);

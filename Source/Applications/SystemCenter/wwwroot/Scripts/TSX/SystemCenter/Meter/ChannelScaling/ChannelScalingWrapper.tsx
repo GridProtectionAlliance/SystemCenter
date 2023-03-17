@@ -43,6 +43,7 @@ export class ChannelScalingWrapper {
     private MeasurementType: OpenXDA.Types.MeasurementType;
     private MeasurementCharacteristic: OpenXDA.Types.MeasurementCharacteristic;
     private Phase: OpenXDA.Types.Phase;
+    private _PresentMultiplier: number;
     private _ReplacedMultiplier: number;
     private _AdjustedMultiplier: number;
 
@@ -52,6 +53,7 @@ export class ChannelScalingWrapper {
         this.MeasurementCharacteristic = measurementCharacteristic;
         this.Phase = phase;
         this._ScalingType = this.DeriveScalingType();
+        this.PresentMultiplier = channel.Multiplier;
         this.ReplacedMultiplier = channel.Multiplier;
         this.AdjustedMultiplier = channel.Multiplier;
     }
@@ -85,6 +87,13 @@ export class ChannelScalingWrapper {
 
     get ScalingTypeName() {
         return ChannelScalingType[this.ScalingType];
+    }
+
+    get PresentMultiplier() {
+        return this._PresentMultiplier;
+    }
+    set PresentMultiplier(value) {
+        this._PresentMultiplier = value;
     }
 
     get ReplacedMultiplier() {
