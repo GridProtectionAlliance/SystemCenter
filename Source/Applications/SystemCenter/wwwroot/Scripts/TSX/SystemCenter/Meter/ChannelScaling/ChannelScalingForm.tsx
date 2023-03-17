@@ -69,22 +69,25 @@ const ChannelScalingForm = (props: IProps) => {
     ];
 
     React.useEffect(() => {
-        if (props.ChannelStatus === undefined) setStatus('idle');
+        if (props.ChannelStatus === undefined) {
+            if (props.Channels === undefined) setStatus('error');
+            else setStatus('idle');
+        }
         else setStatus(props.ChannelStatus);
     }, [props.ChannelStatus]);
 
     React.useEffect(() => {
-        if (pStatus == 'unintiated')
+        if (pStatus == 'unintiated' || pStatus == 'changed')
             dispatch(PhaseSlice.Fetch());
     }, [pStatus])
 
     React.useEffect(() => {
-        if (mtStatus == 'unintiated')
+        if (mtStatus == 'unintiated' || pStatus == 'changed')
             dispatch(MeasurmentTypeSlice.Fetch());
     }, [mtStatus])
 
     React.useEffect(() => {
-        if (mcStatus == 'unintiated')
+        if (mcStatus == 'unintiated' || pStatus == 'changed')
             dispatch(MeasurementCharacteristicSlice.Fetch());
     }, [mcStatus])
 
@@ -101,17 +104,7 @@ const ChannelScalingForm = (props: IProps) => {
                 return new ChannelScalingWrapper(channel, measurementType, measurementCharacteristic, phase);
             });
 
-            const vMultiplier = getBaseVoltageMultiplier(wrappers);
-            const iMultiplier = getBaseCurrentMultiplier(wrappers);
-
-            for (const wrapper of wrappers) {
-                const newMultiplier = wrapper.CalculateMultiplier(vMultiplier, iMultiplier);
-                wrapper.ReplacedMultiplier = newMultiplier;
-            }
-
-            setVoltageMultiplier(getBaseVoltageMultiplier(wrappers));
-            setCurrentMultiplier(getBaseCurrentMultiplier(wrappers));
-            setWrappers(wrappers);
+            recalculateChannelMultipliers({ VoltageMultiplier: getBaseVoltageMultiplier(wrappers), CurrentMultiplier: getBaseCurrentMultiplier(wrappers)}, wrappers);
         }
     }
 
@@ -120,7 +113,6 @@ const ChannelScalingForm = (props: IProps) => {
             if (wrapper.ScalingType === ChannelScalingType.Voltage)
                 return wrapper.Channel.Multiplier;
         }
-
         return 1;
     }
 
@@ -129,7 +121,6 @@ const ChannelScalingForm = (props: IProps) => {
             if (wrapper.ScalingType === ChannelScalingType.Current)
                 return wrapper.Channel.Multiplier;
         }
-
         return 1;
     }
 
@@ -140,13 +131,9 @@ const ChannelScalingForm = (props: IProps) => {
         if (wrappers == undefined)
             wrappers = _.cloneDeep(Wrappers);
 
-        const baseVoltageMultiplier = getBaseVoltageMultiplier(wrappers);
-        const baseCurrentMultiplier = getBaseCurrentMultiplier(wrappers);
-
         for (const wrapper of wrappers) {
-            const baseMultiplier = wrapper.CalculateMultiplier(baseVoltageMultiplier, baseCurrentMultiplier);
             const newMultiplier = wrapper.CalculateMultiplier(vMultiplier, iMultiplier);
-            wrapper.AdjustedMultiplier = wrapper.Channel.Multiplier * newMultiplier / baseMultiplier;
+            wrapper.AdjustedMultiplier = wrapper.Channel.Multiplier * newMultiplier;
             wrapper.ReplacedMultiplier = newMultiplier;
         }
 
@@ -160,7 +147,6 @@ const ChannelScalingForm = (props: IProps) => {
         for (const wrapper of updatedWrappers) {
             const channel = wrapper.Channel;
             channel.Multiplier = wrapper.ReplacedMultiplier;
-            wrapper.AdjustedMultiplier = wrapper.ReplacedMultiplier;
         }
         props.UpdateChannels(updatedWrappers.map(wrapper => wrapper.Channel));
     }
@@ -220,7 +206,7 @@ const ChannelScalingForm = (props: IProps) => {
                                     recalculateChannelMultipliers({},wrapper);
                                 }}>{ScalingTypes.map(a => <option key={ChannelScalingType[a]} value={ChannelScalingType[a]}>{ChannelScalingType[a]}</option>)}</select>
                             },
-                            { key: 'Multiplier', field: 'CalculateMultiplier', label: 'Multiplier', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                            { key: 'Multiplier', field: 'PresentMultiplier', label: 'Multiplier', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                             { key: 'Replaced', field: 'ReplacedMultiplier', label: 'Replaced', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                             { key: 'Adjusted', field: 'AdjustedMultiplier', label: 'Adjusted', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         ]}
