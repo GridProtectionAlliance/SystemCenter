@@ -1116,6 +1116,51 @@ namespace SystemCenter.Controllers
         #endregion
     }
 
+    [RoutePrefix("api/SystemCenter/StandardMagDurCurve")]
+    public class MagDurCurveController : ModelController<openXDA.Model.StandardMagDurCurve>
+    {
+        //We will need to do Post, Patch and Delete Sepperately
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                string name = record["Name"].ToObject<string>();
+                string area = Geometry(record["Area"].ToObject<string>());
+                connection.ExecuteNonQuery("INSERT StandardMagDurCurve (Name, XHigh,XLow,YHigh,YLow, LowerCurve, UpperCurve, Area) VALUES ({0}, 0,0,0,0, NULL, NULL, {1})",name, area );
+                return Ok(1);
+            }
+        }
+
+        public override IHttpActionResult Patch([FromBody] openXDA.Model.StandardMagDurCurve record)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                connection.ExecuteNonQuery("UPDATE StandardMagDurCurve SET Name = {0} WHERE ID = {1}", record.Name, record.ID);
+                connection.ExecuteNonQuery("UPDATE StandardMagDurCurve SET Area = {0} WHERE ID = {1}", Geometry(record.Area), record.ID);
+                return Ok(1);
+            }
+        }
+
+        public override IHttpActionResult Delete(openXDA.Model.StandardMagDurCurve record)
+        {
+            if (!DeleteAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                connection.ExecuteNonQuery("DELETE FROM StandardMagDurCurve WHERE ID = {0}", record.ID);
+                return Ok(1);
+            }
+        }
+        private string Geometry(string area) => $"Polygon (({area}))";
+    }
+
     [RoutePrefix("api/SystemCenter/WidgetCategory")]
     public class SEBrowserWidgetCategoryController : ModelController<SEBrowser.Model.WidgetCategory> { }
 
@@ -1124,8 +1169,7 @@ namespace SystemCenter.Controllers
     {
         public override IHttpActionResult Delete(WidgetView record)
         {
-            // We use GET permissions since this only deletes the WidgetWidgetCategory
-            if (!GetAuthCheck())
+            if (!DeleteAuthCheck())
                 return Unauthorized();
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -1141,8 +1185,7 @@ namespace SystemCenter.Controllers
 
         public override IHttpActionResult Patch([FromBody] WidgetView record)
         {
-            // We may want to switch to PATCH Auth checks but that would require an XDA update so defered it 
-            if (!GetAuthCheck())
+            if (!PatchAuthCheck())
                 return Unauthorized();
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -1162,8 +1205,7 @@ namespace SystemCenter.Controllers
 
         public override IHttpActionResult Post([FromBody] JObject record)
         {
-            // We use GET permissions since this only adds the WidgetWidgetCategory
-            if (!GetAuthCheck())
+            if (!PostAuthCheck())
                 return Unauthorized();
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))

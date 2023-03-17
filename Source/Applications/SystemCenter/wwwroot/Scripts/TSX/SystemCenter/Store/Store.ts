@@ -100,6 +100,7 @@ export const ApplicationRoleSlice = new GenericSlice<IApplicationRole>("Applicat
 
 export const WidgetCategorySlice = new GenericSlice<LocalXDA.IWidgetCategory>("WidgetCategory", `${homePath}api/SystemCenter/WidgetCategory`, "OrderBy", true)
 export const SEBrowserWidgetSlice = new GenericSlice<LocalXDA.IWidget>("SEBrowserWidget", `${homePath}api/SystemCenter/WidgetView`, "Name", true)
+export const MagDurCurveSlice = new GenericSlice<LocalXDA.IMagDurCurve>('MagDurCurve', `${homePath}api/SystemCenter/StandardMagDurCurve`, 'Name');
 
 
 const store = configureStore({
@@ -155,6 +156,7 @@ const store = configureStore({
         WidgetCategory: WidgetCategorySlice.Reducer,
         ApplicationRole: ApplicationRoleSlice.Reducer,
         SEBrowserWidget: SEBrowserWidgetSlice.Reducer,
+        MagDurCurve: MagDurCurveSlice.Reducer,
     }
 });
 export default store;

@@ -483,6 +483,8 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingWrapper.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\MultipleAssetsPage.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\MagDurCurves\ByMagDurCurve.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\MagDurCurves\CurveForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\CustomerAssetGroupPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterMaintenance.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteAssetForm.tsx" />
@@ -655,7 +657,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="node_modules\" />
-    <Folder Include="wwwroot\Scripts\TSX\SystemCenter\MagDurCurves\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />

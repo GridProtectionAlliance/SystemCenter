@@ -120,6 +120,19 @@ export namespace OpenXDA {
         Setting: string,
         Enabled: boolean
     }
+
+    interface IMagDurCurve {
+        ID: number,
+        Name: string,
+        XHigh: number,
+        XLow: number,
+        YHigh: number,
+        YLow: number,
+        UpperCurve: string,
+        LowerCurve: string,
+        Area: string
+    }
+
 }
 
 export namespace PQView {

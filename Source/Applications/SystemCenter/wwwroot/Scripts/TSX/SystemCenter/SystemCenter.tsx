@@ -78,7 +78,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
     const SEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/WidgetCategory'));
     const BySEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/ByWidgetCategory'));
-
+    const ByMagDurCurve = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './MagDurCurves/ByMagDurCurve'));
 
     const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
@@ -227,6 +227,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=SEBrowserTab")} to={controllerViewPath + "?name=SEBrowserTabs"}>SEB Tabs</NavLink>
                                 </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=MagDurCurves")} to={controllerViewPath + "?name=MagDurCurves"}>MagDur Curves</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -326,6 +329,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <BySEBrowserCategory Roles={roles} />
                                 else if (qs['?name'] == "SEBrowserTab")
                                     return <SEBrowserCategory TabID={parseInt(qs.TabID as string)} />
+                                else if (qs['?name'] == "MagDurCurves")
+                                    return <ByMagDurCurve Roles={roles} />
                                 else if (qs['?name'] == "Groups")
                                     return <BySecuritytGroup Roles={roles} />
                                 else if (qs['?name'] == "DownloadedFiles")
