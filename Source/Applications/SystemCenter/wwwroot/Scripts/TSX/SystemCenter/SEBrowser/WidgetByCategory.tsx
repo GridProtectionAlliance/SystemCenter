@@ -23,14 +23,12 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { PQView, OpenXDA as LocalXDA } from '../global';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
+import { OpenXDA as LocalXDA } from '../global';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { ByMeterSlice, CustomerMeterSlice, SEBrowserWidgetSlice } from '../Store/Store'
+import { SEBrowserWidgetSlice } from '../Store/Store'
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { LoadingIcon, Modal, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
-import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import { LoadingIcon, Modal, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import WidgetForm from './WidgetForm';
 declare var homePath: string;
 
