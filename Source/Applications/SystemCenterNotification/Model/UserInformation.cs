@@ -261,7 +261,7 @@ namespace SystemCenter.Notifications.Model
                     (await graphClient.Users.Request().Filter($"userPrincipalName eq '{userName}'").GetAsync()).FirstOrDefault() :
                     await request.GetAsync();
 
-                return !(user is null);
+                return user is not null;
             }
             catch (ServiceException ex)
             {
