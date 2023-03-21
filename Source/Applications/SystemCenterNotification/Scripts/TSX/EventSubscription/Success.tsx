@@ -36,32 +36,34 @@ declare var version;
 
 interface IProps {
     emailTypeID: number,
-    assetGroupID: number
+    assetGroupID: number[]
 }
 
 const Success = (props: IProps) => {
     const dispatch = useAppDispatch();
     const email = useAppSelector((state) => EmailTypeSlice.Datum(state, props.emailTypeID));
-    const assetGrp = useAppSelector((state) => AssetGroupSlice.Datum(state, props.assetGroupID));
+    const assetGrp = useAppSelector((state) => AssetGroupSlice.Data(state).filter(ag => props.assetGroupID.includes(ag.ID)));
     const userID = useAppSelector(UserInfoSlice.UserAccountID);
 
     React.useEffect(() => {
-        dispatch(ActiveSubscriptionSlice.DBAction({
-            verb: 'POST', record: {
-                ID: 0,
-                UserAccountID: userID,
-                EmailTypeID: props.emailTypeID,
-                AssetGroup: props.assetGroupID.toString(),
-                Approved: false,
-                Category: '',
-                Email: '',
-                Subject: '',
-                UserAccountEmailID: 0,
-                EmailName: '',
-                LastSent: '',
-                UserName: ''
-            }
-        }));
+        props.assetGroupID.forEach((id) => {
+            dispatch(ActiveSubscriptionSlice.DBAction({
+                verb: 'POST', record: {
+                    ID: 0,
+                    UserAccountID: userID,
+                    EmailTypeID: props.emailTypeID,
+                    AssetGroup: id.toString(),
+                    Approved: false,
+                    Category: '',
+                    Email: '',
+                    Subject: '',
+                    UserAccountEmailID: 0,
+                    EmailName: '',
+                    LastSent: '',
+                    UserName: ''
+                }
+            }));
+        });
     }, [props.assetGroupID, props.emailTypeID])
     
 
@@ -70,7 +72,8 @@ const Success = (props: IProps) => {
         <div className="col">
             <div className="row">
                 <div className="alert alert-success">
-                    You have successfully subscribed to {email == null ? '' : email.Name} for {assetGrp == null ? '' : assetGrp.Name}.
+                    You have successfully subscribed to {email == null ? '' : email.Name}
+                    for {assetGrp.length > 1 ? (assetGrp.length + " Asset groups") : (assetGrp[0]?.Name ?? null)}.
                     If approval is required an Administrator will need to approve the subscription before you receive notifications.
                 </div>
             </div>

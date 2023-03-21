@@ -47,7 +47,7 @@ const NewEventSubscription = (props: {}) => {
     const [hoverNext, setHoverNext] = React.useState<boolean>(false);
 
     const [emailTypeID, setEmailTypeID] = React.useState<number>(-1);
-    const [assetGroupID, setAssetGroupID] = React.useState<number>(-1);
+    const [assetGroupID, setAssetGroupID] = React.useState<number[]>([]);
     const isText = useAppSelector((state) => (EmailTypeSlice.Datum(state, emailTypeID) == null ? false : EmailTypeSlice.Datum(state, emailTypeID).SMS));
 
     const carrierID = useAppSelector(UserInfoSlice.CellCarrierID);
@@ -56,8 +56,8 @@ const NewEventSubscription = (props: {}) => {
         const e = [];
         if (emailTypeID < 0 && currentStep == 'Selection')
             e.push('A Notification must be selected.')
-        if (assetGroupID < 0 && currentStep == 'Selection')
-            e.push('An Asset Group must be selected.')
+        if (assetGroupID.length == 0 && currentStep == 'Selection')
+            e.push('At least 1 Asset Group must be selected.')
         if (currentStep == 'Email')
             e.push('Your email address needs to be confirmed')
         if (currentStep == 'Phone')
