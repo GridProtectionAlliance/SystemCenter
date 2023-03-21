@@ -107,7 +107,9 @@ const MainPage = (props: {}) => {
             HomePath={homePath}
             Version={version} Logo={homePath + 'Images/SystemCenter.png'}
             UserRoles={roles}
-            AllowCollapsed={true}>
+            AllowCollapsed={true}
+            OnSignOut={() => { window.location.href = "/Logout"; }}
+            >
             <Section Label='Subscribe'>
                 <Page Name='EventSubscribe' Label='Subscribe to Event' Icon={AlertAdd} >
                     <NewEventSubscription />
