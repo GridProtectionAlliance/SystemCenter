@@ -51,8 +51,14 @@ const EmailSelect = (props: IProps) => {
     }, [emailCategoryStatus])
 
     React.useEffect(() => {
-        if (emailCategories.length > 0)
-            setSelectedCategory(emailCategories[0].ID);
+        if (emailCategories.length > 0) {
+            const keys = localStorage.getItem("SystemCenter.Notifications.SelectedCategory");
+            if (keys == null || emailCategories.findIndex(e => e.ID == parseInt(keys)) < 0)
+                setSelectedCategory(emailCategories[0].ID);
+            else
+                setSelectedCategory(parseInt(keys));
+
+        }
     }, [emailCategories])
 
     React.useEffect(() => {
@@ -66,6 +72,12 @@ const EmailSelect = (props: IProps) => {
         else
             props.SetEmailTypeID(-1);
     }, [emailTypes])
+
+    React.useEffect(() => {
+        if (selectedCategory !== -1)
+            localStorage.setItem("SystemCenter.Notifications.SelectedCategory", selectedCategory.toString());
+    }, [selectedCategory]);
+
     return (
         <>
             <div className="row">

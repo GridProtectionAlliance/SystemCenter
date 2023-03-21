@@ -70,6 +70,21 @@ const AssetGroupSelection = (props: IProps) => {
         dispatch(AssetGroupSlice.DBSearch({ ascending: asc, sortField: sort, filter: [flt] }));
     }, [asc, sort, selectedParent])
 
+    React.useEffect(() => {
+        if (parentGroups.length > 0) {
+            const keys = localStorage.getItem("SystemCenter.Notifications.SelectedGroup");
+            if (keys == null || parentGroups.findIndex(e => e.ID == parseInt(keys)) < 0)
+                setSelectedParent(parentGroups[0].ID);
+            else
+                setSelectedParent(parseInt(keys));
+        }
+    }, [selectedParent])
+
+    React.useEffect(() => {
+        if (selectedParent !== -1)
+            localStorage.setItem("SystemCenter.Notifications.SelectedGroup", selectedParent.toString());
+    }, [selectedParent]);
+
     function getParents() {
         setParentGroupState('loading');
         return $.ajax({
