@@ -72,7 +72,7 @@ const EmailSelect = (props: IProps) => {
                 <div className="col">
                     <div className="form-group">
                         {emailCategoryStatus == 'loading' ? <LoadingIcon Show={true}/>:
-                            <><label> Category </label>
+                            <><label> Notification Category </label>
                         <select
                             className="form-control"
                             onChange={(evt) => {
@@ -91,7 +91,7 @@ const EmailSelect = (props: IProps) => {
                 <div className="col">
                     <div className="form-group">
                         {emailTypeStatus == 'loading' ? <LoadingIcon Show={true} /> :
-                            <><label> Notification </label>
+                            <><label> Notification Template </label>
                                 <select
                                     className="form-control"
                                     onChange={(evt) => {

@@ -94,7 +94,7 @@ const AssetGroupSelection = (props: IProps) => {
                 <div className="col">
                     <div className="form-group">
                         {parentGroupState == 'loading' ? <LoadingIcon Show={true}/>:
-                            <><label> Category </label>
+                            <><label> Asset Category </label>
                         <select
                             className="form-control"
                             onChange={(evt) => {
@@ -118,9 +118,9 @@ const AssetGroupSelection = (props: IProps) => {
                         <Table<OpenXDA.Types.AssetGroup>
                             cols={[
                                 { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'Meters', field: 'Meters', label: 'Num. Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                                { key: 'Assets', field: 'Assets', label: 'Num. Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-
+                                { key: 'Meters', field: 'Meters', label: 'Num. Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'Assets', field: 'Assets', label: 'Num. Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                             ]}
                             tableClass="table table-hover"
                             data={assetGrps}
@@ -139,7 +139,7 @@ const AssetGroupSelection = (props: IProps) => {
                             }}
                             onClick={(x) => props.SetAssetGroupID(x.row.ID)}
                             theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', height: window.innerHeight - 400, width: '100%' }}
                             rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             selected={(item) => item.ID == props.assetGroupID}
                         />}

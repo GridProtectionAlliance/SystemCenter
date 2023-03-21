@@ -38,8 +38,10 @@ import ConfirmPhoneCarrier from './ConfirmCarrier';
 declare var homePath;
 declare var version;
 
+type Step = 'Selection' | 'Email' | 'Phone' | 'Carrier' | 'Success';
+
 const NewEventSubscription = (props: {}) => {
-    const [currentStep, setCurrentStep] = React.useState<number>(1)
+    const [currentStep, setCurrentStep] = React.useState<Step>('Selection')
 
     const [error, setError] = React.useState<string[]>([]);
     const [hoverNext, setHoverNext] = React.useState<boolean>(false);
@@ -52,75 +54,57 @@ const NewEventSubscription = (props: {}) => {
 
     React.useEffect(() => {
         const e = [];
-        if (emailTypeID < 0 && currentStep == 1)
+        if (emailTypeID < 0 && currentStep == 'Selection')
             e.push('A Notification must be selected.')
-        if (assetGroupID < 0 && currentStep == 2)
+        if (assetGroupID < 0 && currentStep == 'Selection')
             e.push('An Asset Group must be selected.')
-        if (currentStep == 3)
+        if (currentStep == 'Email')
             e.push('Your email address needs to be confirmed')
-        if (currentStep == 3.5)
+        if (currentStep == 'Phone')
             e.push('Your phone number needs to be confirmed')
-        if (carrierID == null && currentStep == 3.2)
+        if (carrierID == null && currentStep == 'Carrier')
             e.push('A cell Carrier has to be selected.')
         setError(e);
     }, [emailTypeID, assetGroupID, currentStep])
 
     function getHeader() {
-        if (currentStep == 1)
-            return "Step 1: Select a notification type"
-        if (currentStep == 2)
-            return "Step 2: Select a set of assets"
-        if (currentStep == 3)
-            return "Step 3: Confirm your email address"
-        if (currentStep == 3.2)
-            return "Step 3: Confirm your Cell Carrier"
-        if (currentStep == 3.5)
-            return "Step 3: Confirm your phone number"
-        if (currentStep == 4)
+        if (currentStep == 'Selection')
+            return "Step 1: Select A Notification"
+        if (currentStep == 'Email')
+            return "Confirm your email address"
+        if (currentStep == 'Carrier')
+            return "Confirm your Cell Carrier"
+        if (currentStep == 'Phone')
+            return "Confirm your phone number"
+        if (currentStep == 'Success')
             return "Success"
     }
 
     function next() {
         if (disableNext())
             return;
-        else if (currentStep == 2 && isText)
-            setCurrentStep(3.2);
-        else if (currentStep == 3.2 && isText)
-            setCurrentStep(3.5);
-        else if (currentStep >= 4) 
-            setCurrentStep(4);
-        else 
-            setCurrentStep((x) => x + 1);
-        setError([]);
+        else if (currentStep == 'Selection' && isText)
+            setCurrentStep('Carrier');
+        else if (currentStep == 'Carrier' && isText)
+            setCurrentStep('Phone');
+        else if (currentStep == 'Email' || currentStep == 'Phone')
+            setCurrentStep('Success');
 
+        setError([]);
     }
 
     function prev() {
         setError([]);
-        if (currentStep <= 1)
-            setCurrentStep(1);
-        else if (currentStep == 4)
-            setCurrentStep(2);
-        else if (currentStep == 3.2)
-            setCurrentStep(2);
-        else if (currentStep == 3.5)
-            setCurrentStep(2);
-        else
-            setCurrentStep(x=> x - 1);
+        if (currentStep == 'Phone')
+           setCurrentStep('Carrier');
+        else if (currentStep == 'Email')
+           setCurrentStep('Selection');
     }
 
 
     function disableNext(): boolean {
-        if (currentStep == 1) 
+        if (currentStep == 'Selection' || currentStep == 'Carrier') 
             return error.length > 0
-        
-        else if (currentStep == 2) 
-            return error.length > 0
-        else if (currentStep == 3.2)
-            return error.length > 0
-        else if (currentStep == 3 || currentStep == 3.5)
-            return true
-        
         return true;
     }
 
@@ -134,17 +118,21 @@ const NewEventSubscription = (props: {}) => {
                     <h4 style={{ width: '90%' }}>{getHeader()}</h4>
                 </div>
                 <div className="card-body" style={{ maxHeight: 'calc(100% - 126px)' }}>
-                    {currentStep == 1 ? <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} /> : null}
-                    {currentStep == 2 ? <AssetGroupSelection assetGroupID={assetGroupID} SetAssetGroupID={setAssetGroupID} /> : null}
-                    {currentStep == 3 ? <ConfirmEmail SetConfirmed={() => setCurrentStep((x) => x + 1)} /> : null}
-                    {currentStep == 3.2 ? <ConfirmPhoneCarrier /> : null}
-                    {currentStep == 3.5 ? <ConfirmPhone SetConfirmed={() => setCurrentStep((x) => x + 0.5)} /> : null}
-                    {currentStep == 4 ? <Success assetGroupID={assetGroupID} emailTypeID={emailTypeID} /> : null}
+                    {currentStep == 'Selection' ?
+                        <>
+                            <AssetGroupSelection assetGroupID={assetGroupID} SetAssetGroupID={setAssetGroupID} /> 
+                            <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} />
+                        </>
+                        : null}
+                    {currentStep == 'Email' ? <ConfirmEmail SetConfirmed={() => setCurrentStep('Success')} /> : null}
+                    {currentStep == 'Carrier' ? <ConfirmPhoneCarrier /> : null}
+                    {currentStep == 'Phone' ? <ConfirmPhone SetConfirmed={() => setCurrentStep('Success')} /> : null}
+                    {currentStep == 'Success' ? <Success assetGroupID={assetGroupID} emailTypeID={emailTypeID} /> : null}
 
                 </div>
                 <div className="card-footer">
-                    {currentStep > 1 && currentStep < 4 ? <button className="btn btn-danger pull-left" onClick={prev}>Previous</button> : null}
-                    {currentStep < 3.3  ? <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
+                    {currentStep != 'Selection' && currentStep != 'Success' ? <button className="btn btn-danger pull-left" onClick={prev}>Previous</button> : null}
+                    {currentStep == 'Selection' || currentStep == 'Carrier' ? <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
                         data-tooltip='Next' onMouseEnter={() => setHoverNext(true)} onMouseLeave={() => setHoverNext(false)}
                     >Continue</button> : null}
                 </div>
