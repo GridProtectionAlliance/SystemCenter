@@ -1,0 +1,146 @@
+﻿//******************************************************************************************************
+//  ByMagDurCurve.tsx - Gbtc
+//
+//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//
+//  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
+//  the NOTICE file distributed with this work for additional information regarding copyright ownership.
+//  The GPA licenses this file to you under the MIT License (MIT), the "License"; you may not use this
+//  file except in compliance with the License. You may obtain a copy of the License at:
+//
+//      http://opensource.org/licenses/MIT
+//
+//  Unless agreed to in writing, the subject software distributed under the License is distributed on an
+//  "AS-IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. Refer to the
+//  License for the specific language governing permissions and limitations.
+//
+//  Code Modification History:
+//  ----------------------------------------------------------------------------------------------------
+//  03/16/2023 - C. Lackner
+//       Generated original version of source code.
+//
+//******************************************************************************************************
+
+import * as React from 'react';
+import Table from '@gpa-gemstone/react-table';
+import * as _ from 'lodash';
+import { useHistory } from "react-router-dom";
+import { Application } from '@gpa-gemstone/application-typings';
+import { OpenXDA as LocalXDA } from '../global';
+import { SearchBar, Search, Modal, Warning } from '@gpa-gemstone/react-interactive';
+import { useAppSelector, useAppDispatch } from '../hooks';
+import { MagDurCurveSlice, WidgetCategorySlice } from '../Store/Store';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import CurveForm from './CurveForm';
+
+
+declare var homePath: string;
+const emptyCurve: LocalXDA.IMagDurCurve = {
+    ID: 0,
+    Name: 'Curve',
+    XHigh: 0,
+    XLow: 0,
+    YHigh: 0,
+    YLow: 0,
+    UpperCurve: '',
+    LowerCurve: '',
+    Area: '0.00001 0, 1000 0, 1000 1, 0.00001 1, 0.00001 0'
+};
+
+const ByMagDurCurve: Application.Types.iByComponent = (props) => {
+    let dispatch = useAppDispatch();
+
+    const cState = useAppSelector(MagDurCurveSlice.SearchStatus);
+    const data = useAppSelector(MagDurCurveSlice.SearchResults);
+
+    const sortKey = useAppSelector(MagDurCurveSlice.SortField);
+    const filters = useAppSelector(MagDurCurveSlice.SearchFilters);
+    const ascending = useAppSelector(MagDurCurveSlice.Ascending);
+
+    const [curve, setCurve] = React.useState<LocalXDA.IMagDurCurve>(emptyCurve);
+
+    const [showModal, setShowModal] = React.useState<boolean>(false);
+    const [showDelete, setShowDelete] = React.useState<boolean>(false);
+    const [errors, setErrors] = React.useState<string[]>([]);
+
+    React.useEffect(() => {
+        if (cState == 'unintiated' || cState == 'changed')
+            dispatch(MagDurCurveSlice.DBSearch({filter: filters}))
+    }, [cState]);
+
+    function handleSelect(item) {
+        setCurve(item.row);
+        setShowModal(true);
+    }
+
+    const searchFields: Search.IField<LocalXDA.IMagDurCurve>[] = [
+        { key: 'Name', isPivotField: false, label: 'Name', type: 'string' }
+    ]
+    return (
+        <div style={{ width: '100%', height: '100%' }}>
+            <SearchBar<LocalXDA.IMagDurCurve> CollumnList={searchFields}
+                SetFilter={(flds) => dispatch(MagDurCurveSlice.DBSearch({ ascending, filter: flds }))}
+                Direction={'left'}
+                defaultCollumn={{ key: 'Name', isPivotField: false, label: 'Name', type: 'string' }}
+                Width={'50%'} Label={'Search'}
+                ShowLoading={cState == 'loading'}
+                ResultNote={cState == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Curves'}
+            >
+                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                        <form>
+                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowModal(true); }}>Add Curve</button>
+                        </form>
+                    </fieldset>
+                </li>
+            </SearchBar>
+            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
+                <Table<LocalXDA.IMagDurCurve>
+                    cols={[
+                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    ]}
+                    tableClass="table table-hover"
+                    data={data}
+                    sortKey={sortKey}
+                    ascending={ascending}
+                    onSort={(d) => dispatch(MagDurCurveSlice.Sort({ SortField: 'Name', Ascending: !ascending })) }
+                    onClick={handleSelect}
+                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%'  }}
+                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    selected={(item) => false}
+                />
+            </div>
+
+            <Modal Show={showModal} Title={'Add MagDur Curve'} Size={'xlg'} CallBack={(c,b) => {
+                setShowModal(false);
+                if (!c && b)
+                    setShowDelete(true)
+                if (c)
+                    dispatch(MagDurCurveSlice.DBAction({ verb: curve.ID == 0? 'POST' : 'PATCH', record: curve }));
+                if (c || !b)
+                    setCurve(emptyCurve);
+            }}
+                ShowCancel={curve.ID != 0}
+                ShowX={true}
+                CancelText={'Delete'}
+                DisableConfirm={errors.length > 0}
+                ConfirmText={'Save'}
+                ConfirmShowToolTip={errors.length > 0}
+                ConfirmToolTipContent={errors.map((t, i) => <p key={i}> {CrossMark} {t}</p>)} >
+                <div className="row">
+                    <CurveForm Curve={curve} stateSetter={setCurve} setErrors={setErrors} />
+                </div>
+            </Modal>
+            <Warning Message={'This will remove the Curve.'} Show={showDelete} Title={'Delete MagDur Curve'}
+                CallBack={(c) => { if (c) dispatch(MagDurCurveSlice.DBAction({ record: curve, verb: 'DELETE' })); setShowDelete(false); setCurve(emptyCurve); }}
+            />
+
+        </div>
+    )
+}
+
+export default ByMagDurCurve;
+

@@ -483,6 +483,8 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingWrapper.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\MultipleAssetsPage.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\MagDurCurves\ByMagDurCurve.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\MagDurCurves\CurveForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\CustomerAssetGroupPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterMaintenance.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteAssetForm.tsx" />
@@ -615,6 +617,12 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DB\DBCleanup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\DeviceIssuesPage\Reason.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ProcessedFile\ByFile.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\ByWidgetCategory.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetCategory.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\CategoryForm.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\CategoryInfo.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetForm.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetByCategory.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataOperations.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataReaders.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\Setting.tsx" />
@@ -627,7 +635,6 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\Store.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ByValueListGroup.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\AdditionalUserFieldSlice.tsx" />
-    <Content Include="wwwroot\Scripts\TSX\SystemCenter\Store\SecurityRoleSlice.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\AdditionalUserFieldsWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\User\UserGroup\ByUserGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\User\Permissions.tsx" />

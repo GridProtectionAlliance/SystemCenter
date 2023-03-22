@@ -144,17 +144,14 @@ namespace SystemCenter.Model
                     request.Method = HttpMethod.Get;
                 }
 
-                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/Workbench/DataFiles/DownloadFile/{id}").Result;
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/Workbench/DataFiles/Download/{id}").Result;
                 if (!responseMessage.IsSuccessStatusCode)
                     return InternalServerError();
-                string path;
-                using (AdoDataConnection connection = CreateDbConnection())
-                    path = connection.ExecuteScalar<string>("SELECT Filepath from DataFile Where ID = {0}", id);
-
-                // For some reason this does not quite work but we will look at this in the openXDA
+            
                 byte[] data = responseMessage.Content.ReadAsByteArrayAsync().Result;
-                string fileName = path.Substring(path.LastIndexOf("//") + 1);
-             
+
+                string fileName = responseMessage.Content.Headers.ContentDisposition.FileName;
+
                 Stream stream = new MemoryStream(data);
 
                 var result = new HttpResponseMessage(HttpStatusCode.OK)

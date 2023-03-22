@@ -107,6 +107,32 @@ export namespace OpenXDA {
         Location: string
     }
 
+    interface IWidgetCategory {
+        ID: number,
+        Name: string,
+        OrderBy: number
+    }
+
+    interface IWidget {
+        CategoryID?: number,
+        ID: number,
+        Name: string,
+        Setting: string,
+        Enabled: boolean
+    }
+
+    interface IMagDurCurve {
+        ID: number,
+        Name: string,
+        XHigh: number,
+        XLow: number,
+        YHigh: number,
+        YLow: number,
+        UpperCurve: string,
+        LowerCurve: string,
+        Area: string
+    }
+
 }
 
 export namespace PQView {

@@ -32,6 +32,7 @@ using GSF.SELEventParser;
 using GSF.Web.Model;
 using Newtonsoft.Json.Linq;
 using openXDA.Configuration;
+using SEBrowser.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -1115,4 +1116,132 @@ namespace SystemCenter.Controllers
         #endregion
     }
 
+    [RoutePrefix("api/SystemCenter/StandardMagDurCurve")]
+    public class MagDurCurveController : ModelController<openXDA.Model.StandardMagDurCurve>
+    {
+        //We will need to do Post, Patch and Delete Sepperately
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                string name = record["Name"].ToObject<string>();
+                string area = Geometry(record["Area"].ToObject<string>());
+                connection.ExecuteNonQuery("INSERT StandardMagDurCurve (Name, XHigh,XLow,YHigh,YLow, LowerCurve, UpperCurve, Area) VALUES ({0}, 0,0,0,0, NULL, NULL, {1})",name, area );
+                return Ok(1);
+            }
+        }
+
+        public override IHttpActionResult Patch([FromBody] openXDA.Model.StandardMagDurCurve record)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                connection.ExecuteNonQuery("UPDATE StandardMagDurCurve SET Name = {0} WHERE ID = {1}", record.Name, record.ID);
+                connection.ExecuteNonQuery("UPDATE StandardMagDurCurve SET Area = {0} WHERE ID = {1}", Geometry(record.Area), record.ID);
+                return Ok(1);
+            }
+        }
+
+        public override IHttpActionResult Delete(openXDA.Model.StandardMagDurCurve record)
+        {
+            if (!DeleteAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                connection.ExecuteNonQuery("DELETE FROM StandardMagDurCurve WHERE ID = {0}", record.ID);
+                return Ok(1);
+            }
+        }
+        private string Geometry(string area) => $"Polygon (({area}))";
+    }
+
+    [RoutePrefix("api/SystemCenter/WidgetCategory")]
+    public class SEBrowserWidgetCategoryController : ModelController<SEBrowser.Model.WidgetCategory> { }
+
+    [RoutePrefix("api/SystemCenter/WidgetView")]
+    public class SEBrowserWidgetController : ModelController<SEBrowser.Model.WidgetView> 
+    {
+        public override IHttpActionResult Delete(WidgetView record)
+        {
+            if (!DeleteAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                TableOperations<WidgetWidgetCategory> tbl = new TableOperations<WidgetWidgetCategory>(connection);
+                WidgetWidgetCategory model = tbl.QueryRecordWhere("WidgetID = {0} AND CategoryID = {1}", record.ID, record.CategoryID);
+                if (model is null)
+                    return InternalServerError();
+
+                return Ok(tbl.DeleteRecord(model));
+            }
+        }
+
+        public override IHttpActionResult Patch([FromBody] WidgetView record)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                TableOperations<Widget> tbl = new TableOperations<Widget>(connection);
+                Widget model = tbl.QueryRecordWhere("ID = {0}", record.ID);
+                if (model is null)
+                    return InternalServerError();
+
+                model.Setting = record.Setting;
+                model.Enabled = record.Enabled;
+                return Ok(tbl.UpdateRecord(model));
+            }
+
+            return base.Patch(record);
+        }
+
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                TableOperations<WidgetWidgetCategory> tbl = new TableOperations<WidgetWidgetCategory>(connection);
+                tbl.AddNewRecord(new WidgetWidgetCategory()
+                {
+                    CategoryID = record["CategoryID"].Value<int>(),
+                    WidgetID = record["ID"].Value<int>()
+                });
+
+                //Save Settings And Enabled 
+                TableOperations<Widget> widgetTbl = new TableOperations<Widget>(connection);
+                Widget model = widgetTbl.QueryRecordWhere("ID = {0}", record["ID"].Value<int>());
+
+                if (model is null)
+                    return InternalServerError();
+
+                model.Setting = record["Setting"].Value<string>();
+                model.Enabled = record["Enabled"].Value<bool>();
+                widgetTbl.UpdateRecord(model);
+
+                return Ok(1);
+            }
+        }
+
+        [HttpGet, Route("All")]
+        public IHttpActionResult GetAll()
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                TableOperations<Widget> tbl = new TableOperations<Widget>(connection);
+                return Ok(tbl.QueryRecords());
+            }
+        }
+    }
 }

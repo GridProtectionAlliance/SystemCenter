@@ -25,7 +25,27 @@ import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input } from '@gpa-gemstone/react-forms';
 
-export default function ValueListForm(props: { Record: SystemCenter.Types.ValueListItem, Setter: (record: SystemCenter.Types.ValueListItem) => void }) {
+interface IProps {
+    Record: SystemCenter.Types.ValueListItem,
+    Setter: (record: SystemCenter.Types.ValueListItem) => void,
+    SetErrors?: (e: string[]) => void
+}
+
+export default function ValueListForm(props: IProps) {
+
+    React.useEffect(() => {
+        if (props.SetErrors == undefined)
+            return;
+        const e = [];
+        if (props.Record.Value == null || props.Record.Value.length == 0)
+            e.push('A Value is required.');
+        if (props.Record.Value != null && props.Record.Value.length > 200)
+            e.push('Value must be less than 200 characters.');
+        if (props.Record.AltValue != null && props.Record.AltValue.length > 200)
+            e.push('Alternate Value must be less than 200 characters.');
+        
+    }, [props.Record])
+
     function Valid(field: keyof (SystemCenter.Types.ValueListItem)): boolean {
         if (field == 'Value')
             return props.Record.Value != null && props.Record.Value.length > 0 && props.Record.Value.length <= 200;
@@ -35,11 +55,10 @@ export default function ValueListForm(props: { Record: SystemCenter.Types.ValueL
     }
 
     return (
-        <form>
+        <>
             <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Field={'Value'} Feedback={'Value must be set and be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
-            <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Field={'AltValue'} Feedback={'AltValue must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
-            <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Field={'SortOrder'} Type='number' Valid={Valid} Setter={props.Setter} />
-        </form>
-
+            <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Label={'Alternate Value'}  Field={'AltValue'} Feedback={'AltValue must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Label={'Sort Order'} Field={'SortOrder'} Type='number' Valid={Valid} Setter={props.Setter} />
+        </>
     );
 }
