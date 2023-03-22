@@ -79,28 +79,12 @@ namespace SystemCenter.Notifications.Model
         /// Gets Azure AD settings.
         /// </summary>
         public AzureADSettings AzureADSettings => m_azureADSettings ??= AzureADSettings.Load(); 
-       /* {
-            get 
-            {
-                if (m_azureADSettings is null)
-                    m_azureADSettings = AzureADSettings.Load();
-                return m_azureADSettings;
-            } 
-        }*/
 
         /// <summary>
         /// Gets Graph client.
         /// </summary>
-        public GraphServiceClient GraphClient
-        {
-            get 
-            { 
-                if (m_graphClient is null)
-                    m_graphClient = AzureADSettings.GetGraphClient();
-                return m_graphClient;
-            }
-        }
-
+        public GraphServiceClient GraphClient => m_graphClient ??= AzureADSettings.GetGraphClient();
+       
         private AzureADSettings m_azureADSettings;
         private GraphServiceClient m_graphClient;
 
@@ -138,10 +122,12 @@ namespace SystemCenter.Notifications.Model
                     Guid id = Guid.NewGuid();
                     if (IsValidADUser(username))
                         account = LoadADUser(username);
-                    if (IsValidAzureADUserName(username).Result)
+                    if (IsValidAzureADUserName(username))
                         account = LoadAzureUser(username);
+
                     account.UpdatedOn = DateTime.UtcNow;
                     account.CreatedBy = userInfo.UserName;
+                    account.UpdatedBy = userInfo.UserName;
                     account.CreatedOn = DateTime.UtcNow;
                     account.LockedOut = false;
 
@@ -245,8 +231,11 @@ namespace SystemCenter.Notifications.Model
             return UserInfo.IsUserSID(sid);
         }
 
-        private async Task<bool> IsValidAzureADUserName(string userName)
+        private bool IsValidAzureADUserName(string userName)
         {
+            if (userName.Contains("\\"))
+                return false;
+
             GraphServiceClient graphClient = GraphClient;
 
             if (graphClient is null)
@@ -257,9 +246,11 @@ namespace SystemCenter.Notifications.Model
                 IUserRequest request = graphClient.Users[userName].Request();
 
                 // Load user data - note that external users need to be looked up by userPrincipalName
-                Microsoft.Graph.User user = userName.Contains("#EXT#") ?
-                    (await graphClient.Users.Request().Filter($"userPrincipalName eq '{userName}'").GetAsync()).FirstOrDefault() :
-                    await request.GetAsync();
+                Microsoft.Graph.User user;
+                if (userName.Contains("#EXT#"))
+                    user = graphClient.Users.Request().Filter($"userPrincipalName eq '{userName}'").GetAsync().Result.FirstOrDefault();
+                else
+                    user = request.GetAsync().Result;
 
                 return user is not null;
             }
