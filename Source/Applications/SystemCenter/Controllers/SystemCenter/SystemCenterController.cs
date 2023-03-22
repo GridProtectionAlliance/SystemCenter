@@ -752,33 +752,28 @@ namespace SystemCenter.Controllers
         }
         private IEnumerable<ParsedChannel> ParsePQDiff(byte[] bytes, string meterKey)
         {
-            ContainerRecord containerRecord;
             using (Stream stream = new MemoryStream(bytes))
             using (LogicalParser parser = new LogicalParser(stream))
             {
-                containerRecord = parser.ContainerRecord;
-                while (parser.HasNextObservationRecord())
-                    parser.NextObservationRecord();
-
-                if (parser.DataSourceRecords.Count == 0)
-                    throw new InvalidDataException("File contained no useable channel definitions");
-
-                IEnumerable<ChannelDefinition> channelDefinitions = parser.DataSourceRecords.First().ChannelDefinitions
-                    .Where(cd => cd.SeriesDefinitions.Where(ser => ser.QuantityCharacteristicID == QuantityCharacteristic.Instantaneous).Any());
-
                 List<ObservationRecord> observations = new List<ObservationRecord>();
                 while (parser.HasNextObservationRecord())
                     observations.Add(parser.NextObservationRecord());
 
-                IEnumerable<ParsedChannel> channels = channelDefinitions.Select((cd, index) => {
+                if (parser.DataSourceRecords.Count == 0)
+                    throw new InvalidDataException("File contained no usable channel definitions");
 
+                IEnumerable<ChannelDefinition> channelDefinitions = parser.DataSourceRecords.First().ChannelDefinitions
+                    .Where(cd => cd.SeriesDefinitions.Any(ser => ser.ValueTypeID == SeriesValueType.Time));
+
+                IEnumerable<ParsedChannel> channels = channelDefinitions.Select((cd, index) =>
+                {
                     Guid characteristic = cd.SeriesDefinitions
-                    .Where(item => item.ValueTypeID != SeriesValueType.Time).FirstOrDefault()?.QuantityCharacteristicID
-                    ?? QuantityCharacteristic.Instantaneous;
-                    Guid valType = SeriesValueType.Val;
-                    Guid maxType = SeriesValueType.Max;
-                    Guid minType = SeriesValueType.Min;
-                    Guid avgType = SeriesValueType.Avg;
+                        .Where(seriesDefinition => seriesDefinition.ValueTypeID != SeriesValueType.Time)
+                        .Select(seriesDefinition => seriesDefinition.QuantityCharacteristicID)
+                        .DefaultIfEmpty(QuantityCharacteristic.Instantaneous)
+                        .First();
+
+                    Guid[] parsedSeriesValueTypes = { SeriesValueType.Val, SeriesValueType.Max, SeriesValueType.Min, SeriesValueType.Avg };
 
                     Func<Guid, string> SeriesType = (Guid g) =>
                     {
@@ -786,9 +781,9 @@ namespace SystemCenter.Controllers
                             return "Values";
                         if (g == SeriesValueType.Min)
                             return "Minimum";
-                        if (g == SeriesValueType.Min)
+                        if (g == SeriesValueType.Max)
                             return "Maximum";
-                        if (g == SeriesValueType.Min)
+                        if (g == SeriesValueType.Avg)
                             return "Average";
                         return "Values";
                     };
@@ -800,16 +795,19 @@ namespace SystemCenter.Controllers
                         .Select(channelInstance => channelInstance.ChannelGroupID)
                         .FirstOrDefault(channelGroupIndex => channelGroupIndex != 0);
 
-                    IEnumerable<ParsedSeries> series = cd.SeriesDefinitions.Where(s => s.ValueTypeID == SeriesValueType.Val || s.ValueTypeID == SeriesValueType.Max || s.ValueTypeID == SeriesValueType.Min || s.ValueTypeID == SeriesValueType.Avg)
-                    .Select(d => new ParsedSeries()
-                    {
-                        ID = 0,
-                        ChannelID = 0,
-                        SeriesType = SeriesType(d.ValueTypeID),
-                        SourceIndexes = ""
-                    });
+                    IEnumerable<ParsedSeries> series = cd.SeriesDefinitions
+                        .Where(seriesDefinition => parsedSeriesValueTypes.Contains(seriesDefinition.ValueTypeID))
+                        .Select(d => new ParsedSeries()
+                        {
+                            ID = 0,
+                            ChannelID = 0,
+                            SeriesType = SeriesType(d.ValueTypeID),
+                            SourceIndexes = ""
+                        });
 
-                    bool trend = series.Any(item => item.SeriesType != "Values");
+                    bool trend =
+                        characteristic != QuantityCharacteristic.Instantaneous ||
+                        series.Any(item => item.SeriesType != "Values");
 
                     return new ParsedChannel()
                     {
@@ -831,7 +829,6 @@ namespace SystemCenter.Controllers
                         ConnectionPriority = 0,
                         Trend = trend
                     };
-
                 });
 
                 return channels;

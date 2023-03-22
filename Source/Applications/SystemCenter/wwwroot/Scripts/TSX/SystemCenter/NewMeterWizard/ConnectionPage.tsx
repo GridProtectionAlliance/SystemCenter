@@ -83,7 +83,10 @@ export default function ConnectionPage(props: IProps) {
 
     React.useEffect(() => {
         // Asset Needs a default that isn't the current asset
-        setSelectedAssetKey(props.AllAssets.find(asset => asset.ID !== props.CurrentAsset.ID).AssetKey);
+        let selectedAsset = props.AllAssets.find(asset => asset.AssetKey !== props.CurrentAsset.AssetKey);
+        if (selectedAsset === undefined)
+            return;
+        setSelectedAssetKey(selectedAsset.AssetKey);
         const connFilter: Search.IFilter<OpenXDA.Types.AssetConnection>[] = [
             { FieldName: 'ID', SearchText: `ParentID OR ChildID = ${props.CurrentAsset.ID}`, Operator: '=', Type: 'number', isPivotColumn: false },
         ];
