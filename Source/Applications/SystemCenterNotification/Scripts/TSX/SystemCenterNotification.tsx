@@ -145,8 +145,8 @@ const MainPage = (props: {}) => {
                     <ByCellCarrier />
                 </Page>
             </Section>
-            <Page Name='ConfirmEmail' >
-                <EmailConfirmed />
+            <Page Name='ConfirmEmail/:code' >
+                    <EmailConfirmed useParams={{ code: '0000' }} />
             </Page>
             </App>
             <Modal Show={!acknowledge && ackSetting.length > 0} Title={'Terms of Use'} ShowCancel={false} ShowX={false} Size={'xlg'} ConfirmBtnClass={'btn-success'} ConfirmText={'Acknowledge'}

@@ -35,45 +35,79 @@ import * as $ from 'jquery';
 declare var homePath;
 declare var version;
 
-const EmailConfirmed = (props: {}) => {
+const EmailConfirmed = (props: { useParams: { code: string } }) => {
 
-    const [loading, setLoading] = React.useState<boolean>(false);
     const [success, setSuccess] = React.useState<boolean>(false);
+    const [state, setState] = React.useState<Application.Types.Status>('unintiated');
+    const [forceResend, setForceResend] = React.useState<number>(-1);
+
     const status = useAppSelector(UserInfoSlice.Status);
 
     React.useEffect(() => {
-        if (status != 'idle' || loading)
+        if (status != 'idle' || state == 'loading')
             return;
 
-        setLoading(true);
+        setState('loading');
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/Confirm/Email`,
+            url: `${homePath}api/Confirm/Email/${props.useParams.code}`,
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true
         }).then((d) => {
-            setLoading(false);
+            setState('idle');
             setSuccess(d == 1);
         }, () => {
             setSuccess(false);
-            setLoading(false);
+            setState('error');
         });
 
         return () => { if (handle != null && handle.abort != null) handle.abort();}
     }, [status]);
 
+    React.useEffect(() => {
+        if (forceResend < 0)
+            return;
+
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/Confirm/ResendEmail`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        })
+
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [forceResend]);
+
+    function getClass() {
+        if (state == 'idle' && success)
+            return 'success'
+        if (state == 'error')
+            return 'danger'
+        return 'info'
+    }
+
+    function getText() {
+        if (state == 'loading')
+            return 'Validating Link...' 
+        if (state == 'idle' && success)
+            return 'Your email has been confirmed.'
+        if (state == 'error')
+            return ' An Error Occurred. Please contact your administrator.'
+        return 'The Link was no longer valid. It may have expired.'
+    }
+
+
     return <>
         <div className="row">
             <div className="col">
-                <LoadingScreen Show={loading || status != 'idle'}/>
-                {success ? <div className="alert alert-info">
-                    Your email has been confirmed.
-                </div> :
-                    <div className="alert alert-danger">
-                        An Error Occurred. Please contact your administrator.
-                    </div>
-                }
+                <LoadingScreen Show={state == 'loading' || status != 'idle'}/>
+                <div className={"alert alert-" + getClass()}>
+                    <p>{getText()}</p>
+                    {!success && state == 'idle'? < button type="button" className="btn btn-secondary"
+                        onClick={() => { setForceResend(x => x + 1) }}>Resend Link</button> : null}
+                </div> 
             </div>
         </div>
         </>;
