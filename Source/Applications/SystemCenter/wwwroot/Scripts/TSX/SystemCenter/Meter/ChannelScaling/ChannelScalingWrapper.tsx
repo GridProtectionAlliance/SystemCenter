@@ -72,9 +72,9 @@ export class ChannelScalingWrapper {
 
     get Identity() {
         return <>
-            {this.MeasurementType.Name}<br />
-            {this.MeasurementCharacteristic.Name}<br />
-            {this.Phase.Name}
+            {this.MeasurementType?.Name ?? "Unrecognized Measurement Type"}<br/>
+            {this.MeasurementCharacteristic?.Name ?? "Unrecognized Characteristic Type"}<br/>
+            {this.Phase?.Name ?? "Unrecognized Phase"}
         </>;
     }
 
@@ -126,6 +126,8 @@ export class ChannelScalingWrapper {
     }
 
     private DeriveScalingType() {
+        if (this.MeasurementType === undefined)
+            return ChannelScalingType.NoScaling;
         if (this.MeasurementType.Name === "Voltage") {
             if (this.MeasurementCharacteristic.Name === "Instantaneous")
                 return ChannelScalingType.Voltage;
