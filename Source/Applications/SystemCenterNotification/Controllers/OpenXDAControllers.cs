@@ -172,6 +172,14 @@ namespace SystemCenter.Notifications.Controllers
                 return InternalServerError(ex);
             }
         }
+
+        public override IHttpActionResult Delete(ActiveSubscription record)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                connection.ExecuteNonQuery("DELETE FROM UserAccountEmailType WHERE ID = {0}", record.UserAccountEmailID);
+            
+            return Ok(1);
+        }
     }
 
     [RoutePrefix("api/EventType")]

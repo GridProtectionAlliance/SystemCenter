@@ -23,7 +23,7 @@
 
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
-import { LoadingScreen } from '@gpa-gemstone/react-interactive'
+import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive'
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import Table from '@gpa-gemstone/react-table';
@@ -40,6 +40,8 @@ interface IProps {}
 
 const BySubscription = (props: IProps) => {
     const dispatch = useAppDispatch();
+    const [showWarning, setShowWarning] = React.useState<boolean>(false);
+    const [subscription, setSubscription] = React.useState<ActiveSubscription>(null);
 
     const status: Application.Types.Status = useAppSelector(ActiveSubscriptionSlice.Status);
     const data: ActiveSubscription[] = useAppSelector(ActiveSubscriptionSlice.Data);
@@ -47,6 +49,7 @@ const BySubscription = (props: IProps) => {
     const userID = useAppSelector(UserInfoSlice.UserAccountID)
     const sortField = useAppSelector(ActiveSubscriptionSlice.SortField);
     const asc = useAppSelector(ActiveSubscriptionSlice.Ascending);
+
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || parentID != userID)
@@ -69,12 +72,32 @@ const BySubscription = (props: IProps) => {
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                     <Table<ActiveSubscription>
                         cols={[
-                            { key: 'Category', field: 'Category', label: 'Category', headerStyle: { width: '25%' }, rowStyle: { width: '25%' } },
-                            { key: 'EmailName', field: 'EmailName', label: 'Notification', headerStyle: { width: '25%' }, rowStyle: { width: '25%' } },
-                            { key: 'AssetGroup', field: 'AssetGroup', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Approved', field: 'Approved', label: 'Approved', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => item.Approved ? HeavyCheckMark : CrossMark },
-                            { key: 'LastSent', field: 'LastSent', label: 'Last Sent', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => (item.Approved && item.LastSent != null) ? moment(item.LastSent).format("dd/MM/yy hh:mm") : "N/A" },
-                            { key: 'Subject', field: 'Subject', label: 'Last Subject', headerStyle: { width: '20%', padding: 0 }, rowStyle: { width: '20%' }, content: (item) => (item.Approved && item.Subject != null) ? item.Subject : "N/A" },
+                            { key: 'Category', field: 'Category', label: 'Category', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'EmailName', field: 'EmailName', label: 'Notification', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'AssetGroup', field: 'AssetGroup', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            {
+                                key: 'Approved', field: 'Approved', label: 'Approved', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                content: (item) => item.Approved ? HeavyCheckMark : CrossMark
+                            },
+                            {
+                                key: 'LastSent', field: 'LastSent', label: 'Last Sent', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                content: (item) => (item.Approved && item.LastSent != null) ? moment(item.LastSent).format("dd/MM/yy hh:mm") : "N/A"
+                            },
+                            {
+                                key: 'Subject', field: 'Subject', label: 'Last Subject', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                content: (item) => (item.Approved && item.Subject != null) ? item.Subject : "N/A"
+                            },
+                            {
+                                key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                content: (item) => <>
+                                    <button className="btn btn-sm" onClick={(e) => {
+                                        e.preventDefault();
+                                        setShowWarning(true);
+                                        setSubscription(item);
+                                    }}>Unsubscribe</button>
+                                   
+                                </>
+                            },
                             { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
                         tableClass="table table-hover"
@@ -96,6 +119,15 @@ const BySubscription = (props: IProps) => {
                         selected={() => false}
                     />
                 </div>
+                <Warning Show={showWarning}
+                    Title={'Unsubscribe from ' + (subscription == undefined ? '' : subscription.EmailName)}
+                    Message={'This will unsubscribe you from these notifications. You will no longer recieve these notifications.'}
+                    CallBack={(c) => {
+                        if (c)
+                            dispatch(ActiveSubscriptionSlice.DBAction({ record: subscription, verb: 'DELETE' }));
+                        setShowWarning(false);
+                    }}
+                />
             </div>
         </>)
 }

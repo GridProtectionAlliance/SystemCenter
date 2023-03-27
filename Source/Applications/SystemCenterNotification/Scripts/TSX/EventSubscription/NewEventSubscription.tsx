@@ -85,6 +85,8 @@ const NewEventSubscription = (props: {}) => {
             return;
         else if (currentStep == 'Selection' && isText)
             setCurrentStep('Carrier');
+        else if (currentStep == 'Selection' && !isText)
+            setCurrentStep('Email');
         else if (currentStep == 'Carrier' && isText)
             setCurrentStep('Phone');
         else if (currentStep == 'Email' || currentStep == 'Phone')
@@ -98,7 +100,9 @@ const NewEventSubscription = (props: {}) => {
         if (currentStep == 'Phone')
            setCurrentStep('Carrier');
         else if (currentStep == 'Email')
-           setCurrentStep('Selection');
+            setCurrentStep('Selection');
+        else if (currentStep == 'Carrier')
+            setCurrentStep('Selection');
     }
 
 
