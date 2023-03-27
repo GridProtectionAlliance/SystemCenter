@@ -126,174 +126,172 @@ export class ChannelScalingWrapper {
     }
 
     private DeriveScalingType() {
-        if (this.MeasurementType === undefined)
-            return ChannelScalingType.NoScaling;
-        if (this.MeasurementType.Name === "Voltage") {
-            if (this.MeasurementCharacteristic.Name === "Instantaneous")
+        if (this.MeasurementType?.Name === "Voltage") {
+            if (this.MeasurementCharacteristic?.Name === "Instantaneous")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "Peak")
+            if (this.MeasurementCharacteristic?.Name === "Peak")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "RMS")
+            if (this.MeasurementCharacteristic?.Name === "RMS")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "HRMS")
+            if (this.MeasurementCharacteristic?.Name === "HRMS")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "IHRMS")
+            if (this.MeasurementCharacteristic?.Name === "IHRMS")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "TotalTHDRMS")
+            if (this.MeasurementCharacteristic?.Name === "TotalTHDRMS")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "OddTHDRMS")
+            if (this.MeasurementCharacteristic?.Name === "OddTHDRMS")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "EvenTHDRMS")
+            if (this.MeasurementCharacteristic?.Name === "EvenTHDRMS")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "TIDRMS")
+            if (this.MeasurementCharacteristic?.Name === "TIDRMS")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "TIFRMS")
+            if (this.MeasurementCharacteristic?.Name === "TIFRMS")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "SPos")
+            if (this.MeasurementCharacteristic?.Name === "SPos")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "SNeg")
+            if (this.MeasurementCharacteristic?.Name === "SNeg")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "SZero")
+            if (this.MeasurementCharacteristic?.Name === "SZero")
                 return ChannelScalingType.Voltage;
-            if (this.MeasurementCharacteristic.Name === "SpectraHGroup")
+            if (this.MeasurementCharacteristic?.Name === "SpectraHGroup")
                 return ChannelScalingType.Voltage;
         }
-        if (this.MeasurementType.Name === "Current") {
-            if (this.MeasurementCharacteristic.Name === "Instantaneous")
+        if (this.MeasurementType?.Name === "Current") {
+            if (this.MeasurementCharacteristic?.Name === "Instantaneous")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "Peak")
+            if (this.MeasurementCharacteristic?.Name === "Peak")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "RMS")
+            if (this.MeasurementCharacteristic?.Name === "RMS")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "RMSDemand")
+            if (this.MeasurementCharacteristic?.Name === "RMSDemand")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "RMSPeakDemand")
+            if (this.MeasurementCharacteristic?.Name === "RMSPeakDemand")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "HRMS")
+            if (this.MeasurementCharacteristic?.Name === "HRMS")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "IHRMS")
+            if (this.MeasurementCharacteristic?.Name === "IHRMS")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "TotalTHDRMS")
+            if (this.MeasurementCharacteristic?.Name === "TotalTHDRMS")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "OddTHDRMS")
+            if (this.MeasurementCharacteristic?.Name === "OddTHDRMS")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "EvenTHDRMS")
+            if (this.MeasurementCharacteristic?.Name === "EvenTHDRMS")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "TIDRMS")
+            if (this.MeasurementCharacteristic?.Name === "TIDRMS")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "SPos")
+            if (this.MeasurementCharacteristic?.Name === "SPos")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "SNeg")
+            if (this.MeasurementCharacteristic?.Name === "SNeg")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "SZero")
+            if (this.MeasurementCharacteristic?.Name === "SZero")
                 return ChannelScalingType.Current;
-            if (this.MeasurementCharacteristic.Name === "SpectraHGroup")
+            if (this.MeasurementCharacteristic?.Name === "SpectraHGroup")
                 return ChannelScalingType.Current;
         }
-        if (this.MeasurementType.Name === "Power") {
-            if (this.MeasurementCharacteristic.Name === "P")
+        if (this.MeasurementType?.Name === "Power") {
+            if (this.MeasurementCharacteristic?.Name === "P")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "Q")
+            if (this.MeasurementCharacteristic?.Name === "Q")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "S")
+            if (this.MeasurementCharacteristic?.Name === "S")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PFund")
+            if (this.MeasurementCharacteristic?.Name === "PFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QFund")
+            if (this.MeasurementCharacteristic?.Name === "QFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SFund")
+            if (this.MeasurementCharacteristic?.Name === "SFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PDemand")
+            if (this.MeasurementCharacteristic?.Name === "PDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QDemand")
+            if (this.MeasurementCharacteristic?.Name === "QDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SDemand")
+            if (this.MeasurementCharacteristic?.Name === "SDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PPeakDemand")
+            if (this.MeasurementCharacteristic?.Name === "PPeakDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QPeakDemand")
+            if (this.MeasurementCharacteristic?.Name === "QPeakDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SPeakDemand")
+            if (this.MeasurementCharacteristic?.Name === "SPeakDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PPredDemand")
+            if (this.MeasurementCharacteristic?.Name === "PPredDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QPredDemand")
+            if (this.MeasurementCharacteristic?.Name === "QPredDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SPredDemand")
+            if (this.MeasurementCharacteristic?.Name === "SPredDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PCoQDemand")
+            if (this.MeasurementCharacteristic?.Name === "PCoQDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PCoSDemand")
+            if (this.MeasurementCharacteristic?.Name === "PCoSDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QCoPDemand")
+            if (this.MeasurementCharacteristic?.Name === "QCoPDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QCoSDemand")
+            if (this.MeasurementCharacteristic?.Name === "QCoSDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SCoPDemand")
+            if (this.MeasurementCharacteristic?.Name === "SCoPDemand")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SCoQDemand")
+            if (this.MeasurementCharacteristic?.Name === "SCoQDemand")
                 return ChannelScalingType.PowerAndEnergy
-            if (this.MeasurementCharacteristic.Name === "PHarmonic")
+            if (this.MeasurementCharacteristic?.Name === "PHarmonic")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PHarmonicUnsigned")
+            if (this.MeasurementCharacteristic?.Name === "PHarmonicUnsigned")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SVector")
+            if (this.MeasurementCharacteristic?.Name === "SVector")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SVectorFund")
+            if (this.MeasurementCharacteristic?.Name === "SVectorFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SArith")
+            if (this.MeasurementCharacteristic?.Name === "SArith")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SArithFund")
+            if (this.MeasurementCharacteristic?.Name === "SArithFund")
                 return ChannelScalingType.PowerAndEnergy;
         }
-        if (this.MeasurementType.Name === "Energy") {
-            if (this.MeasurementCharacteristic.Name === "PIntg")
+        if (this.MeasurementType?.Name === "Energy") {
+            if (this.MeasurementCharacteristic?.Name === "PIntg")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PIntgPos")
+            if (this.MeasurementCharacteristic?.Name === "PIntgPos")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PIntgPosFund")
+            if (this.MeasurementCharacteristic?.Name === "PIntgPosFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PIntgNeg")
+            if (this.MeasurementCharacteristic?.Name === "PIntgNeg")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PIntgNegFund")
+            if (this.MeasurementCharacteristic?.Name === "PIntgNegFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QIntg")
+            if (this.MeasurementCharacteristic?.Name === "QIntg")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QIntgPos")
+            if (this.MeasurementCharacteristic?.Name === "QIntgPos")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QIntgPosFund")
+            if (this.MeasurementCharacteristic?.Name === "QIntgPosFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QIntgNeg")
+            if (this.MeasurementCharacteristic?.Name === "QIntgNeg")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QIntgNegFund")
+            if (this.MeasurementCharacteristic?.Name === "QIntgNegFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SIntg")
+            if (this.MeasurementCharacteristic?.Name === "SIntg")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SIntgFund")
+            if (this.MeasurementCharacteristic?.Name === "SIntgFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PIVLIntg")
+            if (this.MeasurementCharacteristic?.Name === "PIVLIntg")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PIVLIntgPos")
+            if (this.MeasurementCharacteristic?.Name === "PIVLIntgPos")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PIVLIntgPosFund")
+            if (this.MeasurementCharacteristic?.Name === "PIVLIntgPosFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PIVLIntgNeg")
+            if (this.MeasurementCharacteristic?.Name === "PIVLIntgNeg")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "PIVLIntgNegFund")
+            if (this.MeasurementCharacteristic?.Name === "PIVLIntgNegFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QIVLIntg")
+            if (this.MeasurementCharacteristic?.Name === "QIVLIntg")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QIVLIntgPos")
+            if (this.MeasurementCharacteristic?.Name === "QIVLIntgPos")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QIVLIntgPosFund")
+            if (this.MeasurementCharacteristic?.Name === "QIVLIntgPosFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QIVLIntgNeg")
+            if (this.MeasurementCharacteristic?.Name === "QIVLIntgNeg")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "QIVLIntgNegFund")
+            if (this.MeasurementCharacteristic?.Name === "QIVLIntgNegFund")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SIVLIntg")
+            if (this.MeasurementCharacteristic?.Name === "SIVLIntg")
                 return ChannelScalingType.PowerAndEnergy;
-            if (this.MeasurementCharacteristic.Name === "SIVLIntgFund")
+            if (this.MeasurementCharacteristic?.Name === "SIVLIntgFund")
                 return ChannelScalingType.PowerAndEnergy;
         }
         return ChannelScalingType.NoScaling;
