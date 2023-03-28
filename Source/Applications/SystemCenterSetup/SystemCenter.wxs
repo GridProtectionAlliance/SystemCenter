@@ -327,9 +327,15 @@
       <ComponentRef Id="Microsoft.Owin.Host.HttpListener" />
       <ComponentRef Id="Microsoft.Owin.Hosting" />
       <ComponentRef Id="Microsoft.Owin.Security" />
+      <ComponentRef Id="Microsoft.Web.Infrastructure" />
       <ComponentRef Id="Newtonsoft.Json" />
       <ComponentRef Id="Owin" />
       <ComponentRef Id="RazorEngine" />
+      <ComponentRef Id="System.Buffers" />
+      <ComponentRef Id="System.Memory" />
+      <ComponentRef Id="System.Runtime.CompilerServices.Unsafe" />
+      <ComponentRef Id="System.Threading.Tasks.Extensions" />
+      <ComponentRef Id="System.ValueTuple" />
       <ComponentRef Id="System.Web.Razor" />
       <ComponentRef Id="System.Net.Http.Formatting" />
       <ComponentRef Id="System.Web.Helpers" />
@@ -476,6 +482,9 @@
       <Component Id="Microsoft.Owin.Security">
         <File Id="Microsoft.Owin.Security.dll" Name="Microsoft.Owin.Security.dll" Source="$(var.SolutionDir)\Dependencies\GSF\Microsoft.Owin.Security.dll" />
       </Component>
+      <Component Id="Microsoft.Web.Infrastructure">
+        <File Id="Microsoft.Web.Infrastructure.dll" Name="Microsoft.Web.Infrastructure.dll" Source="$(var.SolutionDir)\Dependencies\GSF\Microsoft.Web.Infrastructure.dll" />
+      </Component>
       <Component Id="Newtonsoft.Json">
         <File Id="Newtonsoft.Json.dll" Name="Newtonsoft.Json.dll" Source="$(var.SolutionDir)\Dependencies\GSF\Newtonsoft.Json.dll" />
       </Component>
@@ -484,6 +493,21 @@
       </Component>
       <Component Id="RazorEngine">
         <File Id="RazorEngine.dll" Name="RazorEngine.dll" Source="$(var.SolutionDir)\Dependencies\GSF\RazorEngine.dll" />
+      </Component>
+      <Component Id="System.Buffers">
+        <File Id="System.Buffers.dll" Name="System.Buffers.dll" Source="$(var.SolutionDir)\Dependencies\GSF\System.Buffers.dll" />
+      </Component>
+      <Component Id="System.Memory">
+        <File Id="System.Memory.dll" Name="System.Memory.dll" Source="$(var.SolutionDir)\Dependencies\GSF\System.Memory.dll" />
+      </Component>
+      <Component Id="System.Runtime.CompilerServices.Unsafe">
+        <File Id="System.Runtime.CompilerServices.Unsafe.dll" Name="System.Runtime.CompilerServices.Unsafe.dll" Source="$(var.SolutionDir)\Dependencies\GSF\System.Runtime.CompilerServices.Unsafe.dll" />
+      </Component>
+      <Component Id="System.Threading.Tasks.Extensions">
+        <File Id="System.Threading.Tasks.Extensions.dll" Name="System.Threading.Tasks.Extensions.dll" Source="$(var.SolutionDir)\Dependencies\GSF\System.Threading.Tasks.Extensions.dll" />
+      </Component>
+      <Component Id="System.ValueTuple">
+        <File Id="System.ValueTuple.dll" Name="System.ValueTuple.dll" Source="$(var.SolutionDir)\Dependencies\GSF\System.ValueTuple.dll" />
       </Component>
       <Component Id="System.Web.Razor">
         <File Id="System.Web.Razor.dll" Name="System.Web.Razor.dll" Source="$(var.SolutionDir)\Dependencies\GSF\System.Web.Razor.dll" />
