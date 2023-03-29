@@ -802,7 +802,7 @@ namespace SystemCenter.Controllers
             List<T> allRecords = recordTable.QueryRecords().ToList();
             HashSet<string> hashedRecords = new HashSet<string>(allRecords.Select(record => getKeyRecord(record)));
             IEnumerable<ParsedChannel> filteredChannels = channels.Where(channel => !hashedRecords.Contains(getKeyChannel(channel)));
-            while (filteredChannels.Count() != 0)
+            while (filteredChannels.Any())
             {
                 T newRecord = newRecordFunction(filteredChannels.First());
                 recordTable.AddNewRecord(newRecord);
