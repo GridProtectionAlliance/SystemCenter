@@ -756,8 +756,8 @@ namespace SystemCenter.Controllers
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     // Finding Phases that do not yet exist and adding them to the database
-                    Func<ParsedChannel, openXDA.Model.Phase, bool> phaseEquality =
-                        (ParsedChannel channel, openXDA.Model.Phase phase) => phase.Name == channel.Phase;
+                    Func<ParsedChannel, string> phaseKeyChannel = (ParsedChannel channel) => channel.Phase;
+                    Func<openXDA.Model.Phase, string> phaseKey = (openXDA.Model.Phase phase) => phase.Name;
                     Func<ParsedChannel, openXDA.Model.Phase> createPhase = 
                         (ParsedChannel channel) =>
                             new openXDA.Model.Phase()
@@ -765,11 +765,11 @@ namespace SystemCenter.Controllers
                                 Description = channel.Phase,
                                 Name = channel.Phase
                             };
-                    CheckAndAddRecords(connection, channels, phaseEquality, createPhase);
-                    
+                    CheckAndAddRecords(connection, channels, phaseKeyChannel, phaseKey, createPhase);
+
                     // Same as above but characteristic
-                    Func<ParsedChannel, openXDA.Model.MeasurementCharacteristic, bool> charEquality = 
-                        (ParsedChannel channel, openXDA.Model.MeasurementCharacteristic characteristic) => characteristic.Name == channel.MeasurementCharacteristic;
+                    Func<ParsedChannel, string> charKeyChannel = (ParsedChannel channel) => channel.MeasurementCharacteristic;
+                    Func<openXDA.Model.MeasurementCharacteristic, string> charKey = (openXDA.Model.MeasurementCharacteristic characteristic) => characteristic.Name;
                     Func<ParsedChannel, openXDA.Model.MeasurementCharacteristic> createChar =
                         (ParsedChannel channel) =>
                             new openXDA.Model.MeasurementCharacteristic()
@@ -778,11 +778,11 @@ namespace SystemCenter.Controllers
                                 Name = channel.MeasurementCharacteristic,
                                 Display = false
                             };
-                    CheckAndAddRecords(connection, channels, charEquality, createChar);
+                    CheckAndAddRecords(connection, channels, charKeyChannel, charKey, createChar);
 
-                    // Same as above but characteristic
-                    Func<ParsedChannel, openXDA.Model.MeasurementType, bool> typeEquality = 
-                        (ParsedChannel channel, openXDA.Model.MeasurementType type) => type.Name == channel.MeasurementType;
+                    // Same as above but type
+                    Func<ParsedChannel, string> typeKeyChannel = (ParsedChannel channel) => channel.MeasurementType;
+                    Func<openXDA.Model.MeasurementType, string> typeKey = (openXDA.Model.MeasurementType type) => type.Name;
                     Func<ParsedChannel, openXDA.Model.MeasurementType> createType =
                         (ParsedChannel channel) =>
                             new openXDA.Model.MeasurementType()
@@ -790,22 +790,25 @@ namespace SystemCenter.Controllers
                                 Description = channel.MeasurementType,
                                 Name = channel.MeasurementType
                             };
-                    CheckAndAddRecords(connection, channels, typeEquality, createType);
+                    CheckAndAddRecords(connection, channels, typeKeyChannel, typeKey, createType);
                 }
 
             return Ok(channels);
         }
 
-        private void CheckAndAddRecords<T>(AdoDataConnection connection, IEnumerable<ParsedChannel> channels, Func<ParsedChannel, T, bool> equalityFunction, Func<ParsedChannel, T> newRecordFunction) where T : class, new ()
+        private void CheckAndAddRecords<T>(AdoDataConnection connection, IEnumerable<ParsedChannel> channels, Func<ParsedChannel, string> getKeyChannel, Func<T, string> getKeyRecord, Func<ParsedChannel, T> newRecordFunction) where T : class, new ()
         {
             TableOperations<T> recordTable = new TableOperations<T>(connection);
-            List<T> allRecords = recordTable.QueryRecordsWhere("1=1").ToList();
-            IEnumerable<ParsedChannel> filteredChannels = channels.Where(channel => allRecords.Find(record => equalityFunction(channel, record)) is null);
+            List<T> allRecords = recordTable.QueryRecords().ToList();
+            HashSet<string> hashedRecords = new HashSet<string>(allRecords.Select(record => getKeyRecord(record)));
+            IEnumerable<ParsedChannel> filteredChannels = channels.Where(channel => !hashedRecords.Contains(getKeyChannel(channel)));
             while (filteredChannels.Count() != 0)
             {
                 T newRecord = newRecordFunction(filteredChannels.First());
                 recordTable.AddNewRecord(newRecord);
-                filteredChannels = filteredChannels.Where(channel => !equalityFunction(channel, newRecord));
+                //Remove records from filterd that match the one already added
+                string newKey = getKeyChannel(filteredChannels.First());
+                filteredChannels = filteredChannels.Where(channel => newKey != getKeyChannel(channel));
             }
         }
 
