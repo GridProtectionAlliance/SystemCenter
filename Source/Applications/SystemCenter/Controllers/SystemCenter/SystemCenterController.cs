@@ -804,10 +804,11 @@ namespace SystemCenter.Controllers
             IEnumerable<ParsedChannel> filteredChannels = channels.Where(channel => !hashedRecords.Contains(getKeyChannel(channel)));
             while (filteredChannels.Any())
             {
-                T newRecord = newRecordFunction(filteredChannels.First());
+                ParsedChannel firstChannel = filteredChannels.First();
+                T newRecord = newRecordFunction(firstChannel);
                 recordTable.AddNewRecord(newRecord);
                 //Remove records from filterd that match the one already added
-                string newKey = getKeyChannel(filteredChannels.First());
+                string newKey = getKeyChannel(firstChannel);
                 filteredChannels = filteredChannels.Where(channel => newKey != getKeyChannel(channel));
             }
         }
