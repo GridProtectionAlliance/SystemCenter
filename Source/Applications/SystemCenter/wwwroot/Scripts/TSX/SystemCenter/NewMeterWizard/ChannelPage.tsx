@@ -33,6 +33,8 @@ import PARParser from '../../../TS/PARParser';
 import PQDIFParser from '../../../TS/PQDIFParser';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
+import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../Store/Store';
+import { useAppDispatch } from '../hooks';
 
 declare var homePath: string;
 
@@ -47,6 +49,7 @@ interface IProps {
 }
 
 export default function ChannelPage(props: IProps) {
+    const dispatch = useAppDispatch();
     const fileInput = React.useRef(null);
     const [showCFGError, setShowCFGError] = React.useState<boolean>(false);
     const [showSpareWarning, setShowSpareWarning] = React.useState<boolean>(false);
@@ -137,8 +140,13 @@ export default function ChannelPage(props: IProps) {
                     data: contents,
                     cache: false,
                     async: true
-                }).done((data: OpenXDA.Types.Channel[]) => { handleParsedChannels(data); }
-                ).fail(msg => {
+                }).done((data: OpenXDA.Types.Channel[]) => {
+                    handleParsedChannels(data);
+                    // Need to fetch these after since the server parser will add ned things to these if it spots them
+                    dispatch(PhaseSlice.Fetch());
+                    dispatch(MeasurementCharacteristicSlice.Fetch());
+                    dispatch(MeasurmentTypeSlice.Fetch());
+                }).fail(msg => {
                     if (msg.status == 500)
                         alert(msg.responseJSON.ExceptionMessage);
                     setChannelStatus('idle');
