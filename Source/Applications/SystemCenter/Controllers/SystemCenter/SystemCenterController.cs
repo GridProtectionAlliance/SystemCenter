@@ -807,9 +807,8 @@ namespace SystemCenter.Controllers
                 ParsedChannel firstChannel = filteredChannels.First();
                 T newRecord = newRecordFunction(firstChannel);
                 recordTable.AddNewRecord(newRecord);
-                //Remove records from filterd that match the one already added
-                string newKey = getKeyChannel(firstChannel);
-                filteredChannels = filteredChannels.Where(channel => newKey != getKeyChannel(channel));
+                //Deffered execution causes this to filter our channels again with the new key in the hash set
+                hashedRecords.Add(getKeyChannel(firstChannel));
             }
         }
 
