@@ -716,6 +716,7 @@ namespace SystemCenter.Controllers
             public int ConnectionPriority { get; set; }
             public bool Trend { get; set; }
         }
+        private string Connection { get; } = "systemSettings";
 
         #endregion
 
@@ -725,10 +726,12 @@ namespace SystemCenter.Controllers
         public IHttpActionResult Post([FromUri] string extension, [FromUri] string meterKey)
         {
             IEnumerable<ParsedChannel> channels;
+            bool checkChannels = false;
             if (extension == "pqd")
             {
                 byte[] bytes = Request.Content.ReadAsByteArrayAsync().Result;
                 channels = ParsePQDiff(bytes, meterKey);
+                checkChannels = true;
             }
             else if (extension == "sel" || extension == "cev" || extension == "eve")
             {
@@ -744,90 +747,169 @@ namespace SystemCenter.Controllers
             {
                 string fileText = Request.Content.ReadAsStringAsync().Result;
                 channels = ParseLDP(fileText, meterKey);
+                checkChannels = true;
             }
             else
                 throw new InvalidDataException("File type not supported.");
 
+            if (checkChannels)
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    // Finding Phases that do not yet exist and adding them to the database
+                    Func<ParsedChannel, string> phaseKeyChannel = (ParsedChannel channel) => channel.Phase;
+                    Func<openXDA.Model.Phase, string> phaseKey = (openXDA.Model.Phase phase) => phase.Name;
+                    Func<ParsedChannel, openXDA.Model.Phase> createPhase = 
+                        (ParsedChannel channel) =>
+                            new openXDA.Model.Phase()
+                            {
+                                Description = channel.Phase,
+                                Name = channel.Phase
+                            };
+                    CheckAndAddRecords(connection, channels, phaseKeyChannel, phaseKey, createPhase);
+
+                    // Same as above but characteristic
+                    Func<ParsedChannel, string> charKeyChannel = (ParsedChannel channel) => channel.MeasurementCharacteristic;
+                    Func<openXDA.Model.MeasurementCharacteristic, string> charKey = (openXDA.Model.MeasurementCharacteristic characteristic) => characteristic.Name;
+                    Func<ParsedChannel, openXDA.Model.MeasurementCharacteristic> createChar =
+                        (ParsedChannel channel) =>
+                            new openXDA.Model.MeasurementCharacteristic()
+                            {
+                                Description = channel.MeasurementCharacteristic,
+                                Name = channel.MeasurementCharacteristic,
+                                Display = false
+                            };
+                    CheckAndAddRecords(connection, channels, charKeyChannel, charKey, createChar);
+
+                    // Same as above but type
+                    Func<ParsedChannel, string> typeKeyChannel = (ParsedChannel channel) => channel.MeasurementType;
+                    Func<openXDA.Model.MeasurementType, string> typeKey = (openXDA.Model.MeasurementType type) => type.Name;
+                    Func<ParsedChannel, openXDA.Model.MeasurementType> createType =
+                        (ParsedChannel channel) =>
+                            new openXDA.Model.MeasurementType()
+                            {
+                                Description = channel.MeasurementType,
+                                Name = channel.MeasurementType
+                            };
+                    CheckAndAddRecords(connection, channels, typeKeyChannel, typeKey, createType);
+                }
+
             return Ok(channels);
         }
+
+        private void CheckAndAddRecords<T>(AdoDataConnection connection, IEnumerable<ParsedChannel> channels, Func<ParsedChannel, string> getKeyChannel, Func<T, string> getKeyRecord, Func<ParsedChannel, T> newRecordFunction) where T : class, new ()
+        {
+            TableOperations<T> recordTable = new TableOperations<T>(connection);
+            List<T> allRecords = recordTable.QueryRecords().ToList();
+            HashSet<string> hashedRecords = new HashSet<string>(allRecords.Select(record => getKeyRecord(record)));
+            IEnumerable<ParsedChannel> filteredChannels = channels.Where(channel => !hashedRecords.Contains(getKeyChannel(channel)));
+            while (filteredChannels.Any())
+            {
+                ParsedChannel firstChannel = filteredChannels.First();
+                T newRecord = newRecordFunction(firstChannel);
+                recordTable.AddNewRecord(newRecord);
+                //Deffered execution causes this to filter our channels again with the new key in the hash set
+                hashedRecords.Add(getKeyChannel(firstChannel));
+            }
+        }
+
         private IEnumerable<ParsedChannel> ParsePQDiff(byte[] bytes, string meterKey)
         {
             using (Stream stream = new MemoryStream(bytes))
             using (LogicalParser parser = new LogicalParser(stream))
             {
-                List<ObservationRecord> observations = new List<ObservationRecord>();
-                while (parser.HasNextObservationRecord())
-                    observations.Add(parser.NextObservationRecord());
+                List<ObservationRecord> observationRecords = new List<ObservationRecord>();
 
-                if (parser.DataSourceRecords.Count == 0)
+                while (parser.HasNextObservationRecord())
+                    observationRecords.Add(parser.NextObservationRecord());
+
+                // Build the list of all data source records in the PQDIF file
+                List<DataSourceRecord> dataSources = observationRecords
+                    .Select(observation => observation.DataSource)
+                    .Distinct()
+                    .ToList();
+
+                // If there are no data sources, there is no
+                // need to go any further because we won't be
+                // able to interpret any of the channel data
+                if (!dataSources.Any())
                     throw new InvalidDataException("File contained no usable channel definitions");
 
-                IEnumerable<ChannelDefinition> channelDefinitions = parser.DataSourceRecords.First().ChannelDefinitions
-                    .Where(cd => cd.SeriesDefinitions.Any(ser => ser.ValueTypeID == SeriesValueType.Time));
+                // Build the list of all channel instances in the PQDIF file
+                List<ChannelInstance> channelInstances = observationRecords
+                    .SelectMany(observation => observation.ChannelInstances)
+                    .Where(channelInstance => QuantityType.IsQuantityTypeID(channelInstance.Definition.QuantityTypeID))
+                    .Where(channelInstance => channelInstance.SeriesInstances.Any())
+                    .Where(channelInstance => channelInstance.SeriesInstances[0].Definition.ValueTypeID == SeriesValueType.Time)
+                    .ToList();
 
-                IEnumerable<ParsedChannel> channels = channelDefinitions.Select((cd, index) =>
+                // Create the list of series instances so we can
+                // build it as we process each channel instance
+                List<SeriesInstance> seriesInstances = new List<SeriesInstance>();
+
+                List<openXDA.Model.Channel> parsedChannels = new List<openXDA.Model.Channel>();
+                foreach (ChannelInstance channelInstance in channelInstances)
                 {
-                    Guid characteristic = cd.SeriesDefinitions
-                        .Where(seriesDefinition => seriesDefinition.ValueTypeID != SeriesValueType.Time)
-                        .Select(seriesDefinition => seriesDefinition.QuantityCharacteristicID)
-                        .DefaultIfEmpty(QuantityCharacteristic.Instantaneous)
-                        .First();
+                    bool timeValueChannel =
+                        channelInstance.Definition.QuantityTypeID == QuantityType.WaveForm ||
+                        channelInstance.Definition.QuantityTypeID == QuantityType.ValueLog ||
+                        channelInstance.Definition.QuantityTypeID == QuantityType.Phasor;
 
-                    Guid[] parsedSeriesValueTypes = { SeriesValueType.Val, SeriesValueType.Max, SeriesValueType.Min, SeriesValueType.Avg };
+                    if (!timeValueChannel)
+                        continue;
 
-                    Func<Guid, string> SeriesType = (Guid g) =>
+                    foreach (SeriesInstance seriesInstance in channelInstance.SeriesInstances.Skip(1))
                     {
-                        if (g == SeriesValueType.Val)
-                            return "Values";
-                        if (g == SeriesValueType.Min)
-                            return "Minimum";
-                        if (g == SeriesValueType.Max)
-                            return "Maximum";
-                        if (g == SeriesValueType.Avg)
-                            return "Average";
-                        return "Values";
-                    };
+                        // Create a channel from the parsed series instance
+                        seriesInstances.Add(seriesInstance);
+                        openXDA.Model.Channel channel = PQDIFReader.ParseSeries(seriesInstance);
 
-                    int harmonicGroup = observations
-                        .Where(observation => ReferenceEquals(observation.DataSource, cd.DataSource))
-                        .SelectMany(observation => observation.ChannelInstances)
-                        .Where(channelInstance => ReferenceEquals(channelInstance.Definition, cd))
-                        .Select(channelInstance => channelInstance.ChannelGroupID)
-                        .FirstOrDefault(channelGroupIndex => channelGroupIndex != 0);
+                        // Add the new channel to the meter's channel list
+                        parsedChannels.Add(channel);
+                    }
+                }
 
-                    IEnumerable<ParsedSeries> series = cd.SeriesDefinitions
-                        .Where(seriesDefinition => parsedSeriesValueTypes.Contains(seriesDefinition.ValueTypeID))
-                        .Select(d => new ParsedSeries()
-                        {
-                            ID = 0,
-                            ChannelID = 0,
-                            SeriesType = SeriesType(d.ValueTypeID),
-                            SourceIndexes = ""
-                        });
+                // Build a list of series definitions that were not instanced by this PQDIF file
+                List<SeriesDefinition> seriesDefinitions = dataSources
+                    .SelectMany(dataSource => dataSource.ChannelDefinitions)
+                    .SelectMany(channelDefinition => channelDefinition.SeriesDefinitions)
+                    .Distinct()
+                    .Except(seriesInstances.Select(seriesInstance => seriesInstance.Definition))
+                    .ToList();
 
-                    bool trend =
-                        characteristic != QuantityCharacteristic.Instantaneous ||
-                        series.Any(item => item.SeriesType != "Values");
+                // Add each of the series definitions which were not instanced to the meter's list of channels
+                foreach (SeriesDefinition seriesDefinition in seriesDefinitions)
+                    parsedChannels.Add(PQDIFReader.ParseSeries(seriesDefinition));
+
+                IEnumerable<ParsedChannel> channels = parsedChannels.Select((cd, index) =>
+                {
+                    List<ParsedSeries> series = new List<ParsedSeries>();
+                    series.Add(new ParsedSeries()
+                    {
+                        ID = 0,
+                        ChannelID = 0,
+                        SeriesType = cd.Series[0].SeriesType.Name,
+                        SourceIndexes = ""
+                    });
 
                     return new ParsedChannel()
                     {
                         ID = index + 1,
                         Meter = meterKey,
                         Asset = "",
-                        MeasurementType = cd.QuantityMeasured.ToString(),
-                        MeasurementCharacteristic = QuantityCharacteristic.ToName(characteristic),
-                        Phase = cd.Phase.ToString(),
-                        Name = cd.ChannelName,
+                        MeasurementType = cd.MeasurementType.Name,
+                        MeasurementCharacteristic = cd.MeasurementCharacteristic.Name,
+                        Phase = cd.Phase.Name,
+                        Name = cd.Name,
                         SamplesPerHour = 0,
-                        PerUnitValue = 1,
-                        HarmonicGroup = harmonicGroup,
-                        Description = (cd.DataSource.DataSourceName) + " - " + cd.ChannelName,
+                        PerUnitValue = cd.PerUnitValue ?? 1,
+                        HarmonicGroup = cd.HarmonicGroup,
+                        Description = cd.Name,
                         Enabled = true,
                         Adder = 0,
                         Multiplier = 1,
                         Series = series,
                         ConnectionPriority = 0,
-                        Trend = trend
+                        Trend = cd.Trend
                     };
                 });
 
