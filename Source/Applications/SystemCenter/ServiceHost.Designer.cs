@@ -150,6 +150,8 @@ namespace SystemCenter
             this.m_serviceHelper = new GSF.ServiceProcess.ServiceHelper(this.components);
             this.m_remotingServer = new GSF.Communication.TcpServer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper.ConnectionErrorLogger)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper.ConnectionErrorLogger.ErrorLog)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper.ErrorLogger)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper.ErrorLogger.ErrorLog)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper.ProcessScheduler)).BeginInit();
@@ -164,7 +166,10 @@ namespace SystemCenter
             // 
             // 
             // 
-            this.m_serviceHelper.ErrorLogger.ErrorLog.FileName = "openXDA.ErrorLog.txt";
+            // 
+            // 
+            // 
+            this.m_serviceHelper.ErrorLogger.ErrorLog.FileName = "SystemCenter.ErrorLog.txt";
             this.m_serviceHelper.ErrorLogger.ErrorLog.PersistSettings = true;
             this.m_serviceHelper.ErrorLogger.ErrorLog.SettingsCategory = "ErrorLog";
             this.m_serviceHelper.ErrorLogger.PersistSettings = true;
@@ -179,7 +184,7 @@ namespace SystemCenter
             // 
             // 
             // 
-            this.m_serviceHelper.StatusLog.FileName = "openXDA.StatusLog.txt";
+            this.m_serviceHelper.StatusLog.FileName = "SystemCenter.StatusLog.txt";
             this.m_serviceHelper.StatusLog.PersistSettings = true;
             this.m_serviceHelper.StatusLog.SettingsCategory = "StatusLog";
             // 
@@ -194,14 +199,14 @@ namespace SystemCenter
             // ServiceHost
             // 
             this.ServiceName = "openXDA";
+            ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper.ConnectionErrorLogger.ErrorLog)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper.ConnectionErrorLogger)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper.ErrorLogger.ErrorLog)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper.ErrorLogger)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper.ProcessScheduler)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper.StatusLog)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_serviceHelper)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.m_remotingServer)).EndInit();
-
-
 
         }
 
