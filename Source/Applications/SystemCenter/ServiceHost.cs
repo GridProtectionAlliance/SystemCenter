@@ -69,12 +69,13 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Configuration;
 using System.Data;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Reflection;
+using System.Security;
 using System.Security.Principal;
 using System.ServiceProcess;
 using System.Text;
@@ -86,24 +87,25 @@ using GSF.Configuration;
 using GSF.Console;
 using GSF.Data;
 using GSF.Data.Model;
+using GSF.Diagnostics;
 using GSF.Identity;
 using GSF.IO;
-using GSF.Reflection;
 using GSF.Security;
 using GSF.Security.Model;
 using GSF.ServiceProcess;
 using GSF.Web.Hosting;
 using GSF.Web.Model;
 using GSF.Web.Security;
+using log4net;
 using log4net.Appender;
 using log4net.Config;
+using log4net.Core;
 using log4net.Layout;
 using Microsoft.Owin.Hosting;
-using SystemCenter.Logging;
-using System.Security;
-using System.Net;
-using SystemCenter.Model;
 using SystemCenter.Configuration;
+using SystemCenter.Logging;
+using SystemCenter.Model;
+using AssemblyInfo = GSF.Reflection.AssemblyInfo;
 using PQViewSite = openXDA.Model.PQViewSite;
 
 namespace SystemCenter
@@ -129,8 +131,10 @@ namespace SystemCenter
         private Thread m_startEngineThread;
         private bool m_serviceStopping;
         private IDisposable m_webAppHost;
+        private IDisposable m_logSubscriber;
         private bool m_disposed;
         private SystemCenterEngine m_systemCenterEngine;
+
         #endregion
 
         #region [ Constructors ]
@@ -242,6 +246,8 @@ namespace SystemCenter
             debugLogAppender.ActivateOptions();
             BasicConfigurator.Configure(serviceHelperAppender, debugLogAppender);
 
+            m_logSubscriber = SubscribeToGSFLogger(debugLogAppender);
+
             // Set up heartbeat and client request handlers
             m_serviceHelper.AddScheduledProcess(ServiceHeartbeatHandler, "ServiceHeartbeat", "* * * * *");
             m_serviceHelper.AddScheduledProcess(ReloadConfigurationHandler, "ReloadConfiguration", "0 0 * * *");
@@ -307,7 +313,8 @@ namespace SystemCenter
             {
                 try
                 {
-                   m_webAppHost?.Dispose();
+                    m_webAppHost?.Dispose();
+                    m_logSubscriber?.Dispose();
                 }
                 finally
                 {
@@ -330,7 +337,6 @@ namespace SystemCenter
 
             // Dispose of the analysis engine
             m_systemCenterEngine.Stop();
-
 
             // Save updated settings to the configuration file
             ConfigurationFile.Current.Save();
@@ -967,7 +973,64 @@ namespace SystemCenter
         #endregion
 
         #region [ Static ]
-        private static readonly ConnectionStringParser<SettingAttribute, CategoryAttribute> ConnectionStringParser = new ConnectionStringParser<SettingAttribute, CategoryAttribute>();
+
+        private static readonly ILog Log = LogManager.GetLogger(typeof(ServiceHost));
+
+        private static IDisposable SubscribeToGSFLogger(IAppender appender)
+        {
+            LogSubscriber subscriber = Logger.CreateSubscriber(VerboseLevel.All);
+
+            Level ToLog4NetLevel(MessageLevel level)
+            {
+                switch (level)
+                {
+                    case MessageLevel.NA:
+                        return Level.Off;
+
+                    default:
+                    case MessageLevel.Debug:
+                        return Level.Debug;
+
+                    case MessageLevel.Info:
+                        return Level.Info;
+
+                    case MessageLevel.Warning:
+                        return Level.Warn;
+
+                    case MessageLevel.Error:
+                        return Level.Error;
+
+                    case MessageLevel.Critical:
+                        return Level.Critical;
+                }
+            }
+
+            subscriber.NewLogMessage += logMessage =>
+            {
+                if (logMessage.Level == MessageLevel.NA)
+                    return;
+
+                LogStackFrame firstStackFrame = logMessage.CurrentStackTrace.Frames[0];
+                string className = firstStackFrame.ClassName;
+                string methodName = firstStackFrame.MethodName;
+                string fileName = firstStackFrame.FileName;
+                string lineNumber = firstStackFrame.LineNumber.ToString();
+                LocationInfo locationInfo = new LocationInfo(className, methodName, fileName, lineNumber);
+
+                LoggingEventData loggingData = new LoggingEventData();
+                loggingData.LoggerName = logMessage.TypeName;
+                loggingData.TimeStamp = logMessage.UtcTime;
+                loggingData.Level = ToLog4NetLevel(logMessage.Level);
+                loggingData.Message = logMessage.Message;
+                loggingData.LocationInfo = locationInfo;
+
+                LoggingEvent loggingEvent = new LoggingEvent(loggingData);
+                appender.DoAppend(loggingEvent);
+            };
+
+            return subscriber;
+        }
+
         #endregion
     }
 }
