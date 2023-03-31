@@ -227,7 +227,7 @@ namespace SystemCenter.Notifications.Model
 
         private bool IsValidADUser(string userName)
         {
-            string sid = UserInfo.GroupNameToSID(userName);
+            string sid = UserInfo.UserNameToSID(userName);
             return UserInfo.IsUserSID(sid);
         }
 
