@@ -20,18 +20,21 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
+using GSF.Collections;
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Identity;
 using GSF.Security.Model;
 using GSF.Web.Model;
+using Microsoft.AspNet.SignalR.Hubs;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
 using openXDA.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -47,6 +50,10 @@ namespace SystemCenter.Notifications.Controllers
     {
         const string Connection = "systemSettings";
 
+        private string PhoneCodeDictionary => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SystemCenter", "PhoneCodes.bin");
+
+        private string EmailCodeDictionary => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SystemCenter", "EmailCodes.bin");
+
         private class Settings
         {
             public Settings(Action<object> configure) =>
@@ -58,19 +65,36 @@ namespace SystemCenter.Notifications.Controllers
         }
 
 
-        [Route("Email"), HttpGet]
-        public IHttpActionResult ConfirmEmail()
+        [Route("Email/{code}"), HttpGet]
+        public IHttpActionResult ConfirmEmail(string code)
         {
             UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
             userInfo.Initialize();
 
             string username = System.Web.HttpContext.Current.User.Identity.Name;
+            Tuple<DateTime, string> savedCode;
+            lock (s_emailCodeLock)
+            {
+                using (FileBackedDictionary<string, Tuple<DateTime, string>> dictionary = new FileBackedDictionary<string, Tuple<DateTime, string>>(EmailCodeDictionary))
+                {
+                    if (!dictionary.TryGetValue(username, out savedCode))
+                        savedCode = Tuple.Create(DateTime.MinValue, "");
+                }
+            }
+
+            // Check to make sure it's no older than 24 hours
+            if ((DateTime.UtcNow - savedCode.Item1).TotalDays > 1)
+                return Ok(0);
+            if (string.Compare(savedCode.Item2, code,true) != 0)
+                return Ok(0);
+
             string usersid = UserInfo.UserNameToSID(username);
 
             ConfirmableUserAccount account;
-            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            using (AdoDataConnection connection = CreateDbConnection())
             {
-                account = new TableOperations<ConfirmableUserAccount>(connection).QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
+                account = new TableOperations<ConfirmableUserAccount>(connection)
+                    .QueryRecordWhere("Name = {0} OR Name = {1}", usersid, username);
 
                 if (account.EmailConfirmed)
                     return Ok(1);
@@ -80,14 +104,30 @@ namespace SystemCenter.Notifications.Controllers
             }
         }
 
-        [Route("Phone"), HttpGet]
-        public IHttpActionResult ConfirmPhone()
+        [Route("Phone/{code}"), HttpGet]
+        public IHttpActionResult ConfirmPhone(string code)
         {
             UserInfo userInfo = new UserInfo(System.Web.HttpContext.Current.User.Identity.Name);
             userInfo.Initialize();
 
             string username = System.Web.HttpContext.Current.User.Identity.Name;
             string usersid = UserInfo.UserNameToSID(username);
+
+            Tuple<DateTime, string> savedCode;
+            lock (s_phoneCodeLock)
+            {
+                using (FileBackedDictionary<string, Tuple<DateTime, string>> dictionary = new FileBackedDictionary<string, Tuple<DateTime, string>>(PhoneCodeDictionary))
+                {
+                    if (!dictionary.TryGetValue(username, out savedCode))
+                        savedCode = Tuple.Create(DateTime.MinValue, "");
+                }
+            }
+
+            // Check to make sure it's no older than 24 hours
+            if ((DateTime.UtcNow - savedCode.Item1).TotalDays > 1)
+                return Ok(0);
+            if (string.Compare(savedCode.Item2, code, true) != 0)
+                return Ok(0);
 
             ConfirmableUserAccount account;
             using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
@@ -133,7 +173,17 @@ namespace SystemCenter.Notifications.Controllers
                 if (responseMessage.StatusCode == HttpStatusCode.Unauthorized)
                     responseMessage.StatusCode = HttpStatusCode.Forbidden;
 
-                return ResponseMessage(responseMessage);
+                if (responseMessage.StatusCode != HttpStatusCode.OK)
+                    return ResponseMessage(responseMessage);
+
+                string code = await responseMessage.Content.ReadAsStringAsync();
+                lock (s_emailCodeLock)
+                {
+                    using (FileBackedDictionary<string, Tuple<DateTime, string>> dictionary = new FileBackedDictionary<string, Tuple<DateTime, string>>(EmailCodeDictionary))
+                        dictionary.AddOrUpdate(username, Tuple.Create(DateTime.UtcNow, code));
+                }
+
+                return Ok(code);
             }
         }
 
@@ -168,6 +218,15 @@ namespace SystemCenter.Notifications.Controllers
                 if (responseMessage.StatusCode == HttpStatusCode.Unauthorized)
                     responseMessage.StatusCode = HttpStatusCode.Forbidden;
 
+                if (responseMessage.StatusCode != HttpStatusCode.OK)
+                    return ResponseMessage(responseMessage);
+
+                string code = await responseMessage.Content.ReadAsStringAsync();
+                lock (s_phoneCodeLock)
+                {
+                    using (FileBackedDictionary<string, Tuple<DateTime, string>> dictionary = new FileBackedDictionary<string, Tuple<DateTime, string>>(PhoneCodeDictionary))
+                        dictionary.AddOrUpdate(username, Tuple.Create(DateTime.UtcNow, code));
+                }
                 return ResponseMessage(responseMessage);
             }
         }
@@ -185,5 +244,8 @@ namespace SystemCenter.Notifications.Controllers
             connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
             return connection;
         }
+
+        private static readonly object s_emailCodeLock = new object();
+        private static readonly object s_phoneCodeLock = new object();
     }
 }

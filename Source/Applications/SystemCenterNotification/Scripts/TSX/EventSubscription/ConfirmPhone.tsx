@@ -74,7 +74,7 @@ const ConfirmPhone = (props: IProps) => {
         if (code > 0 && code == number) 
         $.ajax({
             type: "GET",
-            url: `${homePath}api/Confirm/Phone`,
+            url: `${homePath}api/Confirm/Phone/${number}`,
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true

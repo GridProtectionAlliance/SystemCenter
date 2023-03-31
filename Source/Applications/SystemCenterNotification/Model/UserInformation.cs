@@ -21,13 +21,18 @@
 //
 //******************************************************************************************************
 
+using GSF.Configuration;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Identity;
 using GSF.Security;
 using GSF.Security.Model;
+using Microsoft.Graph;
+using openXDA.Model;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Web.Http;
 
 namespace SystemCenter.Notifications.Model
@@ -37,7 +42,7 @@ namespace SystemCenter.Notifications.Model
     /// </summary>
     public class UserInformation
     {
-     
+
         #region [ Properties ]
 
         public List<string> Roles { get; set; }
@@ -69,6 +74,31 @@ namespace SystemCenter.Notifications.Model
     [RoutePrefix("api/UserInfo")]
     public class UserController : ApiController
     {
+
+        /// <summary>
+        /// Gets Azure AD settings.
+        /// </summary>
+        public AzureADSettings AzureADSettings => m_azureADSettings ??= AzureADSettings.Load(); 
+
+        /// <summary>
+        /// Gets Graph client.
+        /// </summary>
+        public GraphServiceClient GraphClient => m_graphClient ??= AzureADSettings.GetGraphClient();
+       
+        private AzureADSettings m_azureADSettings;
+        private GraphServiceClient m_graphClient;
+
+        public string LDAPPath
+        {
+            get
+            {
+                ConfigurationFile configFile = ConfigurationFile.Current;
+                CategorizedSettingsElementCollection securityProviderSettings = configFile.Settings["securityProvider"];
+                securityProviderSettings.Add("LdapPath", "", "Specifies the LDAP path used to initialize the security provider.");
+                return securityProviderSettings["LdapPath"].Value;
+            }
+        }
+
         [Route(), HttpGet]
         public IHttpActionResult Get()
         {
@@ -90,26 +120,16 @@ namespace SystemCenter.Notifications.Model
                 {
                     // Add User to the Database
                     Guid id = Guid.NewGuid();
-                    account = new UserAccount()
-                    {
-                        UpdatedOn = DateTime.UtcNow,
-                        CreatedBy = userInfo.UserName,
-                        CreatedOn = DateTime.UtcNow,
-                        LockedOut = false,
-                        UseADAuthentication = true,
-                        UpdatedBy = userInfo.UserName,
-                        Email = userInfo.Email,
-                        DefaultNodeID = new Guid("00000000-0000-0000-0000-000000000000"),
-                        LastName = userInfo.LastName,
-                        FirstName = userInfo.FirstName,
-                        Password = null,
-                        Name = usersid,
-                        Approved = true,
-                        EmailConfirmed = false,
-                        PhoneConfirmed = false,
-                        Phone = userInfo.Telephone,
-                        ID = id
-                    };
+                    if (IsValidADUser(username))
+                        account = LoadADUser(username);
+                    if (IsValidAzureADUserName(username))
+                        account = LoadAzureUser(username);
+
+                    account.UpdatedOn = DateTime.UtcNow;
+                    account.CreatedBy = userInfo.UserName;
+                    account.UpdatedBy = userInfo.UserName;
+                    account.CreatedOn = DateTime.UtcNow;
+                    account.LockedOut = false;
 
                     new TableOperations<UserAccount>(connection).AddNewRecord(account);
 
@@ -203,6 +223,112 @@ namespace SystemCenter.Notifications.Model
             {
                 return InternalServerError(ex);
             }
+        }
+
+        private bool IsValidADUser(string userName)
+        {
+            string sid = UserInfo.UserNameToSID(userName);
+            return UserInfo.IsUserSID(sid);
+        }
+
+        private bool IsValidAzureADUserName(string userName)
+        {
+            async Task<bool> IsValidAsync()
+            {
+                if (userName.Contains("\\"))
+                    return false;
+
+                GraphServiceClient graphClient = GraphClient;
+
+                if (graphClient is null)
+                    return false;
+
+                try
+                {
+                    IUserRequest request = graphClient.Users[userName].Request();
+
+                    // Load user data - note that external users need to be looked up by userPrincipalName
+                    Microsoft.Graph.User user;
+                    if (!userName.Contains("#EXT#"))
+                    {
+                        user = await request.GetAsync();
+                    }
+                    else
+                    {
+                        IGraphServiceUsersCollectionPage page = await graphClient.Users
+                            .Request()
+                            .Filter($"userPrincipalName eq '{userName}'")
+                            .GetAsync();
+
+                        user = page.FirstOrDefault();
+                    }
+
+                    return user is not null;
+                }
+                catch (ServiceException ex)
+                {
+                    if (ex.Error.Code == "Request_ResourceNotFound")
+                        return false;
+                    else
+                        throw new Exception("Unable to query Azure", ex);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Exception attempting to query Azure", ex);
+                }
+            }
+
+            Task<bool> isValidTask = IsValidAsync();
+            return isValidTask.GetAwaiter().GetResult();
+        }
+
+        private UserAccount LoadADUser(string username)
+        {
+            UserAccount user = new UserAccount()
+            {
+                Name = username,
+                Approved = true,
+                UseADAuthentication = true,
+            };
+
+            UserInfo userInfo = new UserInfo(UserInfo.SIDToAccountName(username), LDAPPath);
+            user.Phone = userInfo.Telephone;
+            user.MobilePhone = userInfo.GetUserPropertyValue("mobile");
+
+            user.Title = userInfo.Title;
+            user.FirstName = userInfo.FirstName;
+            user.LastName = userInfo.LastName;
+            user.Email = userInfo.Email;
+            user.EmailConfirmed = false;
+            user.PhoneConfirmed = false;
+            user.ReceiveNotifications = false;
+            user.Approved = true;
+            user.Department = userInfo.Department;
+            user.DepartmentNumber = userInfo.GetUserPropertyValue("departmentnumber");
+            return user;
+        }
+
+        private UserAccount LoadAzureUser(string username)
+        {
+            GraphServiceClient graphClient = GraphClient;
+
+            Microsoft.Graph.User user = username.Contains("#EXT#") ?
+                               graphClient.Users.Request().Filter($"userPrincipalName eq '{username}'").GetAsync().Result.FirstOrDefault() :
+                               graphClient.Users[username].Request().GetAsync().Result;
+
+            return new UserAccount()
+            {
+                Name = user.UserPrincipalName,
+                Approved = true,
+                UseADAuthentication = false,
+                FirstName = user.GivenName,
+                LastName = user.Surname,
+                Phone = user.MobilePhone,
+                Email = user.Mail,
+                EmailConfirmed = false,
+                PhoneConfirmed = false,
+            };
+
         }
     }
 }

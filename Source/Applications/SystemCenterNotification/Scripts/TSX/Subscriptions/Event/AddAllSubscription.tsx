@@ -41,57 +41,59 @@ interface IProps {
 const AddAllSubscription = (props: IProps) => {
     const dispatch = useAppDispatch();
 
-    const [step, setStep] = React.useState<('Email'|'AssetGroup'|'User')>('User');
+    const [step, setStep] = React.useState<('Email'|'User')>('User');
     const [error, setError] = React.useState<string[]>([]);
 
     const [emailTypeID, setEmailTypeID] = React.useState<number>(-1);
-    const [assetGroupID, setAssetGroupID] = React.useState<number>(-1);
+    const [assetGroupIDs, setAssetGroupIDs] = React.useState<number[]>([]);
     const [userAccountID, setUserAccountID] = React.useState<string>('');
 
     React.useEffect(() => {
         const e = [];
         if (emailTypeID < 0 && step == 'Email')
             e.push('A Notification must be selected.')
-        if (assetGroupID < 0 && step == 'AssetGroup')
-            e.push('An Asset Group must be selected.')
+        if (assetGroupIDs.length == 0 && step == 'Email')
+            e.push('At least 1 Asset Group must be selected.')
         if (userAccountID.length == 0 && step == 'User')
             e.push('A User must be selected.')
         setError(e);
-    }, [emailTypeID, assetGroupID, userAccountID, step])
+    }, [emailTypeID, assetGroupIDs, userAccountID, step])
 
     React.useEffect(() => {
         if (!props.show)
             return;
         setEmailTypeID(-1);
-        setAssetGroupID(-1);
+        setAssetGroupIDs([]);
         setUserAccountID('');
         setStep('User');
     }, [props.show]) 
 
     function save() {
-        dispatch(ActiveSubscriptionSlice.DBAction({
-            verb: 'POST', record: {
-                ID: 0,
-                UserAccountID: userAccountID,
-                EmailTypeID: emailTypeID,
-                AssetGroup: assetGroupID.toString(),
-                Approved: false,
-                Category: '',
-                Email: '',
-                Subject: '',
-                UserAccountEmailID: 0,
-                EmailName: '',
-                LastSent: '',
-                UserName: ''
-            }
-        }));
+        assetGroupIDs.forEach((id) => {
+            dispatch(ActiveSubscriptionSlice.DBAction({
+                verb: 'POST', record: {
+                    ID: 0,
+                    UserAccountID: userAccountID,
+                    EmailTypeID: emailTypeID,
+                    AssetGroup: id.toString(),
+                    Approved: false,
+                    Category: '',
+                    Email: '',
+                    Subject: '',
+                    UserAccountEmailID: 0,
+                    EmailName: '',
+                    LastSent: '',
+                    UserName: ''
+                }
+            }));
+        });
         props.OnClose();
     }
 
     return (
         <>
             <Modal Show={props.show} ShowCancel={true} Size={'xlg'} ShowX={true} Title={'Add New Event Subscription'}
-                ConfirmText={step == 'AssetGroup' ? 'Add Subscription' : 'Next'}
+                ConfirmText={step == 'Email' ? 'Add Subscription' : 'Next'}
                 CancelText={'Back'}
                 DisableCancel={step == 'User'}
                 DisableConfirm={error.length > 0}
@@ -101,20 +103,18 @@ const AddAllSubscription = (props: IProps) => {
                 CallBack={(c,b) => {
                     if (!b)
                         props.OnClose();
-                    if (!c && b && step == 'AssetGroup')
-                        setStep('Email');
                     if (!c && b && step == 'Email')
                         setStep('User');
-                    if (c && step == 'Email')
-                        setStep('AssetGroup');
                     if (c && step == 'User')
                         setStep('Email');
-                    if (c && step == 'AssetGroup')
+                    if (c && step == 'Email')
                         save();
                 }}
             >
-                {step == 'Email' ? <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} /> : null}
-                {step == 'AssetGroup' ? <AssetGroupSelection assetGroupID={assetGroupID} SetAssetGroupID={setAssetGroupID} /> : null}
+                {step == 'Email' ? <>
+                    <AssetGroupSelection assetGroupID={assetGroupIDs} SetAssetGroupID={setAssetGroupIDs} />
+                    <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} />
+                </> : null}
                 {step == 'User' ? <UserSelect UserAccountID={userAccountID} SetUserAccountID={setUserAccountID} /> : null}
             </Modal>
         </>)

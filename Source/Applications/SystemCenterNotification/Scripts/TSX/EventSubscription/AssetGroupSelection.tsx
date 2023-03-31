@@ -24,7 +24,7 @@
 import { Provider } from 'react-redux';
 import * as ReactDOM from 'react-dom';
 import * as React from 'react';
-import { Application as App, LoadingIcon, Page, Search } from '@gpa-gemstone/react-interactive'
+import { Application as App, LoadingIcon, Page, Search, Warning } from '@gpa-gemstone/react-interactive'
 import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { EmailType } from '../global';
@@ -38,8 +38,8 @@ declare var homePath;
 declare var version;
 
 interface IProps {
-    SetAssetGroupID: (id: number) => void,
-    assetGroupID: number
+    SetAssetGroupID: (ids: number[]) => void,
+    assetGroupID: number[]
 }
 
 const AssetGroupSelection = (props: IProps) => {
@@ -54,6 +54,8 @@ const AssetGroupSelection = (props: IProps) => {
     const [asc, setAsc] = React.useState<boolean>(false);
     const [sort, setSort] = React.useState<keyof OpenXDA.Types.AssetGroup>('Name');
 
+    const [showWarning, setShowWarning] = React.useState<boolean>(false);
+
     React.useEffect(() => {
         let handle = getParents();
         return () => { if (handle != null && handle.abort != null) handle.abort();}
@@ -67,6 +69,21 @@ const AssetGroupSelection = (props: IProps) => {
             }
         dispatch(AssetGroupSlice.DBSearch({ ascending: asc, sortField: sort, filter: [flt] }));
     }, [asc, sort, selectedParent])
+
+    React.useEffect(() => {
+        if (parentGroups.length > 0) {
+            const keys = localStorage.getItem("SystemCenter.Notifications.SelectedGroup");
+            if (keys == null || parentGroups.findIndex(e => e.ID == parseInt(keys)) < 0)
+                setSelectedParent(parentGroups[0].ID);
+            else
+                setSelectedParent(parseInt(keys));
+        }
+    }, [selectedParent])
+
+    React.useEffect(() => {
+        if (selectedParent !== -1)
+            localStorage.setItem("SystemCenter.Notifications.SelectedGroup", selectedParent.toString());
+    }, [selectedParent]);
 
     function getParents() {
         setParentGroupState('loading');
@@ -87,14 +104,24 @@ const AssetGroupSelection = (props: IProps) => {
             setParentGroups(JSON.parse(d));
         }, () => { setParentGroupState('error'); })
     }
-   
+
+    function handleSelected(x) {
+        if (props.assetGroupID.includes(x.row.ID)) {
+            props.SetAssetGroupID(props.assetGroupID.filter(y => y != x.row.ID));
+            return;
+        }
+
+        setShowWarning(props.assetGroupID.length > 5);
+        props.SetAssetGroupID([...props.assetGroupID, x.row.ID]);    
+    }
+
     return (
         <>
             <div className="row">
                 <div className="col">
                     <div className="form-group">
                         {parentGroupState == 'loading' ? <LoadingIcon Show={true}/>:
-                            <><label> Category </label>
+                            <><label> Asset Category </label>
                         <select
                             className="form-control"
                             onChange={(evt) => {
@@ -118,9 +145,9 @@ const AssetGroupSelection = (props: IProps) => {
                         <Table<OpenXDA.Types.AssetGroup>
                             cols={[
                                 { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'Meters', field: 'Meters', label: 'Num. Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                                { key: 'Assets', field: 'Assets', label: 'Num. Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-
+                                { key: 'Meters', field: 'Meters', label: 'Num. Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'Assets', field: 'Assets', label: 'Num. Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                             ]}
                             tableClass="table table-hover"
                             data={assetGrps}
@@ -137,14 +164,20 @@ const AssetGroupSelection = (props: IProps) => {
                                     setSort(d.colField);
                                 }
                             }}
-                            onClick={(x) => props.SetAssetGroupID(x.row.ID)}
+                            onClick={handleSelected}
                             theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', height: window.innerHeight - 550, width: '100%' }}
                             rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={(item) => item.ID == props.assetGroupID}
+                            selected={(item) => props.assetGroupID.includes(item.ID)}
                         />}
                 </div>
             </div>
+            <Warning
+                Message={`You are subscribing to ${props.assetGroupID.length} sets of notifications. For some events you may recieve one notification for each asset group selected.`}
+                Title={`Subscribing to ${props.assetGroupID.length} Notifications`}
+                Show={showWarning}
+                CallBack={(c) => { setShowWarning(false); }}
+            />
         </>
     );
 }
