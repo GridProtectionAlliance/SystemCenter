@@ -225,7 +225,7 @@ namespace SystemCenter.Notifications.Controllers
                 lock (s_phoneCodeLock)
                 {
                     using (FileBackedDictionary<string, Tuple<DateTime, string>> dictionary = new FileBackedDictionary<string, Tuple<DateTime, string>>(PhoneCodeDictionary))
-                        dictionary.AddOrUpdate(username, new Tuple<DateTime, string>(DateTime.UtcNow, code));
+                        dictionary.AddOrUpdate(username, Tuple.Create(DateTime.UtcNow, code));
                 }
                 return ResponseMessage(responseMessage);
             }
