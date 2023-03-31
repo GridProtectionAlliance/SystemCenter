@@ -173,7 +173,7 @@ const AssetGroupSelection = (props: IProps) => {
                 </div>
             </div>
             <Warning
-                Message={`You are subscribing to ${props.assetGroupID.length} sets of notifications. For some events you may recieve one notifications for each asset group selected.`}
+                Message={`You are subscribing to ${props.assetGroupID.length} sets of notifications. For some events you may recieve one notification for each asset group selected.`}
                 Title={`Subscribing to ${props.assetGroupID.length} Notifications`}
                 Show={showWarning}
                 CallBack={(c) => { setShowWarning(false); }}
