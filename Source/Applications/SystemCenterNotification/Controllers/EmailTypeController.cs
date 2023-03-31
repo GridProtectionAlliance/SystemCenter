@@ -30,10 +30,13 @@ using openXDA.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Net.Http;
 using System.Web.Http;
 using System.Xml;
+using System.Xml.Linq;
 using SystemCenter.Notifications.Model;
+using static FaultData.DataWriters.Emails.EmailService;
 using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
 
 namespace SystemCenter.Notifications.Controllers
@@ -61,6 +64,20 @@ namespace SystemCenter.Notifications.Controllers
         public string TriggerSQL { get; set; }
     }
 
+    public class DataSourceResponseTSX : DataSourceResponse 
+    { 
+        public DataSourceResponseTSX(DataSourceResponse reponse)
+        {
+            Success = reponse.Success;
+            Created = reponse.Created;
+            Data = reponse.Data?.ToString() ?? "";
+            Exception = reponse.Exception;
+            Model = reponse.Model;
+        }
+
+        public new string Data { get; set; }
+
+    }
     [RoutePrefix("api/OpenXDA/EmailType")]
     public class EmailTypeController : ModelController<EmailType>
     {
@@ -220,10 +237,11 @@ namespace SystemCenter.Notifications.Controllers
 
                 responseMessage.EnsureSuccessStatusCode();
 
-                XmlDocument response = JsonConvert.DeserializeXmlNode(responseMessage.Content.ReadAsStringAsync().Result);
-                
-                return Ok(response.OuterXml);
+                IEnumerable<DataSourceResponse> results = JsonConvert.
+                    DeserializeObject<IEnumerable<DataSourceResponse>>(responseMessage.Content
+                    .ReadAsStringAsync().Result).Select(r => new DataSourceResponseTSX(r));
 
+                return Ok(results);
             }
             catch (Exception ex)
             {
