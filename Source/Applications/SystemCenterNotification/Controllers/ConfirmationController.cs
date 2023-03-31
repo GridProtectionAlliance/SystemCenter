@@ -72,11 +72,14 @@ namespace SystemCenter.Notifications.Controllers
             userInfo.Initialize();
 
             string username = System.Web.HttpContext.Current.User.Identity.Name;
-            Tuple<DateTime,string> savedCode = new Tuple<DateTime, string>(DateTime.UtcNow,"");
+            Tuple<DateTime, string> savedCode;
             lock (s_emailCodeLock)
             {
                 using (FileBackedDictionary<string, Tuple<DateTime, string>> dictionary = new FileBackedDictionary<string, Tuple<DateTime, string>>(EmailCodeDictionary))
-                    dictionary.TryGetValue(username,out savedCode);
+                {
+                    if (!dictionary.TryGetValue(username, out savedCode))
+                        savedCode = Tuple.Create(DateTime.MinValue, "");
+                }
             }
 
             // Check to make sure it's no older than 24 hours
