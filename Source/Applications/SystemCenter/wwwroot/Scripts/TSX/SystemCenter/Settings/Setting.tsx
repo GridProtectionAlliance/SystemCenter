@@ -60,10 +60,11 @@ function Setting(props: IProps) {
     React.useEffect(() => {
         if (status === 'unintiated' || status === 'changed')
             dispatch(props.SettingsSlice.Fetch());
+        
     }, [status]);
 
     React.useEffect(() => {
-        if (searchStatus === 'unintiated' || status === 'changed')
+        if (searchStatus === 'unintiated' || searchStatus === 'changed')
             dispatch(props.SettingsSlice.DBSearch({ filter: search, sortField, ascending }));
     }, [searchStatus]);
 
@@ -78,7 +79,7 @@ function Setting(props: IProps) {
         if (editnewSetting.Name == null || editnewSetting.Name.length === 0)
             e.push('A Name is required')
         if (editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name.toLowerCase() === editnewSetting.Name.toLowerCase() && s.ID !== editnewSetting.ID) > -1)
-            e.push('A Settign with this Name already exists.')
+            e.push('A Setting with this Name already exists.')
         setErrors(e)
     }, [editnewSetting])
 
