@@ -29,7 +29,7 @@ import ValueListGroupInfo from './ValueListGroupInfo';
 import ValueListGroupItems from './ValueListGroupItem';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListGroupSlice } from '../Store/Store';
-import { Warning } from '@gpa-gemstone/react-interactive';
+import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
@@ -74,14 +74,7 @@ export default function ValueListGroup(props: { GroupID: number }) {
 
 
             <hr />
-            <ul className="nav nav-tabs">
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "info" ? " active" : "")} onClick={() => setTab('info')} data-toggle="tab" href="#info">Value List Group Info</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "items" ? " active" : "")} onClick={() => setTab('items')} data-toggle="tab" href="#items">List Items</a>
-                </li>
-            </ul>
+            <TabSelector CurrentTab={tab} SetTab={(t) => setTab(t as ('items' | 'info'))} Tabs={[{ Label: 'Value List Group Info', Id: 'info' }, { Label: 'List Items', Id: 'items'}]} />
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
