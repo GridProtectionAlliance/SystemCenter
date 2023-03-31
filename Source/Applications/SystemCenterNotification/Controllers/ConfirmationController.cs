@@ -113,11 +113,14 @@ namespace SystemCenter.Notifications.Controllers
             string username = System.Web.HttpContext.Current.User.Identity.Name;
             string usersid = UserInfo.UserNameToSID(username);
 
-            Tuple<DateTime, string> savedCode = new Tuple<DateTime, string>(DateTime.UtcNow, "");
+            Tuple<DateTime, string> savedCode;
             lock (s_phoneCodeLock)
             {
                 using (FileBackedDictionary<string, Tuple<DateTime, string>> dictionary = new FileBackedDictionary<string, Tuple<DateTime, string>>(PhoneCodeDictionary))
-                    dictionary.TryGetValue(username, out savedCode);
+                {
+                    if (!dictionary.TryGetValue(username, out savedCode))
+                        savedCode = Tuple.Create(DateTime.MinValue, "");
+                }
             }
 
             // Check to make sure it's no older than 24 hours
