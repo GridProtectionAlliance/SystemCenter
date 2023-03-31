@@ -237,9 +237,14 @@ namespace SystemCenter.Notifications.Controllers
 
                 responseMessage.EnsureSuccessStatusCode();
 
-                IEnumerable<DataSourceResponse> results = JsonConvert.
-                    DeserializeObject<IEnumerable<DataSourceResponse>>(responseMessage.Content
-                    .ReadAsStringAsync().Result).Select(r => new DataSourceResponseTSX(r));
+                string responseJSON = responseMessage.Content
+                    .ReadAsStringAsync()
+                    .GetAwaiter()
+                    .GetResult();
+
+                IEnumerable<DataSourceResponse> results = JsonConvert
+                    .DeserializeObject<IEnumerable<DataSourceResponse>>(responseJSON)
+                    .Select(r => new DataSourceResponseTSX(r));
 
                 return Ok(results);
             }
