@@ -233,38 +233,53 @@ namespace SystemCenter.Notifications.Model
 
         private bool IsValidAzureADUserName(string userName)
         {
-            if (userName.Contains("\\"))
-                return false;
-
-            GraphServiceClient graphClient = GraphClient;
-
-            if (graphClient is null)
-                return false;
-
-            try
+            async Task<bool> IsValidAsync()
             {
-                IUserRequest request = graphClient.Users[userName].Request();
-
-                // Load user data - note that external users need to be looked up by userPrincipalName
-                Microsoft.Graph.User user;
-                if (userName.Contains("#EXT#"))
-                    user = graphClient.Users.Request().Filter($"userPrincipalName eq '{userName}'").GetAsync().Result.FirstOrDefault();
-                else
-                    user = request.GetAsync().Result;
-
-                return user is not null;
-            }
-            catch (ServiceException ex)
-            {
-                if (ex.Error.Code == "Request_ResourceNotFound")
+                if (userName.Contains("\\"))
                     return false;
-                else
-                    throw new Exception("Unable to query Azure", ex);
+
+                GraphServiceClient graphClient = GraphClient;
+
+                if (graphClient is null)
+                    return false;
+
+                try
+                {
+                    IUserRequest request = graphClient.Users[userName].Request();
+
+                    // Load user data - note that external users need to be looked up by userPrincipalName
+                    Microsoft.Graph.User user;
+                    if (!userName.Contains("#EXT#"))
+                    {
+                        user = await request.GetAsync();
+                    }
+                    else
+                    {
+                        IGraphServiceUsersCollectionPage page = await graphClient.Users
+                            .Request()
+                            .Filter($"userPrincipalName eq '{userName}'")
+                            .GetAsync();
+
+                        user = page.FirstOrDefault();
+                    }
+
+                    return user is not null;
+                }
+                catch (ServiceException ex)
+                {
+                    if (ex.Error.Code == "Request_ResourceNotFound")
+                        return false;
+                    else
+                        throw new Exception("Unable to query Azure", ex);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception("Exception attempting to query Azure", ex);
+                }
             }
-            catch (Exception ex)
-            {
-                throw new Exception("Exception attempting to query Azure", ex);
-            }
+
+            Task<bool> isValidTask = IsValidAsync();
+            return isValidTask.GetAwaiter().GetResult();
         }
 
         private UserAccount LoadADUser(string username)
