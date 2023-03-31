@@ -51,8 +51,10 @@ namespace SystemCenter.Notifications.Controllers
     {
         const string Connection = "systemSettings";
 
-        private string PhoneCodeDictionary => $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}{Path.DirectorySeparatorChar}SystemCenter{Path.DirectorySeparatorChar}PhoneCodes.bin";
-        private string EmailCodeDictionary => $"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}{Path.DirectorySeparatorChar}SystemCenter{Path.DirectorySeparatorChar}EmailCodes.bin";
+        private string PhoneCodeDictionary => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SystemCenter", "PhoneCodes.bin");
+
+        private string EmailCodeDictionary => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "SystemCenter", "EmailCodes.bin");
+
         private class Settings
         {
             public Settings(Action<object> configure) =>
