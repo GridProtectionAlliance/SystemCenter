@@ -45,7 +45,6 @@ using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader
 namespace SystemCenter.Notifications.Controllers
 {
 
-
     [RoutePrefix("api/Confirm")]
     public class ConfirmationController : ApiController
     {
