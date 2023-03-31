@@ -39,7 +39,7 @@ const ValueListInfoWindow = (props: { Record: SystemCenter.Types.ValueListGroup 
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Company Information:</h4>
+                        <h4>Value List Information:</h4>
                     </div>
                 </div>
             </div>

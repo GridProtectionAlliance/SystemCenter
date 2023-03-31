@@ -30,7 +30,7 @@ import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
-import { SearchBar, Search } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 import ValueListGroupForm from './ValueListGroupForm';
@@ -44,6 +44,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
     const items = useAppSelector(ValueListSlice.Data);
     const itemStatus = useAppSelector(ValueListSlice.Status);
 
+    const [showNew, setShowNew] = React.useState<boolean>(false);
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ValueListGroup>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
@@ -51,10 +52,6 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
     const [search, setSearch] = React.useState<Array<Search.IFilter<SystemCenter.Types.ValueListGroup>>>([]);
-    const [newRecord, setNewRecord] = React.useState<SystemCenter.Types.ValueListGroup>(emptyRecord);
-    const [searchState, setSearchState] = React.useState<('Idle' | 'Loading' | 'Error')>('Idle');
-    const [filterableList, setFilterableList] = React.useState<Array<Search.IField<SystemCenter.Types.ValueListGroup>>>(SearchFields.ValueListGroup as Search.IField<SystemCenter.Types.ValueListGroup>[]);
-    const [showNew, setShowNew] = React.useState<boolean>(false);
 
     const [record, setRecord] = React.useState<SystemCenter.Types.ValueListGroup>(emptyRecord);
 
@@ -91,14 +88,14 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <SearchBar< SystemCenter.Types.ValueListGroup>
-                CollumnList={filterableList}
+                CollumnList={SearchFields.ValueListGroup as Search.IField<SystemCenter.Types.ValueListGroup>[] }
                 SetFilter={(flds) => setSearch(flds)}
                 Direction={'left'}
                 defaultCollumn={DefaultSearchField.ValueListGroup as Search.IField<SystemCenter.Types.ValueListGroup>}
                 Width={'50%'}
                 Label={'Search'}
-                ShowLoading={searchState == 'Loading'}
-                ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Groups'}
+                ShowLoading={status == 'loading'}
+                ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Groups'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
                     if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
@@ -123,7 +120,8 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
-                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} data-toggle="modal" data-target="#exampleModal" onClick={(evt) => { evt.preventDefault(); setRecord({ ...emptyRecord }); }}>Add Group</button>
+                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
+                                onClick={(evt) => { evt.preventDefault(); setRecord({ ...emptyRecord }); setShowNew(true); }}>Add Group</button>
                         </form>
                     </fieldset>
                 </li>
@@ -134,7 +132,10 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                     cols={[
                         { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Description', field: 'Description',label: 'Description/Comments', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Items', label: 'Items', field: 'Items', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, style) => items.filter(i => i.GroupID == item.ID).length },
+                        {
+                            key: 'Items', label: 'Items', field: 'Items', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
+                            content: (item, key, style) => items.filter(i => i.GroupID == item.ID).length
+                        },
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                     ]}
@@ -157,26 +158,19 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <div className="modal" id="exampleModal" role="dialog">
-                <div className="modal-dialog" role="document">
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title">Add new list item</h5>
-                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                            <ValueListGroupForm Record={record} Setter={setRecord} />
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => dispatch(ValueListGroupSlice.DBAction({ verb: 'POST', record }))}>Save changes</button>
-                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            <Modal Title={'Add new Group'}
+                CallBack={(c) => {
+                    if (c)
+                        dispatch(ValueListGroupSlice.DBAction({ verb: 'POST', record }));
+                    setShowNew(false);
+                }}
+                ShowCancel={false}
+                ShowX={true}
+                ConfirmBtnClass={'btn-primary'}
+                ConfirmText={'Add Group'}
+                Show={showNew} >
+                <ValueListGroupForm Record={record} Setter={setRecord} />
+            </Modal>
         </div>
     )
 }
