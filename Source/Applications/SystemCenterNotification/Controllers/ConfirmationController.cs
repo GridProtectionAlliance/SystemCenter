@@ -179,8 +179,8 @@ namespace SystemCenter.Notifications.Controllers
                 string code = await responseMessage.Content.ReadAsStringAsync();
                 lock (s_emailCodeLock)
                 {
-                    using (FileBackedDictionary<string, Tuple<DateTime,string>> dictionary = new FileBackedDictionary<string, Tuple<DateTime, string>>(EmailCodeDictionary))
-                        dictionary.AddOrUpdate(username, new Tuple<DateTime,string> (DateTime.UtcNow,code));
+                    using (FileBackedDictionary<string, Tuple<DateTime, string>> dictionary = new FileBackedDictionary<string, Tuple<DateTime, string>>(EmailCodeDictionary))
+                        dictionary.AddOrUpdate(username, Tuple.Create(DateTime.UtcNow, code));
                 }
 
                 return Ok(code);
