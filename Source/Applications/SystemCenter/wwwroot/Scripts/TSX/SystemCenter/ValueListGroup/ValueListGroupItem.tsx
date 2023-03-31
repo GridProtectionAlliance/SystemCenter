@@ -75,21 +75,20 @@ export default function ValueListGroupItems(props: IProps) {
                             cols={[
                                 { key: 'Value', field: 'Value', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'AltValue', field: 'AltValue', label: 'Alternate Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'SortOrder', field: 'SortOrder', label: 'Sort Order', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'SortOrder', field: 'SortOrder', label: 'Sort Order', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }
                                 {
                                     key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                                     content: (item) => <>
                                         <button className="btn btn-sm" onClick={(e) => {
                                             e.preventDefault();
                                             setRecord(item);
-                                            setShowWarning(true)
-                                        }}>{TrashCan}</button>
+                                            setShowModal(true);
+                                        }}>{Pencil}</button>
                                         <button className="btn btn-sm" onClick={(e) => {
                                             e.preventDefault();
                                             setRecord(item);
-                                            setShowModal(true);
-                                        }}>{Pencil}</button>
+                                            setShowWarning(true)
+                                        }}>{TrashCan}</button>                                       
                                     </>
                                 },
                                 { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
