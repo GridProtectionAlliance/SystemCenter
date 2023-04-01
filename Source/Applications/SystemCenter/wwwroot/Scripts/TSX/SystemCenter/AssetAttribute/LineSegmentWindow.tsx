@@ -57,7 +57,7 @@ function LineSegmentWindow(props: { ID: number, InnerOnly?: boolean }): JSX.Elem
     }
 
     let header = (<h4 style={(props.InnerOnly ?? false) ? { width: '100%', padding: '10px' } : null}>{"Line Segments: "}</h4>);
-    let tableContent = (
+    const tableContent = (
         <>
             <Table<OpenXDA.Types.LineSegment>
                 cols={[
@@ -67,7 +67,10 @@ function LineSegmentWindow(props: { ID: number, InnerOnly?: boolean }): JSX.Elem
                     { key: 'X1', field: 'X1', label: 'X1', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'R0', field: 'R0', label: 'R0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'X0', field: 'X0', label: 'X0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'IsEnd', field: 'IsEnd', label: 'End?', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.IsEnd ? HeavyCheckMark : "" }
+                    {
+                        key: 'IsEnd', field: 'IsEnd', label: 'End?', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                        content: (item) => item.IsEnd ? HeavyCheckMark : null
+                    }
                 ]}
                 tableClass="table table-hover"
                 data={segments}
@@ -82,7 +85,7 @@ function LineSegmentWindow(props: { ID: number, InnerOnly?: boolean }): JSX.Elem
             />
             {showFawg ? <LineSegmentWizard LineID={props.ID} closeWizard={() => { setShowFawg(false); getData(); }} LineKey={''} LineName={''} /> : null}
         </>);
-    let wizardButton = (<button className={"btn btn-primary" + ((props.InnerOnly ?? false) ? " pull-right" : "")} onClick={(evt) => setShowFawg(true)}>Linesegment Wizard</button>);
+    const wizardButton = (<button className={"btn btn-primary" + ((props.InnerOnly ?? false) ? " pull-right" : "")} onClick={(evt) => setShowFawg(true)}>Line Segment Wizard</button>);
 
     if (props.InnerOnly ?? false) return (
         <>
