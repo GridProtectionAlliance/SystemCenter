@@ -21,17 +21,13 @@
 //
 //******************************************************************************************************
 
-import { useDispatch, useSelector } from 'react-redux';
 import * as React from 'react';
-import { LoadingScreen, ToolTip } from '@gpa-gemstone/react-interactive'
-import { CrossMark, HeavyCheckMark, Warning } from '@gpa-gemstone/gpa-symbols';
-import { Application } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
-import moment from 'moment';
+import {  ToolTip } from '@gpa-gemstone/react-interactive'
+import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CellCarrierSlice, UserInfoSlice } from '../Store';
 import { IsInteger } from '@gpa-gemstone/helper-functions';
-import EmailConfirm from '../EventSubscription/ConfirmEmail';
+import EmailConfirm from '../Subscriptions/ConfirmEmail';
 
 
 declare var homePath;

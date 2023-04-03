@@ -298,14 +298,14 @@
     <Content Include="Scripts\TSX\EmailTypes\GeneralInfo.tsx" />
     <Content Include="Scripts\TSX\EmailTypes\EmailPage.tsx" />
     <Content Include="Scripts\TSX\EmailTypes\EmailForm.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\AssetGroupSelection.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\Success.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\EmailConfirmed.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\ConfirmEmail.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\ConfirmPhone.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\UserSelect.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\EmailSelect.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\NewEventSubscription.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\AssetGroupSelection.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Event\Success.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\EmailConfirmed.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\ConfirmEmail.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\ConfirmPhone.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\UserSelect.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Event\EmailSelect.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Event\NewEventSubscription.tsx" />
     <Content Include="Scripts\TSX\global.d.ts" />
     <Content Include="Scripts\TSX\hooks.ts" />
     <Content Include="Scripts\TSX\Store.tsx" />
@@ -334,7 +334,7 @@
     <Content Include="Scripts\TSX\EmailTypes\DatasourceUI\PQIDataSource.tsx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\TSX\EventSubscription\ConfirmCarrier.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\ConfirmCarrier.tsx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\TSX\UserInformation\ByUserInformation.tsx" />
@@ -342,6 +342,7 @@
   <ItemGroup>
     <Content Include="Scripts\TSX\CellCarrier\ByCellCarrier.tsx" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

@@ -26,7 +26,7 @@ import * as ReactDOM from 'react-dom';
 import * as React from 'react';
 import { Application as App, Modal, Page, Section } from '@gpa-gemstone/react-interactive'
 import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
-import NewEventSubscription from './EventSubscription/NewEventSubscription';
+import NewEventSubscription from './Subscriptions/Event/NewEventSubscription';
 import store from './Store';
 import ByEmailCategory from './EmailCategory/ByEmailCategory';
 import EmailCategoryPage from './EmailCategory/EmailCategoryPage';
@@ -37,7 +37,7 @@ import BySubscription from './Subscriptions/Event/BySubscription';
 import { UserInfoSlice } from './Store';
 import { useAppDispatch, useAppSelector } from './hooks';
 import ByAllSubscription from './Subscriptions/Event/ByAllSubscription';
-import EmailConfirmed from './EventSubscription/EmailConfirmed';
+import EmailConfirmed from './Subscriptions/EmailConfirmed';
 import ByCellCarrier from './CellCarrier/ByCellCarrier';
 import ByUserInformation from './UserInformation/ByUserInformation';
 import * as $ from 'jquery';

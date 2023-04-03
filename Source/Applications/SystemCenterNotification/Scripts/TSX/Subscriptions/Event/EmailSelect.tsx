@@ -21,13 +21,10 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import { LoadingIcon } from '@gpa-gemstone/react-interactive'
-import { EmailCategorySlice, EmailTypeSlice } from '../Store';
-
-declare var homePath;
-declare var version;
+import { EmailCategorySlice, EmailTypeSlice } from '../../Store';
 
 interface IProps {
     SetEmailTypeID: (id: number) => void,

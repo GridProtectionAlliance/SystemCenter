@@ -20,17 +20,11 @@
 //       Generated original version of source code.
 //
 //******************************************************************************************************
-
-import { Provider } from 'react-redux';
-import * as ReactDOM from 'react-dom';
 import * as React from 'react';
-import { Application as App, LoadingIcon, Page, Search, Warning } from '@gpa-gemstone/react-interactive'
-import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
+import { LoadingIcon, Search, Warning } from '@gpa-gemstone/react-interactive'
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { EmailType } from '../global';
 import { AssetGroupSlice, EmailCategorySlice, EmailTypeSlice } from '../Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { Select } from '@gpa-gemstone/react-forms';
 import * as $ from 'jquery';
 import Table from '@gpa-gemstone/react-table';
 
