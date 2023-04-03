@@ -23,8 +23,7 @@
 
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { LoadingIcon } from '@gpa-gemstone/react-interactive'
-import { EmailCategorySlice, EmailTypeSlice, UserAccountSlice } from '../Store';
+import { UserAccountSlice } from '../Store';
 import Table from '@gpa-gemstone/react-table';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { Application } from '@gpa-gemstone/application-typings'

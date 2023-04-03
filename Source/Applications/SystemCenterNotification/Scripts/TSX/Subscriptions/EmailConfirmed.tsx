@@ -21,15 +21,11 @@
 //
 //******************************************************************************************************
 
-import * as ReactDOM from 'react-dom';
 import * as React from 'react';
-import { Application as App, LoadingIcon, LoadingScreen, Page } from '@gpa-gemstone/react-interactive'
-import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { EmailType } from '../global';
-import { EmailCategorySlice, EmailTypeSlice, SettingSlice, UserInfoSlice } from '../Store';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { Select } from '@gpa-gemstone/react-forms';
+import { LoadingScreen } from '@gpa-gemstone/react-interactive'
+import { Application } from '@gpa-gemstone/application-typings';
+import { UserInfoSlice } from '../Store';
+import { useAppSelector } from '../hooks';
 import * as $ from 'jquery';
 
 declare var homePath;

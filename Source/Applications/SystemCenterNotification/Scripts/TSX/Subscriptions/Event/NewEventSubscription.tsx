@@ -21,19 +21,17 @@
 //
 //******************************************************************************************************
 
-import * as ReactDOM from 'react-dom';
 import * as React from 'react';
-import { Application as App, Page, ToolTip } from '@gpa-gemstone/react-interactive'
-import { CrossMark, SVGIcons } from '@gpa-gemstone/gpa-symbols';
-import { Application } from '@gpa-gemstone/application-typings';
+import { ToolTip } from '@gpa-gemstone/react-interactive'
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import EmailSelect from './EmailSelect';
-import AssetGroupSelection from './AssetGroupSelection';
-import ConfirmEmail from './ConfirmEmail';
-import ConfirmPhone from './ConfirmPhone';
-import { EmailTypeSlice, UserInfoSlice } from '../Store';
-import { useAppSelector } from '../hooks';
+import AssetGroupSelection from '../AssetGroupSelection';
+import ConfirmEmail from '../ConfirmEmail';
+import ConfirmPhone from '../ConfirmPhone';
+import { EmailTypeSlice, UserInfoSlice } from '../../Store';
+import { useAppSelector } from '../../hooks';
 import Success from './Success';
-import ConfirmPhoneCarrier from './ConfirmCarrier';
+import ConfirmPhoneCarrier from '../ConfirmCarrier';
 
 declare var homePath;
 declare var version;
