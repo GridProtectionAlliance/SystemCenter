@@ -1010,7 +1010,11 @@ namespace SystemCenter
                 if (logMessage.Level == MessageLevel.NA)
                     return;
 
-                LogStackFrame firstStackFrame = logMessage.CurrentStackTrace.Frames[0];
+                LogStackFrame firstStackFrame = logMessage.CurrentStackTrace.Frames.FirstOrDefault();
+
+                if (firstStackFrame is null)
+                    return;
+
                 string className = firstStackFrame.ClassName;
                 string methodName = firstStackFrame.MethodName;
                 string fileName = firstStackFrame.FileName;
