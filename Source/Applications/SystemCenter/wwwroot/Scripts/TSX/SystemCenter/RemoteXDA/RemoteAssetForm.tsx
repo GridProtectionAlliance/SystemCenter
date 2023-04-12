@@ -92,11 +92,11 @@ export default function RemoteAssetForm(props: IProps) {
         <div id='rAssetFormRoot'>
             <form>
                 <div className="col" style={{ width: '50%', float: "left" }}>
-                    <Input<OpenXDA.Types.RemoteXDAAsset> Record={formAsset} Field={'LocalAssetName'} Label={'Local Asset Name'} Valid={() => true} Setter={() => { }} Disabled={true} />
-                    <Input<OpenXDA.Types.RemoteXDAAsset> Record={formAsset} Field={'LocalAssetKey'} Label={'Local Asset Key'} Valid={() => true} Setter={() => { }} Disabled={true} />
+                    <Input<OpenXDA.Types.RemoteXDAAsset> Record={formAsset} Field={'LocalAssetName'} Label={'Local Name'} Valid={() => true} Setter={() => { }} Disabled={true} />
+                    <Input<OpenXDA.Types.RemoteXDAAsset> Record={formAsset} Field={'LocalAssetKey'} Label={'Local Key'} Valid={() => true} Setter={() => { }} Disabled={true} />
                 </div>
                 <div className="col" style={{ width: '50%', float: "right" }}>
-                    <Input<OpenXDA.Types.RemoteXDAAsset> Record={formAsset} Field={'RemoteXDAAssetKey'} Label={'Remote Meter Name and Key'} Feedback={"A field of less than 200 characters is required."} Help={"Asset name and kay on the remote side if obfuscated. Otherwise uses local name and key."} Valid={valid} Setter={setFormAsset} Disabled={!formAsset.Obsfucate} />
+                    <Input<OpenXDA.Types.RemoteXDAAsset> Record={formAsset} Field={'RemoteXDAAssetKey'} Label={'Remote Asset Name and Key'} Feedback={"A field of less than 200 characters is required."} Help={"Asset name and key on the remote side if obfuscated. Otherwise uses local name and key."} Valid={valid} Setter={setFormAsset} Disabled={!formAsset.Obsfucate} />
                     <CheckBox<OpenXDA.Types.RemoteXDAAsset> Record={formAsset} Field={'Obsfucate'} Label={'Obfuscate Remote Asset'} Setter={setFormAsset} Disabled={false} />
                 </div>
             </form>

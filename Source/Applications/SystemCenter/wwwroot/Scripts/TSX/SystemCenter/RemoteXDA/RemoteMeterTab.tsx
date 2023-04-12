@@ -127,10 +127,10 @@ const RemoteMeterTab = (props: IProps) => {
             <Table<OpenXDA.Types.RemoteXDAMeter>
                 cols={[
                 { key: 'LocalMeterName', field: 'LocalMeterName', label: 'Name (Local)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'LocalAssetKey', field: 'LocalAssetKey', label: 'Asset Key (Local)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'LocalAssetKey', field: 'LocalAssetKey', label: 'Key (Local)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                 { key: 'LocalAlias', field: 'LocalAlias', label: 'Alias (Local)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                 { key: 'RemoteXDAName', field: 'RemoteXDAName', label: 'Name (Remote)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'RemoteXDAAssetKey', field: 'RemoteXDAAssetKey', label: 'Asset Key (Remote)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'RemoteXDAAssetKey', field: 'RemoteXDAAssetKey', label: 'Key (Remote)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                 {
                     key: 'RemoteAlias', field: 'RemoteXDAName', label: 'Alias (Remote)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                     content: (item) => item.Obsfucate ? item.RemoteXDAName : item.LocalAlias
@@ -305,7 +305,7 @@ const RemoteMeterTab = (props: IProps) => {
                 Type={'single'}
                 Columns={[
                     { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetKey', field: 'AssetKey', label: 'Asset Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Location', field: 'Location', label: 'Location', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ]}

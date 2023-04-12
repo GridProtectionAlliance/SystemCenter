@@ -104,7 +104,7 @@ export default function RemoteMeterForm(props: IProps) {
                         Valid={(field) => {
                             return (valid(field) || !formMeter.Obsfucate);
                         }} Setter={setFormMeter} Disabled={!formMeter.Obsfucate} />
-                    <Input<OpenXDA.Types.RemoteXDAMeter> Record={formMeter} Field={'RemoteXDAAssetKey'} Label={'Remote Asset Key'} Feedback={"A key of less than 50 characters is required."} Valid={valid} Setter={setFormMeter} />
+                    <Input<OpenXDA.Types.RemoteXDAMeter> Record={formMeter} Field={'RemoteXDAAssetKey'} Label={'Remote Meter Key'} Feedback={"A key of less than 50 characters is required."} Valid={valid} Setter={setFormMeter} />
                     <CheckBox<OpenXDA.Types.RemoteXDAMeter> Record={formMeter} Field={'Obsfucate'} Label={'Obfuscate Remote Meter Alias'} Setter={setFormMeter} />
                 </div>
             </form>
