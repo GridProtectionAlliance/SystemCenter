@@ -305,6 +305,8 @@
     <Content Include="Scripts\TSX\Subscriptions\ConfirmPhone.tsx" />
     <Content Include="Scripts\TSX\Subscriptions\UserSelect.tsx" />
     <Content Include="Scripts\TSX\Subscriptions\Event\EmailSelect.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Report\Success.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Report\NewReportSubscription.tsx" />
     <Content Include="Scripts\TSX\Subscriptions\Event\NewEventSubscription.tsx" />
     <Content Include="Scripts\TSX\global.d.ts" />
     <Content Include="Scripts\TSX\hooks.ts" />
@@ -342,7 +344,9 @@
   <ItemGroup>
     <Content Include="Scripts\TSX\CellCarrier\ByCellCarrier.tsx" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Subscriptions\Report\ReportSelect.tsx" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

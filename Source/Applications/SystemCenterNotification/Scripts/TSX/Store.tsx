@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import { configureStore } from '@reduxjs/toolkit';
-import { ActiveSubscription, EmailCategory, EmailType, IDataSourceTriggeredEmailType, ITriggeredDataSource, ITriggeredEmailDataSourceSetting, SubscibeEmails, ICellCarrier } from './global';
+import { ActiveSubscription, EmailCategory, EmailType, IDataSourceTriggeredEmailType, ITriggeredDataSource, ITriggeredEmailDataSourceSetting, SubscibeEmails, ICellCarrier, ScheduledEmailType } from './global';
 import { GenericSlice } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import UserInfoSliceClass  from './Store/UserInfoSlice';
@@ -35,6 +35,7 @@ export type RootState = ReturnType<typeof store.getState>
 
 export const EmailCategorySlice = new GenericSlice<EmailCategory>("EmailCategory", `${homePath}api/OpenXDA/EmailCategory`, "Name", true);
 export const EmailTypeSlice = new GenericSlice<EmailType>("EmailType", `${homePath}api/OpenXDA/EmailType`, "Name", true);
+export const ScheduledEmailTypeSlice = new GenericSlice<ScheduledEmailType>("ScheduledEmailType", `${homePath}api/OpenXDA/ScheduledEmailType`, "Name", true);
 export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("AssetGroup", `${homePath}api/OpenXDA/AssetGroup`, "Name", true);
 export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', `${homePath}api/Setting`, 'Name');
 export const EventSubscriptionSlice = new GenericSlice<SubscibeEmails>('EventSubscription', `${homePath}api/EventSubscription`, 'FirstName');
@@ -71,7 +72,8 @@ const reducer = {
     TriggeredEmailDataSource: TriggeredEmailDataSourceSlice.Reducer,
     TriggeredDataSource: TriggeredDataSourceSlice.Reducer,
     UserAccount: UserAccountSlice.Reducer,
-    CellCarrier: CellCarrierSlice.Reducer
+    CellCarrier: CellCarrierSlice.Reducer,
+    ScheduledEmailType: ScheduledEmailTypeSlice.Reducer
 }
 
 const store = configureStore({ reducer });
