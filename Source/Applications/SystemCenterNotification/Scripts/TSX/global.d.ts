@@ -49,6 +49,17 @@ export interface EmailType {
     FilePath: string|null
 }
 
+export interface ScheduledEmailType {
+    ID: number,
+    EmailCategoryID: number,
+    Name: string,
+    Schedule: string,
+    Template: string,
+    TriggerEmailSQL: string,
+    SMS: boolean,
+    FilePath: string | null
+}
+
 export interface SubscibeEmails {
     ID: number,
     Approved: boolean,

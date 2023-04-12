@@ -23,6 +23,7 @@
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Web.Model;
+using Microsoft.AspNet.SignalR.Infrastructure;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
@@ -252,6 +253,97 @@ namespace SystemCenter.Notifications.Controllers
             {
                 return InternalServerError(ex);
             }
+        }
+
+
+        private AdoDataConnection CreateDbConnection()
+        {
+            AdoDataConnection connection = new AdoDataConnection(Connection);
+            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
+            return connection;
+        }
+    }
+
+    [RoutePrefix("api/OpenXDA/ScheduledEmailType")]
+    public class ScheduledEmailTypeController : ModelController<ScheduledEmailType>
+    {
+        private class Settings
+        {
+            public Settings(Action<object> configure) =>
+                configure(this);
+
+            [Category]
+            [SettingName("XDA")]
+            public APIConfiguration APISettings { get; } = new APIConfiguration();
+        }
+
+      
+        [HttpGet, Route("Test/{eventID:int}/{emailID:int}/{recipient}")]
+        public IHttpActionResult Test(int eventID, int emailID, string recipient)
+        {
+            return Ok(1);
+            /*if (!PatchAuthCheck())
+                return Unauthorized();
+            try
+            {
+                Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+
+                //Send Email from openXDA
+                APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
+
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Get;
+                }
+
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testEmail/{emailID}/{eventID}/{recipient}").Result;
+
+                return Ok(1);
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }*/
+        }
+
+        [HttpGet, Route("GetData/{eventID:int}/{emailID:int}")]
+        public IHttpActionResult GetData(int eventID, int emailID)
+        {
+            return Ok(1);
+          /*  if (!PatchAuthCheck())
+                return Unauthorized();
+            try
+            {
+                Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+
+                //Send Email from openXDA
+                APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
+
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Get;
+                }
+
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testData/{emailID}/{eventID}").Result;
+
+                responseMessage.EnsureSuccessStatusCode();
+
+                string responseJSON = responseMessage.Content
+                    .ReadAsStringAsync()
+                    .GetAwaiter()
+                    .GetResult();
+
+                IEnumerable<DataSourceResponse> results = JsonConvert
+                    .DeserializeObject<IEnumerable<DataSourceResponse>>(responseJSON)
+                    .Select(r => new DataSourceResponseTSX(r));
+
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }*/
         }
 
 
