@@ -239,7 +239,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     return (
         <>
             <div style={{ width: '100%', height: '100%' }}>
-                <DefaultSearch.AssetGroup Slice={AssetGroupSlice} GetEnum={getEnum} GetAddlFields={() => { return () => {}}}>
+                <DefaultSearch.AssetGroup StorageID={"SystemCenter.AssetGroup.Search"} Slice={AssetGroupSlice} GetEnum={getEnum} GetAddlFields={() => { return () => { } }}>
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>

@@ -101,7 +101,7 @@ const ByMeter: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <DefaultSearch.Meter Slice={ByMeterSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} >
+            <DefaultSearch.Meter StorageID={"SystemCenter.Meter.Search"} Slice={ByMeterSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} >
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Wizards:</legend>

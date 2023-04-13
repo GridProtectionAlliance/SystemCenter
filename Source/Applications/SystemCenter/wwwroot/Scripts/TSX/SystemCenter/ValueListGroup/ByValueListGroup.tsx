@@ -88,6 +88,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <SearchBar< SystemCenter.Types.ValueListGroup>
+                StorageID={"SystemCenter.ValueListGroup.Search"}
                 CollumnList={SearchFields.ValueListGroup as Search.IField<SystemCenter.Types.ValueListGroup>[] }
                 SetFilter={(flds) => setSearch(flds)}
                 Direction={'left'}

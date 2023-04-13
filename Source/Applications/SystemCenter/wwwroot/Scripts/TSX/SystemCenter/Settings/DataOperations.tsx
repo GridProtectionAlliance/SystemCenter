@@ -90,7 +90,7 @@ const DataOperations: GlobalSC.BySettingsComponent = (props) => {
         <>
             <LoadingScreen Show={status === 'loading'} />
             <div style={{ width: '100%', height: '100%' }}>
-                <SearchBar<OpenXDA.Types.DataOperation> CollumnList={searchFields} SetFilter={(flds) => dispatch(DataOperationSlice.DBSearch({ filter: flds, sortField, ascending }))}
+                <SearchBar<OpenXDA.Types.DataOperation> StorageID={"SystemCenter.DataOperation.Search"} CollumnList={searchFields} SetFilter={(flds) => dispatch(DataOperationSlice.DBSearch({ filter: flds, sortField, ascending }))}
                     Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Settings'}
                     GetEnum={() => {

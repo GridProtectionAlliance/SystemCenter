@@ -184,7 +184,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
 
-            <DefaultSearch.Location Slice={ByLocationSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields}>
+            <DefaultSearch.Location StorageID={"SystemCenter.Location.Search"} Slice={ByLocationSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields}>
    
             <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>

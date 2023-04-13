@@ -79,6 +79,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <SearchBar<OpenXDA.Types.RemoteXDAInstance>
+                StorageID={"SystemCenter.RemoteXDAInstance.Search"}
                 CollumnList={defaultSearchcols}
                 SetFilter={(flds) => dispatch(RemoteXDAInstanceSlice.DBSearch({ filter: flds, ascending: ascending, sortField: sortKey }))}
                 Direction={'left'}

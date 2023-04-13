@@ -83,6 +83,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <SearchBar<SystemCenter.Types.ExternalDataBaseTable>
+                StorageID={"SystemCenter.ExternalDatabaseTable.Search"}
                 CollumnList={defaultSearchcols}
                 SetFilter={(flds) => dispatch(ExternalDBTablesSlice.DBSearch({ filter: flds, ascending: ascending, sortField: sortKey}))}
                 Direction={'left'}

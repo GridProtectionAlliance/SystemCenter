@@ -69,7 +69,7 @@ const ByWidgetCategory: Application.Types.iByComponent = (props) => {
     ]
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<LocalXDA.IWidgetCategory> CollumnList={searchFields}
+            <SearchBar<LocalXDA.IWidgetCategory> StorageID={"SystemCenter.IWidgetCategory.Search"} CollumnList={searchFields}
                 SetFilter={(flds) => dispatch(WidgetCategorySlice.DBSearch({ sortField: sortKey, ascending, filter: flds }))}
                 Direction={'left'}
                 defaultCollumn={{ key: 'Name', isPivotField: false, label: 'Name', type: 'string' }}

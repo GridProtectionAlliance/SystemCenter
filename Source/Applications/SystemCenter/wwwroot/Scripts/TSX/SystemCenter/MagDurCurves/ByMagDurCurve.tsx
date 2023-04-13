@@ -78,7 +78,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
     ]
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<LocalXDA.IMagDurCurve> CollumnList={searchFields}
+            <SearchBar<LocalXDA.IMagDurCurve> StorageID={"SystemCenter.MagDurCurve.Search"} CollumnList={searchFields}
                 SetFilter={(flds) => dispatch(MagDurCurveSlice.DBSearch({ ascending, filter: flds }))}
                 Direction={'left'}
                 defaultCollumn={{ key: 'Name', isPivotField: false, label: 'Name', type: 'string' }}
