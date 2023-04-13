@@ -37,6 +37,7 @@ import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice
 import { Modal, Search } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -258,8 +259,9 @@ export default function AssetPage(props: IProps) {
                     </div>
                     <div className="col" style={{padding: 20}}>
                         <div style={{ width: '100%', height: 38 }}>
-                            <div className="col-1 pull-right">
-                                <button className="btn btn-primary pull-right" onClick={() => { setShowAssetSelect(true); }}>Add Assets</button>
+                            <div className="col-4 pull-right">
+                                <button className="btn btn-primary pull-left" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
+                                <button className="btn btn-primary pull-right" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
                             </div>
                         </div>
 
@@ -398,7 +400,7 @@ export default function AssetPage(props: IProps) {
                     DisableConfirm={newEdit == 'New' && (AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).length > 0) }
                     ConfirmShowToolTip={newEdit == 'New' && (AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).length > 0)}
                     ConfirmToolTipContent={
-                       AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).map((e, i) => <p key={i}><ErrorSymbol /> {e}</p>)
+                        AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
                     }
                 >
                     <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
@@ -539,5 +541,3 @@ export default function AssetPage(props: IProps) {
         );
 
 }
-const ErrorSymbol = () => <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
-

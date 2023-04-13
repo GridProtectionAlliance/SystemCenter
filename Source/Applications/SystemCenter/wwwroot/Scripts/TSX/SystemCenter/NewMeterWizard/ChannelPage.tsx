@@ -28,7 +28,7 @@ import CFGParser from '../../../TS/CFGParser';
 
 import Table from '@gpa-gemstone/react-table'
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
-import { Modal, Warning } from '@gpa-gemstone/react-interactive';
+import { Modal, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
 import PQDIFParser from '../../../TS/PQDIFParser';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
@@ -59,6 +59,8 @@ export default function ChannelPage(props: IProps) {
     const [currentChannels, setCurrentChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [parsedChannels, setParsedChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [channelStatus, setChannelStatus] = React.useState<Application.Types.Status>('idle');
+
+    const [hoverDefault, setHoverDefault] = React.useState<boolean>(false);
 
     const baseWarnings: string[] = ["Ensure all scaling values are correct.", "Ensure all virtual channels are setup."];
     const serverParsedExtensions: string[] = ['pqd', 'sel', 'cev', 'eve', 'ctl', 'txt'];
@@ -142,7 +144,7 @@ export default function ChannelPage(props: IProps) {
                     async: true
                 }).done((data: OpenXDA.Types.Channel[]) => {
                     handleParsedChannels(data);
-                    // Need to fetch these after since the server parser will add ned things to these if it spots them
+                    // Need to fetch these after since the server parser will add new things to these if it spots them
                     dispatch(PhaseSlice.Fetch());
                     dispatch(MeasurementCharacteristicSlice.Fetch());
                     dispatch(MeasurmentTypeSlice.Fetch());
@@ -273,22 +275,31 @@ export default function ChannelPage(props: IProps) {
         <>
             <div className="row">
                 <div className="col-2">
-                    <button className="btn btn-primary" onClick={() => {
+                    <button className={"btn btn-primary" + (props.TrendChannels ? 'btn-disabled' : '')}
+                        data-tooltip='DefaultChannel'
+                        onMouseEnter={() => setHoverDefault(true)}
+                        onMouseLeave={() => setHoverDefault(false)}
+                        onClick={() => {
+                        if (props.TrendChannels)
+                            return;                           
                         setSelectedFile('');
                         let channels: Array<OpenXDA.Types.Channel> = [
-                            { ID: 0, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                            { ID: 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'VBN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage BN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                            { ID: 2, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'VCN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage CN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                            { ID: 3, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'IA', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current A', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                            { ID: 4, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'IB', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current B', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                            { ID: 5, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'IC', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current C', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                            { ID: 6, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'RES', Name: 'IR', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current RES', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 0, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 1, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'VBN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage BN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 2, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'VCN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage CN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 3, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'IA', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current A', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 4, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'IB', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current B', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 5, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'IC', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current C', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                            { ID: 6, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'RES', Name: 'IR', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current RES', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
                         ]
                         props.UpdateChannels(channels);
                         clearAssetsChannels();
                     }}>Default Setup</button>
+                    <ToolTip Show={hoverDefault} Position={'top'} Theme={'dark'} Target={"DefaultChannel"}>
+                    <p>No Trending Channel Default Setup is available</p>
+                    </ToolTip>
                 </div>
-                <div className="col-6">
+                <div className="col-5">
                     <div className="form-group" style={{ width: '100%' }}>
                         <div className="custom-file">
                             <input type="file" className="custom-file-input" ref={fileInput} />
@@ -296,7 +307,7 @@ export default function ChannelPage(props: IProps) {
                         </div>
                     </div>
                 </div>
-                <div className="col-1">
+                <div className="col-2">
                     <button className="btn btn-primary pull-right" disabled={NSpare == 0} onClick={() => setShowSpareWarning(true)}>Remove Spare</button>
                 </div>
                 <div className="col-1">
@@ -304,13 +315,13 @@ export default function ChannelPage(props: IProps) {
                         props.UpdateChannels(getCurrentChannels(!props.TrendChannels)); // Set props to only non-shown channels for current page
                         setSelectedFile('');
                     }
-                    }>Clear Channels</button>
+                    }>Remove All</button>
                 </div>
                 <div className="col-1">
                     <button className="btn btn-primary pull-right" disabled={currentChannels.length == 0} onClick={() => {
                         setShowScaling(true);
                     }
-                    }>Scale Channels</button>
+                    }>Scale</button>
                 </div>
 
                 {props.TrendChannels ? null :
@@ -320,7 +331,7 @@ export default function ChannelPage(props: IProps) {
                             let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
                             channels.push(channel);
                             props.UpdateChannels(channels);
-                        }}>Add Channel</button>
+                        }}>Add</button>
                     </div>}
 
             </div>

@@ -97,6 +97,18 @@ const MeterLocationProperties = (props: IProps) => {
         return false;
     }
 
+    function isEmpty() {
+        let empty = false;
+        empty = empty && (props.Location.LocationKey == null || props.Location.LocationKey.length == 0);
+        empty = empty && (props.Location.Name == null || props.Location.Name.length == 0);
+        empty = empty && (props.Location.Alias == null || props.Location.Alias.length == 0);
+        empty = empty && (props.Location.ShortName == null || props.Location.ShortName.length == 0);
+        empty = empty && (props.Location.Latitude == null);
+        empty = empty && (props.Location.Longitude == null);
+        empty = empty && (props.Location.Description == null || props.Location.Description.length == 0);
+
+        return empty;
+    }
     if (props.Location == null || props.Meter == null)
         return null;
 
@@ -105,8 +117,14 @@ const MeterLocationProperties = (props: IProps) => {
             <div className="row">
                 <div className="col">
                     <div style={{ marginBottom: 5 }}>
-                        <button type="button" style={{ marginRight: 10 }} className="btn btn-primary btn-sm" onClick={() => setShowStationSelector(true)}>Select Location</button>
-                        <button type="button" className="btn btn-secondary btn-sm" onClick={() => props.UpdateMeter({ ...props.Meter, LocationID: null })}>Create New Location</button>
+                        <button
+                            type="button"
+                            style={{ marginRight: 10 }}
+                            className="btn btn-primary btn-sm"
+                            onClick={() => setShowStationSelector(true)}>Select Location</button>
+                        <button type="button" className="btn btn-secondary btn-sm"
+                            disabled={isEmpty()}
+                            onClick={() => props.UpdateMeter({ ...props.Meter, LocationID: null })}>Clear</button>
                     </div>
                 
                     <Input<OpenXDA.Types.Location> Record={props.Location} Field={'LocationKey'} Label={'Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation} />

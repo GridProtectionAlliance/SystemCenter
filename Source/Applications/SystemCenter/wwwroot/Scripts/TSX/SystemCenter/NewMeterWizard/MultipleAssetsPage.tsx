@@ -90,7 +90,7 @@ export default function MultipleAssetsPage(props: IProps) {
                             onSort={(d) => { }}
                             onClick={(item) => setCurrentAsset(item.row)}
                             theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: 'calc(100% - 16px)' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 300, width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 400, width: '100%' }}
                             rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             selected={(item) => (item.ID === currentAsset?.ID)}
                         />
