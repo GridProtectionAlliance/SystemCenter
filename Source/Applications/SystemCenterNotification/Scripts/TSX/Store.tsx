@@ -22,7 +22,12 @@
 //******************************************************************************************************
 
 import { configureStore } from '@reduxjs/toolkit';
-import { ActiveSubscription, EmailCategory, EmailType, IDataSourceTriggeredEmailType, ITriggeredDataSource, ITriggeredEmailDataSourceSetting, SubscibeEmails, ICellCarrier, ScheduledEmailType } from './global';
+import {
+    ActiveSubscription, EmailCategory, EmailType,
+    IDataSourceTriggeredEmailType, ITriggeredDataSource,
+    ITriggeredEmailDataSourceSetting, SubscibeEmails,
+    ICellCarrier, ScheduledEmailType, ActiveReportSubscription
+} from './global';
 import { GenericSlice } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import UserInfoSliceClass  from './Store/UserInfoSlice';
@@ -40,6 +45,8 @@ export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("Asset
 export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', `${homePath}api/Setting`, 'Name');
 export const EventSubscriptionSlice = new GenericSlice<SubscibeEmails>('EventSubscription', `${homePath}api/EventSubscription`, 'FirstName');
 export const ActiveSubscriptionSlice = new GenericSlice<ActiveSubscription>('ActiveSubscription', `${homePath}api/ActiveSubscription`, 'Email');
+export const ActiveReportSubscriptionSlice = new GenericSlice<ActiveReportSubscription>('ActiveReportSubscription', `${homePath}api/ActiveScheduleSubscription`, 'Email');
+
 export const UserInfoSlice = new UserInfoSliceClass('UserInfo', `${homePath}api/UserInfo`);
 export const EventTypeSlice = new GenericSlice<OpenXDA.Types.EventType>('EventType', `${homePath}api/EventType`, 'Name');
 
@@ -73,7 +80,8 @@ const reducer = {
     TriggeredDataSource: TriggeredDataSourceSlice.Reducer,
     UserAccount: UserAccountSlice.Reducer,
     CellCarrier: CellCarrierSlice.Reducer,
-    ScheduledEmailType: ScheduledEmailTypeSlice.Reducer
+    ScheduledEmailType: ScheduledEmailTypeSlice.Reducer,
+    ActiveReportSubscription: ActiveReportSubscriptionSlice.Reducer
 }
 
 const store = configureStore({ reducer });

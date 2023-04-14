@@ -113,7 +113,7 @@ const NewReportSubscription = (props: {}) => {
 
     return (
         <div style={{ padding: 10, height: 'inherit', overflowY: 'hidden' }}>
-            <h2>Subscribe to an openXDA Event Notification</h2>
+            <h2>Subscribe to an openXDA Report</h2>
             <hr />
             <div className="card" style={{ height: 'calc(100% - 75px)' }}>
                 <div className="card-header">

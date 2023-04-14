@@ -42,6 +42,7 @@ import ByCellCarrier from './CellCarrier/ByCellCarrier';
 import ByUserInformation from './UserInformation/ByUserInformation';
 import * as $ from 'jquery';
 import moment from 'moment';
+import NewReportSubscription from './Subscriptions/Report/NewReportSubscription';
 
 declare var homePath;
 declare var version;
@@ -56,9 +57,21 @@ const PhoneSettings = <svg xmlns="http://www.w3.org/2000/svg" width="24" height=
 </svg>
 
 const AlertAdd = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-file">
-    <path d="m8.46,11.36l3.75,0l-1.06,-1.05a1.52,1.52 0 0 1 -0.44,-1.08l0,-2.37a4.5,4.5 0 0 0 -3,-4.25l0,-0.25a1.5,1.5 0 1 0 -3,0l0,0.25c-1.75,0.62 -3,2.29 -3,4.25l0,2.37c0,0.4 -0.16,0.79 -0.44,1.07l-1.06,1.06l3.75,0m4.5,0l0,0.75a2.25,2.25 0 1 1 -4.5,0l0,-0.75m4.5,0l-4.5,0"/>
-    <path d="m15.77,11.17l0,3.69l-3.69,0c-0.65,0 -1.18,0.53 -1.18,1.18s0.53,1.18 1.18,1.18l3.69,0l0,3.69c0,0.65 0.53,1.18 1.18,1.18s1.17,-0.53 1.17,-1.18l0,-3.69l3.69,0c0.65,0 1.18,-0.53 1.18,-1.18s-0.53,-1.18 -1.18,-1.18l-3.69,0l0,-3.69c0,-0.65 -0.53,-1.18 -1.17,-1.18s-1.18,0.53 -1.18,1.18z" />
-    <path d="m11.34,10.34c-1.51,1.51 -2.34,3.52 -2.34,5.66s0.83,4.15 2.34,5.66c1.51,1.51 3.52,2.34 5.66,2.34s4.15,-0.83 5.66,-2.34c1.51,-1.51 2.34,-3.52 2.34,-5.66s-0.83,-4.15 -2.34,-5.66c-1.51,-1.51 -3.52,-2.34 -5.66,-2.34c-2.14,0 -4.15,0.83 -5.66,2.34zm12.54,5.66c0,1.84 -0.72,3.57 -2.01,4.87s-3.03,2.01 -4.87,2.01s-3.57,-0.72 -4.87,-2.01s-2.01,-3.03 -2.01,-4.87s0.72,-3.57 2.01,-4.87s3.03,-2.01 4.87,-2.01s3.57,0.72 4.87,2.01s2.01,3.03 2.01,4.87z" />
+    <path d="m8.46,11.36l3.75,0l-1.06,-1.05a1.52,1.52 0 0 1 -0.44,-1.08l0,-2.37a4.5,4.5 0 0 0 -3,-4.25l0,-0.25a1.5,1.5 0 1 0 -3,0l0,0.25c-1.75,0.62 -3,2.29 -3,4.25l0,2.37c0,0.4 -0.16,0.79 -0.44,1.07l-1.06,1.06l3.75,0m4.5,0l0,0.75a2.25,2.25 0 1 1 -4.5,0l0,-0.75m4.5,0l-4.5,0" />
+    <path d="m15.77,11.17l0,3.69l-3.69,0c-0.65,0 -1.18,0.53 -1.18,1.18s0.53,1.18 1.18,1.18l3.69,0l0,3.69c0,0.65 0.53,1.18 1.18,1.18s1.17,-0.53 1.17,-1.18l0,-3.69l3.69,0c0.65,0 1.18,-0.53 1.18,-1.18s-0.53,-1.18 -1.18,-1.18l-3.69,0l0,-3.69c0,-0.65 -0.53,-1.18 -1.17,-1.18s-1.18,0.53 -1.18,1.18z" fill={'currentColor'} />
+    <path d="m11.34,10.34c-1.51,1.51 -2.34,3.52 -2.34,5.66s0.83,4.15 2.34,5.66c1.51,1.51 3.52,2.34 5.66,2.34s4.15,-0.83 5.66,-2.34c1.51,-1.51 2.34,-3.52 2.34,-5.66s-0.83,-4.15 -2.34,-5.66c-1.51,-1.51 -3.52,-2.34 -5.66,-2.34c-2.14,0 -4.15,0.83 -5.66,2.34z" />
+</svg>
+
+const ReportAdd = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="feather feather-file">
+    <path d="m 0 0 l 0 15 l 10 0 l 0 -15z" />
+    <path d="m 2 2 l 6 0"/>
+    <path d="m 2 4 l 6 0"/>
+    <path d="m 2 6 l 6 0"/>
+    <path d="m 2 8 l 6 0"/>
+    <path d="m 2 10 l 6 0"/>
+    <path d="m 2 12 l 6 0"/>
+    <path d="m15.77,11.17l0,3.69l-3.69,0c-0.65,0 -1.18,0.53 -1.18,1.18s0.53,1.18 1.18,1.18l3.69,0l0,3.69c0,0.65 0.53,1.18 1.18,1.18s1.17,-0.53 1.17,-1.18l0,-3.69l3.69,0c0.65,0 1.18,-0.53 1.18,-1.18s-0.53,-1.18 -1.18,-1.18l-3.69,0l0,-3.69c0,-0.65 -0.53,-1.18 -1.17,-1.18s-1.18,0.53 -1.18,1.18z" fill={'currentColor'} />
+    <path d="m11.34,10.34c-1.51,1.51 -2.34,3.52 -2.34,5.66s0.83,4.15 2.34,5.66c1.51,1.51 3.52,2.34 5.66,2.34s4.15,-0.83 5.66,-2.34c1.51,-1.51 2.34,-3.52 2.34,-5.66s-0.83,-4.15 -2.34,-5.66c-1.51,-1.51 -3.52,-2.34 -5.66,-2.34c-2.14,0 -4.15,0.83 -5.66,2.34z" />
 </svg>
 
 
@@ -113,6 +126,9 @@ const MainPage = (props: {}) => {
             <Section Label='Subscribe'>
                 <Page Name='EventSubscribe' Label='Subscribe to Event' Icon={AlertAdd} >
                     <NewEventSubscription />
+                </Page>
+                <Page Name='ReportSubscribe' Label='Subscribe to Report' Icon={ReportAdd} >
+                        <NewReportSubscription />
                 </Page>
             </Section>
             <Section Label='My Subscriptions'>

@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import {  AssetGroupSlice, ScheduledEmailTypeSlice, UserInfoSlice } from '../../Store';
+import {  ActiveReportSubscriptionSlice, AssetGroupSlice, ScheduledEmailTypeSlice, UserInfoSlice } from '../../Store';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 
 declare var homePath;
@@ -41,19 +41,16 @@ const Success = (props: IProps) => {
 
     React.useEffect(() => {
         props.assetGroupID.forEach((id) => {
-            dispatch(ActiveSubscriptionSlice.DBAction({
+            dispatch(ActiveReportSubscriptionSlice.DBAction({
                 verb: 'POST', record: {
                     ID: 0,
                     UserAccountID: userID,
-                    EmailTypeID: props.emailTypeID,
+                    ScheduledEmailTypeID: props.emailTypeID,
                     AssetGroup: id.toString(),
-                    Approved: false,
                     Category: '',
                     Email: '',
-                    Subject: '',
-                    UserAccountEmailID: 0,
+                    UserAccountScheduledEmailID: 0,
                     EmailName: '',
-                    LastSent: '',
                     UserName: ''
                 }
             }));
