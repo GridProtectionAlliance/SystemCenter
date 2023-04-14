@@ -182,6 +182,72 @@ namespace SystemCenter.Notifications.Controllers
         }
     }
 
+    [RoutePrefix("api/ActiveScheduleSubscription")]
+    public class ActiveScheduleSubscriptionsController : ModelController<openXDA.Model.ActiveScheduledSubscription>
+    {
+        
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                ActiveScheduledSubscription postRecord = record.ToObject<ActiveScheduledSubscription>();
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    UserAccount account = new TableOperations<UserAccount>(connection).QueryRecordWhere("ID = {0}", postRecord.UserAccountID);
+                    string username = System.Web.HttpContext.Current.User.Identity.Name;
+                    string usersid = UserInfo.UserNameToSID(username);
+
+                    if (PostAuthCheck())
+                    {
+                        openXDA.Model.Links.UserAccountScheduledEmailType parsedRecord = new openXDA.Model.Links.UserAccountScheduledEmailType()
+                        {
+                            ID = 0,
+                            UserAccountID = postRecord.UserAccountID,
+                            ScheduledEmailTypeID = postRecord.ScheduledEmailTypeID,
+                            AssetGroupID = int.Parse(postRecord.AssetGroup)
+                        };
+                        int result = new TableOperations<openXDA.Model.Links.UserAccountScheduledEmailType>(connection).AddNewRecord(parsedRecord);
+
+                        return Ok(result);
+                    }
+                    // Allow anyone to POST their own Subscription (But set Approved Flag properly)
+                    else if (account.Name == usersid || account.Name == username)
+                    {
+                        ScheduledEmailType email = new TableOperations<ScheduledEmailType>(connection).QueryRecordWhere("ID = {0}", postRecord.ScheduledEmailTypeID);
+                        openXDA.Model.Links.UserAccountScheduledEmailType parsedRecord = new openXDA.Model.Links.UserAccountScheduledEmailType()
+                        {
+                            ID = 0,
+                            UserAccountID = postRecord.UserAccountID,
+                            ScheduledEmailTypeID = postRecord.ScheduledEmailTypeID,
+                            AssetGroupID = int.Parse(postRecord.AssetGroup)
+                        };
+                        int result = new TableOperations<openXDA.Model.Links.UserAccountScheduledEmailType>(connection).AddNewRecord(parsedRecord);
+
+                        return Ok(result);
+
+                    }
+                    else
+                    {
+                        return Unauthorized();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Delete(openXDA.Model.ActiveScheduledSubscription record)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                connection.ExecuteNonQuery("DELETE FROM UserAccountScheduledEmailType WHERE ID = {0}", record.ScheduledEmailTypeID);
+
+            return Ok(1);
+        }
+    }
+
     [RoutePrefix("api/EventType")]
     public class EventTypeController : ModelController<EventType> { }
 

@@ -85,6 +85,18 @@ export interface ActiveSubscription {
     Email: string
 }
 
+export interface ActiveReportSubscription {
+    ID: number | null,
+    UserAccountScheduledEmailID: number,
+    UserAccountID: string,
+    AssetGroup: string,
+    EmailName: string,
+    Category: string,
+    ScheduledEmailTypeID: number,
+    UserName: string,
+    Email: string
+}
+
 export interface IEventFilter {
     Start: string,
     End: string,
