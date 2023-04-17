@@ -54,7 +54,7 @@ const ByReport = (props: IProps) => {
 
     const emptyEmail = {
         ID: -1, Name: '',
-        SMS: false, TriggerEmailSQL: '',
+        SMS: false, TriggerEmailSQL: 'SELECT 1',
         EmailCategoryID: -1, Template: '',
         Schedule: '23 59 * * *',
     } as ScheduledEmailType
