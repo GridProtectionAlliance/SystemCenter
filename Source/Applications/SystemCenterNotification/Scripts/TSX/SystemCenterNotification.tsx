@@ -43,6 +43,7 @@ import ByUserInformation from './UserInformation/ByUserInformation';
 import * as $ from 'jquery';
 import moment from 'moment';
 import NewReportSubscription from './Subscriptions/Report/NewReportSubscription';
+import ByReport from './Report/ByReport';
 
 declare var homePath;
 declare var version;
@@ -73,6 +74,7 @@ const ReportAdd = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
     <path d="m15.77,11.17l0,3.69l-3.69,0c-0.65,0 -1.18,0.53 -1.18,1.18s0.53,1.18 1.18,1.18l3.69,0l0,3.69c0,0.65 0.53,1.18 1.18,1.18s1.17,-0.53 1.17,-1.18l0,-3.69l3.69,0c0.65,0 1.18,-0.53 1.18,-1.18s-0.53,-1.18 -1.18,-1.18l-3.69,0l0,-3.69c0,-0.65 -0.53,-1.18 -1.17,-1.18s-1.18,0.53 -1.18,1.18z" fill={'currentColor'} />
     <path d="m11.34,10.34c-1.51,1.51 -2.34,3.52 -2.34,5.66s0.83,4.15 2.34,5.66c1.51,1.51 3.52,2.34 5.66,2.34s4.15,-0.83 5.66,-2.34c1.51,-1.51 2.34,-3.52 2.34,-5.66s-0.83,-4.15 -2.34,-5.66c-1.51,-1.51 -3.52,-2.34 -5.66,-2.34c-2.14,0 -4.15,0.83 -5.66,2.34z" />
 </svg>
+
 
 
 const MainPage = (props: {}) => {
@@ -153,7 +155,10 @@ const MainPage = (props: {}) => {
                 </Page>
                 <Page Name='EventEmails' Label='Event Notifications' Icon={SVGIcons.Alert} RequiredRoles={['Administrator', 'Engineer']}>
                     <ByEmailType />
-                </Page>
+                    </Page>
+                    <Page Name='ReportEmails' Label='Reports' Icon={SVGIcons.Document} RequiredRoles={['Administrator', 'Engineer']}>
+                        <ByReport />
+                    </Page>
                 <Page Name='EventEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
                     <EmailPage useParams={{ id: '1' }} />
                 </Page>
