@@ -209,7 +209,7 @@ export default function CurveForm(props: IProps) {
                     />
                     <form>
                         <button className="btn btn-primary"
-                            onClick={(event) => { event.preventDefault(); setCurve((d) => [...d, d[d.length-1]]); }}
+                            onClick={(event) => { event.preventDefault(); setCurve((d) => [...d, [d[d.length-1][0], d[d.length-1][1]]]); }}
                         >Add Point</button>
                     </form>
                 </div>
