@@ -31,16 +31,20 @@ declare var homePath: string;
 
 const BySetting: SystemCenter.BySettingsComponent = (props) => {
 
-    let slice = SystemCenterSettingSlice
+    let slice = SystemCenterSettingSlice;
+    let key = "SystemCenter.SCSetting.Search";
 
-    if (props.System == 'OpenXDA')
+    if (props.System == 'OpenXDA') {
         slice = OpenXDASettingSlice;
-    if (props.System == 'MiMD')
+        key = "SystemCenter.XDASetting.Search";
+    }
+    if (props.System == 'MiMD') {
         slice = MiMDSettingSlice;
+        key = "SystemCenter.MiMDSetting.Search";
+    }
 
-    return <Setting SettingsSlice={slice} />
+    return <Setting SettingsSlice={slice} StorageKey={key} />
 
 }
 
 export default BySetting;
-
