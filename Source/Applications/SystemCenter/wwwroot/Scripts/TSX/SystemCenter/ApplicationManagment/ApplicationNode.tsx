@@ -30,7 +30,11 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { ApplicationNodeSlice } from '../Store/Store';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 
-
+export interface SApplicationNode {
+    ID: number;
+    Name: string;
+    SortOrder: number;
+}
 
 const ByApplicationNode: Application.Types.iByComponent = (props) => {
     const dispatch = useAppDispatch();
@@ -87,7 +91,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
         <>
             <LoadingScreen Show={status === 'loading'} />
             <div style={{ width: '100%', height: '100%' }}>
-                <SearchBar<SystemCenter.Types.Setting> StorageID={"SystemCenter.ApplicationNode.Search"} CollumnList={searchFields} SetFilter={(flds) => dispatch(ApplicationNodeSlice.DBSearch({ filter: flds, sortField, ascending }))}
+                <SearchBar<SApplicationNode> StorageID={"SystemCenter.ApplicationNode.Search"} CollumnList={searchFields} SetFilter={(flds) => dispatch(ApplicationNodeSlice.DBSearch({ filter: flds, sortField, ascending }))}
                     Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Applications'}
                     GetEnum={() => {
