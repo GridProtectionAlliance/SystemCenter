@@ -34,10 +34,9 @@ import { IUserAccount } from '../Types';
 import moment from 'moment';
 
 const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
-    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+    { label: 'Username', key: 'Name', type: 'string', isPivotField: false },
     { label: 'First Name', key: 'FirstName', type: 'string', isPivotField: false },
     { label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false },
-    { label: 'Location', key: 'Location', type: 'string', isPivotField: false },
     { label: 'Phone', key: 'Phone', type: 'string', isPivotField: false },
     { label: 'Email', key: 'Email', type: 'string', isPivotField: false },
 ];
@@ -175,7 +174,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<IUserAccount>
                     cols={[
-                        { key: 'DisplayName', field: 'DisplayName', label: 'User Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'DisplayName', field: 'DisplayName', label: 'Username', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },

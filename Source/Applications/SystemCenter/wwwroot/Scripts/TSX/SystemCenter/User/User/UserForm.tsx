@@ -134,11 +134,11 @@ function UserForm(props: IProps) {
             <form>
                 <div className="row">
                     <div className="col">
-                        <Input<IUserAccount> Record={props.UserAccount} Disabled={props.Edit} Label={'Name'} Field={'DisplayName'}
+                        <Input<IUserAccount> Record={props.UserAccount} Disabled={props.Edit} Label={'Username'} Field={'DisplayName'}
                             Feedback={'A Name of less than 200 characters is required.'}
                             Valid={field => validUserAccountField(props.UserAccount, field)} Setter={props.Setter} />
 
-                        <div className="row" style={{ position: 'absolute', top: 0, left: 100 }} hidden={props.UserAccount.Type == 'Database'}>
+                        <div className="row" style={{ position: 'absolute', top: 0, left: 130 }} hidden={props.UserAccount.Type == 'Database'}>
                             <span id="resolvingAccount" hidden={valid !== 'resolving'}><i style={{ height: 10, width: 10, color: 'grey' }}
                                 className="fa fa fa-spin fa-refresh"></i>&nbsp;<em className="small">Resolving account details...</em></span>
                             <span id="accountValid" hidden={valid !== 'valid'}><i style={{ height: 20, width: 20, color: 'green' }}

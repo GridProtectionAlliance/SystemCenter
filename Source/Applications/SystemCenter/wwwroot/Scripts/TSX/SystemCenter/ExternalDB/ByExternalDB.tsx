@@ -35,8 +35,8 @@ import { ExternalDBTablesSlice } from '../Store/Store';
 declare var homePath: string;
 
 const defaultSearchcols: Array<Search.IField<SystemCenter.Types.ExternalDataBaseTable>> = [
-    { label: 'TableName', key: 'TableName', type: 'string', isPivotField: false },
-    { label: 'ExternalDB', key: 'ExternalDB', type: 'string', isPivotField: false },
+    { label: 'Table Name', key: 'TableName', type: 'string', isPivotField: false },
+    { label: 'External DB', key: 'ExternalDB', type: 'string', isPivotField: false },
 ];
 
 const ByExternalDB: Application.Types.iByComponent = (props) => {
@@ -78,7 +78,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDB&ID=' + item.row.ID })
     }
 
-    const standardSearch: Search.IField<SystemCenter.Types.ExternalDataBaseTable> = { label: 'Name', key: 'TableName', type: 'string', isPivotField: false };
+    const standardSearch: Search.IField<SystemCenter.Types.ExternalDataBaseTable> = { label: 'Table Name', key: 'TableName', type: 'string', isPivotField: false };
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
@@ -126,7 +126,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table
                     cols={[
-                        { key: 'TableName', field: 'TableName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'TableName', field: 'TableName', label: 'Table Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'ExternalDB', field: 'ExternalDB', label: 'External Database', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
                     ]}

@@ -205,7 +205,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                     Title={"Add Asset Groups to Asset Group"}
                     GetEnum={getEnum}
                     GetAddlFields={() => () => { }} />
-                <Warning Show={removeGroup > -1} Title={'Remove Asset Group from Group'} Message={'This will remove the Asset Group from this AssetGroup'} CallBack={(c) => { if (c) removeItem(removeGroup); setRemoveGroup(-1); }} />
+                <Warning Show={removeGroup > -1} Title={'Remove Asset Group from Group'} Message={'This will remove the Asset Group from this Asset Group'} CallBack={(c) => { if (c) removeItem(removeGroup); setRemoveGroup(-1); }} />
             </div>
             </>
     );

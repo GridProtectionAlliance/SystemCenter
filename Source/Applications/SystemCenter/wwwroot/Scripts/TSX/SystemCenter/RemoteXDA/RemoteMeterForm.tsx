@@ -96,7 +96,7 @@ export default function RemoteMeterForm(props: IProps) {
             <form>
                 <div className="col" style={{ width: '50%', float: "left" }}>
                     <Input<OpenXDA.Types.RemoteXDAMeter> Record={formMeter} Field={'LocalMeterName'} Label={'Local Meter Name'} Valid={() => true} Setter={() => { }} Disabled={true} />
-                    <Input<OpenXDA.Types.RemoteXDAMeter> Record={formMeter} Field={'LocalAssetKey'} Label={'Local Asset Key'} Valid={() => true} Setter={() => { }} Disabled={true} />
+                    <Input<OpenXDA.Types.RemoteXDAMeter> Record={formMeter} Field={'LocalAssetKey'} Label={'Local Meter Key'} Valid={() => true} Setter={() => { }} Disabled={true} />
                     <Input<OpenXDA.Types.RemoteXDAMeter> Record={formMeter} Field={'LocalAlias'} Label={'Local Alias'} Valid={() => true} Setter={() => { }} Disabled={true} />
                 </div>
                 <div className="col" style={{ width: '50%', float: "right" }}>

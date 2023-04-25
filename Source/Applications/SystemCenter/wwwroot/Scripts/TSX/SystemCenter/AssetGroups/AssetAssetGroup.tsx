@@ -172,7 +172,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                     if (!conf) return
                     saveItems(selected.filter(items => assetList.findIndex(g => g.ID == items.ID) < 0))
                 }} />
-            <Warning Show={removeAsset > -1} Title={'Remove Asset from Group'} Message={'This will remove the transmission asset from this AssetGroup'} CallBack={(c) => { if (c) removeItem(removeAsset); setRemoveAsset(-1); }} />
+            <Warning Show={removeAsset > -1} Title={'Remove Asset from Group'} Message={'This will remove the transmission asset from this Asset Group'} CallBack={(c) => { if (c) removeItem(removeAsset); setRemoveAsset(-1); }} />
             </>
     )
 }

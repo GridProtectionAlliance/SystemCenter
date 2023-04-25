@@ -67,7 +67,7 @@ export default function ExternalDBForm(props: IProps) {
 
     return (
         <form>
-            <Input<SystemCenter.Types.ExternalDataBaseTable> Record={props.ExternalDB} Field={'TableName'} Label={'Name'} Feedback={"A unique Name of less than 200 characters is required."} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.Types.ExternalDataBaseTable> Record={props.ExternalDB} Field={'TableName'} Label={'Table Name'} Feedback={"A unique Name of less than 200 characters is required."} Valid={Valid} Setter={props.Setter} />
             <Select<SystemCenter.Types.ExternalDataBaseTable> Record={props.ExternalDB} Field={'ExternalDB'} Label={'External Database'} Options={Options} Setter={props.Setter} />
         </form>
 
