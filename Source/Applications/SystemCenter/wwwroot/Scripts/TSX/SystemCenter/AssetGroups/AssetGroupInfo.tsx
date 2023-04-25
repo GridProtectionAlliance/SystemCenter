@@ -85,7 +85,6 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
                     <div className="col">
                         <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'}  Valid={() => true} Setter={setAssetGroup} Disabled={true} />
                         <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'Meters'} Label={'Num. of Meters'} Valid={() => true} Setter={setAssetGroup} Disabled={true} />
-                        <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'Users'} Label={'Num. of Users'} Valid={() => true} Setter={setAssetGroup} Disabled={true} />
                         <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'AssetGroups'} Label={'Num. of Asset Groups'} Valid={() => true} Setter={setAssetGroup} Disabled={true} />
                     </div>
                 </div>

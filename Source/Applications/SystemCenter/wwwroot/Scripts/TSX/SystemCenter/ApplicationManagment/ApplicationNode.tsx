@@ -74,8 +74,8 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
     }, [editnewNode])
 
     const searchFields: Search.IField<SystemCenter.Types.Setting>[] = [
-        { key: 'Name', label: 'Name', type: 'string', isPivotField: false },
-        { key: 'ID', label: 'NodeID', type: 'string', isPivotField: false }
+        { key: 'Name', label: 'Application Name', type: 'string', isPivotField: false },
+        { key: 'ID', label: 'Node ID', type: 'string', isPivotField: false }
     ]
 
     if (status === 'error')
@@ -88,7 +88,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
             <LoadingScreen Show={status === 'loading'} />
             <div style={{ width: '100%', height: '100%' }}>
                 <SearchBar<SystemCenter.Types.Setting> CollumnList={searchFields} SetFilter={(flds) => dispatch(ApplicationNodeSlice.DBSearch({ filter: flds, sortField, ascending }))}
-                    Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
+                    Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Application Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Applications'}
                     GetEnum={() => {
                         return () => { }

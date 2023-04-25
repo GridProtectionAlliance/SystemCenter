@@ -60,8 +60,7 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
 
     const searchFields: Search.IField<SystemCenter.Types.Setting>[] = [
         { key: 'Name', label: 'Name', type: 'string', isPivotField: false },
-        { key: 'SortOrder', label: 'SortOrder', type: 'integer', isPivotField: false },
-        { key: 'Value', label: 'Value', type: 'string', isPivotField: false }
+        { key: 'SortOrder', label: 'Sort Order', type: 'integer', isPivotField: false },
     ]
 
     React.useEffect(() => {
@@ -85,7 +84,7 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
         if (editNewApplicationCategory.Name != null && editNewApplicationCategory.Name.length > 0 && allApplicationCategories.findIndex(s => s.Name.toLowerCase() === editNewApplicationCategory.Name.toLowerCase() && s.ID !== editNewApplicationCategory.ID) > -1)
             e.push('A Application Category with this Name already exists.')
         if (editNewApplicationCategory.SortOrder == null || editNewApplicationCategory.SortOrder === 0)
-            e.push('A SortOrder value is required')
+            e.push('A Sort Order value is required')
         setErrors(e)
     }, [editNewApplicationCategory])
 
@@ -172,7 +171,7 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
                             Valid={Valid}
                             Setter={(record) => { setEditNewApplicationCategory(record);}}
                         />
-                        <Input<ApplicationCategory> Record={editNewApplicationCategory} Field={'SortOrder'} Label='SortOrder' Feedback={'A SortOrder value is required.'}
+                        <Input<ApplicationCategory> Record={editNewApplicationCategory} Field={'SortOrder'} Label='Sort Order' Feedback={'A Sort Order value is required.'}
                             Type={'number'}
                             Valid={Valid}
                             Setter={(record) => { setEditNewApplicationCategory(record);}}

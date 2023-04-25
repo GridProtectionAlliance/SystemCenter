@@ -122,7 +122,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
                 <Table<OpenXDA.Types.RemoteXDAInstance>
                     cols={[
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Address', field: 'Address', label: 'URL Address', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Address', field: 'Address', label: 'URL', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
                     ]}
                     tableClass="table table-hover"

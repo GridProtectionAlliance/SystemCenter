@@ -224,7 +224,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                 Title={"Add Meters to Asset Group"}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalMeterFields} />
-            <Warning Show={removeMeter > -1} Title={'Remove Meter from Group'} Message={'This will remove the meter from this AssetGroup'} CallBack={(c) => { if (c) removeItem(removeMeter); setRemoveMeter(-1);  }} />
+            <Warning Show={removeMeter > -1} Title={'Remove Meter from Group'} Message={'This will remove the meter from this Asset Group'} CallBack={(c) => { if (c) removeItem(removeMeter); setRemoveMeter(-1);  }} />
         </>
     );
 }

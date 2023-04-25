@@ -131,7 +131,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                 <Table< SystemCenter.Types.ValueListGroup>
                     cols={[
                         { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'Description', field: 'Description',label: 'Description/Comments', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Description', field: 'Description',label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'Items', label: 'Items', field: 'Items', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
                             content: (item, key, style) => items.filter(i => i.GroupID == item.ID).length

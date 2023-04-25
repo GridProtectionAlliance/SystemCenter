@@ -69,16 +69,16 @@ const DataOperations: GlobalSC.BySettingsComponent = (props) => {
     React.useEffect(() => {
         const e: string[] = [];
         if (editnewSetting.AssemblyName == null || editnewSetting.AssemblyName.length === 0)
-            e.push('An AssemblyName is required')
+            e.push('An Assembly Name is required')
         if (editnewSetting.TypeName == null || editnewSetting.AssemblyName.length === 0)
-            e.push('An TypeName is required')
+            e.push('An Type Name is required')
         setErrors(e)
     }, [editnewSetting])
 
     const searchFields: Search.IField<OpenXDA.Types.DataOperation>[] = [
-        { key: 'AssemblyName', label: 'AssemblyName', type: 'string', isPivotField: false },
-        { key: 'TypeName', label: 'TypeName', type: 'string', isPivotField: false },
-        { key: 'LoadOrder', label: 'LoadOrder', type: 'number', isPivotField: false }
+        { key: 'AssemblyName', label: 'Assembly Name', type: 'string', isPivotField: false },
+        { key: 'TypeName', label: 'Type Name', type: 'string', isPivotField: false },
+        { key: 'LoadOrder', label: 'Load Order', type: 'number', isPivotField: false }
     ]
 
     if (status === 'error')

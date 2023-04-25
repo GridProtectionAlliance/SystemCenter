@@ -205,7 +205,7 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                 <form>
                     <div className="col" style={{ width: '50%', float: "left" }}>
                         <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Name'} Label={'Name'} Feedback={"A name of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} />
-                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Address'} Label={'Address'} Feedback={"An address of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} />
+                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Address'} Label={'URL'} Feedback={"A URL of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} />
                         <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Frequency'} Label={'Frequency'} Feedback={"A frequency that is a valid cron format is required."} Valid={valid} Setter={setFormInstance} Help={'In order of minutes, hours, day of the month, month, weekday. For example, a frequency of every midnight would be * 0 * * *'} />
                     </div>
                     <div className="col" style={{ width: '50%', float: "right" }}>
@@ -262,7 +262,7 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                     Show={showUserSearch}
                     Type={'single'}
                     Columns={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Name', field: 'Name', label: 'Username', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Email', field: 'Email', label: 'Email', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}

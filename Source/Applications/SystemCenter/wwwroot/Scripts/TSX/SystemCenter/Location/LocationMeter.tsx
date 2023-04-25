@@ -70,8 +70,8 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                             { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                             { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                             //{ key: 'Type', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Make', field: 'Make', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Model', field: 'Model', label: 'Assets', headerStyle: { width: 'calc(10%)' }, rowStyle: { width: '10%' } },
+                            { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                            { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'calc(10%)' }, rowStyle: { width: '10%' } },
                         ]}
                         tableClass="table table-hover"
                         data={meters}

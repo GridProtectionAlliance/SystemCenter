@@ -84,9 +84,9 @@ function Setting(props: IProps) {
     }, [editnewSetting])
 
     const searchFields: Search.IField<SystemCenter.Types.Setting>[] = [
-        { key: 'Name', label: 'Name', type: 'string', isPivotField: false },
+        { key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false },
         { key: 'DefaultValue', label: 'Default Value', type: 'string', isPivotField: false },
-        { key: 'Value', label: 'Value', type: 'string', isPivotField: false }
+        { key: 'Value', label: 'Current Value', type: 'string', isPivotField: false }
     ]
 
     if (status === 'error')
@@ -99,7 +99,7 @@ function Setting(props: IProps) {
             <LoadingScreen Show={status === 'loading'} />
             <div style={{ width: '100%', height: '100%' }}>
                 <SearchBar<SystemCenter.Types.Setting> CollumnList={searchFields} SetFilter={(flds) => dispatch(props.SettingsSlice.DBSearch({ filter: flds, sortField, ascending }))}
-                    Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
+                    Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Settings'}
                     GetEnum={() => {
                         return () => { }
@@ -168,7 +168,7 @@ function Setting(props: IProps) {
                             Valid={field => editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name === editnewSetting.Name && s.ID !== editnewSetting.ID) < 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
-                        <TextArea<SystemCenter.Types.Setting> Record={editnewSetting} Field={'Value'} Label='Value' Valid={field => true}
+                        <TextArea<SystemCenter.Types.Setting> Record={editnewSetting} Field={'Value'} Label='Current Value' Valid={field => true}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                             Rows={1}
                         />
