@@ -195,8 +195,8 @@ export default function NewMeterWizard(props: {}) {
                 Name: null,
                 Alias: null,
                 ShortName: null,
-                Latitude: 0,
-                Longitude: 0,
+                Latitude: null,
+                Longitude: null,
                 Description: null,
             }
     }
