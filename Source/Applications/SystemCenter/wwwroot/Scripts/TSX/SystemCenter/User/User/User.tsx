@@ -105,7 +105,7 @@ function User(props: IProps) {
 				setShowWarning(false);
 				if (c) {
 					dispatch(UserAccountSlice.DBAction({ verb: 'DELETE', record: user }));
-					history.push({ pathname: homePath + 'index.cshtml?name=Users' });
+					history.push({ pathname: homePath + 'index.cshtml', search: '?name=Users', state: {} });
 				}
 			}} />
 		</div>
