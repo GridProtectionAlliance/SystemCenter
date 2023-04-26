@@ -91,8 +91,8 @@ export default function LocationPage(props: IProps) {
                         Name: '',
                         Alias: '',
                         ShortName: '',
-                        Latitude: 0,
-                        Longitude: 0,
+                        Latitude: null,
+                        Longitude: null,
                         Description: '',
                     });
             }}
