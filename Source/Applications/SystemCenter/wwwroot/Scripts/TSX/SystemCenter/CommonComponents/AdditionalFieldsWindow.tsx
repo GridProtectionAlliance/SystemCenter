@@ -377,7 +377,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         return result;
     }
 
-    if (state == 'loading')
+    if (state == 'loading' && !(props.InnerOnly ?? false))
         return (
             <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
                 <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
