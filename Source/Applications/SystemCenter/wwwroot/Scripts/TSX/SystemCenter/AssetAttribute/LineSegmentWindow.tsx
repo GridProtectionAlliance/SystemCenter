@@ -67,6 +67,9 @@ function LineSegmentWindow(props: { ID: number, InnerOnly?: boolean }): JSX.Elem
                     { key: 'X1', field: 'X1', label: 'X1', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'R0', field: 'R0', label: 'R0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'X0', field: 'X0', label: 'X0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'ThermalRating', field: 'ThermalRating', label: 'Thermal Rating', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'FromBus', field: 'FromBus', label: 'From Bus', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'ToBus', field: 'ToBus', label: 'To Bus', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     {
                         key: 'IsEnd', field: 'IsEnd', label: 'End?', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                         content: (item) => item.IsEnd ? HeavyCheckMark : null
