@@ -278,11 +278,10 @@ namespace SystemCenter.Notifications.Controllers
         }
 
       
-        [HttpGet, Route("Test/{eventID:int}/{emailID:int}/{recipient}")]
-        public IHttpActionResult Test(int eventID, int emailID, string recipient)
+        [HttpGet, Route("Test/{reportID:int}/{recipient}")]
+        public IHttpActionResult Test(int reportID, string recipient)
         {
-            return Ok(1);
-            /*if (!PatchAuthCheck())
+            if (!PatchAuthCheck())
                 return Unauthorized();
             try
             {
@@ -296,7 +295,9 @@ namespace SystemCenter.Notifications.Controllers
                     request.Method = HttpMethod.Get;
                 }
 
-                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testEmail/{emailID}/{eventID}/{recipient}").Result;
+                string dateTimeNow = DateTime.UtcNow.ToString();
+
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testReport/{reportID}/{recipient}/{dateTimeNow}").Result;
 
                 return Ok(1);
 
@@ -304,14 +305,13 @@ namespace SystemCenter.Notifications.Controllers
             catch (Exception ex)
             {
                 return InternalServerError(ex);
-            }*/
+            }
         }
 
-        [HttpGet, Route("GetData/{eventID:int}/{emailID:int}")]
-        public IHttpActionResult GetData(int eventID, int emailID)
+        [HttpGet, Route("GetData/{emailID:int}")]
+        public IHttpActionResult GetData(int emailID)
         {
-            return Ok(1);
-          /*  if (!PatchAuthCheck())
+            if (!PatchAuthCheck())
                 return Unauthorized();
             try
             {
@@ -325,7 +325,9 @@ namespace SystemCenter.Notifications.Controllers
                     request.Method = HttpMethod.Get;
                 }
 
-                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testData/{emailID}/{eventID}").Result;
+                string dateTimeNow = DateTime.UtcNow.ToString();
+
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testReportData/{emailID}/{dateTimeNow}").Result;
 
                 responseMessage.EnsureSuccessStatusCode();
 
@@ -343,7 +345,7 @@ namespace SystemCenter.Notifications.Controllers
             catch (Exception ex)
             {
                 return InternalServerError(ex);
-            }*/
+            }
         }
 
 

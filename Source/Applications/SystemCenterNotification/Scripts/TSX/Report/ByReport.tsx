@@ -149,7 +149,7 @@ const ByReport = (props: IProps) => {
                             else
                                 dispatch(ScheduledEmailTypeSlice.Sort({ SortField: d.colField, Ascending: true }));
                         }}
-                        onClick={(item) => { window.location.href = `${homePath}EventEmail/${item.row.ID}`  }}
+                        onClick={(item) => { window.location.href = `${homePath}ReportEmail/${item.row.ID}`  }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
