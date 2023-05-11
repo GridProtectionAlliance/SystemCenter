@@ -44,6 +44,7 @@ import * as $ from 'jquery';
 import moment from 'moment';
 import NewReportSubscription from './Subscriptions/Report/NewReportSubscription';
 import ByReport from './Report/ByReport';
+import ReportPage from './Report/ReportPage';
 
 declare var homePath;
 declare var version;
@@ -155,12 +156,15 @@ const MainPage = (props: {}) => {
                 </Page>
                 <Page Name='EventEmails' Label='Event Notifications' Icon={SVGIcons.Alert} RequiredRoles={['Administrator', 'Engineer']}>
                     <ByEmailType />
-                    </Page>
-                    <Page Name='ReportEmails' Label='Reports' Icon={SVGIcons.Document} RequiredRoles={['Administrator', 'Engineer']}>
-                        <ByReport />
-                    </Page>
+                </Page>
                 <Page Name='EventEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
                     <EmailPage useParams={{ id: '1' }} />
+                </Page>
+                <Page Name='ReportEmails' Label='Reports' Icon={SVGIcons.Document} RequiredRoles={['Administrator', 'Engineer']}>
+                    <ByReport />
+                </Page>
+                <Page Name='ReportEmail/:id' RequiredRoles={['Administrator', 'Engineer']}>
+                    <ReportPage useParams={{ id: '1' }} />
                 </Page>
                 <Page Name='Carrier' Label={'Cell Carrier'} Icon={Phone} RequiredRoles={['Administrator', 'Engineer']}>
                     <ByCellCarrier />

@@ -80,6 +80,36 @@ namespace SystemCenter.Notifications.Controllers
         }
     }
 
+    [RoutePrefix("api/ReportSubscription")]
+    public class ReportSubscriptionController : ModelController<openXDA.Model.SubscribeScheduledEmails>
+    {
+        /*
+        [HttpGet, Route("approve/{parentID}")]
+        public IHttpActionResult Approve(int parentID)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    TableOperations<UserAccountEmailType> tbl = new TableOperations<UserAccountEmailType>(connection);
+                    UserAccountEmailType record = tbl.QueryRecordWhere("ID = {0}", parentID);
+                    if (record == null)
+                        throw new NullReferenceException("Record not found");
+                    record.Approved = true;
+                    tbl.UpdateRecord(record);
+                    return Ok(1);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        */
+    }
+
     [RoutePrefix("api/ActiveSubscription")]
     public class ActiveSubscriptionsController : ModelController<openXDA.Model.ActiveSubscription> 
     {
@@ -322,8 +352,14 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/openXDA/TriggeredEmailDataSourceSetting")]
     public class TriggeredEmailDataSourceSettingController : ModelController<TriggeredEmailDataSourceSetting> { }
 
+    [RoutePrefix("api/openXDA/ScheduledEmailDataSource")]
+    public class ScheduledEmailDataSourceController : ModelController<ScheduledEmailDataSource> { }
+
+    [RoutePrefix("api/openXDA/ScheduledEmailDataSourceSetting")]
+    public class ScheduledEmailDataSourceSettingController : ModelController<ScheduledEmailDataSourceSetting> { }
+
     [RoutePrefix("api/openXDA/TriggeredEmailDataSourceEmailType")]
-    public class TriggeredEmailDataSourceEmaulTypeController : ModelController<TriggeredEmailDataSourceEmailTypeView> 
+    public class TriggeredEmailDataSourceEmaulTypeController : ModelController<TriggeredEmailDataSourceEmailTypeView>
     {
         public override IHttpActionResult Post([FromBody] JObject record)
         {
@@ -367,7 +403,7 @@ namespace SystemCenter.Notifications.Controllers
                 {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                        
+
                         TriggeredEmailDataSourceEmailType updatedRecord = new TriggeredEmailDataSourceEmailType()
                         {
                             ID = record.ID,
@@ -376,6 +412,84 @@ namespace SystemCenter.Notifications.Controllers
                         };
 
                         int result = new TableOperations<TriggeredEmailDataSourceEmailType>(connection).UpdateRecord(updatedRecord);
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
+    [RoutePrefix("api/openXDA/ScheduledEmailDataSourceEmailType")]
+    public class TScheduledEmailDataSourceEmaulTypeController : ModelController<ScheduledEmailDataSourceEmailTypeView> 
+    {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck() && !ViewOnly)
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        ScheduledEmailDataSourceEmailTypeView postRecord = record.ToObject<ScheduledEmailDataSourceEmailTypeView>();
+                        ScheduledEmailDataSourceEmailType newRecord = new ScheduledEmailDataSourceEmailType()
+                        {
+                            ID = postRecord.ID,
+                            ScheduledEmailDataSourceID = postRecord.ScheduledEmailDataSourceID,
+                            ScheduledEmailTypeID = postRecord.ScheduledEmailTypeID
+                        };
+                        int result = new TableOperations<ScheduledEmailDataSourceEmailType>(connection).AddNewRecord(newRecord);
+                        newRecord.ID = connection.ExecuteScalar<int>("SELECT @@IDENTITY");
+
+                        IEnumerable<ScheduledEmailDataSourceSetting> settings = record["Settings"].ToObject<IEnumerable<ScheduledEmailDataSourceSetting>>();
+                        TableOperations<ScheduledEmailDataSourceSetting> settingsTable = new TableOperations<ScheduledEmailDataSourceSetting>(connection);
+                        foreach (ScheduledEmailDataSourceSetting setting in settings)
+                        {
+                            setting.ScheduledEmailDataSourceEmailTypeID = newRecord.ID;
+                            result += settingsTable.AddNewRecord(setting);
+                        }
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Patch([FromBody] ScheduledEmailDataSourceEmailTypeView record)
+        {
+            try
+            {
+                if (PatchAuthCheck() && !ViewOnly)
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        ScheduledEmailDataSourceEmailType updatedRecord = new ScheduledEmailDataSourceEmailType()
+                        {
+                            ID = record.ID,
+                            ScheduledEmailDataSourceID = record.ScheduledEmailDataSourceID,
+                            ScheduledEmailTypeID = record.ScheduledEmailTypeID
+                        };
+
+                        int result = new TableOperations<ScheduledEmailDataSourceEmailType>(connection).UpdateRecord(updatedRecord);
 
                         return Ok(result);
                     }

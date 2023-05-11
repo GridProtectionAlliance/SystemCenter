@@ -70,6 +70,17 @@ export interface SubscibeEmails {
     AssetGroup: string
 }
 
+export interface SubscribeReports {
+    ID: number,
+    Approved: boolean,
+    ScheduledEmailID: number,
+    FirstName: string,
+    LastName: string,
+    Email: string,
+    AssetGroup: string
+}
+
+
 export interface ActiveSubscription {
     ID: number|null,
     UserAccountEmailID: number,
@@ -144,4 +155,31 @@ export interface ICellCarrier {
     ID: number,
     Name: string,
     Transform: string,
+}
+
+
+
+interface IScheduledDataSource {
+    ID: number,
+    Name: string,
+    AssemblyName: string,
+    TypeName: string,
+    ConfigUI: string
+}
+
+
+
+export interface IDataSourceScheduledEmailType {
+    ID: number,
+    ScheduledEmailTypeID: number,
+    ScheduledEmailDataSourceID: number,
+    ScheduledEmailDataSourceName: string,
+    Settings?: IScheduledEmailDataSourceSetting[]
+}
+
+export interface IScheduledEmailDataSourceSetting {
+    ID: number,
+    ScheduledEmailDataSourceEmailTypeID: number,
+    Value: string,
+    Name: string
 }
