@@ -77,7 +77,7 @@ export default function CategoryForm(props: IProps) {
     return (
         <div className="col">
             <Input<LocalXDA.IWidgetCategory> Record={props.Category} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
-            <Input<LocalXDA.IWidgetCategory> Record={props.Category} Field={'OrderBy'} Label='Order By' Feedback={'Order By must be a number.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <Input<LocalXDA.IWidgetCategory> Record={props.Category} Field={'OrderBy'} Label='Order By' Feedback={'Order By must be a numeric value.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
         </div>
     )
 

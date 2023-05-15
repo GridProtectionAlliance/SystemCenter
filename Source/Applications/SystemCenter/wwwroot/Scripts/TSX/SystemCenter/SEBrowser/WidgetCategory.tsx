@@ -35,7 +35,7 @@ declare var homePath: string;
 interface IProps { TabID: number }
 
 const Tabs = [
-    { Id: "info", Label: "Info" },
+    { Id: "info", Label: "Tab Info" },
     { Id: "widgets", Label: "Widgets" },
 ]
 
@@ -103,7 +103,7 @@ export default function WidgetCategory(props: IProps) {
                     <WidgetByCategory CategoryID={category.ID} />
                 </div>
             </div>
-            <Warning Title={'Confirm'} Show={showWarning} Message={'This will permanently delete this SEBrowser Tab.'} CallBack={(c) => { if (c) deleteTab(); setShowWarning(false) }} />
+            <Warning Title={'Delete SE Browser Tab'} Show={showWarning} Message={'This will permanently delete this SE Browser Tab.'} CallBack={(c) => { if (c) deleteTab(); setShowWarning(false) }} />
         </div>
     )
 

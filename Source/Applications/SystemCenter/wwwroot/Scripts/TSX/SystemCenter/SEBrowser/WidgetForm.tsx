@@ -58,7 +58,7 @@ export default function WidgetForm(props: IProps) {
     React.useEffect(() => {
         let e = [];
         if (props.Widget.Setting == null || props.Widget.Setting.length == 0 || !isJson(props.Widget.Setting))
-            e.push('Settings are required. These need to be in a valid json format (e.g. {})')
+            e.push('Settings in a valid json format (e.g., {}) are required.')
         setErrors(e);
     }, [props.Widget])
 
@@ -108,11 +108,11 @@ export default function WidgetForm(props: IProps) {
                 }}
                 Options={options.map(o => ({ Value: o.ID.toString(), Label: o.Name }))} Disabled={!props.allowTypeChange} />
             <div className="alert alert-primary">
-                Any changes to Setting or Enabled will apply to all {props.Widget.Name} Widgets including those in other Tabs.
+                Any changes to Settings or Enabled will apply to all {props.Widget.Name} Widgets, including those in other Tabs.
             </div>
             <TextArea<LocalXDA.IWidget>
                 Rows={10} Record={props.Widget} Field={'Setting'}
-                Feedback={'Settings are required. These need to be in a valid json format (e.g. {})'}
+                Feedback={'Settings in a valid json format (e.g., {}) are required.'}
                 Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <CheckBox Record={props.Widget} Field={'Enabled'} Setter={(record) => props.stateSetter(record)} Label={'Enabled'} />
         </div>

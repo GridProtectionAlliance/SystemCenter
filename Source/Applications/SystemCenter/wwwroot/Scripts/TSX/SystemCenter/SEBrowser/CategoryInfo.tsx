@@ -57,7 +57,7 @@ export default function CategoryInfo(props: IProps) {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>SEBrowser Tab Information:</h4>
+                        <h4>SE Browser Tab Information:</h4>
                     </div>
                 </div>
             </div>
