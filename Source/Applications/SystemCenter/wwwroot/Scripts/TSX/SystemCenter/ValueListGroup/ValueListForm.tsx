@@ -56,7 +56,7 @@ export default function ValueListForm(props: IProps) {
 
     return (
         <>
-            <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Field={'Value'} Feedback={'Value must be set and be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Field={'Value'} Feedback={'A Value of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Label={'Alternate Value'}  Field={'AltValue'} Feedback={'AltValue must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
             <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Label={'Sort Order'} Field={'SortOrder'} Type='number' Valid={Valid} Setter={props.Setter} />
         </>
