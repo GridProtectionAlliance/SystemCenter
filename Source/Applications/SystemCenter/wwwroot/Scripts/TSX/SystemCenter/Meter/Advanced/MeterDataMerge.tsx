@@ -38,9 +38,9 @@ interface Meter {
 }
 
 const searchColumns: Array<Search.IField<Meter>> = [
-    { label: 'AssetKey', key: 'AssetKey', type: 'string', isPivotField: false },
+    { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
-    { label: 'Location', key: 'Location', type: 'string', isPivotField: false },
+    { label: 'Substation', key: 'Location', type: 'string', isPivotField: false },
     { label: 'Make', key: 'Make', type: 'string', isPivotField: false },
     { label: 'Model', key: 'Model', type: 'string', isPivotField: false },
 ];
@@ -269,7 +269,7 @@ export default function DataMergeWindow(props: {
         </div>
         <Warning
             Message={`Merging ${props.Meter.Name} (${props.Meter.AssetKey}) with ${mergeMeterName} (${mergeMeterKey}). This cannot be undone.`}
-            Title={"Merging data"}
+            Title={"Merging Data"}
             CallBack={merge}
             Show={showMergeWarning} />
     </>;
