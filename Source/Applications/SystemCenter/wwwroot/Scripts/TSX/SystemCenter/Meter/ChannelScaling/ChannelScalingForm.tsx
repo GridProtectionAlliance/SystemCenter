@@ -172,7 +172,7 @@ const ChannelScalingForm = (props: IProps) => {
         cardBody =
             <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ margin: 'auto' }}>
-                    <ServerErrorIcon Show={true} Size={40} Label={''} />
+                    <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                 </div>
             </div>
     else
@@ -206,9 +206,9 @@ const ChannelScalingForm = (props: IProps) => {
                                     recalculateChannelMultipliers({},wrapper);
                                 }}>{ScalingTypes.map(a => <option key={ChannelScalingType[a]} value={ChannelScalingType[a]}>{ChannelScalingType[a]}</option>)}</select>
                             },
-                            { key: 'Multiplier', field: 'PresentMultiplier', label: 'Multiplier', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Replaced', field: 'ReplacedMultiplier', label: 'Replaced', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Adjusted', field: 'AdjustedMultiplier', label: 'Adjusted', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                            { key: 'Multiplier', field: 'PresentMultiplier', label: 'Applied Multiplier', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                            { key: 'Replaced', field: 'ReplacedMultiplier', label: 'If Replaced', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                            { key: 'Adjusted', field: 'AdjustedMultiplier', label: 'If Adjusted', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         ]}
                         tableClass="table table-hover"
                         data={Wrappers}
