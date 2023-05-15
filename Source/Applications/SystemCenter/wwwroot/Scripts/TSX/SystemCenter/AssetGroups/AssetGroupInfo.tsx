@@ -78,8 +78,8 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
             <div className="card-body">
                 <div className="row" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <div className="col">
-                        <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique name of less than 50 characters is required.'} Valid={valid} Setter={setAssetGroup} Disabled={false} />
-                        <CheckBox<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in Dashboard'} Setter={setAssetGroup} Disabled={false} />
+                        <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique Name of less than 50 characters is required.'} Valid={valid} Setter={setAssetGroup} Disabled={false} />
+                        <CheckBox<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in PQ Dashboard'} Setter={setAssetGroup} Disabled={false} />
                         <CheckBox<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'DisplayEmail'} Label={'Show Asset Group in Email Subscription'} Setter={setAssetGroup} Disabled={false} />
                     </div>
                     <div className="col">

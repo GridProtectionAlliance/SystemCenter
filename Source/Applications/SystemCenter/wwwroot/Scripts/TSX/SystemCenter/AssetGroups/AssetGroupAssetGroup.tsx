@@ -146,8 +146,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                                 { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'Assets', field: 'Assets', label: 'Num. of Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'Meters', field: 'Meters', label: 'Num. of Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'Users', field: 'Users', label: 'Num. of Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                    { key: 'AssetGroups', field: 'AssetGroups', label: 'Num. of Asset Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'AssetGroups', field: 'AssetGroups', label: 'Num. of Asset Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 {
                                     key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                                     content: (c) => <button className="btn btn-sm" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setRemoveGroup(c.ID) }}><span>{TrashCan}</span></button>
@@ -181,7 +180,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                 
             </div>
             <div className="card-footer">
-                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Asset Group</button>
+                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Asset Groups</button>
                 </div>
                 <DefaultSelects.AssetGroup
                     Slice={AssetGroupSlice}
@@ -198,14 +197,13 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Users', field: 'Users', label: 'Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'AssetGroups', field: 'AssetGroups', label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     Title={"Add Asset Groups to Asset Group"}
                     GetEnum={getEnum}
                     GetAddlFields={() => () => { }} />
-                <Warning Show={removeGroup > -1} Title={'Remove Asset Group from Group'} Message={'This will remove the Asset Group from this Asset Group'} CallBack={(c) => { if (c) removeItem(removeGroup); setRemoveGroup(-1); }} />
+                <Warning Show={removeGroup > -1} Title={'Remove Asset Group from Asset Group'} Message={'This will remove the Asset Group from this Asset Group.'} CallBack={(c) => { if (c) removeItem(removeGroup); setRemoveGroup(-1); }} />
             </div>
             </>
     );

@@ -165,7 +165,7 @@ function AssetGroup(props: { AssetGroupID: number }) {
                     <AssetGroupAssetGroupWindow AssetGroupID={props.AssetGroupID} />
                 </div>
             </div>
-            <Warning Message={'This will permanently delete this Asset Group and cannot be undone'} Show={showDelete} Title={'deleteModal ' + assetGroup.Name} CallBack={(conf) => { if (conf) deleteAssetGroup(); setShowDelete(false); }} />
+            <Warning Message={'This will permanently delete this Asset Group and cannot be undone.'} Show={showDelete} Title={'Delete Asset Group - ' + assetGroup.Name} CallBack={(conf) => { if (conf) deleteAssetGroup(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
     )

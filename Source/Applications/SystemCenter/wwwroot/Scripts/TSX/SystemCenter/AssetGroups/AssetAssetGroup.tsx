@@ -27,11 +27,13 @@ import * as _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import { AssetTypeSlice } from '../Store/Store';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Warning } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
+import Asset from '../Asset/Asset';
 
 declare var homePath: string;
 
@@ -114,7 +116,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Transmission Assets in Asset Group:</h4>
+                        <h4>Transmission Assets:</h4>
                     </div>
                     
                 </div>
@@ -123,9 +125,9 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <Table
                         cols={[
-                            { key: 'AssetName', field: 'AssetKey', label: 'AssetKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'LongAssetName', field: 'AssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'AssetName', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'LongAssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             {
                                 key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                                 content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveAsset(c.ID)}><span>{TrashCan}</span></button>
@@ -162,17 +164,17 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Transmission Asset</button>
+                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Transmission Assets</button>
                 </div>
             </div>
             </div>
-            <AssetSelect Type='multiple' StorageID='AssetAssetGroup' Title='Add Transmission Assets to Asset Group' ShowModal={showAdd} SelectedAssets={assetList}
+            <AssetSelect Type='multiple' StorageID='AssetAssetGroup' Title={'Add Transmission Assets to Asset Group'} ShowModal={showAdd} SelectedAssets={assetList}
                 OnCloseFunction={(selected, conf) => {
                     setShowAdd(false);
                     if (!conf) return
                     saveItems(selected.filter(items => assetList.findIndex(g => g.ID == items.ID) < 0))
                 }} />
-            <Warning Show={removeAsset > -1} Title={'Remove Asset from Group'} Message={'This will remove the transmission asset from this Asset Group'} CallBack={(c) => { if (c) removeItem(removeAsset); setRemoveAsset(-1); }} />
+            <Warning Show={removeAsset > -1} Title={'Remove Asset from Asset Group'} Message={'This will remove the Transmission Asset from this Asset Group.'} CallBack={(c) => { if (c) removeItem(removeAsset); setRemoveAsset(-1); }} />
             </>
     )
 }
