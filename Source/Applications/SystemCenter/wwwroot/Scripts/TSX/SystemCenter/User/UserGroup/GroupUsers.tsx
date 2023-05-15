@@ -89,22 +89,22 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Group Users:</h4>
+                        <h4>Users:</h4>
                     </div>
                 </div>
             </div>
             <LoadingScreen Show={status === 'loading'} />
             <div className="card-body" style={{ height: window.innerHeight - 440, maxHeight: window.innerHeight - 440, overflowY: 'auto' }}>
                 {props.Group.Type == 'Azure' ? <div className="alert alert-info">
-                    You can not edit users in an Azure Group. To add or remove users please contact your Azure Administrator.
+                    Users in an Azure Group cannot be edited in System Center. To add or remove Users, please contact your Azure Administrator.
                 </div> : null}
                 {props.Group.Type == 'AD'? <div className="alert alert-info">
-                    You can not edit users for Active Directory Groups. To add or remove users please contact your AD Administrator.
+                    Users in an Active Directory Group cannot be edited in System Center. To add or remove Users, please contact your AD Administrator.
                 </div> : null}
                 {props.Group.Type == 'Database' ? 
                     <Table<Application.Types.iUserAccount>
                         cols={[
-                            { key: 'AccountName', field: 'AccountName', label: 'User Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                            { key: 'AccountName', field: 'AccountName', label: 'Username', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                             { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                             { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                             { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
@@ -138,7 +138,7 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary"
                         onClick={() => setShowSelect(true)}
-                        disabled={props.Group.Type !== 'Database'}>Add User</button>
+                        disabled={props.Group.Type !== 'Database'}>Add Users</button>
                 </div>
             </div>
 
@@ -153,7 +153,7 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                 Show={showSelect}
                 Type={'multiple'}
                 Columns={[
-                    { key: 'Name', field: 'AccountName', label: 'User Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                    { key: 'Name', field: 'AccountName', label: 'Username', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                     { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                     { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                     { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },

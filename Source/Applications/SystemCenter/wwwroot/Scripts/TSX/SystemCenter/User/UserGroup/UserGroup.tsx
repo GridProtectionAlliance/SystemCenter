@@ -56,7 +56,7 @@ function UserGroup(props: IProps) {
 
 	if (status === 'error')
 		return <div style={{ width: '100%', height: '100%' }}>
-			<ServerErrorIcon Show={true} Label={'A Server Error Occured. Please Reload the Application'} />
+			<ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
 		</div>;
 
 	const Tabs = [
@@ -90,7 +90,7 @@ function UserGroup(props: IProps) {
 				</div>
 
 			</div>
-			<Warning Message={'This will permanently remove the Group. Users in this Group will not be deleted, but may loose tehir roles. Are you sure you want to continue?'} Title={'Warning'} Show={showWarning} CallBack={(c) => {
+			<Warning Message={'This will permanently delete the User Group. Users in this Group will not be deleted, but may lose their roles. Are you sure you want to continue?'} Title={'Delete User Group'} Show={showWarning} CallBack={(c) => {
 				setShowWarning(false);
 				if (c) {
 					dispatch(SecurityGroupSlice.DBAction({ verb: 'DELETE', record: group }));
