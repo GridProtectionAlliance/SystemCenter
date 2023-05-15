@@ -86,9 +86,9 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     React.useEffect(() => {
         const errors = AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType);
         if (newEditAsset.AssetKey == null || newEditAsset.AssetKey.length == 0)
-            errors.push('A AssetKey is required.')
+            errors.push('A Key is required.')
         else if (allAssets.findIndex(asset => asset.AssetKey.toLowerCase() == newEditAsset.AssetKey.toLowerCase() && asset.ID != newEditAsset.ID) > -1)
-            errors.push('AssetKey has to be unique.')
+            errors.push('Key must be unique.')
 
         setAssetErrors(errors);
     }, [newEditAsset])
@@ -230,7 +230,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px' }}>
                     <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                     </div>
                 </div>
             </div>
@@ -324,7 +324,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
 
 
             <Modal Show={showModal}
-                Title={newEdit == 'New' ? 'Add New Asset to Location' : 'Edit ' + newEditAsset.AssetKey + ' at Location'}
+                Title={newEdit == 'New' ? 'Add New Asset to ' + props.Location.Name : 'Edit Asset - ' + newEditAsset.AssetName }
                 ConfirmBtnClass={'btn-success'}
                 ConfirmText={newEdit == 'Edit' ? 'Save' : 'Add'}
                 CancelBtnClass={'btn-danger'}

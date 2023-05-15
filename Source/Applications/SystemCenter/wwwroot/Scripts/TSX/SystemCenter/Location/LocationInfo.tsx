@@ -60,25 +60,25 @@ const LocationInfo = (props: IProps) => {
         if (location.Name == null || location.Name.length < 1)
             errors.push('A Name is required.');
         if (location.Name != null && location.Name.length > 200)
-            errors.push('Name needs to be less than 200 characters.');
+            errors.push('Name must be less than 200 characters.');
         if (location.Alias != null && location.Alias.length > 200)
-            errors.push('Alias needs to be less than 200 characters.');
+            errors.push('Alias must be less than 200 characters.');
         if (location.ShortName != null && location.ShortName.length > 50)
-            errors.push('Short Name needs to be less than 50 characters.');
+            errors.push('Short Name must be less than 50 characters.');
         if (location.Latitude == null)
             errors.push('Latitude is required.');
         if (location.Longitude == null)
             errors.push('Longitude is required.');
         if (location.Latitude != null && !AssetAttributes.isRealNumber(location.Latitude))
-            errors.push('Latitude needs to be numeric.');
+            errors.push('Latitude must be numeric.');
         if (location.Longitude != null && !AssetAttributes.isRealNumber(location.Longitude))
-            errors.push('Longitude needs to be numeric.');
+            errors.push('Longitude must be numeric.');
         if (location.Latitude != null && AssetAttributes.isRealNumber(location.Latitude) && (location.Latitude > 180 || location.Latitude < -180))
-            errors.push('Latitude needs to be between -180 and 180.')
+            errors.push('Latitude must be between -180 and 180.')
         if (location.Longitude != null && AssetAttributes.isRealNumber(location.Longitude) && (location.Longitude > 180 || location.Longitude < -180))
-            errors.push('Longitude needs to be between -180 and 180.')
+            errors.push('Longitude must be between -180 and 180.')
         if (!validAssetKey)
-            errors.push('The Key has to be unique.');
+            errors.push('Key must be unique.');
 
         setLocationErrors(errors);
 
@@ -181,7 +181,7 @@ const LocationInfo = (props: IProps) => {
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px' }}>
                     <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                     </div>
                 </div>
             </div>
@@ -199,14 +199,14 @@ const LocationInfo = (props: IProps) => {
             <div className="card-body">
                 <div className="row">
                     <div className="col">
-                        <Input<OpenXDA.Types.Location> Record={location} Field={'LocationKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={(l) => setLocation(l)} />
-                        <Input<OpenXDA.Types.Location> Record={location} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={(l) => setLocation(l)} />
-                        <Input<OpenXDA.Types.Location> Record={location} Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={(l) => setLocation(l)} />
+                        <Input<OpenXDA.Types.Location> Record={location} Field={'LocationKey'} Label={'Key'} Feedback={'A unique Key of less than 50 characters is required.'} Valid={valid} Setter={(l) => setLocation(l)} />
+                        <Input<OpenXDA.Types.Location> Record={location} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={(l) => setLocation(l)} />
+                        <Input<OpenXDA.Types.Location> Record={location} Field={'ShortName'} Label={'Short Name'} Feedback={'Short Name must be less than 50 characters.'} Valid={valid} Setter={(l) => setLocation(l)} />
                         <Input<OpenXDA.Types.Location> Record={location} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(l) => setLocation(l)} />
                     </div>
                     <div className="col">
-                        <Input<OpenXDA.Types.Location> Record={location} Field={'Latitude'} Feedback={'Latitude is a require numeric field and must be between -180 and 180.'} Valid={valid} Setter={(l) => setLocation(l)} />
-                        <Input<OpenXDA.Types.Location> Record={location} Field={'Longitude'} Feedback={'Longitude is a require numeric field and must be between -180 and 180.'} Valid={valid} Setter={(l) => setLocation(l)} />
+                        <Input<OpenXDA.Types.Location> Record={location} Field={'Latitude'} Feedback={'A numeric Latitude value between -180 and 180 is required.'} Valid={valid} Setter={(l) => setLocation(l)} />
+                        <Input<OpenXDA.Types.Location> Record={location} Field={'Longitude'} Feedback={'A numeric Longitude value between -180 and 180 is required.'} Valid={valid} Setter={(l) => setLocation(l)} />
                         <TextArea<OpenXDA.Types.Location> Rows={3} Record={location} Field={'Description'} Valid={valid} Setter={(l) => setLocation(l)} />
                     </div>
                 </div>
@@ -227,7 +227,7 @@ const LocationInfo = (props: IProps) => {
                 <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
                     {props.Location.LocationKey != location.LocationKey ? <p> {Warning} Changes to Key will be discarded.</p> : null}
                     {props.Location.Name != location.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
-                    {props.Location.ShortName != location.ShortName ? <p> {Warning} Changes to ShortName will be discarded.</p> : null}
+                    {props.Location.ShortName != location.ShortName ? <p> {Warning} Changes to Short Name will be discarded.</p> : null}
                     {props.Location.Alias != location.Alias ? <p> {Warning} Changes to Alias will be discarded.</p> : null}
                     {props.Location.Latitude != location.Latitude ? <p> {Warning} Changes to Latitude will be discarded.</p> : null}
                     {props.Location.Longitude != location.Longitude ? <p> {Warning} Changes to Longitude will be discarded.</p> : null}
