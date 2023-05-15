@@ -151,7 +151,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<OpenXDA.Types.Customer>
                     cols={[
-                        { key: 'CustomerKey', field: 'CustomerKey', label: 'Customer Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'CustomerKey', field: 'CustomerKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -188,7 +188,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={showModal} Title={'Add Customer'} CallBack={(c) => {
+            <Modal Show={showModal} Title={'Add New Customer'} CallBack={(c) => {
                 setShowModal(false);
                 if (c)
                     dispatch(CustomerSlice.DBAction({ verb: 'POST', record: newCustomer }));

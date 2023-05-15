@@ -45,11 +45,11 @@ export default function CustomerInfo(props: IProps) {
     React.useEffect(() => {
         let w = [];
         if (customer.CustomerKey != props.Customer.CustomerKey)
-            w.push('Changes to Customer Key will be lost.')
+            w.push('Changes to Key will be lost.')
         if (customer.Name != props.Customer.Name)
             w.push('Changes to Name will be lost.')
         if (customer.Phone != props.Customer.Phone)
-            w.push('Changes to Phone Number will be lost.')
+            w.push('Changes to Phone will be lost.')
         if (customer.Description != props.Customer.Description)
             w.push('Changes to Description will be lost.')
         if (customer.LSCVS != props.Customer.LSCVS)

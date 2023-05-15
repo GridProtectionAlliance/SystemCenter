@@ -144,7 +144,7 @@ const CustomerMeterWindow = (props: IProps) => {
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px' }}>
                     <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                     </div>
                 </div>
             </div>
@@ -223,11 +223,11 @@ const CustomerMeterWindow = (props: IProps) => {
             <div className="btn-group mr-2">
                     <button className="btn btn-primary pull-right" onClick={() => {
                         setShowAdd(true);
-                }}>Add Meter</button>
+                }}>Add Meters</button>
             </div>
         </div>
         </div>
-        <Warning Message={'This will permanently remove the meter from this customer and can affect PQDigest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove Meter from Customer'} CallBack={(c) => { if (c) dispatch(CustomerMeterSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        <Warning Message={'This will permanently remove the Meter from this Customer and can affect PQ Digest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove Meter from Customer'} CallBack={(c) => { if (c) dispatch(CustomerMeterSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
         <DefaultSelects.Meter
             Slice={ByMeterSlice}
             Selection={[]}
