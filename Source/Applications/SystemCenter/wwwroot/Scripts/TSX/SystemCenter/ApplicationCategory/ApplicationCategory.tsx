@@ -86,8 +86,8 @@ function ApplicationCategory(props: IProps) {
                 </div>
             </div>
 
-            <Warning Message={'This will permanently Delete this Application Category and can not be undone.'}
-                Show={showDelete} Title={'Delete Application Category ' + applicationCategory.Name}
+            <Warning Message={'This will permanently delete this Application Category and cannot be undone.'}
+                Show={showDelete} Title={'Delete Application Category - ' + applicationCategory.Name}
                 CallBack={(conf) => { if (conf) dispatch(ApplicationCategorySlice.DBAction({ verb: 'DELETE', record: applicationCategory })); setShowDelete(false); window.location.href = homePath + 'index.cshtml?name=ByApplicationCategory' }} />
             <LoadingScreen Show={loadDelete} />
             </div>

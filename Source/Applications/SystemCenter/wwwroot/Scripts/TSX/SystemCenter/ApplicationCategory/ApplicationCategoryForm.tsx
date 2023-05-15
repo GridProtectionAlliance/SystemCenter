@@ -44,7 +44,7 @@ export default function ApplicationCategoryForm(props: IProps) {
     React.useEffect(() => {
         let e = [];
         if (props.ApplicationCat.Name != null && props.ApplicationCat.Name.length > 0 && allApplicationCategories.findIndex(s => s.Name.toLowerCase() === props.ApplicationCat.Name.toLowerCase() && s.ID !== props.ApplicationCat.ID) > -1)
-            e.push('An Application Category with this name already exists.');
+            e.push('An Application Category with this Name already exists.');
         setErrors(e);
     }, [props.ApplicationCat, allApplicationCategories])
 
@@ -64,7 +64,7 @@ export default function ApplicationCategoryForm(props: IProps) {
     return (
             <div className="col">
                 <Input<ApplicationCategory> Record={props.ApplicationCat} Field={'Name'} Label={'Name'} Feedback={'A unique Name is required.'} Valid={Valid} Setter={(record) => props.stateSetter(record)} />
-                <Input<ApplicationCategory> Record={props.ApplicationCat} Field={'SortOrder'} Label={'Sort Order'} Feedback={'A valid Sort Order is required.'} Valid={Valid} Setter={(record) => props.stateSetter(record)} />
+                <Input<ApplicationCategory> Record={props.ApplicationCat} Field={'SortOrder'} Label={'Sort Order'} Feedback={'A numeric Sort Order value is required.'} Valid={Valid} Setter={(record) => props.stateSetter(record)} />
             </div>
         )
 }
