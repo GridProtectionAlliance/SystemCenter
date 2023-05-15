@@ -57,7 +57,7 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
         <div className="card-header">
             <div className="row">
                 <div className="col">
-                    <h4>OpenXDA Issues for { props.Meter?.Name} :</h4>
+                    <h4>openXDA Issues for { props.Meter?.Name} :</h4>
                 </div>
             </div>
         </div>
@@ -66,11 +66,11 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 cols={[
                     { key: 'Date', label: 'Date', field: 'Date', headerStyle: { width: '5%', textAlign: 'center' }, rowStyle: { width: '5%', textAlign: 'center' } },
                     { key: 'LastSuccessfulFileProcessed', label: 'Last Succ', field: 'LastSuccessfulFileProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulFileProcessed', label: 'Last Un-Succ', field: 'LastUnsuccessfulFileProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
+                    { key: 'LastUnsuccessfulFileProcessed', label: 'Last Unsucc', field: 'LastUnsuccessfulFileProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
                     { key: 'LastUnsuccessfulFileProcessedExplanation', label: 'Reason', field: 'LastUnsuccessfulFileProcessedExplanation', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''}/> },
                     { key: 'TotalFilesProcessed', label: 'Total', field: 'TotalFilesProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
                     { key: 'TotalSuccessfulFilesProcessed', label: 'Total Succ', field: 'TotalSuccessfulFilesProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'TotalUnsuccessfulFilesProcessed', label: 'Total Un-Succ', field: 'TotalUnsuccessfulFilesProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
+                    { key: 'TotalUnsuccessfulFilesProcessed', label: 'Total Unsucc', field: 'TotalUnsuccessfulFilesProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
                     { key: 'TotalEmailsSent', label: 'Total Emails Sent', field: 'TotalEmailsSent', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
                     { key: 'AverageDownloadLatency', label: 'Avg Dnld Lat', field: 'AverageDownloadLatency', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
                     { key: 'AverageProcessingStartLatency', label: 'Avg Proc Start Lat', field: 'AverageProcessingStartLatency', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
