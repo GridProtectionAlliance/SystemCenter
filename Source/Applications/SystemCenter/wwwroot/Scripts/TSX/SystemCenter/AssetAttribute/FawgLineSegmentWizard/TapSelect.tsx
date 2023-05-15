@@ -50,12 +50,12 @@ function TapSelect(props: IProps): JSX.Element {
 
         const errors = [];
         if (props.Taps.filter(t => t.Bus == tap.Bus).length > 1)
-            errors.push('This Tap has to have a unique Bus Name.')
+            errors.push('This Tap must have a unique Bus Name.')
 
         if (tap.IsExternal)
-            return <WarningWTooltip Errors={errors} Warnings={['This Tap exists in  FAWG but can not be found in the XDA.']} />
+            return <WarningWTooltip Errors={errors} Warnings={['This Tap exists in FAWG but cannot be found in openXDA.']} />
 
-        return <WarningWTooltip Errors={errors} Warnings={['This Tap exists in the XDA but can not be found in FAWG.']} />
+        return <WarningWTooltip Errors={errors} Warnings={['This Tap exists in openXDA but cannot be found in FAWG.']} />
     }
 
     return (
