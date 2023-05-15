@@ -83,7 +83,7 @@ function Permission(props: IProps) {
 
     if (applicationNodeStatus == 'error' || applicationRolesStatus == 'error')
         return <div style={{ width: '100%', height: '100%' }}>
-            <ServerErrorIcon Show={true} Label={'A Server Error Occured. Please Reload the Application'} />
+            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
         </div>;
 
     return (
