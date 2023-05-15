@@ -38,7 +38,7 @@ function DERAttributes<T extends OpenXDA.Types.DER>(props: { NewEdit: Applicatio
         return true;
     }
     return <>
-        <Input<T> Record={props.Asset} Field={'FullRatedOutputCurrent'} Label={'Full Rated Output Current (Amps)'} Feedback={'Full Rated Output Current (Amps) requires a numerical value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+        <Input<T> Record={props.Asset} Field={'FullRatedOutputCurrent'} Label={'Full Rated Output Current (Amps)'} Feedback={'Full Rated Output Current must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
         <Select<T> Record={props.Asset} Field={'VoltageLevel'} Label={'Voltage Level'} Options={[{ Value: 'Low', Label: 'Low' }, { Value: 'Medium', Label: 'Medium' }] } Setter={(record) => props.UpdateState(record)} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
     </>;
 
