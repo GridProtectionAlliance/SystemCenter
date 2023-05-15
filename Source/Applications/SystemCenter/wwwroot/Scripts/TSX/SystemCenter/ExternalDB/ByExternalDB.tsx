@@ -36,7 +36,7 @@ declare var homePath: string;
 
 const defaultSearchcols: Array<Search.IField<SystemCenter.Types.ExternalDataBaseTable>> = [
     { label: 'Table Name', key: 'TableName', type: 'string', isPivotField: false },
-    { label: 'External DB', key: 'ExternalDB', type: 'string', isPivotField: false },
+    { label: 'External Database', key: 'ExternalDB', type: 'string', isPivotField: false },
 ];
 
 const ByExternalDB: Application.Types.iByComponent = (props) => {
@@ -90,7 +90,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 Width={'50%'}
                 Label={'Search'}
                 ShowLoading={searchState == 'loading'}
-                ResultNote={searchState == 'error' ? 'Could not complete Search' : 'Found ' + searchResults.length + ' External Database Table(s)'}
+                ResultNote={searchState == 'error' ? 'Could not complete Search' : 'Found ' + searchResults.length + ' External Database Tables'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
                     if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
@@ -153,7 +153,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={showNew} Title={'New External DataBase'}
+            <Modal Show={showNew} Title={'Add New External DataBase Table'}
                 ShowCancel={true}
                 CallBack={(conf) => { if(conf) dispatch(ExternalDBTablesSlice.DBAction({ verb: 'POST', record: newExternalDB })); setShowNew(false); }}
                 DisableConfirm={newExternalDatabaseErrors.length > 0}

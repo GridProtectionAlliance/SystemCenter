@@ -51,7 +51,7 @@ export default function ExternalDBWindow(props: IProps) {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>External Database Information:</h4>
+                        <h4>External Database Table Information:</h4>
                     </div>
                 </div>
             </div>
@@ -76,7 +76,7 @@ export default function ExternalDBWindow(props: IProps) {
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
                     <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={"Server error occured. Please reload the page."}/>
+                        <ServerErrorIcon Show={true} Size={40} Label={"A Server Error Occurred. Please Reload the Application."}/>
                     </div>
                 </div>
             </div>

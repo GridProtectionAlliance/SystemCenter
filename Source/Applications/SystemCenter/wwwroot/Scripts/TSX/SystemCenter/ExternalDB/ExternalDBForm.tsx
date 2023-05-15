@@ -41,7 +41,7 @@ export default function ExternalDBForm(props: IProps) {
         Label: "PQView"
         }, {
         Value: "Fawg",
-        Label: "Fawg"
+        Label: "FAWG"
         }]
 
     React.useEffect(() => {
