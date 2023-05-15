@@ -160,24 +160,24 @@ const MeterInforWindow = (props: IProps) => {
                 </div>
                 <ToolTip Show={(!validMeter() || !hasChanged()) && hover == 'submit' } Position={'top'} Theme={'dark'} Target={"submit"}>
                     {!hasChanged() ? <p> No changes made.</p> : null}
-                    {!valid('AssetKey') ? <p> <ErrorSymbol /> A unique AssetKey of less than 50 characters is required.</p> : null}
-                    {!valid('Name') ? <p> <ErrorSymbol /> Name must be less than 200 characters and is required.</p> : null}
-                    {!valid('ShortName') ? <p> <ErrorSymbol />ShortName must be less than 50 characters.</p> : null}
-                    {!valid('Alias') ? <p> <ErrorSymbol />Alias must be less than 200 characters.</p> : null}
-                    {!valid('Make') ? <p> <ErrorSymbol />Make is required.</p> : null}
-                    {!valid('Model') ? <p> <ErrorSymbol />Model is required.</p> : null}
+                    {!valid('AssetKey') ? <p> <ErrorSymbol /> A unique Key of less than 50 characters is required.</p> : null}
+                    {!valid('Name') ? <p> <ErrorSymbol /> A Name of less than 200 characters is required.</p> : null}
+                    {!valid('ShortName') ? <p> <ErrorSymbol /> Short Name must be less than 50 characters.</p> : null}
+                    {!valid('Alias') ? <p> <ErrorSymbol /> Alias must be less than 200 characters.</p> : null}
+                    {!valid('Make') ? <p> <ErrorSymbol /> Make is required.</p> : null}
+                    {!valid('Model') ? <p> <ErrorSymbol /> Model is required.</p> : null}
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className={"btn btn-default" + (hasChanged() ? '' : ' disabled')} data-tooltip="clear" onClick={() => setMeter(props.Meter)} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                 </div>
                 <ToolTip Show={hasChanged() && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
-                    {props.Meter.AssetKey != meter.AssetKey ? <p> <WarningSymbol /> Changes to assetKey will be discarded.</p> : null}
+                    {props.Meter.AssetKey != meter.AssetKey ? <p> <WarningSymbol /> Changes to Key will be discarded.</p> : null}
                     {props.Meter.Name != meter.Name ? <p> <WarningSymbol /> Changes to Name will be discarded.</p> : null}
-                    {props.Meter.ShortName != meter.ShortName ? <p> <WarningSymbol /> Changes to ShortName will be discarded.</p> : null}
+                    {props.Meter.ShortName != meter.ShortName ? <p> <WarningSymbol /> Changes to Short Name will be discarded.</p> : null}
                     {props.Meter.Alias != meter.Alias ? <p> <WarningSymbol /> Changes to Alias will be discarded.</p> : null}
                     {props.Meter.Make != meter.Make ? <p> <WarningSymbol /> Changes to Make will be discarded.</p> : null}
                     {props.Meter.Model != meter.Model ? <p> <WarningSymbol /> Changes to Model will be discarded.</p> : null}
-                    {props.Meter.TimeZone != meter.TimeZone ? <p> <WarningSymbol /> Changes to TimeZone will be discarded.</p> : null}
+                    {props.Meter.TimeZone != meter.TimeZone ? <p> <WarningSymbol /> Changes to Time Zone will be discarded.</p> : null}
                     {props.Meter.Description != meter.Description ? <p> <WarningSymbol /> Changes to Description will be discarded.</p> : null}
                 </ToolTip>
             </div>

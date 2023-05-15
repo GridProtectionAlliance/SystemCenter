@@ -154,7 +154,7 @@ const LocationWindow = (props: IProps) => {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Meter Location / Substation Information:</h4>
+                        <h4>Meter Substation Information:</h4>
                     </div>
                 </div>
             </div>
@@ -174,10 +174,10 @@ const LocationWindow = (props: IProps) => {
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'NewLocation'}>{location.ID > 0 ? "Update" : "Add New"}</button>
                     <ToolTip Show={hover == 'Update' && (!hasChanged || !isValidLocation)} Position={'top'} Theme={'dark'} Target={"NewLocation"}>
                         {!hasChanged || location.ID < 1 ? <p> No Changes have been made. </p> : null}
-                        {!validKey ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Key needs to be unique.  </p> : null}
-                        {!valid('LocationKey') && validKey ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Key is required and needs to be less than 50 characters. </p> : null}
-                        {!valid('Name') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Name is required and needs to be less than 200 characters. </p> : null}
-                        {!valid('ShortName') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> ShortName needs to be less than 50 characters. </p> : null}
+                        {!validKey ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Key must be unique.  </p> : null}
+                        {!valid('LocationKey') && validKey ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Key of less than 50 characters is required. </p> : null}
+                        {!valid('Name') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Name of less than 200 characters is required. </p> : null}
+                        {!valid('ShortName') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Short Name must be less than 50 characters. </p> : null}
                         {!valid('Latitude') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Latitude is required. </p> : null}
                         {!valid('Longitude') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Longtitude is required. </p> : null}
                     </ToolTip>

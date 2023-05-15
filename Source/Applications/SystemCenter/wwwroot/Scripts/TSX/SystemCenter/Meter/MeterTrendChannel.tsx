@@ -24,6 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { toNumber } from 'lodash';
 
 declare var homePath: string;
@@ -197,7 +198,7 @@ export default class MeterTrendChannelWindow extends React.Component<{ Meter: Op
                 <div className="card-header">
                     <div className="row">
                         <div className="col">
-                            <h4>Channels:</h4>
+                            <h4>Trend Channels:</h4>
                         </div>
                     </div>
                 </div>
@@ -262,7 +263,7 @@ export default class MeterTrendChannelWindow extends React.Component<{ Meter: Op
                                                     <option value=""></option>
                                                     {this.state.AllAssets.map(a => <option key={a.ID} value={a.AssetKey}>{a.AssetKey}</option>)}</select>}</td>
                                                 <td style={{ width: '5%' }}>
-                                                    <button className="btn btn-sm" onClick={(e) => this.deleteChannel(index)}><span><i className="fa fa-times"></i></span></button>
+                                                    <button className="btn btn-sm" onClick={(e) => this.deleteChannel(index)}><span>{TrashCan}</span></button>
                                                 </td>
                                             </tr>
                                         )

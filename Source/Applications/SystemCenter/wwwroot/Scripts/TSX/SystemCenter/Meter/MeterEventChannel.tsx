@@ -103,26 +103,26 @@ const MeterEventChannelWindow = (props: IProps) => {
              for (let k of recordChanges.get(id).keys()) {
                  const val = recordChanges.get(id).get(k);
                  if (k == 'Adder' && val != null && !AssetAttributes.isRealNumber(val))
-                     e.push('All Adders must be numeric values')
+                     e.push('All Adders must be numeric values.')
                  if (k == 'Multiplier' && val != null && !AssetAttributes.isRealNumber(val))
-                     e.push('All Multipliers must be numeric values')
+                     e.push('All Multipliers must be numeric values.')
                  if (k == 'ConnectionPriority' && val != null && !AssetAttributes.isRealNumber(val))
-                     e.push('All Connection Priorities must be numeric values')
+                     e.push('All Connection Priorities must be numeric values.')
 
                  if(k == 'Adder' && val == null)
-                    e.push('All Channels must have an Adder')
+                    e.push('All Channels must have an Adder.')
                  if (k == 'Multiplier' && val == null)
-                     e.push('All Channels must have a Multiplier')
+                     e.push('All Channels must have a Multiplier.')
                  if (k == 'ConnectionPriority' && val == null)
-                     e.push('All Channels must have a Connection Priority')
+                     e.push('All Channels must have a Connection Priority.')
 
                  if (k == 'Name' && (val == null || val.toString().length == 0))
-                     e.push('All Channels must have a Name')
+                     e.push('All Channels must have a Name.')
                  if (k == 'SourceIndices' && (val == null || val.toString().length == 0))
-                     e.push('All Channels must have a valid Source Index')
+                     e.push('All Channels must have a valid Source Index.')
 
                  if (k == 'Name' && val != null && val.toString().length > 0 && data.findIndex(c => c.Name.toLowerCase() == val.toString().toLowerCase() && id != c.ID) > -1)
-                     e.push('All Channels names must be unique')
+                     e.push('All Channel Names must be unique.')
              }
          }
      
@@ -203,7 +203,7 @@ const MeterEventChannelWindow = (props: IProps) => {
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px' }}>
                     <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                     </div>
                 </div>
             </div>
@@ -345,7 +345,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                 <button className={"btn btn-primary" + (errors.length > 0 || recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (errors.length === 0 && recordChanges.size > 0) applyUpdates() }}
                     onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'save'}>Save Changes</button>
                 <ToolTip Show={hover == 'Update' && (errors.length > 0 || recordChanges.size == 0)} Position={'top'} Theme={'dark'} Target={"save"}>
-                    {recordChanges.size == 0 ? <p> no changes have been made. </p> : null}
+                    {recordChanges.size == 0 ? <p> No changes have been made. </p> : null}
                     {errors.length > 0 ? errors.map((e, i) => <> {CrossMark} <p key={i}> {e} </p> </>) : null}
                 </ToolTip>
             </div>
@@ -358,7 +358,7 @@ const MeterEventChannelWindow = (props: IProps) => {
             </div>
         </div>
         </div>
-        <Warning Message={'This will permanently remove the channel and can not be undone.'} Show={removeRecord != null} Title={'Delete Channel'} CallBack={(c) => { if (c) dispatch(dBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        <Warning Message={'This will permanently delete this Channel and cannot be undone.'} Show={removeRecord != null} Title={'Delete Channel'} CallBack={(c) => { if (c) dispatch(dBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
         </>
 
 }

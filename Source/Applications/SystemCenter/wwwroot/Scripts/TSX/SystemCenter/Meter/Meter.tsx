@@ -183,7 +183,7 @@ function Meter(props: IProps) {
         <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15 }}>
             <div className="row">
                 <div className="col">
-                    <h2>{meter.AssetKey}</h2>
+                    <h2>{meter.Name} ({meter.AssetKey})</h2>
                 </div>
                 <div className="col" style={{maxHeight: 50}}>
                     <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete Meter</button>
@@ -238,12 +238,12 @@ function Meter(props: IProps) {
                     <MeterMaintenanceWindow Meter={meter} />
                 </div>
             </div>
-            <Modal Title={'Advanced options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
+            <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
                 <button className="btn btn-dark btn-block" onClick={showDataRescueWindow}>Data Rescue</button>
                 <button className="btn btn-dark btn-block" onClick={showDataMergeWindow}>Merge Data</button>
                 <button className="btn btn-danger btn-block" onClick={showDataDeleteWindow}>Delete Data</button>
             </Modal>
-            <Warning Message={'This will permanently Delete this meter and can not be undone.'} Show={showDelete} Title={'Delete Meter ' + meter.AssetKey} CallBack={(conf) => { if (conf) deleteMeter(); setShowDelete(false); }} />
+            <Warning Message={'This will permanently delete this Meter and cannot be undone.'} Show={showDelete} Title={'Delete Meter - ' + meter.Name} CallBack={(conf) => { if (conf) deleteMeter(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
        
