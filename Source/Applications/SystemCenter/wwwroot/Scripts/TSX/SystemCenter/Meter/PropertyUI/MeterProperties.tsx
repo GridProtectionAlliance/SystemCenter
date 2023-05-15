@@ -135,15 +135,15 @@ const MeterProperties = (props: IProps) => {
             <div className="row">
                 <div className="col">
 
-                <Input<OpenXDA.Types.Meter> Help={'Asset Key is used to match the data folder and needs to match the OpenMIC setting.'} Record={props.Meter} Field={'AssetKey'} Label={'Asset Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
-                <Input<OpenXDA.Types.Meter> Record={props.Meter} Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
-                <Input<OpenXDA.Types.Meter> Record={props.Meter} Field={'ShortName'} Label={'Short Name'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
+                <Input<OpenXDA.Types.Meter> Help={'Key is used to match the data folder and must match the openMIC setting.'} Record={props.Meter} Field={'AssetKey'} Label={'Key'} Feedback={'A unique Key of less than 50 characters is required.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
+                <Input<OpenXDA.Types.Meter> Record={props.Meter} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
+                <Input<OpenXDA.Types.Meter> Record={props.Meter} Field={'ShortName'} Label={'Short Name'} Feedback={'Short Name must be less than 50 characters.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
                 <Input<OpenXDA.Types.Meter> Record={props.Meter} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
                 </div>
                 <div className="col">
                 <Select<OpenXDA.Types.Meter> Record={props.Meter} Field={'Make'} Options={makeList.map(item => { return { Value: item.Value, Label: item.AltValue } })} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)}/>
                 <Select<OpenXDA.Types.Meter> Record={props.Meter} Field={'Model'} Options={modelList.map(item => { return { Value: item.Value, Label: item.AltValue } })} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)}/>
-                <Select<OpenXDA.Types.Meter> Help={'The Timezone needs to match the Timezone the meter is configured in.'} Record={props.Meter} Field={'TimeZone'} Options={timeZones.map(item => { return { Value: item.Value, Label: item.AltValue } })}
+                <Select<OpenXDA.Types.Meter> Help={'This Time Zone must match the Time Zone in which the Meter is configured.'} Record={props.Meter} Field={'TimeZone'} Options={timeZones.map(item => { return { Value: item.Value, Label: item.AltValue } })}
                     Label={'Time Zone'} Setter={(meter) => props.StateSetter(meter)} EmptyOption={true} EmptyLabel={'None Selected'} />
                             
                 <TextArea<OpenXDA.Types.Meter> Rows={3} Record={props.Meter} Field={'Description'} Valid={valid} Setter={(meter: OpenXDA.Types.Meter) => props.StateSetter(meter)} />
