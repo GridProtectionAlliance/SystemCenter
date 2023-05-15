@@ -65,11 +65,11 @@ function UserForm(props: IProps) {
             return
         const e = [];
         if (props.UserAccount.DisplayName == null || props.UserAccount.DisplayName.length === 0)
-            e.push('An AccountName is required.')
+            e.push('A Username is required.')
         if (props.UserAccount.Type != 'Database' && valid !== 'valid')
-            e.push('The user could not be validated by the AD or Azure.')
+            e.push('The User could not be validated by the AD or Azure.')
         if (props.UserAccount.DisplayName !== null && allUsers.findIndex(u => u.DisplayName.toLowerCase() == props.UserAccount.DisplayName.toLowerCase() && u.ID !== props.UserAccount.ID) > -1)
-            e.push('The AccountName needs to be unique.')
+            e.push('Username must be unique.')
         setErrors(e);
     }, [props.UserAccount, valid])
 
@@ -142,11 +142,11 @@ function UserForm(props: IProps) {
                             <span id="resolvingAccount" hidden={valid !== 'resolving'}><i style={{ height: 10, width: 10, color: 'grey' }}
                                 className="fa fa fa-spin fa-refresh"></i>&nbsp;<em className="small">Resolving account details...</em></span>
                             <span id="accountValid" hidden={valid !== 'valid'}><i style={{ height: 20, width: 20, color: 'green' }}
-                                className="fa fa-check-circle"></i>&nbsp;<em className="small">Resolved account name </em></span>
+                                className="fa fa-check-circle"></i>&nbsp;<em className="small">Resolved account name.</em></span>
                             <span id="accountInvalid" hidden={valid !== 'invalid'}><i style={{ height: 20, width: 20, color: 'red' }}
-                                className="fa fa-times-circle"></i>&nbsp;<em className="small">Cannot resolve account name</em></span>
+                                className="fa fa-times-circle"></i>&nbsp;<em className="small">Cannot resolve account name.</em></span>
                             <span id="accountUnknown" hidden={valid !== 'unknown'}><i style={{ height: 20, width: 20, color: 'orange' }}
-                                className="fa fa-exclamation-circle"></i>&nbsp;<em className="small">Valid account name is not a user or Active Directory access is limited</em></span>
+                                className="fa fa-exclamation-circle"></i>&nbsp;<em className="small">Valid account name is not a User, or Active Directory access is limited.</em></span>
                         </div>                     
                         <div className="card">
                             <div className="card-header">
@@ -161,7 +161,7 @@ function UserForm(props: IProps) {
                                                     Type: e.target.checked ? 'Azure' : 'Database',
                                                     UseADAuthentication: e.target.checked
                                                 })
-                                            }} />Active Directory or Azure user</label>
+                                            }} />Active Directory or Azure User</label>
                                         </div>
                                     </div>
                                     <div className="col">

@@ -55,7 +55,7 @@ function User(props: IProps) {
 
 	if (status === 'error')
 		return <div style={{ width: '100%', height: '100%' }}>
-			<ServerErrorIcon Show={true} Label={'A Server Error Occured. Please Reload the Application'} />
+			<ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
 		</div>;
 
 	const Tabs = [
@@ -100,8 +100,8 @@ function User(props: IProps) {
 			</div>
 			<Warning Message={
 				(user == null || user.Type == 'Database' ? 'This will permanently remove the User. Are you sure you want to continue?' :
-					'This will remove the user from the xda suite. However the user may still have rights and can log into the system if they are in an azure or Active Directory group. contact your domain Administrator to have the user removed from Azure or AD.')
-					} Title={'Warning'} Show={showWarning} CallBack={(c) => {
+					'This will remove the User from openXDA. The User may still have rights and the ability to log in to the system if they are in an Azure or Active Directory group. Contact your domain administrator to have the User removed from Azure or AD.')
+					} Title={'Delete User'} Show={showWarning} CallBack={(c) => {
 				setShowWarning(false);
 				if (c) {
 					dispatch(UserAccountSlice.DBAction({ verb: 'DELETE', record: user }));

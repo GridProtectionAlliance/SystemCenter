@@ -137,7 +137,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
-            <ServerErrorIcon Show={true} Label={'A Server Error Occured. Please Reload the Application'} />
+            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
         </div>;
 
      return (
@@ -202,7 +202,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                 />
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
-                Title={'Add User'} CallBack={(confirm) => {
+                Title={'Add New User'} CallBack={(confirm) => {
                     if (confirm)
                         dispatch(UserAccountSlice.DBAction({ verb: 'POST', record: { ...act, Name: act.DisplayName } }))
                     setAct(newAcct);
