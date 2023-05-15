@@ -63,18 +63,18 @@ function SectionSelect(props: IProps): JSX.Element {
 
         const errors = [];
         if (section.EndBus == section.StartBus)
-            errors.push("A Segment can not start and end at the same Tap or Endpoint.");
+            errors.push("A Segment cannot start and end at the same Tap or Endpoint.");
 
         if (props.Sections.filter(sec => (sec.EndBus == section.EndBus && sec.StartBus == section.StartBus)
             || (sec.StartBus == section.EndBus && sec.EndBus == section.StartBus)).length > 1) 
-            errors.push("XDA does not support Parelell Sections.");
+            errors.push("openXDA does not support parallel Sections.");
 
         if (section.IsDifferent)
-            return <WarningWTooltip Errors={errors} Warnings={['This Section exists in  FAWG and XDA but the number of Segments differs.']} />
+            return <WarningWTooltip Errors={errors} Warnings={['This Section exists in FAWG and openXDA, but the number of Segments differs.']} />
         if (section.IsExternal)
-            return <WarningWTooltip Errors={errors} Warnings={['This Section exists in  FAWG but can not be found in the XDA.']} />
+            return <WarningWTooltip Errors={errors} Warnings={['This Section exists in FAWG but cannot be found in openXDA.']} />
 
-        return <WarningWTooltip Errors={errors} Warnings={['This Section exists in the XDA but can not be found in FAWG.']} />
+        return <WarningWTooltip Errors={errors} Warnings={['This Section exists in openXDA but cannot be found in FAWG.']} />
     }
 
     function generateBusLabel(tap: ITap) {

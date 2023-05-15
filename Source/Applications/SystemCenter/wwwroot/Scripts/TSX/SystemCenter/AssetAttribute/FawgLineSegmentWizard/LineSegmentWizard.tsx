@@ -71,19 +71,19 @@ function LineSegmentWizard(props: IProps): JSX.Element {
     React.useEffect(() => {
         let e = [];
         if (step == 'SetupTap' && taps.length < 2)
-            e.push('At least 2 Taps or Endpoints have to be defined.')
+            e.push('At least 2 Taps or Endpoints are required.')
         if (step == 'SetupTap' && _.uniqBy(taps, (t) => t.Bus).length != taps.length)
-            e.push('All Taps have to have unique Bus names.')
+            e.push('All Taps must have unique Bus Names.')
         if (step == 'SelectSection' && sections.length == 0)
-            e.push('At least 1 Section of the Line needs to be defined.')
+            e.push('At least 1 Section of the Line is required.')
         if (step == 'EditSection' && sections[currentSegment].Segments.length == 0)
-            e.push('At least 1 Segment needs to be defined.')
+            e.push('At least 1 Segment is required.')
         if (step == 'SelectSection' && sections.some(item => item.EndBus == item.StartBus))
-            e.push('A Segment can not start and end at the same Tap or Endpoint.');
+            e.push('A Segment cannot start and end at the same Tap or Endpoint.');
         if (step == 'SelectSection' && checkParalells())
-            e.push('XDA does not support Parelell Sections.');
+            e.push('openXDA does not support parallel Sections.');
         if (step == 'EditSection' && sections[currentSegment].Segments.some(s => s.FromBus == s.ToBus))
-            e.push('A Segment can not have the same From Bus and to Bus.')
+            e.push('A Segment cannot have the same From Bus and To Bus.')
 
         if (step == 'EditSection' && sections[currentSegment].Segments.some(s => s.AssetName == null || s.AssetName.length == 0))
             e.push('All Segments require a Name.')
@@ -314,7 +314,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                 {fawgSuccess && showFawgError ? <div className="row">
                     <div className="col">
                         <div className="alert alert-danger" role="alert">
-                            <h4 className="alert-heading">Unable to find Line {props.LineName} in FAWG</h4>
+                            <h4 className="alert-heading">Unable to find Line {props.LineName} in FAWG.</h4>
                         </div>
                     </div>
                 </div> : null}
@@ -351,11 +351,11 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                     /> : null}
             </Modal>
             <LoadingScreen Show={showLoading} />
-            <Warning Title={'Cancel FAWG update'} Message={'This will cancel the update and keep the Segments currently in the openXDA'}
+            <Warning Title={'Cancel FAWG Update'} Message={'This will cancel the update and retain the Line Segments currently in openXDA.'}
                 Show={showWarning} CallBack={(conf) => { setShowWarning(false); if (conf) props.closeWizard(); }} />
-            <Warning Title={'Confirm FAWG update'} Message={'This will override any current LineSegments and save the Configuration to openXDA.'}
+            <Warning Title={'Confirm FAWG Update'} Message={'This will override any existing Line Segments and save the configuration to openXDA.'}
                 Show={showConfirm} CallBack={(conf) => { setShowConfirm(false); if (conf) { submitUpdate(); } }} />
-            <Warning Title={'Error'} Message={'An error occurred while updating the Line Segment Configuration.'}
+            <Warning Title={'Error Updating Configuration'} Message={'An error occurred while updating the Line Segment configuration.'}
                 Show={showError} CallBack={(conf) => { setShowError(false); props.closeWizard(); } } />
         </>);
            

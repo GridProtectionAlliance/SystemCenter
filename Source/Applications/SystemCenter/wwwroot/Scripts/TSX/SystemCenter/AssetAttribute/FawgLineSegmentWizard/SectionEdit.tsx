@@ -60,22 +60,22 @@ function SectionEdit(props: IProps): JSX.Element {
         const errors = [];
 
         if (segment.FromBus == segment.ToBus)
-            errors.push('This Segment can not have the same From Bus and To Bus.')
+            errors.push('From Bus and To Bus cannot be the same.')
 
         if (segment.AssetName == null || segment.AssetName.length == 0)
-            errors.push('This Segment requires a Name.')
+            errors.push('Name is required.')
         if (segment.Length == null || !IsNumber(segment.Length))
-            errors.push('This Segment requires a valid Length.')
+            errors.push('A valid Length is required.')
         if (segment.R0 == null || !IsNumber(segment.R0))
-            errors.push('This Segment reuqires a valid R0.')
+            errors.push('A valid R0 is required.')
         if (segment.X0 == null || !IsNumber(segment.X0))
-            errors.push('This Segment reuqires a valid X0.')
+            errors.push('A valid X0 is required.')
         if (segment.R1 == null || !IsNumber(segment.R1))
-            errors.push('This Segment reuqires a valid R1.')
+            errors.push('A valid R1 is required.')
         if (segment.X1 == null || !IsNumber(segment.X1))
-            errors.push('This Segment reuqires a valid X1.')
+            errors.push('A valid X1 is required.')
         if (segment.ThermalRating == null || !IsNumber(segment.ThermalRating))
-            errors.push('This Segment reuqires a valid Thermal Rating.')
+            errors.push('A valid Thermal Rating is required.')
 
         return <WarningWTooltip Errors={errors} Warnings={segment.Warnings} />
         
@@ -201,7 +201,7 @@ function SectionEdit(props: IProps): JSX.Element {
                         <ConfigurableTable<ISegment>
                             cols={[{
                                 field: "AssetName", key: "AssetName", label: "Segment",
-                                content: (item, key, fld, style, index) => <Input<ISegment> Record={item} Field={'AssetName'} Label={''} Feedback={'Name must be less than 200 characters and is required.'} Valid={(fld) => valid(item,fld)} Setter={(r) => updateSegment(r, index)} />
+                                content: (item, key, fld, style, index) => <Input<ISegment> Record={item} Field={'AssetName'} Label={''} Feedback={'A Name of less than 200 characters is required.'} Valid={(fld) => valid(item,fld)} Setter={(r) => updateSegment(r, index)} />
                             },
                                 {
                                     field: "ID", key: "btns", label: " ",
