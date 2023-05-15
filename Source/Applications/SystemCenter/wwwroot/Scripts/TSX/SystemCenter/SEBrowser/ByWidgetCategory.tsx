@@ -114,7 +114,7 @@ const ByWidgetCategory: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={showModal} Title={'Add Tab'} CallBack={(c) => {
+            <Modal Show={showModal} Title={'Add SE Browser Tab'} CallBack={(c) => {
                 setShowModal(false);
                 if (c)
                     dispatch(WidgetCategorySlice.DBAction({ verb: 'POST', record: newCategory }));

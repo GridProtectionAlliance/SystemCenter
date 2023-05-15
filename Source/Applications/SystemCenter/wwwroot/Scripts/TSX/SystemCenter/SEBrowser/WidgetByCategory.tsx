@@ -59,14 +59,14 @@ const WidgetByCategory = (props: IProps) => {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>SEBrowser Widgets:</h4>
+                        <h4>SE Browser Widgets:</h4>
                     </div>
                 </div>
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px' }}>
                     <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                     </div>
                 </div>
             </div>
@@ -77,7 +77,7 @@ const WidgetByCategory = (props: IProps) => {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>SEBrowser Widgets:</h4>
+                        <h4>SE Browser Widgets:</h4>
                     </div>
                 </div>
             </div>
@@ -95,7 +95,7 @@ const WidgetByCategory = (props: IProps) => {
         <div className="card-header">
             <div className="row">
                 <div className="col">
-                        <h4>SEBrowser Widgets:</h4>
+                        <h4>SE Browser Widgets:</h4>
                 </div>
             </div>
         </div>
@@ -115,16 +115,16 @@ const WidgetByCategory = (props: IProps) => {
                                     <button className="btn btn-sm"
                                         onClick={(e) => {
                                             setRecord(c);
-                                            setShowRemove(true);
+                                            setShowEdit(true);
                                         }}>
-                                        <span>{TrashCan}</span>
+                                        <span>{Pencil}</span>
                                     </button>
                                     <button className="btn btn-sm"
                                         onClick={(e) => {
                                             setRecord(c);
-                                            setShowEdit(true);
+                                            setShowRemove(true);
                                         }}>
-                                        <span>{Pencil}</span>
+                                        <span>{TrashCan}</span>
                                     </button>
                                 </>
                             },
@@ -162,10 +162,10 @@ const WidgetByCategory = (props: IProps) => {
             </div>
         </div>
         </div>
-        <Warning Message={'This will remove the widget from this tab.'} Show={showRemove} Title={'Remove Widget from Tab'}
+        <Warning Message={'This will remove the Widget from this Tab.'} Show={showRemove} Title={'Remove Widget'}
             CallBack={(c) => { if (c) dispatch(SEBrowserWidgetSlice.DBAction({ record, verb: 'DELETE' })); setShowRemove(false); }}
         />
-        <Modal Title={showEdit ? 'Edit {record.Name}' : 'Add Widget'}
+        <Modal Title={showEdit ? 'Edit Widget' : 'Add New Widget'}
             Show={showEdit || showAdd}
             CallBack={(c) => {
                 if (c && showAdd)
@@ -182,7 +182,7 @@ const WidgetByCategory = (props: IProps) => {
             DisableConfirm={errors.length > 0 || (showAdd && data.findIndex(r => r.ID == record.ID) >= 0)}
             ConfirmToolTipContent={<>
                 {errors.map(e => <p> {CrossMark} {e}</p>)}
-                {showAdd && data.findIndex(r => r.ID == record.ID) >= 0 ? <p> {CrossMark} This Widget already exists in the tab.</p>: null }
+                {showAdd && data.findIndex(r => r.ID == record.ID) >= 0 ? <p> {CrossMark} This Widget already exists in the Tab.</p>: null }
             </>}
         >
             <WidgetForm Widget={record} stateSetter={setRecord} allowTypeChange={showAdd} setErrors={setErrors} />
