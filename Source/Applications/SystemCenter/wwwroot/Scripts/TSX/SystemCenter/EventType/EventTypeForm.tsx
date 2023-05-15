@@ -49,9 +49,9 @@ export default function EventTypeForm(props: IProps) {
     React.useEffect(() => {
         let e = [];
         if (props.Record.Category != null && props.Record.Category.length > 50)
-            e.push('Category must be a less than 50 characters.');
+            e.push('Category must be less than 50 characters.');
         if (props.Record.Description == null || props.Record.Description.length > 50)
-            e.push('Label is required and must be less than 50 characters.')
+            e.push('A Label of less than 50 characters is required.')
                
         if (props.setErrors != undefined)
             props.setErrors(e);
@@ -87,10 +87,10 @@ export default function EventTypeForm(props: IProps) {
         <>
             <div className="row" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                 <div className="col">
-                    <Input<OpenXDA.Types.EventType> Record={props.Record} Field={'Name'} Label={'Name'} Disabled={true} Help={'Name can not be changed. To change what is displayed in variuos Visualization apps use Label'} Valid={() => true} Setter={() => { } } />
+                    <Input<OpenXDA.Types.EventType> Record={props.Record} Field={'Name'} Label={'Name'} Disabled={true} Help={'Name cannot be changed. To change what is displayed in various visualization apps, use Label.'} Valid={() => true} Setter={() => { } } />
                     <Input<OpenXDA.Types.EventType> Record={props.Record} Field={'Category'} Label={'Category'} Feedback={'Category must be less than 50 characters.'} Valid={Valid} Setter={props.Setter} />
-                    <CheckBox<OpenXDA.Types.EventType> Label={'Show in User interfaces'} Record={props.Record} Field={'ShowInFilter'} Setter={props.Setter} />
-                    <Input<OpenXDA.Types.EventType> Label={'Label'} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} Feedback={'Label must be less than 50 characters and is required.'} />
+                    <CheckBox<OpenXDA.Types.EventType> Label={'Show in User Interfaces'} Record={props.Record} Field={'ShowInFilter'} Setter={props.Setter} />
+                    <Input<OpenXDA.Types.EventType> Label={'Label'} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} Feedback={'A Label of less than 50 characters is required.'} />
                 </div>
                 <div className="col">
                     <fieldset className="border" style={{ padding: '10px' }}>
