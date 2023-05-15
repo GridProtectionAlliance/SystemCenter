@@ -353,31 +353,31 @@ export default function NewMeterWizard(props: {}) {
     function getHeader(): string {
         switch (currentStep) {
             case generalStep:
-                return `Step ${generalStep}: General information about the new meter`;
+                return `Step ${generalStep}: New Meter Information`;
             case locationStep:
-                return `Step ${locationStep}: Substation information for the new meter`;
+                return `Step ${locationStep}: Add New Meter to Substation`;
             case eventChannelsStep:
-                return `Step ${eventChannelsStep}: Populate event channels for the new meter`;
+                return `Step ${eventChannelsStep}: Add Event Channels`;
             case trendChannelsStep:
-                return `Step ${trendChannelsStep}: Populate trend channels for the new meter`;
+                return `Step ${trendChannelsStep}: Add Trend Channels`;
             case assetStep:
-                return `Step ${assetStep}: Populate assets monitored by the new meter`;
+                return `Step ${assetStep}: Add Assets`;
             case connectionStep:
-                return `Step ${connectionStep}: Add connection between the assets that are monitored by the new meter`;
+                return `Step ${connectionStep}: Add Asset Connections`;
             case additionalFieldMeterStep:
-                return `Step ${additionalFieldMeterStep}: Edit the new meter's additional fields that are not from external databases`;
+                return `Step ${additionalFieldMeterStep}: Add Additional Field Values (Meter)`;
             case externalFieldStep:
-                return `Step ${externalFieldStep}: Import data from external DB's for the new meter's additional fields`;
+                return `Step ${externalFieldStep}: Update Info from External Databases`;
             case lineSegmentStep:
-                return `Step ${lineSegmentStep}: Add line segments for each new line asset`;
+                return `Step ${lineSegmentStep}: Line Segment Wizard`;
             case additionalFieldAssetStep:
-                return `Step ${additionalFieldAssetStep}: Edit the additional fields for each asset monitored by the new meter`;
+                return `Step ${additionalFieldAssetStep}: Add Additional Field Values (Assets)`;
             case customerAssetGroupMeterStep:
-                return `Step ${customerAssetGroupMeterStep}: Assign the new meter to asset groups and customers`;
+                return `Step ${customerAssetGroupMeterStep}: Add Meter to Asset Groups/Customers`;
             case customerAssetGroupAssetStep:
-                return `Step ${customerAssetGroupAssetStep}: Assign the new asset(s) to asset groups and customers`;
+                return `Step ${customerAssetGroupAssetStep}: Add Assets to Asset Groups/Customers`;
             default:
-                return `Error, no page found for step #${currentStep}`;
+                return `Error, no page found for step #${currentStep}.`;
         }
     }
 
@@ -386,7 +386,7 @@ export default function NewMeterWizard(props: {}) {
             return (
                 <div style={{ width: '100%', height: '200px' }}>
                     <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                     </div>
                 </div>);
         switch (currentStep) {
@@ -454,10 +454,10 @@ export default function NewMeterWizard(props: {}) {
                     {warning.map((item, index) => <p key={index + 'w'}> {WarningSymbol} {item} </p>)}
                 </ToolTip>
                 <ToolTip Show={hover == 'Prev' && currentStep === saveStep + 1} Position={'top'} Theme={'dark'} Target={"Prev"}>
-                    <p> {CrossMark} Cannot Return to Steps before Submission </p>
+                    <p> {CrossMark} Cannot return to steps prior to submission. </p>
                 </ToolTip>
             </div>
-            <Warning Title="Submit Meter" Message="Submit and Save Meter? Submission required to continue setup..." Show={showSubmit} CallBack={(confirmed) => {
+            <Warning Title="Create Meter" Message="Save Meter configuration to openXDA? Meter creation is required for additional configuration." Show={showSubmit} CallBack={(confirmed) => {
                 setShowSubmit(false);
                 if (confirmed)
                     addNewMeter();

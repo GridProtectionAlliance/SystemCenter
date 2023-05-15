@@ -181,7 +181,7 @@ export default function ConnectionPage(props: IProps) {
         tableBody = (
             <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                    <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                    <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                 </div>
             </div>);
     else
@@ -240,7 +240,7 @@ export default function ConnectionPage(props: IProps) {
                 ShowX={true}
                 ShowCancel={false}
                 ConfirmShowToolTip={currentConnections.findIndex(c => c.Asset.AssetKey == selectedAssetKey && c.Connection.AssetRelationshipTypeID == selectedTypeID) >= 0}
-                ConfirmToolTipContent={<p> {CrossMark} This connection already exists</p>}
+                ConfirmToolTipContent={<p> {CrossMark} This connection already exists.</p>}
                 CallBack={(confirmed) => {
                     setShowAssetConnection(false);
                     if (!confirmed)
@@ -264,7 +264,7 @@ export default function ConnectionPage(props: IProps) {
                 }}
             >
                 <div className="form-group">
-                    <label>Select Connecting Asset</label>
+                    <label>Select Connecting Asset:</label>
                     <select value={selectedAssetKey} className="form-control" onChange={(evt) => { setSelectedAssetKey((evt.target.value) as string); }}>
                         {
                             props.AllAssets.filter(asset => asset.AssetKey != props.CurrentAsset.AssetKey).map((asset, index) => <option key={index} value={asset.AssetKey} >{`${asset.AssetName} (${asset.AssetKey})`}</option>)
@@ -273,7 +273,7 @@ export default function ConnectionPage(props: IProps) {
                 </div>
                 {assetConnectionTypes.length > 0 ?
                     < div className="form-group">
-                    <label>Select Connection Type</label>
+                    <label>Select Connection Type:</label>
                     <select value={selectedTypeID} className="form-control" onChange={(evt) => {
                         setSelectedTypeID(parseInt(evt.target.value))
                     }}>
@@ -282,7 +282,7 @@ export default function ConnectionPage(props: IProps) {
                         }
                     </select>
                     </div> : <div className="alert alert-warning" role="alert">
-                        <p>There is no Asset Connection available to connect these two Assets.</p>
+                        <p>There is no Asset Connection available to connect these Assets.</p>
                     </div>}
             </Modal>
         </>

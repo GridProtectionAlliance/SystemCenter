@@ -62,7 +62,7 @@ export default function ChannelPage(props: IProps) {
 
     const [hoverDefault, setHoverDefault] = React.useState<boolean>(false);
 
-    const baseWarnings: string[] = ["Ensure all scaling values are correct.", "Ensure all virtual channels are setup."];
+    const baseWarnings: string[] = ["Ensure all Scaling values are correct.", "Ensure all virtual Channels are configured."];
     const serverParsedExtensions: string[] = ['pqd', 'sel', 'cev', 'eve', 'ctl', 'txt'];
     const webParsedExtensions: string[] = ['cfg', 'par'];
     const allTypes: string = webParsedExtensions.join(", ") + ", " + serverParsedExtensions.join(", ");
@@ -92,7 +92,7 @@ export default function ChannelPage(props: IProps) {
         setChannelStatus('idle');
         let e = baseWarnings;
         if (currentChannels.length == 0 && !props.TrendChannels)
-            e.push('No event channels are set up.');
+            e.push('No event channels are configured.');
         props.SetWarning(e);
     }, [currentChannels]);
 
@@ -275,7 +275,7 @@ export default function ChannelPage(props: IProps) {
         <>
             <div className="row">
                 <div className="col-1">
-                    <button className={"btn btn-primary" + (props.TrendChannels ? 'btn-disabled' : '')}
+                    <button className=/*{*/"btn btn-primary"/* + (props.TrendChannels ? 'btn-disabled' : '')}*/
                         data-tooltip='DefaultChannel'
                         onMouseEnter={() => setHoverDefault(true)}
                         onMouseLeave={() => setHoverDefault(false)}
@@ -296,7 +296,7 @@ export default function ChannelPage(props: IProps) {
                         clearAssetsChannels();
                     }}>Default Setup</button>
                     <ToolTip Show={hoverDefault} Position={'top'} Theme={'dark'} Target={"DefaultChannel"}>
-                    <p>No Trending Channel Default Setup is available</p>
+                    <p>No Trending Channel Default Setup is available.</p>
                     </ToolTip>
                 </div>
                 <div className="col-1">
@@ -354,7 +354,7 @@ export default function ChannelPage(props: IProps) {
                         key: 'MeasurementType', label: 'Type', headerStyle: { width: '13%' }, rowStyle: { width: '13%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementTypes.map((t) => ({ Value: t, Label: t }))} />
                     },
                     {
-                        key: 'MeasurementCharacteristic', label: 'Char.', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementCharacteristic'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementCharacteristics.map((t) => ({ Value: t, Label: t }))} />
+                        key: 'MeasurementCharacteristic', label: 'Char', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementCharacteristic'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementCharacteristics.map((t) => ({ Value: t, Label: t }))} />
                     },
                     {
                         key: 'Phase', label: 'Phase', headerStyle: { width: '13%' }, rowStyle: { width: '13%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.Phases.map((t) => ({ Value: t, Label: t }))} />
@@ -386,16 +386,16 @@ export default function ChannelPage(props: IProps) {
                     selected={(item) => false}
                 />
             </div>
-            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File is not one of following types ${allTypes}. Please only use files of those types.`} CallBack={() => setShowCFGError(false)} />
-            <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare channels. This will remove ${NSpare} Channels from the Configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
-            <Modal Title="Scale Channels for New Meter" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Leave Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
+            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}.`} CallBack={() => setShowCFGError(false)} />
+            <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare Channels. This will remove ${NSpare} Channels from the configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
+            <Modal Title="Scale Channels" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Close Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
                 <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels} ChannelStatus={channelStatus}/>
             </Modal>
             <Modal Title={"Add All Channels"} ShowX={true} ShowCancel={true} Show={showDialog} CancelText={"Only " + (props.TrendChannels ? "Trend" : "Event")} ConfirmText="Add All" Size='sm' CallBack={(all) => {
                 addChannels(parsedChannels, all);
                 setShowDialog(false);
             }}>
-                {"Add all channels or only " + (props.TrendChannels ? "trend" : "event") + " channels?"}
+                {"Add all Channels or only " + (props.TrendChannels ? "trend" : "event") + " Channels?"}
             </Modal>
 
         </>
