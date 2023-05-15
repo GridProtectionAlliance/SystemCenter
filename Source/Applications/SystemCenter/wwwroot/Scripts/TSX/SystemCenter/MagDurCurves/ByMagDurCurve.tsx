@@ -114,7 +114,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={showModal} Title={'Add MagDur Curve'} Size={'xlg'} CallBack={(c,b) => {
+            <Modal Show={showModal} Title={'Add New MagDur Curve'} Size={'xlg'} CallBack={(c,b) => {
                 setShowModal(false);
                 if (!c && b)
                     setShowDelete(true)
@@ -134,7 +134,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
                     <CurveForm Curve={curve} stateSetter={setCurve} setErrors={setErrors} />
                 </div>
             </Modal>
-            <Warning Message={'This will remove the Curve.'} Show={showDelete} Title={'Delete MagDur Curve'}
+            <Warning Message={'This will permanently delete the Curve and cannot be undone.'} Show={showDelete} Title={'Delete MagDur Curve'}
                 CallBack={(c) => { if (c) dispatch(MagDurCurveSlice.DBAction({ record: curve, verb: 'DELETE' })); setShowDelete(false); setCurve(emptyCurve); }}
             />
 
