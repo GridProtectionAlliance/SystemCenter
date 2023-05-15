@@ -119,20 +119,20 @@ const RemoteMeterTab = (props: IProps) => {
 
     let cardBody;
     if (remoteMeterStatus === 'error') {
-        cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+        cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
     } else if (remoteMeterStatus === 'loading' || showLoading) {
         cardBody = <LoadingScreen Show={true} />
     } else {
         cardBody =
             <Table<OpenXDA.Types.RemoteXDAMeter>
                 cols={[
-                { key: 'LocalMeterName', field: 'LocalMeterName', label: 'Name (Local)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'LocalAssetKey', field: 'LocalAssetKey', label: 'Key (Local)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'LocalAlias', field: 'LocalAlias', label: 'Alias (Local)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'RemoteXDAName', field: 'RemoteXDAName', label: 'Name (Remote)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'RemoteXDAAssetKey', field: 'RemoteXDAAssetKey', label: 'Key (Remote)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'LocalMeterName', field: 'LocalMeterName', label: 'Local Meter Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'LocalAssetKey', field: 'LocalAssetKey', label: 'Local Meter Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'LocalAlias', field: 'LocalAlias', label: 'Local Meter Alias', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'RemoteXDAName', field: 'RemoteXDAName', label: 'Remote Meter Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'RemoteXDAAssetKey', field: 'RemoteXDAAssetKey', label: 'Remote Meter Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                 {
-                    key: 'RemoteAlias', field: 'RemoteXDAName', label: 'Alias (Remote)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                    key: 'RemoteAlias', field: 'RemoteXDAName', label: 'Remote Meter Alias', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                     content: (item) => item.Obsfucate ? item.RemoteXDAName : item.LocalAlias
                 },
                 {
@@ -202,7 +202,7 @@ const RemoteMeterTab = (props: IProps) => {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Remote XDA Meters:</h4>
+                        <h4>Remote openXDA Meters:</h4>
                     </div>
                 </div>
             </div>
@@ -218,16 +218,16 @@ const RemoteMeterTab = (props: IProps) => {
                             e.preventDefault();
                             setShowAddMeters(true);
                         }}>
-                        Add Meters
+                        Add Meter
                     </button>
                 </div>
             </div>
-            <Warning Title={"Delete Remote Meter"} Show={showDelete} Message={"Are you sure you want to delete the remote meter for " + selectedMeter.LocalMeterName + "?"}
+            <Warning Title={"Delete Remote Meter - " + selectedMeter.RemoteXDAName} Show={showDelete} Message={"Are you sure you want to delete the Remote Meter for " + selectedMeter.LocalMeterName + "?"}
                 CallBack={(conf) => {
                     if (conf) dispatch(RemoteXDAMeterSlice.DBAction({ verb: 'DELETE', record: selectedMeter }));
                     setShowDelete(false);
                 }}/>
-            <Modal Show={showEdit} Title={'Edit Remote Meter: ' + selectedMeter.LocalMeterName}
+            <Modal Show={showEdit} Title={'Edit Remote Meter - ' + selectedMeter.LocalMeterName}
                 ShowCancel={true}
                 CallBack={(conf) => {
                     if (conf) dispatch(RemoteXDAMeterSlice.DBAction({ verb: 'PATCH', record: remoteMeter }));
@@ -242,7 +242,7 @@ const RemoteMeterTab = (props: IProps) => {
                 }>
                 <RemoteMeterForm OriginalMeter={selectedMeter} SetRemoteMeter={setRemoteMeter} SetErrors={setNewInstErrors} />
             </Modal>
-            <Modal Show={assetCount > 0} Title={'Add Associated Remote Asset(s)?'}
+            <Modal Show={assetCount > 0} Title={'Add Associated Remote Assets?'}
                 ShowCancel={true}
                 CallBack={(conf) => {
                     setAssetCount(0);
@@ -262,7 +262,7 @@ const RemoteMeterTab = (props: IProps) => {
                 ShowX={true} Size={"sm"}
                 ConfirmText={"Yes"}
                 CancelText={"No"}>
-                <p>Add { assetCount } Associated Asset(s)?</p>
+                <p>Add { assetCount } Associated Assets?</p>
             </Modal>
             <DefaultSelects.Meter
                 Slice={ByMeterSlice}
@@ -306,10 +306,10 @@ const RemoteMeterTab = (props: IProps) => {
                 Columns={[
                     { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Location', field: 'Location', label: 'Location', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ]}
-                Title={"Select Meter to Add for this remoteXDA Instance:"}
+                Title={"Add Meter to Remote openXDA Instance:"}
                 GetEnum={() => () => { }}
                 GetAddlFields={() => () => { }}
             />

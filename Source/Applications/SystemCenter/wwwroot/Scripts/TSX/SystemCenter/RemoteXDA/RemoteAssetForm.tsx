@@ -67,12 +67,12 @@ export default function RemoteAssetForm(props: IProps) {
     React.useEffect(() => {
         let e = [];
         if (!valid('RemoteXDAAssetID')) {
-            e.push('This remote asset is no longer editable!');
+            e.push('This Remote Asset can no longer be edited.');
         } else {
             if (!RemoteAssetComparator(baseAsset, formAsset))
                 e.push("No changes made.")
             if (!valid('RemoteXDAAssetKey'))
-                e.push('Remote asset key is a required field (less than 200 characters)');
+                e.push('A Remote Asset Key of less than 200 characters is required.');
             if (props.SetErrors != undefined)
                 props.SetErrors(e);
             props.SetRemoteAsset(formAsset);
@@ -96,7 +96,7 @@ export default function RemoteAssetForm(props: IProps) {
                     <Input<OpenXDA.Types.RemoteXDAAsset> Record={formAsset} Field={'LocalAssetKey'} Label={'Local Key'} Valid={() => true} Setter={() => { }} Disabled={true} />
                 </div>
                 <div className="col" style={{ width: '50%', float: "right" }}>
-                    <Input<OpenXDA.Types.RemoteXDAAsset> Record={formAsset} Field={'RemoteXDAAssetKey'} Label={'Remote Asset Name and Key'} Feedback={"A field of less than 200 characters is required."} Help={"Asset name and key on the remote side if obfuscated. Otherwise uses local name and key."} Valid={valid} Setter={setFormAsset} Disabled={!formAsset.Obsfucate} />
+                    <Input<OpenXDA.Types.RemoteXDAAsset> Record={formAsset} Field={'RemoteXDAAssetKey'} Label={'Remote Asset Name and Key'} Feedback={"A Remote Asset Name and Key of less than 200 characters is required."} Help={"Asset Name and Key on the remote side if obfuscated. Otherwise uses Local Name and Key."} Valid={valid} Setter={setFormAsset} Disabled={!formAsset.Obsfucate} />
                     <CheckBox<OpenXDA.Types.RemoteXDAAsset> Record={formAsset} Field={'Obsfucate'} Label={'Obfuscate Remote Asset'} Setter={setFormAsset} Disabled={false} />
                 </div>
             </form>

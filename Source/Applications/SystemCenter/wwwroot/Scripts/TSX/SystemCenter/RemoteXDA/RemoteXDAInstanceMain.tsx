@@ -86,7 +86,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
                 Width={'50%'}
                 Label={'Search'}
                 ShowLoading={searchState == 'loading'}
-                ResultNote={searchState == 'error' ? 'Could not complete Search' : 'Found ' + searchResults.length + ' Remote XDA Intance(s)'}
+                ResultNote={searchState == 'error' ? 'Could not complete Search' : 'Found ' + searchResults.length + ' Remote openXDA Intances'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
                     if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
@@ -148,7 +148,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={showNew} Title={'New Remote Instance Connection'}
+            <Modal Show={showNew} Title={'New Remote openXDA Instance Connection'}
                 ShowCancel={true}
                 CallBack={(conf) => { if (conf) dispatch(RemoteXDAInstanceSlice.DBAction({ verb: 'POST', record: formInstance })); setShowNew(false); }}
                 DisableConfirm={newInstErrors.length > 0}

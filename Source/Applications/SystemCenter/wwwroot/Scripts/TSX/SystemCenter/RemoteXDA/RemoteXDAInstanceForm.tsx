@@ -123,13 +123,13 @@ export default function RemoteXDAInstanceForm(props: IProps) {
         if (!RemoteXDAInstanceComparator(props.BaseInstance, formInstance))
             e.push("No changes made.")
         if (!valid('Name'))
-            e.push('Name is a required field (less than 200 characters)');
+            e.push('A Name of less than 200 characters is required.');
         if (!valid('Address'))
-            e.push('Address is a required field (less than 200 characters)');
+            e.push('An Address of less than 200 characters is required.');
         if (!valid('Frequency'))
-            e.push('Frequency is a required field (must be a valid cron format)');
+            e.push('A Frequency in a valid cron format is required.');
         if (!valid('UserAccountID'))
-            e.push('A user is required.');
+            e.push('A User is required.');
         if (props.SetErrors != undefined)
             props.SetErrors(e);
         props.SetInstance(formInstance);
@@ -204,12 +204,12 @@ export default function RemoteXDAInstanceForm(props: IProps) {
             {loading ? <LoadingScreen Show={true} /> :
                 <form>
                     <div className="col" style={{ width: '50%', float: "left" }}>
-                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Name'} Label={'Name'} Feedback={"A name of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} />
+                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Name'} Label={'Name'} Feedback={"A Name of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} />
                         <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Address'} Label={'URL'} Feedback={"A URL of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} />
-                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Frequency'} Label={'Frequency'} Feedback={"A frequency that is a valid cron format is required."} Valid={valid} Setter={setFormInstance} Help={'In order of minutes, hours, day of the month, month, weekday. For example, a frequency of every midnight would be * 0 * * *'} />
+                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Frequency'} Label={'Frequency'} Feedback={"Frequency in a valid cron format is required."} Valid={valid} Setter={setFormInstance} Help={'In order of minutes, hours, day of the month, month, weekday. For example, a Frequency of every midnight would be * 0 * * *'} />
                     </div>
                     <div className="col" style={{ width: '50%', float: "right" }}>
-                        <Input<Application.Types.iUserAccount> Record={instanceUser} Field={'Name'} Label={'Username'} Valid={() => instanceUser.Name !== null} Setter={() => { }} Disabled={true} />
+                        <Input<Application.Types.iUserAccount> Record={instanceUser} Field={'Name'} Label={'User'} Valid={() => instanceUser.Name !== null} Setter={() => { }} Disabled={true} />
                         <button type="button" className="btn btn-primary btn-block" onClick={() => { setShowUserSearch(true); }}> Add or Change User </button>
                         {formInstance.ID > 0 ? <>
                             <button type="button" className="btn btn-primary btn-block" onClick={testConnection}> Test Remote Connection </button>
@@ -223,22 +223,22 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                     ShowCancel={false}
                     CallBack={() => { setShowTestResult(false); }}
                     ShowX={true} Size={"sm"}
-                    ConfirmText={"Ok"}>
-                    {testResult ? "Connection made to remote XDA server." : "Connection could not be made to remote XDA server."}
+                    ConfirmText={"Close"}>
+                    {testResult ? "Connection made to Remote openXDA server." : "Connection could not be made to remote XDA server."}
                 </Modal>
                 <Modal Show={showConfigResult} Title={`Push Remote Config ${configResult ? "Succeeded" : "Failed"}`}
                     ShowCancel={false}
                     CallBack={() => { setShowConfigResult(false); }}
                     ShowX={true} Size={"sm"}
-                    ConfirmText={"Ok"}>
-                    {configResult ? "Config push successfully intialized. Local XDA is attempting to push the config to remote XDA. Check local XDA error log for any unpushed remotes." : "Config push could not be commanded to remote XDA server."}
+                    ConfirmText={"Close"}>
+                    {configResult ? "Config push successfully intialized. Local openXDA is attempting to push the config to Remote openXDA. Check Local openXDA error log for any unpushed Remotes." : "Config push could not be commanded to Remote openXDA server."}
                 </Modal>
                 <Modal Show={showFailure} Title={'Command Failure'}
                     ShowCancel={false}
                     CallBack={() => { setShowFailure(false); }}
                     ShowX={true} Size={"sm"}
-                    ConfirmText={"Ok"}>
-                    Connection to to local XDA server failed.
+                    ConfirmText={"Close"}>
+                    Connection to to Local openXDA server failed.
                 </Modal>
                 <DefaultSelects.User
                     Slice={UserAccountSliceRemote}
@@ -262,11 +262,11 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                     Show={showUserSearch}
                     Type={'single'}
                     Columns={[
-                        { key: 'Name', field: 'Name', label: 'Username', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Name', field: 'Name', label: 'User', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Email', field: 'Email', label: 'Email', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
-                    Title={"Select user for this remoteXDA instance: "}
+                    Title={"Select User for this Remote openXDA Instance: "}
                     GetEnum={() => () => { }}
                     GetAddlFields={() => () => { }}
                 />

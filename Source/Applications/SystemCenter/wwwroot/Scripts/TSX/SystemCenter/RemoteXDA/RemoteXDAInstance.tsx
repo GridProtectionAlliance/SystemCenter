@@ -116,7 +116,7 @@ function RemoteXDAInstance(props: IProps) {
                     <RemoteAssetTab ID={props.ID} />
                 </div>
             </div>
-            <Warning Message={'This will permanently delete this instance connection and can not be undone.'} Show={showDelete} Title={'Delete Connection ' + connection.Name} CallBack={(conf) => { if (conf) deleteConnection(); setShowDelete(false); }} />
+            <Warning Message={'This will permanently delete this Remote openXDA Instance Connection and cannot be undone.'} Show={showDelete} Title={'Delete Remote Connection ' + connection.Name} CallBack={(conf) => { if (conf) deleteConnection(); setShowDelete(false); }} />
             <LoadingScreen Show={loading} />
         </div>
     )
