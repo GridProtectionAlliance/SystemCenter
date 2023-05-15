@@ -139,11 +139,11 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     function validImpedance(si: OpenXDA.Types.SourceImpedance) {
         const e = [];
         if (!valid('XSrc'))
-            e.push('X must be a valid number.');
+            e.push('X must be a numeric value.');
         if (!valid('RSrc'))
-            e.push('R must be a valid number.');
+            e.push('R must be a numeric value.');
         if (!valid('AssetLocationID'))
-            e.push('a valid Location must be selected.');
+            e.push('A valid Location must be selected.');
 
         return e;
     }
@@ -169,7 +169,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                         <Table<OpenXDA.Types.SourceImpedance>
                         cols={[
                                 {
-                                    key: 'AssetLocationID', field: 'AssetLocationID', label: 'Location',
+                                    key: 'AssetLocationID', field: 'AssetLocationID', label: 'Substation',
                                     headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                                     content: (r) => getLocationName(r)
                                 },
@@ -212,9 +212,9 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
             </div>
         </div>
 
-            <Warning Show={showWarning} Title={'Remove this Source Impedance From the Line'} Message={'This will permanently remove the Source Impedance.'}
+            <Warning Show={showWarning} Title={'Remove Source Impedance'} Message={'This will permanently remove the Source Impedance and cannot be undone.'}
                 CallBack={(confirm) => { if (confirm) dispatch(SourceImpedanceSlice.DBAction({ verb: 'DELETE', record: newEditImpedance })); setshowWarning(false); }} />
-            <Modal Show={showAdd} Title={newEdit == 'New' ? 'Add New SourceImepdance to Line' : 'Edit Source Impedance at' + getLocationName(newEditImpedance)} Size={'lg'} ShowX={true}
+            <Modal Show={showAdd} Title={newEdit == 'New' ? 'Add New SourceImepdance' : 'Edit Source Impedance at' + getLocationName(newEditImpedance)} Size={'lg'} ShowX={true}
                 CallBack={(confirm) => {
                     if (confirm && newEdit == 'Edit')
                         dispatch(SourceImpedanceSlice.DBAction({ verb: 'PATCH', record: newEditImpedance }));
@@ -230,12 +230,12 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
             >
             <div className="row">
                     <div className="col">
-                        <Select<OpenXDA.Types.SourceImpedance> Record={newEditImpedance} Label={'Station'} Field={'AssetLocationID'}
+                        <Select<OpenXDA.Types.SourceImpedance> Record={newEditImpedance} Label={'Substation'} Field={'AssetLocationID'}
                             Options={assetLocations.map(al => ({
                                 Label: (locations.find(l => al.LocationID == l.ID) == null ? '' : locations.find(l => al.LocationID == l.ID).Name),
                                 Value: al.ID.toString()
                             }))}
-                            EmptyOption={true} EmptyLabel={'Select a Location'}
+                            EmptyOption={true} EmptyLabel={'Select Substation'}
                             Setter={(r) => setNewEditImpedance(r)}
                         />
                     </div>
