@@ -27,11 +27,13 @@ import * as _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import { AssetTypeSlice } from '../Store/Store';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Warning } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
+import Asset from '../Asset/Asset';
 
 declare var homePath: string;
 
