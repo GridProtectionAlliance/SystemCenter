@@ -49,13 +49,13 @@ function DownloadedFiles(props: { MeterID: number, MeterName: string }) {
 
     return (
         <div style={{ width: '100%', height: 'calc( 100% - 90px)' }}>
-            <h3>Last 50 downloaded files for {props.MeterName}</h3>
+            <h3>Last 50 Downloaded Files for {props.MeterName}</h3>
             <Table<OpenXDA.Types.DataFile>
                 cols={[
                     { key: 'FilePath', field: 'FilePath', label: 'File', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                     { key: 'DataStartTime', field: 'DataStartTime', label: 'Date', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") },
                     { key: 'ProcessingEndTime', field: 'ProcessingEndTime', label: 'Processed', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") },
-                    { key: 'FileSize', field: 'FileSize', label: 'Size( kB)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'FileSize', field: 'FileSize', label: 'Size(kB)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                 ]}

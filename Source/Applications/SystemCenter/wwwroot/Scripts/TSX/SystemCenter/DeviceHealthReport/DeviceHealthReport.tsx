@@ -44,7 +44,7 @@ const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'Last Successful Connection', key: 'LastGood', type: 'datetime', isPivotField: false },
     { label: 'Bad Days', key: 'BadDays', type: 'number', isPivotField: false },
     { label: 'MIC', key: 'MICStatus', type: 'enum', enum: [{ Value: 'Warning', Label: 'Warning' }, { Value: 'Error', Label: 'Error' }], isPivotField: false },
-    { label: 'MiMD', key: 'MiMDStatus', type: 'enum', enum: [{ Value: 'Warning', Label: 'Warning' }, { Value: 'Error', Label: 'Error' }], isPivotField: false },
+    { label: 'miMD', key: 'MiMDStatus', type: 'enum', enum: [{ Value: 'Warning', Label: 'Warning' }, { Value: 'Error', Label: 'Error' }], isPivotField: false },
     { label: 'XDA', key: 'XDAStatus', type: 'enum', enum: [{ Value: 'Warning', Label: 'Warning' }, { Value: 'Error', Label: 'Error' }], isPivotField: false },
     { label: 'Last Config Change', key: 'LastConfigChange', type: 'datetime', isPivotField: false },
 
@@ -180,7 +180,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                 <Table<SCGlobal.DeviceHealthReport>
                     cols={[
                         { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[field]}</a> },
-                        { key: 'OpenMIC', label: 'OpenMIC ID', field: 'OpenMIC', headerStyle: { width: 120 }, rowStyle: { width: 120 }, content: (item, key, field, style) => <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{trimString(item.OpenMIC,10)}</a> },
+                        { key: 'OpenMIC', label: 'openMIC ID', field: 'OpenMIC', headerStyle: { width: 120 }, rowStyle: { width: 120 }, content: (item, key, field, style) => <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{trimString(item.OpenMIC,10)}</a> },
                         { key: 'LocationKey', label: 'Substn', field: 'LocationKey', headerStyle: { width: 100 }, rowStyle: { width: 100 }, content: (item, key, field, style) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink')?.Value.replace('<AssetKey>', item.LocationKey)} target='_blank'>{item.LocationKey}</a> },
                         { key: 'Model', label: 'Model', field: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, field, style) => <a href={`${settings.find(s => s.Name == 'MiMD.Url')?.Value}/index.cshtml?name='Diagnostic'&MeterID=${item.ID}`} target='_blank'>{item[field]}</a> },
                         { key: 'TSC', label: 'TSC', field: 'TSC', headerStyle: { width: 50 }, rowStyle: { width: 50 }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSCID}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[field]}</a> },
@@ -225,7 +225,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             }
                         },
                         {
-                            key: 'MiMDStatus', label: 'MiMD', field: 'MiMDStatus', headerStyle: { width: 50 }, rowStyle: { width: 50, textAlign: 'center' }, content: (item, key, field, style) => {
+                            key: 'MiMDStatus', label: 'miMD', field: 'MiMDStatus', headerStyle: { width: 50 }, rowStyle: { width: 50, textAlign: 'center' }, content: (item, key, field, style) => {
                                 if (item[field] == 'Error') {
                                     style.backgroundColor = 'palevioletred';
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=mimd`} target='_blank' >{CrossMark}</a>;
