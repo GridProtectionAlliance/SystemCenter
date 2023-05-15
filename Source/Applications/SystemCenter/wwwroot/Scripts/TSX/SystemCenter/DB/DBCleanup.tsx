@@ -100,7 +100,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: '100%' }}>
                 <SearchBar<DBCleanup> CollumnList={searchFields} SetFilter={(flds) => dispatch(DBCleanupSlice.DBSearch({ filter: flds, sortField, ascending }))}
                     Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' DB Cleanup(s)'}
+                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' DB Cleanups'}
                     GetEnum={() => {
                         return () => { }
                     }}
@@ -148,7 +148,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                     />
                 </div>
             </div>
-            <Modal Title={editNew === 'Edit' ? editNewDBCleanup.Name + ' - DB Cleanup' : 'Add New DB Cleanup'}
+            <Modal Title={editNew === 'Edit' ? 'Edit Database Cleanup - ' + editNewDBCleanup.Name : 'Add New Database Cleanup'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
@@ -175,14 +175,14 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                             Valid={field => editNewDBCleanup.Schedule != null && editNewDBCleanup.Schedule.length > 0}
                             Setter={(record) => { setEditNewDBCleanup(record); setHasChanged(true); }}
                         />
-                        <TextArea<DBCleanup> Rows={4} Record={editNewDBCleanup} Field={'SQLCommand'} Label='SQL Command' Feedback={'An SQL Command is required.'}
+                        <TextArea<DBCleanup> Rows={4} Record={editNewDBCleanup} Field={'SQLCommand'} Label='SQL Command' Feedback={'A SQL Command is required.'}
                             Valid={field => editNewDBCleanup.SQLCommand != null && editNewDBCleanup.SQLCommand.length > 0}
                             Setter={(record) => { setEditNewDBCleanup(record); setHasChanged(true); }}
                         />
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete DB Cleanup'} Message={'This will Delete this DB Cleanup from the System. This can have unintended consequences and cause the System to crash. Are you sure you want to continue?'}
+            <Warning Title={'Delete Database Cleanup - ' + editNewDBCleanup.Name} Message={'This will delete this Database Cleanup operation from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(DBCleanupSlice.DBAction({ verb: 'DELETE', record: editNewDBCleanup })); setShowWarning(false); }} />
         </>)
 }
