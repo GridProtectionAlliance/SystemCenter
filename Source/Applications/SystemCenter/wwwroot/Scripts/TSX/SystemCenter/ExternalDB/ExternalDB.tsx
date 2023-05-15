@@ -90,7 +90,7 @@ function ExternalDB(props: { ID: number }) {
                     <QueryWindow ExternalDB={datum} />
                 </div>
             </div>
-            <Warning Message={'This will permanently Delete the ' + datum.ExternalDB + ' Table and can not be undone.'} Show={showDelete} Title={'Delete External Database Table ' + datum.TableName}
+            <Warning Message={'This will permanently delete the ' + datum.ExternalDB + ' Table from openXDA and cannot be undone.'} Show={showDelete} Title={'Delete External Database Table - ' + datum.TableName}
                 CallBack={(conf) => {
                     if (conf)
                         dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record: datum }));
