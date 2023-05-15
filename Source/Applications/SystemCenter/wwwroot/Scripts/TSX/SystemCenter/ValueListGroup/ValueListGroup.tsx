@@ -85,8 +85,8 @@ export default function ValueListGroup(props: { GroupID: number }) {
                 </div>
             </div>
             <Warning
-                Message={'This will permanently Delete this ValueList Group and can not be undone.'}
-                Show={showRemove} Title={'Delete ' + record.Name}
+                Message={'This will permanently delete this Value List Group and cannot be undone.'}
+                Show={showRemove} Title={'Delete Value List Group'}
                 CallBack={(conf) => { if (conf) Delete(); setShowRemove(false); }} />
         </div>
     )

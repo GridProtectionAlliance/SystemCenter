@@ -122,10 +122,10 @@ export default function ValueListGroupItems(props: IProps) {
                 </div>
             </div>
             <Warning
-                Message={'This will permanently Delete this Item and can not be undone.'}
-                Show={showWarning} Title={'Delete ' + record.Value}
+                Message={'This will permanently delete this Value List Item and cannot be undone.'}
+                Show={showWarning} Title={'Delete Value List Item - ' + record.Value}
                 CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }} />
-            <Modal Title="" Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
+            <Modal Title={record.ID == 0 ? 'Add New Value List Item' : 'Edit Value List Item - ' + record.Value} Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 CancelToolTipContent={<> {errors.map(e => <p>{CrossMark} {e}</p>)}</>}
                 DisableConfirm={errors.length > 0}

@@ -158,7 +158,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Title={'Add new Group'}
+            <Modal Title={'Add New Value List Group'}
                 CallBack={(c) => {
                     if (c)
                         dispatch(ValueListGroupSlice.DBAction({ verb: 'POST', record }));
