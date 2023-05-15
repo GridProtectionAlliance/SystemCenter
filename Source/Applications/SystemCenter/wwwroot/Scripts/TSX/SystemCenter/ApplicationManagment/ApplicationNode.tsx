@@ -69,7 +69,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         const e: string[] = [];
         if (editnewNode.Name == null || editnewNode.Name.length === 0)
-            e.push('A Name is required')
+            e.push('A Name is required.')
         setErrors(e)
     }, [editnewNode])
 
@@ -80,7 +80,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
 
     if (status === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
-            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application'} />
+            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
         </div>;
 
     return (
@@ -136,7 +136,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
                     />
                 </div>
             </div>
-            <Modal Title={editNew === 'Edit' ? editnewNode.Name + ' - Application' : 'Add New Application'}
+            <Modal Title={editNew === 'Edit' ? 'Edit Application - ' + editnewNode.Name : 'Add New Application'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
@@ -167,7 +167,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete Application'} Message={'This will Delete this Application from the SSO System. This can have unintended consequences and cause the System to crash. Are you sure you want to continue?'}
+            <Warning Title={'Delete SSO Application - ' + editnewNode.Name} Message={'This will delete this Application from the SSO system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(ApplicationNodeSlice.DBAction({ verb: 'DELETE', record: editnewNode })); setShowWarning(false); }} />
         </>)
 }
