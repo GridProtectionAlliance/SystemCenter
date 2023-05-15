@@ -22,7 +22,7 @@
 
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
-import { CrossMark, HeavyCheckMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, HeavyCheckMark, Warning, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, ToolTip, ServerErrorIcon, Warning as WarningModal } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
@@ -89,6 +89,8 @@ function AdditionalField(props: IProps) {
 	const [errorFields, setErrorFields] = React.useState<string[]>([]);
 	const [fieldErrors, setFieldErrors] = React.useState<string[]>([]);
 
+	const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
+
 	React.useEffect(() => {
 		if (fieldStatus === 'error' || valueStatus === 'error' || valueListGroupStatus === 'error' || valueListItemStatus === 'error')
 			setPageStatus('error')
@@ -125,9 +127,9 @@ function AdditionalField(props: IProps) {
 	React.useEffect(() => {
 		const e = props.ValidateField(newField);
 		if (newField.FieldName == null || newField.FieldName.length === 0)
-			e.push('A FieldName is required')
+			e.push('A Field Name is required.')
 		else if (fields.findIndex(f => f.FieldName.toLowerCase() === newField.FieldName.toLowerCase() && props.FieldKeySelector(f) !== props.FieldKeySelector(newField)) > -1)
-			e.push('A Field with this FieldName already exists')
+			e.push('A Field with this Name already exists.')
 		setFieldErrors(e);
 	}, [newField])
 
@@ -144,9 +146,9 @@ function AdditionalField(props: IProps) {
 				c.push(fields[fldIndex].FieldName);
 
 			if (fldIndex > -1 && fields[fldIndex].Type === 'integer' && !IsInteger(v.Value))
-				e.push("'" + fields[fldIndex].FieldName + "' has to be a valid integer")
+				e.push("'" + fields[fldIndex].FieldName + "' must be a valid integer.")
 			if (fldIndex > -1 && fields[fldIndex].Type === 'number' && !IsNumber(v.Value))
-				e.push("'" + fields[fldIndex].FieldName + "' has to be a valid number")
+				e.push("'" + fields[fldIndex].FieldName + "' must be a valid number.")
 		})
 
 		setErrorFields(e);
@@ -165,7 +167,7 @@ function AdditionalField(props: IProps) {
 			<div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
 				<div style={{ width: '100%', height: '200px' }}>
 					<div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-						<ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+						<ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
 					</div>
 				</div>
 			</div>
@@ -205,8 +207,8 @@ function AdditionalField(props: IProps) {
 								return <ValueDisplay Mode={mode} Type={item.Type} ValueListItems={vList} Value={props.CreateValue(item)} Setter={(val: Application.Types.iAdditionalUserFieldValue) => setEditValues((d) => { const u = [...d]; u.push(val); return u; })} />
 							}
 						},
-						{ key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span><i className="fa fa-pencil"></i></span></button> : '') },
-						{ key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span><i className="fa fa-times"></i></span></button> : '') },
+						{ key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); setEditNew('Edit'); }}><span><i className="fa fa-pencil"></i></span></button> : '') },
+						{ key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '') },
 
 					]}
 					tableClass="table table-hover"
@@ -235,14 +237,14 @@ function AdditionalField(props: IProps) {
 						onClick={() => { if (mode === 'Edit') { setShowEdit(true); setNewField(props.EmptyField) } }} data-tooltip={'New'} >Add Field</button>
 				</div>
 				<ToolTip Show={hover === 'New' && mode === 'View'} Position={'top'} Theme={'dark'} Target={"New"}>
-					<p> To add a new Field switch to Edit mode by clicking on the Edit Button on the upper right corner.</p>
+					<p> To add a new Field, switch to Edit mode by clicking on the Edit button on the upper right corner.</p>
 				</ToolTip>
 				<div className="btn-group mr-2">
 					<button className={"btn btn-primary" + (changedFields.length === 0 || mode === 'View' || errorFields.length > 0 ? ' disabled' : '')} onClick={() => { if (errorFields.length === 0 && changedFields.length > 0 && mode === 'Edit') dispatch(UserAdditionalFieldSlice.UpdateValues({ ParentID: props.Id, Values: editValues })); }}
 						onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>
 				</div>
 				<ToolTip Show={hover === 'Save' && (mode === 'View' || changedFields.length > 0)} Position={'top'} Theme={'dark'} Target={"SaveValues"}>
-					{mode === 'View' ? <p> To change any Fields switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
+					{mode === 'View' ? <p> To change any Fields, switch to Edit mode by clicking on the Edit button on the upper right corner.</p> : null}
 					{changedFields.length > 0 && errorFields.length === 0 ? changedFields.map((fld, i) => <p key={i}> {HeavyCheckMark} Changes to '{fld}' are valid.</p>) : null}
 					{changedFields.length > 0 && errorFields.length > 0 ? errorFields.map((t, i) => <p key={i}> {CrossMark} {t}.</p>) : null}
 				</ToolTip>
@@ -256,16 +258,16 @@ function AdditionalField(props: IProps) {
 						onMouseLeave={() => setHover('None')} data-tooltip={'Reset'}>Reset</button>
 				</div>
 				<ToolTip Show={hover === 'Clear' && (mode === 'View' || changedFields.length > 0)} Position={'top'} Theme={'dark'} Target={'Reset'}>
-					{mode === 'View' ? <p> To change any Fields switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
+					{mode === 'View' ? <p> To change any Fields, switch to Edit mode by clicking on the Edit button on the upper right corner.</p> : null}
 					{changedFields.length > 0 ? changedFields.map((fld, i) => <p key={i}>{Warning} Changes to '{fld}' will be lost. </p>) : null}
 				</ToolTip>
 			</div>
-			<WarningModal Show={showWarning} Title={'Delete ' + newField.FieldName}
-				Message={"This will delete all instances of '" + newField.FieldName + "' and will also delete all information assigned to these fields."}
+			<WarningModal Show={showWarning} Title={'Delete Additional Field - ' + newField.FieldName}
+				Message={"This will delete the Field '" + newField.FieldName + "' from all Users and all Values assigned to it."}
 				CallBack={(confirm: boolean) => { if (confirm) dispatch(UserAdditionalFieldSlice.FieldAction({ Verb: 'DELETE', Record: newField })); setShowWarning(false) }} />
 
 			<Modal
-				Title={'Additional Field'} ConfirmText={'Save'} ShowX={true} ShowCancel={false}
+				Title={editNew === 'Edit' ? "Edit Additional Field - " + newField.FieldName : "Add Additional Field"} ConfirmText={'Save'} ShowX={true} ShowCancel={false}
 				ConfirmBtnClass={'btn-primary' + (fieldErrors.length > 0 ? ' disabled' : '')}
 				Show={showEdit} Size={'lg'}
 				CallBack={(confirmation) => {
@@ -284,7 +286,7 @@ function AdditionalField(props: IProps) {
 				<Input<Application.Types.iAdditionalUserField> Record={newField} Field='FieldName' Valid={(field) =>
 					newField.FieldName != null && newField.FieldName.length > 0
 					&& fields.findIndex(f => f.FieldName.toLowerCase() === newField.FieldName.toLowerCase() && props.FieldKeySelector(f) !== props.FieldKeySelector(newField)) < 0}
-					Label="Field Name" Setter={setNewField} Feedback={'The additional field needs to have a unique Field Name'} />
+					Label="Field Name" Setter={setNewField} Feedback={'A unique Field Nameis required.'} />
 				<Select<Application.Types.iAdditionalUserField> Record={newField} Field='Type' Options={typeOptions} Label="Field Type" Setter={setNewField} />
 				{props.FieldUI !== undefined ? props.FieldUI(newField, setNewField) : null}
 			</Modal>
@@ -323,9 +325,9 @@ function ValueDisplay<V extends Application.Types.iAdditionalUserFieldValue>(pro
 	}
 
 	if (props.Type === 'number')
-		return <Input<V> Record={props.Value} Field={'Value'} Valid={() => IsInteger(props.Value.Value)} Label={''} Type={'number'} Setter={props.Setter} Feedback={'Thi Field is a numeric field.'} />
+		return <Input<V> Record={props.Value} Field={'Value'} Valid={() => IsInteger(props.Value.Value)} Label={''} Type={'number'} Setter={props.Setter} Feedback={'Field Value must be numeric.'} />
 	if (props.Type === 'integer')
-		return <Input<V> Record={props.Value} Field={'Value'} Valid={() => IsNumber(props.Value.Value)} Label={''} Type={'number'} Setter={props.Setter} Feedback={'Thi Field is an integer field.'} />
+		return <Input<V> Record={props.Value} Field={'Value'} Valid={() => IsNumber(props.Value.Value)} Label={''} Type={'number'} Setter={props.Setter} Feedback={'Field Value must be an integer.'} />
 	else if (props.Type === 'string')
 		return <Input<V> Record={props.Value} Field={'Value'} Valid={() => true} Label={''} Type={'text'} Setter={props.Setter} />
 	else if (props.Type === 'boolean')
