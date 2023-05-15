@@ -89,7 +89,7 @@ function AssetInfoWindow(props: IProps) {
     React.useEffect(() => {
         const e = AssetAttributes.AssetError(editAsset, editAsset.AssetType);
         if (editAsset.AssetKey != undefined && allAssets.findIndex(a => a.AssetKey.toLowerCase() == editAsset.AssetKey.toLowerCase() && a.ID != editAsset.ID) > -1)
-            e.push('The AssetKey has to be unique.');
+            e.push('Key must be unique.');
 
         setErrors(e)
     }, [editAsset]);
@@ -151,7 +151,7 @@ function AssetInfoWindow(props: IProps) {
         }
         if (asset.AssetType == 'CapacitorBankRelay') {
             if ((asset as OpenXDA.Types.CapBankRelay).OnVoltageThreshhold != (editAsset as OpenXDA.Types.CapBankRelay).OnVoltageThreshhold)
-                result.push('On voltage Threshold')
+                result.push('On Voltage Threshold')
             if ((asset as OpenXDA.Types.CapBankRelay).CapBankNumber != (editAsset as OpenXDA.Types.CapBankRelay).CapBankNumber)
                 result.push('Protected CapBank')
         }
@@ -205,73 +205,73 @@ function AssetInfoWindow(props: IProps) {
         if (asset.AssetType == 'CapacitorBank') {
             if ((asset as OpenXDA.Types.CapBank).Fused != (editAsset as OpenXDA.Types.CapBank).Fused ||
                 (asset as OpenXDA.Types.CapBank).Compensated != (editAsset as OpenXDA.Types.CapBank).Compensated)
-                result.push('design')
+                result.push('Design')
             if ((asset as OpenXDA.Types.CapBank).NumberOfBanks != (editAsset as OpenXDA.Types.CapBank).NumberOfBanks)
-                result.push('number of banks')
+                result.push('Number of Banks')
             if ((asset as OpenXDA.Types.CapBank).CktSwitcher != (editAsset as OpenXDA.Types.CapBank).CktSwitcher)
-                result.push('pre-insertion switchers')
+                result.push('Pre-insertion Switchers')
             if ((asset as OpenXDA.Types.CapBank).CapacitancePerBank != (editAsset as OpenXDA.Types.CapBank).CapacitancePerBank)
-                result.push('capacitor Step Size')
+                result.push('Capacitor Step Size')
             if ((asset as OpenXDA.Types.CapBank).MaxKV != (editAsset as OpenXDA.Types.CapBank).MaxKV)
-                result.push('maximum operating voltage')
+                result.push('Maximum Operating Voltage')
             if ((asset as OpenXDA.Types.CapBank).UnitKV != (editAsset as OpenXDA.Types.CapBank).UnitKV)
-                result.push('rated voltage per unit')
+                result.push('Rated Voltage per Unit')
             if ((asset as OpenXDA.Types.CapBank).UnitKVAr != (editAsset as OpenXDA.Types.CapBank).NumberOfBanks)
-                result.push('rating of a unit')
+                result.push('Rating of a Unit')
             if ((asset as OpenXDA.Types.CapBank).PosReactanceTol != (editAsset as OpenXDA.Types.CapBank).PosReactanceTol)
-                result.push('pos. reactance tolerance')
+                result.push('Pos. Reactance Tolerance')
             if ((asset as OpenXDA.Types.CapBank).NegReactanceTol != (editAsset as OpenXDA.Types.CapBank).NegReactanceTol)
-                result.push('neg. reacteance tolerance')
+                result.push('Neg. Reacteance Tolerance')
             if ((asset as OpenXDA.Types.CapBank).Nparalell != (editAsset as OpenXDA.Types.CapBank).Nparalell)
-                result.push('num. of units per group')
+                result.push('Num. of Units per Group')
             if ((asset as OpenXDA.Types.CapBank).Nseries != (editAsset as OpenXDA.Types.CapBank).Nseries)
-                result.push('num. of series groups per phase')
+                result.push('Num. of Series Groups per Phase')
             if ((editAsset as OpenXDA.Types.CapBank).Fused) {
                 if ((asset as OpenXDA.Types.CapBank).LowerXFRRatio != (editAsset as OpenXDA.Types.CapBank).LowerXFRRatio)
-                    result.push('midgroup VT ratio')
+                    result.push('Midgroup VT Ratio')
                 if ((asset as OpenXDA.Types.CapBank).Nshorted != (editAsset as OpenXDA.Types.CapBank).Nshorted)
-                    result.push('init. guess of shorted elements')
+                    result.push('Init. Guess of Shorted Elements')
                 if ((asset as OpenXDA.Types.CapBank).BlownFuses != (editAsset as OpenXDA.Types.CapBank).BlownFuses)
-                    result.push('init. guess of blown fuses per group')
+                    result.push('Init. Guess of Blown Fuses per Group')
                 if ((asset as OpenXDA.Types.CapBank).BlownGroups != (editAsset as OpenXDA.Types.CapBank).BlownGroups)
-                    result.push('init. guess of groups with blown fuse')
+                    result.push('Init. Guess of Groups with Blown Fuse')
                 if ((asset as OpenXDA.Types.CapBank).NSeriesGroup != (editAsset as OpenXDA.Types.CapBank).NSeriesGroup)
-                    result.push('num. of series groups per unit')
+                    result.push('Num. of Series Groups per Unit')
                 if ((asset as OpenXDA.Types.CapBank).NParalellGroup != (editAsset as OpenXDA.Types.CapBank).NParalellGroup)
-                    result.push('num. of elements per group')
+                    result.push('Num. of Elements per Group')
             }
             else {
                 if ((editAsset as OpenXDA.Types.CapBank).Compensated) {
                     if ((asset as OpenXDA.Types.CapBank).RelayPTRatioPrimary != (editAsset as OpenXDA.Types.CapBank).RelayPTRatioPrimary ||
                         (asset as OpenXDA.Types.CapBank).RelayPTRatioSecondary != (editAsset as OpenXDA.Types.CapBank).RelayPTRatioSecondary)
-                        result.push('relay PT ratio')
+                        result.push('Relay PT Ratio')
                     if ((asset as OpenXDA.Types.CapBank).Rh != (editAsset as OpenXDA.Types.CapBank).Rh)
-                        result.push('Vt input resistor')
+                        result.push('Vt Input Resistor')
                     if ((asset as OpenXDA.Types.CapBank).Sh != (editAsset as OpenXDA.Types.CapBank).Sh)
-                        result.push('Vt input resistor wattage')
+                        result.push('Vt Input Resistor Wattage')
                 }
                 else {
                     if ((asset as OpenXDA.Types.CapBank).Rv != (editAsset as OpenXDA.Types.CapBank).Rv)
-                        result.push('V divider output resistor ')
+                        result.push('V Divider Output Resistor ')
                     if ((asset as OpenXDA.Types.CapBank).Rh != (editAsset as OpenXDA.Types.CapBank).Rh)
-                        result.push('V divider input resistor')
+                        result.push('V Divider Input Resistor')
                 }
                 if ((asset as OpenXDA.Types.CapBank).VTratioBus != (editAsset as OpenXDA.Types.CapBank).VTratioBus)
-                    result.push('bus Vt ratio')
+                    result.push('Bus Vt Ratio')
                 if ((asset as OpenXDA.Types.CapBank).NumberLVCaps != (editAsset as OpenXDA.Types.CapBank).NumberLVCaps)
-                    result.push('num of relay caps ')
+                    result.push('Num. of Relay Caps')
                 if ((asset as OpenXDA.Types.CapBank).NumberLVUnits != (editAsset as OpenXDA.Types.CapBank).NumberLVUnits)
-                    result.push('num. of elements per cap ')
+                    result.push('Num. of Elements per Cap')
                 if ((asset as OpenXDA.Types.CapBank).LVKVAr != (editAsset as OpenXDA.Types.CapBank).LVKVAr)
-                    result.push('LV cap size')
+                    result.push('LV Cap Size')
                 if ((asset as OpenXDA.Types.CapBank).LVKV != (editAsset as OpenXDA.Types.CapBank).LVKV)
-                    result.push('LV cap voltage rating')
+                    result.push('LV Cap Voltage Rating')
                 if ((asset as OpenXDA.Types.CapBank).LVNegReactanceTol != (editAsset as OpenXDA.Types.CapBank).LVNegReactanceTol)
-                    result.push('neg. reactance tol. LV caps')
+                    result.push('Neg. Reactance Tol. LV Caps')
                 if ((asset as OpenXDA.Types.CapBank).LVPosReactanceTol != (editAsset as OpenXDA.Types.CapBank).LVPosReactanceTol)
-                    result.push('pos. reactance tol LV caps')
+                    result.push('Pos. Reactance Tol. LV Caps')
                 if ((asset as OpenXDA.Types.CapBank).Nshorted != (editAsset as OpenXDA.Types.CapBank).Nshorted)
-                    result.push('init. guess of shorted elements')
+                    result.push('Init. Guess of Shorted Elements')
 
             }
             

@@ -107,7 +107,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         const errors = AssetAttributes.AssetError(newAsset, newAsset.AssetType);
         if (newAsset.AssetKey != null && allAssets.map(asset => asset.AssetKey.toLowerCase()).indexOf(newAsset.AssetKey.toLowerCase()) > -1)
-            errors.push('AssetKey has to be unique.')
+            errors.push('Key must be unique.')
 
         setAssetErrors(errors);
     }, [newAsset]);
@@ -231,7 +231,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
         return <div style={{ width: '100%', height: '100%' }}>
             <div style={{ width: '100%', height: '200px' }}>
             <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
             </div>
             </div>
         </div>
@@ -260,7 +260,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                     cols={[
                         { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
@@ -288,7 +288,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={showNewModal} Size={'lg'} Title={'Add a New Asset'}
+            <Modal Show={showNewModal} Size={'lg'} Title={'Add New Asset'}
                 ConfirmText={'Save'}
                 DisableConfirm={assetErrors.length > 0}
                 ConfirmShowToolTip={assetErrors.length > 0}
@@ -317,8 +317,8 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                 </div>
             </Modal>
            
-            <Modal Show={showEXTModal} Size={'xlg'} Title={'Assets External Database Fields'}
-                ShowCancel={false} ConfirmText={'close'} CallBack={() => { setShowExtModal(false); }}
+            <Modal Show={showEXTModal} Size={'xlg'} Title={'Asset External Database Fields'}
+                ShowCancel={false} ConfirmText={'Close'} CallBack={() => { setShowExtModal(false); }}
             >
                 <ul className="nav nav-tabs">
                     <li className="nav-item">
