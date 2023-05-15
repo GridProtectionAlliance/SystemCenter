@@ -25,6 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import moment from 'moment';
 
 
@@ -142,7 +143,7 @@ function ExternalDataBaseWindow(props: {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4> External Data Base Connections:</h4>
+                        <h4> External Database Connections:</h4>
                     </div>
                 </div>
             </div>
@@ -161,14 +162,14 @@ function ExternalDataBaseWindow(props: {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4> External Data Base Connections:</h4>
+                        <h4> External Database Connections:</h4>
                     </div>
                 </div>
             </div>
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
                 <div style={{ width: '100%', height: '200px' }}>
                     <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                     </div>
                 </div>
             </div>
@@ -191,7 +192,7 @@ function ExternalDataBaseWindow(props: {
     return (
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
-                <h4> External Data Base Connections:</h4>
+                <h4> External Database Connections:</h4>
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
@@ -271,7 +272,7 @@ function TableRowField(props: { ParentTableID: number, Field: SystemCenter.Types
                 </td>
                 )}
             <td>{props.Field.Error ? <span><i className="fa fa-exclamation-triangle"></i></span> : null}</td>
-            <td><button className="btn btn-sm" onClick={(e) => removeField()}><span><i className="fa fa-times"></i></span></button></td>
+            <td><button className="btn btn-sm" onClick={(e) => removeField()}><span>{TrashCan}</span></button></td>
         </tr>
     );
 }

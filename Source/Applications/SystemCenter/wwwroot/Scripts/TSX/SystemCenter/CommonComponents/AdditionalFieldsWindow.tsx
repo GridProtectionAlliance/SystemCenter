@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
@@ -68,6 +68,8 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     const [newFieldNameValid, setNewFieldNameValid] = React.useState<boolean>(true);
 
     const EmptyField: SystemCenter.Types.AdditionalField = { ID: 0, FieldName: '', Type: 'string', ParentTable: props.Type, ExternalDB: '', ExternalDBTable: '', ExternalDBTableKey: '', IsSecure: false, Searchable: false };
+
+    const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
 
     React.useEffect(() => {
         // This line autosaves data on navigation away via props.ID so that anything unsaved is saved before it goes away
@@ -372,7 +374,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             if (i == -1)
                 return;
             if (additionalFields[i].Type == 'integer' && !(item.Value == null || AssetAttributes.isInteger(item.Value)))
-                result.push(<p key={index}> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Value for '{additionalFields[i].FieldName}' is required to be an integer.</p>)
+                result.push(<p key={index}> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Value for '{additionalFields[i].FieldName}' must be an integer.</p>)
         });
         return result;
     }
@@ -390,14 +392,14 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         return (
             <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                    <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                    <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                 </div>
             </div>);
 
     let tableComponent = (
         <Table<SystemCenter.Types.AdditionalField>
             cols={[
-                { key: 'FieldName', field: 'FieldName', label: 'Field', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'FieldName', field: 'FieldName', label: 'Field Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                 {
                     key: 'ExternalDB', field: 'ExternalDB', label: (props.HideExternal ?? false) ? '' : 'Ext DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
                         return (props.HideExternal ?? false) ? '' : item.ExternalDB
@@ -419,7 +421,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                     }
                 },
 
-                { key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit && !(props.InnerOnly ?? false) ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); }}><span>{Pencil}</span></button> : '') },
+                { key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit && !(props.InnerOnly ?? false) ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); setEditNew('Edit'); }}><span>{Pencil}</span></button> : '') },
                 { key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (edit && !(props.InnerOnly ?? false) ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '') },
 
             ]}
@@ -477,14 +479,14 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                         <button className={"btn btn-primary" + (!edit ? ' disabled' : '')} onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')}
                             onClick={() => { if (edit) { setShowEdit(true); setNewField(EmptyField) } }} data-tooltip={'New'} >Add Field</button>
                         <ToolTip Show={hover == 'New' && !edit} Position={'top'} Theme={'dark'} Target={"New"}>
-                            {!edit ? <p> To add a new Field switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
+                            {!edit ? <p> To add a new Field, switch to Edit mode by clicking on the Edit button on the upper right corner.</p> : null}
                         </ToolTip>
                     </div>
                     <div className="btn-group mr-2">
                         <button className={"btn btn-primary" + (!HasValueChanged() || !edit || HasInvalidChanges() ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && !HasInvalidChanges() && edit) addOrUpdateValues(); }}
                             onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>
                         <ToolTip Show={hover == 'Save' && (!edit || HasValueChanged())} Position={'top'} Theme={'dark'} Target={"SaveValues"}>
-                            {!edit ? <p> To change any Fields switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
+                            {!edit ? <p> To change any Fields, switch to Edit mode by clicking on the Edit button on the upper right corner.</p> : null}
                             {HasValueChanged() && !HasInvalidChanges() ? ChangedValues(false) : null}
                             {HasValueChanged() && HasInvalidChanges() ? InvalidChanges() : null}
                         </ToolTip>
@@ -493,18 +495,18 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                         <button className={"btn btn-default" + (!(HasValueChanged()) || !edit ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && edit) getFieldValues(); }} onMouseEnter={() => setHover('Clear')}
                             onMouseLeave={() => setHover('None')} data-tooltip={'Clear'}>Reset</button>
                         <ToolTip Show={hover == 'Clear' && (!edit || HasValueChanged())} Position={'top'} Theme={'dark'} Target={"Clear"}>
-                            {!edit ? <p> To change any Fields switch to Edit mode by clicking on the Edit Button on the upper right corner.</p> : null}
+                            {!edit ? <p> To change any Fields, switch to Edit mode by clicking on the Edit button on the upper right corner.</p> : null}
                             {HasValueChanged() ? ChangedValues(true) : null}
                         </ToolTip>
                     </div>
                 </div>
             </div>
-            <Warning Show={showWarning} Title={'Delete ' + newField.FieldName}
-                Message={"This will delete the field '" + newField.FieldName + "' from all " + props.Type + "s and will also delete all information assigned to these fields."}
+            <Warning Show={showWarning} Title={'Delete Additional Field - ' + newField.FieldName}
+                Message={"This will delete the Field '" + newField.FieldName + "' from all " + (props.Type == 'Bus' ? "Buses" : props.Type + "s") + " and all Values assigned to it."}
                 CallBack={(confirm: boolean) => { if (confirm) deleteField(newField); setShowWarning(false) }} />
 
             <Modal
-                Title={'Additional Field'} ConfirmText={'Save'} CancelText={'Close'}
+                Title={editNew === 'Edit' ? "Edit Additional Field - " + newField.FieldName : "Add Additional Field"} ConfirmText={'Save'} CancelText={'Close'}
                 ConfirmBtnClass={'btn-primary' + (!ValidField() ? ' disabled' : '')}
                 Show={showEdit} Size={'lg'} ShowX={true}
                 CallBack={(confirmation: boolean, btn: boolean) => {
@@ -522,7 +524,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 ConfirmShowToolTip={!ValidField()}
                 ConfirmToolTipContent={
                     <>
-                        {newField.FieldName == null || newField.FieldName.length == 0 || !newFieldNameValid ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Field Name is required and has to be unique.</p> : null}
+                        {newField.FieldName == null || newField.FieldName.length == 0 || !newFieldNameValid ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A unique Field Name is required.</p> : null}
                         {newField.ExternalDB != null && (newField.ExternalDBTable == null || newField.ExternalDBTable .length == 0)? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Field from an External Database requires an External Database Table.</p> : null}
                         {newField.ExternalDB != null && (newField.ExternalDBTableKey == null || newField.ExternalDBTableKey.length == 0) ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Field from an External Database requires an External Database Table Key.</p> : null}
 
@@ -530,7 +532,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 }
 
                 >
-                <Input<SystemCenter.Types.AdditionalField> Record={newField} Field='FieldName' Valid={(field) => newField.FieldName != null && newField.FieldName.length > 0 && newFieldNameValid} Label="Field Name" Setter={setNewField} Feedback={'The additional field needs to have a unique Field Name'} />
+                <Input<SystemCenter.Types.AdditionalField> Record={newField} Field='FieldName' Valid={(field) => newField.FieldName != null && newField.FieldName.length > 0 && newFieldNameValid} Label="Field Name" Setter={setNewField} Feedback={'A unique Name is required.'} />
                 <Select<SystemCenter.Types.AdditionalField> Record={newField} Field='Type' Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }].concat(valueListGroups.map(x => { return { Value: x.Name, Label: x.Name } }))} Label="Field Type" Setter={setNewField} />
                 <Select<SystemCenter.Types.AdditionalField> Record={newField} Field='ExternalDB' Label="External Database"
                     Setter={(fld: SystemCenter.Types.AdditionalField) => {
@@ -618,7 +620,7 @@ const ValueField = (props: IValueFieldProps) => {
     }
 
     if (props.Field.Type == 'number' || props.Field.Type == 'integer')
-        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'number'} Setter={Setter} Feedback={props.Field.FieldName + ' is an integer field.'} />
+        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'number'} Setter={Setter} Feedback={props.Field.FieldName + ' requires an integer value.'} />
     if (props.Field.Type == 'string')
         return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'text'} Setter={Setter} />
     if (props.Field.Type == 'boolean')
