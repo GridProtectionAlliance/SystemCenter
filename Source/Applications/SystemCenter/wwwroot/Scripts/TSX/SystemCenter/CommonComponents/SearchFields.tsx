@@ -24,7 +24,7 @@ import {SystemCenter, OpenXDA } from '../global';
 
 export namespace SearchFields {
     export const Customer = [
-        { label: 'Customer Key', key: 'CustomerKey', type: 'string', isPivotField: false },
+        { label: 'Key', key: 'CustomerKey', type: 'string', isPivotField: false },
         { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
         { label: 'Phone', key: 'Phone', type: 'string', isPivotField: false },
         { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
@@ -61,9 +61,9 @@ export namespace SearchFields {
 export namespace DefaultSearchField {
     export const Company = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
     export const ValueListGroup = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
-    export const Customer = { label: 'Customer Key', key: 'CustomerKey', type: 'string', isPivotField: false };
+    export const Customer = { label: 'Key', key: 'CustomerKey', type: 'string', isPivotField: false };
     export const Location = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
-    export const DataFile = { label: 'FilePath', key: 'FilePath', type: 'string', isPivotField: false };
+    export const DataFile = { label: 'File Path', key: 'FilePath', type: 'string', isPivotField: false };
 }
 
 export namespace TransformSearchFields {
