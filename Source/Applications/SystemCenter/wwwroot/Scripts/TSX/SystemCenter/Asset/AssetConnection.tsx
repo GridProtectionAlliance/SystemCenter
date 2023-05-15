@@ -187,7 +187,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
             <div className="card-body">
                 <div style={{ width: '100%', height: '200px' }}>
                     <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                     </div>
                 </div>
             </div>
@@ -271,7 +271,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
 
             </div>
 
-            <Modal Show={showModal} Title={'Add Asset to Asset Connection'} ShowCancel={false} ShowX={true}
+            <Modal Show={showModal} Title={'Add Connection to ' + props.Asset.AssetName} ShowCancel={false} ShowX={true}
                 CallBack={(conf) => {
                     if (conf)
                         addConnection();
@@ -280,21 +280,21 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
                 {connectionsAvailable ?
                     <>
                         <div className="alert alert-info" role="alert">
-                            <p>Assets that are connected have to be located in the same Substation.</p>
+                            <p>Connected Assets must be located at the same Substation.</p>
                             <p>
-                                If an Asset does not show up in the list it is not possible to add the selected connection type between the two Assets
-                                or they are not located in the same Substation.
+                                If an Asset does not show up in the dropdown, the selected connection type is not valid for the two Assets,
+                                or they are not located at the same Substation.
                             </p>
                         </div>
                         <div className="form-group">
-                            <label>Asset Connection Type:</label>
+                            <label>Select Connection Type:</label>
                             <select className="form-control" value={selectedTypeID} onChange={(evt) => {
                                 setSelectedtypeID(parseInt(evt.target.value))
                             }}>
                                 {assetConnectionTypes.map(als => <option value={als.ID} key={als.ID}>{als.Name}</option>)}
                             </select>
 
-                            <label>Asset:</label>
+                            <label>Select Connecting Asset:</label>
                             <select className="form-control" value={selectedAssetID} onChange={(evt) => {
                                 setSelectedAssetID(parseInt(evt.target.value));
                             }}>
@@ -303,7 +303,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
                         </div>
                     </> :
                     <div className="alert alert-warning" role="alert">
-                        <p>There are no assets at this Substation that can be connected to {props.Asset.AssetName}.</p>
+                        <p>There are no Assets at this Substation that can be connected to {props.Asset.AssetName}.</p>
                     </div>}
             </Modal>
         </div>
