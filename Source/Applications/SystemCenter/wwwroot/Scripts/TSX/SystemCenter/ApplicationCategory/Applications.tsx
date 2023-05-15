@@ -154,7 +154,7 @@ function Applications(props: IProps) {
                     </div>
                 </div>
             </div>
-            <Modal Title={isNew(EditApplication) ?  'Add New Application' : EditApplication.Name + ' - Application'}
+            <Modal Title={isNew(EditApplication) ?  'Add New Application' : 'Edit Application - ' + EditApplication.Name}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={!isNew(EditApplication)} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf) {
@@ -175,11 +175,11 @@ function Applications(props: IProps) {
                             Valid={field => EditApplication.Name != null && EditApplication.Name.length > 0}
                             Setter={(record) => { setEditApplication(record); setHasChanged(true); }}
                         />
-                        <Input<PQApplications> Record={EditApplication} Field={'Url'} Label='URL' Feedback={'URL is required.'}
+                        <Input<PQApplications> Record={EditApplication} Field={'Url'} Label='URL' Feedback={'A URL is required.'}
                             Valid={field => EditApplication.Url != null && EditApplication.Url.length > 0}
                             Setter={(record) => { setEditApplication(record); setHasChanged(true); }}
                         />
-                        <Input<PQApplications> Type={'number'} Record={EditApplication} Field={'SortOrder'} Label='Sort Order' Feedback={'Sort Order is required.'}
+                        <Input<PQApplications> Type={'number'} Record={EditApplication} Field={'SortOrder'} Label='Sort Order' Feedback={'A numeric Sort Order value is required.'}
                             Valid={field => true}
                             Setter={(record) => { setEditApplication(record); setHasChanged(true); }}
                         />
@@ -189,7 +189,7 @@ function Applications(props: IProps) {
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete Application'} Message={'This will Delete this Application from the System. This can have unintended consequences and cause the System to crash. Are you sure you want to continue?'}
+            <Warning Title={'Remove ' + EditApplication.Name + ' from Application Category'} Message={'This will remove the Application from the Category.'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(PQApplicationsSlice.DBAction({ verb: 'DELETE', record: EditApplication })); setShowWarning(false); }} />
         </div>
     )

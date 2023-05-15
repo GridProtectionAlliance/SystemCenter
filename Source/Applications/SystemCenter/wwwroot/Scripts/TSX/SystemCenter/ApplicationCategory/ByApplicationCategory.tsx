@@ -80,11 +80,11 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         const e: string[] = [];
         if (editNewApplicationCategory.Name == null || editNewApplicationCategory.Name.length === 0)
-            e.push('A Name is required')
+            e.push('A Name is required.')
         if (editNewApplicationCategory.Name != null && editNewApplicationCategory.Name.length > 0 && allApplicationCategories.findIndex(s => s.Name.toLowerCase() === editNewApplicationCategory.Name.toLowerCase() && s.ID !== editNewApplicationCategory.ID) > -1)
             e.push('A Application Category with this Name already exists.')
         if (editNewApplicationCategory.SortOrder == null || editNewApplicationCategory.SortOrder === 0)
-            e.push('A Sort Order value is required')
+            e.push('A numeric Sort Order value is required.')
         setErrors(e)
     }, [editNewApplicationCategory])
 
@@ -171,7 +171,7 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
                             Valid={Valid}
                             Setter={(record) => { setEditNewApplicationCategory(record);}}
                         />
-                        <Input<ApplicationCategory> Record={editNewApplicationCategory} Field={'SortOrder'} Label='Sort Order' Feedback={'A Sort Order value is required.'}
+                        <Input<ApplicationCategory> Record={editNewApplicationCategory} Field={'SortOrder'} Label='Sort Order' Feedback={'A numeric Sort Order value is required.'}
                             Type={'number'}
                             Valid={Valid}
                             Setter={(record) => { setEditNewApplicationCategory(record);}}
