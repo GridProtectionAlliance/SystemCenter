@@ -173,7 +173,7 @@ export default function DataDeleteWindow(props: {
         </div>
         <Warning
             Message={`Data for ${affectedFileCount} files will be deleted. This cannot be undone.`}
-            Title={"Reprocess rescued data"}
+            Title={"Reprocess Rescued Data"}
             CallBack={del}
             Show={showDeleteWarning} />
     </>;
