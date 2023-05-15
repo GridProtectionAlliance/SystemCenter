@@ -51,23 +51,23 @@ export default function LocationPage(props: IProps) {
         const error = [];
 
         if (props.LocationInfo.LocationKey == null || props.LocationInfo.LocationKey.length == 0 || props.LocationInfo.LocationKey.length > 50)
-            error.push('Key is required and needs to be less than 50 characters.')
+            error.push('A Key of less than 50 characters is required.')
         else if (props.LocationInfo.ID == 0 && locations.find(locs => locs.LocationKey.toLowerCase() == props.LocationInfo.LocationKey.toLowerCase()) != null)
-            error.push('Key needs to be unique.');
+            error.push('Key must be unique.');
         if (props.LocationInfo.Name == null || props.LocationInfo.Name.length == 0 || props.LocationInfo.Name.length > 200)
-            error.push('Name is required and needs to be less than 200 characters.');
+            error.push('A Name of less than 200 characters is required.');
         if (props.LocationInfo.ShortName != null && props.LocationInfo.ShortName.length > 50)
-            error.push('ShortName needs to be less than 50 characters.');
+            error.push('Short Name must be less than 50 characters.');
         if (props.LocationInfo.Alias != null && props.LocationInfo.Alias.length >200)
-            error.push('Alias needs to be less than 200 characters.');
+            error.push('Alias must be less than 200 characters.');
         if (props.LocationInfo.Latitude == null || !AssetAttributes.isRealNumber(props.LocationInfo.Latitude))
             error.push('Latitude is required.')
         if (props.LocationInfo.Longitude == null || !AssetAttributes.isRealNumber(props.LocationInfo.Longitude))
             error.push('Longitude is required.')
         if (props.LocationInfo.Latitude != null && AssetAttributes.isRealNumber(props.LocationInfo.Latitude) && (props.LocationInfo.Latitude > 180 || props.LocationInfo.Latitude < -180)) 
-            error.push('Latitude needs to be between -180 and 180.')
+            error.push('Latitude must be between -180 and 180.')
         if (props.LocationInfo.Longitude != null && AssetAttributes.isRealNumber(props.LocationInfo.Longitude) && (props.LocationInfo.Longitude > 180 || props.LocationInfo.Longitude < -180))
-            error.push('Longitude needs to be between -180 and 180.')
+            error.push('Longitude must be between -180 and 180.')
 
         props.SetError(error);
     }, [props.LocationInfo]);

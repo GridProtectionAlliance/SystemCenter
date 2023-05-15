@@ -78,9 +78,9 @@ export default function MultipleAssetsPage(props: IProps) {
                         <h4 style={{ width: '100%', padding: '10px' }}>Select Asset: </h4>
                         <Table<OpenXDA.Types.Asset>
                             cols={[
-                                { key: 'AssetName', field: 'AssetName', label: 'Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'AssetKey', field: 'AssetKey', label: 'Asset Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'AssetType', field: 'AssetType', label: 'Asset Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }
                             ]}
                             tableClass="table table-hover"

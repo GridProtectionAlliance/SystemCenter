@@ -68,9 +68,9 @@ export default function CustomerAssetGroupPage(props: IProps) {
     React.useEffect(() => {
         let warnings = [];
         if (customerList.length < 1)
-            warnings.push(`${props.Type} not assigned to any customers.`);
+            warnings.push(`${props.Type} not assigned to any Customers.`);
         if (groupList.length < 1)
-            warnings.push(`${props.Type} not assigned to any groups.`);
+            warnings.push(`${props.Type} not assigned to any Asset Groups.`);
         props.SetWarning(warnings);
     }, [customerList, groupList]);
 
@@ -215,7 +215,7 @@ export default function CustomerAssetGroupPage(props: IProps) {
         return (
             <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                    <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+                    <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                 </div>
             </div>);
     else
@@ -294,7 +294,7 @@ export default function CustomerAssetGroupPage(props: IProps) {
                     Type={'multiple'}
                     Columns={[
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'CustomerKey', field: 'CustomerKey', label: 'Customer Key', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
+                        { key: 'CustomerKey', field: 'CustomerKey', label: 'Key', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
                         { key: 'LSCVS', field: 'LSCVS', label: 'LSCVS', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
@@ -322,10 +322,10 @@ export default function CustomerAssetGroupPage(props: IProps) {
                         { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Users', field: 'Users', label: 'Users', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetGroups', field: 'AssetGroups', label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'AssetGroups', field: 'AssetGroups', label: 'Sub Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
-                    Title={"Assign to Groups"}
+                    Title={"Assign to Asset Groups"}
                     GetEnum={() => { return () => { } }}
                     GetAddlFields={() => { return () => { } }} />
             </>

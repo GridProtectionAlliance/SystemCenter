@@ -37,7 +37,7 @@ import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice
 import { Modal, Search } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -112,7 +112,7 @@ export default function AssetPage(props: IProps) {
     React.useEffect(() => {
         let e = [];
         if (props.Assets.length == 0)
-            e.push('No assets are set up.');
+            e.push('No assets are configured.');
         props.SetWarning(e)
 
         let assetList: SystemCenter.Types.DetailedAsset[] = [];
@@ -291,7 +291,7 @@ export default function AssetPage(props: IProps) {
                                                     <td style={{ width: '10%' }}>{asset.Channels.length}</td>
                                                     <td style={{ width: '10%' }}>
                                                         <button className="btn btn-sm" data-toggle='modal' data-target='#assetModal' onClick={(e) => editAsset(index)}><span><i className="fa fa-pencil"></i></span></button>
-                                                        <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span><i className="fa fa-times"></i></span></button>
+                                                        <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span>{TrashCan}</span></button>
                                                     </td>
                                                 </tr>
                                             )
@@ -303,7 +303,7 @@ export default function AssetPage(props: IProps) {
                     </div>
 
                 </div>
-                <AssetSelect Type='multiple' StorageID={props.PageID} Title="Add Transmission Assets to New Meter" ShowModal={showAssetSelect} SelectedAssets={selectedAssets}
+                <AssetSelect Type='multiple' StorageID={props.PageID} Title="Add Transmission Assets to Meter" ShowModal={showAssetSelect} SelectedAssets={selectedAssets}
                     OnCloseFunction={(selected, confirm) => {
                         setShowAssetSelect(false);
                         if (!confirm) return;
@@ -360,7 +360,7 @@ export default function AssetPage(props: IProps) {
                     </li>
                 </AssetSelect>
                 <Modal Show={showAssetModal}
-                    Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + newEditAsset.AssetKey + ' for Meter'}
+                    Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + newEditAsset.AssetName }
                     ConfirmBtnClass={'btn-success'}
                     ConfirmText={newEdit == 'Edit' ? 'Add' : 'Save'}
                     CancelBtnClass={'btn-danger'}

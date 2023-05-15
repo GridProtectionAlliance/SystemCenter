@@ -48,13 +48,13 @@ export default function MeterInfoPage(props: { MeterInfo: OpenXDA.Types.Meter, U
     React.useEffect(() => {
         const error = [];
         if (!valid('AssetKey'))
-            error.push('A unique AssetKey of less than 50 characters is required.');
+            error.push('A unique Key of less than 50 characters is required.');
     
         if (!valid('Name'))
-            error.push('Name must be less than 200 characters and is required.');
+            error.push('A Name of less than 200 characters is required.');
     
         if (!valid('ShortName'))
-            error.push('ShortName must be less than 50 characters.');
+            error.push('Short Name must be less than 50 characters.');
 
         if (!valid('Alias'))
             error.push('Alias must be less than 200 characters.');
