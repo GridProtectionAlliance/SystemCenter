@@ -123,17 +123,17 @@ export default function CustomerForm(props: IProps) {
     React.useEffect(() => {
         let e = [];
         if (props.Customer.CustomerKey == null || props.Customer.CustomerKey.length == 0)
-            e.push('A Customer Key is required.')
+            e.push('A Key is required.')
         if (props.Customer.CustomerKey != null && props.Customer.CustomerKey.length > 25)
-            e.push('The Customer Key needs to be less than 25 characters.')
+            e.push('Key must be less than 25 characters.')
         if (allCustomerKeys.findIndex(c => c.CustomerKey == props.Customer.CustomerKey && c.ID != props.Customer.ID) > -1)
-            e.push('The Customer Key needs to be unique.')
+            e.push('Key must be unique.')
         if (props.Customer.Name != null && props.Customer.Name.length > 100)
-            e.push('The Name to be less than 100 characters.')
+            e.push('Name must be less than 100 characters.')
         if (props.Customer.Phone != null && props.Customer.Phone.length > 20)
-            e.push('The Phone Number to be less than 20 characters.')
+            e.push('Phone must be less than 20 characters.')
         if (props.Customer.Description != null && props.Customer.Description.length > 200)
-            e.push('The Description to be less than 200 characters.')
+            e.push('Description must be less than 200 characters.')
         setErrors(e);
     }, [props.Customer, allCustomerKeys])
 
@@ -157,7 +157,7 @@ export default function CustomerForm(props: IProps) {
     const hasPQI = (pqiFacilityStatus == 'idle' && pqiAddressStatus == 'idle' && pqiCompanyStatus == 'idle');
     return (
         <div className="col">
-            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Label='Customer Key' Feedback={'Customer Key of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Label='Key' Feedback={'A unique Key of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Name'} Label='Name' Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Phone'} Label='Phone' Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             {hasPQI ?
@@ -187,7 +187,7 @@ export default function CustomerForm(props: IProps) {
                     />
                 </> :
                 <div className="alert alert-warning" role="alert">
-                    System is unable to connect to PQI
+                    System is unable to connect to PQI.
                 </div>
                 }
             <TextArea<OpenXDA.Types.Customer> Rows={3} Record={props.Customer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />

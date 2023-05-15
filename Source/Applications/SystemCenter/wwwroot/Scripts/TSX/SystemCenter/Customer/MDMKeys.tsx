@@ -89,7 +89,7 @@ function MDMKeys(props: IProps) {
                     <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                         <Table<SystemCenter.Types.LSCVSAccount>
                             cols={[
-                                { key: 'AccountID', field: 'AccountID', label: 'Account IDs', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'AccountID', field: 'AccountID', label: 'Account ID', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                             ]}
                             tableClass="table table-hover"
@@ -117,7 +117,7 @@ function MDMKeys(props: IProps) {
                 <div className="card-footer">
                     <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Account ID</button>
                 </div>
-                <Modal Title={'Add an Account ID'}
+                <Modal Title={'Add Account ID'}
                     Show={showAdd} Size={'lg'}
                     ShowX={true}
                     CallBack={(conf, isBtn) => {
@@ -132,7 +132,7 @@ function MDMKeys(props: IProps) {
                     }
                 >
                     <form>
-                        <Input<SystemCenter.Types.LSCVSAccount> Record={newLSCVSAccount} Field={'AccountID'} Label={'Account ID'} Setter={setNewLSCVSAccount} Valid={Valid} Feedback={"A Valid Account ID is needed."} />
+                        <Input<SystemCenter.Types.LSCVSAccount> Record={newLSCVSAccount} Field={'AccountID'} Label={'Account ID'} Setter={setNewLSCVSAccount} Valid={Valid} Feedback={"A valid Account ID is required."} />
                     </form>
                 </Modal>
             </div>

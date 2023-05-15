@@ -43,8 +43,8 @@ const Tabs = [
     { Id: "info", Label: "Customer Info" },
     { Id: "notes", Label: "Notes" },
     { Id: "additionalFields", Label: "Additional Fields" },
-    { Id: "meters", Label: "Assigned Meter" },
-    { Id: "assets", Label: "Assigned Asset" },
+    { Id: "meters", Label: "Assigned Meters" },
+    { Id: "assets", Label: "Assigned Assets" },
     { Id: "mdm", Label: "MDM Keys" },
 ]
 
@@ -128,7 +128,7 @@ export default function Customer(props: IProps) {
                     <MDMKeys CustomerID={customer.ID} />
                 </div>
             </div>
-            <Warning Title={'Confirm'} Show={showWarning} Message={'This will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />
+            <Warning Title={'Delete Customer - ' + customer.Name} Show={showWarning} Message={'This will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />
         </div>
     )
 
