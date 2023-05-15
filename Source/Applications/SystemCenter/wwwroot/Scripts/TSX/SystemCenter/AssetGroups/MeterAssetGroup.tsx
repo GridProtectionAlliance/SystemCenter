@@ -197,7 +197,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Meter</button>
+                        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Meters</button>
                 </div>
             </div>
 
@@ -224,7 +224,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                 Title={"Add Meters to Asset Group"}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalMeterFields} />
-            <Warning Show={removeMeter > -1} Title={'Remove Meter from Group'} Message={'This will remove the meter from this Asset Group'} CallBack={(c) => { if (c) removeItem(removeMeter); setRemoveMeter(-1);  }} />
+            <Warning Show={removeMeter > -1} Title={'Remove Meter from Asset Group'} Message={'This will remove the Meter from this Asset Group.'} CallBack={(c) => { if (c) removeItem(removeMeter); setRemoveMeter(-1);  }} />
         </>
     );
 }

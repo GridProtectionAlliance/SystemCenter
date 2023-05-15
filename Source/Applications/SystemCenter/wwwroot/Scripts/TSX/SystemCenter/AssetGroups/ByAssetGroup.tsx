@@ -84,7 +84,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
         if (newAssetGroup.Name == null || newAssetGroup.Name.length == 0)
             e.push('A Name is required.');
         else if (allAssetGroups.map(item => item.Name.toLowerCase()).indexOf(newAssetGroup.Name.toLowerCase()) > -1)
-            e.push('The Name has to be unique.');
+            e.push('Name must be unique.');
         setAssetGrpErrors(e);
     }, [newAssetGroup]);
 
@@ -286,7 +286,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                 />
             </div>
             </div>
-            <Modal Size='xlg' Show={showNewGroup} Title={'Create a New Asset Group'} ShowX={true}
+            <Modal Size='xlg' Show={showNewGroup} Title={'Add New Asset Group'} ShowX={true}
                 ShowCancel={false} ConfirmBtnClass={'btn-success'} ConfirmText={'Add'}
                 CallBack={(conf) => { if (conf) addNewAssetGroup(); else setNewAssetGroup(_.cloneDeep(emptyAssetGroup)); setShowNewGroup(false) }}
                 DisableConfirm={assetGrpErrors.length > 0}
@@ -295,20 +295,20 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
             >
                 <div className="row">
                     <div className="col">
-                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique name of less than 50 characters is required.'} Valid={valid}
+                        <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique Name of less than 50 characters is required.'} Valid={valid}
                             Setter={setNewAssetGroup} Disabled={false} />
-                        <CheckBox<extendedAssetGroup> Record={newAssetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in Dashboard'} Setter={setNewAssetGroup} Disabled={false} />
+                        <CheckBox<extendedAssetGroup> Record={newAssetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in PQ Dashboard'} Setter={setNewAssetGroup} Disabled={false} />
                         <CheckBox<extendedAssetGroup> Record={newAssetGroup} Field={'DisplayEmail'} Label={'Show Asset Group in Email Subscription'} Setter={setNewAssetGroup} Disabled={false} />
                     </div>
                     <div className="col">
                         <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                        <button type="button" className="btn btn-primary btn-block" onClick={() => { setFilter('Asset'); }}> Add Transmission Asset </button>
+                        <button type="button" className="btn btn-primary btn-block" onClick={() => { setFilter('Asset'); }}> Add Transmission Assets </button>
                        
                         <Input<extendedAssetGroup> Record={newAssetGroup} Field={'Meters'} Label={'Num. of Meters'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                        <button type="button" className="btn btn-primary btn-block" onClick={() => { setFilter('Meter'); }}> Add Meter </button>
+                        <button type="button" className="btn btn-primary btn-block" onClick={() => { setFilter('Meter'); }}> Add Meters </button>
                         
                         <Input<extendedAssetGroup> Record={newAssetGroup} Field={'AssetGroups'} Label={'Num. of Asset Groups'} Valid={() => true} Setter={setNewAssetGroup} Disabled={true} />
-                        <button type="button" className="btn btn-primary btn-block" onClick={() => { setFilter('Asset Group'); }}> Add Asset Group </button>
+                        <button type="button" className="btn btn-primary btn-block" onClick={() => { setFilter('Asset Group'); }}> Add Asset Groups </button>
                     </div>
                 </div>
             </Modal>
@@ -373,7 +373,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                     { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'AssetGroups', field: 'AssetGroups', label: 'SubGroups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'AssetGroups', field: 'AssetGroups', label: 'Sub Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ]}
                 Title={"Add Asset Groups to " + (newAssetGroup.Name == undefined || newAssetGroup.Name.length == 0 ? "Asset Group" : newAssetGroup.Name)}
