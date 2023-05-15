@@ -60,16 +60,16 @@ const GroupInfo = (props: {Group: ISecurityGroup}) => {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Group Information:</h4>
+                        <h4>User Group Information:</h4>
                     </div>
                 </div>
             </div>
             <div className="card-body" style={{ height: window.innerHeight - 440, maxHeight: window.innerHeight - 440, overflowY: 'auto' }}>
                 {group.Type == 'Azure' ? <div className="alert alert-info">
-                    You can not edit information for Azure Groups. To edit these Fields please contact your Azure Administrator.
+                    Information for Azure Groups cannot be edited in System Center. To edit these fields, please contact your Azure Administrator.
                 </div> : null}
                 {group.Type == 'AD'? <div className="alert alert-info">
-                    You can not edit information for Active Directoy Groups. To edit these Fields please contact your AD Administrator.
+                    Information for Active Directoy Groups cannot be edited in System Center. To edit these fields, please contact your AD Administrator.
                 </div> : null}
                 <GroupForm Group={group} Setter={(u) => setGroup(u)} Edit={true} SetErrors={setError} />
             </div>

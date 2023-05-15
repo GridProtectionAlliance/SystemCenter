@@ -118,11 +118,11 @@ function GroupForm(props: IProps) {
                             <span id="resolvingAccount" hidden={valid != 'resolving'}><i style={{ height: 10, width: 10, color: 'grey' }}
                                 className="fa fa fa-spin fa-refresh"></i>&nbsp;<em className="small">Resolving group details...</em></span>
                             <span id="accountValid" hidden={valid != 'valid'}><i style={{ height: 20, width: 20, color: 'green' }}
-                                className="fa fa-check-circle"></i>&nbsp;<em className="small">Resolved group name </em></span>
+                                className="fa fa-check-circle"></i>&nbsp;<em className="small">Resolved group name.</em></span>
                             <span id="accountInvalid" hidden={valid != 'invalid'}><i style={{ height: 20, width: 20, color: 'red' }}
-                                className="fa fa-times-circle"></i>&nbsp;<em className="small">Cannot resolve group name</em></span>
+                                className="fa fa-times-circle"></i>&nbsp;<em className="small">Cannot resolve group name.</em></span>
                             <span id="accountUnknown" hidden={valid != 'unknown'}><i style={{ height: 20, width: 20, color: 'orange' }}
-                                className="fa fa-exclamation-circle"></i>&nbsp;<em className="small">Valid group name is not in Active Directory access is limited</em></span>
+                                className="fa fa-exclamation-circle"></i>&nbsp;<em className="small">Valid group name is not in Active Directory access is limited.</em></span>
                         </div>
                         <div className="row">
                             <div className="col">

@@ -79,7 +79,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     if (pageStatus === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
-            <ServerErrorIcon Show={true} Label={'A Server Error Occured. Please Reload the Application'} />
+            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
         </div>;
 
     return (
@@ -105,7 +105,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<ISecurityGroup>
                     cols={[
-                        { key: 'Name', field: 'DisplayName', label: 'Group Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Name', field: 'DisplayName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'CreatedOn', field: 'CreatedOn', label: 'Added On', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'CreatedBy', field: 'CreatedBy', label: 'Created By', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -132,7 +132,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                 />
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
-                Title={'Add Group'} CallBack={(confirm) => {
+                Title={'Add New User Group'} CallBack={(confirm) => {
                     if (confirm)
                         dispatch(SecurityGroupSlice.DBAction({ verb: 'POST', record: { ...newGroup, Name: newGroup.DisplayName } }))
                     setShowModal(false);
