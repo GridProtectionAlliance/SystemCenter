@@ -77,7 +77,7 @@ function Setting(props: IProps) {
     React.useEffect(() => {
         const e: string[] = [];
         if (editnewSetting.Name == null || editnewSetting.Name.length === 0)
-            e.push('A Name is required')
+            e.push('A Name is required.')
         if (editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name.toLowerCase() === editnewSetting.Name.toLowerCase() && s.ID !== editnewSetting.ID) > -1)
             e.push('A Setting with this Name already exists.')
         setErrors(e)
@@ -91,7 +91,7 @@ function Setting(props: IProps) {
 
     if (status === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
-            <ServerErrorIcon Show={true} Label={'A Server Error Occured. Please Reload the Application'} />
+            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
         </div>;
 
     return (
@@ -145,7 +145,7 @@ function Setting(props: IProps) {
                     />
                 </div>
             </div>
-            <Modal Title={editNew === 'Edit' ? editnewSetting.Name + ' - Setting' : 'Add New Setting'}
+            <Modal Title={editNew === 'Edit' ? 'Edit Setting - ' + editnewSetting.Name : 'Add New Setting'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
@@ -164,7 +164,7 @@ function Setting(props: IProps) {
             >
                 <div className="row">
                     <div className="col">
-                        <Input<SystemCenter.Types.Setting> Record={editnewSetting} Field={'Name'} Label='Setting Name' Feedback={'A unique Name is required.'}
+                        <Input<SystemCenter.Types.Setting> Record={editnewSetting} Field={'Name'} Label='Setting Name' Feedback={'A unique Setting Name is required.'}
                             Valid={field => editnewSetting.Name != null && editnewSetting.Name.length > 0 && allSettings.findIndex(s => s.Name === editnewSetting.Name && s.ID !== editnewSetting.ID) < 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
@@ -179,7 +179,7 @@ function Setting(props: IProps) {
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete Setting'} Message={'This will Delete this Setting from the System. This can have unintended consequences and cause the System to crash. Are you sure you want to continue?'}
+            <Warning Title={'Delete Setting - ' + editnewSetting.Name} Message={'This will delete this Setting from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(props.SettingsSlice.DBAction({ verb: 'DELETE', record: editnewSetting })); setShowWarning(false); }} />
         </>)
 }

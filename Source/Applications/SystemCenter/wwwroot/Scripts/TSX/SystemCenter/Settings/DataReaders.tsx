@@ -67,9 +67,9 @@ const DataReaders: GlobalSC.BySettingsComponent = (props) => {
     React.useEffect(() => {
         const e: string[] = [];
         if (editnewSetting.AssemblyName == null || editnewSetting.AssemblyName.length === 0)
-            e.push('An Assembly Name is required')
+            e.push('An Assembly Name is required.')
         if (editnewSetting.TypeName == null || editnewSetting.AssemblyName.length === 0)
-            e.push('An Type Name is required')
+            e.push('An Type Name is required.')
         setErrors(e)
     }, [editnewSetting])
 
@@ -81,7 +81,7 @@ const DataReaders: GlobalSC.BySettingsComponent = (props) => {
 
     if (status === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
-            <ServerErrorIcon Show={true} Label={'A Server Error Occured. Please Reload the Application'} />
+            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
         </div>;
 
     return (
@@ -140,7 +140,7 @@ const DataReaders: GlobalSC.BySettingsComponent = (props) => {
                     />
                 </div>
             </div>
-            <Modal Title={editNew === 'Edit' ? 'Edit Data Operation' : 'Add Data Operation'}
+            <Modal Title={editNew === 'Edit' ? 'Edit Data Reader - ' + editnewSetting.AssemblyName : 'Add New Data Reader'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
@@ -159,16 +159,16 @@ const DataReaders: GlobalSC.BySettingsComponent = (props) => {
             >
                 <div className="row">
                     <div className="col">
-                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'FilePattern'} Label='File Pattern' Feedback={'File Pattern is required'}
+                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'FilePattern'} Label='File Pattern' Feedback={'A File Pattern is required'}
                             Valid={field => editnewSetting.AssemblyName != null && editnewSetting.AssemblyName.length > 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
 
-                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'AssemblyName'} Label='Assembly Name' Feedback={'Assembly name is required'}
+                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'AssemblyName'} Label='Assembly Name' Feedback={'An Assembly name is required'}
                             Valid={field => editnewSetting.AssemblyName != null && editnewSetting.AssemblyName.length > 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
-                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'TypeName'} Label='Type Name' Feedback={'Type Name is required.'}
+                        <Input<OpenXDA.Types.DataReader> Record={editnewSetting} Field={'TypeName'} Label='Type Name' Feedback={'A Type Name is required.'}
                             Valid={field => editnewSetting.TypeName != null && editnewSetting.TypeName.length > 0}
                             Setter={(record) => { setEditNewSetting(record); setHasChanged(true); }}
                         />
@@ -178,7 +178,7 @@ const DataReaders: GlobalSC.BySettingsComponent = (props) => {
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete Setting'} Message={'This will Delete this Setting from the System. This can have unintended consequences and cause the System to crash. Are you sure you want to continue?'}
+            <Warning Title={'Delete Data Reader - ' + editnewSetting.AssemblyName} Message={'This will delete this Data Reader from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(DataReaderSlice.DBAction({ verb: 'DELETE', record: editnewSetting })); setShowWarning(false); }} />
         </>)
 }
