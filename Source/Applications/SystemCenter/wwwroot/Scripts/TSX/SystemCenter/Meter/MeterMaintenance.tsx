@@ -116,7 +116,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
 
     let cardBody;
     if (status === 'error') {
-        cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+        cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
     } else if (status === 'loading') {
         cardBody = <LoadingScreen Show={true} />
     } else {
@@ -205,7 +205,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                     </div>
                 </div>
                 {activeWindow === null ? null : <>
-                    <Warning Show={showDeleteWarning} Title={'Remove this Window'} Message={'This will permanently remove this Maintenance Window from the Meter.'}
+                    <Warning Show={showDeleteWarning} Title={'Remove Maintenance Window'} Message={'This will permanently remove this Maintenance Window from the Meter.'}
                         CallBack={(confirmed) => {
                             setShowDeleteWarning(false);
                             if (confirmed) {
@@ -218,13 +218,13 @@ const MeterMaintenanceWindow = (props: IProps) => {
                         }}
                     />
                     <Modal Show={showEditNew}
-                        Title={activeWindow.ID > 0 ? 'Edit Maintenance Window for Meter' : 'Add New Maintenance Window to Meter'}
+                        Title={activeWindow.ID > 0 ? 'Edit Maintenance Window for ' + props.Meter.Name : 'Add New Maintenance Window to ' + props.Meter.Name}
                         Size={'lg'}
                         ShowX={true}
                         ShowCancel={false}
                         DisableConfirm={hasError()}
                         ConfirmShowToolTip={hasError()}
-                        ConfirmToolTipContent={<p>{WarningIcon} Start time cannot be in the future of the end time.</p>}
+                        ConfirmToolTipContent={<p>{WarningIcon} Start Time cannot be after the End Time.</p>}
                         ConfirmText={'Save'}
                         CallBack={(confirmed) => {
                             setShowEditNew(false);
