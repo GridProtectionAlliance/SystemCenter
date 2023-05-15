@@ -60,25 +60,25 @@ const ByLocation: Application.Types.iByComponent = (props) => {
         if (newLocation.Name == null || newLocation.Name.length < 1)
             errors.push('A Name is required.');
         if (newLocation.Name != null && newLocation.Name.length > 200)
-            errors.push('Name needs to be less than 200 characters.');
+            errors.push('Name must be less than 200 characters.');
         if (newLocation.Alias != null && newLocation.Alias.length > 200)
-            errors.push('Alias needs to be less than 200 characters.');
+            errors.push('Alias must be less than 200 characters.');
         if (newLocation.ShortName != null && newLocation.ShortName.length > 50)
-            errors.push('Short Name needs to be less than 50 characters.');
+            errors.push('Short Name must be less than 50 characters.');
         if (newLocation.Latitude == null)
             errors.push('Latitude is required.');
         if (newLocation.Longitude == null)
             errors.push('Longitude is required.');
         if (newLocation.Latitude != null && !AssetAttributes.isRealNumber(newLocation.Latitude))
-            errors.push('Latitude needs to be numeric.');
+            errors.push('Latitude must be numeric.');
         if (newLocation.Longitude != null && !AssetAttributes.isRealNumber(newLocation.Longitude))
-            errors.push('Longitude needs to be numeric.');
+            errors.push('Longitude must be numeric.');
         if (newLocation.Latitude != null && AssetAttributes.isRealNumber(newLocation.Latitude) && (newLocation.Latitude > 180 || newLocation.Latitude < -180))
-            errors.push('Latitude needs to be between -180 and 180.')
+            errors.push('Latitude must be between -180 and 180.')
         if (newLocation.Longitude != null && AssetAttributes.isRealNumber(newLocation.Longitude) && (newLocation.Longitude > 180 || newLocation.Longitude < -180))
-            errors.push('Longitude needs to be between -180 and 180.')
+            errors.push('Longitude must be between -180 and 180.')
         if (allKeys.findIndex((item) => item.LocationKey == newLocation.LocationKey) > -1)
-            errors.push('The Key has to be unique.');
+            errors.push('Key must be unique.');
 
         setNewLocationErrors(errors);
 
@@ -233,7 +233,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={showNew} Size={'lg'} Title={'Add Substation'}
+            <Modal Show={showNew} Size={'lg'} Title={'Add New Substation'}
                 ShowX={true}
                 CallBack={(conf) => {
                     if (conf)
@@ -250,14 +250,14 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             >
                 <div className="row">
                     <div className="col">
-                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Location Key' Field={'LocationKey'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Name' Field={'Name'} Feedback={'Name must be less than 200 characters and is required.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Short Name' Field={'ShortName'} Feedback={'ShortName must be less than 50 characters.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Key' Field={'LocationKey'} Feedback={'A unique Key of less than 50 characters is required.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Name' Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Short Name' Field={'ShortName'} Feedback={'Short Name must be less than 50 characters.'} Valid={valid} Setter={setNewLocation} />
                         <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Alias' Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={setNewLocation} />
                     </div>
                     <div className="col">
-                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Latitude' Field={'Latitude'} Feedback={'Latitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
-                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Longitude' Field={'Longitude'} Feedback={'Longitude is a required numeric field and must be between -180 and 180.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Latitude' Field={'Latitude'} Feedback={'A numeric Latitude value between -180 and 180 is required.'} Valid={valid} Setter={setNewLocation} />
+                        <Input<SystemCenter.Types.DetailedLocation> Record={newLocation} Label='Longitude' Field={'Longitude'} Feedback={'A numeric Longitude value between -180 and 180 is required.'} Valid={valid} Setter={setNewLocation} />
                         <TextArea<SystemCenter.Types.DetailedLocation> Rows={3} Record={newLocation} Label='Description'  Field={'Description'} Valid={valid} Setter={setNewLocation} />
                     </div>
                 </div>

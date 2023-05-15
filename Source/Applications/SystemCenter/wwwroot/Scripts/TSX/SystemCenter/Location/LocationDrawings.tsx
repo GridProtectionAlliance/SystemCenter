@@ -106,14 +106,14 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">Add new list item</h5>
+                            <h5 className="modal-title">Add New List Item</h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div className="modal-body">
-                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Name'} Feedback={'Name must be set and be less than 200 characters.'} Valid={() => record.Name != null && record.Name.length > 0 && record.Name.length <= 200} Setter={(r) => setRecord(r)} />
-                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Link'} Feedback={'Link must be set.'} Valid={() => (record.Link != null && record.Link.length > 0)} Setter={(r) => setRecord(r)} />
+                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={() => record.Name != null && record.Name.length > 0 && record.Name.length <= 200} Setter={(r) => setRecord(r)} />
+                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Link'} Feedback={'A Link is required.'} Valid={() => (record.Link != null && record.Link.length > 0)} Setter={(r) => setRecord(r)} />
                             <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Description'} Type='text' Valid={() => true} Setter={(r) => setRecord(r)} />
                         </div>
                         <div className="modal-footer">

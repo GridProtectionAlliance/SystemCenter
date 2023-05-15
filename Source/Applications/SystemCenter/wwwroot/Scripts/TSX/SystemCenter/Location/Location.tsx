@@ -106,7 +106,7 @@ function Location(props: IProps) {
 
     const Tabs: { Id: tab, Label: string }[] = [
         { Id: "notes", Label: "Notes" },
-        { Id: "locationInfo", Label: "Location Info" },
+        { Id: "locationInfo", Label: "Substation Info" },
         { Id: "additionalFields", Label: "Additional Fields" },
         { Id: "meters", Label: "Meters" },
         { Id: "assets", Label: "Assets" },
@@ -120,10 +120,10 @@ function Location(props: IProps) {
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
                 <div className="col">
-                    <h2>{location != null ? location.LocationKey : ''}</h2>
+                    <h2>{location != null ? location.Name + ' (' + location.LocationKey + ')' : ''}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" hidden={location == null} onClick={() => setShowDelete(true)}>Delete Location</button>
+                    <button className="btn btn-danger pull-right" hidden={location == null} onClick={() => setShowDelete(true)}>Delete Substation</button>
                 </div>
             </div>
 
@@ -157,7 +157,7 @@ function Location(props: IProps) {
                 </div>
 
             </div>
-            <Warning Message={'This will permanently Delete this location and can not be undone.'} Show={showDelete} Title={'Delete Location ' + location.Name} CallBack={(conf) => { if (conf) deleteLocation(); setShowDelete(false); }} />
+            <Warning Message={'This will permanently delete this Substation and cannot be undone.'} Show={showDelete} Title={'Delete Substation - ' + location.Name} CallBack={(conf) => { if (conf) deleteLocation(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
     )
