@@ -60,7 +60,7 @@ const SystemSettingsTab = (props: IProps) => {
 
     let cardBody;
     if (instStatus === 'error') {
-        cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+        cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
     } else if (instStatus === 'loading') {
         cardBody = <LoadingScreen Show={true} />
     } else {
@@ -72,7 +72,7 @@ const SystemSettingsTab = (props: IProps) => {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Remote XDA Instance Connection Information:</h4>
+                        <h4>Remote openXDA Instance Connection Information:</h4>
                     </div>
                 </div>
             </div>

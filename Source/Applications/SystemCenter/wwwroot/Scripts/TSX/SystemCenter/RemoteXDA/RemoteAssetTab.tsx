@@ -90,21 +90,21 @@ const RemoteAssetTab = (props: IProps) => {
 
     let cardBody;
     if (remoteAssetStatus === 'error') {
-        cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application'} />
+        cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
     } else if (remoteAssetStatus === 'loading') {
         cardBody = <LoadingScreen Show={true} />
     } else {
         cardBody =
             <Table<OpenXDA.Types.RemoteXDAAsset>
                 cols={[
-                { key: 'LocalAssetName', field: 'LocalAssetName', label: 'Name (local)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'LocalAssetKey', field: 'LocalAssetKey', label: 'Key (local)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'LocalAssetName', field: 'LocalAssetName', label: 'Local Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'LocalAssetKey', field: 'LocalAssetKey', label: 'Local Asset Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                 {
-                    key: 'RemoteAssetName', field: 'RemoteXDAAssetKey', label: 'Name (remote)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                    key: 'RemoteAssetName', field: 'RemoteXDAAssetKey', label: 'Remote Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                     content: (item) => (item.Obsfucate ? item.RemoteXDAAssetKey : item.LocalAssetName)
                 },
                 {
-                    key: 'RemoteXDAAssetKey', field: 'RemoteXDAAssetKey', label: 'Key (remote)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                    key: 'RemoteXDAAssetKey', field: 'RemoteXDAAssetKey', label: 'Remote Asset Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                     content: (item) => (item.Obsfucate ? item.RemoteXDAAssetKey : item.LocalAssetKey)
                 },
 
@@ -175,7 +175,7 @@ const RemoteAssetTab = (props: IProps) => {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Remote XDA Assets:</h4>
+                        <h4>Remote openXDA Assets:</h4>
                     </div>
                 </div>
             </div>
@@ -195,7 +195,7 @@ const RemoteAssetTab = (props: IProps) => {
                     </button>
                 </div>
             </div>
-            <Warning Title={"Delete Remote Asset"} Show={showDelete} Message={"Are you sure you want to delete the remote asset for " + selectedAsset.LocalAssetName + "?"}
+            <Warning Title={"Delete Remote Asset - " + selectedAsset.RemoteXDAAssetKey} Show={showDelete} Message={"Are you sure you want to delete the Remote Asset for " + selectedAsset.LocalAssetName + "?"}
                 CallBack={(conf) => {
                     if (conf) dispatch(RemoteXDAAssetSlice.DBAction({ verb: 'DELETE', record: selectedAsset }));
                     setShowDelete(false);
@@ -216,7 +216,7 @@ const RemoteAssetTab = (props: IProps) => {
                 <RemoteAssetForm OriginalAsset={selectedAsset} SetRemoteAsset={setRemoteAsset} SetErrors={setNewInstErrors} />
             </Modal>
             <AssetSelect Type='multiple' StorageID='RemoteAssetTab' ShowModal={showAddAssets} SelectedAssets={assetList}
-                Title={"Select Meter to Add for this remoteXDA Instance:"}
+                Title={"Add Assets to Remote openXDA Instance:"}
                 OnCloseFunction={(selected, conf) => {
                     setShowAddAssets(false);
                     setAssetList([]);
