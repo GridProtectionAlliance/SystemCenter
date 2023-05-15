@@ -145,7 +145,7 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                                 <svg width="20" height="20">
                                     <rect width="20" height="20" fill='red' strokeWidth='3' stroke='rgb(0,0,0)' />
                                 </svg>
-                                <span style={{ marginLeft: 10 }}>OpenXDA</span>
+                                <span style={{ marginLeft: 10 }}>openXDA</span>
                             </a>
                         </li>
                     </ul>
