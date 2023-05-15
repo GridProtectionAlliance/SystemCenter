@@ -68,7 +68,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
         <div className="card-header">
             <div className="row">
                 <div className="col">
-                    <h4>MiMD Issues for {props.Meter?.Name} :</h4>
+                    <h4>miMD Issues for {props.Meter?.Name} :</h4>
                 </div>
             </div>
         </div>

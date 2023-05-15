@@ -72,7 +72,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
         <div className="card-header">
             <div className="row">
                 <div className="col">
-                    <h4>OpenMIC Issues for {props.Meter?.Name} :</h4> 
+                    <h4>openMIC Issues for {props.Meter?.Name} :</h4> 
                 </div>
                 <div className="col">
                     <Test {...props}/>

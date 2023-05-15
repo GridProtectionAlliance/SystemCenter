@@ -62,9 +62,9 @@ function DeviceIssuesPage(props: {MeterID: number, OpenMICAcronym: string, Tab? 
 
     const Tabs: {Id: DeviceIssuesPageTab, Label: string }[] = [
         { Id: "notes", Label: "Notes" },
-        { Id: "openmic", Label: "OpenMIC" },
-        { Id: "mimd", Label: "MiMD" },
-        { Id: "xda", Label: "OpenXDA" },
+        { Id: "openmic", Label: "openMIC" },
+        { Id: "mimd", Label: "miMD" },
+        { Id: "xda", Label: "openXDA" },
         { Id: "dq", Label: "Data Quality" },
         { Id: "files", Label: "Last 50 Downloaded Files" },
 
