@@ -22,7 +22,7 @@
 
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
-import { CrossMark, HeavyCheckMark, Warning, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, HeavyCheckMark, Pencil, Warning, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, ToolTip, ServerErrorIcon, Warning as WarningModal } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
@@ -207,7 +207,7 @@ function AdditionalField(props: IProps) {
 								return <ValueDisplay Mode={mode} Type={item.Type} ValueListItems={vList} Value={props.CreateValue(item)} Setter={(val: Application.Types.iAdditionalUserFieldValue) => setEditValues((d) => { const u = [...d]; u.push(val); return u; })} />
 							}
 						},
-						{ key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); setEditNew('Edit'); }}><span><i className="fa fa-pencil"></i></span></button> : '') },
+						{ key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); setEditNew('Edit'); }}><span>{Pencil}</span></button> : '') },
 						{ key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '') },
 
 					]}

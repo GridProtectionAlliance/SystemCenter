@@ -28,6 +28,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { LoadingScreen, Search, ToolTip } from '@gpa-gemstone/react-interactive';
 import MeterProperties from './PropertyUI/MeterProperties';
+import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -160,25 +161,25 @@ const MeterInforWindow = (props: IProps) => {
                 </div>
                 <ToolTip Show={(!validMeter() || !hasChanged()) && hover == 'submit' } Position={'top'} Theme={'dark'} Target={"submit"}>
                     {!hasChanged() ? <p> No changes made.</p> : null}
-                    {!valid('AssetKey') ? <p> <ErrorSymbol /> A unique Key of less than 50 characters is required.</p> : null}
-                    {!valid('Name') ? <p> <ErrorSymbol /> A Name of less than 200 characters is required.</p> : null}
-                    {!valid('ShortName') ? <p> <ErrorSymbol /> Short Name must be less than 50 characters.</p> : null}
-                    {!valid('Alias') ? <p> <ErrorSymbol /> Alias must be less than 200 characters.</p> : null}
-                    {!valid('Make') ? <p> <ErrorSymbol /> Make is required.</p> : null}
-                    {!valid('Model') ? <p> <ErrorSymbol /> Model is required.</p> : null}
+                    {!valid('AssetKey') ? <p> {CrossMark} A unique Key of less than 50 characters is required.</p> : null}
+                    {!valid('Name') ? <p> {CrossMark} A Name of less than 200 characters is required.</p> : null}
+                    {!valid('ShortName') ? <p> {CrossMark} Short Name must be less than 50 characters.</p> : null}
+                    {!valid('Alias') ? <p> {CrossMark} Alias must be less than 200 characters.</p> : null}
+                    {!valid('Make') ? <p> {CrossMark} Make is required.</p> : null}
+                    {!valid('Model') ? <p> {CrossMark} Model is required.</p> : null}
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className={"btn btn-default" + (hasChanged() ? '' : ' disabled')} data-tooltip="clear" onClick={() => setMeter(props.Meter)} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                 </div>
                 <ToolTip Show={hasChanged() && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
-                    {props.Meter.AssetKey != meter.AssetKey ? <p> <WarningSymbol /> Changes to Key will be discarded.</p> : null}
-                    {props.Meter.Name != meter.Name ? <p> <WarningSymbol /> Changes to Name will be discarded.</p> : null}
-                    {props.Meter.ShortName != meter.ShortName ? <p> <WarningSymbol /> Changes to Short Name will be discarded.</p> : null}
-                    {props.Meter.Alias != meter.Alias ? <p> <WarningSymbol /> Changes to Alias will be discarded.</p> : null}
-                    {props.Meter.Make != meter.Make ? <p> <WarningSymbol /> Changes to Make will be discarded.</p> : null}
-                    {props.Meter.Model != meter.Model ? <p> <WarningSymbol /> Changes to Model will be discarded.</p> : null}
-                    {props.Meter.TimeZone != meter.TimeZone ? <p> <WarningSymbol /> Changes to Time Zone will be discarded.</p> : null}
-                    {props.Meter.Description != meter.Description ? <p> <WarningSymbol /> Changes to Description will be discarded.</p> : null}
+                    {props.Meter.AssetKey != meter.AssetKey ? <p> {Warning} Changes to Key will be discarded.</p> : null}
+                    {props.Meter.Name != meter.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
+                    {props.Meter.ShortName != meter.ShortName ? <p> {Warning} Changes to Short Name will be discarded.</p> : null}
+                    {props.Meter.Alias != meter.Alias ? <p> {Warning} Changes to Alias will be discarded.</p> : null}
+                    {props.Meter.Make != meter.Make ? <p> {Warning} Changes to Make will be discarded.</p> : null}
+                    {props.Meter.Model != meter.Model ? <p> {Warning} Changes to Model will be discarded.</p> : null}
+                    {props.Meter.TimeZone != meter.TimeZone ? <p> {Warning} Changes to Time Zone will be discarded.</p> : null}
+                    {props.Meter.Description != meter.Description ? <p> {Warning} Changes to Description will be discarded.</p> : null}
                 </ToolTip>
             </div>
 
@@ -187,8 +188,5 @@ const MeterInforWindow = (props: IProps) => {
 
 
 }
-
-const ErrorSymbol = () => <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>
-const WarningSymbol = () => <i style={{ marginRight: '10px', color: '#ffc107' }} className="fa fa-exclamation-triangle"></i>
 
 export default MeterInforWindow;
