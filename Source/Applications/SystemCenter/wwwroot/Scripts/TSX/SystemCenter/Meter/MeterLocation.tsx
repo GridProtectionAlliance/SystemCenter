@@ -29,6 +29,7 @@ import { cloneDeep } from 'lodash';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 import MeterLocationProperties from './PropertyUI/MeterLocationProperties';
 import { LocationSlice, ByMeterSlice } from '../Store/Store';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -174,12 +175,12 @@ const LocationWindow = (props: IProps) => {
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'NewLocation'}>{location.ID > 0 ? "Update" : "Add New"}</button>
                     <ToolTip Show={hover == 'Update' && (!hasChanged || !isValidLocation)} Position={'top'} Theme={'dark'} Target={"NewLocation"}>
                         {!hasChanged || location.ID < 1 ? <p> No Changes have been made. </p> : null}
-                        {!validKey ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Key must be unique.  </p> : null}
-                        {!valid('LocationKey') && validKey ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Key of less than 50 characters is required. </p> : null}
-                        {!valid('Name') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Name of less than 200 characters is required. </p> : null}
-                        {!valid('ShortName') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Short Name must be less than 50 characters. </p> : null}
-                        {!valid('Latitude') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Latitude is required. </p> : null}
-                        {!valid('Longitude') ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Longtitude is required. </p> : null}
+                        {!validKey ? <p> {CrossMark} Key must be unique.  </p> : null}
+                        {!valid('LocationKey') && validKey ? <p> {CrossMark} A Key of less than 50 characters is required. </p> : null}
+                        {!valid('Name') ? <p> {CrossMark} A Name of less than 200 characters is required. </p> : null}
+                        {!valid('ShortName') ? <p> {CrossMark} Short Name must be less than 50 characters. </p> : null}
+                        {!valid('Latitude') ? <p> {CrossMark} Latitude is required. </p> : null}
+                        {!valid('Longitude') ? <p> {CrossMark} Longtitude is required. </p> : null}
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">

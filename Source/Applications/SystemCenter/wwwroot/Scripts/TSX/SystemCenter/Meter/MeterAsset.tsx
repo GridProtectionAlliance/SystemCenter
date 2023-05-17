@@ -34,7 +34,7 @@ import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import { SearchedAssets, SearchStatus, DBSearchAsset, DBActionAsset, DBMeterAction, SelectAssets, SelectAssetStatus, FetchAsset } from '../Store/AssetSlice'
 import Table from '@gpa-gemstone/react-table';
-import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Warning, Modal, LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -191,7 +191,7 @@ const MeterAssetWindow = (props: IProps) => {
                                 ConfirmShowToolTip={AssetAttributes.AttributeError(activeAsset).length > 0}
                                 DisableConfirm={AssetAttributes.AttributeError(activeAsset).length > 0}
                                 ConfirmToolTipContent={
-                                    AssetAttributes.AttributeError(activeAsset).map((e, i) => <p key={i}><ErrorSymbol /> {e}</p>)
+                                    AssetAttributes.AttributeError(activeAsset).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
                                 }
                             >
                                 <div className="row">
@@ -257,5 +257,3 @@ const MeterAssetWindow = (props: IProps) => {
 }
 
 export default MeterAssetWindow;
-
-const ErrorSymbol = () => <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i>

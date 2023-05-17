@@ -37,7 +37,7 @@ import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice
 import { Modal, Search } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
-import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -290,7 +290,7 @@ export default function AssetPage(props: IProps) {
                                                     <td style={{ width: '10%' }}>{asset.VoltageKV}</td>
                                                     <td style={{ width: '10%' }}>{asset.Channels.length}</td>
                                                     <td style={{ width: '10%' }}>
-                                                        <button className="btn btn-sm" data-toggle='modal' data-target='#assetModal' onClick={(e) => editAsset(index)}><span><i className="fa fa-pencil"></i></span></button>
+                                                        <button className="btn btn-sm" data-toggle='modal' data-target='#assetModal' onClick={(e) => editAsset(index)}><span>{Pencil}</span></button>
                                                         <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span>{TrashCan}</span></button>
                                                     </td>
                                                 </tr>

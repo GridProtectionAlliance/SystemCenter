@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { TrashCan, Warning } from '@gpa-gemstone/gpa-symbols';
 import moment from 'moment';
 
 
@@ -271,7 +271,7 @@ function TableRowField(props: { ParentTableID: number, Field: SystemCenter.Types
                     }} value={value.Value == null ? '' : value.Value.toString()} />
                 </td>
                 )}
-            <td>{props.Field.Error ? <span><i className="fa fa-exclamation-triangle"></i></span> : null}</td>
+            <td>{props.Field.Error ? <span>{Warning}</span> : null}</td>
             <td><button className="btn btn-sm" onClick={(e) => removeField()}><span>{TrashCan}</span></button></td>
         </tr>
     );

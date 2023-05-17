@@ -26,7 +26,7 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
-import { Warning } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
 declare var homePath: string;
 
 interface IProps { Location: OpenXDA.Types.Location, stateSetter: (location: OpenXDA.Types.Location) => void }
@@ -218,7 +218,7 @@ const LocationInfo = (props: IProps) => {
                 <ToolTip Show={(locationErrors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
                     {!hasChanged ? <p> No changes made.</p> : null}
                     {locationErrors.map((t, i) => <p key={i}>
-                        <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> {t}
+                        {CrossMark} {t}
                     </p>)}
                 </ToolTip>
                 <div className="btn-group mr-2">

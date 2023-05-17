@@ -28,7 +28,7 @@ import { AssetAttributes } from '../AssetAttribute/Asset';
 import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
-import { HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
+import { CrossMark, HeavyCheckMark, Pencil, TrashCan, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols'
 
 declare var homePath: string;
 declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer' | 'Company' | 'ValueListGroup' | 'Asset' | OpenXDA.Types.AssetTypeName;
@@ -340,15 +340,15 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             if (iFld == -1 || (iWVal == -1 && item.Value == null))
                 return;
             if (iWVal == -1) {
-                result.push((warning ? <p key={index}> <i style={{ marginRight: '10px', color: '#ffc107' }} className="fa fa-exclamation-triangle"></i> Changes to '{additionalFields[iFld].FieldName}' will be lost.</p> :
-                    <p key={index}> <i style={{ marginRight: '10px', color: '#28A745' }} className="fa fa-check-circle"></i> Changes to '{additionalFields[iFld].FieldName}' are valid.</p>));
+                result.push((warning ? <p key={index}> {WarningIcon} Changes to '{additionalFields[iFld].FieldName}' will be lost.</p> :
+                    <p key={index}> {HeavyCheckMark} Changes to '{additionalFields[iFld].FieldName}' are valid.</p>));
                 return;
             }
             if (item.Value == additionalFieldValues[iWVal].Value)
                 return;
 
-            result.push((warning ? <p key={index}> <i style={{ marginRight: '10px', color: '#ffc107' }} className="fa fa-exclamation-triangle"></i> Changes to '{additionalFields[iFld].FieldName}' will be lost.</p> :
-                <p key={index}> <i style={{ marginRight: '10px', color: '#28A745' }} className="fa fa-check-circle"></i> Changes to '{additionalFields[iFld].FieldName}' are valid.</p>));
+            result.push((warning ? <p key={index}> {WarningIcon} Changes to '{additionalFields[iFld].FieldName}' will be lost.</p> :
+                <p key={index}> {HeavyCheckMark} Changes to '{additionalFields[iFld].FieldName}' are valid.</p>));
         });
 
         return result;
@@ -374,7 +374,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             if (i == -1)
                 return;
             if (additionalFields[i].Type == 'integer' && !(item.Value == null || AssetAttributes.isInteger(item.Value)))
-                result.push(<p key={index}> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> Value for '{additionalFields[i].FieldName}' must be an integer.</p>)
+                result.push(<p key={index}> {CrossMark} Value for '{additionalFields[i].FieldName}' must be an integer.</p>)
         });
         return result;
     }
@@ -524,9 +524,9 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 ConfirmShowToolTip={!ValidField()}
                 ConfirmToolTipContent={
                     <>
-                        {newField.FieldName == null || newField.FieldName.length == 0 || !newFieldNameValid ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A unique Field Name is required.</p> : null}
-                        {newField.ExternalDB != null && (newField.ExternalDBTable == null || newField.ExternalDBTable .length == 0)? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Field from an External Database requires an External Database Table.</p> : null}
-                        {newField.ExternalDB != null && (newField.ExternalDBTableKey == null || newField.ExternalDBTableKey.length == 0) ? <p> <i style={{ marginRight: '10px', color: '#dc3545' }} className="fa fa-exclamation-circle"></i> A Field from an External Database requires an External Database Table Key.</p> : null}
+                        {newField.FieldName == null || newField.FieldName.length == 0 || !newFieldNameValid ? <p> {CrossMark} A unique Field Name is required.</p> : null}
+                        {newField.ExternalDB != null && (newField.ExternalDBTable == null || newField.ExternalDBTable.length == 0) ? <p> {CrossMark} A Field from an External Database requires an External Database Table.</p> : null}
+                        {newField.ExternalDB != null && (newField.ExternalDBTableKey == null || newField.ExternalDBTableKey.length == 0) ? <p> {CrossMark} A Field from an External Database requires an External Database Table Key.</p> : null}
 
                     </>
                 }
