@@ -35,7 +35,6 @@ interface IProps { show: boolean, record: ScheduledEmailType, OnClose: () => voi
 
 const TestEmail = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const [eventID, setEventID] = React.useState<number>(-1);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const userID = useAppSelector(UserInfoSlice.UserAccountID);
     let portalID: string = "TestEmailOuter";
@@ -48,12 +47,11 @@ const TestEmail = (props: IProps) => {
     function sendEmail() {
         const handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/EmailType/Test/${eventID}/${props.record.ID}/${userID}`,
+            url: `${homePath}api/OpenXDA/ScheduledEmailType/Test/${props.record.ID}/${userID}`,
             contentType: "application/json; charset=utf-8",
             cache: false,
-            async: true,
-            
-        })
+            async: true
+        });
     }
 
     return (

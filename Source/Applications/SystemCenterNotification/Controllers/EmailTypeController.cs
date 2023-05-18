@@ -295,9 +295,7 @@ namespace SystemCenter.Notifications.Controllers
                     request.Method = HttpMethod.Get;
                 }
 
-                string dateTimeNow = DateTime.UtcNow.ToString();
-
-                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testReport/{reportID}/{recipient}/{dateTimeNow}").Result;
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testReport/{reportID}/{recipient}/now").Result;
 
                 return Ok(1);
 

@@ -370,15 +370,22 @@ namespace SystemCenter.Notifications.Controllers
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         TriggeredEmailDataSourceEmailTypeView postRecord = record.ToObject<TriggeredEmailDataSourceEmailTypeView>();
-
                         TriggeredEmailDataSourceEmailType newRecord = new TriggeredEmailDataSourceEmailType()
                         {
                             ID = postRecord.ID,
                             TriggeredEmailDataSourceID = postRecord.TriggeredEmailDataSourceID,
                             EmailTypeID = postRecord.EmailTypeID
                         };
-
                         int result = new TableOperations<TriggeredEmailDataSourceEmailType>(connection).AddNewRecord(newRecord);
+                        newRecord.ID = connection.ExecuteScalar<int>("SELECT @@IDENTITY");
+
+                        IEnumerable<TriggeredEmailDataSourceSetting> settings = record["Settings"].ToObject<IEnumerable<TriggeredEmailDataSourceSetting>>();
+                        TableOperations<TriggeredEmailDataSourceSetting> settingsTable = new TableOperations<TriggeredEmailDataSourceSetting>(connection);
+                        foreach (TriggeredEmailDataSourceSetting setting in settings)
+                        {
+                            setting.TriggeredEmailDataSourceEmailTypeID = newRecord.ID;
+                            result += settingsTable.AddNewRecord(setting);
+                        }
 
                         return Ok(result);
                     }
