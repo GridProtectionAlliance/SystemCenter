@@ -87,7 +87,7 @@ const AzureDataSource: React.FC<ISettingsUIProps> = (props) => {
                         value={props.Settings.find(s => s.Name === 'XDAFieldName')?.Value ?? ''}
                     />
                     <div className="invalid-feedback">
-                        The Data Provider String can not be empty
+                        The XDA FieldName is required
                     </div>
                 </div>
             </div>
