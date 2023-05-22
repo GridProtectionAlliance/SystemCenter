@@ -69,7 +69,7 @@ const AzureDataSource: React.FC<ISettingsUIProps> = (props) => {
                         value={props.Settings.find(s => s.Name === 'AzureFieldName')?.Value ?? ''}
                     />
                     <div className="invalid-feedback">
-                        The azure field name cannot be empty
+                        The azure field is required
                     </div>
                 </div>
                 <div className="form-group">
