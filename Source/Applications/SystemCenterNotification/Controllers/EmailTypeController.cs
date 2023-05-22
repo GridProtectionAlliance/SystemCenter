@@ -23,7 +23,6 @@
 using GSF.Configuration;
 using GSF.Data;
 using GSF.Web.Model;
-using Microsoft.AspNet.SignalR.Infrastructure;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.APIAuthentication;
@@ -34,8 +33,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Web.Http;
-using System.Xml;
-using System.Xml.Linq;
 using SystemCenter.Notifications.Model;
 using static FaultData.DataWriters.Emails.EmailService;
 using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
