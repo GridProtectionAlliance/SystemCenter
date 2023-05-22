@@ -238,7 +238,7 @@ export default function CurveForm(props: IProps) {
                         >
                         <Line highlightHover={false} showPoints={true} lineStyle={'-'}
                             color={"#A30000"} data={curve} />
-                        
+                        {curve.map((p) => (<Circle data={[p[0], p[1]]} color={"#A300000"} radius={10} text={''} />))}
                     </Plot> 
                 </div>
             </div>
