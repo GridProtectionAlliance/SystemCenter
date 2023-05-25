@@ -26,14 +26,40 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Application, PQI } from '@gpa-gemstone/application-typings';
 
-let fetchHandle: JQuery.jqXHR<any> | null;
+export interface Address { Path: string, Company: string, Facilities: string, AddressLine1: string, AdressLine2: string, City: string, StateOrProvince: string, PostalCode: string, Country: string, Primary: boolean }
+export interface Company { Addresses: string, Path: string, Type: string, Name: string, Industry: string }
+
+
+let faclityFetchHandle: JQuery.jqXHR<any> | null;
+let addressFetchHandle: JQuery.jqXHR<any> | null;
+let companyFetchHandle: JQuery.jqXHR<any> | null;
 
 export const FetchPQIFacilities = createAsyncThunk('PQI/FetchFacilities', async (_, { signal }) => {
-    if (fetchHandle != null && fetchHandle.abort != null)
-        fetchHandle.abort('Prev');
+    if (faclityFetchHandle != null && faclityFetchHandle.abort != null)
+        faclityFetchHandle.abort('Prev');
 
     const handle = FetchFacilites();
-    fetchHandle = handle;
+    faclityFetchHandle = handle;
+
+    return await handle;
+});
+
+export const FetchPQIAddresses = createAsyncThunk('PQI/FetchAddresses', async (_, { signal }) => {
+    if (addressFetchHandle != null && addressFetchHandle.abort != null)
+        addressFetchHandle.abort('Prev');
+
+    const handle = FetchAddresses();
+    addressFetchHandle = handle;
+
+    return await handle;
+});
+
+export const FetchPQICompanies = createAsyncThunk('PQI/FetchCompanies', async (_, { signal }) => {
+    if (companyFetchHandle != null && companyFetchHandle.abort != null)
+        companyFetchHandle.abort('Prev');
+
+    const handle = FetchCompanies();
+    companyFetchHandle = handle;
 
     return await handle;
 });
@@ -41,24 +67,54 @@ export const FetchPQIFacilities = createAsyncThunk('PQI/FetchFacilities', async 
 export const PQISlice = createSlice({
     name: 'PQI',
     initialState: {
-        Status: 'unintiated' as Application.Types.Status,
+        StatusCompanies: 'unintiated' as Application.Types.Status,
+        StatusAddresses: 'unintiated' as Application.Types.Status,
+        StatusFacilites: 'unintiated' as Application.Types.Status,
         Error: null,
-        Facilities: [] as PQI.Types.Facility[]
+        Facilities: [] as PQI.Types.Facility[],
+        Addresses: [] as Address[],
+        Companies: [] as Company[]
     },
     reducers: {
     },
     extraReducers: (builder) => {
 
         builder.addCase(FetchPQIFacilities.fulfilled, (state, action) => {
-            state.Status = 'idle';
+            state.StatusFacilites = 'idle';
             state.Error = null;
             state.Facilities = action.payload;
         });
         builder.addCase(FetchPQIFacilities.pending, (state, action) => {
-            state.Status = 'loading';
+            state.StatusFacilites = 'loading';
         });
         builder.addCase(FetchPQIFacilities.rejected, (state, action) => {
-            state.Status = 'error';
+            state.StatusFacilites = 'error';
+            state.Error = action.error.message;
+        });
+
+        builder.addCase(FetchPQIAddresses.fulfilled, (state, action) => {
+            state.StatusAddresses = 'idle';
+            state.Error = null;
+            state.Addresses = action.payload;
+        });
+        builder.addCase(FetchPQIAddresses.pending, (state, action) => {
+            state.StatusAddresses = 'loading';
+        });
+        builder.addCase(FetchPQIAddresses.rejected, (state, action) => {
+            state.StatusAddresses = 'error';
+            state.Error = action.error.message;
+        });
+
+        builder.addCase(FetchPQICompanies.fulfilled, (state, action) => {
+            state.StatusCompanies = 'idle';
+            state.Error = null;
+            state.Companies = action.payload;
+        });
+        builder.addCase(FetchPQICompanies.pending, (state, action) => {
+            state.StatusCompanies = 'loading';
+        });
+        builder.addCase(FetchPQICompanies.rejected, (state, action) => {
+            state.StatusCompanies = 'error';
             state.Error = action.error.message;
         });
     }
@@ -68,14 +124,40 @@ export const PQISlice = createSlice({
 export const { } = PQISlice.actions;
 export default PQISlice.reducer;
 
-export const SelectStatus = (state) => state.PQI.Status as Application.Types.Status;
+export const SelectFacilityStatus = (state) => state.PQI.StatusFacilites as Application.Types.Status;
 export const SelectFacilities = (state) => state.PQI.Facilities as PQI.Types.Facility[];
+
+export const SelectCompaniesStatus = (state) => state.PQI.StatusCompanies as Application.Types.Status;
+export const SelectCompanies = (state) => state.PQI.Coompanies as Company[];
+
+export const SelectAddressStatus = (state) => state.PQI.StatusAddresses as Application.Types.Status;
+export const SelectAddresses = (state) => state.PQI.Addresses as Address[];
 
 
 function FetchFacilites(): JQuery.jqXHR<PQI.Types.Facility[]> {
     return $.ajax({
         type: 'GET',
         url: `${homePath}api/SystemCenter/PQI/Facilities`,
+        contentType: "application/json; charset=utf-8",
+        cache: false,
+        async: true
+    });
+}
+
+function FetchCompanies(): JQuery.jqXHR<Company[]> {
+    return $.ajax({
+        type: 'GET',
+        url: `${homePath}api/SystemCenter/PQI/Companies`,
+        contentType: "application/json; charset=utf-8",
+        cache: false,
+        async: true
+    });
+}
+
+function FetchAddresses(): JQuery.jqXHR<Address[]> {
+    return $.ajax({
+        type: 'GET',
+        url: `${homePath}api/SystemCenter/PQI/Addresses`,
         contentType: "application/json; charset=utf-8",
         cache: false,
         async: true

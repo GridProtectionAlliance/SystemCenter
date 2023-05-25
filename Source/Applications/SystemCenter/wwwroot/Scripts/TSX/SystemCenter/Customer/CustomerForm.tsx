@@ -26,7 +26,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { CustomerSlice } from '../Store/Store';
 import { Input, Select, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
-import { FetchPQIFacilities, SelectFacilities, SelectStatus } from '../Store/PQISlice';
+import { FetchPQIFacilities, SelectFacilities, SelectFacilityStatus } from '../Store/PQISlice';
 
 declare var homePath: string;
 
@@ -39,13 +39,13 @@ export default function CustomerForm(props: IProps) {
     const [errors, setErrors] = React.useState<string[]>([]);
     const allCustomerKeys = useAppSelector(CustomerSlice.Data) as OpenXDA.Types.Customer[];
     const acStatus = useAppSelector(CustomerSlice.Status) as Application.Types.Status;
-    const pqiStatus = useAppSelector(SelectStatus);
+    const pqiFacilityStatus = useAppSelector(SelectFacilityStatus);
     const pqiFacilities = useAppSelector(SelectFacilities);
 
     React.useEffect(() => {
-        if (pqiStatus == 'unintiated' || pqiStatus == 'changed')
+        if (pqiFacilityStatus == 'unintiated' || pqiFacilityStatus == 'changed')
             dispatch(FetchPQIFacilities());
-    }, [pqiStatus])
+    }, [pqiFacilityStatus])
 
 
     React.useEffect(() => {
@@ -98,7 +98,7 @@ export default function CustomerForm(props: IProps) {
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Label='Customer Key' Feedback={'Customer Key of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Name'} Label='Name' Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Phone'} Label='Phone' Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
-            {pqiStatus == 'idle' ?
+            {pqiFacilityStatus == 'idle' ?
                 <Select<OpenXDA.Types.Customer> Record={props.Customer} Label={'PQI Facility'} Field={'PQIFacilityID'} Setter={(record) => props.stateSetter(record)} Options={[...pqiFacilities.map((f) => ({ Label: f.Name, Value: pathToID(f.Path) })), { Label: 'None', Value: '-1' }]} /> :
                 <div className="alert alert-warning" role="alert">
                     System is unable to connect to PQI
