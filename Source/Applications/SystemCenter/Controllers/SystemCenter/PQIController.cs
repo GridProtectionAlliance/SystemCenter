@@ -94,24 +94,55 @@ namespace SystemCenter.Controllers
         {
             try
             {
-                string FetchAccessToken()
-                {
-                    NetworkCredential clientCredential = new NetworkCredential(ClientID, ClientSecret);
-                    NetworkCredential userCredential = new NetworkCredential(Username, Password);
-                    PingClient pingClient = new PingClient(PingURL);
-                    Task exchangeTask = pingClient.ExchangeAsync(clientCredential, userCredential);
-                    exchangeTask.GetAwaiter().GetResult();
-                    return pingClient.AccessToken;
-                }
-
                 PQIWSClient pqiwsClient = new PQIWSClient(BaseURL, FetchAccessToken);
-               
+
                 return Ok(pqiwsClient.GetAllFacilities().Result);
             }
             catch (Exception ex)
             {
                 return InternalServerError(ex);
             }
+        }
+
+
+        [Route("Companies"), HttpGet]
+        public IHttpActionResult GetCompanies()
+        {
+            try
+            {
+                PQIWSClient pqiwsClient = new PQIWSClient(BaseURL, FetchAccessToken);
+
+                return Ok(pqiwsClient.GetAllCompanies().Result);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [Route("Addresses"), HttpGet]
+        public IHttpActionResult GetAdresses()
+        {
+            try
+            {
+                PQIWSClient pqiwsClient = new PQIWSClient(BaseURL, FetchAccessToken);
+
+                return Ok(pqiwsClient.GetAllAddresses().Result);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        private string FetchAccessToken()
+        {
+            NetworkCredential clientCredential = new NetworkCredential(ClientID, ClientSecret);
+            NetworkCredential userCredential = new NetworkCredential(Username, Password);
+            PingClient pingClient = new PingClient(PingURL);
+            Task exchangeTask = pingClient.ExchangeAsync(clientCredential, userCredential);
+            exchangeTask.GetAwaiter().GetResult();
+            return pingClient.AccessToken;
         }
     }
 }
