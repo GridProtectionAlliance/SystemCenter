@@ -110,7 +110,7 @@ export default function CurveForm(props: IProps) {
 
     function validPoint(key: keyof Point, p: Point) {
         if (key == '0')
-            return p[0] != null && p[0] >= 0.00001 && p[0] <= 1000;
+            return p[0] != null && p[0] >= 0 && p[0] <= 1000;
         if (key == '1')
             return p[1] != null && p[1] >= 0 && p[1] <= 9999;
         return true
@@ -153,7 +153,7 @@ export default function CurveForm(props: IProps) {
                                     Field={'0'}
                                     Label=''
                                     Valid={(k) => validPoint(k, item)}
-                                    Feedback={'Duration must be between 0.00001 and 1000.'}
+                                    Feedback={'Duration must be between 0 and 1000.'}
                                     Setter={(record) => setCurve((d) => { let u = _.cloneDeep(d); u[i][0] = record[0]; return u; })}
                                 />
                             },
