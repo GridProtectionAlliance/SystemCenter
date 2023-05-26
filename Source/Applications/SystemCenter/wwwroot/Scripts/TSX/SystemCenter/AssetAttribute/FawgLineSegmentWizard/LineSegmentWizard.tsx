@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingScreen, Modal, Section, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, ProgressBar, Section, Warning } from '@gpa-gemstone/react-interactive';
 import SectionSelect from './SectionSelect';
 import SectionEdit from './SectionEdit';
 import { ISection, ITap } from './Types';
@@ -306,6 +306,11 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)}
             >
+                <ProgressBar height={40} steps={[
+                    { id: 'SetupTap', long: 'Setup Tappoints', short: 'Taps' },
+                    { id: 'SelectSection', long: 'Select Sections of Line', short: 'Sections' },
+                    { id: 'EditSection', long: 'Update Segments of Line', short: 'Segments' },
+                ]} activeStep={step} />
                 {fawgSuccess && showFawgError ? <div className="row">
                     <div className="col">
                         <div className="alert alert-danger" role="alert">
