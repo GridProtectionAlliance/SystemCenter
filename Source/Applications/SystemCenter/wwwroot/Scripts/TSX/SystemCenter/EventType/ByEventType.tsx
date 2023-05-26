@@ -25,14 +25,12 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols'
 import EventTypeForm from './EventTypeForm';
-import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { EventTypeAssetTypeSlice, EventTypeSlice } from '../Store/Store';
-import { select } from 'd3';
 
 declare var homePath: string;
 
