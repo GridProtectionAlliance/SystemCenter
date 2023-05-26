@@ -64,7 +64,7 @@ const ByEventType: Application.Types.iByComponent = (props) => {
 
   
     React.useEffect(() => {
-        if (status != 'unintiated') return;
+        if (status != 'unintiated' && status != 'changed') return;
         dispatch(EventTypeSlice.Fetch());
     }, []);
 
