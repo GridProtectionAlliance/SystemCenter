@@ -28,6 +28,7 @@ import { Application, PQI } from '@gpa-gemstone/application-typings';
 
 export interface Address { Path: string, Company: string, Facilities: string, AddressLine1: string, AdressLine2: string, City: string, StateOrProvince: string, PostalCode: string, Country: string, Primary: boolean }
 export interface Company { Addresses: string, Path: string, Type: string, Name: string, Industry: string }
+export interface Facility extends PQI.Types.Facility { Address: string }
 
 
 let faclityFetchHandle: JQuery.jqXHR<any> | null;
@@ -71,7 +72,7 @@ export const PQISlice = createSlice({
         StatusAddresses: 'unintiated' as Application.Types.Status,
         StatusFacilites: 'unintiated' as Application.Types.Status,
         Error: null,
-        Facilities: [] as PQI.Types.Facility[],
+        Facilities: [] as Facility[],
         Addresses: [] as Address[],
         Companies: [] as Company[]
     },
@@ -125,16 +126,16 @@ export const { } = PQISlice.actions;
 export default PQISlice.reducer;
 
 export const SelectFacilityStatus = (state) => state.PQI.StatusFacilites as Application.Types.Status;
-export const SelectFacilities = (state) => state.PQI.Facilities as PQI.Types.Facility[];
+export const SelectFacilities = (state) => state.PQI.Facilities as Facility[];
 
 export const SelectCompaniesStatus = (state) => state.PQI.StatusCompanies as Application.Types.Status;
-export const SelectCompanies = (state) => state.PQI.Coompanies as Company[];
+export const SelectCompanies = (state) => state.PQI.Companies as Company[];
 
 export const SelectAddressStatus = (state) => state.PQI.StatusAddresses as Application.Types.Status;
 export const SelectAddresses = (state) => state.PQI.Addresses as Address[];
 
 
-function FetchFacilites(): JQuery.jqXHR<PQI.Types.Facility[]> {
+function FetchFacilites(): JQuery.jqXHR<Facility[]> {
     return $.ajax({
         type: 'GET',
         url: `${homePath}api/SystemCenter/PQI/Facilities`,

@@ -26,12 +26,19 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { CustomerSlice } from '../Store/Store';
 import { Input, Select, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
-import { FetchPQIFacilities, SelectFacilities, SelectFacilityStatus } from '../Store/PQISlice';
+import {
+    FetchPQIFacilities, FetchPQIAddresses, FetchPQICompanies,
+    SelectAddresses, SelectAddressStatus, SelectCompanies,
+    SelectCompaniesStatus, SelectFacilities, SelectFacilityStatus,
+    Address, Facility
+} from '../Store/PQISlice';
+import { cache } from 'webpack';
 
 declare var homePath: string;
 
 interface IProps { Customer: OpenXDA.Types.Customer, stateSetter: (customer: OpenXDA.Types.Customer) => void, setErrors?: (e: string[]) => void }
 
+interface IPQISetup { Company: number, Address: number }
 
 export default function CustomerForm(props: IProps) {
     const dispatch = useAppDispatch();
@@ -39,19 +46,74 @@ export default function CustomerForm(props: IProps) {
     const [errors, setErrors] = React.useState<string[]>([]);
     const allCustomerKeys = useAppSelector(CustomerSlice.Data) as OpenXDA.Types.Customer[];
     const acStatus = useAppSelector(CustomerSlice.Status) as Application.Types.Status;
+
     const pqiFacilityStatus = useAppSelector(SelectFacilityStatus);
     const pqiFacilities = useAppSelector(SelectFacilities);
+
+    const pqiCompanyStatus = useAppSelector(SelectCompaniesStatus);
+    const pqiCompanies = useAppSelector(SelectCompanies);
+
+    const pqiAddressStatus = useAppSelector(SelectAddressStatus);
+    const pqiAddresses = useAppSelector(SelectAddresses);
+
+    const [pqiSetup, setPQISetup] = React.useState<IPQISetup>({ Company: -1, Address: -1 });
+
+    const pqiAvailableAddress = React.useMemo(() => {
+        if (pqiSetup.Company == -1)
+            return pqiAddresses;
+        return pqiAddresses.filter((a) => parseInt(pathToID(a.Company)) == pqiSetup.Company);
+    }, [pqiSetup.Company, pqiAddresses]);
+
+
+    const pqiAvailableFacilities = React.useMemo(() => {
+        if (pqiSetup.Address == -1)
+            return pqiFacilities;
+        return pqiFacilities.filter((a) => parseInt(pathToID(a.Address)) == pqiSetup.Address);
+    }, [pqiSetup.Address, pqiFacilities]);
+
+
 
     React.useEffect(() => {
         if (pqiFacilityStatus == 'unintiated' || pqiFacilityStatus == 'changed')
             dispatch(FetchPQIFacilities());
     }, [pqiFacilityStatus])
 
+    React.useEffect(() => {
+        if (pqiAddressStatus == 'unintiated' || pqiAddressStatus == 'changed')
+            dispatch(FetchPQIAddresses());
+    }, [pqiAddressStatus])
+
+    React.useEffect(() => {
+        if (pqiCompanyStatus == 'unintiated' || pqiCompanyStatus == 'changed')
+            dispatch(FetchPQICompanies());
+    }, [pqiCompanyStatus])
 
     React.useEffect(() => {
         if (acStatus == 'changed' || acStatus == 'unintiated')
             dispatch(CustomerSlice.Fetch());
     }, [])
+
+    React.useEffect(() => {
+        if (props.Customer.PQIFacilityID != -1 && pqiAddresses.length > 0 && pqiCompanies.length > 0) {
+            const facility = pqiFacilities.find((d) => parseInt(pathToID(d.Path)) == props.Customer.PQIFacilityID);
+            if (facility == null) {
+                setPQISetup({ Address: -1, Company: -1 });
+                return;
+            }
+            const address = pqiAddresses.find((a) => parseInt(pathToID(a.Path)) == parseInt(pathToID(facility.Address)));
+            if (address == null) {
+                setPQISetup({ Address: -1, Company: -1 });
+                return;
+            }
+            const company = pqiCompanies.find((c) => parseInt(pathToID(c.Path)) == parseInt(pathToID(address.Company)))
+            if (company == null) {
+                setPQISetup({ Address: parseInt(pathToID(address.Path)), Company: -1 });
+                return;
+            }
+            setPQISetup({ Address: parseInt(pathToID(address.Path)), Company: parseInt(pathToID(company.Path)) });
+        }
+
+    }, [props.Customer.PQIFacilityID, pqiAddresses, pqiCompanies]);
 
     function pathToID(path: string) {
         let id = path.substr(path.lastIndexOf('/') + 1);
@@ -92,14 +154,38 @@ export default function CustomerForm(props: IProps) {
         return true;
     }
 
-    
+    const hasPQI = (pqiFacilityStatus == 'idle' && pqiAddressStatus == 'idle' && pqiCompanyStatus == 'idle');
     return (
         <div className="col">
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Label='Customer Key' Feedback={'Customer Key of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Name'} Label='Name' Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
             <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Phone'} Label='Phone' Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
-            {pqiFacilityStatus == 'idle' ?
-                <Select<OpenXDA.Types.Customer> Record={props.Customer} Label={'PQI Facility'} Field={'PQIFacilityID'} Setter={(record) => props.stateSetter(record)} Options={[...pqiFacilities.map((f) => ({ Label: f.Name, Value: pathToID(f.Path) })), { Label: 'None', Value: '-1' }]} /> :
+            {hasPQI ?
+                <>
+                    <Select<IPQISetup>
+                        Record={pqiSetup}
+                        Label={'PQI Company'}
+                        Field={'Company'}
+                        Setter={(record) => setPQISetup(record)}
+                        Options={[...pqiCompanies.map((f) => ({ Label: f.Name, Value: pathToID(f.Path) })), { Label: 'None', Value: '-1' }]}
+                    />
+                    <Select<IPQISetup>
+                        Record={pqiSetup}
+                        Label={'PQI Address'}
+                        Field={'Address'}
+                        Setter={(record) => setPQISetup(record)}
+                        Options={[...pqiAvailableAddress.map((f) => ({
+                            Label: `${f.AddressLine1 ?? ''} ${f.AdressLine2 ?? ''} ${f.City ?? ''}, ${f.Country ?? ''}`, Value: pathToID(f.Path)
+                        })),
+                            { Label: 'None', Value: '-1' }]} />
+                    <Select<OpenXDA.Types.Customer>
+                        Record={props.Customer}
+                        Label={'PQI Facility'}
+                        Field={'PQIFacilityID'}
+                        Setter={(record) => props.stateSetter(record)}
+                        Options={[...pqiAvailableFacilities.map((f) => ({ Label: f.Name, Value: pathToID(f.Path) })), { Label: 'None', Value: '-1' }]}
+                    />
+                </> :
                 <div className="alert alert-warning" role="alert">
                     System is unable to connect to PQI
                 </div>
