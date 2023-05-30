@@ -103,6 +103,16 @@
             <param name="cancellationToken">Token used to cancel the request before it has completed.</param>
             <returns>The HTTP response returned by the host that handled the request.</returns>
         </member>
+        <member name="M:openXDA.APIAuthentication.APIQuery.SendWebRequestAsync(System.Action{System.Net.Http.HttpRequestMessage},System.String,System.Net.Http.HttpCompletionOption,System.Threading.CancellationToken)">
+            <summary>
+            Sends a web request to the host using the credentials for API authentication.
+            </summary>
+            <param name="configure">Action that configures the HTTP request.</param>
+            <param name="path">Path to the API endpoint locating the resource to be requested.</param>
+            <param name="httpCompletionOption">When the operation should complete (as soon as a response is available or after reading the whole response content).</param>
+            <param name="cancellationToken">Token used to cancel the request before it has completed.</param>
+            <returns>The HTTP response returned by the host that handled the request.</returns>
+        </member>
         <member name="T:openXDA.APIAuthentication.APIAuthenticationMiddleware">
             <summary>
             Middleware to authenticate users of the API via <see cref="T:openXDA.APIAuthentication.APIAccessKey"/>.

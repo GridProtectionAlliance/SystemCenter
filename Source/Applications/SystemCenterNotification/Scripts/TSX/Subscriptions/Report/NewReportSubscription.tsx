@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
-//  NewEventSubscription.tsx - Gbtc
+//  NewReportSubscription.tsx - Gbtc
 //
-//  Copyright © 2022, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,31 +16,29 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  05/05/2022 - C. Lackner
+//  04/03/2023 - C. Lackner
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-import * as ReactDOM from 'react-dom';
 import * as React from 'react';
-import { Application as App, Page, ToolTip } from '@gpa-gemstone/react-interactive'
-import { CrossMark, SVGIcons } from '@gpa-gemstone/gpa-symbols';
-import { Application } from '@gpa-gemstone/application-typings';
-import EmailSelect from './EmailSelect';
-import AssetGroupSelection from './AssetGroupSelection';
-import ConfirmEmail from './ConfirmEmail';
-import ConfirmPhone from './ConfirmPhone';
-import { EmailTypeSlice, UserInfoSlice } from '../Store';
-import { useAppSelector } from '../hooks';
+import { ToolTip } from '@gpa-gemstone/react-interactive'
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import ReportSelect from './ReportSelect';
+import AssetGroupSelection from '../AssetGroupSelection';
+import ConfirmEmail from '../ConfirmEmail';
+import ConfirmPhone from '../ConfirmPhone';
+import { EmailTypeSlice, UserInfoSlice } from '../../Store';
+import { useAppSelector } from '../../hooks';
 import Success from './Success';
-import ConfirmPhoneCarrier from './ConfirmCarrier';
+import ConfirmPhoneCarrier from '../ConfirmCarrier';
 
 declare var homePath;
 declare var version;
 
 type Step = 'Selection' | 'Email' | 'Phone' | 'Carrier' | 'Success';
 
-const NewEventSubscription = (props: {}) => {
+const NewReportSubscription = (props: {}) => {
     const [currentStep, setCurrentStep] = React.useState<Step>('Selection')
 
     const [error, setError] = React.useState<string[]>([]);
@@ -55,7 +53,7 @@ const NewEventSubscription = (props: {}) => {
     React.useEffect(() => {
         const e = [];
         if (emailTypeID < 0 && currentStep == 'Selection')
-            e.push('A Notification must be selected.')
+            e.push('A Report must be selected.')
         if (assetGroupID.length == 0 && currentStep == 'Selection')
             e.push('At least 1 Asset Group must be selected.')
         if (currentStep == 'Email')
@@ -69,7 +67,7 @@ const NewEventSubscription = (props: {}) => {
 
     function getHeader() {
         if (currentStep == 'Selection')
-            return "Step 1: Select A Notification"
+            return "Step 1: Select A Report"
         if (currentStep == 'Email')
             return "Confirm your email address"
         if (currentStep == 'Carrier')
@@ -115,7 +113,7 @@ const NewEventSubscription = (props: {}) => {
 
     return (
         <div style={{ padding: 10, height: 'inherit', overflowY: 'hidden' }}>
-            <h2>Subscribe to an openXDA Event Notification</h2>
+            <h2>Subscribe to an openXDA Report</h2>
             <hr />
             <div className="card" style={{ height: 'calc(100% - 75px)' }}>
                 <div className="card-header">
@@ -125,7 +123,7 @@ const NewEventSubscription = (props: {}) => {
                     {currentStep == 'Selection' ?
                         <>
                             <AssetGroupSelection assetGroupID={assetGroupID} SetAssetGroupID={setAssetGroupID} /> 
-                            <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} />
+                            <ReportSelect scheduledEmailTypeID={emailTypeID} SetScheduledEmailTypeID={setEmailTypeID} />
                         </>
                         : null}
                     {currentStep == 'Email' ? <ConfirmEmail SetConfirmed={() => setCurrentStep('Success')} /> : null}
@@ -149,4 +147,4 @@ const NewEventSubscription = (props: {}) => {
     );
 }
 
-export default NewEventSubscription;
+export default NewReportSubscription;

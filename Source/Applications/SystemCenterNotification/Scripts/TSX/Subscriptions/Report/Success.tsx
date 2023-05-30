@@ -1,7 +1,7 @@
 ﻿//******************************************************************************************************
 //  Success.tsx - Gbtc
 //
-//  Copyright © 2022, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,20 +16,14 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  05/05/2022 - C. Lackner
+//  04/03/2022 - C. Lackner
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-import * as ReactDOM from 'react-dom';
 import * as React from 'react';
-import { Application as App, LoadingIcon, Page } from '@gpa-gemstone/react-interactive'
-import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { EmailType } from '../global';
-import { ActiveSubscriptionSlice, AssetGroupSlice, EmailCategorySlice, EmailTypeSlice, SettingSlice, UserInfoSlice } from '../Store';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import * as $ from 'jquery';
+import {  ActiveReportSubscriptionSlice, AssetGroupSlice, ScheduledEmailTypeSlice, UserInfoSlice } from '../../Store';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 
 declare var homePath;
 declare var version;
@@ -41,25 +35,22 @@ interface IProps {
 
 const Success = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const email = useAppSelector((state) => EmailTypeSlice.Datum(state, props.emailTypeID));
+    const email = useAppSelector((state) => ScheduledEmailTypeSlice.Datum(state, props.emailTypeID));
     const assetGrp = useAppSelector((state) => AssetGroupSlice.Data(state).filter(ag => props.assetGroupID.includes(ag.ID)));
     const userID = useAppSelector(UserInfoSlice.UserAccountID);
 
     React.useEffect(() => {
         props.assetGroupID.forEach((id) => {
-            dispatch(ActiveSubscriptionSlice.DBAction({
+            dispatch(ActiveReportSubscriptionSlice.DBAction({
                 verb: 'POST', record: {
                     ID: 0,
                     UserAccountID: userID,
-                    EmailTypeID: props.emailTypeID,
+                    ScheduledEmailTypeID: props.emailTypeID,
                     AssetGroup: id.toString(),
-                    Approved: false,
                     Category: '',
                     Email: '',
-                    Subject: '',
-                    UserAccountEmailID: 0,
+                    UserAccountScheduledEmailID: 0,
                     EmailName: '',
-                    LastSent: '',
                     UserName: ''
                 }
             }));
@@ -74,7 +65,7 @@ const Success = (props: IProps) => {
                 <div className="alert alert-success">
                     You have successfully subscribed to {email == null ? '' : email.Name}
                     for {assetGrp.length > 1 ? (assetGrp.length + " Asset groups") : (assetGrp[0]?.Name ?? null)}.
-                    If approval is required an Administrator will need to approve the subscription before you receive notifications.
+                    If approval is required an Administrator will need to approve the subscription before you receive the next scheduled report.
                 </div>
             </div>
         </div>

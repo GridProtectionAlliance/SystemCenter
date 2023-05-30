@@ -161,7 +161,7 @@ const ByEmailType = (props: IProps) => {
                     />
                 </div>
             </div>
-            <Modal Title={'Add New Email Category'}
+            <Modal Title={'Add New Email'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Add'}
                 CallBack={(conf, isBtn) => {
                     if (conf )

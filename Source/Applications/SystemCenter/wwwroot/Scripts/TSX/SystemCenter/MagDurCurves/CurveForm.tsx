@@ -128,7 +128,7 @@ export default function CurveForm(props: IProps) {
                     <Table<Point>
                         cols={[
                             {
-                                key: 'Index', label: 'Point Index', headerStyle: { width: '15%' }, rowStyle: { width: '15%' },
+                                key: 'Index', label: 'Point Index', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                                 content: (item, key, fld, style, i) => <>
                                     <p>{i+1}</p>
                                 </>

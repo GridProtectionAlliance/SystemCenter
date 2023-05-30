@@ -21,13 +21,8 @@
 //
 //******************************************************************************************************
 
-import * as ReactDOM from 'react-dom';
 import * as React from 'react';
-import { Application as App, LoadingIcon, Page } from '@gpa-gemstone/react-interactive'
-import { SVGIcons } from '@gpa-gemstone/gpa-symbols';
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
-import { EmailType } from '../global';
-import { EmailCategorySlice, EmailTypeSlice, SettingSlice, UserInfoSlice } from '../Store';
+import { UserInfoSlice } from '../Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as $ from 'jquery';
 import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
