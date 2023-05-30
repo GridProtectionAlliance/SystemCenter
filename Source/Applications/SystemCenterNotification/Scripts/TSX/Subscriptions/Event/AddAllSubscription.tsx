@@ -24,9 +24,9 @@
 import * as React from 'react';
 import { Modal } from '@gpa-gemstone/react-interactive'
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
-import EmailSelect from '../../EventSubscription/EmailSelect';
-import AssetGroupSelection from '../../EventSubscription/AssetGroupSelection';
-import UserSelect from '../../EventSubscription/UserSelect';
+import EmailSelect from './EmailSelect';
+import AssetGroupSelection from '../AssetGroupSelection';
+import UserSelect from '../UserSelect';
 import { ActiveSubscriptionSlice } from '../../Store';
 import { useAppDispatch } from '../../hooks';
 

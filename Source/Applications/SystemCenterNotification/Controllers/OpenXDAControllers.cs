@@ -80,6 +80,36 @@ namespace SystemCenter.Notifications.Controllers
         }
     }
 
+    [RoutePrefix("api/ReportSubscription")]
+    public class ReportSubscriptionController : ModelController<openXDA.Model.SubscribeScheduledEmails>
+    {
+        /*
+        [HttpGet, Route("approve/{parentID}")]
+        public IHttpActionResult Approve(int parentID)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    TableOperations<UserAccountEmailType> tbl = new TableOperations<UserAccountEmailType>(connection);
+                    UserAccountEmailType record = tbl.QueryRecordWhere("ID = {0}", parentID);
+                    if (record == null)
+                        throw new NullReferenceException("Record not found");
+                    record.Approved = true;
+                    tbl.UpdateRecord(record);
+                    return Ok(1);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        */
+    }
+
     [RoutePrefix("api/ActiveSubscription")]
     public class ActiveSubscriptionsController : ModelController<openXDA.Model.ActiveSubscription> 
     {
@@ -182,6 +212,72 @@ namespace SystemCenter.Notifications.Controllers
         }
     }
 
+    [RoutePrefix("api/ActiveScheduleSubscription")]
+    public class ActiveScheduleSubscriptionsController : ModelController<openXDA.Model.ActiveScheduledSubscription>
+    {
+        
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                ActiveScheduledSubscription postRecord = record.ToObject<ActiveScheduledSubscription>();
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    UserAccount account = new TableOperations<UserAccount>(connection).QueryRecordWhere("ID = {0}", postRecord.UserAccountID);
+                    string username = System.Web.HttpContext.Current.User.Identity.Name;
+                    string usersid = UserInfo.UserNameToSID(username);
+
+                    if (PostAuthCheck())
+                    {
+                        openXDA.Model.Links.UserAccountScheduledEmailType parsedRecord = new openXDA.Model.Links.UserAccountScheduledEmailType()
+                        {
+                            ID = 0,
+                            UserAccountID = postRecord.UserAccountID,
+                            ScheduledEmailTypeID = postRecord.ScheduledEmailTypeID,
+                            AssetGroupID = int.Parse(postRecord.AssetGroup)
+                        };
+                        int result = new TableOperations<openXDA.Model.Links.UserAccountScheduledEmailType>(connection).AddNewRecord(parsedRecord);
+
+                        return Ok(result);
+                    }
+                    // Allow anyone to POST their own Subscription (But set Approved Flag properly)
+                    else if (account.Name == usersid || account.Name == username)
+                    {
+                        ScheduledEmailType email = new TableOperations<ScheduledEmailType>(connection).QueryRecordWhere("ID = {0}", postRecord.ScheduledEmailTypeID);
+                        openXDA.Model.Links.UserAccountScheduledEmailType parsedRecord = new openXDA.Model.Links.UserAccountScheduledEmailType()
+                        {
+                            ID = 0,
+                            UserAccountID = postRecord.UserAccountID,
+                            ScheduledEmailTypeID = postRecord.ScheduledEmailTypeID,
+                            AssetGroupID = int.Parse(postRecord.AssetGroup)
+                        };
+                        int result = new TableOperations<openXDA.Model.Links.UserAccountScheduledEmailType>(connection).AddNewRecord(parsedRecord);
+
+                        return Ok(result);
+
+                    }
+                    else
+                    {
+                        return Unauthorized();
+                    }
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Delete(openXDA.Model.ActiveScheduledSubscription record)
+        {
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                connection.ExecuteNonQuery("DELETE FROM UserAccountScheduledEmailType WHERE ID = {0}", record.ScheduledEmailTypeID);
+
+            return Ok(1);
+        }
+    }
+
     [RoutePrefix("api/EventType")]
     public class EventTypeController : ModelController<EventType> { }
 
@@ -256,8 +352,14 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/openXDA/TriggeredEmailDataSourceSetting")]
     public class TriggeredEmailDataSourceSettingController : ModelController<TriggeredEmailDataSourceSetting> { }
 
+    [RoutePrefix("api/openXDA/ScheduledEmailDataSource")]
+    public class ScheduledEmailDataSourceController : ModelController<ScheduledEmailDataSource> { }
+
+    [RoutePrefix("api/openXDA/ScheduledEmailDataSourceSetting")]
+    public class ScheduledEmailDataSourceSettingController : ModelController<ScheduledEmailDataSourceSetting> { }
+
     [RoutePrefix("api/openXDA/TriggeredEmailDataSourceEmailType")]
-    public class TriggeredEmailDataSourceEmaulTypeController : ModelController<TriggeredEmailDataSourceEmailTypeView> 
+    public class TriggeredEmailDataSourceEmaulTypeController : ModelController<TriggeredEmailDataSourceEmailTypeView>
     {
         public override IHttpActionResult Post([FromBody] JObject record)
         {
@@ -268,15 +370,22 @@ namespace SystemCenter.Notifications.Controllers
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
                         TriggeredEmailDataSourceEmailTypeView postRecord = record.ToObject<TriggeredEmailDataSourceEmailTypeView>();
-
                         TriggeredEmailDataSourceEmailType newRecord = new TriggeredEmailDataSourceEmailType()
                         {
                             ID = postRecord.ID,
                             TriggeredEmailDataSourceID = postRecord.TriggeredEmailDataSourceID,
                             EmailTypeID = postRecord.EmailTypeID
                         };
-
                         int result = new TableOperations<TriggeredEmailDataSourceEmailType>(connection).AddNewRecord(newRecord);
+                        newRecord.ID = connection.ExecuteScalar<int>("SELECT @@IDENTITY");
+
+                        IEnumerable<TriggeredEmailDataSourceSetting> settings = record["Settings"].ToObject<IEnumerable<TriggeredEmailDataSourceSetting>>();
+                        TableOperations<TriggeredEmailDataSourceSetting> settingsTable = new TableOperations<TriggeredEmailDataSourceSetting>(connection);
+                        foreach (TriggeredEmailDataSourceSetting setting in settings)
+                        {
+                            setting.TriggeredEmailDataSourceEmailTypeID = newRecord.ID;
+                            result += settingsTable.AddNewRecord(setting);
+                        }
 
                         return Ok(result);
                     }
@@ -301,7 +410,7 @@ namespace SystemCenter.Notifications.Controllers
                 {
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                        
+
                         TriggeredEmailDataSourceEmailType updatedRecord = new TriggeredEmailDataSourceEmailType()
                         {
                             ID = record.ID,
@@ -310,6 +419,84 @@ namespace SystemCenter.Notifications.Controllers
                         };
 
                         int result = new TableOperations<TriggeredEmailDataSourceEmailType>(connection).UpdateRecord(updatedRecord);
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
+    [RoutePrefix("api/openXDA/ScheduledEmailDataSourceEmailType")]
+    public class TScheduledEmailDataSourceEmaulTypeController : ModelController<ScheduledEmailDataSourceEmailTypeView> 
+    {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                if (PostAuthCheck() && !ViewOnly)
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+                        ScheduledEmailDataSourceEmailTypeView postRecord = record.ToObject<ScheduledEmailDataSourceEmailTypeView>();
+                        ScheduledEmailDataSourceEmailType newRecord = new ScheduledEmailDataSourceEmailType()
+                        {
+                            ID = postRecord.ID,
+                            ScheduledEmailDataSourceID = postRecord.ScheduledEmailDataSourceID,
+                            ScheduledEmailTypeID = postRecord.ScheduledEmailTypeID
+                        };
+                        int result = new TableOperations<ScheduledEmailDataSourceEmailType>(connection).AddNewRecord(newRecord);
+                        newRecord.ID = connection.ExecuteScalar<int>("SELECT @@IDENTITY");
+
+                        IEnumerable<ScheduledEmailDataSourceSetting> settings = record["Settings"].ToObject<IEnumerable<ScheduledEmailDataSourceSetting>>();
+                        TableOperations<ScheduledEmailDataSourceSetting> settingsTable = new TableOperations<ScheduledEmailDataSourceSetting>(connection);
+                        foreach (ScheduledEmailDataSourceSetting setting in settings)
+                        {
+                            setting.ScheduledEmailDataSourceEmailTypeID = newRecord.ID;
+                            result += settingsTable.AddNewRecord(setting);
+                        }
+
+                        return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Patch([FromBody] ScheduledEmailDataSourceEmailTypeView record)
+        {
+            try
+            {
+                if (PatchAuthCheck() && !ViewOnly)
+                {
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        ScheduledEmailDataSourceEmailType updatedRecord = new ScheduledEmailDataSourceEmailType()
+                        {
+                            ID = record.ID,
+                            ScheduledEmailDataSourceID = record.ScheduledEmailDataSourceID,
+                            ScheduledEmailTypeID = record.ScheduledEmailTypeID
+                        };
+
+                        int result = new TableOperations<ScheduledEmailDataSourceEmailType>(connection).UpdateRecord(updatedRecord);
 
                         return Ok(result);
                     }

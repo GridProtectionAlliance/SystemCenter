@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  EmailSelect.tsx - Gbtc
+//  ReportSelect.tsx - Gbtc
 //
 //  Copyright © 2022, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,34 +16,31 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  05/05/2022 - C. Lackner
+//  04/05/2023 - C. Lackner
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import { LoadingIcon } from '@gpa-gemstone/react-interactive'
-import { EmailCategorySlice, EmailTypeSlice } from '../Store';
-
-declare var homePath;
-declare var version;
+import { EmailCategorySlice, ScheduledEmailTypeSlice } from '../../Store';
 
 interface IProps {
-    SetEmailTypeID: (id: number) => void,
-    emailTypeID: number
+    SetScheduledEmailTypeID: (id: number) => void,
+    scheduledEmailTypeID: number
 }
 
-const EmailSelect = (props: IProps) => {
+const ReportSelect = (props: IProps) => {
     const dispatch = useAppDispatch();
     const emailCategoryStatus = useAppSelector(EmailCategorySlice.Status);
     const emailCategories = useAppSelector(EmailCategorySlice.Data);
 
     const [selectedCategory, setSelectedCategory] = React.useState<number>(-1);
 
-    const emailTypeStatus = useAppSelector(EmailTypeSlice.Status);
-    const emailTypes = useAppSelector(EmailTypeSlice.Data);
-    const emailTypeParentID = useAppSelector(EmailTypeSlice.ParentID);
+    const reportTypeStatus = useAppSelector(ScheduledEmailTypeSlice.Status);
+    const reportTypes = useAppSelector(ScheduledEmailTypeSlice.Data);
+    const reportTypeParentID = useAppSelector(ScheduledEmailTypeSlice.ParentID);
 
     React.useEffect(() => {
         if (emailCategoryStatus === 'unintiated' || emailCategoryStatus === 'changed')
@@ -62,16 +59,16 @@ const EmailSelect = (props: IProps) => {
     }, [emailCategories])
 
     React.useEffect(() => {
-        if (selectedCategory !== emailTypeParentID || emailTypeStatus == 'unintiated' || emailTypeStatus == 'changed')
-            dispatch(EmailTypeSlice.Fetch(selectedCategory));
-    }, [selectedCategory, emailTypeParentID, emailTypeStatus])
+        if (selectedCategory !== reportTypeParentID || reportTypeStatus == 'unintiated' || reportTypeStatus == 'changed')
+            dispatch(ScheduledEmailTypeSlice.Fetch(selectedCategory));
+    }, [selectedCategory, reportTypeParentID, reportTypeStatus])
 
     React.useEffect(() => {
-        if (emailTypes.filter(e => e.ShowSubscription).length > 0)
-            props.SetEmailTypeID(emailTypes.filter(e => e.ShowSubscription)[0].ID)
+        if (reportTypes.length > 0)
+            props.SetScheduledEmailTypeID(reportTypes[0].ID)
         else
-            props.SetEmailTypeID(-1);
-    }, [emailTypes])
+            props.SetScheduledEmailTypeID(-1);
+    }, [reportTypes])
 
     React.useEffect(() => {
         if (selectedCategory !== -1)
@@ -102,20 +99,20 @@ const EmailSelect = (props: IProps) => {
                 </div>
                 <div className="col">
                     <div className="form-group">
-                        {emailTypeStatus == 'loading' ? <LoadingIcon Show={true} /> :
+                        {reportTypeStatus == 'loading' ? <LoadingIcon Show={true} /> :
                             <><label> Notification Template </label>
                                 <select
                                     className="form-control"
                                     onChange={(evt) => {
-                                        props.SetEmailTypeID(parseInt((evt.target.value as any).toString()));
+                                        props.SetScheduledEmailTypeID(parseInt((evt.target.value as any).toString()));
                                     }}
-                                    value={props.emailTypeID}
+                                    value={props.scheduledEmailTypeID}
                                 >
-                                    {emailTypes.map((c, i) => (c.ShowSubscription? 
+                                    {reportTypes.map((c, i) =>  
                                         <option key={i} value={c.ID}>
                                             {c.Name}
                                         </option>
-                                     : null))}
+                                     )}
                                 </select></>}
                     </div>
                 </div>
@@ -124,4 +121,4 @@ const EmailSelect = (props: IProps) => {
     );
 }
 
-export default EmailSelect;
+export default ReportSelect;

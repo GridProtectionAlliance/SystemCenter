@@ -33,8 +33,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Net.Http;
 using System.Web.Http;
-using System.Xml;
-using System.Xml.Linq;
 using SystemCenter.Notifications.Model;
 using static FaultData.DataWriters.Emails.EmailService;
 using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader;
@@ -234,6 +232,97 @@ namespace SystemCenter.Notifications.Controllers
                 }
 
                 HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testData/{emailID}/{eventID}").Result;
+
+                responseMessage.EnsureSuccessStatusCode();
+
+                string responseJSON = responseMessage.Content
+                    .ReadAsStringAsync()
+                    .GetAwaiter()
+                    .GetResult();
+
+                IEnumerable<DataSourceResponse> results = JsonConvert
+                    .DeserializeObject<IEnumerable<DataSourceResponse>>(responseJSON)
+                    .Select(r => new DataSourceResponseTSX(r));
+
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+
+        private AdoDataConnection CreateDbConnection()
+        {
+            AdoDataConnection connection = new AdoDataConnection(Connection);
+            connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
+            return connection;
+        }
+    }
+
+    [RoutePrefix("api/OpenXDA/ScheduledEmailType")]
+    public class ScheduledEmailTypeController : ModelController<ScheduledEmailType>
+    {
+        private class Settings
+        {
+            public Settings(Action<object> configure) =>
+                configure(this);
+
+            [Category]
+            [SettingName("XDA")]
+            public APIConfiguration APISettings { get; } = new APIConfiguration();
+        }
+
+      
+        [HttpGet, Route("Test/{reportID:int}/{recipient}")]
+        public IHttpActionResult Test(int reportID, string recipient)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+            try
+            {
+                Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+
+                //Send Email from openXDA
+                APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
+
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Get;
+                }
+
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testReport/{reportID}/{recipient}/now").Result;
+
+                return Ok(1);
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpGet, Route("GetData/{emailID:int}")]
+        public IHttpActionResult GetData(int emailID)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+            try
+            {
+                Settings settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure);
+
+                //Send Email from openXDA
+                APIQuery query = new APIQuery(settings.APISettings.Key, settings.APISettings.Token, settings.APISettings.Host.Split(';'));
+
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Get;
+                }
+
+                string dateTimeNow = DateTime.UtcNow.ToString();
+
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/email/testReportData/{emailID}/{dateTimeNow}").Result;
 
                 responseMessage.EnsureSuccessStatusCode();
 

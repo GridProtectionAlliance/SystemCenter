@@ -118,8 +118,8 @@
     <Reference Include="Microsoft.Graph.Core">
       <HintPath>..\..\Dependencies\GSF\Microsoft.Graph.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.Owin">
-      <HintPath>..\..\Dependencies\GSF\Microsoft.Owin.dll</HintPath>
+    <Reference Include="Microsoft.Owin, Version=4.2.2.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\..\Dependencies\NuGet\Microsoft.Owin.4.2.2\lib\net45\Microsoft.Owin.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.Cors">
       <HintPath>..\..\Dependencies\GSF\Microsoft.Owin.Cors.dll</HintPath>
@@ -153,8 +153,8 @@
     <Reference Include="openXDA.Model">
       <HintPath>..\..\Dependencies\openXDA\openXDA.Model.dll</HintPath>
     </Reference>
-    <Reference Include="Owin">
-      <HintPath>..\..\Dependencies\GSF\Owin.dll</HintPath>
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <HintPath>..\..\Dependencies\NuGet\Owin.1.0\lib\net40\Owin.dll</HintPath>
     </Reference>
     <!--Reference Include="RazorEngine, Version=3.10.0.0, Culture=neutral, PublicKeyToken=9ee697374c7e744a, processorArchitecture=MSIL">
       <HintPath>..\..\Dependencies\NuGet\RazorEngine.3.10.0\lib\net45\RazorEngine.dll</HintPath>
@@ -283,7 +283,7 @@
     <Content Include="Scripts\TSX\EmailCategory\EmailCategoryForm.tsx" />
     <Content Include="Scripts\TSX\EmailCategory\ByEmailCategory.tsx" />
     <Content Include="Scripts\TSX\EmailTypes\ByEmailType.tsx" />
-    <Content Include="Scripts\TSX\EmailTypes\DatasourceUI\SQLDataSource.tsx" />
+    <Content Include="Scripts\TSX\Report\DatasourceUI\SQLDataSource.tsx" />
     <Content Include="Scripts\TSX\EmailTypes\DatasourceUI\DataSourceModal.tsx" />
     <Content Include="Scripts\TSX\EmailTypes\DatasourceUI\DataSourceWindow.tsx" />
     <Content Include="Scripts\TSX\EmailTypes\TestEmail.tsx" />
@@ -298,14 +298,16 @@
     <Content Include="Scripts\TSX\EmailTypes\GeneralInfo.tsx" />
     <Content Include="Scripts\TSX\EmailTypes\EmailPage.tsx" />
     <Content Include="Scripts\TSX\EmailTypes\EmailForm.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\AssetGroupSelection.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\Success.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\EmailConfirmed.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\ConfirmEmail.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\ConfirmPhone.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\UserSelect.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\EmailSelect.tsx" />
-    <Content Include="Scripts\TSX\EventSubscription\NewEventSubscription.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\AssetGroupSelection.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Event\Success.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\EmailConfirmed.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\ConfirmEmail.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\ConfirmPhone.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\UserSelect.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Event\EmailSelect.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Report\Success.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Report\NewReportSubscription.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\Event\NewEventSubscription.tsx" />
     <Content Include="Scripts\TSX\global.d.ts" />
     <Content Include="Scripts\TSX\hooks.ts" />
     <Content Include="Scripts\TSX\Store.tsx" />
@@ -334,13 +336,58 @@
     <Content Include="Scripts\TSX\EmailTypes\DatasourceUI\PQIDataSource.tsx" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\TSX\EventSubscription\ConfirmCarrier.tsx" />
+    <Content Include="Scripts\TSX\Subscriptions\ConfirmCarrier.tsx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\TSX\UserInformation\ByUserInformation.tsx" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\TSX\CellCarrier\ByCellCarrier.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Subscriptions\Report\ReportSelect.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Report\ByReport.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Report\ReportForm.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Report\ReportPage.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Report\GeneralInfo.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Report\Subscriptions.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Report\Template.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Report\TriggerWindow.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Report\TestEmail.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Report\DatasourceUI\DataSourceModal.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Report\DatasourceUI\DataSourceTesting.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Report\DatasourceUI\DataSourceWindow.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\Report\DatasourceUI\AzureDataSource.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\EmailTypes\DatasourceUI\SQLDataSource.tsx" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Scripts\TSX\ReportEmailShared\DatasourceUI\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

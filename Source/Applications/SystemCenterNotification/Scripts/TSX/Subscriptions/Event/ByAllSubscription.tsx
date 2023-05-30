@@ -30,7 +30,6 @@ import Table from '@gpa-gemstone/react-table';
 import { ActiveSubscriptionSlice } from '../../Store';
 import { ActiveSubscription } from '../../global';
 import moment from 'moment';
-import { UserInfoSlice } from '../../Store';
 import * as $ from 'jquery';
 import AddAllSubscription from './AddAllSubscription';
 

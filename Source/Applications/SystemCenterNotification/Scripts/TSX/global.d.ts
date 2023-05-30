@@ -49,6 +49,17 @@ export interface EmailType {
     FilePath: string|null
 }
 
+export interface ScheduledEmailType {
+    ID: number,
+    EmailCategoryID: number,
+    Name: string,
+    Schedule: string,
+    Template: string,
+    TriggerEmailSQL: string,
+    SMS: boolean,
+    FilePath: string | null
+}
+
 export interface SubscibeEmails {
     ID: number,
     Approved: boolean,
@@ -58,6 +69,17 @@ export interface SubscibeEmails {
     Email: string,
     AssetGroup: string
 }
+
+export interface SubscribeReports {
+    ID: number,
+    Approved: boolean,
+    ScheduledEmailID: number,
+    FirstName: string,
+    LastName: string,
+    Email: string,
+    AssetGroup: string
+}
+
 
 export interface ActiveSubscription {
     ID: number|null,
@@ -70,6 +92,18 @@ export interface ActiveSubscription {
     EmailTypeID: number,
     Subject: string, 
     LastSent: string,
+    UserName: string,
+    Email: string
+}
+
+export interface ActiveReportSubscription {
+    ID: number | null,
+    UserAccountScheduledEmailID: number,
+    UserAccountID: string,
+    AssetGroup: string,
+    EmailName: string,
+    Category: string,
+    ScheduledEmailTypeID: number,
     UserName: string,
     Email: string
 }
@@ -121,4 +155,31 @@ export interface ICellCarrier {
     ID: number,
     Name: string,
     Transform: string,
+}
+
+
+
+interface IScheduledDataSource {
+    ID: number,
+    Name: string,
+    AssemblyName: string,
+    TypeName: string,
+    ConfigUI: string
+}
+
+
+
+export interface IDataSourceScheduledEmailType {
+    ID: number,
+    ScheduledEmailTypeID: number,
+    ScheduledEmailDataSourceID: number,
+    ScheduledEmailDataSourceName: string,
+    Settings?: IScheduledEmailDataSourceSetting[]
+}
+
+export interface IScheduledEmailDataSourceSetting {
+    ID: number,
+    ScheduledEmailDataSourceEmailTypeID: number,
+    Value: string,
+    Name: string
 }
