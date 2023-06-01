@@ -77,8 +77,8 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                                 rowStyle: { width: 300 },
                                 content: (item, key, style) =>
                                     <span>
-                                        <button title='Edit Link.' className="btn" data-toggle="modal" data-target="#exampleModal" onClick={(e) => { setRecord(item) }}>{Pencil}</button>
-                                        <button title='Delete Link.' className="btn" onClick={(e) => { dispatch(LocationDrawingSlice.DBAction({ verb: 'DELETE', record: item })); }}>{TrashCan}</button>
+                                        <button title='Edit Link' className="btn" data-toggle="modal" data-target="#exampleModal" onClick={(e) => { setRecord(item) }}>{Pencil}</button>
+                                        <button title='Delete Link' className="btn" onClick={(e) => { dispatch(LocationDrawingSlice.DBAction({ verb: 'DELETE', record: item })); }}>{TrashCan}</button>
                                     </span>
                             }
 

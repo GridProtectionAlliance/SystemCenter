@@ -214,7 +214,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
 
             <Warning Show={showWarning} Title={'Remove Source Impedance'} Message={'This will permanently remove the Source Impedance and cannot be undone.'}
                 CallBack={(confirm) => { if (confirm) dispatch(SourceImpedanceSlice.DBAction({ verb: 'DELETE', record: newEditImpedance })); setshowWarning(false); }} />
-            <Modal Show={showAdd} Title={newEdit == 'New' ? 'Add New SourceImepdance' : 'Edit Source Impedance at' + getLocationName(newEditImpedance)} Size={'lg'} ShowX={true}
+            <Modal Show={showAdd} Title={newEdit == 'New' ? 'Add New Source Impedance' : 'Edit Source Impedance at' + getLocationName(newEditImpedance)} Size={'lg'} ShowX={true}
                 CallBack={(confirm) => {
                     if (confirm && newEdit == 'Edit')
                         dispatch(SourceImpedanceSlice.DBAction({ verb: 'PATCH', record: newEditImpedance }));
