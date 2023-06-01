@@ -205,7 +205,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                     </div>
                 </div>
                 {activeWindow === null ? null : <>
-                    <Warning Show={showDeleteWarning} Title={'Remove Maintenance Window'} Message={'This will permanently remove this Maintenance Window from the Meter.'}
+                    <Warning Show={showDeleteWarning} Title={'Remove Maintenance Window from ' + (props.Meter?.Name ?? 'Meter')} Message={'This will permanently remove this Maintenance Window from the Meter.'}
                         CallBack={(confirmed) => {
                             setShowDeleteWarning(false);
                             if (confirmed) {
@@ -218,7 +218,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                         }}
                     />
                     <Modal Show={showEditNew}
-                        Title={activeWindow.ID > 0 ? 'Edit Maintenance Window for ' + props.Meter.Name : 'Add New Maintenance Window to ' + props.Meter.Name}
+                        Title={activeWindow.ID > 0 ? 'Edit Maintenance Window for ' + (props.Meter?.Name ?? 'Meter') : 'Add New Maintenance Window to ' + (props.Meter?.Name ?? 'Meter')}
                         Size={'lg'}
                         ShowX={true}
                         ShowCancel={false}

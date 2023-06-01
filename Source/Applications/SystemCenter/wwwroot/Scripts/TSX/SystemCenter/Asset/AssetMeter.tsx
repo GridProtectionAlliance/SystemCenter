@@ -221,7 +221,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                     { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ]}
-                Title={"Add Meters to " + props.Asset.AssetName}
+                Title={"Add Meters to " + (props.Asset?.AssetName ?? 'Asset')}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalMeterFields} />
         </div>

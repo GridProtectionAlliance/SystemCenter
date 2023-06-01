@@ -145,7 +145,7 @@ function Setting(props: IProps) {
                     />
                 </div>
             </div>
-            <Modal Title={editNew === 'Edit' ? 'Edit Setting - ' + editnewSetting.Name : 'Add New Setting'}
+            <Modal Title={editNew === 'Edit' ? 'Edit ' + (editnewSetting?.Name ?? 'Setting') : 'Add New Setting'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
@@ -179,7 +179,7 @@ function Setting(props: IProps) {
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete Setting - ' + editnewSetting.Name} Message={'This will delete this Setting from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
+            <Warning Title={'Delete ' + (editnewSetting?.Name ?? 'Setting')} Message={'This will delete this Setting from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(props.SettingsSlice.DBAction({ verb: 'DELETE', record: editnewSetting })); setShowWarning(false); }} />
         </>)
 }

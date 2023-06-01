@@ -157,7 +157,7 @@ function Location(props: IProps) {
                 </div>
 
             </div>
-            <Warning Message={'This will permanently delete this Substation and cannot be undone.'} Show={showDelete} Title={'Delete Substation - ' + location.Name} CallBack={(conf) => { if (conf) deleteLocation(); setShowDelete(false); }} />
+            <Warning Message={'This will permanently delete this Substation and cannot be undone.'} Show={showDelete} Title={'Delete ' + (location?.Name ?? 'Substation')} CallBack={(conf) => { if (conf) deleteLocation(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
     )

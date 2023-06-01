@@ -222,12 +222,12 @@ const RemoteMeterTab = (props: IProps) => {
                     </button>
                 </div>
             </div>
-            <Warning Title={"Delete Remote Meter - " + selectedMeter.RemoteXDAName} Show={showDelete} Message={"Are you sure you want to delete the Remote Meter for " + selectedMeter.LocalMeterName + "?"}
+            <Warning Title={"Delete " + (selectedMeter?.RemoteXDAName ?? "Remote Meter")} Show={showDelete} Message={"Are you sure you want to delete the Remote Meter for " + (selectedMeter?.LocalMeterName ?? "No Local Name") + "?"}
                 CallBack={(conf) => {
                     if (conf) dispatch(RemoteXDAMeterSlice.DBAction({ verb: 'DELETE', record: selectedMeter }));
                     setShowDelete(false);
                 }}/>
-            <Modal Show={showEdit} Title={'Edit Remote Meter - ' + selectedMeter.LocalMeterName}
+            <Modal Show={showEdit} Title={'Edit ' + (selectedMeter?.LocalMeterName ?? 'Remote Meter')}
                 ShowCancel={true}
                 CallBack={(conf) => {
                     if (conf) dispatch(RemoteXDAMeterSlice.DBAction({ verb: 'PATCH', record: remoteMeter }));

@@ -227,7 +227,7 @@ const CustomerMeterWindow = (props: IProps) => {
             </div>
         </div>
         </div>
-        <Warning Message={'This will permanently remove the Meter from this Customer and can affect PQ Digest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove Meter from Customer'} CallBack={(c) => { if (c) dispatch(CustomerMeterSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        <Warning Message={'This will permanently remove the Meter from this Customer and can affect PQ Digest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove ' + (removeRecord?.MeterName ?? 'Meter') + ' from ' + (props.Customer?.Name ?? 'Customer')} CallBack={(c) => { if (c) dispatch(CustomerMeterSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
         <DefaultSelects.Meter
             Slice={ByMeterSlice}
             Selection={[]}

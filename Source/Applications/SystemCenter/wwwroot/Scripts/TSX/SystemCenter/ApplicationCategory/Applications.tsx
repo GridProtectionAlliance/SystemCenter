@@ -154,7 +154,7 @@ function Applications(props: IProps) {
                     </div>
                 </div>
             </div>
-            <Modal Title={isNew(EditApplication) ?  'Add New Application' : 'Edit Application - ' + EditApplication.Name}
+            <Modal Title={isNew(EditApplication) ?  'Add New Application' : 'Edit ' + (EditApplication?.Name ?? 'Application')}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={!isNew(EditApplication)} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf) {
@@ -189,7 +189,7 @@ function Applications(props: IProps) {
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Remove ' + EditApplication.Name + ' from Application Category'} Message={'This will remove the Application from the Category.'}
+            <Warning Title={'Remove ' + (EditApplication?.Name ?? 'Application') + ' from Application Category'} Message={'This will remove the Application from the Category.'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(PQApplicationsSlice.DBAction({ verb: 'DELETE', record: EditApplication })); setShowWarning(false); }} />
         </div>
     )

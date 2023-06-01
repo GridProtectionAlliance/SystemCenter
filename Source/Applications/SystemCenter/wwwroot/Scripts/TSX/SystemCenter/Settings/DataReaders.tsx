@@ -140,7 +140,7 @@ const DataReaders: GlobalSC.BySettingsComponent = (props) => {
                     />
                 </div>
             </div>
-            <Modal Title={editNew === 'Edit' ? 'Edit Data Reader - ' + editnewSetting.AssemblyName : 'Add New Data Reader'}
+            <Modal Title={editNew === 'Edit' ? 'Edit ' + (editnewSetting?.AssemblyName ?? 'Data Reader'): 'Add New Data Reader'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
@@ -178,7 +178,7 @@ const DataReaders: GlobalSC.BySettingsComponent = (props) => {
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete Data Reader - ' + editnewSetting.AssemblyName} Message={'This will delete this Data Reader from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
+            <Warning Title={'Delete ' + (editnewSetting?.AssemblyName ?? 'Data Reader')} Message={'This will delete this Data Reader from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(DataReaderSlice.DBAction({ verb: 'DELETE', record: editnewSetting })); setShowWarning(false); }} />
         </>)
 }

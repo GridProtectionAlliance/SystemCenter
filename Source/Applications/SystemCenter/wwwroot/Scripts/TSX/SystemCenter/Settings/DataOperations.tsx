@@ -141,7 +141,7 @@ const DataOperations: GlobalSC.BySettingsComponent = (props) => {
                     />
                 </div>
             </div>
-            <Modal Title={editNew === 'Edit' ? 'Edit Data Operation - ' + editnewSetting.AssemblyName : 'Add New Data Operation'}
+            <Modal Title={editNew === 'Edit' ? 'Edit ' + (editnewSetting?.AssemblyName ?? 'Data Operation') : 'Add New Data Operation'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
@@ -174,7 +174,7 @@ const DataOperations: GlobalSC.BySettingsComponent = (props) => {
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete Data Operation - ' + editnewSetting.AssemblyName} Message={'This will delete this Data Operation from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
+            <Warning Title={'Delete ' + (editnewSetting?.AssemblyName ?? 'Data Operation')} Message={'This will delete this Data Operation from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(DataOperationSlice.DBAction({ verb: 'DELETE', record: editnewSetting })); setShowWarning(false); }} />
         </>)
 }

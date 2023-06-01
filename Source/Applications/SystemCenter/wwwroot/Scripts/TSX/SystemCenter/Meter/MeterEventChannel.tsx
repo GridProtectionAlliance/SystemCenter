@@ -358,7 +358,7 @@ const MeterEventChannelWindow = (props: IProps) => {
             </div>
         </div>
         </div>
-        <Warning Message={'This will permanently delete this Channel and cannot be undone.'} Show={removeRecord != null} Title={'Delete Channel'} CallBack={(c) => { if (c) dispatch(dBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        <Warning Message={'This will permanently delete this Channel and cannot be undone.'} Show={removeRecord != null} Title={'Delete ' + (removeRecord?.Name ?? 'Channel')} CallBack={(c) => { if (c) dispatch(dBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
         </>
 
 }

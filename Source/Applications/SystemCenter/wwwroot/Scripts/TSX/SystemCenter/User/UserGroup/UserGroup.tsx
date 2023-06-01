@@ -90,7 +90,7 @@ function UserGroup(props: IProps) {
 				</div>
 
 			</div>
-			<Warning Message={'This will permanently delete the User Group. Users in this Group will not be deleted, but may lose their roles. Are you sure you want to continue?'} Title={'Delete User Group'} Show={showWarning} CallBack={(c) => {
+			<Warning Message={'This will permanently delete the User Group. Users in this Group will not be deleted, but may lose their roles. Are you sure you want to continue?'} Title={'Delete ' + (group?.DisplayName ?? 'User Group')} Show={showWarning} CallBack={(c) => {
 				setShowWarning(false);
 				if (c) {
 					dispatch(SecurityGroupSlice.DBAction({ verb: 'DELETE', record: group }));

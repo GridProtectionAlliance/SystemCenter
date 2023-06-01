@@ -360,7 +360,7 @@ export default function AssetPage(props: IProps) {
                     </li>
                 </AssetSelect>
                 <Modal Show={showAssetModal}
-                    Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + newEditAsset.AssetName }
+                    Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + (newEditAsset?.AssetName ?? 'Asset')}
                     ConfirmBtnClass={'btn-success'}
                     ConfirmText={newEdit == 'Edit' ? 'Add' : 'Save'}
                     CancelBtnClass={'btn-danger'}

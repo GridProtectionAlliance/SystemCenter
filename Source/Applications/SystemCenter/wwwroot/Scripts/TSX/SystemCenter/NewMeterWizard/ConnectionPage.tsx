@@ -233,7 +233,7 @@ export default function ConnectionPage(props: IProps) {
     return (
         <>
             {tableBody}
-            <Modal Show={showAssetConnection} Size={'sm'} Title={'Add a Connection to ' + props.CurrentAsset.AssetKey}
+            <Modal Show={showAssetConnection} Size={'sm'} Title={'Add New Connection to ' + (props.CurrentAsset?.AssetKey ?? 'Asset')}
                 ConfirmText={'Save'}
                 DisableConfirm={assetConnectionTypes.length == 0 ||
                     currentConnections.findIndex(c => c.Asset.AssetKey == selectedAssetKey && c.Connection.AssetRelationshipTypeID == selectedTypeID) >= 0}

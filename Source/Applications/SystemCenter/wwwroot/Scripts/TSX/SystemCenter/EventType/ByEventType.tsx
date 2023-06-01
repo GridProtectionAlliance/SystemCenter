@@ -124,7 +124,7 @@ const ByEventType: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={selected != null} Title={'Edit Event Type'}
+            <Modal Show={selected != null} Title={'Edit ' + (selected?.Name ?? 'Event Type')}
                 ShowCancel={true}
                 CallBack={(conf) => { if (conf) saveChange(); setSelected(null); }}
                 DisableConfirm={errors.length > 0}

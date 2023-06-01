@@ -101,7 +101,7 @@ function User(props: IProps) {
 			<Warning Message={
 				(user == null || user.Type == 'Database' ? 'This will permanently remove the User. Are you sure you want to continue?' :
 					'This will remove the User from openXDA. The User may still have rights and the ability to log in to the system if they are in an Azure or Active Directory group. Contact your domain administrator to have the User removed from Azure or AD.')
-					} Title={'Delete User'} Show={showWarning} CallBack={(c) => {
+					} Title={'Delete ' + (user?.AccountName ?? 'User')} Show={showWarning} CallBack={(c) => {
 				setShowWarning(false);
 				if (c) {
 					dispatch(UserAccountSlice.DBAction({ verb: 'DELETE', record: user }));
