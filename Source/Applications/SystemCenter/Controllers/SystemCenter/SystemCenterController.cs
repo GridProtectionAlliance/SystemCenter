@@ -36,7 +36,6 @@ using SEBrowser.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -840,13 +839,12 @@ namespace SystemCenter.Controllers
                     .Where(channelInstance => QuantityType.IsQuantityTypeID(channelInstance.Definition.QuantityTypeID))
                     .Where(channelInstance => channelInstance.SeriesInstances.Any())
                     .Where(channelInstance => channelInstance.SeriesInstances[0].Definition.ValueTypeID == SeriesValueType.Time)
+                    .OrderByDescending(channelInstance => channelInstance.SeriesInstances.Count())
                     .ToList();
 
-                // Create the list of series instances so we can
-                // build it as we process each channel instance
-                List<SeriesInstance> seriesInstances = new List<SeriesInstance>();
-
-                List<openXDA.Model.Channel> parsedChannels = new List<openXDA.Model.Channel>();
+                List<ParsedChannel> parsedChannels = new List<ParsedChannel>();
+                int channelIndex = 1;
+                bool assumeTrend = true;
                 foreach (ChannelInstance channelInstance in channelInstances)
                 {
                     bool timeValueChannel =
@@ -854,66 +852,99 @@ namespace SystemCenter.Controllers
                         channelInstance.Definition.QuantityTypeID == QuantityType.ValueLog ||
                         channelInstance.Definition.QuantityTypeID == QuantityType.Phasor;
 
-                    if (!timeValueChannel || channelInstance.SeriesInstances.Count() == 0)
+                    if (!timeValueChannel)
                         continue;
 
-                    openXDA.Model.Channel channel = PQDIFReader.ParseSeries(channelInstance.SeriesInstances[0]);
-                    channel.Series = channelInstance.SeriesInstances.SelectMany((seriesInstance) =>
-                        {
-                            seriesInstances.Add(seriesInstance);
-                            openXDA.Model.Channel tempChannel = PQDIFReader.ParseSeries(seriesInstance);
-                            return tempChannel.Series;
-                        }).ToList();
+                    ParsedChannel channel = ParseChannel(channelInstance, assumeTrend);
+                    channel.Meter = meterKey;
+                    channel.ID = channelIndex;
+                    channelIndex++;
                     // Add the new channel to the meter's channel list
                     parsedChannels.Add(channel);
                 }
-
-                // Build a list of series definitions that were not instanced by this PQDIF file
-                List<SeriesDefinition> seriesDefinitions = dataSources
-                    .SelectMany(dataSource => dataSource.ChannelDefinitions)
-                    .SelectMany(channelDefinition => channelDefinition.SeriesDefinitions)
-                    .Distinct()
-                    .Except(seriesInstances.Select(seriesInstance => seriesInstance.Definition))
-                    .ToList();
-
-                // Add each of the series definitions which were not instanced to the meter's list of channels
-                foreach (SeriesDefinition seriesDefinition in seriesDefinitions)
-                    parsedChannels.Add(PQDIFReader.ParseSeries(seriesDefinition));
-
-                IEnumerable<ParsedChannel> channels = parsedChannels.Select((cd, index) =>
-                {
-                    List<ParsedSeries> series = cd.Series.Select(sd =>
-                        new ParsedSeries(){
-                            ID = 0,
-                            ChannelID = 0,
-                            SeriesType = sd.SeriesType.Name,
-                            SourceIndexes = ""
-                        }).ToList();
-
-                    return new ParsedChannel()
-                    {
-                        ID = index + 1,
-                        Meter = meterKey,
-                        Asset = "",
-                        MeasurementType = cd.MeasurementType.Name,
-                        MeasurementCharacteristic = cd.MeasurementCharacteristic.Name,
-                        Phase = cd.Phase.Name,
-                        Name = cd.Name,
-                        SamplesPerHour = 0,
-                        PerUnitValue = cd.PerUnitValue ?? 1,
-                        HarmonicGroup = cd.HarmonicGroup,
-                        Description = cd.Name,
-                        Enabled = true,
-                        Adder = 0,
-                        Multiplier = 1,
-                        Series = series,
-                        ConnectionPriority = 0,
-                        Trend = cd.Trend
-                    };
-                });
-
-                return channels;
+                return parsedChannels;
             }
+        }
+
+        private static ParsedChannel ParseChannel(ChannelInstance channelInstance, bool lastTrend = true)
+        {
+            // Populate measurement type properties
+            QuantityMeasured quantityMeasured = channelInstance.Definition.QuantityMeasured;
+
+            // Popuplate phase properties
+            Phase phase = channelInstance.Definition.Phase;
+
+            // Populate channel properties
+            ParsedChannel channel = new ParsedChannel()
+            {
+                Name = channelInstance.Definition.ChannelName,
+                Description = channelInstance.Definition.ChannelName,
+                MeasurementType = quantityMeasured.ToString(),
+                Phase = phase.ToString(),
+                Asset = "",
+                Enabled = true,
+                Adder = 0,
+                Multiplier = 1,
+                SamplesPerHour = 0,
+                ConnectionPriority = 0,
+                PerUnitValue = 1
+            };
+
+            Guid quantityCharacteristicID;
+            try
+            {
+                SeriesInstance seriesInstance = channelInstance.SeriesInstances[1];
+
+                // Assumes the first seriesInstance is a time instance
+                channel.Series = channelInstance.SeriesInstances.Skip(1).Select((seriesInstance) => ParseSeries(seriesInstance.Definition));
+
+                // Populate characteristic properties
+                Guid quantityTypeID = channelInstance.Definition.QuantityTypeID;
+                quantityCharacteristicID = seriesInstance.Definition.QuantityCharacteristicID;
+
+                // Workaround for bad quantity characteristic in files produced by PQube Classic
+                if (quantityTypeID == QuantityType.Phasor && quantityCharacteristicID == QuantityCharacteristic.Instantaneous)
+                    quantityCharacteristicID = QuantityCharacteristic.RMS;
+
+                channel.HarmonicGroup = seriesInstance.Channel.ChannelGroupID;
+
+                // Default set earlier, overwrite if avaliable
+                if (seriesInstance.Definition.HasElement(SeriesDefinition.SeriesNominalQuantityTag))
+                    channel.PerUnitValue = seriesInstance.Definition.SeriesNominalQuantity;
+            }
+            catch
+            {
+                List<ParsedSeries> parsedSeries = new List<ParsedSeries>();
+                parsedSeries.Add(new ParsedSeries()
+                {
+                    ID = 0,
+                    ChannelID = 0,
+                    SeriesType = lastTrend ? SeriesValueType.ToString(SeriesValueType.Avg) : SeriesValueType.ToString(SeriesValueType.Val),
+                    SourceIndexes = ""
+                });
+                channel.Series = parsedSeries;
+                quantityCharacteristicID = lastTrend ? QuantityCharacteristic.RMS : QuantityCharacteristic.Instantaneous;
+                channel.HarmonicGroup = 0;
+            }
+
+            channel.MeasurementCharacteristic = QuantityCharacteristic.ToName(quantityCharacteristicID) ?? quantityCharacteristicID.ToString();
+            channel.Trend =
+                channel.MeasurementCharacteristic != QuantityCharacteristic.ToName(QuantityCharacteristic.Instantaneous) ||
+                channel.Series.All(series => series.SeriesType != SeriesValueType.ToString(SeriesValueType.Val));
+            lastTrend = channel.Trend;
+            return channel;
+        }
+
+        private static ParsedSeries ParseSeries(SeriesDefinition seriesDefinition)
+        {
+            // Populate series properties
+            return new ParsedSeries()
+            {
+                ID = 0,
+                ChannelID = 0,
+                SeriesType = SeriesValueType.ToString(seriesDefinition.ValueTypeID) ?? seriesDefinition.ValueTypeName ?? seriesDefinition.ValueTypeID.ToString(),
+                SourceIndexes = ""
+            };
         }
 
         private IEnumerable<ParsedChannel> ParseSELEVE(string fileText, string extension, string meterKey)
