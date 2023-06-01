@@ -243,7 +243,7 @@ function Meter(props: IProps) {
                 <button className="btn btn-dark btn-block" onClick={showDataMergeWindow}>Merge Data</button>
                 <button className="btn btn-danger btn-block" onClick={showDataDeleteWindow}>Delete Data</button>
             </Modal>
-            <Warning Message={'This will permanently delete this Meter and cannot be undone.'} Show={showDelete} Title={'Delete Meter - ' + meter.Name} CallBack={(conf) => { if (conf) deleteMeter(); setShowDelete(false); }} />
+            <Warning Message={'This will permanently delete this Meter and cannot be undone.'} Show={showDelete} Title={'Delete ' + (meter?.Name ?? 'Meter')} CallBack={(conf) => { if (conf) deleteMeter(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
        

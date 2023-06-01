@@ -262,12 +262,12 @@ function AdditionalField(props: IProps) {
 					{changedFields.length > 0 ? changedFields.map((fld, i) => <p key={i}>{Warning} Changes to '{fld}' will be lost. </p>) : null}
 				</ToolTip>
 			</div>
-			<WarningModal Show={showWarning} Title={'Delete Additional Field - ' + newField.FieldName}
-				Message={"This will delete the Field '" + newField.FieldName + "' from all Users and all Values assigned to it."}
+			<WarningModal Show={showWarning} Title={'Delete ' + (newField?.FieldName ?? 'Additional Field')}
+				Message={"This will delete the Field '" + (newField?.FieldName ?? "<No Name>") + "' from all Users and all Values assigned to it."}
 				CallBack={(confirm: boolean) => { if (confirm) dispatch(UserAdditionalFieldSlice.FieldAction({ Verb: 'DELETE', Record: newField })); setShowWarning(false) }} />
 
 			<Modal
-				Title={editNew === 'Edit' ? "Edit Additional Field - " + newField.FieldName : "Add Additional Field"} ConfirmText={'Save'} ShowX={true} ShowCancel={false}
+				Title={editNew === 'Edit' ? "Edit " + (newField?.FieldName ?? "Additional Field") : "Add Additional Field"} ConfirmText={'Save'} ShowX={true} ShowCancel={false}
 				ConfirmBtnClass={'btn-primary' + (fieldErrors.length > 0 ? ' disabled' : '')}
 				Show={showEdit} Size={'lg'}
 				CallBack={(confirmation) => {

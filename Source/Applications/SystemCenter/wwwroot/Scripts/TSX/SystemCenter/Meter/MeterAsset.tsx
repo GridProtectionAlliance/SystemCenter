@@ -174,10 +174,10 @@ const MeterAssetWindow = (props: IProps) => {
                                 selected={(item) => false}
                             />
 
-                            <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove ' + activeAsset.AssetName + ' from ' + props.Meter.Name} Message={'This will permanently remove the Asset from this Meter.'} />
+                            <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove ' + (activeAsset?.AssetName ?? 'Asset') + ' from ' + (props.Meter?.Name ?? 'Meter')} Message={'This will permanently remove the Asset from this Meter.'} />
                             <LoadingScreen Show={assetStatus != 'idle' || selectStatus !='idle'} />
                             <Modal Show={showEditNew}
-                                    Title={newEdit == 'New' ? 'Add New Asset to ' + props.Meter.Name : 'Edit ' + activeAsset.AssetKey + ' for ' + props.Meter.Name}
+                                    Title={newEdit == 'New' ? 'Add New Asset to ' + (props.Meter?.Name ?? 'Meter') : 'Edit ' + (activeAsset?.AssetKey ?? 'Asset')}
                                 Size={'lg'}
                                 ShowX={true}
                                 ShowCancel={false}

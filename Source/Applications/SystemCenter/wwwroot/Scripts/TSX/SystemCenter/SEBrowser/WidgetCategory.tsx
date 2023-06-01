@@ -103,7 +103,7 @@ export default function WidgetCategory(props: IProps) {
                     <WidgetByCategory CategoryID={category.ID} />
                 </div>
             </div>
-            <Warning Title={'Delete SE Browser Tab'} Show={showWarning} Message={'This will permanently delete this SE Browser Tab.'} CallBack={(c) => { if (c) deleteTab(); setShowWarning(false) }} />
+            <Warning Title={'Delete ' + (category?.Name ?? 'SE Browser Tab')} Show={showWarning} Message={'This will permanently delete this SE Browser Tab.'} CallBack={(c) => { if (c) deleteTab(); setShowWarning(false) }} />
         </div>
     )
 

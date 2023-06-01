@@ -185,7 +185,7 @@ function Asset(props: { AssetID: number }) {
                     <LineSegmentWindow ID={asset.ID}/>
                 </div>
             </div>
-            <Warning Message={'This will permanently delete this Asset and cannot be undone.'} Show={showDelete} Title={'Delete Asset - ' + asset.AssetName} CallBack={(conf) => { if (conf) deleteAsset(); setShowDelete(false); }} />
+            <Warning Message={'This will permanently delete this Asset and cannot be undone.'} Show={showDelete} Title={'Delete ' + (asset?.AssetName ?? 'Asset')} CallBack={(conf) => { if (conf) deleteAsset(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
     )

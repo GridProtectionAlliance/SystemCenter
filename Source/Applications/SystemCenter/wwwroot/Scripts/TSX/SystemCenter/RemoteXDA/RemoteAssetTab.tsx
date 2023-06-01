@@ -195,12 +195,12 @@ const RemoteAssetTab = (props: IProps) => {
                     </button>
                 </div>
             </div>
-            <Warning Title={"Delete Remote Asset - " + selectedAsset.RemoteXDAAssetKey} Show={showDelete} Message={"Are you sure you want to delete the Remote Asset for " + selectedAsset.LocalAssetName + "?"}
+            <Warning Title={"Delete " + (selectedAsset?.RemoteXDAAssetKey ?? "Remote Asset")} Show={showDelete} Message={"Are you sure you want to delete the Remote Asset for " + (selectedAsset?.LocalAssetName ?? "No Local Name") + "?"}
                 CallBack={(conf) => {
                     if (conf) dispatch(RemoteXDAAssetSlice.DBAction({ verb: 'DELETE', record: selectedAsset }));
                     setShowDelete(false);
                 }} />
-            <Modal Show={showEdit} Title={'Edit Remote Asset: ' + selectedAsset.LocalAssetName}
+            <Modal Show={showEdit} Title={'Edit ' + (selectedAsset?.LocalAssetName ?? 'Remote Asset')}
                 ShowCancel={true}
                 CallBack={(conf) => {
                     if (conf) dispatch(RemoteXDAAssetSlice.DBAction({ verb: 'PATCH', record: remoteAsset }));

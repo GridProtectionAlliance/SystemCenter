@@ -501,12 +501,12 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                     </div>
                 </div>
             </div>
-            <Warning Show={showWarning} Title={'Delete Additional Field - ' + newField.FieldName}
-                Message={"This will delete the Field '" + newField.FieldName + "' from all " + (props.Type == 'Bus' ? "Buses" : props.Type + "s") + " and all Values assigned to it."}
+            <Warning Show={showWarning} Title={'Delete ' + (newField?.FieldName ?? 'Additional Field')}
+                Message={"This will delete the Field '" + (newField?.FieldName ?? "<No Name>") + "' from all " + (props.Type == 'Bus' ? "Buses" : props.Type + "s") + " and all Values assigned to it."}
                 CallBack={(confirm: boolean) => { if (confirm) deleteField(newField); setShowWarning(false) }} />
 
             <Modal
-                Title={editNew === 'Edit' ? "Edit Additional Field - " + newField.FieldName : "Add Additional Field"} ConfirmText={'Save'} CancelText={'Close'}
+                Title={editNew === 'Edit' ? "Edit " + (newField?.FieldName ?? "Additional Field"): "Add Additional Field"} ConfirmText={'Save'} CancelText={'Close'}
                 ConfirmBtnClass={'btn-primary' + (!ValidField() ? ' disabled' : '')}
                 Show={showEdit} Size={'lg'} ShowX={true}
                 CallBack={(confirmation: boolean, btn: boolean) => {

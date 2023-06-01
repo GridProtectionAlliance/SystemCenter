@@ -128,7 +128,7 @@ export default function Customer(props: IProps) {
                     <MDMKeys CustomerID={customer.ID} />
                 </div>
             </div>
-            <Warning Title={'Delete Customer - ' + customer.Name} Show={showWarning} Message={'This will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />
+            <Warning Title={'Delete ' + (customer?.Name ?? 'Customer')} Show={showWarning} Message={'This will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />
         </div>
     )
 

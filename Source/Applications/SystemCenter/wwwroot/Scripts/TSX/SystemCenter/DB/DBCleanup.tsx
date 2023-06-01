@@ -148,7 +148,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                     />
                 </div>
             </div>
-            <Modal Title={editNew === 'Edit' ? 'Edit Database Cleanup - ' + editNewDBCleanup.Name : 'Add New Database Cleanup'}
+            <Modal Title={editNew === 'Edit' ? 'Edit ' + (editNewDBCleanup?.Name ?? 'Database Cleanup') : 'Add New Database Cleanup'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
@@ -182,7 +182,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete Database Cleanup - ' + editNewDBCleanup.Name} Message={'This will delete this Database Cleanup operation from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
+            <Warning Title={'Delete ' + (editNewDBCleanup?.Name ?? 'Database Cleanup')} Message={'This will delete this Database Cleanup operation from the system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(DBCleanupSlice.DBAction({ verb: 'DELETE', record: editNewDBCleanup })); setShowWarning(false); }} />
         </>)
 }

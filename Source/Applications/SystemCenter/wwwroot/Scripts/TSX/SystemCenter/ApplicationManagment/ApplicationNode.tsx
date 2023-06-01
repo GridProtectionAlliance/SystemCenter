@@ -136,7 +136,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
                     />
                 </div>
             </div>
-            <Modal Title={editNew === 'Edit' ? 'Edit Application - ' + editnewNode.Name : 'Add New Application'}
+            <Modal Title={editNew === 'Edit' ? ('Edit ' + (editnewNode?.Name ?? 'SSO Application')) : 'Add New SSO Application'}
                 Show={showModal} ShowX={true} Size={'lg'} ShowCancel={editNew === 'Edit'} ConfirmText={'Save'} CancelText={'Delete'}
                 CallBack={(conf, isBtn) => {
                     if (conf && editNew === 'New')
@@ -167,7 +167,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
                     </div>
                 </div>
             </Modal>
-            <Warning Title={'Delete SSO Application - ' + editnewNode.Name} Message={'This will delete this Application from the SSO system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
+            <Warning Title={'Delete ' + (editnewNode?.Name ?? 'SSO Application')} Message={'This will delete this Application from the SSO system. This can have unintended consequences and cause the system to crash. Are you sure you want to continue?'}
                 Show={showWarning} CallBack={(conf) => { if (conf) dispatch(ApplicationNodeSlice.DBAction({ verb: 'DELETE', record: editnewNode })); setShowWarning(false); }} />
         </>)
 }

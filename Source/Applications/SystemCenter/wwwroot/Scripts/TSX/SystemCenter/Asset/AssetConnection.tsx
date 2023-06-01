@@ -271,7 +271,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
 
             </div>
 
-            <Modal Show={showModal} Title={'Add Connection to ' + props.Asset.AssetName} ShowCancel={false} ShowX={true}
+            <Modal Show={showModal} Title={'Add Connection to ' + (props.Asset?.AssetName ?? 'Asset')} ShowCancel={false} ShowX={true}
                 CallBack={(conf) => {
                     if (conf)
                         addConnection();

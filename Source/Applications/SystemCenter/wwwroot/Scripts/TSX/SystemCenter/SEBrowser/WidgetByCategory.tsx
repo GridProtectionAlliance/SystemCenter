@@ -162,10 +162,10 @@ const WidgetByCategory = (props: IProps) => {
             </div>
         </div>
         </div>
-        <Warning Message={'This will remove the Widget from this Tab.'} Show={showRemove} Title={'Remove Widget'}
+        <Warning Message={'This will remove the Widget from this Tab.'} Show={showRemove} Title={'Remove ' + (record?.Name ?? 'Widget')}
             CallBack={(c) => { if (c) dispatch(SEBrowserWidgetSlice.DBAction({ record, verb: 'DELETE' })); setShowRemove(false); }}
         />
-        <Modal Title={showEdit ? 'Edit Widget' : 'Add New Widget'}
+        <Modal Title={showEdit ? 'Edit ' + (record?.Name ?? 'Widget') : 'Add New Widget'}
             Show={showEdit || showAdd}
             CallBack={(c) => {
                 if (c && showAdd)

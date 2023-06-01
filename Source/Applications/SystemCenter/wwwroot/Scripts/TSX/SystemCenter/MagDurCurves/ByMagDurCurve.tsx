@@ -63,6 +63,8 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
+    const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('Edit');
+
     React.useEffect(() => {
         if (cState == 'unintiated' || cState == 'changed')
             dispatch(MagDurCurveSlice.DBSearch({filter: filters}))
@@ -71,6 +73,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
     function handleSelect(item) {
         setCurve(item.row);
         setShowModal(true);
+        setNewEdit('Edit');
     }
 
     const searchFields: Search.IField<LocalXDA.IMagDurCurve>[] = [
@@ -114,7 +117,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={showModal} Title={'Add New MagDur Curve'} Size={'xlg'} CallBack={(c,b) => {
+            <Modal Show={showModal} Title={newEdit == 'Edit' ? 'Edit ' + (curve?.Name ?? 'MagDur Curve') : 'Add New MagDur Curve'} Size={'xlg'} CallBack={(c,b) => {
                 setShowModal(false);
                 if (!c && b)
                     setShowDelete(true)
@@ -134,7 +137,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
                     <CurveForm Curve={curve} stateSetter={setCurve} setErrors={setErrors} />
                 </div>
             </Modal>
-            <Warning Message={'This will permanently delete the Curve and cannot be undone.'} Show={showDelete} Title={'Delete MagDur Curve'}
+            <Warning Message={'This will permanently delete the Curve and cannot be undone.'} Show={showDelete} Title={'Delete ' + (curve?.Name ?? 'MagDur Curve')}
                 CallBack={(c) => { if (c) dispatch(MagDurCurveSlice.DBAction({ record: curve, verb: 'DELETE' })); setShowDelete(false); setCurve(emptyCurve); }}
             />
 
