@@ -28,7 +28,7 @@ import CFGParser from '../../../TS/CFGParser';
 
 import Table from '@gpa-gemstone/react-table'
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
-import { Modal, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { ConfigurableTable, Modal, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
 import PQDIFParser from '../../../TS/PQDIFParser';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
@@ -97,7 +97,8 @@ export default function ChannelPage(props: IProps) {
     }, [currentChannels]);
 
     function getCurrentChannels(trendChannels: boolean): OpenXDA.Types.Channel[] {
-        return props.Channels.filter((item) => (item.Trend === trendChannels));
+        let newCurrent: OpenXDA.Types.Channel[] = _.cloneDeep(props.Channels);
+        return newCurrent.filter((item) => (item.Trend === trendChannels));
     }
 
     function readSingleFile(evt: React.ChangeEvent<HTMLInputElement>) {
@@ -182,7 +183,7 @@ export default function ChannelPage(props: IProps) {
     }
 
     function deleteChannel(index:number): void {
-        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
+        let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
         let record: OpenXDA.Types.Channel = channels.splice(index, 1)[0];
         props.UpdateChannels(channels);
 
@@ -221,7 +222,6 @@ export default function ChannelPage(props: IProps) {
             updated[index] = channel;
         else
             updated.push(channel);
-     
         props.UpdateChannels(updated);
     }
 
@@ -240,7 +240,7 @@ export default function ChannelPage(props: IProps) {
     }
 
     function clearSpareChannels() {
-        let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
+        let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
         let assets: Array<OpenXDA.Types.Asset> = JSON.parse(localStorage.getItem('NewMeterWizard.Assets'));
 
         if (assets != null && assets.length > 0) {
@@ -274,7 +274,7 @@ export default function ChannelPage(props: IProps) {
     return (
         <>
             <div className="row">
-                <div className="col-2">
+                <div className="col-1">
                     <button className={"btn btn-primary" + (props.TrendChannels ? 'btn-disabled' : '')}
                         data-tooltip='DefaultChannel'
                         onMouseEnter={() => setHoverDefault(true)}
@@ -298,6 +298,9 @@ export default function ChannelPage(props: IProps) {
                     <ToolTip Show={hoverDefault} Position={'top'} Theme={'dark'} Target={"DefaultChannel"}>
                     <p>No Trending Channel Default Setup is available</p>
                     </ToolTip>
+                </div>
+                <div className="col-1">
+                    {`Number of ${props.TrendChannels ? "Trend" : "Event"} Channels: ${currentChannels.length}`}
                 </div>
                 <div className="col-5">
                     <div className="form-group" style={{ width: '100%' }}>
@@ -328,7 +331,7 @@ export default function ChannelPage(props: IProps) {
                     <div className="col-1">
                         <button className="btn btn-primary pull-right" onClick={() => {
                             let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0, Trend: false } as OpenXDA.Types.Channel
-                            let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
+                            let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
                             channels.push(channel);
                             props.UpdateChannels(channels);
                         }}>Add</button>
@@ -336,7 +339,7 @@ export default function ChannelPage(props: IProps) {
 
             </div>
             <div style={{ width: '100%', maxHeight: innerHeight - 410, padding: 30 }}>
-                <Table<OpenXDA.Types.Channel> cols={[
+                <ConfigurableTable<OpenXDA.Types.Channel> cols={[
                     {
                         key: 'Series', label: 'Channel', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Series> Field={'SourceIndexes'}
                             Record={item.Series[0]} Setter={(series) => {
@@ -356,6 +359,8 @@ export default function ChannelPage(props: IProps) {
                     {
                         key: 'Phase', label: 'Phase', headerStyle: { width: '13%' }, rowStyle: { width: '13%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.Phases.map((t) => ({ Value: t, Label: t }))} />
                     },
+                    { key: 'SamplesPerHour', label: 'Sph.', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'SamplesPerHour'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
+                    { key: 'PerUnitValue', label: 'Per Unit', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'PerUnitValue'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
                     { key: 'HarmonicGroup', label: 'Harm', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'HarmonicGroup'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
                     { key: 'Adder', label: 'Adder', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
                     { key: 'Multiplier', label: 'Multiplier', headerStyle: { width: '8%' }, rowStyle: { width: '8%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
@@ -365,6 +370,9 @@ export default function ChannelPage(props: IProps) {
                     { key: 'DeleteButton', label: '', headerStyle: { width: '3%' }, rowStyle: { width: '3%', paddingTop: 36, paddingBottom: 36 }, content: (item, field, key, style, index) => <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span>{TrashCan}</span></button> },
                     { key: 'Scroll', label: '', headerStyle: { width: '5px' }, rowStyle: { width: '0px' }, content: () => null }
                 ]}
+                    defaultColumns={["Series", "Name", "MeasurementType", "MeasurementCharacteristic", "Phase", "HarmonicGroup", "Adder", "Multiplier", "Description", "DeleteButton", "Scroll"]}
+                    requiredColumns={["Name", "DeleteButton", "Scroll"]}
+                    localStorageKey="ChannelPageConfigTable"
                     tableClass="table table-hover"
                     data={currentChannels}
                     sortKey={'Series'}
