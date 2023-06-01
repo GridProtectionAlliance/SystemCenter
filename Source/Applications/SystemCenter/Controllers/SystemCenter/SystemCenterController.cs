@@ -854,18 +854,18 @@ namespace SystemCenter.Controllers
                         channelInstance.Definition.QuantityTypeID == QuantityType.ValueLog ||
                         channelInstance.Definition.QuantityTypeID == QuantityType.Phasor;
 
-                    if (!timeValueChannel)
+                    if (!timeValueChannel || channelInstance.SeriesInstances.Count() == 0)
                         continue;
 
-                    foreach (SeriesInstance seriesInstance in channelInstance.SeriesInstances.Skip(1))
-                    {
-                        // Create a channel from the parsed series instance
-                        seriesInstances.Add(seriesInstance);
-                        openXDA.Model.Channel channel = PQDIFReader.ParseSeries(seriesInstance);
-
-                        // Add the new channel to the meter's channel list
-                        parsedChannels.Add(channel);
-                    }
+                    openXDA.Model.Channel channel = PQDIFReader.ParseSeries(channelInstance.SeriesInstances[0]);
+                    channel.Series = channelInstance.SeriesInstances.SelectMany((seriesInstance) =>
+                        {
+                            seriesInstances.Add(seriesInstance);
+                            openXDA.Model.Channel tempChannel = PQDIFReader.ParseSeries(seriesInstance);
+                            return tempChannel.Series;
+                        }).ToList();
+                    // Add the new channel to the meter's channel list
+                    parsedChannels.Add(channel);
                 }
 
                 // Build a list of series definitions that were not instanced by this PQDIF file
@@ -882,14 +882,13 @@ namespace SystemCenter.Controllers
 
                 IEnumerable<ParsedChannel> channels = parsedChannels.Select((cd, index) =>
                 {
-                    List<ParsedSeries> series = new List<ParsedSeries>();
-                    series.Add(new ParsedSeries()
-                    {
-                        ID = 0,
-                        ChannelID = 0,
-                        SeriesType = cd.Series[0].SeriesType.Name,
-                        SourceIndexes = ""
-                    });
+                    List<ParsedSeries> series = cd.Series.Select(sd =>
+                        new ParsedSeries(){
+                            ID = 0,
+                            ChannelID = 0,
+                            SeriesType = sd.SeriesType.Name,
+                            SourceIndexes = ""
+                        }).ToList();
 
                     return new ParsedChannel()
                     {
