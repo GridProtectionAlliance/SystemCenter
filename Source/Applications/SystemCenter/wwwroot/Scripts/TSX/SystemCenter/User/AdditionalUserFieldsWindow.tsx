@@ -286,7 +286,7 @@ function AdditionalField(props: IProps) {
 				<Input<Application.Types.iAdditionalUserField> Record={newField} Field='FieldName' Valid={(field) =>
 					newField.FieldName != null && newField.FieldName.length > 0
 					&& fields.findIndex(f => f.FieldName.toLowerCase() === newField.FieldName.toLowerCase() && props.FieldKeySelector(f) !== props.FieldKeySelector(newField)) < 0}
-					Label="Field Name" Setter={setNewField} Feedback={'A unique Field Nameis required.'} />
+					Label="Field Name" Setter={setNewField} Feedback={'A unique Field Name is required.'} />
 				<Select<Application.Types.iAdditionalUserField> Record={newField} Field='Type' Options={typeOptions} Label="Field Type" Setter={setNewField} />
 				{props.FieldUI !== undefined ? props.FieldUI(newField, setNewField) : null}
 			</Modal>

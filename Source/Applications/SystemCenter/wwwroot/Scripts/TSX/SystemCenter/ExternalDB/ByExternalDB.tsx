@@ -153,7 +153,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={showNew} Title={'Add New External DataBase Table'}
+            <Modal Show={showNew} Title={'Add New External Database Table'}
                 ShowCancel={true}
                 CallBack={(conf) => { if(conf) dispatch(ExternalDBTablesSlice.DBAction({ verb: 'POST', record: newExternalDB })); setShowNew(false); }}
                 DisableConfirm={newExternalDatabaseErrors.length > 0}
