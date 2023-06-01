@@ -29,7 +29,7 @@ import { Input, Select, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
 import { OpenXDA as LocalXDA } from '../global';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 import Table from '@gpa-gemstone/react-table';
-import { Line, Plot } from '@gpa-gemstone/react-graph';
+import { Circle, Line, Plot } from '@gpa-gemstone/react-graph';
 import { DownArrow, TrashCan, UpArrow } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
@@ -110,7 +110,7 @@ export default function CurveForm(props: IProps) {
 
     function validPoint(key: keyof Point, p: Point) {
         if (key == '0')
-            return p[0] != null && p[0] >= 0.00001 && p[0] <= 1000;
+            return p[0] != null && p[0] >= 0 && p[0] <= 1000;
         if (key == '1')
             return p[1] != null && p[1] >= 0 && p[1] <= 9999;
         return true
@@ -128,6 +128,12 @@ export default function CurveForm(props: IProps) {
                     <Table<Point>
                         cols={[
                             {
+                                key: 'Index', label: 'Point Index', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                content: (item, key, fld, style, i) => <>
+                                    <p>{i+1}</p>
+                                </>
+                            },
+                            {
                                 key: 'Magnitude', field: '1', label: 'Magnitude (pu)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                                 content: (item, key, fld, style, i) => <Input<Point>
                                     Type={'number'}
@@ -135,7 +141,7 @@ export default function CurveForm(props: IProps) {
                                     Field={'1'}
                                     Label=''
                                     Valid={(k) => validPoint(k, item)}
-                                    Feedback={'Magnitude must be between 0 and 9999'}
+                                    Feedback={'Magnitude must be between 0 and 9999.'}
                                     Setter={(record) => setCurve((d) => { let u = _.cloneDeep(d); u[i][1] = record[1]; return u; })}
                                 />
                             },
@@ -147,7 +153,7 @@ export default function CurveForm(props: IProps) {
                                     Field={'0'}
                                     Label=''
                                     Valid={(k) => validPoint(k, item)}
-                                    Feedback={'Duration must be between 0.00001 and 1000'}
+                                    Feedback={'Duration must be between 0 and 1000.'}
                                     Setter={(record) => setCurve((d) => { let u = _.cloneDeep(d); u[i][0] = record[0]; return u; })}
                                 />
                             },
@@ -230,9 +236,9 @@ export default function CurveForm(props: IProps) {
                         zoom={true} pan={false}
                         useMetricFactors={false} XAxisType={'log'}
                         >
-                        <Line highlightHover={false} showPoints={true} lineStyle={'-'}
+                        <Line highlightHover={false} showPoints={false} lineStyle={'-'}
                             color={"#A30000"} data={curve} />
-                        
+                        {curve.map((p,i) => (i == curve.length-1? null : <Circle data={[p[0], p[1]]} color={"#FFFFFF"} radius={8} borderColor={"#A30000"} borderThickness={2} text={String(curve.indexOf(p) + 1)} key={i} />))}
                     </Plot> 
                 </div>
             </div>
