@@ -62,7 +62,7 @@ export default function MultipleAssetsPage(props: IProps) {
         tableBody = (
             <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                    <ServerErrorIcon Show={true} Size={40} Label={currentAsset == null ? 'No Assets Found for this Meter.' : 'A Server Error Occurred. Please Reload the Application'} />
+                    <ServerErrorIcon Show={true} Size={40} Label={currentAsset == null ? 'No Assets found for this Meter.' : 'A Server Error Occurred. Please Reload the Application.'} />
                 </div>
             </div>);
     else

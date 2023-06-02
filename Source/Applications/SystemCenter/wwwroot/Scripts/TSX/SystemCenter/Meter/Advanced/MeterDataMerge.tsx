@@ -203,7 +203,7 @@ export default function DataMergeWindow(props: {
     }
 
     const getResultNote = () => searchState !== "Error"
-        ? `Found ${meters.length} Meters`
+        ? `Found ${meters.length} Meter(s)`
         : "Could not complete Search";
 
     const mergeMeterName = (mergeMeter !== undefined)
