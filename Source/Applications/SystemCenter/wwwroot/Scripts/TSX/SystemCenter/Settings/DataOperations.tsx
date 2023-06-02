@@ -83,7 +83,7 @@ const DataOperations: GlobalSC.BySettingsComponent = (props) => {
 
     if (status === 'error')
         return <div style={{ width: '100%', height: '100%' }}>
-            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application'} />
+            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} />
         </div>;
 
     return (
