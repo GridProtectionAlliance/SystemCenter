@@ -95,7 +95,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                 Width={'50%'}
                 Label={'Search'}
                 ShowLoading={status == 'loading'}
-                ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Groups'}
+                ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Value List(s)'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
                     if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)

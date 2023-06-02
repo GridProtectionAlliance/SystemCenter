@@ -145,7 +145,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <LoadingScreen Show={pageStatus === 'loading'} />
             <SearchBar<IUserAccount> CollumnList={filterableList} SetFilter={(flds) => dispatch(UserAccountSlice.DBSearch({ sortField, ascending, filter: flds }))}
                 Direction={'left'} defaultCollumn={{ label: 'Last Name', key: 'LastName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' User Accounts'}
+                ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' User Account(s)'}
                 GetEnum={(setOptions, field) => {
 
                     if (field.type !== 'enum' || field.enum === undefined || field.enum.length !== 1)
