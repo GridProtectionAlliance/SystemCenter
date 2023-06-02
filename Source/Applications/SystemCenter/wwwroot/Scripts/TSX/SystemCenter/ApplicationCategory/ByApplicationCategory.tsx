@@ -104,7 +104,7 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
         <div style={{ width: '100%', height: '100%' }}>
             <SearchBar<ApplicationCategory> CollumnList={searchFields} SetFilter={(flds) => dispatch(ApplicationCategorySlice.DBSearch({ filter: flds, sortField, ascending }))} Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }}
                 Width={'50%'} Label={'Search'}
-                ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Application Categories'}
+                ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Application Categorie(s)'}
                 GetEnum={() => {
                         return () => { }
                     }}

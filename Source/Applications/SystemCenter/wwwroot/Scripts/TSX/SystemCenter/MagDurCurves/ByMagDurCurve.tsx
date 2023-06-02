@@ -87,7 +87,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
                 defaultCollumn={{ key: 'Name', isPivotField: false, label: 'Name', type: 'string' }}
                 Width={'50%'} Label={'Search'}
                 ShowLoading={cState == 'loading'}
-                ResultNote={cState == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Curves'}
+                ResultNote={cState == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Curve(s)'}
             >
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>

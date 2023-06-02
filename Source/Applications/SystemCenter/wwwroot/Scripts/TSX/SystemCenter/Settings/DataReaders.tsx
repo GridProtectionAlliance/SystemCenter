@@ -90,7 +90,7 @@ const DataReaders: GlobalSC.BySettingsComponent = (props) => {
             <div style={{ width: '100%', height: '100%' }}>
                 <SearchBar<OpenXDA.Types.DataReader> CollumnList={searchFields} SetFilter={(flds) => dispatch(DataReaderSlice.DBSearch({ filter: flds, sortField, ascending }))}
                     Direction={'left'} defaultCollumn={{ key: 'AssemblyName', label: 'Assembly Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Settings'}
+                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Data Reader(s)'}
                     GetEnum={() => {
                         return () => { }
                     }}

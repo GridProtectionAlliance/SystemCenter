@@ -86,7 +86,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
                 Width={'50%'}
                 Label={'Search'}
                 ShowLoading={searchState == 'loading'}
-                ResultNote={searchState == 'error' ? 'Could not complete Search' : 'Found ' + searchResults.length + ' Remote openXDA Intances'}
+                ResultNote={searchState == 'error' ? 'Could not complete Search' : 'Found ' + searchResults.length + ' Remote openXDA Intance(s)'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
                     if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
