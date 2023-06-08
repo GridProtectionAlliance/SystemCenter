@@ -25,12 +25,9 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import CFGParser from '../../../TS/CFGParser';
-
-import Table from '@gpa-gemstone/react-table'
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { ConfigurableTable, Modal, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
-import PQDIFParser from '../../../TS/PQDIFParser';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../Store/Store';
