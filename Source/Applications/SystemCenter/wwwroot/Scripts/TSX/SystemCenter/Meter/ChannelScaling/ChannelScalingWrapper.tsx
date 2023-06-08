@@ -37,6 +37,9 @@ export enum ChannelScalingType {
     NoScaling
 }
 
+export interface IMultiplier { Voltage: number, Current: number }
+
+
 export class ChannelScalingWrapper {
     private _ScalingType: ChannelScalingType;
     private _Channel: OpenXDA.Types.Channel;
@@ -110,16 +113,16 @@ export class ChannelScalingWrapper {
         this._AdjustedMultiplier = value;
     }
 
-    CalculateMultiplier(voltageMultiplier: number, currentMultiplier: number) {
+    CalculateMultiplier(multiplier: IMultiplier) {
         switch (this.ScalingType) {
             case ChannelScalingType.Voltage:
-                return voltageMultiplier;
+                return multiplier.Voltage;
             case ChannelScalingType.Current:
-                return currentMultiplier;
+                return multiplier.Current;
             case ChannelScalingType.PowerAndEnergy:
-                return voltageMultiplier * currentMultiplier;
+                return multiplier.Voltage * multiplier.Current;
             case ChannelScalingType.Impedance:
-                return voltageMultiplier / currentMultiplier;
+                return multiplier.Voltage / multiplier.Current;
             default:
                 return 1;
         }

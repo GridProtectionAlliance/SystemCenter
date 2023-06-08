@@ -31,7 +31,8 @@ import { useAppSelector, useAppDispatch } from '../../hooks';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../../Store/Store';
 import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table';
-import { ChannelScalingWrapper, ChannelScalingType } from './ChannelScalingWrapper';
+import { ChannelScalingWrapper, ChannelScalingType, IMultiplier } from './ChannelScalingWrapper';
+import { Input } from '@gpa-gemstone/react-forms';
 
 declare let homePath: string;
 
@@ -41,11 +42,11 @@ interface IProps {
     ChannelStatus?: Application.Types.Status,
 }
 
+
 const ChannelScalingForm = (props: IProps) => {
     const dispatch = useAppDispatch();
 
-    const [VoltageMultiplier, setVoltageMultiplier] = React.useState<number>(1);
-    const [CurrentMultiplier, setCurrentMultiplier] = React.useState<number>(1);
+    const [multiplier, setMultiplier] = React.useState<IMultiplier>({ Voltage: 1, Current: 1});
     const [Wrappers, setWrappers] = React.useState<ChannelScalingWrapper[]>([]);
 
     const phases = useAppSelector(PhaseSlice.Data) as OpenXDA.Types.Phase[];
@@ -104,7 +105,7 @@ const ChannelScalingForm = (props: IProps) => {
                 return new ChannelScalingWrapper(channel, measurementType, measurementCharacteristic, phase);
             });
 
-            recalculateChannelMultipliers({ VoltageMultiplier: getBaseVoltageMultiplier(wrappers), CurrentMultiplier: getBaseCurrentMultiplier(wrappers)}, wrappers);
+            recalculateChannelMultipliers({ Voltage: getBaseVoltageMultiplier(wrappers), Current: getBaseCurrentMultiplier(wrappers) }, wrappers);
         }
     }
 
@@ -124,21 +125,18 @@ const ChannelScalingForm = (props: IProps) => {
         return 1;
     }
 
-    function recalculateChannelMultipliers(multipliers: { VoltageMultiplier?: number, CurrentMultiplier?: number } = {}, wrappers?: ChannelScalingWrapper[]): void {
-        const vMultiplier: number = multipliers.VoltageMultiplier || VoltageMultiplier;
-        const iMultiplier: number = multipliers.CurrentMultiplier || CurrentMultiplier;
-
+    function recalculateChannelMultipliers(multiplier: IMultiplier, wrappers?: ChannelScalingWrapper[]): void {
+       
         if (wrappers == undefined)
             wrappers = _.cloneDeep(Wrappers);
 
         for (const wrapper of wrappers) {
-            const newMultiplier = wrapper.CalculateMultiplier(vMultiplier, iMultiplier);
+            const newMultiplier = wrapper.CalculateMultiplier(multiplier);
             wrapper.AdjustedMultiplier = wrapper.Channel.Multiplier * newMultiplier;
             wrapper.ReplacedMultiplier = newMultiplier;
         }
 
-        setVoltageMultiplier(vMultiplier);
-        setCurrentMultiplier(iMultiplier);
+        setMultiplier(multiplier);
         setWrappers(wrappers);
     }
 
@@ -178,20 +176,23 @@ const ChannelScalingForm = (props: IProps) => {
     else
         cardBody =
             <>
-                <div style={{ width: '100%', maxHeight: '27px', margin: 10 }}>
-                    Voltage Multiplier: <input style={{ width: "5em" }} type="text" value={VoltageMultiplier} onChange={(event) => {
-                        const value = event.target.value;
-                        const voltageMultiplier = toNumber(value);
-                        recalculateChannelMultipliers({ VoltageMultiplier: voltageMultiplier });
-                        setChanged(true);
-                    }} />
-                    <span style={{ marginLeft: "2em" }} />
-                    Current Multiplier: <input style={{ width: "5em" }} type="text" value={CurrentMultiplier} onChange={(event) => {
-                        const value = event.target.value;
-                        const currentMultiplier = toNumber(value);
-                        recalculateChannelMultipliers({ CurrentMultiplier: currentMultiplier });
-                        setChanged(true);
-                    }} />
+            <div className="row">
+                <div className="col-3">
+                    <Input<IMultiplier> Record={multiplier} Type={'number'} Label={'Voltage Multiplier'} Field={'Voltage'} Size={'small'} Setter={(r) => {
+                    recalculateChannelMultipliers(r);
+                    setChanged(true);
+                    }} Valid={(f) => true} />
+                </div>
+                <div className="col-3">
+                    <Input<IMultiplier> Size={'small'} Record={multiplier}
+                    Type={'number'}
+                    Label={'Current Multiplier'} 
+                    Field={'Current'} Setter={(r) => {
+                    recalculateChannelMultipliers(r);
+                    setChanged(true);
+
+                        }} Valid={(f) => true} />   
+                </div>
                 </div>
                 <div style={{ width: '100%' }}>
                     <Table<ChannelScalingWrapper>
@@ -203,7 +204,7 @@ const ChannelScalingForm = (props: IProps) => {
                                     const scalingTypeName = event.target.value;
                                     const wrapper = _.cloneDeep(Wrappers);
                                     wrapper[index].ScalingType = ChannelScalingType[scalingTypeName];
-                                    recalculateChannelMultipliers({},wrapper);
+                                    recalculateChannelMultipliers(multiplier,wrapper);
                                 }}>{ScalingTypes.map(a => <option key={ChannelScalingType[a]} value={ChannelScalingType[a]}>{ChannelScalingType[a]}</option>)}</select>
                             },
                             { key: 'Multiplier', field: 'PresentMultiplier', label: 'Applied Multiplier', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
@@ -217,7 +218,7 @@ const ChannelScalingForm = (props: IProps) => {
                         onSort={(d) => { }}
                         onClick={(fld) => { }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 497, }}
+                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, }}
                         rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                         selected={(item) => false}
                         keySelector={(item) => item.Channel.ID.toString()}
