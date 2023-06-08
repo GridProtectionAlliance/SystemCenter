@@ -178,19 +178,19 @@ const ChannelScalingForm = (props: IProps) => {
             <>
             <div className="row">
                 <div className="col-3">
-                    <Input<IMultiplier> Record={multiplier} Type={'number'} Label={'Voltage Multiplier'} Field={'Voltage'} Size={'small'} Setter={(r) => {
-                    recalculateChannelMultipliers(r);
+                    <Input<IMultiplier> Record={multiplier} AllowNull={true} Type={'number'} Label={'Voltage Multiplier'} Field={'Voltage'} Size={'small'} Setter={(r) => {
+                        recalculateChannelMultipliers({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
                     setChanged(true);
                     }} Valid={(f) => true} />
                 </div>
                 <div className="col-3">
                     <Input<IMultiplier> Size={'small'} Record={multiplier}
                     Type={'number'}
-                    Label={'Current Multiplier'} 
-                    Field={'Current'} Setter={(r) => {
-                    recalculateChannelMultipliers(r);
-                    setChanged(true);
-
+                        Label={'Current Multiplier'}
+                        AllowNull={true}
+                        Field={'Current'} Setter={(r) => {
+                            recalculateChannelMultipliers({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
+                            setChanged(true);
                         }} Valid={(f) => true} />   
                 </div>
                 </div>
@@ -218,7 +218,7 @@ const ChannelScalingForm = (props: IProps) => {
                         onSort={(d) => { }}
                         onClick={(fld) => { }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, }}
+                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 510, }}
                         rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                         selected={(item) => false}
                         keySelector={(item) => item.Channel.ID.toString()}
