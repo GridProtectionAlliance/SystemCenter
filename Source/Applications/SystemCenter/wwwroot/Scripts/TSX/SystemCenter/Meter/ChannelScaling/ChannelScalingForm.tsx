@@ -39,6 +39,7 @@ interface IProps {
     Channels: OpenXDA.Types.Channel[],
     UpdateChannels: (channels: OpenXDA.Types.Channel[]) => void,
     ChannelStatus?: Application.Types.Status,
+    Key?: string
 }
 
 
@@ -77,6 +78,28 @@ const ChannelScalingForm = (props: IProps) => {
     }, [props.ChannelStatus]);
 
     React.useEffect(() => {
+        recalculateChannelMultipliers();
+    }, [multiplier.Voltage, multiplier.Current]);
+
+    React.useEffect(() => {
+        if (props.Key == undefined)
+            return;
+        const multip = {
+            Voltage: parseFloat(localStorage.getItem('SystemCenter.ChannelScaling.' + props.Key + '.V') ?? multiplier.Voltage.toString()),
+            Current: parseFloat(localStorage.getItem('SystemCenter.ChannelScaling.' + props.Key + '.I') ?? multiplier.Current.toString()),
+        };
+        setMultiplier(multip);
+    }, [])
+    React.useEffect(() => {
+        if (props.Key == undefined)
+            return;
+        if (multiplier.Voltage != 1)
+            localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.V', multiplier.Voltage.toString());
+        if (multiplier.Current != 1)
+            localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.I', multiplier.Current.toString());
+    }, [multiplier]);
+
+    React.useEffect(() => {
         if (pStatus == 'unintiated' || pStatus == 'changed')
             dispatch(PhaseSlice.Fetch());
     }, [pStatus])
@@ -104,27 +127,11 @@ const ChannelScalingForm = (props: IProps) => {
                 return new ChannelScalingWrapper(channel, measurementType, measurementCharacteristic, phase);
             });
 
-            recalculateChannelMultipliers({ Voltage: getBaseVoltageMultiplier(wrappers), Current: getBaseCurrentMultiplier(wrappers) }, wrappers);
+            recalculateChannelMultipliers(wrappers);
         }
     }
 
-    function getBaseVoltageMultiplier(wrappers: ChannelScalingWrapper[]): number {
-        for (const wrapper of wrappers) {
-            if (wrapper.ScalingType === ChannelScalingType.Voltage)
-                return wrapper.Channel.Multiplier;
-        }
-        return 1;
-    }
-
-    function getBaseCurrentMultiplier(wrappers: ChannelScalingWrapper[]): number {
-        for (const wrapper of wrappers) {
-            if (wrapper.ScalingType === ChannelScalingType.Current)
-                return wrapper.Channel.Multiplier;
-        }
-        return 1;
-    }
-
-    function recalculateChannelMultipliers(multiplier: IMultiplier, wrappers?: ChannelScalingWrapper[]): void {
+    function recalculateChannelMultipliers(wrappers?: ChannelScalingWrapper[]): void {
        
         if (wrappers == undefined)
             wrappers = _.cloneDeep(Wrappers);
@@ -135,7 +142,6 @@ const ChannelScalingForm = (props: IProps) => {
             wrapper.ReplacedMultiplier = newMultiplier;
         }
 
-        setMultiplier(multiplier);
         setWrappers(wrappers);
     }
 
@@ -178,7 +184,7 @@ const ChannelScalingForm = (props: IProps) => {
             <div className="row">
                 <div className="col-3">
                     <Input<IMultiplier> Record={multiplier} AllowNull={true} Type={'number'} Label={'Voltage Multiplier'} Field={'Voltage'} Size={'small'} Setter={(r) => {
-                        recalculateChannelMultipliers({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
+                        setMultiplier({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
                     setChanged(true);
                     }} Valid={(f) => true} />
                 </div>
@@ -188,7 +194,7 @@ const ChannelScalingForm = (props: IProps) => {
                         Label={'Current Multiplier'}
                         AllowNull={true}
                         Field={'Current'} Setter={(r) => {
-                            recalculateChannelMultipliers({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
+                            setMultiplier({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
                             setChanged(true);
                         }} Valid={(f) => true} />   
                 </div>
@@ -203,7 +209,7 @@ const ChannelScalingForm = (props: IProps) => {
                                     const scalingTypeName = event.target.value;
                                     const wrapper = _.cloneDeep(Wrappers);
                                     wrapper[index].ScalingType = ChannelScalingType[scalingTypeName];
-                                    recalculateChannelMultipliers(multiplier,wrapper);
+                                    recalculateChannelMultipliers(wrapper);
                                 }}>{ScalingTypes.map(a => <option key={ChannelScalingType[a]} value={ChannelScalingType[a]}>{ChannelScalingType[a]}</option>)}</select>
                             },
                             { key: 'Multiplier', field: 'PresentMultiplier', label: 'Applied Multiplier', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
