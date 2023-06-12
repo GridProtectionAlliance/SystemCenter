@@ -367,7 +367,7 @@ export default function ChannelPage(props: IProps) {
                     { key: 'DeleteButton', label: '', headerStyle: { width: '3%' }, rowStyle: { width: '3%', paddingTop: 36, paddingBottom: 36 }, content: (item, field, key, style, index) => <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span>{TrashCan}</span></button> },
                     { key: 'Scroll', label: '', headerStyle: { width: '5px' }, rowStyle: { width: '0px' }, content: () => null }
                 ]}
-                    defaultColumns={["Series", "Name", "MeasurementType", "MeasurementCharacteristic", "Phase", "HarmonicGroup", "Adder", "Multiplier", "Description", "DeleteButton", "Scroll"]}
+                    defaultColumns={["Series", "Name", "Phase", "Adder", "Multiplier", "Description", "DeleteButton", "Scroll"]}
                     requiredColumns={["Name", "DeleteButton", "Scroll"]}
                     localStorageKey="ChannelPageConfigTable"
                     tableClass="table table-hover"
