@@ -58,6 +58,6 @@
     "buildrelease": "set NODE_OPTIONS=--openssl-legacy-provider && npm prune && npm install && webpack --mode=production",
     "watch": "webpack --watch --color --mode=development",
     "update": "npx npm-check-updates",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts,.tsx"
   }
 }
