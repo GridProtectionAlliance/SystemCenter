@@ -46,6 +46,6 @@
     "update": "npx npm-check-updates",
     "builddebug": "set NODE_OPTIONS=--openssl-legacy-provider && webpack --mode=none",
     "buildrelease": "set NODE_OPTIONS=--openssl-legacy-provider && npm prune && npm install && webpack --mode=production",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts,.tsx"
   }
 }
