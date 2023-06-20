@@ -93,7 +93,7 @@ const ChannelScalingForm = (props: IProps) => {
     React.useEffect(() => {
         if (props.Key == undefined)
             return;
-        if (multiplier.Voltage != 1)
+        if (changed)
             localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.V', multiplier.Voltage.toString());
         if (multiplier.Current != 1)
             localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.I', multiplier.Current.toString());
