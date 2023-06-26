@@ -244,11 +244,11 @@ const MeterEventChannelWindow = (props: IProps) => {
                             content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'SourceIndices'} Label={''} Setter={(r) => createChange(r, 'SourceIndices')} Valid={(f) => isValid(f,c)} />
                         },
                         {
-                            key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' },
+                            key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                             content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Name'} Label={''} Setter={(r) => createChange(r, 'Name')} Valid={(f) => isValid(f, c)} />
                         },
                         {
-                            key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: '20%' }, rowStyle: { width: '20%' },
+                            key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                             content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Description'} Label={''} Setter={(r) => createChange(r, 'Description')} Valid={(f) => isValid(f, c)} />
                         },
                         {
