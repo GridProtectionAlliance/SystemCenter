@@ -146,7 +146,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading">Monitors and Assets</h6>
                             <ul style={{ marginLeft: 10 }} className="nav flex-column">
                                 <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=Meter")} to={controllerViewPath + "?name=Meters"}>Meters</NavLink>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=Meter") || (location.pathname + location.search).includes(controllerViewPath + "?name=ConfigurationHistory")} to={controllerViewPath + "?name=Meters"}>Meters</NavLink>
                                 </li>
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=Location")} to={controllerViewPath + "?name=Locations"}>Substations</NavLink>
@@ -243,7 +243,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
                                 </li>
                                 <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=Groups") && !(location.pathname + location.search != controllerViewPath + "?name=Groups")} to={controllerViewPath + "?name=Groups"}>User Groups</NavLink>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=Groups") || (location.pathname + location.search).includes(controllerViewPath + "?name=Group")} to={controllerViewPath + "?name=Groups"}>User Groups</NavLink>
                                 </li>
                             </ul>
                         </div>
