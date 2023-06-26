@@ -391,6 +391,7 @@ namespace SystemCenter.Model.Security
                     ReceiveNotifications= newRecord.ReceiveNotifications,
                     MobilePhone = newRecord.MobilePhone,
                     FirstName   = newRecord.FirstName,
+                    LastName = newRecord.LastName,
                     CreatedBy = User.Identity.Name,
                     CreatedOn = DateTime.UtcNow,
                     UpdatedBy = User.Identity.Name,
