@@ -153,7 +153,7 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                 Show={showSelect}
                 Type={'multiple'}
                 Columns={[
-                    { key: 'Name', field: 'AccountName', label: 'Username', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                    { key: 'Name', field: 'Name', label: 'Username', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                     { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                     { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                     { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
