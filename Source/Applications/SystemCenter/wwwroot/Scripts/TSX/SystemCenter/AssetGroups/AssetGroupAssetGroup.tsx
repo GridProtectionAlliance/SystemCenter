@@ -172,7 +172,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                         }}
                         onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + data.row.ID})}}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        tbodyStyle={{ display: 'block', maxHeight: window.innerHeight - 300, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         selected={(item) => false}
                         />
