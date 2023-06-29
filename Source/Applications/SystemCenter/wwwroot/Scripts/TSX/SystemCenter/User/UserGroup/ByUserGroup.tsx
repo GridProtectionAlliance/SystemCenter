@@ -33,8 +33,8 @@ import { ISecurityGroup } from '../Types';
 import { useSelector } from 'react-redux';
 import GroupForm from './GroupForm';
 
-const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
-    { label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false },
+const defaultSearchcols: Search.IField<Application.Types.iSecurityGroup>[] = [
+    { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
     { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
     { label: 'Type', key: 'Type', type: 'string', isPivotField: false },
 ];
@@ -55,6 +55,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
     const sortField = useSelector(SecurityGroupSlice.SortField);
     const ascending = useSelector(SecurityGroupSlice.Ascending);
+
+    const [filterableList, setFilterableList] = React.useState<Search.IField<ISecurityGroup>[]>(defaultSearchcols);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [groupError, setGroupError] = React.useState<string[]>([]);
@@ -85,7 +87,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <LoadingScreen Show={pageStatus === 'loading'} />
-            <SearchBar<ISecurityGroup> CollumnList={defaultSearchcols} SetFilter={(flds) => dispatch(SecurityGroupSlice.DBSearch({ filter: flds }))}
+            <SearchBar<ISecurityGroup> CollumnList={filterableList} SetFilter={(flds) => dispatch(SecurityGroupSlice.DBSearch({ sortField, ascending, filter: flds }))}
                 Direction={'left'} defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                 ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' User Group(s)'}
                 GetEnum={() => {
