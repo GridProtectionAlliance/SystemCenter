@@ -4,6 +4,76 @@
         <name>openXDA.APIAuthentication</name>
     </assembly>
     <members>
+        <member name="T:openXDA.APIAuthentication.APIConsoleController">
+            <summary>
+            Base Class that includes the endpoints needed for the API based Console.
+            </summary>
+        </member>
+        <member name="T:openXDA.APIAuthentication.APIConsoleController.ConsoleMessage">
+            <summary>
+            Represents a Console Message and the corresponding <see cref="T:GSF.UpdateType"/>
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.APIConsoleController.ConsoleMessage.Message">
+            <summary>
+            Gets or sets the text of the message.
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.APIConsoleController.ConsoleMessage.Type">
+            <summary>
+            Gets or sets the type of the message.
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.APIConsoleController.Host">
+            <summary>
+            The <see cref="T:openXDA.APIAuthentication.IAPIConsoleHost"/> that the console is attached to
+            </summary>
+        </member>
+        <member name="M:openXDA.APIAuthentication.APIConsoleController.Connect">
+            <summary>
+            Connects a new Client to the console
+            </summary>
+            <returns>The Session ID of the new connection</returns>
+        </member>
+        <member name="M:openXDA.APIAuthentication.APIConsoleController.Retrieve(System.String)">
+            <summary>
+            Retrieves the messages for this session
+            </summary>
+        </member>
+        <member name="M:openXDA.APIAuthentication.APIConsoleController.Send(System.String,System.String)">
+            <summary>
+            Send a command to the console
+            </summary>
+        </member>
+        <member name="T:openXDA.APIAuthentication.IAPIConsoleHost">
+            <summary>
+            Interface for a Program.Host to include all required pieces for a <see cref="T:openXDA.APIAuthentication.APIConsoleController"/> to hook into.
+            </summary>
+        </member>
+        <member name="E:openXDA.APIAuthentication.IAPIConsoleHost.UpdatedStatus">
+            <summary>
+            Raised when there is a new status message reported to service.
+            </summary>
+        </member>
+        <member name="E:openXDA.APIAuthentication.IAPIConsoleHost.SendingClientResponse">
+            <summary>
+            Raise when a response is being sent to one or more clients.
+            </summary>
+        </member>
+        <member name="M:openXDA.APIAuthentication.IAPIConsoleHost.SendRequest(System.Guid,System.Security.Principal.IPrincipal,System.String)">
+            <summary>
+            Sends a command request to the service.
+            </summary>
+            <param name="clientID">Client ID of sender.</param>
+            <param name="principal">The principal used for role-based security.</param>
+            <param name="userInput">Request string.</param>
+        </member>
+        <member name="M:openXDA.APIAuthentication.IAPIConsoleHost.DisconnectClient(System.Guid)">
+            <summary>
+            Disconnects a client from the service.
+            </summary>
+            <param name="clientID">Client ID</param>
+        </member>
         <member name="T:openXDA.APIAuthentication.RequestVerificationHeaderTokenController">
             <summary>
             Provides the endpoint for requests to retrieve CSRF anti-forgery tokens.
