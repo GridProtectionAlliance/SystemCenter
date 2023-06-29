@@ -94,7 +94,7 @@ function UserGroup(props: IProps) {
 				setShowWarning(false);
 				if (c) {
 					dispatch(SecurityGroupSlice.DBAction({ verb: 'DELETE', record: group }));
-					history.push({ pathname: homePath + 'index.cshtml?name=Groups' });
+					history.push({ pathname: homePath + 'index.cshtml', search: '?name=Groups', state: {} });
 				}
 			}} />
 		</div>
