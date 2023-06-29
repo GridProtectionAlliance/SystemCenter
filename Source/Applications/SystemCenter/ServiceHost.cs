@@ -122,6 +122,11 @@ namespace SystemCenter
         public event EventHandler<EventArgs<Guid, string, UpdateType>> UpdatedStatus;
 
         /// <summary>
+        /// Raise when a response is being sent to one or more clients.
+        /// </summary>
+        public event EventHandler<EventArgs<Guid, ServiceResponse, bool>> SendingClientResponse;
+
+        /// <summary>
         /// Raised when there is a new exception logged to service.
         /// </summary>
         public event EventHandler<EventArgs<Exception>> LoggedException;
@@ -261,6 +266,7 @@ namespace SystemCenter
             m_serviceHelper.ClientRequestHandlers.Add(new ClientRequestHandler("EngineStatus", "Displays status information about the XDA engine", EngineStatusHandler));
             m_serviceHelper.ClientRequestHandlers.Add(new ClientRequestHandler("MsgServiceMonitors", "Sends a message to all service monitors", MsgServiceMonitorsRequestHandler));
             m_serviceHelper.UpdatedStatus += UpdatedStatusHandler;
+            m_serviceHelper.SendingClientResponse += SendingClientResponseHandler;
             m_serviceHelper.LoggedException += LoggedExceptionHandler;
 
             // Set up adapter loader to load service monitors
@@ -328,6 +334,7 @@ namespace SystemCenter
             m_serviceStopping = true;
             m_startEngineThread.Join();
             m_serviceHelper.UpdatedStatus -= UpdatedStatusHandler;
+            m_serviceHelper.SendingClientResponse -= SendingClientResponseHandler;
             m_serviceHelper.LoggedException -= LoggedExceptionHandler;
 
             // Dispose of adapter loader for service monitors
@@ -932,6 +939,11 @@ namespace SystemCenter
         {
             if ((object)UpdatedStatus != null)
                 UpdatedStatus(sender, new EventArgs<Guid, string, UpdateType>(e.Argument1, e.Argument2, e.Argument3));
+        }
+        private void SendingClientResponseHandler(object sender, EventArgs<Guid, ServiceResponse, bool> e)
+        {
+            if ((object)SendingClientResponse != null)
+                SendingClientResponse(sender, new EventArgs<Guid, ServiceResponse, bool>(e.Argument1, e.Argument2, e.Argument3));
         }
 
         private void LoggedExceptionHandler(object sender, EventArgs<Exception> e)
