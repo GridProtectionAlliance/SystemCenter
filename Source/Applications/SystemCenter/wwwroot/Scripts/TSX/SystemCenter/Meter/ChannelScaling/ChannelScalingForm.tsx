@@ -58,7 +58,6 @@ const ChannelScalingForm = (props: IProps) => {
     const mcStatus = useAppSelector(MeasurementCharacteristicSlice.Status) as Application.Types.Status;
     const [status, setStatus] = React.useState <Application.Types.Status>('idle');
     const [hover, setHover] = React.useState<( 'Reset' | 'None' | 'Replace' | 'Adjust' )>('None');
-    const [changed, setChanged] = React.useState<boolean>(false);
 
     // Constants
     const ScalingTypes: ChannelScalingType[] = [
@@ -91,12 +90,9 @@ const ChannelScalingForm = (props: IProps) => {
         setMultiplier(multip);
     }, [])
     React.useEffect(() => {
-        if (props.Key == undefined)
-            return;
-        if (changed)
             localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.V', multiplier.Voltage.toString());
             localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.I', multiplier.Current.toString());
-    }, [multiplier]);
+    }, [multiplier.Voltage, multiplier.Current]);
 
     React.useEffect(() => {
         if (pStatus == 'unintiated' || pStatus == 'changed')
@@ -184,7 +180,6 @@ const ChannelScalingForm = (props: IProps) => {
                 <div className="col-3">
                     <Input<IMultiplier> Record={multiplier} AllowNull={true} Type={'number'} Label={'Voltage Multiplier'} Field={'Voltage'} Size={'small'} Setter={(r) => {
                         setMultiplier({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
-                    setChanged(true);
                     }} Valid={(f) => true} />
                 </div>
                 <div className="col-3">
@@ -194,7 +189,6 @@ const ChannelScalingForm = (props: IProps) => {
                         AllowNull={true}
                         Field={'Current'} Setter={(r) => {
                             setMultiplier({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
-                            setChanged(true);
                         }} Valid={(f) => true} />   
                 </div>
                 </div>
