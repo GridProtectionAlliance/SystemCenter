@@ -51,7 +51,8 @@ namespace SystemCenter.Controllers
         {
             {"TimeZones", "UTC"},
             {"Make", "GPA"},
-            {"Model", "PQMeter"}
+            {"Model", "PQMeter"},
+            {"Unit", "Unknown"}
         };
 
         [HttpGet, Route("Group/{groupName}")]
