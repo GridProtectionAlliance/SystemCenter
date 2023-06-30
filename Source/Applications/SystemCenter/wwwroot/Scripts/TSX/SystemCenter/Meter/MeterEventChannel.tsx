@@ -26,11 +26,10 @@ import * as _ from 'lodash';
 import { Application, OpenXDA as GemstoneOpenXDA} from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { ConfigurableTable, LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { Input, Select } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
-import Table from '@gpa-gemstone/react-table';
 import { OpenXDA } from '../global';
 import { SelectAscending, SelectSortKey, SelectEventChannels, SelectEventChannelStatus, SelectMeterID, dBAction } from '../Store/EventChannelSlice';
 import { FetchChannels } from '../Store/EventChannelSlice';
@@ -238,18 +237,18 @@ const MeterEventChannelWindow = (props: IProps) => {
         </div>
         <div className="card-body">
             <div style={{ width: '100%', height: window.innerHeight - 420 }}>
-                <Table<OpenXDA.EventChannel>
+                <ConfigurableTable<OpenXDA.EventChannel>
                     cols={[
                         {
-                            key: 'SourceIndices', field: 'SourceIndices', label: 'Channel', headerStyle: { width: '5%' }, rowStyle: { width: '5%' },
+                            key: 'SourceIndices', field: 'SourceIndices', label: 'Channel', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
                             content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'SourceIndices'} Label={''} Setter={(r) => createChange(r, 'SourceIndices')} Valid={(f) => isValid(f,c)} />
                         },
                         {
-                            key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' },
+                            key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                             content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Name'} Label={''} Setter={(r) => createChange(r, 'Name')} Valid={(f) => isValid(f, c)} />
                         },
                         {
-                            key: 'Description', field: 'Description', label: 'Desc', headerStyle: { width: '25%' }, rowStyle: { width: '25%' },
+                            key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                             content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Description'} Label={''} Setter={(r) => createChange(r, 'Description')} Valid={(f) => isValid(f, c)} />
                         },
                         {
@@ -259,36 +258,38 @@ const MeterEventChannelWindow = (props: IProps) => {
                         {
                             key: 'Phase', field: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
                             content: (c) => <Select Record={c} Field={'PhaseID'} Label={''} Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'PhaseID')} />
-                            
                         },
                         {
-                            key: 'Adder', field: 'Adder', label: 'Adder', headerStyle: { width: '5%' }, rowStyle: { width: '5%' },
+                            key: 'Adder', field: 'Adder', label: 'Adder', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
                             content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Adder'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'Adder')} Valid={(f) => isValid(f, c)} />
                         },
                         {
-                            key: 'Multiplier', field: 'Multiplier', label: 'Multiplier', headerStyle: { width: '5%' }, rowStyle: { width: '5%' },
+                            key: 'Multiplier', field: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
                             content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Multiplier'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'Multiplier')} Valid={(f) => isValid(f, c)} />
                         },
                         {
-                            key: 'Asset', field: 'Asset', label: 'Asset', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
+                            key: 'Asset', field: 'Asset', label: 'Asset', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                             content: (c) => <Select Record={c} Field={'AssetID'} Label={''} Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'AssetID')} />
                         },
                         {
-                            key: 'ConnectionPriority', field: 'ConnectionPriority', label: 'Con.', headerStyle: { width: '5%' }, rowStyle: { width: '5%' },
+                            key: 'ConnectionPriority', field: 'ConnectionPriority', label: 'Priority', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
                             content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'ConnectionPriority'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'ConnectionPriority')} Valid={(f) => isValid(f, c)} />
                         },
                         {
-                            key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                            key: 'Remove', label: '', headerStyle: { width: '3%' }, rowStyle: { width: '3%' },
                             content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveRecord(c)}><span>{TrashCan}</span></button>
                         },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                     ]}
+                    defaultColumns={["SourceIndices", "Name", "Phase", "MeasurementType", "Adder", "Multiplier", "Description", "Asset", "ConnectionPriority", "Remove", "Scroll"]}
+                    requiredColumns={["Name", "Remove", "Scroll"]}
+                    localStorageKey="MeterEventChannelConfigTable"
                     tableClass="table table-hover"
                     data={data.map(c => replicateChanges(c))}
                     sortKey={sortKey}
                     ascending={ascending}
-                        onSort={(d) => {
+                    onSort={(d) => {
 
                             if (d.colKey === "Scroll" || d.colKey == 'Remove')
                                 return;
@@ -299,6 +300,7 @@ const MeterEventChannelWindow = (props: IProps) => {
                                 dispatch(FetchChannels({ sortField: d.colField, ascending: true, meterId: props.Meter.ID }));
                         }}
                     onClick={() => { }}
+                    tableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed'}}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

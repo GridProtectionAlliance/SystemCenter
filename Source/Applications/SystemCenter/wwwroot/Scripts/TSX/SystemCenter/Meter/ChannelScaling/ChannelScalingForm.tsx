@@ -58,7 +58,6 @@ const ChannelScalingForm = (props: IProps) => {
     const mcStatus = useAppSelector(MeasurementCharacteristicSlice.Status) as Application.Types.Status;
     const [status, setStatus] = React.useState <Application.Types.Status>('idle');
     const [hover, setHover] = React.useState<( 'Reset' | 'None' | 'Replace' | 'Adjust' )>('None');
-    const [changed, setChanged] = React.useState<boolean>(false);
 
     // Constants
     const ScalingTypes: ChannelScalingType[] = [
@@ -91,13 +90,9 @@ const ChannelScalingForm = (props: IProps) => {
         setMultiplier(multip);
     }, [])
     React.useEffect(() => {
-        if (props.Key == undefined)
-            return;
-        if (multiplier.Voltage != 1)
             localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.V', multiplier.Voltage.toString());
-        if (multiplier.Current != 1)
             localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.I', multiplier.Current.toString());
-    }, [multiplier]);
+    }, [multiplier.Voltage, multiplier.Current]);
 
     React.useEffect(() => {
         if (pStatus == 'unintiated' || pStatus == 'changed')
@@ -185,7 +180,6 @@ const ChannelScalingForm = (props: IProps) => {
                 <div className="col-3">
                     <Input<IMultiplier> Record={multiplier} AllowNull={true} Type={'number'} Label={'Voltage Multiplier'} Field={'Voltage'} Size={'small'} Setter={(r) => {
                         setMultiplier({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
-                    setChanged(true);
                     }} Valid={(f) => true} />
                 </div>
                 <div className="col-3">
@@ -195,7 +189,6 @@ const ChannelScalingForm = (props: IProps) => {
                         AllowNull={true}
                         Field={'Current'} Setter={(r) => {
                             setMultiplier({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
-                            setChanged(true);
                         }} Valid={(f) => true} />   
                 </div>
                 </div>
@@ -238,26 +231,26 @@ const ChannelScalingForm = (props: IProps) => {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + (!changed ? ' disabled' : '')} onClick={() => { if(changed) useReplacedMultiplier(); }}
+                    <button className={"btn btn-primary pull-right" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if(multiplier.Voltage  != 1 || multiplier.Current != 1) useReplacedMultiplier(); }}
                         onMouseEnter={() => setHover('Replace')} onMouseLeave={() => setHover('None')} data-tooltip={"rep"}
                     >Replace Multipliers</button>
-                    <ToolTip Show={hover == 'Replace' && (!changed)} Position={'top'} Theme={'dark'} Target={"rep"}>
+                    <ToolTip Show={hover == 'Replace' && (multiplier.Voltage == 1 || multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"rep"}>
                         <p> There are no changes to be applied. </p>
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + (!changed ? ' disabled' : '')} onClick={() => { if (changed) useAdjustedMultiplier(); }}
+                    <button className={"btn btn-primary pull-right" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) useAdjustedMultiplier(); }}
                         onMouseEnter={() => setHover('Adjust')} onMouseLeave={() => setHover('None')} data-tooltip={"adj"}
                     >Adjust Multipliers</button>
-                    <ToolTip Show={hover == 'Adjust' && (changed)} Position={'top'} Theme={'dark'} Target={"adj"}>
+                    <ToolTip Show={hover == 'Adjust' && (multiplier.Voltage != 1 || multiplier.Current != 1)} Position={'top'} Theme={'dark'} Target={"adj"}>
                         <p> There are no changes to be applied. </p>
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-default" + (!changed ? ' disabled' : '')} onClick={() => { if (changed) initializeWrappers(); }}
+                    <button className={"btn btn-default" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) initializeWrappers(); }}
                         onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"res"}
                     >Clear Changes</button>
-                    <ToolTip Show={hover == 'Reset' && (changed)} Position={'top'} Theme={'dark'} Target={"res"}>
+                    <ToolTip Show={hover == 'Reset' && (multiplier.Voltage == 1 || multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"res"}>
                         <p> All changes will be lost. </p>
                     </ToolTip>
                 </div>
