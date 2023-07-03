@@ -65,6 +65,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const BySettings = React.lazy(() => import(/* webpackChunkName: "BySetting" */ './Settings/BySetting'));
     const ByValueListGroup = React.lazy(() => import(/* webpackChunkName: "ByValueListGroup" */ './ValueListGroup/ByValueListGroup'));
     const ValueListGroup = React.lazy(() => import(/* webpackChunkName: "ValueListGroup" */ './ValueListGroup/ValueListGroup'));
+    const ByChannelGroup = React.lazy(() => import(/* webpackChunkName: "ByChannelGroup" */ './ChannelGroup/ByChannelGroup'));
     const DownloadedFiles = React.lazy(() => import(/* webpackChunkName: "DownloadedFiles" */ './DeviceHealthReport/DownloadedFiles'));
     const DeviceHealthReport = React.lazy(() => import(/* webpackChunkName: "DeviceHealthReport" */ './DeviceHealthReport/DeviceHealthReport'));
     const DeviceContacts = React.lazy(() => import(/* webpackChunkName: "DeviceContacts" */ './DeviceHealthReport/DeviceContacts'));
@@ -204,6 +205,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ValueList")} to={controllerViewPath + "?name=ValueLists"}>Value Lists</NavLink>
                                 </li>
+                                <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ChannelGroup")} to={controllerViewPath + "?name=ChannelGroups"}>Channel Groups</NavLink>
+                                </li>
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=SystemCenter"} to={controllerViewPath + "?name=Settings&System=SystemCenter"}>System Center</NavLink>
                                 </li>
@@ -313,6 +317,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <NewMeterWizard />
                                 else if (qs['?name'] == "ValueListGroup")
                                     return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} />
+                                //else if (qs['?name'] == "ChannelGroup")
+                                //    return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} />
                                 else if (qs['?name'] == "Settings")
                                     return <BySettings Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
                                 else if (qs['?name'] == "DataOperations")
@@ -345,6 +351,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (queryString.parse(rest.location.search)['?name'] == "ValueLists") {
                                     if (roles.indexOf('Administrator') < 0) return null;
                                     return <ByValueListGroup Roles={roles} />
+                                }
+                                else if (queryString.parse(rest.location.search)['?name'] == "ChannelGroups") {
+                                    return <ByChannelGroup Roles={roles} />
                                 }
                                 else if (queryString.parse(rest.location.search)['?name'] == "ConfigurationHistory") {
                                     if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
