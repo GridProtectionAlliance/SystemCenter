@@ -90,21 +90,26 @@ namespace SystemCenter.Controllers
         }
     }
 
-    [RoutePrefix("api/ChannelGroup")]
-    public class ChannelGroupController : ModelController<openXDA.Model.ChannelGroup>
+    [RoutePrefix("api/ChannelGroupType")]
+    public class ChannelGroupTypeController : ModelController<openXDA.Model.ChannelGroupType>
     {
         [HttpGet, Route("Group/{groupName}")]
         public IHttpActionResult GetChannelsForGroup(string groupName)
         {
             using AdoDataConnection connection = new AdoDataConnection(Connection);
             TableOperations<openXDA.Model.ChannelGroup> groupTable = new TableOperations<openXDA.Model.ChannelGroup>(connection);
+            string t = groupTable.TableName;
             TableOperations<openXDA.Model.ChannelGroupType> typeTable = new TableOperations<openXDA.Model.ChannelGroupType>(connection);
+            string t2 = typeTable.TableName;
             List<int> groupIds = groupTable.QueryRecordsWhere("Name = {0}", groupName).Select(group => group.ID).ToList();
 
-            IEnumerable<openXDA.Model.ChannelGroupType> records = typeTable.QueryRecordsWhere("GroupID in ({0})", string.Join(", ", groupIds));
+            IEnumerable<openXDA.Model.ChannelGroupType> records = typeTable.QueryRecordsWhere("ChannelGroupID in ({0})", string.Join(", ", groupIds));
             return Ok(records);
         }
     }
+
+    [RoutePrefix("api/ChannelGroup")]
+    public class ChannelGroupController : ModelController<openXDA.Model.ChannelGroup> { }
 
     [RoutePrefix("api/LSCVSAccount")]
     public class LSCVSAccountController : ModelController<LSCVSAccount> { }

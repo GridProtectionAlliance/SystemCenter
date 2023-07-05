@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { ChannelGroupSlice, ChannelGroupItemSlice } from '../Store/Store';
+import { ChannelGroupSlice, ChannelGroupTypeSlice } from '../Store/Store';
 
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
@@ -40,19 +40,19 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
 
     const data = useAppSelector(ChannelGroupSlice.SearchResults);
     const status = useAppSelector(ChannelGroupSlice.SearchStatus);
-    const items = useAppSelector(ChannelGroupItemSlice.Data);
-    const itemStatus = useAppSelector(ChannelGroupItemSlice.Status);
+    const items = useAppSelector(ChannelGroupTypeSlice.Data);
+    const itemStatus = useAppSelector(ChannelGroupTypeSlice.Status);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
-    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ChannelGroupType>('Name');
+    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ChannelGroup>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
     const emptyRecord = { ID: 0, Name: '', Description: '' };
     let history = useHistory();
 
-    const [search, setSearch] = React.useState<Array<Search.IFilter<SystemCenter.Types.ChannelGroupType>>>([]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<SystemCenter.Types.ChannelGroup>>>([]);
 
-    const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroupType>(emptyRecord);
+    const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroup>(emptyRecord);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
@@ -71,7 +71,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (itemStatus == 'unintiated' || itemStatus == 'changed')
-            dispatch(ChannelGroupItemSlice.Fetch());
+            dispatch(ChannelGroupTypeSlice.Fetch());
 
         return function () {
         }
@@ -83,11 +83,11 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar< SystemCenter.Types.ChannelGroupType>
-                CollumnList={SearchFields.ValueListGroup as Search.IField<SystemCenter.Types.ChannelGroupType>[]}
+            <SearchBar< SystemCenter.Types.ChannelGroup>
+                CollumnList={SearchFields.ValueListGroup as Search.IField<SystemCenter.Types.ChannelGroup>[]}
                 SetFilter={(flds) => setSearch(flds)}
                 Direction={'left'}
-                defaultCollumn={DefaultSearchField.ValueListGroup as Search.IField<SystemCenter.Types.ChannelGroupType>}
+                defaultCollumn={DefaultSearchField.ValueListGroup as Search.IField<SystemCenter.Types.ChannelGroup>}
                 Width={'50%'}
                 Label={'Search'}
                 ShowLoading={status == 'loading'}
@@ -124,13 +124,13 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table< SystemCenter.Types.ChannelGroupType>
+                <Table< SystemCenter.Types.ChannelGroup>
                     cols={[
                         { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Description', field: 'Description',label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'Items', label: 'Items', field: 'Items', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-                            content: (item, key, style) => items.filter(i => i.GroupID == item.ID).length
+                            content: (item, key, style) => items.filter(i => i.ChannelGroupID == item.ID).length
                         },
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 

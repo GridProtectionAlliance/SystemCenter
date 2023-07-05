@@ -348,18 +348,17 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <DeviceContacts ID={parseInt(qs.ID as string)} Name={qs.Name as string} Field={qs.Field as 'TSC' | 'Sector'} />
                                 else if (qs['?name'] == "DeviceIssuesPage")
                                     return <DeviceIssuesPage MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} OpenMICAcronym={qs.OpenMICAcronym as string } />
-                                else if (queryString.parse(rest.location.search)['?name'] == "ValueLists") {
+                                else if (qs['?name'] == "ValueLists") {
                                     if (roles.indexOf('Administrator') < 0) return null;
                                     return <ByValueListGroup Roles={roles} />
                                 }
-                                else if (queryString.parse(rest.location.search)['?name'] == "ChannelGroups") {
+                                else if (qs['?name'] == "ChannelGroups")
                                     return <ByChannelGroup Roles={roles} />
-                                }
-                                else if (queryString.parse(rest.location.search)['?name'] == "ConfigurationHistory") {
+                                else if (qs['?name'] == "ConfigurationHistory") {
                                     if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
-                                    return <ConfigurationHistory MeterConfigurationID={parseInt(queryString.parse(rest.location.search).MeterConfigurationID as string)} MeterKey={queryString.parse(rest.location.search).MeterKey as string} />
+                                    return <ConfigurationHistory MeterConfigurationID={parseInt(qs.MeterConfigurationID as string)} MeterKey={qs.MeterKey as string} />
                                 }
-                                else if (queryString.parse(rest.location.search)['?name'] == "DataFiles") {
+                                else if (qs['?name'] == "DataFiles") {
                                     if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
                                     return <DataFile Roles={roles} />
                                 }
