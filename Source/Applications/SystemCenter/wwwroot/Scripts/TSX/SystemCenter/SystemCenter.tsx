@@ -66,6 +66,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ByValueListGroup = React.lazy(() => import(/* webpackChunkName: "ByValueListGroup" */ './ValueListGroup/ByValueListGroup'));
     const ValueListGroup = React.lazy(() => import(/* webpackChunkName: "ValueListGroup" */ './ValueListGroup/ValueListGroup'));
     const ByChannelGroup = React.lazy(() => import(/* webpackChunkName: "ByChannelGroup" */ './ChannelGroup/ByChannelGroup'));
+    const ChannelGroup = React.lazy(() => import(/* webpackChunkName: "ChannelGroup" */ './ChannelGroup/ChannelGroup'));
     const DownloadedFiles = React.lazy(() => import(/* webpackChunkName: "DownloadedFiles" */ './DeviceHealthReport/DownloadedFiles'));
     const DeviceHealthReport = React.lazy(() => import(/* webpackChunkName: "DeviceHealthReport" */ './DeviceHealthReport/DeviceHealthReport'));
     const DeviceContacts = React.lazy(() => import(/* webpackChunkName: "DeviceContacts" */ './DeviceHealthReport/DeviceContacts'));
@@ -317,8 +318,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <NewMeterWizard />
                                 else if (qs['?name'] == "ValueListGroup")
                                     return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} />
-                                //else if (qs['?name'] == "ChannelGroup")
-                                //    return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} />
+                                else if (qs['?name'] == "ChannelGroup")
+                                    return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} />
                                 else if (qs['?name'] == "Settings")
                                     return <BySettings Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
                                 else if (qs['?name'] == "DataOperations")

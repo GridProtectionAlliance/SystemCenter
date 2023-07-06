@@ -32,7 +32,7 @@ import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
-//import ChannelGroupForm from './ChannelGroupForm';
+import ChannelGroupForm from './ChannelGroupForm';
 
 
 const ChannelGroups: Application.Types.iByComponent = (props) => {
