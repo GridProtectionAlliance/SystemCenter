@@ -74,7 +74,7 @@ export default function ChannelGroup(props: { GroupID: number }) {
 
 
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={(t) => setTab(t as ('items' | 'info'))} Tabs={[{ Label: 'Channel Group Info', Id: 'info' }, { Label: 'List Items', Id: 'items'}]} />
+            <TabSelector CurrentTab={tab} SetTab={(t) => setTab(t as ('items' | 'info'))} Tabs={[{ Label: 'Channel Group Info', Id: 'info' }, { Label: 'Group Items', Id: 'items'}]} />
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">

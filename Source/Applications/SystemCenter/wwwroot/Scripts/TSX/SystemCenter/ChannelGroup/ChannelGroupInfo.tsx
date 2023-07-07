@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  CompanyInfo.tsx - Gbtc
+//  ChannelGroupInfo.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -29,7 +29,7 @@ import { useAppDispatch } from '../hooks';
 import { ChannelGroupSlice } from '../Store/Store';
 import ChannelGroupForm from './ChannelGroupForm';
 
-const ChannelInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup }) => {
+const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup }) => {
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroup>(props.Record);
     const dispatch = useAppDispatch();
 
@@ -39,7 +39,7 @@ const ChannelInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup }) =
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>Channel Information:</h4>
+                        <h4>Channel Group Information:</h4>
                     </div>
                 </div>
             </div>
@@ -60,4 +60,4 @@ const ChannelInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup }) =
     );
 }
 
-export default ChannelInfoWindow;
+export default ChannelGroupInfoWindow;

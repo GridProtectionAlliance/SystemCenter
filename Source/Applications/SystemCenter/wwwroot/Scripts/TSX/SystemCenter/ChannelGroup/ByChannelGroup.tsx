@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { ChannelGroupSlice, ChannelGroupTypeSlice } from '../Store/Store';
+import { ChannelGroupSlice, ChannelGroupDetailsSlice } from '../Store/Store';
 
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
@@ -40,8 +40,8 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
 
     const data = useAppSelector(ChannelGroupSlice.SearchResults);
     const status = useAppSelector(ChannelGroupSlice.SearchStatus);
-    const items = useAppSelector(ChannelGroupTypeSlice.Data);
-    const itemStatus = useAppSelector(ChannelGroupTypeSlice.Status);
+    const items = useAppSelector(ChannelGroupDetailsSlice.Data);
+    const itemStatus = useAppSelector(ChannelGroupDetailsSlice.Status);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ChannelGroup>('Name');
@@ -71,7 +71,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (itemStatus == 'unintiated' || itemStatus == 'changed')
-            dispatch(ChannelGroupTypeSlice.Fetch());
+            dispatch(ChannelGroupDetailsSlice.Fetch());
 
         return function () {
         }
@@ -130,7 +130,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                         { key: 'Description', field: 'Description',label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'Items', label: 'Items', field: 'Items', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-                            content: (item, key, style) => items.filter(i => i.ChannelGroupID == item.ID).length
+                            content: (item, key, style) => items.filter(i => i.ChannelGroup == item.Name).length
                         },
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 

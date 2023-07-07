@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  CompanyMeter.tsx - Gbtc
+//  ChannelGroupItem.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -26,35 +26,36 @@ import * as _ from 'lodash';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { ChannelGroupTypeSlice, ChannelGroupItemSlice } from '../Store/Store';
+import { ChannelGroupDetailsSlice } from '../Store/Store';
 import ChannelGroupForm from './ChannelGroupForm';
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
 interface IProps { Record: SystemCenter.Types.ChannelGroup }
-export default function ChannelGroupItems(props: IProps) {
+export default function ChannelGroupDetails(props: IProps) {
     const dispatch = useAppDispatch();
 
-    const data = useAppSelector(ChannelGroupTypeSlice.Data);
-    const sortKey = useAppSelector(ChannelGroupTypeSlice.SortField);
-    const asc = useAppSelector(ChannelGroupTypeSlice.Ascending);
-    const status = useAppSelector(ChannelGroupTypeSlice.Status);
-    const parentID= useAppSelector(ChannelGroupTypeSlice.ParentID);
+    const data = useAppSelector(ChannelGroupDetailsSlice.Data);
+    const sortKey = useAppSelector(ChannelGroupDetailsSlice.SortField);
+    const asc = useAppSelector(ChannelGroupDetailsSlice.Ascending);
+    const status = useAppSelector(ChannelGroupDetailsSlice.Status);
+    const parentID= useAppSelector(ChannelGroupDetailsSlice.ParentID);
 
-    const emptyRecord: SystemCenter.Types.ChannelGroupType = { ID: 0, ChannelGroupID: 0, MeasurementTypeID: 0, MeasurementCharacteristicID: 0, DisplayName: '', UnitID: 0 };
-    const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroupType>(emptyRecord);
+
+    const emptyRecord: SystemCenter.Types.ChannelGroupDetails = { ID: 0, ChannelGroup: '', MeasurementType: '', MeasurementCharacteristic: '', DisplayName: '', Unit: '' };
+    const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroupDetails>(emptyRecord);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || parentID != props.Record.ID)
-            dispatch(ChannelGroupTypeSlice.Fetch(props.Record.ID));
+            dispatch(ChannelGroupDetailsSlice.Fetch(props.Record.ID));
     }, [status, parentID, props.Record.ID]);
 
     function Delete() {
-        dispatch(ChannelGroupTypeSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
+        dispatch(ChannelGroupDetailsSlice.DBAction({ verb: 'DELETE', record: { ...emptyRecord } }));
         setShowWarning(false);
         setRecord(emptyRecord);
     }
@@ -64,19 +65,19 @@ export default function ChannelGroupItems(props: IProps) {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>List Items:</h4>
+                        <h4>Group Items:</h4>
                     </div>
                 </div>
             </div>
             <div className="card-body">
                 <div className="row">
                     <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0, overflowY: 'auto' }}>
-                        <Table<SystemCenter.Types.ChannelGroupType>
+                        <Table<SystemCenter.Types.ChannelGroupDetails>
                             cols={[
                                 { key: 'DisplayName', field: 'DisplayName', label: 'Display Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'MeasurementType', field: 'MeasurementTypeID', label: 'Measurement Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'MeasurementCharacteristic', field: 'MeasurementCharacteristicID', label: 'Measurement Characteristic', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'Unit', field: 'UnitID', label: 'Unit', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'MeasurementType', field: 'MeasurementType', label: 'Measurement Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'MeasurementCharacteristic', field: 'MeasurementCharacteristic', label: 'Measurement Characteristic', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'Unit', field: 'Unit', label: 'Unit', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 {
                                     key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                                     content: (item) => <>
@@ -89,7 +90,7 @@ export default function ChannelGroupItems(props: IProps) {
                                             e.preventDefault();
                                             setRecord(item);
                                             setShowWarning(true)
-                                        }}>{TrashCan}</button>                                       
+                                        }}>{TrashCan}</button>
                                     </>
                                 },
                                 { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
@@ -102,13 +103,13 @@ export default function ChannelGroupItems(props: IProps) {
                                 if (d.colKey == 'btns' || d.colKey == 'scroll')
                                     return;
                                 if (d.colKey === sortKey)
-                                    dispatch(ChannelGroupTypeSlice.Sort({ SortField: d.colField, Ascending: !asc }));
+                                    dispatch(ChannelGroupDetailsSlice.Sort({ SortField: d.colField, Ascending: !asc }));
                                 else
-                                    dispatch(ChannelGroupTypeSlice.Sort({ SortField: d.colField, Ascending: true }));
+                                    dispatch(ChannelGroupDetailsSlice.Sort({ SortField: d.colField, Ascending: true }));
                             }}
                             onClick={() => { }}
                             theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
+                            tbodyStyle={{ display: 'block', maxHeight: window.innerHeight - 455, }}
                             rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                             selected={() => false}
                         />
@@ -133,9 +134,9 @@ export default function ChannelGroupItems(props: IProps) {
                 ShowX={true} CallBack={(conf) => {
                     setShowModal(false);
                     if (conf && record.ID > 0)
-                        dispatch(ChannelGroupTypeSlice.DBAction({ verb: 'PATCH', record }));
+                        dispatch(ChannelGroupDetailsSlice.DBAction({ verb: 'PATCH', record }));
                     else if (conf && record.ID == 0)
-                        dispatch(ChannelGroupTypeSlice.DBAction({ verb: 'POST', record }));
+                        dispatch(ChannelGroupDetailsSlice.DBAction({ verb: 'POST', record }));
                 }}
             >             
                 {/*<ChannelGroupForm Record={record} Setter={setRecord} SetErrors={setErrors} />*/}

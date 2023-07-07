@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  ChannelGroupForm.tsx - Gbtc
+//  CompanyForm.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -16,50 +16,29 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  07/05/2023 - Parker Dinsdale
+//  07/07/2023 - Parker Dinsdale
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
 import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Input } from '@gpa-gemstone/react-forms';
+import { Input, TextArea } from '@gpa-gemstone/react-forms';
 
-interface IProps {
-    Record: SystemCenter.Types.ChannelGroupItem,
-    Setter: (record: SystemCenter.Types.ChannelGroupItem) => void,
-    SetErrors?: (e: string[]) => void
-}
+export default function ValueListGroupForm(props: { Record: SystemCenter.Types.ValueListGroup, Setter: (record: SystemCenter.Types.ValueListGroup) => void, setErrors?: (e: string[]) => void }) {
+    function Valid(field: keyof (SystemCenter.Types.ValueListGroup)): boolean {
+        if (field == 'Name')
+            return props.Record.Name != null && props.Record.Name.length > 0 && props.Record.Name.length <= 200;
+        else if (field == 'Description')
+            return true;
+        return false;
+    }
 
-export default function ChannelForm(props: IProps) {
+    return (
+        <form>
+            <Input<SystemCenter.Types.ValueListGroup> Record={props.Record} Field={'Name'} Feedback={'Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <TextArea<SystemCenter.Types.ValueListGroup> Rows={3} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} />
+        </form>
 
-    //React.useEffect(() => {
-    //    if (props.SetErrors == undefined)
-    //        return;
-    //    const e = [];
-    //    if (props.Record.Value == null || props.Record.Value.length == 0)
-    //        e.push('A Value is required.');
-    //    if (props.Record.Value != null && props.Record.Value.length > 200)
-    //        e.push('Value must be less than 200 characters.');
-    //    if (props.Record.AltValue != null && props.Record.AltValue.length > 200)
-    //        e.push('Alternate Value must be less than 200 characters.');
-        
-    //}, [props.Record])
-
-    //function Valid(field: keyof (SystemCenter.Types.ChannelGroupItem)): boolean {
-    //    if (field == 'Value')
-    //        return props.Record.Value != null && props.Record.Value.length > 0 && props.Record.Value.length <= 200;
-    //    else if (field == 'AltValue')
-    //        return props.Record.AltValue == null || props.Record.AltValue.length <= 200;
-    //    return true;
-    //}
-
-    //// TODO: FIX FOR CHANNEL TYPES
-    //return (
-    //    <>
-    //        <Input<SystemCenter.Types.ChannelGroupItem> Record={props.Record} Field={'Value'} Feedback={'A Value of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
-    //        <Input<SystemCenter.Types.ChannelGroupItem> Record={props.Record} Label={'Alternate Value'}  Field={'AltValue'} Feedback={'AltValue must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
-    //        <Input<SystemCenter.Types.ChannelGroupItem> Record={props.Record} Label={'Sort Order'} Field={'SortOrder'} Type='number' Valid={Valid} Setter={props.Setter} />
-    //    </>
-    //);
+    );
 }
