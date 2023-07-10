@@ -42,8 +42,7 @@ export default function ChannelGroupDetails(props: IProps) {
     const status = useAppSelector(ChannelGroupDetailsSlice.Status);
     const parentID= useAppSelector(ChannelGroupDetailsSlice.ParentID);
 
-
-    const emptyRecord: SystemCenter.Types.ChannelGroupDetails = { ID: 0, ChannelGroup: '', MeasurementType: '', MeasurementCharacteristic: '', DisplayName: '', Unit: '' };
+    const emptyRecord: SystemCenter.Types.ChannelGroupDetails = { ID: 0, ChannelGroupID: 0, ChannelGroup: '', MeasurementType: '', MeasurementCharacteristic: '', DisplayName: '', Unit: '' };
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroupDetails>(emptyRecord);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);

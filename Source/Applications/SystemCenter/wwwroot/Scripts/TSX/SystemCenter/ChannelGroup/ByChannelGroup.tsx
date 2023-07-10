@@ -130,7 +130,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                         { key: 'Description', field: 'Description',label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'Items', label: 'Items', field: 'Items', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-                            content: (item, key, style) => items.filter(i => i.ChannelGroup == item.Name).length
+                            content: (item, key, style) => items.filter(i => i.ChannelGroupID == item.ID).length
                         },
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
@@ -165,7 +165,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                 ConfirmBtnClass={'btn-primary'}
                 ConfirmText={'Add Group'}
                 Show={showNew} >
-                {/*<ChannelGroupForm Record={record} Setter={setRecord} />*/}
+                <ChannelGroupForm Record={record} Setter={setRecord} />
             </Modal>
         </div>
     )
