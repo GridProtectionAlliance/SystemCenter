@@ -102,6 +102,7 @@ using log4net.Config;
 using log4net.Core;
 using log4net.Layout;
 using Microsoft.Owin.Hosting;
+using openXDA.APIAuthentication;
 using SystemCenter.Configuration;
 using SystemCenter.Logging;
 using SystemCenter.Model;
@@ -110,7 +111,7 @@ using PQViewSite = openXDA.Model.PQViewSite;
 
 namespace SystemCenter
 {
-    public partial class ServiceHost : ServiceBase
+    public partial class ServiceHost : ServiceBase, IAPIConsoleHost
     {
         #region [ Members ]
 
