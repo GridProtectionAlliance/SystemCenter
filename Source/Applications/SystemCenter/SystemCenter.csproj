@@ -443,8 +443,12 @@
     <None Include="wwwroot\Images\XDA.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <Content Include="wwwroot\Images\NodeTiles\OpenXDA.png" />
-    <Content Include="wwwroot\Images\NodeTiles\SystemCenter.png" />
+    <Content Include="wwwroot\Images\NodeTiles\OpenXDA.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="wwwroot\Images\NodeTiles\SystemCenter.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="wwwroot\index.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
