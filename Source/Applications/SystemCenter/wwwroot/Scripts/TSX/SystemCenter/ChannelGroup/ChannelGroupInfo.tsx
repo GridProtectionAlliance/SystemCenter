@@ -44,7 +44,7 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
                 </div>
             </div>
             <div className="card-body">
-                {/*<ChannelGroupForm Record={record} Setter={(r) => setRecord(r)} />*/}
+                <ChannelGroupForm Record={record} Setter={(r) => setRecord(r)} />
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">

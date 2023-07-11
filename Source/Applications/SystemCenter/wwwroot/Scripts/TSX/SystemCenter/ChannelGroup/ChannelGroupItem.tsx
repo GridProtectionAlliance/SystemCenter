@@ -27,7 +27,7 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ChannelGroupDetailsSlice } from '../Store/Store';
-import ChannelGroupForm from './ChannelGroupForm';
+import ChannelGroupItemForm from './ChannelGroupItemForm';
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
@@ -138,7 +138,7 @@ export default function ChannelGroupDetails(props: IProps) {
                         dispatch(ChannelGroupDetailsSlice.DBAction({ verb: 'POST', record }));
                 }}
             >             
-                {/*<ChannelGroupForm Record={record} Setter={setRecord} SetErrors={setErrors} />*/}
+                {/*<ChannelGroupItemForm Record={record} Setter={setRecord} SetErrors={setErrors} />*/}
             </Modal>
             </div>
         

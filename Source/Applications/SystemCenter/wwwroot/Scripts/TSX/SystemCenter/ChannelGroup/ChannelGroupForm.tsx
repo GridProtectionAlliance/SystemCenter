@@ -25,8 +25,8 @@ import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 
-export default function ValueListGroupForm(props: { Record: SystemCenter.Types.ValueListGroup, Setter: (record: SystemCenter.Types.ValueListGroup) => void, setErrors?: (e: string[]) => void }) {
-    function Valid(field: keyof (SystemCenter.Types.ValueListGroup)): boolean {
+export default function ChannelGroupForm(props: { Record: SystemCenter.Types.ChannelGroup, Setter: (record: SystemCenter.Types.ChannelGroup) => void, setErrors?: (e: string[]) => void }) {
+    function Valid(field: keyof (SystemCenter.Types.ChannelGroup)): boolean {
         if (field == 'Name')
             return props.Record.Name != null && props.Record.Name.length > 0 && props.Record.Name.length <= 200;
         else if (field == 'Description')
@@ -36,8 +36,8 @@ export default function ValueListGroupForm(props: { Record: SystemCenter.Types.V
 
     return (
         <form>
-            <Input<SystemCenter.Types.ValueListGroup> Record={props.Record} Field={'Name'} Feedback={'Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
-            <TextArea<SystemCenter.Types.ValueListGroup> Rows={3} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.Types.ChannelGroup> Record={props.Record} Field={'Name'} Feedback={'Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <TextArea<SystemCenter.Types.ChannelGroup> Rows={3} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} />
         </form>
 
     );

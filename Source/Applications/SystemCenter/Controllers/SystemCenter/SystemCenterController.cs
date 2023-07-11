@@ -105,6 +105,46 @@ namespace SystemCenter.Controllers
             IEnumerable<openXDA.Model.ChannelGroupDetails> records = itemTable.QueryRecordsWhere("ChannelGroup = {0}", groupName);
             return Ok(records);
         }
+
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using AdoDataConnection connection = new AdoDataConnection(Connection);
+            openXDA.Model.ChannelGroupDetails newRecord = record.ToObject<openXDA.Model.ChannelGroupDetails>();
+            int result = new TableOperations<openXDA.Model.ChannelGroupDetails>(connection).AddNewRecord(newRecord);
+            return Ok(result);
+        }
+
+        public override IHttpActionResult Patch([FromBody] openXDA.Model.ChannelGroupDetails record)
+        {
+            if (!PatchAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using AdoDataConnection connection = new AdoDataConnection(Connection);
+
+            int result = new TableOperations<openXDA.Model.ChannelGroupDetails>(connection).AddNewOrUpdateRecord(record);
+            openXDA.Model.ChannelGroupDetails newRecord = new TableOperations<openXDA.Model.ChannelGroupDetails>(connection).QueryRecordWhere("ID = {0}", record.ID);
+            return Ok(newRecord);
+        }
+
+        public override IHttpActionResult Delete(openXDA.Model.ChannelGroupDetails record)
+        {
+            if (!DeleteAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using AdoDataConnection adoDataConnection = new AdoDataConnection(Connection);
+            int result = adoDataConnection.ExecuteNonQuery("EXEC UniversalCascadeDelete ChannelGroupType, 'ID = {record.ID}'");
+
+            return Ok(result);
+        }
     }
 
     [RoutePrefix("api/LSCVSAccount")]
