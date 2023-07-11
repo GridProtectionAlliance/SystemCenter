@@ -66,8 +66,8 @@ export default function CurveForm(props: IProps) {
             e.push('The Curve must have at least 3 points.')
         if (curve.length > 2 && (curve[0][0] != curve[curve.length - 1][0] || curve[0][1] != curve[curve.length - 1][1]))
             e.push('The Curve must be closed (the same start and end point).')
-        if (curve.map(p => p[0]).some(m => m < 0.00001 || m > 1000))
-            e.push('All Magnitudes must be between 0.00001 and 1000.')
+        if (curve.map(p => p[0]).some(m => m < 0 || m > 1000))
+            e.push('All Magnitudes must be between 0 and 1000.')
         if (curve.map(p => p[1]).some(m => m < 0 || m > 9999))
             e.push('All Durations must be between 0 and 9999.')
         setErrors(e);
