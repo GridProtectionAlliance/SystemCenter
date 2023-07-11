@@ -28,7 +28,7 @@ import { SystemCenter as SC } from '../global';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { orderBy } from 'lodash';
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ConfigurableTable } from '@gpa-gemstone/react-interactive';
 import Reason from './Reason';
 import moment from 'moment';
 
@@ -62,25 +62,28 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             </div>
         </div>
         <div className="card-body">
-            <Table<SC.OpenXDADailyStatistic>
+            <ConfigurableTable<SC.OpenXDADailyStatistic>
                 cols={[
-                    { key: 'Date', label: 'Date', field: 'Date', headerStyle: { width: '5%', textAlign: 'center' }, rowStyle: { width: '5%', textAlign: 'center' } },
-                    { key: 'LastSuccessfulFileProcessed', label: 'Last Succ', field: 'LastSuccessfulFileProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulFileProcessed', label: 'Last Unsucc', field: 'LastUnsuccessfulFileProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulFileProcessedExplanation', label: 'Reason', field: 'LastUnsuccessfulFileProcessedExplanation', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''}/> },
-                    { key: 'TotalFilesProcessed', label: 'Total', field: 'TotalFilesProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'TotalSuccessfulFilesProcessed', label: 'Total Succ', field: 'TotalSuccessfulFilesProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'TotalUnsuccessfulFilesProcessed', label: 'Total Unsucc', field: 'TotalUnsuccessfulFilesProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'TotalEmailsSent', label: 'Total Emails Sent', field: 'TotalEmailsSent', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'AverageDownloadLatency', label: 'Avg Dnld Lat', field: 'AverageDownloadLatency', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
-                    { key: 'AverageProcessingStartLatency', label: 'Avg Proc Start Lat', field: 'AverageProcessingStartLatency', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
-                    { key: 'AverageProcessingEndLatency', label: 'Avg Proc End Lat', field: 'AverageProcessingEndLatency', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
-                    { key: 'AverageEmailLatency', label: 'Avg Email Lat', field: 'AverageEmailLatency', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''  },
-                    { key: 'AverageTotalProcessingLatency', label: 'Avg Tot Proc Lat', field: 'AverageTotalProcessingLatency', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''  },
-                    { key: 'AverageTotalEmailLatency', label: 'Avg Tot Email Lat', field: 'AverageTotalEmailLatency', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
-
+                    { key: 'Date', label: 'Date', field: 'Date', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'LastSuccessfulFileProcessed', label: 'Last Succ', field: 'LastSuccessfulFileProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
+                    { key: 'LastUnsuccessfulFileProcessed', label: 'Last Unsucc', field: 'LastUnsuccessfulFileProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
+                    { key: 'LastUnsuccessfulFileProcessedExplanation', label: 'Reason', field: 'LastUnsuccessfulFileProcessedExplanation', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''}/> },
+                    { key: 'TotalFilesProcessed', label: 'Total', field: 'TotalFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'TotalSuccessfulFilesProcessed', label: 'Total Succ', field: 'TotalSuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'TotalUnsuccessfulFilesProcessed', label: 'Total Unsucc', field: 'TotalUnsuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'TotalEmailsSent', label: 'Total Emails Sent', field: 'TotalEmailsSent', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'AverageDownloadLatency', label: 'Avg Dnld Lat', field: 'AverageDownloadLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
+                    { key: 'AverageProcessingStartLatency', label: 'Avg Proc Start Lat', field: 'AverageProcessingStartLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
+                    { key: 'AverageProcessingEndLatency', label: 'Avg Proc End Lat', field: 'AverageProcessingEndLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
+                    { key: 'AverageEmailLatency', label: 'Avg Email Lat', field: 'AverageEmailLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''  },
+                    { key: 'AverageTotalProcessingLatency', label: 'Avg Tot Proc Lat', field: 'AverageTotalProcessingLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''  },
+                    { key: 'AverageTotalEmailLatency', label: 'Avg Tot Email Lat', field: 'AverageTotalEmailLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                 ]}
+                defaultColumns={["Date", "LastSuccessfulFileProcessed", "LastUnsuccessfulFileProcessed", "LastUnsuccessfulFileProcessedExplanation", "TotalFilesProcessed", "TotalSuccessfulFilesProcessed", "TotalUnsuccessfulFilesProcessed", "TotalEmailsSent", "AverageDownloadLatency", "AverageProcessingStartLatency", "AverageProcessingEndLatency", "AverageEmailLatency", "AverageTotalProcessingLatency", "AverageTotalEmailLatency", "Scroll"]}
+                requiredColumns={["Date", "Scroll"]}
+                localStorageKey="XDAIssuesConfigTable"
                 tableClass="table table-hover"
                 data={data}
                 sortKey={sortField}
@@ -95,9 +98,9 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     }
                 }}
                 onClick={() => { }}
-                //theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                //tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%' }}
-                //rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%' }}
+                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 selected={() => false}
             />
 
