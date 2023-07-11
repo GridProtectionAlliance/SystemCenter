@@ -24,6 +24,8 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { TabSelector } from '@gpa-gemstone/react-interactive';
+import Table from '@gpa-gemstone/react-table';
 import { useHistory } from 'react-router-dom';
 declare var homePath: string;
 declare var ace: any;
@@ -31,9 +33,11 @@ declare var ace: any;
 function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: string }) {
     const history = useHistory();
     const [meterConfiguration, setMeterConfiguration] = React.useState<OpenXDA.Types.MeterConfiguration>(null);
-    const [tab, setTab] = React.useState<'configuration' | 'filesProcessed'>('configuration');
+    const [Tab, setTab] = React.useState<string>('configuration');
     const [filesProcessed, setFilesProcessed] = React.useState<Array<OpenXDA.Types.DataFile>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.DataFile>('CreationTime');
+    const [ascending, setAscending] = React.useState<boolean>(true);
     React.useLayoutEffect(() => getData(), [props.MeterConfigurationID]);
 
     function getData() {
@@ -52,7 +56,6 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
        }).done((record) => {
            setMeterConfiguration(record)
            initializeAce(record);
-
        });
     }
 
@@ -64,10 +67,10 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
             dataType: 'json',
             cache: false,
             async: true
-        }).done((data: Array<OpenXDA.Types.DataFile>) => setFilesProcessed( data));
+        }).done((data: Array<OpenXDA.Types.DataFile>) => setFilesProcessed(data));
     }
 
-    function saveEdit(): void{
+    function saveEdit(): void {
         let newRecord: OpenXDA.Types.MeterConfiguration = _.clone(meterConfiguration);
         newRecord.ID = 0;
         newRecord.ConfigText = ace.edit('template').getValue();
@@ -95,12 +98,15 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
         editor.session.on('change', delta => {
             setChanged(record.ConfigText != editor.getValue())
         });
-
     }
-
-
+    
+    const Tabs = [
+        { Id: "configuration", Label: "Configuration" },
+        { Id: "filesProcessed", Label: "Files Processed" }
+    ];
     
     if (meterConfiguration == null) return null;
+
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
@@ -109,19 +115,11 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                 </div>
             </div>
 
-
             <hr />
-            <ul className="nav nav-tabs">
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "configuration" ? " active" : "")} onClick={() => setTab('configuration')} data-toggle="tab" href="#configuration">Configuration</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "filesProcessed" ? " active" : "")} onClick={() => setTab('filesProcessed')} data-toggle="tab" href="#filesProcessed">Files Processed</a>
-                </li>
-            </ul>
+            <TabSelector CurrentTab={Tab} SetTab={setTab} Tabs={Tabs} />
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "configuration" ? " active" : "fade")} id="configuration">
+                <div className={"tab-pane " + (Tab == "configuration" ? " active" : "fade")} id="configuration">
                     <div id="template" style={{ height: window.innerHeight - 275 }} ></div>
                     <div className="btn-group mr-2">
                         <button className="btn btn-primary pull-right" onClick={saveEdit} disabled={!changed}>Save Edit</button>
@@ -130,17 +128,33 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                         <button className="btn btn-danger pull-right" onClick={getData} disabled={!changed}>Reset</button>
                     </div>
                 </div>
-                <div className={"tab-pane " + (tab == "filesProcessed" ? " active" : "fade")} id="filesProcessed">
-                    <div style={{ width: '100%', maxHeight: window.innerHeight - 275, padding: 30, overflowY: 'auto' }}>
-                        <table className='table'>
-                            <thead>
-                                <tr><td>File Path</td><td>Creation Time</td></tr>
-                            </thead>
-                            <tbody>
-                                {filesProcessed.map((a, i) => <tr key={i}><td>{a.FilePath}</td><td>{a.CreationTime}</td></tr>)}
-                            </tbody>
-                        </table>
 
+                <div className={"tab-pane " + (Tab == "filesProcessed" ? " active" : "fade")} id="filesProcessed">
+                    <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
+                        <Table<OpenXDA.Types.DataFile>
+                            cols={[
+                                { key: 'FilePath', field: 'FilePath', label: 'File Path', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'CreationTime', field: 'CreationTime', label: 'Creation Time', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                            ]}
+                            tableClass="table table-hover"
+                            data={filesProcessed}
+                            sortKey={sortKey}
+                            ascending={ascending}
+                            onSort={(d) => {
+                                if (d.colKey == sortKey)
+                                    setAscending(!ascending);
+                                else {
+                                    setAscending(true);
+                                    setSortKey(d.colKey as keyof OpenXDA.Types.DataFile);
+                                }
+                            }}
+                            onClick={() => { }}
+                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, }}
+                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            selected={(item) => false}
+                        />
                     </div>
                 </div>
             </div>
