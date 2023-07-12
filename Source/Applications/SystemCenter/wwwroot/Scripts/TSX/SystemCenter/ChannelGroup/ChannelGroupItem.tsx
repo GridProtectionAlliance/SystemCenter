@@ -42,7 +42,19 @@ export default function ChannelGroupDetails(props: IProps) {
     const status = useAppSelector(ChannelGroupDetailsSlice.Status);
     const parentID= useAppSelector(ChannelGroupDetailsSlice.ParentID);
 
-    const emptyRecord: SystemCenter.Types.ChannelGroupDetails = { ID: 0, ChannelGroupID: 0, ChannelGroup: '', MeasurementType: '', MeasurementCharacteristic: '', DisplayName: '', Unit: '' };
+    const emptyRecord: SystemCenter.Types.ChannelGroupDetails =
+    {
+        ID: 0,
+        ChannelGroupID: 0,
+        ChannelGroup: '',
+        MeasurementTypeID: 0,
+        MeasurementType: '',
+        MeasurementCharacteristicID: 0,
+        MeasurementCharacteristic: '',
+        DisplayName: '',
+        UnitID: 0,
+        Unit: ''
+    };
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroupDetails>(emptyRecord);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -54,7 +66,7 @@ export default function ChannelGroupDetails(props: IProps) {
     }, [status, parentID, props.Record.ID]);
 
     function Delete() {
-        dispatch(ChannelGroupDetailsSlice.DBAction({ verb: 'DELETE', record: { ...emptyRecord } }));
+        dispatch(ChannelGroupDetailsSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
         setShowWarning(false);
         setRecord(emptyRecord);
     }
@@ -118,7 +130,7 @@ export default function ChannelGroupDetails(props: IProps) {
             <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary pull-right"
-                        onClick={() => { setRecord({ ...emptyRecord, ID: props.Record.ID }); setShowModal(true); }}
+                        onClick={() => { setRecord({ ...emptyRecord, ChannelGroupID: props.Record.ID }); setShowModal(true); }}
                     >Add Item</button>
                 </div>
             </div>
@@ -137,8 +149,8 @@ export default function ChannelGroupDetails(props: IProps) {
                     else if (conf && record.ID == 0)
                         dispatch(ChannelGroupDetailsSlice.DBAction({ verb: 'POST', record }));
                 }}
-            >             
-                {/*<ChannelGroupItemForm Record={record} Setter={setRecord} SetErrors={setErrors} />*/}
+            >
+                <ChannelGroupItemForm Record={record} Setter={setRecord} SetErrors={setErrors} />
             </Modal>
             </div>
         

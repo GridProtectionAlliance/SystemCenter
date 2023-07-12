@@ -22,8 +22,10 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Input } from '@gpa-gemstone/react-forms';
+import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
+import { Input, Select } from '@gpa-gemstone/react-forms';
+import { ChannelGroupDetailsSlice, MeasurmentTypeSlice, MeasurementCharacteristicSlice } from '../Store/Store';
+import { useAppSelector, useAppDispatch } from '../hooks';
 
 interface IProps {
     Record: SystemCenter.Types.ChannelGroupDetails,
@@ -32,34 +34,60 @@ interface IProps {
 }
 
 export default function ChannelGroupItemForm(props: IProps) {
+    const dispatch = useAppDispatch();
 
-    //React.useEffect(() => {
-    //    if (props.SetErrors == undefined)
-    //        return;
-    //    const e = [];
-    //    if (props.Record.Value == null || props.Record.Value.length == 0)
-    //        e.push('A Value is required.');
-    //    if (props.Record.Value != null && props.Record.Value.length > 200)
-    //        e.push('Value must be less than 200 characters.');
-    //    if (props.Record.AltValue != null && props.Record.AltValue.length > 200)
-    //        e.push('Alternate Value must be less than 200 characters.');
-        
-    //}, [props.Record])
+    const detailsData = useAppSelector(ChannelGroupDetailsSlice.Data);
+    const detailsStatus = useAppSelector(ChannelGroupDetailsSlice.Status);
 
-    //function Valid(field: keyof (SystemCenter.Types.ChannelGroupItem)): boolean {
-    //    if (field == 'Value')
-    //        return props.Record.Value != null && props.Record.Value.length > 0 && props.Record.Value.length <= 200;
-    //    else if (field == 'AltValue')
-    //        return props.Record.AltValue == null || props.Record.AltValue.length <= 200;
-    //    return true;
-    //}
+    const measurementTypeData = useAppSelector(MeasurmentTypeSlice.Data);
+    const measurementTypeStatus = useAppSelector(MeasurmentTypeSlice.Status);
+    const measurementCharacteristicData = useAppSelector(MeasurementCharacteristicSlice.Data);
+    const measurementCharacteristicStatus = useAppSelector(MeasurementCharacteristicSlice.Status);
 
-    //// TODO: FIX FOR CHANNEL TYPES
-    //return (
-    //    <>
-    //        <Input<SystemCenter.Types.ChannelGroupItem> Record={props.Record} Field={'Value'} Feedback={'A Value of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
-    //        <Input<SystemCenter.Types.ChannelGroupItem> Record={props.Record} Label={'Alternate Value'}  Field={'AltValue'} Feedback={'AltValue must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
-    //        <Input<SystemCenter.Types.ChannelGroupItem> Record={props.Record} Label={'Sort Order'} Field={'SortOrder'} Type='number' Valid={Valid} Setter={props.Setter} />
-    //    </>
-    //);
+    // TODO: Fetch all units and filter them out
+    let units = [];
+    let options = new Set();
+
+    React.useEffect(() => {
+        if (detailsStatus == 'unintiated' || detailsStatus == 'changed')
+            dispatch(ChannelGroupDetailsSlice.Fetch());
+
+        if (measurementTypeStatus == 'unintiated' || measurementTypeStatus == 'changed')
+            dispatch(MeasurmentTypeSlice.Fetch());
+
+        if (measurementCharacteristicStatus == 'unintiated' || measurementCharacteristicStatus == 'changed')
+            dispatch(MeasurementCharacteristicSlice.Fetch());
+    }, [detailsStatus, measurementTypeStatus, measurementCharacteristicStatus]);
+
+    function Valid(field: keyof (SystemCenter.Types.ChannelGroupDetails)): boolean {
+        if (field == 'DisplayName')
+            return props.Record.DisplayName != null && props.Record.DisplayName.length > 0 && props.Record.DisplayName.length <= 200;
+
+        return true;
+    }
+
+    return (
+        <>
+            <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'DisplayName'} Feedback={'A Display Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
+            <Select<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'MeasurementTypeID'} Label='Measurement Type'
+                Options={measurementTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.Setter}
+            />
+            <Select<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'MeasurementCharacteristicID'} Label='Measurement Characteristic'
+                Options={measurementCharacteristicData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.Setter}
+            />
+            <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Label={'Unit ID'} Field={'UnitID'} Type='number' Valid={Valid} Setter={props.Setter} />
+
+            {/* <Select<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'Unit'} Label='Unit'
+                Options={detailsData
+                    //.filter((item) => {
+                    //if (units.includes(item.Unit)) return false;
+                    //units.push(item.Unit);
+                    //return true;
+                    //})
+                    .map((item) => ({ Value: item.Unit, Label: item.Unit })))} Setter={props.Setter}
+            />
+            */}
+
+        </>
+    );
 }

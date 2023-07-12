@@ -56,14 +56,14 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
-            dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField: sortField, ascending: ascending}));
+            dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField, ascending }));
 
         return function () {
         }
     }, [dispatch, status]);
 
     React.useEffect(() => {
-        dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField: sortField, ascending: ascending }));
+        dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField, ascending }));
 
         return function () {
         }
