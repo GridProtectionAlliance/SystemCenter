@@ -4,7 +4,7 @@
 *******************************************************************************************************
 **  GridSolutionFramework.buildproj - Gbtc
 **
-**  Copyright © 2013, Grid Protection Alliance.  All Rights Reserved.
+**  Copyright Â© 2013, Grid Protection Alliance.  All Rights Reserved.
 **
 **  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 **  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -152,5 +152,8 @@
       <!--Destinations of archive files (*.zip).-->
       <ArchiveDestinations Include="$(BuildDeployFolder)"/>
     </ItemGroup>
+  </Target>
+  <Target Name="AfterPushToServer" Condition="'$(DoNotPush)' == 'false' And '$(SkipVersioning)' != 'true'">
+    <Exec Command="%22$(AfterPushScript)%22 $(ProjectName) $(BuildTag)" Condition="'$(PushToVersionBranch)' == 'true' And Exists('$(AfterPushScript)')" />
   </Target>
 </Project>
