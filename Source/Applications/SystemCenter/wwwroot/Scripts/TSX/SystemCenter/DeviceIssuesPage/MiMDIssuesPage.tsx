@@ -28,7 +28,7 @@ import { SystemCenter as SC } from '../global';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { orderBy } from 'lodash';
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ConfigurableTable }  from '@gpa-gemstone/react-interactive';
 import Reason from './Reason';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -73,22 +73,24 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             </div>
         </div>
         <div className="card-body">
-            <Table<SC.MiMDDailyStatistic>
+            <ConfigurableTable<SC.MiMDDailyStatistic>
                 cols={[
-                    { key: 'Date', label: 'Date', field: 'Date', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'LastSuccessfulFileProcessed', label: 'Last Succ', field: 'LastSuccessfulFileProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulFileProcessed', label: 'Last Unsucc', field: 'LastUnsuccessfulFileProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulFileProcessedExplanation', label: 'Reason', field: 'LastUnsuccessfulFileProcessedExplanation', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} /> },
-                    { key: 'TotalFilesProcessed', label: 'Total', field: 'TotalFilesProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'TotalSuccessfulFilesProcessed', label: 'Total Unsucc', field: 'TotalSuccessfulFilesProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'TotalUnsuccessfulFilesProcessed', label: 'Total Succ', field: 'TotalUnsuccessfulFilesProcessed', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'ConfigChanges', label: 'Config Changes', field: 'ConfigChanges', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'LastConfigFileChange', label: 'Last Change', field: 'LastConfigFileChange', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `?name=Configuration&MeterID=${props.Meter.ID}` }>{item.ConfigChanges}</a> },
-                    { key: 'DiagnosticAlarms', label: 'Diagnostic Alarms', field: 'DiagnosticAlarms', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `?name=Diagnostic&MeterID=${props.Meter.ID}`}>{item.DiagnosticAlarms}</a> },
-                    { key: 'ComplianceIssues', label: 'Compliance Issues', field: 'ComplianceIssues', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `?name=Compliance&MeterID=${props.Meter.ID}`}>{item.ComplianceIssues}</a> },
-
-
+                    { key: 'Date', label: 'Date', field: 'Date', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'LastSuccessfulFileProcessed', label: 'Last Succ', field: 'LastSuccessfulFileProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
+                    { key: 'LastUnsuccessfulFileProcessed', label: 'Last Unsucc', field: 'LastUnsuccessfulFileProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
+                    { key: 'LastUnsuccessfulFileProcessedExplanation', label: 'Reason', field: 'LastUnsuccessfulFileProcessedExplanation', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} /> },
+                    { key: 'TotalFilesProcessed', label: 'Total', field: 'TotalFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'TotalSuccessfulFilesProcessed', label: 'Total Unsucc', field: 'TotalSuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'TotalUnsuccessfulFilesProcessed', label: 'Total Succ', field: 'TotalUnsuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'ConfigChanges', label: 'Config Changes', field: 'ConfigChanges', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'LastConfigFileChange', label: 'Last Change', field: 'LastConfigFileChange', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/index.cshtml?name=Configuration&MeterID=${props.Meter.ID}` }>{item.ConfigChanges}</a> },
+                    { key: 'DiagnosticAlarms', label: 'Diagnostic Alarms', field: 'DiagnosticAlarms', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/index.cshtml?name=Diagnostic&MeterID=${props.Meter.ID}`}>{item.DiagnosticAlarms}</a> },
+                    { key: 'ComplianceIssues', label: 'Compliance Issues', field: 'ComplianceIssues', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/index.cshtml?name=Compliance&MeterID=${props.Meter.ID}`}>{item.ComplianceIssues}</a> },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ]}
+                defaultColumns={["Date", "LastSuccessfulFileProcessed", "LastUnsuccessfulFileProcessed", "LastUnsuccessfulFileProcessedExplanation", "TotalFilesProcessed", "TotalSuccessfulFilesProcessed", "TotalUnsuccessfulFilesProcessed", "ConfigChanges", "LastConfigFileChange", "DiagnosticAlarms", "ComplianceIssues", "Scroll"]}
+                requiredColumns={["Date", "Scroll"]}
+                localStorageKey="MiMDIssuesConfigTable"
                 tableClass="table table-hover"
                 data={data}
                 sortKey={sortField}

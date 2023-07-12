@@ -28,7 +28,7 @@ import { SystemCenter as SC } from '../global';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { orderBy } from 'lodash';
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ConfigurableTable } from '@gpa-gemstone/react-interactive';
 import Reason from './Reason';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -80,17 +80,20 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
             </div>
         </div>
         <div className="card-body">
-            <Table<SC.OpenMICDailyStatistic>
+            <ConfigurableTable<SC.OpenMICDailyStatistic>
                 cols={[
-                    { key: 'Date', label: 'Date', field: 'Date', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'LastSuccessfulConnection', label: 'Last Succ Conn', field: 'LastSuccessfulConnection', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulConnection', label: 'Last Unsucc Conn', field: 'LastUnsuccessfulConnection', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulConnectionExplanation', label: 'Reason', field: 'LastUnsuccessfulConnectionExplanation', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' }, content: (item, key, field, style) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} /> },
-                    { key: 'TotalConnections', label: 'Total Conn', field: 'TotalConnections', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'TotalUnsuccessfulConnections', label: 'Total Unsucc Conn', field: 'TotalUnsuccessfulConnections', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-                    { key: 'TotalSuccessfulConnections', label: 'Total Succ Conn', field: 'TotalSuccessfulConnections', headerStyle: { width: '10%', textAlign: 'center' }, rowStyle: { width: '10%', textAlign: 'center' } },
-
+                    { key: 'Date', label: 'Date', field: 'Date', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'LastSuccessfulConnection', label: 'Last Succ Conn', field: 'LastSuccessfulConnection', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
+                    { key: 'LastUnsuccessfulConnection', label: 'Last Unsucc Conn', field: 'LastUnsuccessfulConnection', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
+                    { key: 'LastUnsuccessfulConnectionExplanation', label: 'Reason', field: 'LastUnsuccessfulConnectionExplanation', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} /> },
+                    { key: 'TotalConnections', label: 'Total Conn', field: 'TotalConnections', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'TotalUnsuccessfulConnections', label: 'Total Unsucc Conn', field: 'TotalUnsuccessfulConnections', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'TotalSuccessfulConnections', label: 'Total Succ Conn', field: 'TotalSuccessfulConnections', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ]}
+                defaultColumns={["Date", "LastSuccessfulConnection", "LastUnsuccessfulConnection", "LastUnsuccessfulConnectionExplanation", "TotalConnections", "TotalUnsuccessfulConnections", "TotalSuccessfulConnections", "Scroll"]}
+                requiredColumns={["Date", "Scroll"]}
+                localStorageKey="OpenMICIssuesConfigTable"
                 tableClass="table table-hover"
                 data={data}
                 sortKey={sortField}
@@ -105,9 +108,9 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                     }
                 }}
                 onClick={() => window.open(`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/status.cshtml?Acronym=${props.OpenMICAcronym}`, '_blanks')}
-                //theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                //tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%' }}
-                //rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%' }}
+                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 selected={() => false}
             />
         </div>
