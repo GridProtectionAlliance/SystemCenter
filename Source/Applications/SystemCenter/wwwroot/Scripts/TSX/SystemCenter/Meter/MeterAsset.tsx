@@ -32,10 +32,10 @@ import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
-import { SearchedAssets, SearchStatus, DBSearchAsset, DBActionAsset, DBMeterAction, SelectAssets, SelectAssetStatus, FetchAsset } from '../Store/AssetSlice'
+import { DBActionAsset, DBMeterAction, SelectAssetStatus } from '../Store/AssetSlice'
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { Warning, Modal, LoadingScreen, Search } from '@gpa-gemstone/react-interactive';
+import { Warning, Modal, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
@@ -57,13 +57,10 @@ const MeterAssetWindow = (props: IProps) => {
 
     // Asset Slice Consts
     const dispatch = useAppDispatch();
-    const assetStatus = useAppSelector(SearchStatus) as Application.Types.Status;
-    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.Asset>('AssetName');
+    const status = useAppSelector(SelectAssetStatus) as Application.Types.Status;
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.MeterAsset>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
-    const [filter, setFilter] = React.useState<Search.IFilter<OpenXDA.Types.Asset>[]>([]);
-    const assetResults = useAppSelector(SearchedAssets) as OpenXDA.Types.Asset[];
-    const allAssets = useAppSelector(SelectAssets) as OpenXDA.Types.Asset[];
-    const selectStatus = useAppSelector(SelectAssetStatus) as Application.Types.Status;
+    const [allAssets, setAllAssets] = React.useState<OpenXDA.Types.MeterAsset[]>([]);
 
     React.useEffect(() => {
         let h = getAssetTypes()
@@ -72,33 +69,35 @@ const MeterAssetWindow = (props: IProps) => {
         });
 
         return () => { if (h != null && h.abort != null) h.abort(); }
-    }, [])
+    }, []);
 
     React.useEffect(() => {
-        setFilter(
-            [{
-                FieldName: 'ID',
-                Type: 'number',
-                SearchText: `(Select AssetID from MeterAsset Where MeterID=${props.Meter.ID})`,
-                Operator: 'IN',
-                isPivotColumn: false
-            }]
-        );
-    }, [props.Meter]);
+        if (status !== "unintiated" && status !== "changed")
+            return;
 
-    React.useEffect(() => {
-        if (assetStatus === 'unintiated' || assetStatus === 'changed')
-            dispatch(DBSearchAsset({ sortField: sortKey, ascending, filter: filter }));
-    }, [assetStatus]);
+        setShowLoading(true);
 
-    React.useEffect(() => {
-        if (selectStatus === 'unintiated' || selectStatus === 'changed')
-            dispatch(FetchAsset());
-    }, [SelectAssetStatus]);
+        const handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/DetailedMeterAsset/${props.Meter.ID}/${sortKey}/${ascending ? 1 : 0}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        });
 
-    React.useEffect(() => {
-        dispatch(DBSearchAsset({ sortField: sortKey, ascending, filter: filter }));
-    }, [ascending, sortKey, filter]);
+        handle.done((jsonString) => {
+            const meterAssets = JSON.parse(jsonString);
+            setAllAssets(meterAssets);
+        });
+
+        return () => {
+            if (handle != null && handle.abort != null)
+                handle.abort();
+        };
+    }, [props.Meter, sortKey, ascending, status]);
+
+    React.useEffect(() => setShowLoading(false), [allAssets]);
 
     function setActiveAsset(assetID: number, assetType: OpenXDA.Types.AssetTypeName) {
         if (assetID == 0) {
@@ -110,9 +109,6 @@ const MeterAssetWindow = (props: IProps) => {
         let h = getAssetWithAdditionalFields(assetID, assetType);
         h.then(record => { changeActiveAsset(record); setNewEdit('Edit') });
     }
-
-    if (assetResults == undefined)
-        return null;
 
     return (
         <>
@@ -128,13 +124,13 @@ const MeterAssetWindow = (props: IProps) => {
                 <div className="row" style={{ margin: -20 }}>
                     <div className="col" style={{ padding: 20 }}>
                         <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
-                            <Table<OpenXDA.Types.Asset>
+                            <Table<OpenXDA.Types.MeterAsset>
                                 cols={[
                                     { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'calc(20%-16px)' }, rowStyle: { width: 'calc(20%-16px)' } },
                                     { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'calc(30%-16px)' }, rowStyle: { width: 'calc(30%-16px)' } },
                                     { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: 'calc(10%-16px)' }, rowStyle: { width: 'calc(10%-16px)' } },
                                     { key: 'VoltageKV', field: 'VoltageKV', label: 'Base kV', headerStyle: { width: 'calc(10%-16x)' }, rowStyle: { width: 'calc(10%-16px)' } },
-                                    
+                                    { key: 'FaultDetectionLogic', field: 'FaultDetectionLogic', label: 'Fault Detection Logic', headerStyle: { width: 'calc(15%-16px)' }, rowStyle: { width: 'calc(15%-16px)' } },
                                     {
                                         key: 'EditDelete', label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
                                         content: (item) => <>
@@ -154,7 +150,7 @@ const MeterAssetWindow = (props: IProps) => {
                                     }
                                 ]}
                                 tableClass="table table-hover"
-                                data={assetResults}
+                                data={allAssets}
                                 sortKey={sortKey}
                                 ascending={ascending}
                                 onSort={(d) => {
@@ -175,7 +171,7 @@ const MeterAssetWindow = (props: IProps) => {
                             />
 
                             <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove ' + (activeAsset?.AssetName ?? 'Asset') + ' from ' + (props.Meter?.Name ?? 'Meter')} Message={'This will permanently remove the Asset from this Meter.'} />
-                            <LoadingScreen Show={assetStatus != 'idle' || selectStatus !='idle'} />
+                            <LoadingScreen Show={showLoading} />
                             <Modal Show={showEditNew}
                                     Title={newEdit == 'New' ? 'Add New Asset to ' + (props.Meter?.Name ?? 'Meter') : 'Edit ' + (activeAsset?.AssetKey ?? 'Asset')}
                                 Size={'lg'}
