@@ -254,7 +254,7 @@ namespace SystemCenter.Model.Security
 
         }
 
-        protected override DataTable GetSearchResults(PostData postData)
+        protected override DataTable GetSearchResults(PostData postData, int? page)
         {
             string orderBy = postData.OrderBy;
             if (!IsInDatabase(orderBy))
