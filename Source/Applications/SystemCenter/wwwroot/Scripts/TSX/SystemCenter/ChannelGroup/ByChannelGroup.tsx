@@ -57,25 +57,20 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
             dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField, ascending }));
-
-        return function () {
-        }
     }, [dispatch, status]);
 
     React.useEffect(() => {
         dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField, ascending }));
-
-        return function () {
-        }
     }, [search, sortField, ascending]);
 
     React.useEffect(() => {
         if (itemStatus == 'unintiated' || itemStatus == 'changed')
             dispatch(ChannelGroupDetailsSlice.Fetch());
-
-        return function () {
-        }
     }, [dispatch, itemStatus]);
+
+    React.useEffect(() => {
+        dispatch(ChannelGroupDetailsSlice.Fetch());
+    }, []);
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ChannelGroup&GroupID=' + item.row.ID })
