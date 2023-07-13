@@ -4,6 +4,28 @@
         <name>openXDA.APIAuthentication</name>
     </assembly>
     <members>
+        <member name="T:openXDA.APIAuthentication.APIAuthenticationMiddleware">
+            <summary>
+            Middleware to authenticate users of the API via <see cref="T:openXDA.APIAuthentication.APIAccessKey"/>.
+            </summary>
+            <summary>
+            Middleware to authenticate users of the API via <see cref="T:openXDA.APIAuthentication.APIAccessKey"/>.
+            </summary>
+        </member>
+        <member name="M:openXDA.APIAuthentication.APIAuthenticationMiddleware.#ctor(Microsoft.Owin.OwinMiddleware,System.Func{GSF.Data.AdoDataConnection})">
+            <summary>
+            Creates a new instance of the <see cref="T:openXDA.APIAuthentication.APIAuthenticationMiddleware"/> class.
+            </summary>
+            <param name="next">The next middleware in the pipeline.</param>
+            <param name="connectionFactory">Factory function for creating database connections.</param>
+        </member>
+        <member name="M:openXDA.APIAuthentication.APIAuthenticationMiddleware.Invoke(Microsoft.Owin.IOwinContext)">
+            <summary>
+            Process an individual request.
+            </summary>
+            <param name="context">The context in which the request is made.</param>
+            <returns>The task that indicates when the request has been processed.</returns>
+        </member>
         <member name="T:openXDA.APIAuthentication.APIConsoleController">
             <summary>
             Base Class that includes the endpoints needed for the API based Console.
@@ -164,43 +186,26 @@
             The list of URLs that locate the hosts providing access to the API.
             </summary>
         </member>
-        <member name="M:openXDA.APIAuthentication.APIQuery.SendWebRequestAsync(System.Action{System.Net.Http.HttpRequestMessage},System.String,System.Threading.CancellationToken)">
+        <member name="M:openXDA.APIAuthentication.APIQuery.SendWebRequestAsync(System.Action{System.Net.Http.HttpRequestMessage},System.String,System.Security.Principal.IPrincipal,System.Threading.CancellationToken)">
             <summary>
             Sends a web request to the host using the credentials for API authentication.
             </summary>
             <param name="configure">Action that configures the HTTP request.</param>
             <param name="path">Path to the API endpoint locating the resource to be requested.</param>
+            <param name="user"><see cref="T:System.Security.Principal.IPrincipal"/> being impersonated if the APIToken supports impersonation. set to NULL for using APIAuthentication only</param>
             <param name="cancellationToken">Token used to cancel the request before it has completed.</param>
             <returns>The HTTP response returned by the host that handled the request.</returns>
         </member>
-        <member name="M:openXDA.APIAuthentication.APIQuery.SendWebRequestAsync(System.Action{System.Net.Http.HttpRequestMessage},System.String,System.Net.Http.HttpCompletionOption,System.Threading.CancellationToken)">
+        <member name="M:openXDA.APIAuthentication.APIQuery.SendWebRequestAsync(System.Action{System.Net.Http.HttpRequestMessage},System.String,System.Net.Http.HttpCompletionOption,System.Security.Principal.IPrincipal,System.Threading.CancellationToken)">
             <summary>
             Sends a web request to the host using the credentials for API authentication.
             </summary>
             <param name="configure">Action that configures the HTTP request.</param>
             <param name="path">Path to the API endpoint locating the resource to be requested.</param>
             <param name="httpCompletionOption">When the operation should complete (as soon as a response is available or after reading the whole response content).</param>
+            <param name="user"><see cref="T:System.Security.Principal.IPrincipal"/> being impersonated if the APIToken supports impersonation. set to NULL for using APIAuthentication only</param>
             <param name="cancellationToken">Token used to cancel the request before it has completed.</param>
             <returns>The HTTP response returned by the host that handled the request.</returns>
-        </member>
-        <member name="T:openXDA.APIAuthentication.APIAuthenticationMiddleware">
-            <summary>
-            Middleware to authenticate users of the API via <see cref="T:openXDA.APIAuthentication.APIAccessKey"/>.
-            </summary>
-        </member>
-        <member name="M:openXDA.APIAuthentication.APIAuthenticationMiddleware.#ctor(Microsoft.Owin.OwinMiddleware,System.Func{GSF.Data.AdoDataConnection})">
-            <summary>
-            Creates a new instance of the <see cref="T:openXDA.APIAuthentication.APIAuthenticationMiddleware"/> class.
-            </summary>
-            <param name="next">The next middleware in the pipeline.</param>
-            <param name="connectionFactory">Factory function for creating database connections.</param>
-        </member>
-        <member name="M:openXDA.APIAuthentication.APIAuthenticationMiddleware.Invoke(Microsoft.Owin.IOwinContext)">
-            <summary>
-            Process an individual request.
-            </summary>
-            <param name="context">The context in which the request is made.</param>
-            <returns>The task that indicates when the request has been processed.</returns>
         </member>
         <member name="T:openXDA.APIAuthentication.APIAccessKey">
             <summary>
@@ -225,6 +230,12 @@
         <member name="P:openXDA.APIAuthentication.APIAccessKey.Expires">
             <summary>
             The date and time at which the access key is no longer valid.
+            </summary>
+        </member>
+        <member name="P:openXDA.APIAuthentication.APIAccessKey.AllowImpersonation">
+            <summary>
+            A Flag indicating if this key is allowed to impersonate regular users.
+            see <see cref="T:openXDA.APIAuthentication.APIAuthenticationMiddleware"/> for how to impersonate a user in a request.
             </summary>
         </member>
     </members>
