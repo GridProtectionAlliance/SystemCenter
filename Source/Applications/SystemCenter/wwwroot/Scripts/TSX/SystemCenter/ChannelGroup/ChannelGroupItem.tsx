@@ -52,7 +52,6 @@ export default function ChannelGroupDetails(props: IProps) {
         MeasurementCharacteristicID: 0,
         MeasurementCharacteristic: '',
         DisplayName: '',
-        UnitID: 0,
         Unit: ''
     };
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroupDetails>(emptyRecord);
@@ -85,7 +84,7 @@ export default function ChannelGroupDetails(props: IProps) {
                     <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0, overflowY: 'auto' }}>
                         <Table<SystemCenter.Types.ChannelGroupDetails>
                             cols={[
-                                { key: 'DisplayName', field: 'DisplayName', label: 'Display Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'DisplayName', field: 'DisplayName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'MeasurementType', field: 'MeasurementType', label: 'Measurement Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'MeasurementCharacteristic', field: 'MeasurementCharacteristic', label: 'Measurement Characteristic', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'Unit', field: 'Unit', label: 'Unit', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },

@@ -22,9 +22,9 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, Select } from '@gpa-gemstone/react-forms';
-import { ChannelGroupDetailsSlice, MeasurmentTypeSlice, MeasurementCharacteristicSlice } from '../Store/Store';
+import { MeasurmentTypeSlice, MeasurementCharacteristicSlice } from '../Store/Store';
 import { useAppSelector, useAppDispatch } from '../hooks';
 
 interface IProps {
@@ -36,58 +36,38 @@ interface IProps {
 export default function ChannelGroupItemForm(props: IProps) {
     const dispatch = useAppDispatch();
 
-    const detailsData = useAppSelector(ChannelGroupDetailsSlice.Data);
-    const detailsStatus = useAppSelector(ChannelGroupDetailsSlice.Status);
-
     const measurementTypeData = useAppSelector(MeasurmentTypeSlice.Data);
     const measurementTypeStatus = useAppSelector(MeasurmentTypeSlice.Status);
     const measurementCharacteristicData = useAppSelector(MeasurementCharacteristicSlice.Data);
     const measurementCharacteristicStatus = useAppSelector(MeasurementCharacteristicSlice.Status);
 
-    // TODO: Fetch all units and filter them out
-    let units = [];
-    let options = new Set();
-
     React.useEffect(() => {
-        if (detailsStatus == 'unintiated' || detailsStatus == 'changed')
-            dispatch(ChannelGroupDetailsSlice.Fetch());
-
         if (measurementTypeStatus == 'unintiated' || measurementTypeStatus == 'changed')
             dispatch(MeasurmentTypeSlice.Fetch());
 
         if (measurementCharacteristicStatus == 'unintiated' || measurementCharacteristicStatus == 'changed')
             dispatch(MeasurementCharacteristicSlice.Fetch());
-    }, [detailsStatus, measurementTypeStatus, measurementCharacteristicStatus]);
+    }, [measurementTypeStatus, measurementCharacteristicStatus]);
 
     function Valid(field: keyof (SystemCenter.Types.ChannelGroupDetails)): boolean {
         if (field == 'DisplayName')
             return props.Record.DisplayName != null && props.Record.DisplayName.length > 0 && props.Record.DisplayName.length <= 200;
+        else if (field == 'Unit')
+            return props.Record.Unit != null && props.Record.Unit.length > 0 && props.Record.Unit.length <= 200;
 
         return true;
     }
 
     return (
         <>
-            <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'DisplayName'} Feedback={'A Display Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'DisplayName'} Label='Name' Feedback={'Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
             <Select<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'MeasurementTypeID'} Label='Measurement Type'
                 Options={measurementTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.Setter}
             />
             <Select<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'MeasurementCharacteristicID'} Label='Measurement Characteristic'
                 Options={measurementCharacteristicData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.Setter}
             />
-            <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Label={'Unit ID'} Field={'UnitID'} Type='number' Valid={Valid} Setter={props.Setter} />
-
-            {/* <Select<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'Unit'} Label='Unit'
-                Options={detailsData
-                    //.filter((item) => {
-                    //if (units.includes(item.Unit)) return false;
-                    //units.push(item.Unit);
-                    //return true;
-                    //})
-                    .map((item) => ({ Value: item.Unit, Label: item.Unit })))} Setter={props.Setter}
-            />
-            */}
-
+            <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'Unit'} Feedback={'Unit must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
         </>
     );
 }
