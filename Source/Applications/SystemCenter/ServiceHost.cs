@@ -941,6 +941,7 @@ namespace SystemCenter
             if ((object)UpdatedStatus != null)
                 UpdatedStatus(sender, new EventArgs<Guid, string, UpdateType>(e.Argument1, e.Argument2, e.Argument3));
         }
+
         private void SendingClientResponseHandler(object sender, EventArgs<Guid, ServiceResponse, bool> e)
         {
             if ((object)SendingClientResponse != null)

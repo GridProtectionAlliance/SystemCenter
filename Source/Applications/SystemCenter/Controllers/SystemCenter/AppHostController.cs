@@ -46,6 +46,7 @@ namespace SystemCenter.Controllers
         public string Name { get; set; }
         public string Value { get; set; }
     }
+
     public class AppHost
     { 
         public string Image { get; set; }
@@ -53,7 +54,6 @@ namespace SystemCenter.Controllers
         public string PingURL { get; set; }
         public string ConsoleURL { get; set; }
         public string Name { get; set; }
-
     }
 
     [RoutePrefix("api/SystemCenter/AppHost")]
@@ -90,7 +90,7 @@ namespace SystemCenter.Controllers
                         Properties = new AppProperty[]
                         {
                             new AppProperty() { Name= "Host", Value = host.URL },
-                            new AppProperty() { Name= "Database", Value = DataBaseName() },
+                            new AppProperty() { Name= "Database", Value = DatabaseName },
                             new AppProperty() {
                                 Name= "Nodes Running",
                                 Value = connection.ExecuteScalar<int>("SELECT COUNT(ID) FROM Node WHERE HostRegistrationID = {0}", host.ID)
@@ -181,7 +181,8 @@ namespace SystemCenter.Controllers
             return ResponseMessage(responseMessage);
         }
 
-        #region [ Methods ]
+        #region [ Helpers ]
+
         private string GetXDABaseURL(int id)
         {
             using (AdoDataConnection connection = CreateDbConnection())
@@ -189,6 +190,7 @@ namespace SystemCenter.Controllers
                 return new TableOperations<HostRegistration>(connection).QueryRecordWhere("ID = {0}", id)?.URL ?? "";
             }
         }
+
         private AdoDataConnection CreateDbConnection()
         {
             AdoDataConnection connection = new AdoDataConnection("systemSettings");
@@ -208,7 +210,7 @@ namespace SystemCenter.Controllers
                 Image = "../Images/NodeTiles/SystemCenter.png",
                 Properties = new AppProperty[] {
                     new AppProperty() { Name= "Host", Value = Url.Content("~/") },
-                    new AppProperty() { Name= "Database", Value = DataBaseName() },
+                    new AppProperty() { Name= "Database", Value = DatabaseName },
                     new AppProperty() { Name= "Version", Value = systemCenterVersion }
                 },
                 PingURL = "./api/SystemCenter/Ping",
@@ -217,26 +219,26 @@ namespace SystemCenter.Controllers
             };
         }
 
-        private string DataBaseName()
+        private string DatabaseName
         {
-            string databaseName = "Not Available";
-            using (AdoDataConnection database = CreateDbConnection())
+            get
             {
                 try
                 {
-                    databaseName = database.Connection.Database;
+                    using (AdoDataConnection database = CreateDbConnection())
+                    {
+                        return database.Connection.Database;
+                    }
                 }
                 catch
-                { }
+                {
+                    return "Not Available";
+                }
             }
-            return databaseName;
         }
-
 
         #endregion
     }
-
-
 
     [RoutePrefix("api/SystemCenter/Console")]
     public class ConsoleController : APIConsoleController
