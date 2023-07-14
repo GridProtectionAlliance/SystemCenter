@@ -268,6 +268,11 @@ namespace SystemCenter.Model.Security
             };
 
             DataTable dataTable = base.GetSearchResults(filteredPostData);
+
+            DataColumn[] primaryKeys = new DataColumn[1];
+            primaryKeys[0] = dataTable.Columns["ID"];
+            dataTable.PrimaryKey = primaryKeys;
+
             dataTable.Columns.Add("DisplayName", typeof(string));
             dataTable.Columns.Add("Type", typeof(string));
 
@@ -278,7 +283,31 @@ namespace SystemCenter.Model.Security
                 row["DisplayName"] = group.DisplayName;
             }
 
-            // #ToDo Add Filtering by DisplayName and Type
+            DataTable filteredDataTable = dataTable.Clone();
+            foreach (Search search in postData.Searches)
+            {
+                IEnumerable<DataRow> filteredRows = dataTable.AsEnumerable();
+
+                switch(search.Operator)
+                {
+                    case "=":
+                        filteredRows = filteredRows.Where((row) => row.Field<string>(search.FieldName).ToLower() == search.SearchText.ToLower());
+                        break;
+                    case "LIKE":
+                        filteredRows = filteredRows.AsEnumerable().Where((row) => row.Field<string>(search.FieldName).ToLower().Contains(search.SearchText.Trim('*').ToLower()));
+                        break;
+                    case "NOT LIKE":
+                        filteredRows = filteredRows.AsEnumerable().Where((row) => !row.Field<string>(search.FieldName).ToLower().Contains(search.SearchText.Trim('*').ToLower()));
+                        break;
+                }
+
+                foreach (DataRow row in filteredRows)
+                {
+                    filteredDataTable.Rows.Add(row.ItemArray);
+                }
+
+                dataTable = filteredDataTable;
+            }
 
             if (!IsInDatabase(orderBy))
             {
