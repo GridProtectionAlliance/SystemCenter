@@ -71,12 +71,8 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
     }, [search, sortField, ascending]);
 
     React.useEffect(() => {
-        if (itemStatus == 'unintiated' || itemStatus == 'changed')
-            dispatch(ValueListSlice.Fetch());
-
-        return function () {
-        }
-    }, [dispatch, itemStatus]);
+        dispatch(ValueListSlice.Fetch());
+    }, []);
 
 
 
