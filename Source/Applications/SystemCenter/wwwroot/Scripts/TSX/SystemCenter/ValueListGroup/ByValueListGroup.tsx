@@ -43,6 +43,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
     const status = useAppSelector(ValueListGroupSlice.SearchStatus);
     const items = useAppSelector(ValueListSlice.Data);
     const itemStatus = useAppSelector(ValueListSlice.Status);
+    const parentID = useAppSelector(ValueListSlice.ParentID);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ValueListGroup>('Name');
@@ -71,8 +72,9 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
     }, [search, sortField, ascending]);
 
     React.useEffect(() => {
-        dispatch(ValueListSlice.Fetch());
-    }, []);
+        if (itemStatus == 'unintiated' || itemStatus == 'changed' || parentID != null)
+            dispatch(ValueListSlice.Fetch());
+    }, [dispatch, itemStatus, parentID]);
 
 
 
