@@ -42,6 +42,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
     const status = useAppSelector(ChannelGroupSlice.SearchStatus);
     const items = useAppSelector(ChannelGroupDetailsSlice.Data);
     const itemStatus = useAppSelector(ChannelGroupDetailsSlice.Status);
+    const parentID = useAppSelector(ChannelGroupDetailsSlice.ParentID);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ChannelGroup>('Name');
@@ -64,13 +65,9 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
     }, [search, sortField, ascending]);
 
     React.useEffect(() => {
-        if (itemStatus == 'unintiated' || itemStatus == 'changed')
+        if (itemStatus == 'unintiated' || itemStatus == 'changed' || parentID != null)
             dispatch(ChannelGroupDetailsSlice.Fetch());
-    }, [dispatch, itemStatus]);
-
-    React.useEffect(() => {
-        dispatch(ChannelGroupDetailsSlice.Fetch());
-    }, []);
+    }, [dispatch, itemStatus, parentID]);
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ChannelGroup&GroupID=' + item.row.ID })
