@@ -24,7 +24,8 @@
 import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, Select } from '@gpa-gemstone/react-forms';
-import { MeasurmentTypeSlice, MeasurementCharacteristicSlice } from '../Store/Store';
+import { Search } from '@gpa-gemstone/react-interactive';
+import { MeasurmentTypeSlice, MeasurementCharacteristicSlice, ValueListSlice, ValueListGroupSlice } from '../Store/Store';
 import { useAppSelector, useAppDispatch } from '../hooks';
 
 interface IProps {
@@ -40,6 +41,10 @@ export default function ChannelGroupItemForm(props: IProps) {
     const measurementTypeStatus = useAppSelector(MeasurmentTypeSlice.Status);
     const measurementCharacteristicData = useAppSelector(MeasurementCharacteristicSlice.Data);
     const measurementCharacteristicStatus = useAppSelector(MeasurementCharacteristicSlice.Status);
+    const valueListData = useAppSelector(ValueListSlice.Data);
+    const valueListStatus = useAppSelector(ValueListSlice.Status);
+    const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
+    const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
 
     React.useEffect(() => {
         if (measurementTypeStatus == 'unintiated' || measurementTypeStatus == 'changed')
@@ -47,13 +52,19 @@ export default function ChannelGroupItemForm(props: IProps) {
 
         if (measurementCharacteristicStatus == 'unintiated' || measurementCharacteristicStatus == 'changed')
             dispatch(MeasurementCharacteristicSlice.Fetch());
-    }, [measurementTypeStatus, measurementCharacteristicStatus]);
+
+        if (valueListStatus == 'unintiated' || valueListStatus == 'changed')
+            dispatch(ValueListSlice.Fetch());
+    }, [measurementTypeStatus, measurementCharacteristicStatus, valueListStatus]);
+
+    React.useEffect(() => {
+        if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
+            dispatch(ValueListGroupSlice.Fetch());
+    }, [valueListGroupStatus]);
 
     function Valid(field: keyof (SystemCenter.Types.ChannelGroupDetails)): boolean {
         if (field == 'DisplayName')
             return props.Record.DisplayName != null && props.Record.DisplayName.length > 0 && props.Record.DisplayName.length <= 200;
-        else if (field == 'Unit')
-            return props.Record.Unit != null && props.Record.Unit.length > 0 && props.Record.Unit.length <= 200;
 
         return true;
     }
@@ -67,7 +78,9 @@ export default function ChannelGroupItemForm(props: IProps) {
             <Select<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'MeasurementCharacteristicID'} Label='Measurement Characteristic'
                 Options={measurementCharacteristicData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.Setter}
             />
-            <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'Unit'} Feedback={'Unit must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Select<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'Unit'} Label='Unit'
+                Options={valueListData.filter((item) => item.GroupID == valueListGroupData.find((d) => d.Name == 'Unit').ID).map((item) => ({ Value: item.Value, Label: item.Value }))} Setter={props.Setter}
+            />
         </>
     );
 }
