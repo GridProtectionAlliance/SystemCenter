@@ -74,7 +74,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (itemStatus == 'unintiated' || itemStatus == 'changed' || parentID != null)
             dispatch(ValueListSlice.Fetch());
-    }, [dispatch, itemStatus, parentID]);
+    }, [itemStatus, parentID]);
 
 
 
