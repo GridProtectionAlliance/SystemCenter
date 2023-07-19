@@ -33,6 +33,10 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroup>(props.Record);
     const dispatch = useAppDispatch();
 
+    function Valid(): boolean {
+        return props.Record.Name != null && props.Record.Name.length > 0 && props.Record.Name.length <= 200;
+    }
+
     if (record == null) return;
     return (
         <div className="card" style={{ marginBottom: 10 }}>
@@ -48,7 +52,11 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={() => dispatch(ChannelGroupSlice.DBAction({ verb: 'PATCH', record }))} hidden={record.ID == 0} disabled={record == props.Record}>Update</button>
+                    <button className="btn btn-primary" onClick={() =>
+                    {
+                        if (Valid())
+                            dispatch(ChannelGroupSlice.DBAction({ verb: 'PATCH', record }));
+                    }} hidden={record.ID == 0} disabled={record == props.Record}>Update</button>
                 </div>
                 <div className="btn-group mr-2">
                     <button className="btn btn-default" onClick={() => setRecord(props.Record)} disabled={record == props.Record}>Reset</button>

@@ -45,10 +45,7 @@ export default function ChannelGroup(props: { GroupID: number }) {
     React.useEffect(() => {
         if (channelGroupStatus == 'unintiated' || channelGroupStatus == 'changed')
             dispatch(ChannelGroupSlice.Fetch());
-
-        return function () {
-        }
-    }, [dispatch, channelGroupStatus]);
+    }, [channelGroupStatus]);
 
     React.useEffect(() => {
         sessionStorage.setItem('ChannelGroup.Tab', JSON.stringify(tab));

@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  CompanyForm.tsx - Gbtc
+//  ChannelGroupForm.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //

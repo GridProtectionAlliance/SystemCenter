@@ -47,20 +47,24 @@ export default function ChannelGroupItemForm(props: IProps) {
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
 
     React.useEffect(() => {
-        if (measurementTypeStatus == 'unintiated' || measurementTypeStatus == 'changed')
-            dispatch(MeasurmentTypeSlice.Fetch());
-
-        if (measurementCharacteristicStatus == 'unintiated' || measurementCharacteristicStatus == 'changed')
-            dispatch(MeasurementCharacteristicSlice.Fetch());
-
-        if (valueListStatus == 'unintiated' || valueListStatus == 'changed')
-            dispatch(ValueListSlice.Fetch());
-    }, [measurementTypeStatus, measurementCharacteristicStatus, valueListStatus]);
-
-    React.useEffect(() => {
         if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
+
+    React.useEffect(() => {
+        if (valueListStatus == 'unintiated' || valueListStatus == 'changed')
+            dispatch(ValueListSlice.Fetch());
+    }, [valueListStatus]);
+
+    React.useEffect(() => {
+        if (measurementTypeStatus == 'unintiated' || measurementTypeStatus == 'changed')
+            dispatch(MeasurmentTypeSlice.Fetch());
+    }, [measurementTypeStatus]);
+
+    React.useEffect(() => {
+        if (measurementCharacteristicStatus == 'unintiated' || measurementCharacteristicStatus == 'changed')
+            dispatch(MeasurementCharacteristicSlice.Fetch());
+    }, [measurementCharacteristicStatus]);
 
     function Valid(field: keyof (SystemCenter.Types.ChannelGroupDetails)): boolean {
         if (field == 'DisplayName')

@@ -51,6 +51,11 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
     const emptyRecord = { ID: 0, Name: '', Description: '' };
     let history = useHistory();
 
+    const ChannelGroupSearchFields = [
+        { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
+        { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+    ];
+    const ChannelGroupDefaultSearchField = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
     const [search, setSearch] = React.useState<Array<Search.IFilter<SystemCenter.Types.ChannelGroup>>>([]);
 
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroup>(emptyRecord);
@@ -76,32 +81,14 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <SearchBar< SystemCenter.Types.ChannelGroup>
-                CollumnList={SearchFields.ValueListGroup as Search.IField<SystemCenter.Types.ChannelGroup>[]}
-                SetFilter={(flds) => setSearch(flds)}
+                CollumnList={ChannelGroupSearchFields as Search.IField<SystemCenter.Types.ChannelGroup>[]}
+                SetFilter={(flds) => dispatch(ChannelGroupSlice.DBSearch({ filter: flds }))}
                 Direction={'left'}
-                defaultCollumn={DefaultSearchField.ValueListGroup as Search.IField<SystemCenter.Types.ChannelGroup>}
+                defaultCollumn={ChannelGroupDefaultSearchField as Search.IField<SystemCenter.Types.ChannelGroup>}
                 Width={'50%'}
                 Label={'Search'}
                 ShowLoading={status == 'loading'}
                 ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Channel Groups(s)'}
-                GetEnum={(setOptions, field) => {
-                    let handle = null;
-                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
-                        return () => { };
-
-                    handle = $.ajax({
-                        type: "GET",
-                        url: `${homePath}api/ChannelGroup/Group/${field.enum[0].Value}`,
-                        contentType: "application/json; charset=utf-8",
-                        dataType: 'json',
-                        cache: true,
-                        async: true
-                    });
-
-                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
-                }}
-
             >
 
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
@@ -133,9 +120,9 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                     ascending={ascending}
                     onSort={(d) => {
                         if (d.colKey != sortField)
-                            setSortField(d.colKey as any)
+                            dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField: (d.colField as any), ascending: true }));
                         else
-                            setAscending(!d.ascending)
+                            dispatch(ChannelGroupSlice.DBSearch({ filter: search, ascending: !ascending }))
                             
                     }}
                     onClick={handleSelect}
