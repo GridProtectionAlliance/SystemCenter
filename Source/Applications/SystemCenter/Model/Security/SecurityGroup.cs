@@ -284,30 +284,30 @@ namespace SystemCenter.Model.Security
             }
 
             DataTable filteredDataTable = dataTable.Clone();
+            IEnumerable<DataRow> filteredRows = dataTable.AsEnumerable();
             foreach (Search search in postData.Searches)
             {
-                IEnumerable<DataRow> filteredRows = dataTable.AsEnumerable();
-
-                switch(search.Operator)
+                string wildcardPattern = Regex.Escape(search.SearchText.ToLower()).Replace(@"\*", ".*");
+                switch (search.Operator)
                 {
                     case "=":
                         filteredRows = filteredRows.Where((row) => row.Field<string>(search.FieldName).ToLower() == search.SearchText.ToLower());
                         break;
                     case "LIKE":
-                        filteredRows = filteredRows.AsEnumerable().Where((row) => row.Field<string>(search.FieldName).ToLower().Contains(search.SearchText.Trim('*').ToLower()));
+                        filteredRows = filteredRows.Where((row) => Regex.IsMatch(row.Field<string>(search.FieldName).ToLower(), wildcardPattern));
                         break;
                     case "NOT LIKE":
-                        filteredRows = filteredRows.AsEnumerable().Where((row) => !row.Field<string>(search.FieldName).ToLower().Contains(search.SearchText.Trim('*').ToLower()));
+                        filteredRows = filteredRows.Where((row) => !Regex.IsMatch(row.Field<string>(search.FieldName).ToLower(), wildcardPattern));
                         break;
                 }
-
-                foreach (DataRow row in filteredRows)
-                {
-                    filteredDataTable.Rows.Add(row.ItemArray);
-                }
-
-                dataTable = filteredDataTable;
             }
+
+            foreach (DataRow row in filteredRows)
+            {
+                filteredDataTable.Rows.Add(row.ItemArray);
+            }
+
+            dataTable = filteredDataTable;
 
             if (!IsInDatabase(orderBy))
             {
