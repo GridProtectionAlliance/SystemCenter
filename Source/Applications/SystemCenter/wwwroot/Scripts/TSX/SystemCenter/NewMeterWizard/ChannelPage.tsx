@@ -148,7 +148,7 @@ export default function ChannelPage(props: IProps) {
                     dispatch(MeasurmentTypeSlice.Fetch());
                 }).fail(msg => {
                     if (msg.status == 500)
-                        alert(msg.responseJSON.ExceptionMessage);
+                        alert("An error has occurred. Contact your administrator.");
                     setChannelStatus('idle');
                 });
             }

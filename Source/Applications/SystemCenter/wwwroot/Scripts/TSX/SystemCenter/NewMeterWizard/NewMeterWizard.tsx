@@ -255,7 +255,7 @@ export default function NewMeterWizard(props: {}) {
         }).fail(msg => {
             setStatus('idle');
             if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
+                alert("An error has occurred. Contact your administrator.")
         });
 
         return () => {
