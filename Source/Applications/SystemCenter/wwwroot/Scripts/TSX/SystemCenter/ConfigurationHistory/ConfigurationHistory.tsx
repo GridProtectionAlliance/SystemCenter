@@ -107,6 +107,9 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                 <div className="col">
                     <h2>{props.MeterKey} - Configuration Revision: {meterConfiguration.RevisionMajor + '.' + meterConfiguration.RevisionMinor}</h2>
                 </div>
+                <div className="col">
+                    <button className="btn btn-primary pull-right" onClick={() => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + meterConfiguration.MeterID, state: {} })}>Meter Details</button>
+                </div>
             </div>
 
 
