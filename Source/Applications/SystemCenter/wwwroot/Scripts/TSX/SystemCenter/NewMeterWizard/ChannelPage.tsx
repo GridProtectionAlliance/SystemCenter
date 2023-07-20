@@ -56,6 +56,7 @@ export default function ChannelPage(props: IProps) {
     const [currentChannels, setCurrentChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [parsedChannels, setParsedChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [channelStatus, setChannelStatus] = React.useState<Application.Types.Status>('idle');
+    const [showServerError, setShowServerError] = React.useState<boolean>(false);
 
     const [hoverDefault, setHoverDefault] = React.useState<boolean>(false);
 
@@ -148,7 +149,7 @@ export default function ChannelPage(props: IProps) {
                     dispatch(MeasurmentTypeSlice.Fetch());
                 }).fail(msg => {
                     if (msg.status == 500)
-                        alert("An error has occurred. Contact your administrator.");
+                        setShowServerError(true);
                     setChannelStatus('idle');
                 });
             }
@@ -393,6 +394,9 @@ export default function ChannelPage(props: IProps) {
                 setShowDialog(false);
             }}>
                 {"Add all Channels or only " + (props.TrendChannels ? "trend" : "event") + " Channels?"}
+            </Modal>
+            <Modal Title="Server Error" Show={showServerError} ConfirmText='OK' ShowX={true} ShowCancel={false} CallBack={() => setShowServerError(false)}>
+                <p>A server error has occurred. Please contact your administrator.</p>
             </Modal>
 
         </>

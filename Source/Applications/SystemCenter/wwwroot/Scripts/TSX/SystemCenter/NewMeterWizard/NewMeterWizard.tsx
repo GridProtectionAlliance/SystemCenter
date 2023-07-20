@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingScreen, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ServerErrorIcon, ToolTip, Warning, Modal } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CrossMark, Warning as WarningSymbol } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
@@ -72,6 +72,7 @@ export default function NewMeterWizard(props: {}) {
     const [warning, setWarning] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev'>('None');
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
+    const [showServerError, setShowServerError] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
 
     const portalID: string = "NewMeterWizardPortalID";
@@ -255,7 +256,7 @@ export default function NewMeterWizard(props: {}) {
         }).fail(msg => {
             setStatus('idle');
             if (msg.status == 500)
-                alert("An error has occurred. Contact your administrator.")
+                setShowServerError(true);
         });
 
         return () => {
@@ -462,6 +463,9 @@ export default function NewMeterWizard(props: {}) {
                 if (confirmed)
                     addNewMeter();
             }} />
+            <Modal Title="Server Error" Show={showServerError} ConfirmText='OK' ShowX={true} ShowCancel={false} CallBack={() => setShowServerError(false)}>
+                <p>A server error has occurred. Please contact your administrator.</p>
+            </Modal>
         </div>
     );
 }
