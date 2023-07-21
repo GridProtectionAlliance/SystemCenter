@@ -25,14 +25,12 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Net.Http;
 using System.Transactions;
 using System.Web.Http;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Reflection;
 using GSF.Web.Model;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using openXDA.Model;
 using SystemCenter.Model;
@@ -967,4 +965,6 @@ namespace SystemCenter.Controllers.OpenXDA
         #endregion
     }
 
+    [RoutePrefix("api/OpenXDA/DetailedMeterAsset")]
+    public class DetailedMeterAssetController : ModelController<DetailedMeterAsset> { }
 }

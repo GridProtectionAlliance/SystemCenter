@@ -279,6 +279,7 @@
     <Compile Include="Controllers\SystemCenter\SystemCenterController.cs" />
     <Compile Include="Model\Configuration\APIConfiguration.cs" />
     <Compile Include="Model\Configuration\ConfigurationLoader.cs" />
+    <Compile Include="Model\DetailedMeterAsset.cs" />
     <Compile Include="Model\Security\RemoteUserAccount.cs" />
     <Compile Include="Model\Security\ApplicationRole.cs" />
     <Compile Include="Model\Security\SecurityGroup.cs" />
