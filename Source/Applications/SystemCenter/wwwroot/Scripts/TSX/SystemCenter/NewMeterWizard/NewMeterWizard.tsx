@@ -72,7 +72,6 @@ export default function NewMeterWizard(props: {}) {
     const [warning, setWarning] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev'>('None');
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
-    const [showServerError, setShowServerError] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
 
     const portalID: string = "NewMeterWizardPortalID";
@@ -253,10 +252,8 @@ export default function NewMeterWizard(props: {}) {
             setStatus('idle');
             setMeterID(meterID);
             next();
-        }).fail(msg => {
-            setStatus('idle');
-            if (msg.status == 500)
-                setShowServerError(true);
+        }).fail(() => {
+            setStatus('error');
         });
 
         return () => {
@@ -387,7 +384,7 @@ export default function NewMeterWizard(props: {}) {
             return (
                 <div style={{ width: '100%', height: '200px' }}>
                     <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
+                        <ServerErrorIcon Show={true} Size={40} Label={'A server error has occurred. Please contact your administrator.'} />
                     </div>
                 </div>);
         switch (currentStep) {
@@ -463,9 +460,6 @@ export default function NewMeterWizard(props: {}) {
                 if (confirmed)
                     addNewMeter();
             }} />
-            <Modal Title="Server Error" Show={showServerError} ConfirmText='OK' ShowX={true} ShowCancel={false} CallBack={() => setShowServerError(false)}>
-                <p>A server error has occurred. Please contact your administrator.</p>
-            </Modal>
         </div>
     );
 }

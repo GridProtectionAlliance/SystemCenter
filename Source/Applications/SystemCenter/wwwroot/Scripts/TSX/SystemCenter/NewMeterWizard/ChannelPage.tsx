@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import CFGParser from '../../../TS/CFGParser';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
-import { ConfigurableTable, Modal, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { ConfigurableTable, Modal, ToolTip, Warning, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
@@ -56,7 +56,6 @@ export default function ChannelPage(props: IProps) {
     const [currentChannels, setCurrentChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [parsedChannels, setParsedChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [channelStatus, setChannelStatus] = React.useState<Application.Types.Status>('idle');
-    const [showServerError, setShowServerError] = React.useState<boolean>(false);
 
     const [hoverDefault, setHoverDefault] = React.useState<boolean>(false);
 
@@ -147,10 +146,8 @@ export default function ChannelPage(props: IProps) {
                     dispatch(PhaseSlice.Fetch());
                     dispatch(MeasurementCharacteristicSlice.Fetch());
                     dispatch(MeasurmentTypeSlice.Fetch());
-                }).fail(msg => {
-                    if (msg.status == 500)
-                        setShowServerError(true);
-                    setChannelStatus('idle');
+                }).fail(() => {
+                    setChannelStatus('error');
                 });
             }
             r.readAsArrayBuffer(f);
@@ -269,137 +266,145 @@ export default function ChannelPage(props: IProps) {
 
     const NSpare = props.Channels.filter(c => IsSpare(c)).length;
 
-    return (
-        <>
-            <div className="row">
-                <div className="col-1">
-                    <button className=/*{*/"btn btn-primary"/* + (props.TrendChannels ? 'btn-disabled' : '')}*/
-                        data-tooltip='DefaultChannel'
-                        onMouseEnter={() => setHoverDefault(true)}
-                        onMouseLeave={() => setHoverDefault(false)}
-                        onClick={() => {
-                        if (props.TrendChannels)
-                            return;                           
-                        setSelectedFile('');
-                        let channels: Array<OpenXDA.Types.Channel> = [
-                            { ID: 0, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                            { ID: 1, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'VBN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage BN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                            { ID: 2, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'VCN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage CN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                            { ID: 3, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'IA', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current A', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                            { ID: 4, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'IB', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current B', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                            { ID: 5, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'IC', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current C', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                            { ID: 6, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'RES', Name: 'IR', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current RES', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                        ]
-                        props.UpdateChannels(channels);
-                        clearAssetsChannels();
-                    }}>Default Setup</button>
-                    <ToolTip Show={hoverDefault} Position={'top'} Theme={'dark'} Target={"DefaultChannel"}>
-                    <p>No Trending Channel Default Setup is available.</p>
-                    </ToolTip>
+    let body;
+    if (channelStatus === 'error') {
+        body =
+            <div style={{ width: '100%', height: '200px' }}>
+                <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                    <ServerErrorIcon Show={true} Size={40} Label={'A server error has occurred. Please contact your administrator.'} />
                 </div>
-                <div className="col-1">
-                    {`Number of ${props.TrendChannels ? "Trend" : "Event"} Channels: ${currentChannels.length}`}
-                </div>
-                <div className="col-5">
-                    <div className="form-group" style={{ width: '100%' }}>
-                        <div className="custom-file">
-                            <input type="file" className="custom-file-input" ref={fileInput} />
-                            <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile :`Choose file for ${props.TrendChannels ? 'trend' : 'event'} channel data.`}</label>
+            </div>
+    } else {
+        body = 
+            <>
+                <div className="row">
+                    <div className="col-1">
+                        <button className=/*{*/"btn btn-primary"/* + (props.TrendChannels ? 'btn-disabled' : '')}*/
+                            data-tooltip='DefaultChannel'
+                            onMouseEnter={() => setHoverDefault(true)}
+                            onMouseLeave={() => setHoverDefault(false)}
+                            onClick={() => {
+                                if (props.TrendChannels)
+                                    return;
+                                setSelectedFile('');
+                                let channels: Array<OpenXDA.Types.Channel> = [
+                                    { ID: 0, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                                    { ID: 1, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'VBN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage BN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                                    { ID: 2, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'VCN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage CN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                                    { ID: 3, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'IA', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current A', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                                    { ID: 4, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'IB', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current B', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                                    { ID: 5, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'IC', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current C', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                                    { ID: 6, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'RES', Name: 'IR', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current RES', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
+                                ]
+                                props.UpdateChannels(channels);
+                                clearAssetsChannels();
+                            }}>Default Setup</button>
+                        <ToolTip Show={hoverDefault} Position={'top'} Theme={'dark'} Target={"DefaultChannel"}>
+                            <p>No Trending Channel Default Setup is available.</p>
+                        </ToolTip>
+                    </div>
+                    <div className="col-1">
+                        {`Number of ${props.TrendChannels ? "Trend" : "Event"} Channels: ${currentChannels.length}`}
+                    </div>
+                    <div className="col-5">
+                        <div className="form-group" style={{ width: '100%' }}>
+                            <div className="custom-file">
+                                <input type="file" className="custom-file-input" ref={fileInput} />
+                                <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile : `Choose file for ${props.TrendChannels ? 'trend' : 'event'} channel data.`}</label>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="col-2">
-                    <button className="btn btn-primary pull-right" disabled={NSpare == 0} onClick={() => setShowSpareWarning(true)}>Remove Spare</button>
-                </div>
-                <div className="col-1">
-                    <button className="btn btn-primary pull-right" disabled={currentChannels.length === 0} onClick={() => {
-                        props.UpdateChannels(getCurrentChannels(!props.TrendChannels)); // Set props to only non-shown channels for current page
-                        setSelectedFile('');
-                    }
-                    }>Remove All</button>
-                </div>
-                <div className="col-1">
-                    <button className="btn btn-primary pull-right" disabled={currentChannels.length == 0} onClick={() => {
-                        setShowScaling(true);
-                    }
-                    }>Scale</button>
-                </div>
-
-                {props.TrendChannels ? null :
+                    <div className="col-2">
+                        <button className="btn btn-primary pull-right" disabled={NSpare == 0} onClick={() => setShowSpareWarning(true)}>Remove Spare</button>
+                    </div>
                     <div className="col-1">
-                        <button className="btn btn-primary pull-right" onClick={() => {
-                            let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0, Trend: false } as OpenXDA.Types.Channel
-                            let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
-                            channels.push(channel);
-                            props.UpdateChannels(channels);
-                        }}>Add</button>
-                    </div>}
+                        <button className="btn btn-primary pull-right" disabled={currentChannels.length === 0} onClick={() => {
+                            props.UpdateChannels(getCurrentChannels(!props.TrendChannels)); // Set props to only non-shown channels for current page
+                            setSelectedFile('');
+                        }
+                        }>Remove All</button>
+                    </div>
+                    <div className="col-1">
+                        <button className="btn btn-primary pull-right" disabled={currentChannels.length == 0} onClick={() => {
+                            setShowScaling(true);
+                        }
+                        }>Scale</button>
+                    </div>
 
-            </div>
-            <div style={{ width: '100%', maxHeight: innerHeight - 410, padding: 30 }}>
-                <ConfigurableTable<OpenXDA.Types.Channel> cols={[
-                    {
-                        key: 'Series', label: 'Channel', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Series> Field={'SourceIndexes'}
-                            Record={item.Series[0]} Setter={(series) => {
-                            item.Series[0].SourceIndexes = series.SourceIndexes;
-                            editChannel(item)
-                        }} Label={''} Valid={() => true}/>
-                    },
-                    {
-                        key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Name'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
-                    },
-                    {
-                        key: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementTypes.map((t) => ({ Value: t, Label: t }))} />
-                    },
-                    {
-                        key: 'MeasurementCharacteristic', label: 'Char', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementCharacteristic'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementCharacteristics.map((t) => ({ Value: t, Label: t }))} />
-                    },
-                    {
-                        key: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.Phases.map((t) => ({ Value: t, Label: t }))} />
-                    },
-                    { key: 'SamplesPerHour', label: 'Sph.', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'SamplesPerHour'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
-                    { key: 'PerUnitValue', label: 'Per Unit', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'PerUnitValue'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
-                    { key: 'HarmonicGroup', label: 'Harm', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'HarmonicGroup'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
-                    { key: 'Adder', label: 'Adder', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
-                    { key: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
-                    {
-                        key: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => <TextArea<OpenXDA.Types.Channel> Field={'Description'} Rows={2} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
-                    },
-                    { key: 'DeleteButton', label: '', headerStyle: { width: '3%' }, rowStyle: { width: '3%', paddingTop: 36, paddingBottom: 36 }, content: (item, field, key, style, index) => <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span>{TrashCan}</span></button> },
-                    { key: 'Scroll', label: '', headerStyle: { width: '5px', padding: 0 }, rowStyle: { width: '0px', padding: 0 }, content: () => null }
-                ]}
-                    defaultColumns={["Series", "Name", "Phase", "Adder", "Multiplier", "Description", "DeleteButton", "Scroll"]}
-                    requiredColumns={["Name", "DeleteButton", "Scroll"]}
-                    localStorageKey="ChannelPageConfigTable"
-                    tableClass="table table-hover"
-                    data={currentChannels}
-                    sortKey={'Series'}
-                    ascending={false}
-                    onSort={(d) => {}}
-                    onClick={(fld) => { }}
-                    tableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed' }}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: innerHeight - 460, }}
-                    rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
-            </div>
-            <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}.`} CallBack={() => setShowCFGError(false)} />
-            <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare Channels. This will remove ${NSpare} Channels from the configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
-            <Modal Title="Scale Channels" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Close Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
-                <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels} ChannelStatus={channelStatus} Key={props.MeterKey} />
-            </Modal>
-            <Modal Title={"Add All Channels"} ShowX={true} ShowCancel={true} Show={showDialog} CancelText={"Only " + (props.TrendChannels ? "Trend" : "Event")} ConfirmText="Add All" Size='sm' CallBack={(all) => {
-                addChannels(parsedChannels, all);
-                setShowDialog(false);
-            }}>
-                {"Add all Channels or only " + (props.TrendChannels ? "trend" : "event") + " Channels?"}
-            </Modal>
-            <Modal Title="Server Error" Show={showServerError} ConfirmText='OK' ShowX={true} ShowCancel={false} CallBack={() => setShowServerError(false)}>
-                <p>A server error has occurred. Please contact your administrator.</p>
-            </Modal>
+                    {props.TrendChannels ? null :
+                        <div className="col-1">
+                            <button className="btn btn-primary pull-right" onClick={() => {
+                                let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0, Trend: false } as OpenXDA.Types.Channel
+                                let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
+                                channels.push(channel);
+                                props.UpdateChannels(channels);
+                            }}>Add</button>
+                        </div>}
 
-        </>
-        );
+                </div>
+                <div style={{ width: '100%', maxHeight: innerHeight - 410, padding: 30 }}>
+                    <ConfigurableTable<OpenXDA.Types.Channel> cols={[
+                        {
+                            key: 'Series', label: 'Channel', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Series> Field={'SourceIndexes'}
+                                Record={item.Series[0]} Setter={(series) => {
+                                    item.Series[0].SourceIndexes = series.SourceIndexes;
+                                    editChannel(item)
+                                }} Label={''} Valid={() => true} />
+                        },
+                        {
+                            key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Name'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
+                        },
+                        {
+                            key: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementTypes.map((t) => ({ Value: t, Label: t }))} />
+                        },
+                        {
+                            key: 'MeasurementCharacteristic', label: 'Char', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementCharacteristic'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementCharacteristics.map((t) => ({ Value: t, Label: t }))} />
+                        },
+                        {
+                            key: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.Phases.map((t) => ({ Value: t, Label: t }))} />
+                        },
+                        { key: 'SamplesPerHour', label: 'Sph.', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'SamplesPerHour'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
+                        { key: 'PerUnitValue', label: 'Per Unit', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'PerUnitValue'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
+                        { key: 'HarmonicGroup', label: 'Harm', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'HarmonicGroup'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
+                        { key: 'Adder', label: 'Adder', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Adder'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
+                        { key: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Multiplier'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
+                        {
+                            key: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => <TextArea<OpenXDA.Types.Channel> Field={'Description'} Rows={2} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
+                        },
+                        { key: 'DeleteButton', label: '', headerStyle: { width: '3%' }, rowStyle: { width: '3%', paddingTop: 36, paddingBottom: 36 }, content: (item, field, key, style, index) => <button className="btn btn-sm" onClick={(e) => deleteChannel(index)}><span>{TrashCan}</span></button> },
+                        { key: 'Scroll', label: '', headerStyle: { width: '5px', padding: 0 }, rowStyle: { width: '0px', padding: 0 }, content: () => null }
+                    ]}
+                        defaultColumns={["Series", "Name", "Phase", "Adder", "Multiplier", "Description", "DeleteButton", "Scroll"]}
+                        requiredColumns={["Name", "DeleteButton", "Scroll"]}
+                        localStorageKey="ChannelPageConfigTable"
+                        tableClass="table table-hover"
+                        data={currentChannels}
+                        sortKey={'Series'}
+                        ascending={false}
+                        onSort={(d) => { }}
+                        onClick={(fld) => { }}
+                        tableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed' }}
+                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: innerHeight - 460, }}
+                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        selected={(item) => false}
+                    />
+                </div>
+                <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}.`} CallBack={() => setShowCFGError(false)} />
+                <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare Channels. This will remove ${NSpare} Channels from the configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
+                <Modal Title="Scale Channels" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Close Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
+                    <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels} ChannelStatus={channelStatus} Key={props.MeterKey} />
+                </Modal>
+                <Modal Title={"Add All Channels"} ShowX={true} ShowCancel={true} Show={showDialog} CancelText={"Only " + (props.TrendChannels ? "Trend" : "Event")} ConfirmText="Add All" Size='sm' CallBack={(all) => {
+                    addChannels(parsedChannels, all);
+                    setShowDialog(false);
+                }}>
+                    {"Add all Channels or only " + (props.TrendChannels ? "trend" : "event") + " Channels?"}
+                </Modal>
+
+            </>
+    }
+
+    return body;
 
 }
