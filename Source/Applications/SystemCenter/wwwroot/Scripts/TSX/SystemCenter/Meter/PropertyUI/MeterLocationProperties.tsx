@@ -24,11 +24,14 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings'
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../../AssetAttribute/Asset';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
-import { ByLocationSlice } from '../../Store/Store';
+import { ByLocationSlice, LocationDrawingSlice } from '../../Store/Store';
+import { Modal } from '@gpa-gemstone/react-interactive';
+import Table from '@gpa-gemstone/react-table';
+import { useAppDispatch, useAppSelector } from '../../hooks';
 
 declare var homePath: string;
 
@@ -46,6 +49,14 @@ const MeterLocationProperties = (props: IProps) => {
     const [showStationSelector, setShowStationSelector] = React.useState<boolean>(false);
     const [showDrawings, setShowDrawings] = React.useState<boolean>(false);
 
+    const dispatch = useAppDispatch();
+
+    const drawingData = useAppSelector(LocationDrawingSlice.Data);
+    const drawingStatus = useAppSelector(LocationDrawingSlice.Status);
+    const sortKey = useAppSelector(LocationDrawingSlice.SortField);
+    const ascending = useAppSelector(LocationDrawingSlice.Ascending);
+    const parentID = useAppSelector(LocationDrawingSlice.ParentID);
+
     React.useEffect(() => {
         const key = props.Location.LocationKey;
         if (key == null || key == '')
@@ -59,6 +70,11 @@ const MeterLocationProperties = (props: IProps) => {
             setValidKey(props.Location.ID == index[0].ID);
 
     }, [props.Location, props.Locationlist]);
+
+    React.useEffect(() => {
+        if (drawingStatus == 'unintiated' || drawingStatus == 'changed')
+            LocationDrawingSlice.Fetch();
+    }, [drawingStatus]);
 
     function getEnum(setOptions, field) {
         let handle = null;
@@ -163,10 +179,38 @@ const MeterLocationProperties = (props: IProps) => {
                     { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ]}
-                 Title={"Select Substation"}
-                 GetEnum={getEnum}
-                 GetAddlFields={() => { return () => { } }} />
-            </>
+                Title={"Select Substation"}
+                GetEnum={getEnum}
+                GetAddlFields={() => { return () => { } }} />
+
+            <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)}
+                ShowCancel={false} ConfirmText={'Done'}
+            >
+                <div className="row">
+                    <div className="col" style={{ width: '100%' }}>
+                        <Table<SystemCenter.Types.LocationDrawing>
+                            cols={[
+                                { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                            ]}
+                            tableClass="table table-hover"
+                            data={drawingData}
+                            sortKey={sortKey}
+                            ascending={ascending}
+                            onSort={(d) => {
+                                dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                            }}
+                            onClick={(d) => {
+                                window.open(d.row.Link, '_blank');
+                            }}
+                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: '400px', width: '100%' }}
+                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        />
+                    </div>
+                </div>
+            </Modal>
+        </>
     );
 
 
