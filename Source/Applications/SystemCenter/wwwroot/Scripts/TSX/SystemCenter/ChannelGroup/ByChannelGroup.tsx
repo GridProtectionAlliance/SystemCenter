@@ -33,6 +33,7 @@ import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
 import ChannelGroupForm from './ChannelGroupForm';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
 
 const ChannelGroups: Application.Types.iByComponent = (props) => {
@@ -47,6 +48,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ChannelGroup>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [errors, setErrors] = React.useState<string[]>([]);
 
     const emptyRecord = { ID: 0, Name: '', Description: '' };
     let history = useHistory();
@@ -73,6 +75,14 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
         if (itemStatus == 'unintiated' || itemStatus == 'changed' || parentID != null)
             dispatch(ChannelGroupDetailsSlice.Fetch());
     }, [dispatch, itemStatus, parentID]);
+
+    React.useEffect(() => {
+        let e = [];
+        if (record.Name == null || record.Name.length == 0 || record.Name.length > 200) {
+            e.push('Name must be between 1 and 200 characters.');
+        }
+        setErrors(e);
+    }, [record]);
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ChannelGroup&GroupID=' + item.row.ID })
@@ -143,6 +153,9 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
                 ConfirmText={'Add Group'}
+                ConfirmShowToolTip={errors.length > 0}
+                ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                DisableConfirm={errors.length > 0}
                 Show={showNew} >
                 <ChannelGroupForm Record={record} Setter={setRecord} />
             </Modal>

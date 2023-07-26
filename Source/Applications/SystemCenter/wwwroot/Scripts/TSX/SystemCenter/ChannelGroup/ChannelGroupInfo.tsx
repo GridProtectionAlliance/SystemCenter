@@ -28,13 +28,25 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppDispatch } from '../hooks';
 import { ChannelGroupSlice } from '../Store/Store';
 import ChannelGroupForm from './ChannelGroupForm';
+import { ToolTip } from '@gpa-gemstone/react-interactive';
+import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
 const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup }) => {
     const [record, setRecord] = React.useState<SystemCenter.Types.ChannelGroup>(props.Record);
+    const [errors, setError] = React.useState<string[]>([]);
+    const [hover, setHover] = React.useState<('update' | 'none')>('none');
     const dispatch = useAppDispatch();
 
+    React.useEffect(() => {
+        let e = [];
+        if (record.Name == null || record.Name.length == 0 || record.Name.length > 200) {
+            e.push('Name must be between 1 and 200 characters.');
+        }
+        setError(e);
+    }, [record]);
+
     function Valid(): boolean {
-        return props.Record.Name != null && props.Record.Name.length > 0 && props.Record.Name.length <= 200;
+        return record.Name != null && record.Name.length > 0 && record.Name.length <= 200;
     }
 
     if (record == null) return;
@@ -52,15 +64,19 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={() =>
-                    {
+                    <button className={"btn btn-primary" + ((record == props.Record || errors.length > 0) ? ' disabled' : '')} onClick={() => {
                         if (Valid())
                             dispatch(ChannelGroupSlice.DBAction({ verb: 'PATCH', record }));
-                    }} hidden={record.ID == 0} disabled={record == props.Record}>Update</button>
+                    }} hidden={record.ID == 0} data-tooltip={'Update'}
+                        onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
                 </div>
                 <div className="btn-group mr-2">
                     <button className="btn btn-default" onClick={() => setRecord(props.Record)} disabled={record == props.Record}>Reset</button>
                 </div>
+                <ToolTip Show={hover == 'update' && (errors.length > 0 || record == props.Record)} Position={'top'} Target={"Update"}>
+                    {record == props.Record ? <p>No changes made.</p> : null}
+                    {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+                </ToolTip>
             </div>
 
 

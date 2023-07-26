@@ -24,7 +24,6 @@
 import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, Select } from '@gpa-gemstone/react-forms';
-import { Search } from '@gpa-gemstone/react-interactive';
 import { MeasurmentTypeSlice, MeasurementCharacteristicSlice, ValueListSlice, ValueListGroupSlice } from '../Store/Store';
 import { useAppSelector, useAppDispatch } from '../hooks';
 
@@ -75,7 +74,7 @@ export default function ChannelGroupItemForm(props: IProps) {
 
     return (
         <>
-            <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'DisplayName'} Label='Name' Feedback={'Name must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'DisplayName'} Label='Name' Feedback={'Name must be between 1 and 200 characters.'} Valid={Valid} Setter={props.Setter} />
             <Select<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'MeasurementTypeID'} Label='Measurement Type'
                 Options={measurementTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.Setter}
             />

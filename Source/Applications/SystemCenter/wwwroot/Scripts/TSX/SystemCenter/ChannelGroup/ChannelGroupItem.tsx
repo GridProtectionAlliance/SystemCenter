@@ -64,6 +64,14 @@ export default function ChannelGroupDetails(props: IProps) {
             dispatch(ChannelGroupDetailsSlice.Fetch(props.Record.ID));
     }, [status, parentID, props.Record.ID]);
 
+    React.useEffect(() => {
+        let e = [];
+        if (record.DisplayName == null || record.DisplayName.length == 0 || record.DisplayName.length > 200) {
+            e.push('Name must be between 1 and 200 characters.');
+        }
+        setErrors(e);
+    }, [record]);
+
     function Delete() {
         dispatch(ChannelGroupDetailsSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
         setShowWarning(false);
@@ -139,7 +147,7 @@ export default function ChannelGroupDetails(props: IProps) {
                 CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }} />
             <Modal Title={record.ID == 0 ? 'Add New Channel Group Item' : 'Edit ' + (record?.DisplayName ?? 'Channel Item')} Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0}
-                CancelToolTipContent={<> {errors.map(e => <p>{CrossMark} {e}</p>)}</>}
+                ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                 DisableConfirm={errors.length > 0}
                 ShowX={true} CallBack={(conf) => {
                     setShowModal(false);
