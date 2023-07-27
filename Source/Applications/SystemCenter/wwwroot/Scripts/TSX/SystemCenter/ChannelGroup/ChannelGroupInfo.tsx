@@ -39,9 +39,13 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
 
     React.useEffect(() => {
         let e = [];
-        if (record.Name == null || record.Name.length == 0 || record.Name.length > 200) {
-            e.push('Name must be between 1 and 200 characters.');
+        if (record.Name == null || record.Name.length == 0) {
+            e.push('A Name is required.');
         }
+        if (record.Name.length > 200) {
+            e.push('A Name of less than 200 characters is required.')
+        }
+
         setError(e);
     }, [record]);
 

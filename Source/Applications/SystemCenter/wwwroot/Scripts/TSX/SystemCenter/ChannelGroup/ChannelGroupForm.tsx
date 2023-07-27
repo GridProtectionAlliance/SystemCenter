@@ -36,7 +36,7 @@ export default function ChannelGroupForm(props: { Record: SystemCenter.Types.Cha
 
     return (
         <form>
-            <Input<SystemCenter.Types.ChannelGroup> Record={props.Record} Field={'Name'} Feedback={'Name must be between 1 and 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.Types.ChannelGroup> Record={props.Record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <TextArea<SystemCenter.Types.ChannelGroup> Rows={3} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} />
         </form>
 
