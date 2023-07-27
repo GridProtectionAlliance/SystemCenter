@@ -283,7 +283,6 @@ namespace SystemCenter.Model.Security
                 row["DisplayName"] = group.DisplayName;
             }
 
-            DataTable filteredDataTable = dataTable.Clone();
             IEnumerable<DataRow> filteredRows = dataTable.AsEnumerable();
             IEnumerable<Search> searchesToApply = postData.Searches.Where(flt => !IsInDatabase(flt.FieldName));
             foreach (Search search in searchesToApply)
@@ -300,15 +299,12 @@ namespace SystemCenter.Model.Security
                     case "NOT LIKE":
                         filteredRows = filteredRows.Where((row) => !Regex.IsMatch(row.Field<string>(search.FieldName).ToLower(), wildcardPattern));
                         break;
+                    default:
+                        throw new Exception("Operator not found for User Group Filter.");
                 }
             }
 
-            foreach (DataRow row in filteredRows)
-            {
-                filteredDataTable.Rows.Add(row.ItemArray);
-            }
-
-            dataTable = filteredDataTable;
+            dataTable = filteredRows.CopyToDataTable();
 
             if (!IsInDatabase(orderBy))
             {
