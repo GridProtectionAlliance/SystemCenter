@@ -109,7 +109,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                 }}
                 onClick={() => window.open(`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/status.cshtml?Acronym=${props.OpenMICAcronym}`, '_blanks')}
                 theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%' }}
+                tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 425, width: '100%' }}
                 rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 selected={() => false}
             />
