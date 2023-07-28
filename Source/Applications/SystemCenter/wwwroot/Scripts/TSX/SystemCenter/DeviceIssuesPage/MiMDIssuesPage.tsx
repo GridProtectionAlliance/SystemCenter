@@ -83,7 +83,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     { key: 'TotalSuccessfulFilesProcessed', label: 'Total Unsucc', field: 'TotalSuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
                     { key: 'TotalUnsuccessfulFilesProcessed', label: 'Total Succ', field: 'TotalUnsuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
                     { key: 'ConfigChanges', label: 'Config Changes', field: 'ConfigChanges', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'LastConfigFileChange', label: 'Last Change', field: 'LastConfigFileChange', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/index.cshtml?name=Configuration&MeterID=${props.Meter.ID}` }>{item.ConfigChanges}</a> },
+                    { key: 'LastConfigFileChange', label: 'Last Change', field: 'LastConfigFileChange', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/index.cshtml?name=Configuration&MeterID=${props.Meter.ID}`}>{item.ConfigChanges}</a> },
                     { key: 'DiagnosticAlarms', label: 'Diagnostic Alarms', field: 'DiagnosticAlarms', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/index.cshtml?name=Diagnostic&MeterID=${props.Meter.ID}`}>{item.DiagnosticAlarms}</a> },
                     { key: 'ComplianceIssues', label: 'Compliance Issues', field: 'ComplianceIssues', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/index.cshtml?name=Compliance&MeterID=${props.Meter.ID}`}>{item.ComplianceIssues}</a> },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
@@ -106,7 +106,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 }}
                 onClick={() => { }}
                 theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%' }}
+                tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 425, width: '100%' }}
                 rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 selected={() => false}
             />
