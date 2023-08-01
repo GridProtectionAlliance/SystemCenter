@@ -105,6 +105,8 @@ export const WidgetCategorySlice = new GenericSlice<LocalXDA.IWidgetCategory>("W
 export const SEBrowserWidgetSlice = new GenericSlice<LocalXDA.IWidget>("SEBrowserWidget", `${homePath}api/SystemCenter/WidgetView`, "Name", true)
 export const MagDurCurveSlice = new GenericSlice<LocalXDA.IMagDurCurve>('MagDurCurve', `${homePath}api/SystemCenter/StandardMagDurCurve`, 'Name');
 
+export const EventTagSlice = new GenericSlice<SystemCenter.Types.EventTag>("EventTag", `${homePath}api/SystemCenter/EventTag`, 'Name')
+
 
 const store = configureStore({
     reducer: {
@@ -162,6 +164,7 @@ const store = configureStore({
         ApplicationRole: ApplicationRoleSlice.Reducer,
         SEBrowserWidget: SEBrowserWidgetSlice.Reducer,
         MagDurCurve: MagDurCurveSlice.Reducer,
+        EventTag: EventTagSlice.Reducer,
     }
 });
 export default store;

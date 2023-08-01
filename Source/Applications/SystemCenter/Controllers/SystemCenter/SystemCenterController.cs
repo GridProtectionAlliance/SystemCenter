@@ -1406,4 +1406,7 @@ namespace SystemCenter.Controllers
             }
         }
     }
+
+    [RoutePrefix("api/SystemCenter/EventTag")]
+    public class EventTagController : ModelController<openXDA.Model.EventTag> { }
 }
