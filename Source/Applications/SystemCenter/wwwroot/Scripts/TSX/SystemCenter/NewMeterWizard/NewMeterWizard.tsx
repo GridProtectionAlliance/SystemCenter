@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingScreen, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ServerErrorIcon, ToolTip, Warning, Modal } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CrossMark, Warning as WarningSymbol } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
@@ -252,10 +252,8 @@ export default function NewMeterWizard(props: {}) {
             setStatus('idle');
             setMeterID(meterID);
             next();
-        }).fail(msg => {
-            setStatus('idle');
-            if (msg.status == 500)
-                alert(msg.responseJSON.ExceptionMessage)
+        }).fail(() => {
+            setStatus('error');
         });
 
         return () => {
@@ -386,7 +384,7 @@ export default function NewMeterWizard(props: {}) {
             return (
                 <div style={{ width: '100%', height: '200px' }}>
                     <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
+                        <ServerErrorIcon Show={true} Size={40} Label={'A server error has occurred. Please contact your administrator.'} />
                     </div>
                 </div>);
         switch (currentStep) {

@@ -26,8 +26,8 @@
     "webpack-cli": "4.7.2"
   },
   "dependencies": {
-    "@gpa-gemstone/application-typings": "0.0.58",
-    "@gpa-gemstone/common-pages": "0.0.70",
+    "@gpa-gemstone/application-typings": "0.0.59",
+    "@gpa-gemstone/common-pages": "0.0.67",
     "@gpa-gemstone/gpa-symbols": "0.0.26",
     "@gpa-gemstone/helper-functions": "0.0.20",
     "@gpa-gemstone/react-forms": "1.1.39",

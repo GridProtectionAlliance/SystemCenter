@@ -69,7 +69,9 @@ export default function CustomerInfo(props: IProps) {
                 </div>
             </div>
             <div className="card-body">
-                <CustomerForm Customer={customer} stateSetter={setCustomer} setErrors={setError} />
+                <div className="row" style={{ height: window.innerHeight - 420, maxHeight: window.innerHeight - 420, overflowY: 'auto' }}>
+                    <CustomerForm Customer={customer} stateSetter={setCustomer} setErrors={setError} />
+                </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">

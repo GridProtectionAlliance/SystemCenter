@@ -69,9 +69,9 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     { key: 'LastUnsuccessfulFileProcessed', label: 'Last Unsucc', field: 'LastUnsuccessfulFileProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
                     { key: 'LastUnsuccessfulFileProcessedExplanation', label: 'Reason', field: 'LastUnsuccessfulFileProcessedExplanation', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''}/> },
                     { key: 'TotalFilesProcessed', label: 'Total', field: 'TotalFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'TotalSuccessfulFilesProcessed', label: 'Total Succ', field: 'TotalSuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'TotalUnsuccessfulFilesProcessed', label: 'Total Unsucc', field: 'TotalUnsuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'TotalEmailsSent', label: 'Total Emails Sent', field: 'TotalEmailsSent', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'TotalSuccessfulFilesProcessed', label: 'Tot Succ', field: 'TotalSuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'TotalUnsuccessfulFilesProcessed', label: 'Tot Unsucc', field: 'TotalUnsuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
+                    { key: 'TotalEmailsSent', label: 'Tot Emails Sent', field: 'TotalEmailsSent', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
                     { key: 'AverageDownloadLatency', label: 'Avg Dnld Lat', field: 'AverageDownloadLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
                     { key: 'AverageProcessingStartLatency', label: 'Avg Proc Start Lat', field: 'AverageProcessingStartLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
                     { key: 'AverageProcessingEndLatency', label: 'Avg Proc End Lat', field: 'AverageProcessingEndLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
@@ -99,7 +99,7 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 }}
                 onClick={() => { }}
                 theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%' }}
+                tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 425, width: '100%' }}
                 rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 selected={() => false}
             />
