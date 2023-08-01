@@ -49,10 +49,6 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
         setError(e);
     }, [record]);
 
-    function Valid(): boolean {
-        return record.Name != null && record.Name.length > 0 && record.Name.length <= 200;
-    }
-
     if (record == null) return;
     return (
         <div className="card" style={{ marginBottom: 10 }}>
@@ -69,7 +65,7 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
             <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + ((record == props.Record || errors.length > 0) ? ' disabled' : '')} onClick={() => {
-                        if (Valid())
+                        if (errors.length == 0)
                             dispatch(ChannelGroupSlice.DBAction({ verb: 'PATCH', record }));
                     }} hidden={record.ID == 0} data-tooltip={'Update'}
                         onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
