@@ -28,11 +28,11 @@ import { EventTagSlice } from '../Store/Store';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
+import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 
 import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
-//import EventTagForm from './EventTagForm';
+import EventTagForm from './EventTagForm';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 
 
@@ -42,22 +42,21 @@ const EventTags: Application.Types.iByComponent = (props) => {
     const data = useAppSelector(EventTagSlice.SearchResults);
     const status = useAppSelector(EventTagSlice.SearchStatus);
 
-    const [showNew, setShowNew] = React.useState<boolean>(false);
-    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.EventTag>('Name');
+    const [mode, setMode] = React.useState<'View'|'Edit'|'Add'>('View');
+    const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.EventTag>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [errors, setErrors] = React.useState<string[]>([]);
 
     const emptyRecord = { ID: 0, Name: '', Description: '', ShowInFilter: false };
-    let history = useHistory();
 
     const EventTagSearchFields = [
         { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
         { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
     ];
     const EventTagDefaultSearchField = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
-    const [search, setSearch] = React.useState<Array<Search.IFilter<SystemCenter.Types.EventTag>>>([]);
+    const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.EventTag>>>([]);
 
-    const [record, setRecord] = React.useState<SystemCenter.Types.EventTag>(emptyRecord);
+    const [record, setRecord] = React.useState<OpenXDA.Types.EventTag>(emptyRecord);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
@@ -86,11 +85,11 @@ const EventTags: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<SystemCenter.Types.EventTag>
-                CollumnList={EventTagSearchFields as Search.IField<SystemCenter.Types.EventTag>[]}
+            <SearchBar<OpenXDA.Types.EventTag>
+                CollumnList={EventTagSearchFields as Search.IField<OpenXDA.Types.EventTag>[]}
                 SetFilter={(flds) => dispatch(EventTagSlice.DBSearch({ filter: flds }))}
                 Direction={'left'}
-                defaultCollumn={EventTagDefaultSearchField as Search.IField<SystemCenter.Types.EventTag>}
+                defaultCollumn={EventTagDefaultSearchField as Search.IField<OpenXDA.Types.EventTag>}
                 Width={'50%'}
                 Label={'Search'}
                 ShowLoading={status == 'loading'}
@@ -102,19 +101,19 @@ const EventTags: Application.Types.iByComponent = (props) => {
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
                             <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
-                                onClick={(evt) => { evt.preventDefault(); setRecord({ ...emptyRecord }); setShowNew(true); }}>Add Tag</button>
+                                onClick={(evt) => { evt.preventDefault(); setRecord({ ...emptyRecord }); setMode('Add'); }}>Add Tag</button>
                         </form>
                     </fieldset>
                 </li>
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table< SystemCenter.Types.EventTag>
+                <Table< OpenXDA.Types.EventTag>
                     cols={[
-                        { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Description', field: 'Description',label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
-                            key: 'ShowInFilter', label: 'Show in Filter', field: 'ShowInFilter', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
+                            key: 'ShowInFilter', label: 'Show in Filter', field: 'ShowInFilter', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                             content: (item, key, style) => item.ShowInFilter ? HeavyCheckMark : CrossMark
                         },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
@@ -131,7 +130,7 @@ const EventTags: Application.Types.iByComponent = (props) => {
                             dispatch(EventTagSlice.DBSearch({ filter: search, ascending: !ascending }))
 
                     }}
-                    onClick={handleSelect}
+                    onClick={(item) => { setRecord(item.row); setMode('Edit'); }}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -139,21 +138,21 @@ const EventTags: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Title={'Add New Event Tag'}
+            <Modal Title={mode == 'Add' ? 'Add New Event Tag' : 'Edit ' + record.Name}
                 CallBack={(c) => {
                     if (c)
-                        dispatch(EventTagSlice.DBAction({ verb: 'POST', record }));
-                    setShowNew(false);
+                        dispatch(EventTagSlice.DBAction({ verb: mode == 'Add' ? 'POST' : 'PATCH', record }));
+                    setMode('View');
                 }}
                 ShowCancel={false}
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
-                ConfirmText={'Add Tag'}
+                ConfirmText={mode == 'Add' ? 'Add Tag' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                 DisableConfirm={errors.length > 0}
-                Show={showNew} >
-                {/*<EventTagForm Record={record} Setter={setRecord} />*/}
+                Show={mode == 'Add' || mode == 'Edit'} >
+                <EventTagForm Record={record} Setter={setRecord} />
             </Modal>
         </div>
     )
