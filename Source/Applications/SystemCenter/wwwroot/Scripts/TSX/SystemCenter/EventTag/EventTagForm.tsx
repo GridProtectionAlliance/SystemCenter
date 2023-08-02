@@ -22,13 +22,26 @@
 //******************************************************************************************************
 
 import * as React from 'react';
+import { useAppSelector, useAppDispatch } from '../hooks';
+import { EventTagSlice } from '../Store/Store';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Input, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
 
 export default function EventTagForm(props: { Record: OpenXDA.Types.EventTag, Setter: (record: OpenXDA.Types.EventTag) => void, setErrors?: (e: string[]) => void }) {
+    const dispatch = useAppDispatch();
+
+    const allTags = useAppSelector(EventTagSlice.Data);
+    const allTagsStatus = useAppSelector(EventTagSlice.Status);
+
+    React.useEffect(() => {
+        if (allTagsStatus == 'unintiated' || allTagsStatus == 'changed')
+            dispatch(EventTagSlice.Fetch());
+    }, [allTagsStatus]);
+
     function Valid(field: keyof (OpenXDA.Types.EventTag)): boolean {
         if (field == 'Name')
-            return props.Record.Name != null && props.Record.Name.length > 0 && props.Record.Name.length <= 200;
+            return props.Record.Name != null && props.Record.Name.length > 0 && props.Record.Name.length <= 200
+                    && allTags.findIndex((t) => t.Name.toLowerCase() === props.Record.Name?.toLowerCase() && t.ID !== props.Record.ID) === -1;
         else if (field == 'Description')
             return true;
         return false;
@@ -36,7 +49,7 @@ export default function EventTagForm(props: { Record: OpenXDA.Types.EventTag, Se
 
     return (
         <form>
-            <Input<OpenXDA.Types.EventTag> Record={props.Record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
+            <Input<OpenXDA.Types.EventTag> Record={props.Record} Field={'Name'} Feedback={'A unique Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <TextArea<OpenXDA.Types.EventTag> Rows={3} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} />
             <CheckBox<OpenXDA.Types.EventTag> Record={props.Record} Field={'ShowInFilter'} Label={'Show in Filter'} Setter={props.Setter} />
         </form>

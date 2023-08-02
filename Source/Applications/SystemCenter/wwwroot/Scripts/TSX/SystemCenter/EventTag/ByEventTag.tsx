@@ -26,14 +26,10 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { EventTagSlice } from '../Store/Store';
 
 import Table from '@gpa-gemstone/react-table'
-import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
-
-import { DefaultSearchField, SearchFields, TransformSearchFields } from '../CommonComponents/SearchFields';
-import EventTagForm from './EventTagForm';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import EventTagForm from './EventTagForm';
 
 
 const EventTags: Application.Types.iByComponent = (props) => {
@@ -41,6 +37,9 @@ const EventTags: Application.Types.iByComponent = (props) => {
 
     const data = useAppSelector(EventTagSlice.SearchResults);
     const status = useAppSelector(EventTagSlice.SearchStatus);
+
+    const allTags = useAppSelector(EventTagSlice.Data);
+    const allTagsStatus = useAppSelector(EventTagSlice.Status);
 
     const [mode, setMode] = React.useState<'View'|'Edit'|'Add'>('View');
     const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.EventTag>('Name');
@@ -59,7 +58,7 @@ const EventTags: Application.Types.iByComponent = (props) => {
     const [record, setRecord] = React.useState<OpenXDA.Types.EventTag>(emptyRecord);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed')
+        if (status === 'unintiated' || status === 'changed')
             dispatch(EventTagSlice.DBSearch({ filter: search, sortField, ascending }));
     }, [status]);
 
@@ -68,20 +67,24 @@ const EventTags: Application.Types.iByComponent = (props) => {
     }, [search, sortField, ascending]);
 
     React.useEffect(() => {
+        if (allTagsStatus === 'unintiated' || allTagsStatus === 'changed')
+            dispatch(EventTagSlice.Fetch());
+    }, [allTagsStatus]);
+
+    React.useEffect(() => {
         let e = [];
-        if (record.Name == null || record.Name.length == 0) {
+        if (record.Name === null || record.Name.length === 0) {
             e.push('A Name is required.');
         }
-        if (record.Name.length > 200) {
-            e.push('A Name of less than 200 characters is required.')
+        if (record.Name?.length > 200) {
+            e.push('A Name of less than 200 characters is required.');
+        }
+        if (allTags.findIndex((t) => t.Name.toLowerCase() === record.Name?.toLowerCase() && t.ID !== record.ID) !== -1) {
+            e.push('A unique Name is required.');
         }
 
         setErrors(e);
     }, [record]);
-
-    function handleSelect(item) {
-        // POP UP EDIT MODAL
-    }
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
@@ -92,8 +95,8 @@ const EventTags: Application.Types.iByComponent = (props) => {
                 defaultCollumn={EventTagDefaultSearchField as Search.IField<OpenXDA.Types.EventTag>}
                 Width={'50%'}
                 Label={'Search'}
-                ShowLoading={status == 'loading'}
-                ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Event Tag(s)'}
+                ShowLoading={status === 'loading'}
+                ResultNote={status === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Event Tag(s)'}
             >
 
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
@@ -108,7 +111,7 @@ const EventTags: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table< OpenXDA.Types.EventTag>
+                <Table<OpenXDA.Types.EventTag>
                     cols={[
                         { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Description', field: 'Description',label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -124,7 +127,7 @@ const EventTags: Application.Types.iByComponent = (props) => {
                     sortKey={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.colKey != sortField)
+                        if (d.colKey !== sortField)
                             dispatch(EventTagSlice.DBSearch({ filter: search, sortField: (d.colField as any), ascending: true }));
                         else
                             dispatch(EventTagSlice.DBSearch({ filter: search, ascending: !ascending }))
@@ -134,24 +137,26 @@ const EventTags: Application.Types.iByComponent = (props) => {
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
                 />
             </div>
 
-            <Modal Title={mode == 'Add' ? 'Add New Event Tag' : 'Edit ' + record.Name}
-                CallBack={(c) => {
-                    if (c)
-                        dispatch(EventTagSlice.DBAction({ verb: mode == 'Add' ? 'POST' : 'PATCH', record }));
+            <Modal Title={mode === 'Add' ? 'Add New Event Tag' : 'Edit ' + record.Name}
+                CallBack={(conf, isBtn) => {
+                    if (conf)
+                        dispatch(EventTagSlice.DBAction({ verb: mode === 'Add' ? 'POST' : 'PATCH', record }));
+                    else if (isBtn)
+                        dispatch(EventTagSlice.DBAction({ verb: 'DELETE', record }));
                     setMode('View');
                 }}
-                ShowCancel={false}
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
-                ConfirmText={mode == 'Add' ? 'Add Tag' : 'Save'}
+                ConfirmText={mode === 'Add' ? 'Add Tag' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                 DisableConfirm={errors.length > 0}
-                Show={mode == 'Add' || mode == 'Edit'} >
+                ShowCancel={mode === 'Edit'}
+                CancelText={'Delete'}
+                Show={mode === 'Add' || mode === 'Edit'} >
                 <EventTagForm Record={record} Setter={setRecord} />
             </Modal>
         </div>
