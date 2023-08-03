@@ -298,9 +298,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "ExternalDB")
                                     return <ExternalDB ID={parseInt(qs.ID as string)} />
                                 else if (qs['?name'] == "User")
-                                    return <User UserID={qs.UserAccountID as string} />
+                                    return <User UserID={qs.UserAccountID as string} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Group")
-                                    return <UserGroup GroupID={qs.GroupID as string} />
+                                    return <UserGroup GroupID={qs.GroupID as string} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "ByApplicationCategory")
                                     return <ByApplicationCategory Roles={roles} />
                                 else if (qs['?name'] == "DBCleanup")
@@ -310,7 +310,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "UserStatistics")
                                     return <UserStatistics Roles={roles} />
                                 else if (qs['?name'] == "Meter")
-                                    return <Meter MeterID={parseInt(qs.MeterID as string)} />
+                                    return <Meter MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Location")
                                     return <Location LocationID={parseInt(qs.LocationID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Asset")
@@ -326,7 +326,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "NewMeterWizard")
                                     return <NewMeterWizard IsEngineer={roles.indexOf('Administrator') >= 0 || roles.indexOf('Transmission SME') >= 0} />
                                 else if (qs['?name'] == "ValueListGroup")
-                                    return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} />
+                                    return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "ChannelGroup")
                                     return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} />
                                 else if (qs['?name'] == "Settings")
