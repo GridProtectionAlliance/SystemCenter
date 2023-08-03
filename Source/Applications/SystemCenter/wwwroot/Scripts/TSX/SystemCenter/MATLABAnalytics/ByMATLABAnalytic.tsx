@@ -31,7 +31,7 @@ import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 
-/*import MATLABAnalyticForm from './MATLABAnalyticForm';*/
+import MATLABAnalyticForm from './MATLABAnalyticForm';
 
 
 const MATLABAnalytics: Application.Types.iByComponent = (props) => {
@@ -92,7 +92,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                 Width={'50%'}
                 Label={'Search'}
                 ShowLoading={status == 'loading'}
-                ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' MATLAB Analytics(s)'}
+                ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' MATLAB Analytic(s)'}
             >
 
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
@@ -148,7 +148,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                 DisableConfirm={errors.length > 0}
                 Show={showNew} >
-                {/*<MATLABAnalyticForm Record={record} Setter={setRecord} />*/}
+                <MATLABAnalyticForm Record={record} Setter={setRecord} />
             </Modal>
         </div>
     )
