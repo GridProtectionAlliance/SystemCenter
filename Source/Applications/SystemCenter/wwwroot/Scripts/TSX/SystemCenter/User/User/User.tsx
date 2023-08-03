@@ -32,8 +32,11 @@ import { CheckBox } from '@gpa-gemstone/react-forms';
 import { UserAccountSlice } from '../../Store/Store';
 import { useHistory } from "react-router-dom";
 
+declare type tab = 'userInfo' | 'permissions' | 'additionalFields'
+
 interface IProps {
-	UserID: string
+	UserID: string,
+	Tab: tab
 }
 
 function User(props: IProps) {
@@ -43,10 +46,22 @@ function User(props: IProps) {
 	const user = useAppSelector((state) => UserAccountSlice.Datum(state, props.UserID));
 	const status: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
 
-	const [tab, setTab] = React.useState<string>('userInfo')
+	const [tab, setTabState] = React.useState<string>(getTab())
 
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
+	function getTab(): tab {
+		if (props.Tab != undefined) return props.Tab;
+		else if (sessionStorage.hasOwnProperty('User.Tab'))
+			return JSON.parse(sessionStorage.getItem('User.Tab'));
+		else
+			return 'userInfo';
+	}
+
+	function setTab(tab: tab): void {
+		sessionStorage.setItem('User.Tab', JSON.stringify(tab));
+		setTabState(tab);
+	}
 
 	React.useEffect(() => {
 		if (status === 'unintiated' || status === 'changed')
@@ -76,7 +91,7 @@ function User(props: IProps) {
 			</div>
 			<LoadingScreen Show={status === 'loading'} />
 			<hr />
-			<TabSelector CurrentTab={tab} SetTab={(t) => setTab(t)} Tabs={Tabs} />
+			<TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
 			<div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
 				<div className={"tab-pane " + (tab === "userInfo" ? " active" : "fade")}>
 					<UserInfo AccountId={props.UserID} />
