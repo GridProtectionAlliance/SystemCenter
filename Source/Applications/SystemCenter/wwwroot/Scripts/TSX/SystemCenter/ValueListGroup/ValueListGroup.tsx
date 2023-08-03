@@ -32,15 +32,29 @@ import { ValueListGroupSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
+declare type tab = 'info' | 'items'
 
-export default function ValueListGroup(props: { GroupID: number }) {
+export default function ValueListGroup(props: { GroupID: number, Tab: tab }) {
     const dispatch = useAppDispatch();
     const record = useAppSelector((state) => ValueListGroupSlice.Datum(state, props.GroupID));
 
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
 
-    const [tab, setTab] = React.useState<'items' | 'info'>('items');
+    const [tab, setTabState] = React.useState<tab>(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
+
+    function getTab(): tab {
+        if (props.Tab != undefined) return props.Tab;
+        else if (sessionStorage.hasOwnProperty('ValueListGroup.Tab'))
+            return JSON.parse(sessionStorage.getItem('ValueListGroup.Tab'));
+        else
+            return 'info';
+    }
+
+    function setTab(tab: tab): void {
+        sessionStorage.setItem('ValueListGroup.Tab', JSON.stringify(tab));
+        setTabState(tab);
+    }
 
     React.useEffect(() => {
         if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
@@ -49,10 +63,6 @@ export default function ValueListGroup(props: { GroupID: number }) {
         return function () {
         }
     }, [dispatch, valueListGroupStatus]);
-
-    React.useEffect(() => {
-        sessionStorage.setItem('ValueListGroup.Tab', JSON.stringify(tab));
-    }, [tab]);
 
     function Delete() {
         dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record }))
@@ -72,9 +82,8 @@ export default function ValueListGroup(props: { GroupID: number }) {
                 </div>
             </div>
 
-
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={(t) => setTab(t as ('items' | 'info'))} Tabs={[{ Label: 'Value List Group Info', Id: 'info' }, { Label: 'List Items', Id: 'items'}]} />
+            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={[{ Label: 'Value List Group Info', Id: 'info' }, { Label: 'List Items', Id: 'items'}]} />
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
