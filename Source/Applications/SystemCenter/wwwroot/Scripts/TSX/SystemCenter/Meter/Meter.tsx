@@ -44,29 +44,19 @@ import DataDeleteWindow from './Advanced/MeterDataDelete';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
  
 declare var homePath: string;
+declare type tab = 'notes' | 'meterInfo' | 'additionalFields' | 'substation' | 'assets' | 'eventChannels' | 'trendChannels' | 'channelScaling' | 'configurationHistory' | 'extDB' | 'maintenance' | 'dataRescue' | 'dataMerge' | 'dataDelete'
 
-interface IProps { MeterID: number }
+interface IProps { MeterID: number, Tab: tab }
 
 function Meter(props: IProps) {
     const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(null);
-    const [Tab, setTab] = React.useState<string>(null);
+    const [Tab, setTabState] = React.useState<string>(getTab());
     const [showAdvanced, setShowAdvanced] = React.useState<boolean>(false);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const [dataRescueWindow, setDataRescueWindow] = React.useState<React.ReactElement>();
     const [dataMergeWindow, setDataMergeWindow] = React.useState<React.ReactElement>();
     const [dataDeleteWindow, setDataDeleteWindow] = React.useState<React.ReactElement>();
-
-    React.useEffect(() => {
-        setTab(getTab());
-        return () => { sessionStorage.clear(); }
-    }, []);
-
-    React.useEffect(() => {
-        if (Tab == null)
-            return;
-        sessionStorage.setItem('Meter.Tab', JSON.stringify(Tab));
-    }, [Tab]);
 
     React.useEffect(() => {
         let handle = getMeter();
@@ -80,6 +70,11 @@ function Meter(props: IProps) {
             return JSON.parse(sessionStorage.getItem('Meter.Tab'));
         else
             return 'notes';
+    }
+
+    function setTab(tab: tab): void {
+        sessionStorage.setItem('Meter.Tab', JSON.stringify(tab));
+        setTabState(tab);
     }
 
     function getMeter(): JQuery.jqXHR<OpenXDA.Types.Meter> {
