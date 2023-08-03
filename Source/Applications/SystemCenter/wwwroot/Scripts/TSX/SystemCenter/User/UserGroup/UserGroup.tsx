@@ -34,8 +34,11 @@ import GroupInfo from './Info';
 import GroupUser from './GroupUsers';
 import GroupPermission from './Permissions';
 
+declare type tab = 'info' | 'users' | 'roles'
+
 interface IProps {
-	GroupID: string
+	GroupID: string,
+	Tab: tab
 }
 
 function UserGroup(props: IProps) {
@@ -45,9 +48,22 @@ function UserGroup(props: IProps) {
 	const group: ISecurityGroup = useAppSelector((state) => SecurityGroupSlice.Datum(state, props.GroupID) as ISecurityGroup);
 	const status = useAppSelector(SecurityGroupSlice.Status);
 
-	const [tab, setTab] = React.useState<string>('info')
+	const [tab, setTabState] = React.useState<string>(getTab())
 
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);
+
+	function getTab(): tab {
+		if (props.Tab != undefined) return props.Tab;
+		else if (sessionStorage.hasOwnProperty('UserGroup.Tab'))
+			return JSON.parse(sessionStorage.getItem('UserGroup.Tab'));
+		else
+			return 'info';
+	}
+
+	function setTab(tab: tab): void {
+		sessionStorage.setItem('UserGroup.Tab', JSON.stringify(tab));
+		setTabState(tab);
+	}
 
 	React.useEffect(() => {
 		if (status == 'unintiated' || status == 'changed')
@@ -77,7 +93,7 @@ function UserGroup(props: IProps) {
 			</div>
 			<LoadingScreen Show={status === 'loading'} />
 			<hr />
-			<TabSelector CurrentTab={tab} SetTab={(t) => setTab(t)} Tabs={Tabs} />
+			<TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
 			<div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
 				<div className={"tab-pane " + (tab === "info" ? " active" : "fade")}>
 					<GroupInfo Group={group} />
