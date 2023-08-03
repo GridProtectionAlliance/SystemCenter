@@ -105,7 +105,8 @@ export const WidgetCategorySlice = new GenericSlice<LocalXDA.IWidgetCategory>("W
 export const SEBrowserWidgetSlice = new GenericSlice<LocalXDA.IWidget>("SEBrowserWidget", `${homePath}api/SystemCenter/WidgetView`, "Name", true)
 export const MagDurCurveSlice = new GenericSlice<LocalXDA.IMagDurCurve>('MagDurCurve', `${homePath}api/SystemCenter/StandardMagDurCurve`, 'Name');
 
-export const EventTagSlice = new GenericSlice<OpenXDA.Types.EventTag>("EventTag", `${homePath}api/SystemCenter/EventTag`, 'Name')
+export const EventTagSlice = new GenericSlice<OpenXDA.Types.EventTag>("EventTag", `${homePath}api/SystemCenter/EventTag`, 'Name');
+export const MATLABAnalyticSlice = new GenericSlice<OpenXDA.Types.MATLABAnalytic>("MATLABAnalytic", `${homePath}api/SystemCenter/MATLABAnalytic`, 'LoadOrder');
 
 
 const store = configureStore({
@@ -165,6 +166,7 @@ const store = configureStore({
         SEBrowserWidget: SEBrowserWidgetSlice.Reducer,
         MagDurCurve: MagDurCurveSlice.Reducer,
         EventTag: EventTagSlice.Reducer,
+        MATLABAnalytic: MATLABAnalyticSlice.Reducer,
     }
 });
 export default store;

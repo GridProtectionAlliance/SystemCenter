@@ -1409,4 +1409,7 @@ namespace SystemCenter.Controllers
 
     [RoutePrefix("api/SystemCenter/EventTag")]
     public class EventTagController : ModelController<openXDA.Model.EventTag> { }
+
+    [RoutePrefix("api/SystemCenter/MATLABAnalytic")]
+    public class MATLABAnalyticController : ModelController<openXDA.Model.MATLABAnalytic> { }
 }

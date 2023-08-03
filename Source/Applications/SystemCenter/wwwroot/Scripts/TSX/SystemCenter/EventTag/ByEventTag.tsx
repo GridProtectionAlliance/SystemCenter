@@ -41,7 +41,7 @@ const EventTags: Application.Types.iByComponent = (props) => {
     const allTags = useAppSelector(EventTagSlice.Data);
     const allTagsStatus = useAppSelector(EventTagSlice.Status);
 
-    const [mode, setMode] = React.useState<'View'|'Edit'|'Add'>('View');
+    const [mode, setMode] = React.useState<'View'|'Add'|'Edit'>('View');
     const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.EventTag>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -117,7 +117,7 @@ const EventTags: Application.Types.iByComponent = (props) => {
                         { key: 'Description', field: 'Description',label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'ShowInFilter', label: 'Show in Filter', field: 'ShowInFilter', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: (item, key, style) => item.ShowInFilter ? HeavyCheckMark : CrossMark
+                            content: (item) => item.ShowInFilter ? HeavyCheckMark : CrossMark
                         },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
