@@ -43,17 +43,7 @@ function Location(props: IProps) {
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const [location, setLocation] = React.useState<OpenXDA.Types.Location>(null);
-    const [tab, setTab] = React.useState<tab>(getTab());
-
-    React.useEffect(() => {
-        sessionStorage.setItem('Location.Tab', JSON.stringify(tab));
-
-    }, [tab]);
-
-    React.useEffect(() => {
-        setTab(getTab());
-        return () => { sessionStorage.clear(); }
-    }, []);
+    const [tab, setTabState] = React.useState<tab>(getTab());
 
     React.useEffect(() => {
         let handle = getLocation();
@@ -68,6 +58,11 @@ function Location(props: IProps) {
             return JSON.parse(sessionStorage.getItem('Location.Tab'));
         else
             return 'notes';
+    }
+
+    function setTab(tab: tab): void {
+        sessionStorage.setItem('Location.Tab', JSON.stringify(tab));
+        setTabState(tab);
     }
 
     function getLocation(): JQuery.jqXHR<OpenXDA.Types.Location> {
@@ -128,7 +123,7 @@ function Location(props: IProps) {
             </div>
 
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={Tabs} />
+            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes">
