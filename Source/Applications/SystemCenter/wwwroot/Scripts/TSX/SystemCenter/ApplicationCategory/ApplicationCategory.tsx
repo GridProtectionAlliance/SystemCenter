@@ -38,7 +38,7 @@ interface IProps { ID: number, Tab: tab }
 
 function ApplicationCategory(props: IProps) {
 
-    const [tab, setTab] = React.useState(getTab());
+    const [tab, setTabState] = React.useState(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const acStatus = useAppSelector(ApplicationCategorySlice.Status) as Application.Types.Status;
@@ -64,6 +64,11 @@ function ApplicationCategory(props: IProps) {
             return 'appCatInfo';
     }
 
+    function setTab(tab: tab): void {
+        sessionStorage.setItem('ApplicationCategory.Tab', JSON.stringify(tab));
+        setTabState(tab);
+    }
+
     if (applicationCategory == null) return null;
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
@@ -75,7 +80,7 @@ function ApplicationCategory(props: IProps) {
                     <button className="btn btn-danger pull-right" hidden={applicationCategory == null} onClick={() => { setShowDelete(true);} }>Delete Application Category</button>
                 </div>
             </div>
-            <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={Tabs} />
+            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "appCatInfo" ? " active" : "fade")} id="appCatInfo">
