@@ -1407,9 +1407,15 @@ namespace SystemCenter.Controllers
         }
     }
 
-    [RoutePrefix("api/SystemCenter/EventTag")]
+    [RoutePrefix("api/OpenXDA/EventTag")]
     public class EventTagController : ModelController<openXDA.Model.EventTag> { }
 
-    [RoutePrefix("api/SystemCenter/MATLABAnalytic")]
+    [RoutePrefix("api/OpenXDA/MATLABAnalytic")]
     public class MATLABAnalyticController : ModelController<openXDA.Model.MATLABAnalytic> { }
+
+    [RoutePrefix("api/OpenXDA/MATLABAnalyticEventType")]
+    public class MATLABAnalyticEventTypeController : ModelController<openXDA.Model.MATLABAnalyticEventType> { }
+
+    [RoutePrefix("api/OpenXDA/MATLABAnalyticAssetType")]
+    public class MATLABAnalyticAssetTypeController : ModelController<openXDA.Model.MATLABAnalyticAssetType> { }
 }

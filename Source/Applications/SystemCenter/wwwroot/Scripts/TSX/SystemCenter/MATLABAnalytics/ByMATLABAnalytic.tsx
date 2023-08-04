@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { MATLABAnalyticSlice } from '../Store/Store';
+import { MATLABAnalyticSlice, MATLABAnalyticEventTypeSlice, MATLABAnalyticAssetTypeSlice } from '../Store/Store';
 
 import { useHistory } from "react-router-dom";
 import Table from '@gpa-gemstone/react-table'
@@ -38,6 +38,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
     const dispatch = useAppDispatch();
 
     const data = useAppSelector(MATLABAnalyticSlice.SearchResults);
+    const sortedData = useAppSelector(MATLABAnalyticSlice.Data);
     const status = useAppSelector(MATLABAnalyticSlice.SearchStatus);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
@@ -56,6 +57,11 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.MATLABAnalytic>>>([]);
 
     const [record, setRecord] = React.useState<OpenXDA.Types.MATLABAnalytic>(emptyRecord);
+
+    const emptyEventTypeRecord = { ID: 0, MATLABAnalyticID: 0, EventTypeID: 0 };
+    const [eventTypeRecord, setEventTypeRecord] = React.useState<OpenXDA.Types.MATLABAnalyticEventType>(emptyEventTypeRecord);
+    const emptyAssetTypeRecord = { ID: 0, MATLABAnalyticID: 0, AssetTypeID: 0 };
+    const [assetTypeRecord, setAssetTypeRecord] = React.useState<OpenXDA.Types.MATLABAnalyticAssetType>(emptyAssetTypeRecord);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
@@ -84,7 +90,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar< OpenXDA.Types.MATLABAnalytic>
+            <SearchBar<OpenXDA.Types.MATLABAnalytic>
                 CollumnList={MATLABAnalyticSearchFields as Search.IField<OpenXDA.Types.MATLABAnalytic>[]}
                 SetFilter={(flds) => dispatch(MATLABAnalyticSlice.DBSearch({ filter: flds }))}
                 Direction={'left'}
@@ -107,7 +113,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table< OpenXDA.Types.MATLABAnalytic>
+                <Table<OpenXDA.Types.MATLABAnalytic>
                     cols={[
                         { key: 'MethodName', label: 'Analytic Name', field: 'MethodName', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'AssemblyName', label: 'Assembly Name', field: 'AssemblyName', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -120,24 +126,32 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                     sortKey={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.colKey != sortField)
+                        if (d.colKey !== sortField)
                             dispatch(MATLABAnalyticSlice.DBSearch({ filter: search, sortField: (d.colField as any), ascending: true }));
                         else
-                            dispatch(MATLABAnalyticSlice.DBSearch({ filter: search, ascending: !ascending }))
+                            dispatch(MATLABAnalyticSlice.DBSearch({ filter: search, ascending: !ascending }));
 
                     }}
                     onClick={handleSelect}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
                 />
             </div>
 
             <Modal Title={'Add New MATLAB Analytic'}
                 CallBack={(c) => {
-                    if (c)
+                    if (c) {
                         dispatch(MATLABAnalyticSlice.DBAction({ verb: 'POST', record }));
+
+                        // TODO: FIND THE MATLABAnalytic ID WE JUST INSERTED
+                        // NOTE FOR LATER: Instead of this, try ajax
+                        dispatch(MATLABAnalyticSlice.Sort({ SortField: 'ID', Ascending: false }));
+
+                        dispatch(MATLABAnalyticEventTypeSlice.DBAction({ verb: 'POST', record: { ...eventTypeRecord, MATLABAnalyticID: sortedData[0].ID } }));
+                        dispatch(MATLABAnalyticAssetTypeSlice.DBAction({ verb: 'POST', record: { ...assetTypeRecord, MATLABAnalyticID: sortedData[0].ID } }));
+                    }
+
                     setShowNew(false);
                 }}
                 ShowCancel={false}
@@ -148,7 +162,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                 DisableConfirm={errors.length > 0}
                 Show={showNew} >
-                <MATLABAnalyticForm Record={record} Setter={setRecord} />
+                <MATLABAnalyticForm Record={record} Setter={setRecord} ETRecord={eventTypeRecord} ETSetter={setEventTypeRecord} ATRecord={assetTypeRecord} ATSetter={setAssetTypeRecord} />
             </Modal>
         </div>
     )

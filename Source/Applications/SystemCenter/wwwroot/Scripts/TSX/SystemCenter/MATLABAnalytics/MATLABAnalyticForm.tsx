@@ -23,27 +23,35 @@
 
 import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { MATLABAnalyticSlice } from '../Store/Store';
+import { EventTypeSlice, AssetTypeSlice } from '../Store/Store';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { Input, Select } from '@gpa-gemstone/react-forms';
 
-export default function MATLABAnalyticForm(props: { Record: OpenXDA.Types.MATLABAnalytic, Setter: (record: OpenXDA.Types.MATLABAnalytic) => void, setErrors?: (e: string[]) => void }) {
-    //const dispatch = useAppDispatch();
+export default function MATLABAnalyticForm(props: {
+    Record: OpenXDA.Types.MATLABAnalytic,
+    ETRecord: OpenXDA.Types.MATLABAnalyticEventType,
+    ATRecord: OpenXDA.Types.MATLABAnalyticAssetType,
+    Setter: (record: OpenXDA.Types.MATLABAnalytic) => void,
+    ETSetter: (eventTypeRecord: OpenXDA.Types.MATLABAnalyticEventType) => void,
+    ATSetter: (assetTypeRecord: OpenXDA.Types.MATLABAnalyticAssetType) => void,
+    setErrors?: (e: string[]) => void
+}) {
+    const dispatch = useAppDispatch();
 
-    //const measurementTypeData = useAppSelector(MeasurmentTypeSlice.Data);
-    //const measurementTypeStatus = useAppSelector(MeasurmentTypeSlice.Status);
-    //const measurementCharacteristicData = useAppSelector(MeasurementCharacteristicSlice.Data);
-    //const measurementCharacteristicStatus = useAppSelector(MeasurementCharacteristicSlice.Status);
+    const eventTypeData = useAppSelector(EventTypeSlice.Data);
+    const eventTypeStatus = useAppSelector(EventTypeSlice.Status);
+    const assetTypeData = useAppSelector(AssetTypeSlice.Data);
+    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
 
-    //React.useEffect(() => {
-    //    if (measurementTypeStatus == 'unintiated' || measurementTypeStatus == 'changed')
-    //        dispatch(MeasurmentTypeSlice.Fetch());
-    //}, [measurementTypeStatus]);
+    React.useEffect(() => {
+        if (eventTypeStatus == 'unintiated' || eventTypeStatus == 'changed')
+            dispatch(EventTypeSlice.Fetch());
+    }, [eventTypeStatus]);
 
-    //React.useEffect(() => {
-    //    if (measurementCharacteristicStatus == 'unintiated' || measurementCharacteristicStatus == 'changed')
-    //        dispatch(MeasurementCharacteristicSlice.Fetch());
-    //}, [measurementCharacteristicStatus]);
+    React.useEffect(() => {
+        if (assetTypeStatus == 'unintiated' || assetTypeStatus == 'changed')
+            dispatch(AssetTypeSlice.Fetch());
+    }, [assetTypeStatus]);
 
     function Valid(field: keyof (OpenXDA.Types.MATLABAnalytic)): boolean {
         if (field == 'MethodName')
@@ -55,14 +63,14 @@ export default function MATLABAnalyticForm(props: { Record: OpenXDA.Types.MATLAB
 
     return (
         <form>
-            <Input<OpenXDA.Types.MATLABAnalytic> Record={props.Record} Field={'MethodName'} Feedback={'An Analytic Name is required.'} Valid={Valid} Setter={props.Setter} />
-            <Input<OpenXDA.Types.MATLABAnalytic> Record={props.Record} Field={'AssemblyName'} Feedback={'An Assembly Name is required.'} Valid={Valid} Setter={props.Setter} />
-            {/*<Select<OpenXDA.Types.MATLABAnalyticEventType> Record={props.Record} Field={'EventTypeID'} Label='Event Type'*/}
-            {/*    Options={measurementTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.Setter}*/}
-            {/*/>*/}
-            {/*<Select<OpenXDA.Types.MATLABAnalyticAssetType> Record={props.Record} Field={'AssetTypeID'} Label='Asset Type'*/}
-            {/*    Options={measurementTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.Setter}*/}
-            {/*/>*/}
+            <Input<OpenXDA.Types.MATLABAnalytic> Record={props.Record} Field={'MethodName'} Label={'Analytic Name'} Feedback={'An Analytic Name is required.'} Valid={Valid} Setter={props.Setter} />
+            <Input<OpenXDA.Types.MATLABAnalytic> Record={props.Record} Field={'AssemblyName'} Label={'Assembly Name'} Feedback={'An Assembly Name is required.'} Valid={Valid} Setter={props.Setter} />
+            <Select<OpenXDA.Types.MATLABAnalyticEventType> Record={props.ETRecord} Field={'EventTypeID'} Label='Event Type'
+                Options={eventTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.ETSetter}
+            />
+            <Select<OpenXDA.Types.MATLABAnalyticAssetType> Record={props.ATRecord} Field={'AssetTypeID'} Label='Asset Type'
+                Options={assetTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.ATSetter}
+            />
             <Input<OpenXDA.Types.MATLABAnalytic> Record={props.Record} Field={'LoadOrder'} Type={'number'} Valid={Valid} Setter={props.Setter} />
         </form>
 
