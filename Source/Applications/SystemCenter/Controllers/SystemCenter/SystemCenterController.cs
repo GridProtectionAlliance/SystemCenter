@@ -1411,7 +1411,42 @@ namespace SystemCenter.Controllers
     public class EventTagController : ModelController<openXDA.Model.EventTag> { }
 
     [RoutePrefix("api/OpenXDA/MATLABAnalytic")]
-    public class MATLABAnalyticController : ModelController<openXDA.Model.MATLABAnalytic> { }
+    public class MATLABAnalyticController : ModelController<openXDA.Model.MATLABAnalytic> 
+    {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                openXDA.Model.MATLABAnalytic analytic = record["MATLABAnalytic"].ToObject<openXDA.Model.MATLABAnalytic>();
+                openXDA.Model.MATLABAnalyticEventType eventType = record["MATLABAnalyticEventType"].ToObject<openXDA.Model.MATLABAnalyticEventType>();
+                openXDA.Model.MATLABAnalyticAssetType assetType = record["MATLABAnalyticAssetType"].ToObject<openXDA.Model.MATLABAnalyticAssetType>();
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    new TableOperations<openXDA.Model.MATLABAnalytic>(connection).AddNewRecord(analytic);
+
+                    analytic.ID = connection.ExecuteScalar<int>($"SELECT MAX(ID) FROM MATLABAnalytic");
+
+                    eventType.MATLABAnalyticID = analytic.ID;
+                    assetType.MATLABAnalyticID = analytic.ID;
+
+                    new TableOperations<openXDA.Model.MATLABAnalyticEventType>(connection).AddNewRecord(eventType);
+                    new TableOperations<openXDA.Model.MATLABAnalyticAssetType>(connection).AddNewRecord(assetType);
+                }
+
+                return Ok(analytic.ID);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
 
     [RoutePrefix("api/OpenXDA/MATLABAnalyticEventType")]
     public class MATLABAnalyticEventTypeController : ModelController<openXDA.Model.MATLABAnalyticEventType> { }
