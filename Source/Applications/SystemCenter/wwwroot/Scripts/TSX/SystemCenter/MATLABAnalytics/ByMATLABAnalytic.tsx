@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { MATLABAnalyticSlice, MATLABAnalyticEventTypeSlice, MATLABAnalyticAssetTypeSlice } from '../Store/Store';
+import { MATLABAnalyticSlice } from '../Store/Store';
 
 import { useHistory } from "react-router-dom";
 import Table from '@gpa-gemstone/react-table'

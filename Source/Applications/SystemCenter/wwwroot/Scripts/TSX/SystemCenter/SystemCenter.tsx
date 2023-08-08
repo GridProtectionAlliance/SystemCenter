@@ -84,6 +84,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ByMagDurCurve = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './MagDurCurves/ByMagDurCurve'));
     const ByEventTag = React.lazy(() => import(/* webpackChunkName: "ByEventTag" */ './EventTag/ByEventTag'));
     const ByMATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "ByMATLABAnalytic" */ './MATLABAnalytics/ByMATLABAnalytic'));
+    const MATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "MATLABAnalytic" */ './MATLABAnalytics/MATLABAnalytic'));
 
     const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
@@ -351,6 +352,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ByMagDurCurve Roles={roles} />
                                 else if (qs['?name'] == "Groups")
                                     return <BySecuritytGroup Roles={roles} />
+                                else if (qs['?name'] == "MATLABAnalytic")
+                                    return <MATLABAnalytic AnalyticID={parseInt(qs.AnalyticID as string)} />
                                 else if (qs['?name'] == "DownloadedFiles")
                                     return <DownloadedFiles MeterID={parseInt(qs.MeterID as string)} MeterName={qs.MeterName as string } />
                                 else if (qs['?name'] == "DeviceContacts")

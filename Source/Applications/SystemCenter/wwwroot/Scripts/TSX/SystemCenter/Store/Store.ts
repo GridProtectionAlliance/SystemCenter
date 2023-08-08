@@ -107,8 +107,6 @@ export const MagDurCurveSlice = new GenericSlice<LocalXDA.IMagDurCurve>('MagDurC
 
 export const EventTagSlice = new GenericSlice<OpenXDA.Types.EventTag>("EventTag", `${homePath}api/OpenXDA/EventTag`, 'Name');
 export const MATLABAnalyticSlice = new GenericSlice<OpenXDA.Types.MATLABAnalytic>("MATLABAnalytic", `${homePath}api/OpenXDA/MATLABAnalytic`, 'LoadOrder');
-export const MATLABAnalyticEventTypeSlice = new GenericSlice<OpenXDA.Types.MATLABAnalyticEventType>("MATLABAnalyticEventType", `${homePath}api/OpenXDA/MATLABAnalyticEventType`, 'ID');
-export const MATLABAnalyticAssetTypeSlice = new GenericSlice<OpenXDA.Types.MATLABAnalyticAssetType>("MATLABAnalyticAssetType", `${homePath}api/OpenXDA/MATLABAnalyticAssetType`, 'ID');
 
 
 const store = configureStore({
@@ -169,8 +167,6 @@ const store = configureStore({
         MagDurCurve: MagDurCurveSlice.Reducer,
         EventTag: EventTagSlice.Reducer,
         MATLABAnalytic: MATLABAnalyticSlice.Reducer,
-        MATLABAnalyticEventType: MATLABAnalyticEventTypeSlice.Reducer,
-        MATLABAnalyticAssetType: MATLABAnalyticAssetTypeSlice.Reducer,
     }
 });
 export default store;
