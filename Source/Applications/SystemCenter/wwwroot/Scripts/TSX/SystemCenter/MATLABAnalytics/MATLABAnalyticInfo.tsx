@@ -23,17 +23,27 @@
 
 
 import * as React from 'react';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useAppDispatch } from '../hooks';
-import { MATLABAnalyticSlice } from '../Store/Store';
+import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { EventTypeSlice, AssetTypeSlice, MATLABAnalyticSlice } from '../Store/Store';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { Input, Select } from '@gpa-gemstone/react-forms';
 
-const MATLABAnalyticInfoWindow = (props: { Record: OpenXDA.Types.MATLABAnalytic }) => {
+
+const MATLABAnalyticInfo = (props: { Record: OpenXDA.Types.MATLABAnalytic, ETRecord: OpenXDA.Types.MATLABAnalyticEventType, ATRecord: OpenXDA.Types.MATLABAnalyticAssetType }) => {
     const [record, setRecord] = React.useState<OpenXDA.Types.MATLABAnalytic>(props.Record);
+    const [eventTypeRecord, setEventTypeRecord] = React.useState<OpenXDA.Types.MATLABAnalyticEventType>(props.ETRecord);
+    const [assetTypeRecord, setAssetTypeRecord] = React.useState<OpenXDA.Types.MATLABAnalyticAssetType>(props.ATRecord);
+
     const [errors, setErrors] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('update' | 'none')>('none');
+
     const dispatch = useAppDispatch();
+    const eventTypeData = useAppSelector(EventTypeSlice.Data);
+    const eventTypeStatus = useAppSelector(EventTypeSlice.Status);
+    const assetTypeData = useAppSelector(AssetTypeSlice.Data);
+    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
 
     React.useEffect(() => {
         let e = [];
@@ -47,6 +57,48 @@ const MATLABAnalyticInfoWindow = (props: { Record: OpenXDA.Types.MATLABAnalytic 
         setErrors(e);
     }, [record]);
 
+    React.useEffect(() => {
+        if (eventTypeStatus == 'unintiated' || eventTypeStatus == 'changed')
+            dispatch(EventTypeSlice.Fetch());
+    }, [eventTypeStatus]);
+
+    React.useEffect(() => {
+        if (assetTypeStatus == 'unintiated' || assetTypeStatus == 'changed')
+            dispatch(AssetTypeSlice.Fetch());
+    }, [assetTypeStatus]);
+
+    function Valid(field: keyof (OpenXDA.Types.MATLABAnalytic)): boolean {
+        if (field == 'MethodName')
+            return record.MethodName !== null && record.MethodName.length > 0;
+        else if (field == 'AssemblyName')
+            return record.AssemblyName !== null && record.AssemblyName.length > 0;
+        return true;
+    }
+
+    // REMEMBER: Need to separate these into separate patch requests to ensure original slice status gets changed
+    function updateAnalytic() {
+        let handle = $.ajax({
+            type: "PATCH",
+            url: `${homePath}api/OpenXDA/MATLABAnalytic/Update/All`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                MATLABAnalytic: record,
+                MATLABAnalyticEventType: eventTypeRecord,
+                MATLABAnalyticAssetType: assetTypeRecord,
+            }),
+            dataType: 'json',
+            cache: false,
+            async: true
+        }).done(() => {
+            
+        });
+
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        };
+    }
+
+
     if (record == null) return;
     return (
         <div className="card" style={{ marginBottom: 10 }}>
@@ -58,21 +110,44 @@ const MATLABAnalyticInfoWindow = (props: { Record: OpenXDA.Types.MATLABAnalytic 
                 </div>
             </div>
             <div className="card-body">
-                {/* FORM */}
+                <div className="row">
+                    <div className="col">
+                        <Input<OpenXDA.Types.MATLABAnalytic> Record={record} Field={'MethodName'} Label={'Analytic Name'} Feedback={'An Analytic Name is required.'} Valid={Valid} Setter={setRecord} />
+                        <Input<OpenXDA.Types.MATLABAnalytic> Record={record} Field={'AssemblyName'} Label={'Assembly Name'} Feedback={'An Assembly Name is required.'} Valid={Valid} Setter={setRecord} />
+
+                        <Input<OpenXDA.Types.MATLABAnalytic> Record={record} Field={'LoadOrder'} Type={'number'} Valid={Valid} Setter={setRecord} />
+                    </div>
+                    <div className="col">
+                        <Select<OpenXDA.Types.MATLABAnalyticEventType> Record={eventTypeRecord} Field={'EventTypeID'} Label='Event Type'
+                            Options={eventTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={setEventTypeRecord}
+                        />
+                        <Select<OpenXDA.Types.MATLABAnalyticAssetType> Record={assetTypeRecord} Field={'AssetTypeID'} Label='Asset Type'
+                            Options={assetTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={setAssetTypeRecord}
+                        />
+                    </div>
+                </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + ((record == props.Record || errors.length > 0) ? ' disabled' : '')} onClick={() => {
-                        if (errors.length == 0)
-                            dispatch(MATLABAnalyticSlice.DBAction({ verb: 'PATCH', record }));
-                    }} hidden={record.ID == 0} data-tooltip={'Update-Info'}
+                    <button className={"btn btn-primary" + (((record == props.Record && eventTypeRecord == props.ETRecord && assetTypeRecord == props.ATRecord) || errors.length > 0) ? ' disabled' : '')}
+                        onClick={() => {
+                            if (errors.length == 0)
+                                updateAnalytic();
+                        }}
+                        hidden={record.ID == 0} data-tooltip={'Update-Info'}
                         onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className="btn btn-default" onClick={() => setRecord(props.Record)} disabled={record == props.Record}>Reset</button>
+                    <button className="btn btn-default"
+                        onClick={() => {
+                            setRecord(props.Record);
+                            setEventTypeRecord(props.ETRecord);
+                            setAssetTypeRecord(props.ATRecord);
+                        }}
+                        disabled={record == props.Record && eventTypeRecord == props.ETRecord && assetTypeRecord == props.ATRecord}>Reset</button>
                 </div>
-                <ToolTip Show={hover == 'update' && (errors.length > 0 || record == props.Record)} Position={'top'} Target={"Update-Info"}>
-                    {record == props.Record ? <p>No changes made.</p> : null}
+                <ToolTip Show={hover == 'update' && (errors.length > 0 || (record == props.Record && eventTypeRecord == props.ETRecord && assetTypeRecord == props.ATRecord))} Position={'top'} Target={"Update-Info"}>
+                    {(record == props.Record && eventTypeRecord == props.ETRecord && assetTypeRecord == props.ATRecord) ? <p>No changes made.</p> : null}
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
                 </ToolTip>
             </div>
@@ -82,4 +157,4 @@ const MATLABAnalyticInfoWindow = (props: { Record: OpenXDA.Types.MATLABAnalytic 
     );
 }
 
-export default MATLABAnalyticInfoWindow;
+export default MATLABAnalyticInfo;

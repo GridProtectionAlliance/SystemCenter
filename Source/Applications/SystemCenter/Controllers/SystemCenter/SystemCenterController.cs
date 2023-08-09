@@ -1446,5 +1446,69 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
+
+        [HttpPatch, Route("Update/All")]
+        public IHttpActionResult PatchValues([FromBody] JObject records)
+        {
+            if (!PatchAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            openXDA.Model.MATLABAnalytic analytic = records["MATLABAnalytic"].ToObject<openXDA.Model.MATLABAnalytic>();
+            openXDA.Model.MATLABAnalyticEventType eventType = records["MATLABAnalyticEventType"].ToObject<openXDA.Model.MATLABAnalyticEventType>();
+            openXDA.Model.MATLABAnalyticAssetType assetType = records["MATLABAnalyticAssetType"].ToObject<openXDA.Model.MATLABAnalyticAssetType>();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                new TableOperations<openXDA.Model.MATLABAnalytic>(connection).AddNewOrUpdateRecord(analytic);
+                new TableOperations<openXDA.Model.MATLABAnalyticEventType>(connection).AddNewOrUpdateRecord(eventType);
+                new TableOperations<openXDA.Model.MATLABAnalyticAssetType>(connection).AddNewOrUpdateRecord(assetType);
+
+                return Ok();
+            }
+        }
+
+        [HttpGet, Route("EventType/{MLID:int}")]
+        public IHttpActionResult GetEventType(int MLID)
+        {
+            if (!GetAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                openXDA.Model.MATLABAnalyticEventType eventType = new TableOperations<openXDA.Model.MATLABAnalyticEventType>(connection).QueryRecordWhere("MATLABAnalyticID = {0}", MLID);
+
+                if (eventType == null)
+                {
+                    return InternalServerError();
+                }
+
+                return Ok(eventType);
+            }
+        }
+
+        [HttpGet, Route("AssetType/{MLID:int}")]
+        public IHttpActionResult GetAssetType(int MLID)
+        {
+            if (!GetAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                openXDA.Model.MATLABAnalyticAssetType assetType = new TableOperations<openXDA.Model.MATLABAnalyticAssetType>(connection).QueryRecordWhere("MATLABAnalyticID = {0}", MLID);
+
+                if (assetType == null)
+                {
+                    return InternalServerError();
+                }
+
+                return Ok(assetType);
+            }
+        }
     }
 }
