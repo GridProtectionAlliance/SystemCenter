@@ -46,7 +46,7 @@ export default function MATLABAnalytic(props: { AnalyticID: number }) {
     const [eventTypeStatus, setEventTypeStatus] = React.useState<'uninitialized' | 'done'>('uninitialized');
     const [assetTypeStatus, setAssetTypeStatus] = React.useState<'uninitialized' | 'done'>('uninitialized');
 
-    const [tab, setTab] = React.useState<'info' | 'sql'>('info');
+    const [tab, setTab] = React.useState<'info' | 'settings'>('info');
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
     React.useEffect(() => {
@@ -126,13 +126,13 @@ export default function MATLABAnalytic(props: { AnalyticID: number }) {
 
 
                 <hr />
-                <TabSelector CurrentTab={tab} SetTab={(t) => setTab(t as ('info' | 'sql'))} Tabs={[{ Label: 'Analytic Info', Id: 'info' }, { Label: 'SQL Settings', Id: 'sql' }]} />
+                <TabSelector CurrentTab={tab} SetTab={(t) => setTab(t as ('info' | 'settings'))} Tabs={[{ Label: 'Analytic Info', Id: 'info' }, { Label: 'Settings', Id: 'settings' }]} />
 
                 <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                     <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
                         <MATLABAnalyticInfo Record={record} ETRecord={eventTypeRecord} ATRecord={assetTypeRecord} />
                     </div>
-                    <div className={"tab-pane " + (tab == "sql" ? " active" : "fade")} id="sql">
+                    <div className={"tab-pane " + (tab == "settings" ? " active" : "fade")} id="settings">
                         <MATLABAnalyticSQLSettings Record={record} />
                     </div>
                 </div>

@@ -243,7 +243,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=EventTags")} to={controllerViewPath + "?name=EventTags"}>Event Tags</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=MATLABAnalytics")} to={controllerViewPath + "?name=MATLABAnalytics"}>MATLAB Analytics</NavLink>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=MATLABAnalytics")} to={controllerViewPath + "?name=MATLABAnalytics"}>MATLAB Analytics</NavLink>
                                 </li>
                             </ul>
 
@@ -375,7 +375,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <DataFile Roles={roles} />
                                 }
                                 else if (queryString.parse(rest.location.search)['?name'] == "EventTags") {
-                                    if (roles.indexOf('Administrator') < 0) return null;
                                     return <ByEventTag Roles={roles} />
                                 }
                                 else if (queryString.parse(rest.location.search)['?name'] == "MATLABAnalytics") {

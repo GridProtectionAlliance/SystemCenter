@@ -49,10 +49,10 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
     let history = useHistory();
 
     const MATLABAnalyticSearchFields = [
-        { label: 'Analytic Name', key: 'MethodName', type: 'string', isPivotField: false },
+        { label: 'Method Name', key: 'MethodName', type: 'string', isPivotField: false },
         // TODO: Add more search fields
     ];
-    const MATLABAnalyticDefaultSearchField = { label: 'Analytic Name', key: 'MethodName', type: 'string', isPivotField: false };
+    const MATLABAnalyticDefaultSearchField = { label: 'Method Name', key: 'MethodName', type: 'string', isPivotField: false };
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.MATLABAnalytic>>>([]);
 
     const emptyRecord = { ID: 0, AssemblyName: '', MethodName: '', SettingSQL: '', LoadOrder: 0 };
@@ -74,7 +74,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         let e = [];
         if (record.MethodName === null || record.MethodName.length === 0) {
-            e.push('An Analytic Name is required.');
+            e.push('A Method Name is required.');
         }
         if (record.AssemblyName === null || record.AssemblyName.length === 0) {
             e.push('An Assembly Name is required.');
@@ -84,7 +84,9 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
     }, [record]);
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=MATLABAnalytic&AnalyticID=' + item.row.ID })
+        if (props.Roles.indexOf('Administrator') != -1) {
+            history.push({ pathname: homePath + 'index.cshtml', search: '?name=MATLABAnalytic&AnalyticID=' + item.row.ID });
+        } 
     }
 
     function addNewAnalytic() {
@@ -135,7 +137,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
-                                <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
+                                <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0}
                                     onClick={(evt) => { evt.preventDefault(); setRecord({ ...emptyRecord }); setShowNew(true); }}>Add Analytic</button>
                             </form>
                         </fieldset>
@@ -145,7 +147,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                     <Table<OpenXDA.Types.MATLABAnalytic>
                         cols={[
-                            { key: 'MethodName', label: 'Analytic Name', field: 'MethodName', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'MethodName', label: 'Method Name', field: 'MethodName', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'AssemblyName', label: 'Assembly Name', field: 'AssemblyName', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             { key: 'LoadOrder', label: 'Load Order', field: 'LoadOrder', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                             { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },

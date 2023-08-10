@@ -48,7 +48,7 @@ const MATLABAnalyticInfo = (props: { Record: OpenXDA.Types.MATLABAnalytic, ETRec
     React.useEffect(() => {
         let e = [];
         if (record.MethodName === null || record.MethodName.length === 0) {
-            e.push('An Analytic Name is required.');
+            e.push('A Method Name is required.');
         }
         if (record.AssemblyName === null || record.AssemblyName.length === 0) {
             e.push('An Assembly Name is required.');
@@ -112,7 +112,7 @@ const MATLABAnalyticInfo = (props: { Record: OpenXDA.Types.MATLABAnalytic, ETRec
             <div className="card-body">
                 <div className="row">
                     <div className="col">
-                        <Input<OpenXDA.Types.MATLABAnalytic> Record={record} Field={'MethodName'} Label={'Analytic Name'} Feedback={'An Analytic Name is required.'} Valid={Valid} Setter={setRecord} />
+                        <Input<OpenXDA.Types.MATLABAnalytic> Record={record} Field={'MethodName'} Label={'Method Name'} Feedback={'A Method Name is required.'} Valid={Valid} Setter={setRecord} />
                         <Input<OpenXDA.Types.MATLABAnalytic> Record={record} Field={'AssemblyName'} Label={'Assembly Name'} Feedback={'An Assembly Name is required.'} Valid={Valid} Setter={setRecord} />
 
                         <Input<OpenXDA.Types.MATLABAnalytic> Record={record} Field={'LoadOrder'} Type={'number'} Valid={Valid} Setter={setRecord} />

@@ -63,15 +63,21 @@ export default function MATLABAnalyticForm(props: {
 
     return (
         <form>
-            <Input<OpenXDA.Types.MATLABAnalytic> Record={props.Record} Field={'MethodName'} Label={'Analytic Name'} Feedback={'An Analytic Name is required.'} Valid={Valid} Setter={props.Setter} />
-            <Input<OpenXDA.Types.MATLABAnalytic> Record={props.Record} Field={'AssemblyName'} Label={'Assembly Name'} Feedback={'An Assembly Name is required.'} Valid={Valid} Setter={props.Setter} />
-            <Select<OpenXDA.Types.MATLABAnalyticEventType> Record={props.ETRecord} Field={'EventTypeID'} Label='Event Type'
-                Options={eventTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.ETSetter}
-            />
-            <Select<OpenXDA.Types.MATLABAnalyticAssetType> Record={props.ATRecord} Field={'AssetTypeID'} Label='Asset Type'
-                Options={assetTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.ATSetter}
-            />
-            <Input<OpenXDA.Types.MATLABAnalytic> Record={props.Record} Field={'LoadOrder'} Type={'number'} Valid={Valid} Setter={props.Setter} />
+            <div className="row">
+                <div className="col">
+                    <Input<OpenXDA.Types.MATLABAnalytic> Record={props.Record} Field={'MethodName'} Label={'Method Name'} Feedback={'A Method Name is required.'} Valid={Valid} Setter={props.Setter} />
+                    <Input<OpenXDA.Types.MATLABAnalytic> Record={props.Record} Field={'AssemblyName'} Label={'Assembly Name'} Feedback={'An Assembly Name is required.'} Valid={Valid} Setter={props.Setter} />
+                    <Input<OpenXDA.Types.MATLABAnalytic> Record={props.Record} Field={'LoadOrder'} Type={'number'} Valid={Valid} Setter={props.Setter} />
+                </div>
+                <div className="col">
+                    <Select<OpenXDA.Types.MATLABAnalyticEventType> Record={props.ETRecord} Field={'EventTypeID'} Label='Event Type'
+                        Options={eventTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.ETSetter}
+                    />
+                    <Select<OpenXDA.Types.MATLABAnalyticAssetType> Record={props.ATRecord} Field={'AssetTypeID'} Label='Asset Type'
+                        Options={assetTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.ATSetter}
+                    />
+                </div>
+            </div>
         </form>
 
     );
