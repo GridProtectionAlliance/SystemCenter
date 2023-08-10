@@ -115,8 +115,8 @@ namespace SystemCenter.Controllers
                     fields = new TableOperations<Model.AdditionalField>(connection).QueryRecordsWhere("ParentTable = {0} AND ExternalDB = {1}", tableName, extDBName).ToList();
                     xdaFields = new TableOperations<Model.ExternalOpenXDAField>(connection).QueryRecordsWhere("ParentTable = {0} AND ExternalDB = {1}", tableName, extDBName).ToList();
 
-                    IEnumerable<IGrouping<string, Model.AdditionalField>> fieldGroups = fields.GroupBy(item => item.ExternalDBTable);
-                    IEnumerable<IGrouping<string, Model.ExternalOpenXDAField>> xdafieldGroups = xdaFields.GroupBy(item => item.ExternalDBTable);
+                    IEnumerable<IGrouping<string, Model.AdditionalField>> fieldGroups = fields.GroupBy(item => item.ExternalDBTableID.ToString());
+                    IEnumerable<IGrouping<string, Model.ExternalOpenXDAField>> xdafieldGroups = xdaFields.GroupBy(item => item.ExtDBID.ToString());
 
                     foreach (string tbl in fieldGroups.Select(item => item.Key).Union(xdafieldGroups.Select(item => item.Key)))
                     {
@@ -324,7 +324,7 @@ namespace SystemCenter.Controllers
             if (collumns.Item1.Count() < 1 && collumns.Item2.Count() < 1)
                 return result;
 
-            IEnumerable<string> querycol = collumns.Item1.Select(item => item.ExternalDBTableKey).Union(collumns.Item2.Select(item => item.ExternalDBTableKey));
+            IEnumerable<string> querycol = collumns.Item1.Select(item => item.FieldName).Union(collumns.Item2.Select(item => item.FieldName));
 
             string query = "SELECT " + String.Join(", ", querycol);
             query = query + " FROM " + GetTableQuery(tableName) + " WHERE " + getDataQuery(xdaObj, tableName);
@@ -387,8 +387,8 @@ namespace SystemCenter.Controllers
 
                 result = collumns.Item1.Select(item =>
                 {
-                    string value = item.ExternalDBTableKey;
-                    extData.TryGetValue(item.ExternalDBTableKey.ToLower(), out value);
+                    string value = item.ExternalDBTableID.ToString();
+                    extData.TryGetValue(item.ExternalDBTableID.ToString().ToLower(), out value);
 
                     Model.ExternalDBField res = new Model.ExternalDBField()
                     {
@@ -416,8 +416,8 @@ namespace SystemCenter.Controllers
 
                 result = result.Concat(collumns.Item2.Select(item =>
                 {
-                    string value = item.ExternalDBTableKey;
-                    extData.TryGetValue(item.ExternalDBTableKey.ToLower(), out value);
+                    string value = item.ExtDBID.ToString();
+                    extData.TryGetValue(item.ExtDBID.ToString().ToLower(), out value);
 
                     Model.ExternalDBField res = new Model.ExternalDBField()
                     {

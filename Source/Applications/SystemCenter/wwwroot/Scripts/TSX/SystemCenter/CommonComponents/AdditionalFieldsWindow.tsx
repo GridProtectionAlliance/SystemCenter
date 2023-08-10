@@ -421,8 +421,6 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                     }
                 },
 
-                { key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (edit && !(props.InnerOnly ?? false) ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); setEditNew('Edit'); }}><span>{Pencil}</span></button> : '') },
-                { key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (edit && !(props.InnerOnly ?? false) ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '') },
 
             ]}
             tableClass="table table-hover"
@@ -474,14 +472,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
                     {tableComponent}
                 </div>
-                <div className="card-footer">
-                    <div className="btn-group mr-2">
-                        <button className={"btn btn-primary" + (!edit ? ' disabled' : '')} onMouseEnter={() => setHover('New')} onMouseLeave={() => setHover('None')}
-                            onClick={() => { if (edit) { setShowEdit(true); setNewField(EmptyField) } }} data-tooltip={'New'} >Add Field</button>
-                        <ToolTip Show={hover == 'New' && !edit} Position={'top'} Theme={'dark'} Target={"New"}>
-                            {!edit ? <p> To add a new Field, switch to Edit mode by clicking on the Edit button on the upper right corner.</p> : null}
-                        </ToolTip>
-                    </div>
+                <div className="card-footer">  
                     <div className="btn-group mr-2">
                         <button className={"btn btn-primary" + (!HasValueChanged() || !edit || HasInvalidChanges() ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && !HasInvalidChanges() && edit) addOrUpdateValues(); }}
                             onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Save Changes</button>

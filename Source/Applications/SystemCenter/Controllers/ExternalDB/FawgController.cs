@@ -252,7 +252,7 @@ namespace SystemCenter.Controllers
                             {
                                 try
                                 {
-                                    string fieldVal = typeof(FawgLineSegment).GetProperty(addField.ExternalDBTableKey).GetValue(seg).ToString();
+                                    string fieldVal = typeof(FawgLineSegment).GetProperty(addField.FieldName).GetValue(seg).ToString();
                                     addFieldTable.AddNewRecord(
                                         new AdditionalFieldValue()
                                         {
