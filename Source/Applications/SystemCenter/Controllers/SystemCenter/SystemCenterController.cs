@@ -90,6 +90,58 @@ namespace SystemCenter.Controllers
         }
     }
 
+    [RoutePrefix("api/ChannelGroup")]
+    public class ChannelGroupController : ModelController<openXDA.Model.ChannelGroup> { }
+
+    [RoutePrefix("api/ChannelGroupDetails")]
+    public class ChannelGroupDetailsController : ModelController<openXDA.Model.ChannelGroupDetails> 
+    {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                openXDA.Model.ChannelGroupType newRecord = record.ToObject<openXDA.Model.ChannelGroupType>();
+                int result = new TableOperations<openXDA.Model.ChannelGroupType>(connection).AddNewRecord(newRecord);
+                return Ok(result);
+            }
+        }
+
+        public override IHttpActionResult Patch([FromBody] openXDA.Model.ChannelGroupDetails record)
+        {
+            if (!PatchAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                int result = new TableOperations<openXDA.Model.ChannelGroupType>(connection).AddNewOrUpdateRecord(record);
+                // Turn into channelgrouptype
+                openXDA.Model.ChannelGroupType newRecord = new TableOperations<openXDA.Model.ChannelGroupType>(connection).QueryRecordWhere("ID = {0}", record.ID);
+                return Ok(newRecord);
+            }
+        }
+
+        public override IHttpActionResult Delete(openXDA.Model.ChannelGroupDetails record)
+        {
+            if (!DeleteAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using (AdoDataConnection adoDataConnection = new AdoDataConnection(Connection))
+            {
+                int result = adoDataConnection.ExecuteNonQuery($"EXEC UniversalCascadeDelete ChannelGroupType, 'ID = {record.ID}'");
+                return Ok(result);
+            }
+        }
+    }
+
     [RoutePrefix("api/LSCVSAccount")]
     public class LSCVSAccountController : ModelController<LSCVSAccount> { }
 

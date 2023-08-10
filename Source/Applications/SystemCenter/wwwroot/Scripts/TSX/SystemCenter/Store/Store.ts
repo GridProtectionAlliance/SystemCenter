@@ -47,6 +47,9 @@ export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueList
 export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList', `${homePath}api/ValueList`, 'SortOrder');
 export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing', `${homePath}api/LocationDrawing`, 'Name');
 
+export const ChannelGroupSlice = new GenericSlice<SystemCenter.Types.ChannelGroup>('ChannelGroup', `${homePath}api/ChannelGroup`, 'Name');
+export const ChannelGroupDetailsSlice = new GenericSlice<SystemCenter.Types.ChannelGroupDetails>('ChannelGroupDetails', `${homePath}api/ChannelGroupDetails`, 'DisplayName');
+
 export const SystemCenterSettingSlice = new GenericSlice<SystemCenter.Types.Setting>('SystemCenterSetting', `${homePath}api/Setting`, 'Name');
 export const OpenXDASettingSlice = new GenericSlice<SystemCenter.Types.Setting>('OpenXDASetting', `${homePath}api/OpenXDA/Setting`, 'Name');
 export const MiMDSettingSlice = new GenericSlice<SystemCenter.Types.Setting>('MiMDSetting', `${homePath}api/MiMD/Setting`, 'Name');
@@ -119,6 +122,8 @@ const store = configureStore({
         Location: LocationSlice.Reducer,
         ValueListGroup: ValueListGroupSlice.Reducer,
         ValueList: ValueListSlice.Reducer,
+        ChannelGroup: ChannelGroupSlice.Reducer,
+        ChannelGroupDetails: ChannelGroupDetailsSlice.Reducer,
         LocationDrawing: LocationDrawingSlice.Reducer,
         SystemCenterSetting: SystemCenterSettingSlice.Reducer,
         OpenXDASetting: OpenXDASettingSlice.Reducer,
