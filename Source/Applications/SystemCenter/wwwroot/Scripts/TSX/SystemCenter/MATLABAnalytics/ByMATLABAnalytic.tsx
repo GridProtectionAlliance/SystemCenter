@@ -50,17 +50,16 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
 
     const MATLABAnalyticSearchFields = [
         { label: 'Method Name', key: 'MethodName', type: 'string', isPivotField: false },
-        // TODO: Add more search fields
+        { label: 'Assembly Name', key: 'AssemblyName', type: 'string', isPivotField: false },
+        { label: 'Load Order', key: 'LoadOrder', type: 'number', isPivotField: false }
     ];
     const MATLABAnalyticDefaultSearchField = { label: 'Method Name', key: 'MethodName', type: 'string', isPivotField: false };
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.MATLABAnalytic>>>([]);
 
     const emptyRecord = { ID: 0, AssemblyName: '', MethodName: '', SettingSQL: '', LoadOrder: 0 };
     const [record, setRecord] = React.useState<OpenXDA.Types.MATLABAnalytic>(emptyRecord);
-    const emptyEventTypeRecord = { ID: 0, MATLABAnalyticID: 0, EventTypeID: 0 };
-    const [eventTypeRecord, setEventTypeRecord] = React.useState<OpenXDA.Types.MATLABAnalyticEventType>(emptyEventTypeRecord);
-    const emptyAssetTypeRecord = { ID: 0, MATLABAnalyticID: 0, AssetTypeID: 0 };
-    const [assetTypeRecord, setAssetTypeRecord] = React.useState<OpenXDA.Types.MATLABAnalyticAssetType>(emptyAssetTypeRecord);
+    const [eventTypeRecord, setEventTypeRecord] = React.useState<OpenXDA.Types.MATLABAnalyticEventType[]>([]);
+    const [assetTypeRecord, setAssetTypeRecord] = React.useState<OpenXDA.Types.MATLABAnalyticAssetType[]>([]);
 
     React.useEffect(() => {
         if (analyticStatus == 'unintiated' || analyticStatus == 'changed')
@@ -158,6 +157,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                         sortKey={sortField}
                         ascending={ascending}
                         onSort={(d) => {
+                            if (d.colField === null) return;
                             if (d.colKey !== sortField)
                                 dispatch(MATLABAnalyticSlice.DBSearch({ filter: search, sortField: (d.colField as any), ascending: true }));
                             else
@@ -184,7 +184,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                     ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                     DisableConfirm={errors.length > 0}
                     Show={showNew} >
-                    <MATLABAnalyticForm Record={record} Setter={setRecord} ETRecord={eventTypeRecord} ETSetter={setEventTypeRecord} ATRecord={assetTypeRecord} ATSetter={setAssetTypeRecord} />
+                    <MATLABAnalyticForm Record={record} Setter={setRecord} ETSetter={setEventTypeRecord} ATSetter={setAssetTypeRecord} />
                 </Modal>
             </div>
         </>

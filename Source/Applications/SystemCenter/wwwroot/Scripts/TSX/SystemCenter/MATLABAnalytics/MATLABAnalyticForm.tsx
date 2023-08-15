@@ -22,36 +22,73 @@
 //******************************************************************************************************
 
 import * as React from 'react';
+import * as _ from 'lodash';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { EventTypeSlice, AssetTypeSlice } from '../Store/Store';
+import { MATLABAnalyticEventTypeSlice, MATLABAnalyticAssetTypeSlice, EventTypeSlice, AssetTypeSlice } from '../Store/Store';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { Input, Select } from '@gpa-gemstone/react-forms';
+import { Input, MultiCheckBoxSelect } from '@gpa-gemstone/react-forms';
 
 export default function MATLABAnalyticForm(props: {
     Record: OpenXDA.Types.MATLABAnalytic,
-    ETRecord: OpenXDA.Types.MATLABAnalyticEventType,
-    ATRecord: OpenXDA.Types.MATLABAnalyticAssetType,
     Setter: (record: OpenXDA.Types.MATLABAnalytic) => void,
-    ETSetter: (eventTypeRecord: OpenXDA.Types.MATLABAnalyticEventType) => void,
-    ATSetter: (assetTypeRecord: OpenXDA.Types.MATLABAnalyticAssetType) => void,
+    ETSetter: (records: OpenXDA.Types.MATLABAnalyticEventType[]) => void,
+    ATSetter: (records: OpenXDA.Types.MATLABAnalyticAssetType[]) => void,
     setErrors?: (e: string[]) => void
 }) {
+
     const dispatch = useAppDispatch();
 
-    const eventTypeData = useAppSelector(EventTypeSlice.Data);
-    const eventTypeStatus = useAppSelector(EventTypeSlice.Status);
-    const assetTypeData = useAppSelector(AssetTypeSlice.Data);
-    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
+    const [selectedEventTypes, setSelectedEventTypes] = React.useState<OpenXDA.Types.MATLABAnalyticEventType[]>([]);
+    const [selectedAssetTypes, setSelectedAssetTypes] = React.useState<OpenXDA.Types.MATLABAnalyticAssetType[]>([]);
+
+    const eventTypeData = useAppSelector(MATLABAnalyticEventTypeSlice.Data);
+    const eventTypeStatus = useAppSelector(MATLABAnalyticEventTypeSlice.Status);
+    const assetTypeData = useAppSelector(MATLABAnalyticAssetTypeSlice.Data);
+    const assetTypeStatus = useAppSelector(MATLABAnalyticAssetTypeSlice.Status);
+
+    const allEventTypes = useAppSelector(EventTypeSlice.Data);
+    const allEventTypesStatus = useAppSelector(EventTypeSlice.Status);
+    const allAssetTypes = useAppSelector(AssetTypeSlice.Data);
+    const allAssetTypesStatus = useAppSelector(AssetTypeSlice.Status);
+
+    const eventTypeParentID = useAppSelector(MATLABAnalyticEventTypeSlice.ParentID);
+    const assetTypeParentID = useAppSelector(MATLABAnalyticAssetTypeSlice.ParentID);
 
     React.useEffect(() => {
-        if (eventTypeStatus == 'unintiated' || eventTypeStatus == 'changed')
+        if (allEventTypesStatus == 'unintiated' || allEventTypesStatus == 'changed')
             dispatch(EventTypeSlice.Fetch());
-    }, [eventTypeStatus]);
+    }, [allEventTypesStatus]);
 
     React.useEffect(() => {
-        if (assetTypeStatus == 'unintiated' || assetTypeStatus == 'changed')
+        if (allAssetTypesStatus == 'unintiated' || allAssetTypesStatus == 'changed')
             dispatch(AssetTypeSlice.Fetch());
-    }, [assetTypeStatus]);
+    }, [allAssetTypesStatus]);
+
+    React.useEffect(() => {
+        if (eventTypeStatus == 'unintiated' || eventTypeStatus == 'changed' || eventTypeParentID != props.Record.ID)
+            dispatch(MATLABAnalyticEventTypeSlice.Fetch(props.Record.ID));
+    }, [eventTypeStatus, props.Record]);
+
+    React.useEffect(() => {
+        if (assetTypeStatus == 'unintiated' || assetTypeStatus == 'changed' || assetTypeParentID != props.Record.ID)
+            dispatch(MATLABAnalyticAssetTypeSlice.Fetch(props.Record.ID));
+    }, [assetTypeStatus, props.Record]);
+
+    React.useEffect(() => {
+        setSelectedEventTypes(eventTypeData);
+    }, [eventTypeData]);
+
+    React.useEffect(() => {
+        setSelectedAssetTypes(assetTypeData);
+    }, [assetTypeData]);
+
+    React.useEffect(() => {
+        props.ETSetter(selectedEventTypes);
+    }, [selectedEventTypes]);
+
+    React.useEffect(() => {
+        props.ATSetter(selectedAssetTypes);
+    }, [selectedAssetTypes]);
 
     function Valid(field: keyof (OpenXDA.Types.MATLABAnalytic)): boolean {
         if (field == 'MethodName')
@@ -70,11 +107,33 @@ export default function MATLABAnalyticForm(props: {
                     <Input<OpenXDA.Types.MATLABAnalytic> Record={props.Record} Field={'LoadOrder'} Type={'number'} Valid={Valid} Setter={props.Setter} />
                 </div>
                 <div className="col">
-                    <Select<OpenXDA.Types.MATLABAnalyticEventType> Record={props.ETRecord} Field={'EventTypeID'} Label='Event Type'
-                        Options={eventTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.ETSetter}
+                    <MultiCheckBoxSelect Label='Event Type'
+                        Options={allEventTypes.map((item => ({ Value: item.ID, Text: item.Name.toString(), Selected: selectedEventTypes.findIndex((e) => e.EventTypeID == item.ID) !== -1 })))}
+                        OnChange={(evt, opts) => {
+                            let eventTypesCopy = _.cloneDeep(selectedEventTypes);
+                            opts.forEach((et) => {
+                                if (selectedEventTypes.findIndex((t) => t.EventTypeID == et.Value) !== -1) {
+                                    eventTypesCopy = eventTypesCopy.filter((t) => t.EventTypeID !== et.Value);
+                                } else {
+                                    eventTypesCopy.push({ ID: 0, MATLABAnalyticID: props.Record.ID, EventTypeID: et.Value });
+                                }
+                            });
+                            setSelectedEventTypes(eventTypesCopy);
+                        }}
                     />
-                    <Select<OpenXDA.Types.MATLABAnalyticAssetType> Record={props.ATRecord} Field={'AssetTypeID'} Label='Asset Type'
-                        Options={assetTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.ATSetter}
+                    <MultiCheckBoxSelect Label='Asset Type'
+                        Options={allAssetTypes.map((item => ({ Value: item.ID, Text: item.Name.toString(), Selected: selectedAssetTypes.findIndex((a) => a.AssetTypeID == item.ID) !== -1 })))}
+                        OnChange={(evt, opts) => {
+                            let assetTypesCopy = _.cloneDeep(selectedAssetTypes);
+                            opts.forEach((at) => {
+                                if (selectedAssetTypes.findIndex((t) => t.AssetTypeID == at.Value) !== -1) {
+                                    assetTypesCopy = assetTypesCopy.filter((t) => t.AssetTypeID !== at.Value);
+                                } else {
+                                    assetTypesCopy.push({ ID: 0, MATLABAnalyticID: props.Record.ID, AssetTypeID: at.Value });
+                                }
+                            });
+                            setSelectedAssetTypes(assetTypesCopy);
+                        }}
                     />
                 </div>
             </div>
