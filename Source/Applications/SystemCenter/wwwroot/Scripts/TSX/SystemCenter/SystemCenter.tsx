@@ -292,7 +292,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "RemoteXDAInstanceMain")
                                     return <RemoteXDAInstanceMain Roles={roles} />
                                 else if (qs['?name'] == "RemoteXDAInstance")
-                                    return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} />
+                                    return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "ByExternalDB")
                                     return <ByExternalDB Roles={roles} />
                                 else if (qs['?name'] == "ExternalDB")
@@ -314,11 +314,11 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "Location")
                                     return <Location LocationID={parseInt(qs.LocationID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Asset")
-                                    return <Asset AssetID={parseInt(qs.AssetID as string)} />
+                                    return <Asset AssetID={parseInt(qs.AssetID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "AssetGroup")
-                                    return <AssetGroup AssetGroupID={parseInt(qs.AssetGroupID as string)} />
+                                    return <AssetGroup AssetGroupID={parseInt(qs.AssetGroupID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Customer")
-                                    return <Customer CustomerID={parseInt(qs.CustomerID as string)} />
+                                    return <Customer CustomerID={parseInt(qs.CustomerID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "PQViewSites")
                                     return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'PQViewDataLoader.cshtml'}></iframe>
                                 else if (qs['?name'] == "PQViewCustomers")
@@ -328,7 +328,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "ValueListGroup")
                                     return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "ChannelGroup")
-                                    return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} />
+                                    return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Settings")
                                     return <BySettings Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
                                 else if (qs['?name'] == "DataOperations")
@@ -347,7 +347,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "SEBrowserTabs")
                                     return <BySEBrowserCategory Roles={roles} />
                                 else if (qs['?name'] == "SEBrowserTab")
-                                    return <SEBrowserCategory TabID={parseInt(qs.TabID as string)} />
+                                    return <SEBrowserCategory TabID={parseInt(qs.TabID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "MagDurCurves")
                                     return <ByMagDurCurve Roles={roles} />
                                 else if (qs['?name'] == "Groups")

@@ -34,26 +34,29 @@ import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interac
 declare var homePath: string;
 declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup'
 
-function AssetGroup(props: { AssetGroupID: number }) {
+interface IProps { AssetGroupID: number, Tab: Tab }
+
+function AssetGroup(props: IProps) {
     let history = useHistory();
     const [assetGroup, setAssetGroup] = React.useState<OpenXDA.Types.AssetGroup>(null);
     const [allAssetGroups, setAllAssetGroups] = React.useState<Array<OpenXDA.Types.AssetGroup>>([]);
-    const [tab, setTabState] = React.useState<string>(getTab());
+    const [tab, setTab] = React.useState(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     
-
     function getTab(): Tab {
-        if (sessionStorage.hasOwnProperty('AssetGroup.Tab'))
+        if (props.Tab != undefined) return props.Tab;
+        else if (sessionStorage.hasOwnProperty('AssetGroup.Tab'))
             return JSON.parse(sessionStorage.getItem('AssetGroup.Tab'));
         else
             return 'info';
     }
 
-    function setTab(tab: Tab): void {
-        sessionStorage.setItem('AssetGroup.Tab', JSON.stringify(tab));
-        setTabState(tab);
-    }
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('AssetGroup.Tab', JSON.stringify(tab));
+    }, [tab]);
 
     function getAssetGroup() {
        let handle =  $.ajax({
@@ -64,19 +67,15 @@ function AssetGroup(props: { AssetGroupID: number }) {
             cache: false,
             async: true
        })
-
         handle.done((data: OpenXDA.Types.AssetGroup) => {
            setAssetGroup(data)
         });
-
         return handle;
     }
 
     React.useEffect(() => {
         return getData();
-
     }, [props.AssetGroupID]);
-
 
     function getAllAssetGroups(): JQueryXHR {
         let handle =  $.ajax({
@@ -87,16 +86,13 @@ function AssetGroup(props: { AssetGroupID: number }) {
             cache: false,
             async: true
         })
-
         handle.done(aas => setAllAssetGroups(aas));
         return handle;
     }
 
     function getData() {
-
         let handle1 = getAssetGroup();
         let handle2 = getAllAssetGroups();
-
         return function cleanup() {
             if (handle1.abort != null)
                 handle1.abort();
@@ -106,7 +102,6 @@ function AssetGroup(props: { AssetGroupID: number }) {
     }
 
     function deleteAssetGroup(): JQuery.jqXHR {
-
         let handle = $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/AssetGroup/Delete`,
@@ -116,27 +111,21 @@ function AssetGroup(props: { AssetGroupID: number }) {
             cache: true,
             async: true
         });
-        
         handle.done((msg) => {
             sessionStorage.clear();
             history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroups'});
         });
-
         handle.then((d) => setLoadDelete(false))
-
         return null;
-
     }
-
 
     if (assetGroup == null) return null;
 
     const Tabs = [
-        { Id: "info", Label: "Info" },
+        { Id: "info", Label: "Asset Group Info" },
         { Id: "asset", Label: "Assets" },
         { Id: "meter", Label: "Meters" },
-        { Id: "assetgroup", Label: "Asset Groups" }];
-
+        { Id: "assetgroup", Label: "Asset Subgroups" }];
 
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
@@ -149,8 +138,8 @@ function AssetGroup(props: { AssetGroupID: number }) {
                 </div>
             </div>
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
-            
+
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
                     <AssetgroupInfoWindow AssetGroup={assetGroup} StateSetter={(data) => setAssetGroup(data)} AllAssetGroups={allAssetGroups} />
@@ -165,6 +154,7 @@ function AssetGroup(props: { AssetGroupID: number }) {
                     <AssetGroupAssetGroupWindow AssetGroupID={props.AssetGroupID} />
                 </div>
             </div>
+
             <Warning Message={'This will permanently delete this Asset Group and cannot be undone.'} Show={showDelete} Title={'Delete ' + (assetGroup?.Name ?? 'Asset Group')} CallBack={(conf) => { if (conf) deleteAssetGroup(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
