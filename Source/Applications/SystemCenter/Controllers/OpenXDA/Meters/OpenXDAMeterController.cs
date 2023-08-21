@@ -700,5 +700,127 @@ namespace SystemCenter.Controllers.OpenXDA
         }
     }
 
+    [CustomView("SELECT " +
+            "    Channel.*, " +
+            "    Meter.AssetKey AS Meter, " +
+            "    Asset.AssetKey AS Asset, " +
+            "    MeasurementType.Name AS MeasurementType, " +
+            "    MeasurementCharacteristic.Name AS MeasurementCharacteristic, " +
+            "    Phase.Name AS Phase " +
+            "FROM " +
+            "    Channel JOIN " +
+            "    Asset ON Channel.AssetID = Asset.ID JOIN " +
+            "    Meter ON Channel.MeterID = Meter.ID JOIN " +
+            "    MeasurementType ON Channel.MeasurementTypeID = MeasurementType.ID JOIN " +
+            "    MeasurementCharacteristic ON Channel.MeasurementCharacteristicID = MeasurementCharacteristic.ID JOIN " +
+            "    Phase ON Channel.PhaseID = Phase.ID ")]
+    public class TrendChannel : ChannelBase
+    {
+        [ParentKey(typeof(MeterDetail))]
+        public new int MeterID { get; set; }
+        public string Meter { get; set; }
+        public string Asset { get; set; }
+        public string MeasurementType { get; set; }
+        public string MeasurementCharacteristic { get; set; }
+        public string Phase { get; set; }
+    }
+
+    [RoutePrefix("api/OpenXDA/TrendChannel")]
+    public class TrendChannelController : ModelController<TrendChannel>
+    {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            try
+            {
+                if (!PostAuthCheck())
+                    return Unauthorized();
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    TrendChannel newRecord = record.ToObject<TrendChannel>();
+
+                    ChannelBase channel = new ChannelBase()
+                    {
+                        MeterID = newRecord.MeterID,
+                        AssetID = newRecord.AssetID,
+                        MeasurementTypeID = newRecord.MeasurementTypeID,
+                        Adder = newRecord.Adder,
+                        MeasurementCharacteristicID = newRecord.MeasurementCharacteristicID,
+                        ConnectionPriority = newRecord.ConnectionPriority,
+                        PhaseID = newRecord.PhaseID,
+                        Name = newRecord.Name,
+                        Multiplier = newRecord.Multiplier,
+                        SamplesPerHour = newRecord.SamplesPerHour,
+                        PerUnitValue = newRecord.PerUnitValue,
+                        HarmonicGroup = newRecord.HarmonicGroup,
+                        Description = newRecord.Description,
+                        Enabled = newRecord.Enabled,
+                    };
+
+                    int result = new TableOperations<ChannelBase>(connection).AddNewRecord(channel);
+
+                    return Ok(result);
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Delete(TrendChannel record)
+        {
+            if (!DeleteAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete Channel, 'ID = ''{record.ID}'''");
+                return Ok(result);
+            }
+        }
+
+        public override IHttpActionResult Patch([FromBody] TrendChannel record)
+        {
+
+            try
+            {
+                if (!PatchAuthCheck())
+                    return Unauthorized();
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    ChannelBase channel = new ChannelBase()
+                    {
+                        ID = record.ID,
+                        MeterID = record.MeterID,
+                        AssetID = record.AssetID,
+                        MeasurementTypeID = record.MeasurementTypeID,
+                        Adder = record.Adder,
+                        MeasurementCharacteristicID = record.MeasurementCharacteristicID,
+                        ConnectionPriority = record.ConnectionPriority,
+                        PhaseID = record.PhaseID,
+                        Name = record.Name,
+                        Multiplier = record.Multiplier,
+                        SamplesPerHour = record.SamplesPerHour,
+                        PerUnitValue = record.PerUnitValue,
+                        HarmonicGroup = record.HarmonicGroup,
+                        Description = record.Description,
+                        Enabled = record.Enabled,
+                    };
+
+                    int result = new TableOperations<ChannelBase>(connection).UpdateRecord(channel);
+
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
 
 }

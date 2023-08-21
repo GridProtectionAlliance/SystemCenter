@@ -26,6 +26,7 @@ import MeterReducer from './MeterSlice';
 import AssetReducer from './AssetSlice';
 import { GenericSlice } from '@gpa-gemstone/react-interactive'
 import { EventChannelSlice } from './EventChannelSlice';
+import { TrendChannelSlice } from './TrendChannelSlice';
 import { SystemCenter, OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import NoteSlice from './NoteSlice';
 import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
@@ -162,6 +163,7 @@ const store = configureStore({
         ApplicationRole: ApplicationRoleSlice.Reducer,
         SEBrowserWidget: SEBrowserWidgetSlice.Reducer,
         MagDurCurve: MagDurCurveSlice.Reducer,
+        TrendChannels: TrendChannelSlice.reducer,
     }
 });
 export default store;
