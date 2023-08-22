@@ -328,7 +328,6 @@
     <Compile Include="WebClients\HIDSClient.cs" />
     <Compile Include="WebClients\HttpClient.cs" />
     <Compile Include="WebClients\XDANodeClient.cs" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\TrendChannelSlice.ts" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="DebugHost.resx">

@@ -713,7 +713,11 @@ namespace SystemCenter.Controllers.OpenXDA
             "    Meter ON Channel.MeterID = Meter.ID JOIN " +
             "    MeasurementType ON Channel.MeasurementTypeID = MeasurementType.ID JOIN " +
             "    MeasurementCharacteristic ON Channel.MeasurementCharacteristicID = MeasurementCharacteristic.ID JOIN " +
-            "    Phase ON Channel.PhaseID = Phase.ID ")]
+            "    Phase ON Channel.PhaseID = Phase.ID " +
+            "WHERE " +
+                "NOT (MeasurementCharacteristicID = (SELECT ID FROM MeasurementCharacteristic WHERE Name = 'Instantaneous') AND " +
+                "(SELECT COUNT(*) FROM Series WHERE ChannelID = Channel.ID) = 1 AND " +
+                "EXISTS (SELECT * FROM Series WHERE SeriesTypeID IN (SELECT ID FROM SeriesType WHERE Name IN ('Values', 'Instantaneous'))))")]
     public class TrendChannel : ChannelBase
     {
         [ParentKey(typeof(MeterDetail))]

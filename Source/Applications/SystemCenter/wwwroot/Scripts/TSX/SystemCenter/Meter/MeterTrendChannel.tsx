@@ -29,8 +29,7 @@ import { ConfigurableTable, LoadingIcon, ServerErrorIcon, ToolTip, Warning } fro
 import { Input, Select } from '@gpa-gemstone/react-forms';
 import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
-import { PhaseSlice, MeasurmentTypeSlice, MeasurementCharacteristicSlice } from '../Store/Store';
-import * as TrendChannelSlice from '../Store/TrendChannelSlice';
+import { TrendChannelSlice, PhaseSlice, MeasurmentTypeSlice, MeasurementCharacteristicSlice } from '../Store/Store';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { useAppSelector, useAppDispatch } from '../hooks';
 
@@ -42,11 +41,11 @@ type RecordChange = Map<number, Map<keyof OpenXDA.TrendChannel, string | number>
 const MeterTrendChannelWindow = (props: IProps) => {
     const dispatch = useAppDispatch();
 
-    const data = useAppSelector(TrendChannelSlice.SelectTrendChannels);
-    const sortKey = useAppSelector(TrendChannelSlice.SelectSortKey)
-    const ascending = useAppSelector(TrendChannelSlice.SelectAscending)
-    const status = useAppSelector(TrendChannelSlice.SelectTrendChannelStatus);
-    const meterID = useAppSelector(TrendChannelSlice.SelectMeterID);
+    const data = useAppSelector(TrendChannelSlice.Data);
+    const sortKey = useAppSelector(TrendChannelSlice.SortField)
+    const ascending = useAppSelector(TrendChannelSlice.Ascending)
+    const status = useAppSelector(TrendChannelSlice.Status);
+    const meterID = useAppSelector(TrendChannelSlice.ParentID);
 
     const [recordChanges, setRecordChanges] = React.useState<RecordChange>(new Map<number, Map<keyof OpenXDA.TrendChannel, number | string>>());
 
@@ -82,8 +81,8 @@ const MeterTrendChannelWindow = (props: IProps) => {
     }, [mcStatus]);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || meterID !== props.Meter.ID || status == 'changed')
-            dispatch(TrendChannelSlice.FetchChannels({ meterId: props.Meter.ID }));
+        if (status == 'unintiated' || status == 'changed' || meterID !== props.Meter.ID)
+            dispatch(TrendChannelSlice.Fetch(props.Meter.ID));
     }, [props.Meter, status]);
 
     React.useEffect(() => {
@@ -157,7 +156,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
             for (let k of recordChanges.get(id).keys()) {
                 original[k] = (recordChanges.get(id).get(k as keyof OpenXDA.TrendChannel)) as any
             }
-            dispatch(TrendChannelSlice.dBAction({ record: original, verb: 'PATCH' }));
+            dispatch(TrendChannelSlice.DBAction({ record: original, verb: 'PATCH' }));
         }
 
         setRecordChanges(new Map<number, Map<keyof OpenXDA.TrendChannel, number | string>>());
@@ -317,9 +316,9 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 return;
 
                             if (d.colKey === sortKey)
-                                dispatch(TrendChannelSlice.FetchChannels({ sortField: d.colField, ascending: !ascending, meterId: props.Meter.ID }));
+                                dispatch(TrendChannelSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
                             else
-                                dispatch(TrendChannelSlice.FetchChannels({ sortField: d.colField, ascending: true, meterId: props.Meter.ID }));
+                                dispatch(TrendChannelSlice.Sort({ SortField: d.colField, Ascending: true }));
                         }}
                         onClick={() => { }}
                         tableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed' }}
@@ -362,7 +361,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                             Trend: true
                         }
 
-                        dispatch(TrendChannelSlice.dBAction({ verb: 'POST', record: newChannel }));
+                        dispatch(TrendChannelSlice.DBAction({ verb: 'POST', record: newChannel }));
                     }}>Add Channel</button>
                 </div>
                 <div className="btn-group mr-2">
@@ -382,7 +381,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                 </div>
             </div>
         </div>
-        <Warning Message={'This will permanently delete this Channel and cannot be undone.'} Show={removeRecord != null} Title={'Delete ' + (removeRecord?.Name ?? 'Channel')} CallBack={(c) => { if (c) dispatch(TrendChannelSlice.dBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
+        <Warning Message={'This will permanently delete this Channel and cannot be undone.'} Show={removeRecord != null} Title={'Delete ' + (removeRecord?.Name ?? 'Channel')} CallBack={(c) => { if (c) dispatch(TrendChannelSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
     </>
 
 }
