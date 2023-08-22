@@ -66,7 +66,6 @@ const MeterTrendChannelWindow = (props: IProps) => {
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
 
 
-
     React.useEffect(() => {
         if (phaseStatus == 'unintiated' || phaseStatus == 'changed')
             dispatch(PhaseSlice.Fetch());
@@ -88,8 +87,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
     }, [props.Meter, status]);
 
     React.useEffect(() => {
-        if (!props.IsVisible)
-            return;
+        if (!props.IsVisible) return;
         let assetHandle = getAssets();
 
         assetHandle.then(() => setAssetStatus('idle'), () => setAssetStatus('error'))
@@ -97,27 +95,34 @@ const MeterTrendChannelWindow = (props: IProps) => {
             if (assetHandle != null && assetHandle.abort != null)
                 assetHandle.abort();
         }
-
     }, [props.IsVisible, props.Meter]);
 
     React.useEffect(() => {
-
         let e = [];
+
         for (let id of recordChanges.keys()) {
             for (let k of recordChanges.get(id).keys()) {
                 const val = recordChanges.get(id).get(k);
 
+                if (k == 'HarmonicGroup' && val != null && !AssetAttributes.isRealNumber(val))
+                    e.push('All Harmonics must be numeric values.');
                 if (k == 'Adder' && val != null && !AssetAttributes.isRealNumber(val))
                     e.push('All Adders must be numeric values.');
                 if (k == 'Multiplier' && val != null && !AssetAttributes.isRealNumber(val))
                     e.push('All Multipliers must be numeric values.');
+                if (k == 'SamplesPerHour' && val != null && !AssetAttributes.isRealNumber(val))
+                    e.push('All Samples must be numeric values.');
                 if (k == 'ConnectionPriority' && val != null && !AssetAttributes.isRealNumber(val))
                     e.push('All Connection Priorities must be numeric values.');
 
+                if (k == 'HarmonicGroup' && val == null)
+                    e.push('All Channels must have a Harmonic.');
                 if (k == 'Adder' && val == null)
                     e.push('All Channels must have an Adder.');
                 if (k == 'Multiplier' && val == null)
                     e.push('All Channels must have a Multiplier.');
+                if (k == 'SamplesPerHour' && val == null)
+                    e.push('All Channels must have a Sample.');
                 if (k == 'ConnectionPriority' && val == null)
                     e.push('All Channels must have a Connection Priority.');
 
@@ -130,8 +135,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
         }
 
         setErrors(_.uniq(e));
-
-    }, [recordChanges])
+    }, [recordChanges]);
 
     function getAssets(): JQuery.jqXHR<GemstoneOpenXDA.Types.Asset[]> {
         return $.ajax({
@@ -183,10 +187,14 @@ const MeterTrendChannelWindow = (props: IProps) => {
     function isValid(fld: keyof OpenXDA.TrendChannel, record: OpenXDA.TrendChannel) {
         if (fld == 'Name')
             return record.Name != null && record.Name.trim().length > 0 && record.Name.length < 200 && data.findIndex(item => item.Name == record.Name && item.ID != record.ID) == -1;
+        if (fld == 'HarmonicGroup')
+            return record.HarmonicGroup != null && IsNumber(record.HarmonicGroup);
         if (fld == 'Adder')
             return record.Adder != null && IsNumber(record.Adder);
         if (fld == 'Multiplier')
             return record.Multiplier != null && IsNumber(record.Multiplier);
+        if (fld == 'SamplesPerHour')
+            return record.SamplesPerHour != null && IsNumber(record.SamplesPerHour);
         if (fld == 'ConnectionPriority')
             return record.ConnectionPriority != null && IsNumber(record.ConnectionPriority);
         return true;
@@ -262,12 +270,24 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 content: (c) => <Select Record={c} Field={'PhaseID'} Label={''} Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'PhaseID')} />
                             },
                             {
+                                key: 'HarmonicGroup', field: 'HarmonicGroup', label: 'Harmonic', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
+                                content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'HarmonicGroup'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'HarmonicGroup')} Valid={(f) => isValid(f, c)} />
+                            },
+                            {
                                 key: 'Adder', field: 'Adder', label: 'Adder', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
                                 content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'Adder'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'Adder')} Valid={(f) => isValid(f, c)} />
                             },
                             {
                                 key: 'Multiplier', field: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
                                 content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'Multiplier'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'Multiplier')} Valid={(f) => isValid(f, c)} />
+                            },
+                            {
+                                key: 'SamplesPerHour', field: 'SamplesPerHour', label: 'Samples', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
+                                content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'SamplesPerHour'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'SamplesPerHour')} Valid={(f) => isValid(f, c)} />
+                            },
+                            {
+                                key: 'PerUnitValue', field: 'PerUnitValue', label: 'Per Unit', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
+                                content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'PerUnitValue'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'PerUnitValue')} Valid={(f) => isValid(f, c)} />
                             },
                             {
                                 key: 'Asset', field: 'Asset', label: 'Asset', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
@@ -284,7 +304,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                             { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
                         ]}
-                        defaultColumns={["Name", "Phase", "MeasurementType", "MeasurementCharacteristic", "Adder", "Multiplier", "Description", "Asset", "ConnectionPriority", "Remove", "Scroll"]}
+                        defaultColumns={["Name", "Description", "MeasurementType", "MeasurementCharacteristic", "Phase", "HarmonicGroup", "Adder", "Multiplier", "Asset", "ConnectionPriority", "Remove", "Scroll"]}
                         requiredColumns={["Name", "Remove", "Scroll"]}
                         localStorageKey="MeterTrendChannelConfigTable"
                         tableClass="table table-hover"
@@ -339,7 +359,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                             MeasurementTypeID: measurementTypes.length > 0 ? measurementTypes[0].ID : -1,
                             MeasurementCharacteristicID: measurementCharacteristics.length > 0 ? measurementCharacteristics[0].ID : -1,
                             PhaseID: phases.length > 0 ? phases[0].ID : -1,
-                            Trend: false
+                            Trend: true
                         }
 
                         dispatch(TrendChannelSlice.dBAction({ verb: 'POST', record: newChannel }));
