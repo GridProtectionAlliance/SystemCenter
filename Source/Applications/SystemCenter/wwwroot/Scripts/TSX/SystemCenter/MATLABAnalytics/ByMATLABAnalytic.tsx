@@ -102,7 +102,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
             cache: false,
             async: true
         }).done(() => {
-            dispatch(MATLABAnalyticSlice.DBSearch({ filter: search, sortField, ascending }));
+            dispatch(MATLABAnalyticSlice.SetChanged());
         }).fail(() => {
             setStatus('error');
         });
@@ -158,11 +158,11 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                         ascending={ascending}
                         onSort={(d) => {
                             if (d.colField === null) return;
-                            if (d.colKey !== sortField)
-                                dispatch(MATLABAnalyticSlice.DBSearch({ filter: search, sortField: (d.colField as any), ascending: true }));
-                            else
-                                dispatch(MATLABAnalyticSlice.DBSearch({ filter: search, ascending: !ascending }));
 
+                            if (d.colKey !== sortField)
+                                setSortField(d.colField as any);
+                            else
+                                setAscending(!ascending);
                         }}
                         onClick={handleSelect}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

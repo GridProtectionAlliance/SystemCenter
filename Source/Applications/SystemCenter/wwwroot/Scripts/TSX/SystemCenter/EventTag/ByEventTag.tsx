@@ -128,9 +128,9 @@ const EventTags: Application.Types.iByComponent = (props) => {
                     ascending={ascending}
                     onSort={(d) => {
                         if (d.colKey !== sortField)
-                            dispatch(EventTagSlice.DBSearch({ filter: search, sortField: (d.colField as any), ascending: true }));
+                            setSortField(d.colField as any);
                         else
-                            dispatch(EventTagSlice.DBSearch({ filter: search, ascending: !ascending }))
+                            setAscending(!ascending);
 
                     }}
                     onClick={(item) => { setRecord(item.row); setMode('Edit'); }}

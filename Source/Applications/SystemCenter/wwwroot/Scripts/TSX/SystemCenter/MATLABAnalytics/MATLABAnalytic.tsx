@@ -67,9 +67,6 @@ export default function MATLABAnalytic(props: { AnalyticID: number }) {
 
     function Delete() {
         dispatch(MATLABAnalyticSlice.DBAction({ verb: 'DELETE', record }));
-        eventTypeRecords.forEach((item) => dispatch(MATLABAnalyticEventTypeSlice.DBAction({ verb: 'DELETE', record: item })));
-        assetTypeRecords.forEach((item) => dispatch(MATLABAnalyticAssetTypeSlice.DBAction({ verb: 'DELETE', record: item })));
-
         window.location.href = homePath + 'index.cshtml?name=MATLABAnalytics';
     }
 
@@ -82,7 +79,7 @@ export default function MATLABAnalytic(props: { AnalyticID: number }) {
                 </div>
                 <div className="col">
                     <button className="btn btn-danger pull-right" hidden={record == null}
-                        onClick={() => setShowRemove(true)}>Delete Analytic (Permanent)</button>
+                        onClick={() => setShowRemove(true)}>Delete Analytic</button>
                 </div>
             </div>
 
