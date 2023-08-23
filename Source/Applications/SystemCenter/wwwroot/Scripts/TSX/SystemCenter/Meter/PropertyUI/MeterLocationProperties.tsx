@@ -29,7 +29,7 @@ import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../../AssetAttribute/Asset';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByLocationSlice, LocationDrawingSlice } from '../../Store/Store';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 
@@ -48,14 +48,15 @@ const MeterLocationProperties = (props: IProps) => {
     const [validKey, setValidKey] = React.useState<boolean>(true);
     const [showStationSelector, setShowStationSelector] = React.useState<boolean>(false);
     const [showDrawings, setShowDrawings] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
 
     const dispatch = useAppDispatch();
 
     const drawingData = useAppSelector(LocationDrawingSlice.Data);
     const drawingStatus = useAppSelector(LocationDrawingSlice.Status);
-    const sortKey = useAppSelector(LocationDrawingSlice.SortField);
-    const ascending = useAppSelector(LocationDrawingSlice.Ascending);
-    const parentID = useAppSelector(LocationDrawingSlice.ParentID);
+    const drawingParentID = useAppSelector(LocationDrawingSlice.ParentID);
+    const drawingSortKey = useAppSelector(LocationDrawingSlice.SortField);
+    const drawingAscending = useAppSelector(LocationDrawingSlice.Ascending);
 
     React.useEffect(() => {
         const key = props.Location.LocationKey;
@@ -72,9 +73,9 @@ const MeterLocationProperties = (props: IProps) => {
     }, [props.Location, props.Locationlist]);
 
     React.useEffect(() => {
-        if (drawingStatus == 'unintiated' || drawingStatus == 'changed')
-            LocationDrawingSlice.Fetch();
-    }, [drawingStatus]);
+        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != props.Location.ID)
+            dispatch(LocationDrawingSlice.Fetch(props.Location.ID));
+    }, [drawingStatus, drawingParentID, props.Location.ID]);
 
     function getEnum(setOptions, field) {
         let handle = null;
@@ -152,7 +153,8 @@ const MeterLocationProperties = (props: IProps) => {
                     <div style={{ marginBottom: 10 }}>
                         <button
                             type="button"
-                            className="btn btn-primary btn-sm pull-right"
+                            className={"btn btn-primary btn-sm pull-right" + ((props.Location == null || props.Location.ID == null || props.Location.ID == 0 || drawingData.length == 0) ? ' disabled' : '')}
+                            data-tooltip="drawings" onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
                             onClick={() => setShowDrawings(true)}>Open Drawing(s)</button>
                     </div>
 
@@ -195,8 +197,8 @@ const MeterLocationProperties = (props: IProps) => {
                             ]}
                             tableClass="table table-hover"
                             data={drawingData}
-                            sortKey={sortKey}
-                            ascending={ascending}
+                            sortKey={drawingSortKey}
+                            ascending={drawingAscending}
                             onSort={(d) => {
                                 dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                             }}
@@ -210,6 +212,10 @@ const MeterLocationProperties = (props: IProps) => {
                     </div>
                 </div>
             </Modal>
+
+            <ToolTip Show={hover === 'drawings' && (props.Location == null || props.Location.ID == null || props.Location.ID == 0 || drawingData.length == 0)} Theme={'dark'} Position={'left'} Target={'drawings'}>
+                <p>No drawings associated with this substation.</p>
+            </ToolTip>
         </>
     );
 
