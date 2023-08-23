@@ -353,6 +353,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                             HarmonicGroup: 0,
                             Description: '',
                             Enabled: true,
+                            SourceIndices: '',
                             MeterID: props.Meter.ID,
                             AssetID: assets.length > 0 ? assets[0].ID : -1,
                             MeasurementTypeID: measurementTypes.length > 0 ? measurementTypes[0].ID : -1,

@@ -701,23 +701,24 @@ namespace SystemCenter.Controllers.OpenXDA
     }
 
     [CustomView("SELECT " +
-            "    Channel.*, " +
-            "    Meter.AssetKey AS Meter, " +
-            "    Asset.AssetKey AS Asset, " +
-            "    MeasurementType.Name AS MeasurementType, " +
-            "    MeasurementCharacteristic.Name AS MeasurementCharacteristic, " +
-            "    Phase.Name AS Phase " +
-            "FROM " +
-            "    Channel JOIN " +
-            "    Asset ON Channel.AssetID = Asset.ID JOIN " +
-            "    Meter ON Channel.MeterID = Meter.ID JOIN " +
-            "    MeasurementType ON Channel.MeasurementTypeID = MeasurementType.ID JOIN " +
-            "    MeasurementCharacteristic ON Channel.MeasurementCharacteristicID = MeasurementCharacteristic.ID JOIN " +
-            "    Phase ON Channel.PhaseID = Phase.ID " +
-            "WHERE " +
-                "NOT (MeasurementCharacteristicID = (SELECT ID FROM MeasurementCharacteristic WHERE Name = 'Instantaneous') AND " +
-                "(SELECT COUNT(*) FROM Series WHERE ChannelID = Channel.ID) = 1 AND " +
-                "EXISTS (SELECT * FROM Series WHERE SeriesTypeID IN (SELECT ID FROM SeriesType WHERE Name IN ('Values', 'Instantaneous'))))")]
+                "    Channel.*, " +
+                "    Meter.AssetKey AS Meter, " +
+                "    Asset.AssetKey AS Asset, " +
+                "    MeasurementType.Name AS MeasurementType, " +
+                "    MeasurementCharacteristic.Name AS MeasurementCharacteristic, " +
+                "    Phase.Name AS Phase," +
+                "    (SELECT TOP 1 SourceIndexes FROM Series WHERE Channel.ID = Series.ChannelID) AS SourceIndices " +
+                "FROM " +
+                "    Channel JOIN " +
+                "    Asset ON Channel.AssetID = Asset.ID JOIN " +
+                "    Meter ON Channel.MeterID = Meter.ID JOIN " +
+                "    MeasurementType ON Channel.MeasurementTypeID = MeasurementType.ID JOIN " +
+                "    MeasurementCharacteristic ON Channel.MeasurementCharacteristicID = MeasurementCharacteristic.ID JOIN " +
+                "    Phase ON Channel.PhaseID = Phase.ID " +
+                "WHERE " +
+                "   NOT (MeasurementCharacteristicID = (SELECT ID FROM MeasurementCharacteristic WHERE Name = 'Instantaneous') AND " +
+                "   (SELECT COUNT(*) FROM Series WHERE ChannelID = Channel.ID) = 1 AND " +
+                "   EXISTS (SELECT * FROM Series WHERE SeriesTypeID IN (SELECT ID FROM SeriesType WHERE Name IN ('Values', 'Instantaneous'))))")]
     public class TrendChannel : ChannelBase
     {
         [ParentKey(typeof(MeterDetail))]
@@ -727,6 +728,7 @@ namespace SystemCenter.Controllers.OpenXDA
         public string MeasurementType { get; set; }
         public string MeasurementCharacteristic { get; set; }
         public string Phase { get; set; }
+        public string SourceIndices { get; set; }
     }
 
     [RoutePrefix("api/OpenXDA/TrendChannel")]
