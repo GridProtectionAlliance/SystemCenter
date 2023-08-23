@@ -32,12 +32,13 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
+import { ByAssetSlice, AssetTypeSlice, LocationDrawingSlice } from '../Store/Store';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
-import { Modal, Search } from '@gpa-gemstone/react-interactive';
+import { Modal, Search, ToolTip } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import Table from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
 
@@ -72,6 +73,15 @@ export default function AssetPage(props: IProps) {
 
     const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(false);
     const [selectedAssets, setSelectedAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
+
+    const [showDrawings, setShowDrawings] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
+
+    const drawingData = useAppSelector(LocationDrawingSlice.Data);
+    const drawingStatus = useAppSelector(LocationDrawingSlice.Status);
+    const drawingParentID = useAppSelector(LocationDrawingSlice.ParentID);
+    const drawingSortKey = useAppSelector(LocationDrawingSlice.SortField);
+    const drawingAscending = useAppSelector(LocationDrawingSlice.Ascending);
 
     const defaultFilt: Search.IFilter<SystemCenter.Types.DetailedAsset> = {
         FieldName: 'ID',
@@ -160,6 +170,11 @@ export default function AssetPage(props: IProps) {
 
 
     }, [newEditAsset.AssetType]);
+
+    React.useEffect(() => {
+        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != props.Location.ID)
+            dispatch(LocationDrawingSlice.Fetch(props.Location.ID));
+    }, [drawingStatus, drawingParentID, props.Location.ID]);
 
     function editAsset(index: number) {
         setNewEdit('Edit');
@@ -259,9 +274,16 @@ export default function AssetPage(props: IProps) {
                     </div>
                     <div className="col" style={{padding: 20}}>
                         <div style={{ width: '100%', height: 38 }}>
-                            <div className="col-4 pull-right">
-                                <button className="btn btn-primary pull-left" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
-                                <button className="btn btn-primary pull-right" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
+                            <div className="col pull-right btn-toolbar justify-content-end">
+                                    <button className="btn btn-primary mr-4" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
+                                    <button className="btn btn-primary mr-4" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
+                                    <button
+                                        className={"btn btn-primary" + ((props.Location == null || props.Location.ID == null || props.Location.ID == 0 || drawingData.length == 0) ? ' disabled' : '')}
+                                        data-tooltip="drawings" onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
+                                        onClick={() => {
+                                            if (props.Location != null && props.Location.ID != null && props.Location.ID != 0 && drawingData.length != 0)
+                                                setShowDrawings(true);
+                                        }}>Open Drawing(s)</button>
                             </div>
                         </div>
 
@@ -348,12 +370,21 @@ export default function AssetPage(props: IProps) {
                         props.UpdateChannels(channels);
                         props.UpdateAssetConnections(assetConnections);
                     }}>
-                    <li className="nav-item" style={{ width: '30%', paddingRight: 10 }}>
+                    <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large' }}>New Asset:</legend>
+                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
                                 <div className="form-group">
                                     <button className="btn btn-primary" onClick={(e) => { e.preventDefault(); setNewEdit('New'); setShowAssetModal(true); setShowAssetSelect(false); }}>Create Asset</button>
+                                </div>
+                                <div className="form-group">
+                                    <button
+                                        className={"btn btn-primary" + ((props.Location == null || props.Location.ID == null || props.Location.ID == 0 || drawingData.length == 0) ? ' disabled' : '')}
+                                        data-tooltip="drawings" onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
+                                        onClick={() => {
+                                            if (props.Location != null && props.Location.ID != null && props.Location.ID != 0 && drawingData.length != 0)
+                                                setShowDrawings(true);
+                                        }}>Open Drawing(s)</button>
                                 </div>
                             </form>
                         </fieldset>
@@ -536,7 +567,39 @@ export default function AssetPage(props: IProps) {
                                 </div>
                             </div> : null}
                         </div>
-                    </Modal>
+                </Modal>
+
+                <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)}
+                    ShowCancel={false} ConfirmText={'Done'}
+                >
+                    <div className="row">
+                        <div className="col" style={{ width: '100%' }}>
+                            <Table<SystemCenter.Types.LocationDrawing>
+                                cols={[
+                                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                    { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                ]}
+                                tableClass="table table-hover"
+                                data={drawingData}
+                                sortKey={drawingSortKey}
+                                ascending={drawingAscending}
+                                onSort={(d) => {
+                                    dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                                }}
+                                onClick={(d) => {
+                                    window.open(d.row.Link, '_blank');
+                                }}
+                                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: '400px', width: '100%' }}
+                                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            />
+                        </div>
+                    </div>
+                </Modal>
+
+                <ToolTip Show={hover === 'drawings' && (props.Location == null || props.Location.ID == null || props.Location.ID == 0 || drawingData.length == 0)} Theme={'dark'} Position={'top'} Target={'drawings'} Zindex={9999}>
+                    <p>No drawings associated with this substation.</p>
+                </ToolTip>
             </>
         );
 

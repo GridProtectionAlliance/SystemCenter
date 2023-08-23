@@ -155,7 +155,10 @@ const MeterLocationProperties = (props: IProps) => {
                             type="button"
                             className={"btn btn-primary btn-sm pull-right" + ((props.Location == null || props.Location.ID == null || props.Location.ID == 0 || drawingData.length == 0) ? ' disabled' : '')}
                             data-tooltip="drawings" onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
-                            onClick={() => setShowDrawings(true)}>Open Drawing(s)</button>
+                            onClick={() => {
+                                if (props.Location != null && props.Location.ID != null && props.Location.ID != 0 && drawingData.length != 0)
+                                    setShowDrawings(true);
+                            }}>Open Drawing(s)</button>
                     </div>
 
                     <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Alias'} Label={'Alias'}  Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
@@ -193,7 +196,7 @@ const MeterLocationProperties = (props: IProps) => {
                         <Table<SystemCenter.Types.LocationDrawing>
                             cols={[
                                 { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                                { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             ]}
                             tableClass="table table-hover"
                             data={drawingData}
