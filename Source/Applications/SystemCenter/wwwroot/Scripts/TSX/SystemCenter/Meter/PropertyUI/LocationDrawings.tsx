@@ -23,29 +23,45 @@
 
 
 import * as React from 'react';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
+import { SystemCenter } from '@gpa-gemstone/application-typings'
 import { LocationDrawingSlice } from '../../Store/Store';
 import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 
 interface IProps {
-    Location: OpenXDA.Types.Location,
-    Drawings: SystemCenter.Types.LocationDrawing[],
-    ShowDrawings: boolean,
-    SetShowDrawings: (show: boolean) => void,
-    Hover: 'none' | 'drawings',
+    LocationID: number | null
 }
 
 const LocationDrawings = (props: IProps) => {
     const dispatch = useAppDispatch();
 
+    const drawingData = useAppSelector(LocationDrawingSlice.Data);
+    const drawingStatus = useAppSelector(LocationDrawingSlice.Status);
+    const drawingParentID = useAppSelector(LocationDrawingSlice.ParentID);
     const drawingSortKey = useAppSelector(LocationDrawingSlice.SortField);
     const drawingAscending = useAppSelector(LocationDrawingSlice.Ascending);
 
+    const [showDrawings, setShowDrawings] = React.useState<boolean>(false);
+    const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
+
+    React.useEffect(() => {
+        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != props.LocationID)
+            dispatch(LocationDrawingSlice.Fetch(props.LocationID));
+    }, [drawingStatus, drawingParentID, props.LocationID]);
+
     return (
         <div>
-            <Modal Show={props.ShowDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => props.SetShowDrawings(false)} ShowCancel={false} ConfirmText={'Done'}>
+            <button
+                type="button"
+                className={"btn btn-primary btn-sm pull-right" + ((props.LocationID == null || props.LocationID == 0 || drawingData.length == 0) ? ' disabled' : '')}
+                data-tooltip="drawings" onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
+                onClick={() => {
+                    if (props.LocationID != null && props.LocationID != 0 && drawingData.length != 0)
+                        setShowDrawings(true);
+                }}>Open Drawing(s)</button>
+
+            <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)} ShowCancel={false} ConfirmText={'Done'}>
                 <div className="row">
                     <div className="col" style={{ width: '100%' }}>
                         <Table<SystemCenter.Types.LocationDrawing>
@@ -54,7 +70,7 @@ const LocationDrawings = (props: IProps) => {
                                 { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             ]}
                         tableClass="table table-hover"
-                        data={props.Drawings}
+                        data={drawingData}
                             sortKey={drawingSortKey}
                             ascending={drawingAscending}
                             onSort={(d) => {
@@ -71,7 +87,7 @@ const LocationDrawings = (props: IProps) => {
                 </div>
             </Modal>
 
-            <ToolTip Show={props.Hover === 'drawings' && (props.Location == null || props.Location.ID == null || props.Location.ID == 0 || props.Drawings.length == 0)} Theme={'dark'} Position={'top'} Target={'drawings'} Zindex={9999}>
+            <ToolTip Show={hover === 'drawings' && (props.LocationID == null || props.LocationID == 0 || drawingData.length == 0)} Theme={'dark'} Position={'top'} Target={'drawings'} Zindex={9999}>
                 <p>No drawings associated with this substation.</p>
             </ToolTip>
         </div>

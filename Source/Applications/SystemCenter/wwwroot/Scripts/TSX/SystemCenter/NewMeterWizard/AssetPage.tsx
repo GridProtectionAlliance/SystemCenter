@@ -32,9 +32,9 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { ByAssetSlice, AssetTypeSlice, LocationDrawingSlice } from '../Store/Store';
+import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
-import { Modal, Search, ToolTip } from '@gpa-gemstone/react-interactive';
+import { Modal, Search } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
@@ -73,13 +73,6 @@ export default function AssetPage(props: IProps) {
 
     const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(false);
     const [selectedAssets, setSelectedAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
-
-    const [showDrawings, setShowDrawings] = React.useState<boolean>(false);
-    const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
-
-    const drawingData = useAppSelector(LocationDrawingSlice.Data);
-    const drawingStatus = useAppSelector(LocationDrawingSlice.Status);
-    const drawingParentID = useAppSelector(LocationDrawingSlice.ParentID);
 
     const defaultFilt: Search.IFilter<SystemCenter.Types.DetailedAsset> = {
         FieldName: 'ID',
@@ -168,11 +161,6 @@ export default function AssetPage(props: IProps) {
 
 
     }, [newEditAsset.AssetType]);
-
-    React.useEffect(() => {
-        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != props.Location.ID)
-            dispatch(LocationDrawingSlice.Fetch(props.Location.ID));
-    }, [drawingStatus, drawingParentID, props.Location.ID]);
 
     function editAsset(index: number) {
         setNewEdit('Edit');
@@ -275,13 +263,7 @@ export default function AssetPage(props: IProps) {
                             <div className="col pull-right btn-toolbar justify-content-end">
                                     <button className="btn btn-primary mr-4" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
                                     <button className="btn btn-primary mr-4" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
-                                    <button
-                                        className={"btn btn-primary" + ((props.Location == null || props.Location.ID == null || props.Location.ID == 0 || drawingData.length == 0) ? ' disabled' : '')}
-                                        data-tooltip="drawings" onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
-                                        onClick={() => {
-                                            if (props.Location != null && props.Location.ID != null && props.Location.ID != 0 && drawingData.length != 0)
-                                                setShowDrawings(true);
-                                        }}>Open Drawing(s)</button>
+                                    <LocationDrawings LocationID={props.Location.ID} />
                             </div>
                         </div>
 
@@ -376,13 +358,7 @@ export default function AssetPage(props: IProps) {
                                     <button className="btn btn-primary" onClick={(e) => { e.preventDefault(); setNewEdit('New'); setShowAssetModal(true); setShowAssetSelect(false); }}>Create Asset</button>
                                 </div>
                                 <div className="form-group">
-                                    <button
-                                        className={"btn btn-primary" + ((props.Location == null || props.Location.ID == null || props.Location.ID == 0 || drawingData.length == 0) ? ' disabled' : '')}
-                                        data-tooltip="drawings" onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
-                                        onClick={() => {
-                                            if (props.Location != null && props.Location.ID != null && props.Location.ID != 0 && drawingData.length != 0)
-                                                setShowDrawings(true);
-                                        }}>Open Drawing(s)</button>
+                                    <LocationDrawings LocationID={props.Location.ID} />
                                 </div>
                             </form>
                         </fieldset>
@@ -566,8 +542,6 @@ export default function AssetPage(props: IProps) {
                             </div> : null}
                         </div>
                 </Modal>
-
-                <LocationDrawings Location={props.Location} Drawings={drawingData} ShowDrawings={showDrawings} SetShowDrawings={setShowDrawings} Hover={hover} />
             </>
         );
 

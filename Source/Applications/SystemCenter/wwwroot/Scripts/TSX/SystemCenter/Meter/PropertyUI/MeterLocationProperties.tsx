@@ -28,9 +28,8 @@ import { OpenXDA } from '@gpa-gemstone/application-typings'
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../../AssetAttribute/Asset';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
-import { ByLocationSlice, LocationDrawingSlice } from '../../Store/Store';
+import { ByLocationSlice } from '../../Store/Store';
 import LocationDrawings from './LocationDrawings';
-import { useAppDispatch, useAppSelector } from '../../hooks';
 
 declare var homePath: string;
 
@@ -46,14 +45,6 @@ interface IProps {
 const MeterLocationProperties = (props: IProps) => {
     const [validKey, setValidKey] = React.useState<boolean>(true);
     const [showStationSelector, setShowStationSelector] = React.useState<boolean>(false);
-    const [showDrawings, setShowDrawings] = React.useState<boolean>(false);
-    const [hover, setHover] = React.useState<'none' | 'drawings'>('none');
-
-    const dispatch = useAppDispatch();
-
-    const drawingData = useAppSelector(LocationDrawingSlice.Data);
-    const drawingStatus = useAppSelector(LocationDrawingSlice.Status);
-    const drawingParentID = useAppSelector(LocationDrawingSlice.ParentID);
 
     React.useEffect(() => {
         const key = props.Location.LocationKey;
@@ -68,11 +59,6 @@ const MeterLocationProperties = (props: IProps) => {
             setValidKey(props.Location.ID == index[0].ID);
 
     }, [props.Location, props.Locationlist]);
-
-    React.useEffect(() => {
-        if (drawingStatus == 'unintiated' || drawingStatus == 'changed' || drawingParentID != props.Location.ID)
-            dispatch(LocationDrawingSlice.Fetch(props.Location.ID));
-    }, [drawingStatus, drawingParentID, props.Location.ID]);
 
     function getEnum(setOptions, field) {
         let handle = null;
@@ -148,14 +134,7 @@ const MeterLocationProperties = (props: IProps) => {
                 </div>
                 <div className="col">
                     <div style={{ marginBottom: 10 }}>
-                        <button
-                            type="button"
-                            className={"btn btn-primary btn-sm pull-right" + ((props.Location == null || props.Location.ID == null || props.Location.ID == 0 || drawingData.length == 0) ? ' disabled' : '')}
-                            data-tooltip="drawings" onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
-                            onClick={() => {
-                                if (props.Location != null && props.Location.ID != null && props.Location.ID != 0 && drawingData.length != 0)
-                                    setShowDrawings(true);
-                            }}>Open Drawing(s)</button>
+                        <LocationDrawings LocationID={props.Location.ID} />
                     </div>
 
                     <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Alias'} Label={'Alias'}  Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
@@ -184,8 +163,6 @@ const MeterLocationProperties = (props: IProps) => {
                 Title={"Select Substation"}
                 GetEnum={getEnum}
                 GetAddlFields={() => { return () => { } }} />
-
-            <LocationDrawings Location={props.Location} Drawings={drawingData} ShowDrawings={showDrawings} SetShowDrawings={setShowDrawings} Hover={hover} />
         </>
     );
 
