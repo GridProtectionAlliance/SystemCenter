@@ -67,10 +67,6 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
     }, [analyticStatus]);
 
     React.useEffect(() => {
-        dispatch(MATLABAnalyticSlice.DBSearch({ filter: search }));
-    }, [search]);
-
-    React.useEffect(() => {
         let e = [];
         if (record.MethodName === null || record.MethodName.length === 0) {
             e.push('A Method Name is required.');

@@ -62,10 +62,6 @@ const EventTags: Application.Types.iByComponent = (props) => {
     }, [status]);
 
     React.useEffect(() => {
-        dispatch(EventTagSlice.DBSearch({ filter: search }));
-    }, [search]);
-
-    React.useEffect(() => {
         if (allTagsStatus === 'unintiated' || allTagsStatus === 'changed')
             dispatch(EventTagSlice.Fetch());
     }, [allTagsStatus]);
