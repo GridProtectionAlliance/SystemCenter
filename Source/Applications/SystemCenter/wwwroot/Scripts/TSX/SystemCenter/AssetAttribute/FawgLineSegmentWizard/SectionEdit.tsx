@@ -204,10 +204,6 @@ function SectionEdit(props: IProps): JSX.Element {
                                 content: (item, key, fld, style, index) => <Input<ISegment> Record={item} Field={'AssetName'} Label={''} Feedback={'A Name of less than 200 characters is required.'} Valid={(fld) => valid(item,fld)} Setter={(r) => updateSegment(r, index)} />
                             },
                                 {
-                                    field: "ID", key: "btns", label: " ",
-                                    content: (item, key, fld, style, index) => <button className="btn btn-sm" onClick={(e) => RemoveSegment(index)}><span>{TrashCan}</span></button>
-                                },
-                                {
                                     key: 'Warning',
                                     label: ' ',
                                     headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
@@ -276,7 +272,11 @@ function SectionEdit(props: IProps): JSX.Element {
                                 {
                                     field: "ThermalRating", key: "ThermalRating", label: "Thermal Rating",
                                     content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'ThermalRating'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={() => true} />
-                                }                               
+                                },
+                                {
+                                    field: "ID", key: "btns", label: " ",
+                                    content: (item, key, fld, style, index) => <button className="btn btn-sm" onClick={(e) => RemoveSegment(index)}><span>{TrashCan}</span></button>
+                                }
                             ]}
                             tableClass="table table-hover"
                             data={props.Section.Segments}

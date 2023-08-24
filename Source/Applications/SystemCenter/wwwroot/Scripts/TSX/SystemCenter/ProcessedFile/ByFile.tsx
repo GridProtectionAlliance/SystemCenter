@@ -159,7 +159,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={selectedID != null} Title={'Events'} CallBack={(c,b) => {
+            <Modal Show={selectedID != null} Title={selectedID?.FilePath ?? 'PathName'} CallBack={(c,b) => {
                 if (c)
                     reprocess(selectedID);
                 setSelectetID(null);
