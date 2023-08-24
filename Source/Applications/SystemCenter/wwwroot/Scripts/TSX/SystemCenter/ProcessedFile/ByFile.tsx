@@ -101,6 +101,20 @@ const ByFile: Application.Types.iByComponent = (props) => {
         }).fail(() => setShowWarning('error')).done((d) => { setShowWarning('complete'); });;
     }
 
+    function getFileName(file: OpenXDA.Types.DataFile) {
+        if (file == null)
+            return '';
+        const path = file.FilePath.split('\\');
+        return path[path.length - 1];
+    }
+
+    function getPath(file: OpenXDA.Types.DataFile) {
+        if (file == null)
+            return '';
+        const path = file.FilePath.split('\\');
+        return path.slice(0, path.length - 1).join('\\');
+    }
+
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <LoadingScreen Show={showWarning == 'loading'} />
@@ -159,11 +173,33 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={selectedID != null} Title={selectedID?.FilePath ?? 'PathName'} CallBack={(c,b) => {
+            <Modal Show={selectedID != null} Title={'File Details'} CallBack={(c,b) => {
                 if (c)
                     reprocess(selectedID);
                 setSelectetID(null);
             }} ShowCancel={false} ShowX={true} ConfirmText={'Reprocess File'} >
+                <div className="alert alert-primary" >
+                    SystemCenter tracks processed files only. The information below was accurate when the file was processed by openXDA
+                    and may not correspond to the file as currently stored on the fileShare.
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <p><strong>Path</strong>: {getPath(selectedID)}</p>
+                        <p><strong>Name</strong>: {getFileName(selectedID)}</p>
+                        <p><strong>Size</strong>: {selectedID?.FileSize}</p>
+                        <p><strong>Created</strong>: {selectedID?.CreationTime}</p>
+                        <p><strong>Last Write</strong>: {selectedID?.LastWriteTime}</p>
+                        <p><strong>Last Access</strong>: {selectedID?.LastAccessTime}</p>
+                        <p><strong>Processed</strong>: {selectedID?.ProcessingEndTime}</p>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <a href={`${homePath}api/OpenXDA/DataFile/Download/${(selectedID != null ? selectedID.ID : -1)}`} target="_blank" className="btn btn-info btn-block" role="button">
+                            Get File
+                        </a>
+                    </div>
+                </div>
                 <div className="row">
                     <div className="col">
                         {eState == 'loading' ? <LoadingIcon Show={true} /> : <Table<GlobalXDA.Event>
@@ -186,19 +222,13 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         />}
                     </div>
                 </div>
-                <div className="row">
-                    <div className="col">
-                        <a href={`${homePath}api/OpenXDA/DataFile/Download/${(selectedID != null ? selectedID.ID : -1)}`} target="_blank" className="btn btn-info btn-block" role="button">
-                            Download File
-                        </a>
-                    </div>
-                </div>
+                
             </Modal>
             <Modal Show={showWarning == 'complete'} Size={'sm'} Title={'Started Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
-                openXDA has begun to reprocess this File. Note that this may take several minutes.
+                openXDA has begun to reprocess this file. Note that this may take several minutes.
             </Modal>
             <Modal Show={showWarning == 'error'} Size={'sm'} Title={'Error Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
-                openXDA was unable to reprocess this File. If this error continues to occur please contact your system administrator.
+                openXDA was unable to reprocess this file. If this error continues to occur please contact your system administrator.
             </Modal>
         </div>
     )
