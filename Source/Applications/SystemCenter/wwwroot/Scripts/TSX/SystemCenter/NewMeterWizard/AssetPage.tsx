@@ -38,7 +38,7 @@ import { Modal, Search, ToolTip } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
-import Table from '@gpa-gemstone/react-table';
+import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
 
 declare var homePath: string;
 
@@ -80,8 +80,6 @@ export default function AssetPage(props: IProps) {
     const drawingData = useAppSelector(LocationDrawingSlice.Data);
     const drawingStatus = useAppSelector(LocationDrawingSlice.Status);
     const drawingParentID = useAppSelector(LocationDrawingSlice.ParentID);
-    const drawingSortKey = useAppSelector(LocationDrawingSlice.SortField);
-    const drawingAscending = useAppSelector(LocationDrawingSlice.Ascending);
 
     const defaultFilt: Search.IFilter<SystemCenter.Types.DetailedAsset> = {
         FieldName: 'ID',
@@ -569,37 +567,7 @@ export default function AssetPage(props: IProps) {
                         </div>
                 </Modal>
 
-                <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)}
-                    ShowCancel={false} ConfirmText={'Done'}
-                >
-                    <div className="row">
-                        <div className="col" style={{ width: '100%' }}>
-                            <Table<SystemCenter.Types.LocationDrawing>
-                                cols={[
-                                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                    { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                ]}
-                                tableClass="table table-hover"
-                                data={drawingData}
-                                sortKey={drawingSortKey}
-                                ascending={drawingAscending}
-                                onSort={(d) => {
-                                    dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                                }}
-                                onClick={(d) => {
-                                    window.open(d.row.Link, '_blank');
-                                }}
-                                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: '400px', width: '100%' }}
-                                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            />
-                        </div>
-                    </div>
-                </Modal>
-
-                <ToolTip Show={hover === 'drawings' && (props.Location == null || props.Location.ID == null || props.Location.ID == 0 || drawingData.length == 0)} Theme={'dark'} Position={'top'} Target={'drawings'} Zindex={9999}>
-                    <p>No drawings associated with this substation.</p>
-                </ToolTip>
+                <LocationDrawings Location={props.Location} Drawings={drawingData} ShowDrawings={showDrawings} SetShowDrawings={setShowDrawings} Hover={hover} />
             </>
         );
 

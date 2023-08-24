@@ -24,13 +24,12 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
-import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
+import { OpenXDA } from '@gpa-gemstone/application-typings'
+import { Input, TextArea } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../../AssetAttribute/Asset';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByLocationSlice, LocationDrawingSlice } from '../../Store/Store';
-import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
-import Table from '@gpa-gemstone/react-table';
+import LocationDrawings from './LocationDrawings';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 
 declare var homePath: string;
@@ -55,8 +54,6 @@ const MeterLocationProperties = (props: IProps) => {
     const drawingData = useAppSelector(LocationDrawingSlice.Data);
     const drawingStatus = useAppSelector(LocationDrawingSlice.Status);
     const drawingParentID = useAppSelector(LocationDrawingSlice.ParentID);
-    const drawingSortKey = useAppSelector(LocationDrawingSlice.SortField);
-    const drawingAscending = useAppSelector(LocationDrawingSlice.Ascending);
 
     React.useEffect(() => {
         const key = props.Location.LocationKey;
@@ -188,37 +185,7 @@ const MeterLocationProperties = (props: IProps) => {
                 GetEnum={getEnum}
                 GetAddlFields={() => { return () => { } }} />
 
-            <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)}
-                ShowCancel={false} ConfirmText={'Done'}
-            >
-                <div className="row">
-                    <div className="col" style={{ width: '100%' }}>
-                        <Table<SystemCenter.Types.LocationDrawing>
-                            cols={[
-                                { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            ]}
-                            tableClass="table table-hover"
-                            data={drawingData}
-                            sortKey={drawingSortKey}
-                            ascending={drawingAscending}
-                            onSort={(d) => {
-                                dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                            }}
-                            onClick={(d) => {
-                                window.open(d.row.Link, '_blank');
-                            }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: '400px', width: '100%' }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        />
-                    </div>
-                </div>
-            </Modal>
-
-            <ToolTip Show={hover === 'drawings' && (props.Location == null || props.Location.ID == null || props.Location.ID == 0 || drawingData.length == 0)} Theme={'dark'} Position={'left'} Target={'drawings'}>
-                <p>No drawings associated with this substation.</p>
-            </ToolTip>
+            <LocationDrawings Location={props.Location} Drawings={drawingData} ShowDrawings={showDrawings} SetShowDrawings={setShowDrawings} Hover={hover} />
         </>
     );
 
