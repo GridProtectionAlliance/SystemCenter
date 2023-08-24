@@ -37,34 +37,33 @@ const EventTags: Application.Types.iByComponent = (props) => {
 
     const data = useAppSelector(EventTagSlice.SearchResults);
     const status = useAppSelector(EventTagSlice.SearchStatus);
+    const search = useAppSelector(EventTagSlice.SearchFilters);
+    const sortField = useAppSelector(EventTagSlice.SortField);
+    const ascending = useAppSelector(EventTagSlice.Ascending);
 
     const allTags = useAppSelector(EventTagSlice.Data);
     const allTagsStatus = useAppSelector(EventTagSlice.Status);
 
     const [mode, setMode] = React.useState<'View'|'Add'|'Edit'>('View');
-    const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.EventTag>('Name');
-    const [ascending, setAscending] = React.useState<boolean>(true);
     const [errors, setErrors] = React.useState<string[]>([]);
 
     const emptyRecord = { ID: 0, Name: '', Description: '', ShowInFilter: false };
+    const [record, setRecord] = React.useState<OpenXDA.Types.EventTag>(emptyRecord);
 
     const EventTagSearchFields = [
         { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
         { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
     ];
     const EventTagDefaultSearchField = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
-    const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.EventTag>>>([]);
-
-    const [record, setRecord] = React.useState<OpenXDA.Types.EventTag>(emptyRecord);
 
     React.useEffect(() => {
         if (status === 'unintiated' || status === 'changed')
-            dispatch(EventTagSlice.DBSearch({ filter: search, sortField, ascending }));
+            dispatch(EventTagSlice.DBSearch({ filter: search }));
     }, [status]);
 
     React.useEffect(() => {
-        dispatch(EventTagSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [search, sortField, ascending]);
+        dispatch(EventTagSlice.DBSearch({ filter: search }));
+    }, [search]);
 
     React.useEffect(() => {
         if (allTagsStatus === 'unintiated' || allTagsStatus === 'changed')
@@ -114,24 +113,20 @@ const EventTags: Application.Types.iByComponent = (props) => {
                 <Table<OpenXDA.Types.EventTag>
                     cols={[
                         { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Description', field: 'Description',label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'ShowInFilter', label: 'Show in Filter', field: 'ShowInFilter', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                             content: (item) => item.ShowInFilter ? HeavyCheckMark : CrossMark
                         },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-
                     ]}
                     tableClass="table table-hover"
                     data={data}
                     sortKey={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.colKey !== sortField)
-                            setSortField(d.colField as any);
-                        else
-                            setAscending(!ascending);
-
+                        if (d.colField == null) return;
+                        dispatch(EventTagSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     onClick={(item) => { setRecord(item.row); setMode('Edit'); }}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

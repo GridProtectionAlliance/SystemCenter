@@ -39,10 +39,11 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
 
     const data = useAppSelector(MATLABAnalyticSlice.SearchResults);
     const analyticStatus = useAppSelector(MATLABAnalyticSlice.SearchStatus);
+    const search = useAppSelector(MATLABAnalyticSlice.SearchFilters);
+    const sortField = useAppSelector(MATLABAnalyticSlice.SortField);
+    const ascending = useAppSelector(MATLABAnalyticSlice.Ascending);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
-    const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.MATLABAnalytic>('LoadOrder');
-    const [ascending, setAscending] = React.useState<boolean>(true);
     const [errors, setErrors] = React.useState<string[]>([]);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
 
@@ -54,7 +55,6 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
         { label: 'Load Order', key: 'LoadOrder', type: 'number', isPivotField: false }
     ];
     const MATLABAnalyticDefaultSearchField = { label: 'Method Name', key: 'MethodName', type: 'string', isPivotField: false };
-    const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.MATLABAnalytic>>>([]);
 
     const emptyRecord = { ID: 0, AssemblyName: '', MethodName: '', SettingSQL: '', LoadOrder: 0 };
     const [record, setRecord] = React.useState<OpenXDA.Types.MATLABAnalytic>(emptyRecord);
@@ -63,12 +63,12 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (analyticStatus == 'unintiated' || analyticStatus == 'changed')
-            dispatch(MATLABAnalyticSlice.DBSearch({ filter: search, sortField, ascending }));
+            dispatch(MATLABAnalyticSlice.DBSearch({ filter: search }));
     }, [analyticStatus]);
 
     React.useEffect(() => {
-        dispatch(MATLABAnalyticSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [search, sortField, ascending]);
+        dispatch(MATLABAnalyticSlice.DBSearch({ filter: search }));
+    }, [search]);
 
     React.useEffect(() => {
         let e = [];
@@ -158,11 +158,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                         ascending={ascending}
                         onSort={(d) => {
                             if (d.colField === null) return;
-
-                            if (d.colKey !== sortField)
-                                setSortField(d.colField as any);
-                            else
-                                setAscending(!ascending);
+                            dispatch(MATLABAnalyticSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
                         onClick={handleSelect}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
