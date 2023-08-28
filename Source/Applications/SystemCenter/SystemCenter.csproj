@@ -496,12 +496,20 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ChannelGroupItem.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\AppHost.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\EventTag\ByEventTag.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\EventTag\EventTagForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\hooks.ts" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingWrapper.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\ChannelScaling\ChannelScalingForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\MultipleAssetsPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\MagDurCurves\ByMagDurCurve.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\MagDurCurves\CurveForm.tsx" />
+
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\ByMATLABAnalytic.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\MATLABAnalytic.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\MATLABAnalyticForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\MATLABAnalyticInfo.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\MATLABAnalyticSQLSetting.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\PropertyUI\LocationDrawings.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\CustomerAssetGroupPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterMaintenance.tsx" />

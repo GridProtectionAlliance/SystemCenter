@@ -82,6 +82,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const SEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/WidgetCategory'));
     const BySEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/ByWidgetCategory'));
     const ByMagDurCurve = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './MagDurCurves/ByMagDurCurve'));
+    const ByEventTag = React.lazy(() => import(/* webpackChunkName: "ByEventTag" */ './EventTag/ByEventTag'));
+    const ByMATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "ByMATLABAnalytic" */ './MATLABAnalytics/ByMATLABAnalytic'));
+    const MATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "MATLABAnalytic" */ './MATLABAnalytics/MATLABAnalytic'));
 
     const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
@@ -236,6 +239,12 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=MagDurCurves")} to={controllerViewPath + "?name=MagDurCurves"}>MagDur Curves</NavLink>
                                 </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=EventTags")} to={controllerViewPath + "?name=EventTags"}>Event Tags</NavLink>
+                                </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=MATLABAnalytics")} to={controllerViewPath + "?name=MATLABAnalytics"}>MATLAB Analytics</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -343,6 +352,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ByMagDurCurve Roles={roles} />
                                 else if (qs['?name'] == "Groups")
                                     return <BySecuritytGroup Roles={roles} />
+                                else if (qs['?name'] == "MATLABAnalytic")
+                                    return <MATLABAnalytic AnalyticID={parseInt(qs.AnalyticID as string)} />
                                 else if (qs['?name'] == "DownloadedFiles")
                                     return <DownloadedFiles MeterID={parseInt(qs.MeterID as string)} MeterName={qs.MeterName as string } />
                                 else if (qs['?name'] == "DeviceContacts")
@@ -362,6 +373,13 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "DataFiles") {
                                     if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
                                     return <DataFile Roles={roles} />
+                                }
+                                else if (queryString.parse(rest.location.search)['?name'] == "EventTags") {
+                                    return <ByEventTag Roles={roles} />
+                                }
+                                else if (queryString.parse(rest.location.search)['?name'] == "MATLABAnalytics") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ByMATLABAnalytic Roles={roles} />
                                 }
                                 else
                                     return <ByMeter Roles={roles} />;
