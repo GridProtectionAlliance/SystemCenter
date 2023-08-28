@@ -185,8 +185,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 setSelectetID(null);
             }} ShowCancel={false} ShowX={true} ConfirmText={'Reprocess File'} >
                 <div className="alert alert-primary" >
-                    SystemCenter tracks processed files only. The information below was accurate when the file was processed by openXDA
-                    and may not correspond to the file as currently stored on the fileShare.
+                    System Center only tracks files that have already been processed by openXDA. The information below is based on configuration when the file was processed 
+                    and may not correspond to the file as currently stored in the Watch Directory.
                 </div>
                 <div className="row">
                     <div className="col">
