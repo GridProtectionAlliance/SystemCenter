@@ -105,7 +105,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<ISecurityGroup>
                     cols={[
-                        { key: 'Name', field: 'DisplayName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'DisplayName', field: 'DisplayName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'CreatedOn', field: 'CreatedOn', label: 'Added On', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'CreatedBy', field: 'CreatedBy', label: 'Created By', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
