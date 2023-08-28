@@ -45,7 +45,7 @@ interface IProps {
 function SectionSelect(props: IProps): JSX.Element {
     const [asc, setAsc] = React.useState<boolean>(false);
     const [data, setData] = React.useState<ISection[]>(props.Sections);
-    const [sortKey, setSortKey] = React.useState<string>('StartBus');
+    const [sortKey, setSortKey] = React.useState<string>('Segments');
 
     React.useEffect(() => {
         if (sortKey == 'Segments')

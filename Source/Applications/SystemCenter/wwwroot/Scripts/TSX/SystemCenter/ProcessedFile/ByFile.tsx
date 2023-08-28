@@ -32,6 +32,7 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { DataFileSlice } from '../Store/Store';
 import { OpenXDA as GlobalXDA } from '../global';
 import moment from 'moment';
+import { Paging } from '@gpa-gemstone/react-table';
 
 
 declare var homePath: string;
@@ -39,8 +40,11 @@ declare var homePath: string;
 const ByFile: Application.Types.iByComponent = (props) => {
     let dispatch = useAppDispatch();
 
-    const cState = useAppSelector(DataFileSlice.SearchStatus);
+    const cState = useAppSelector(DataFileSlice.PagedStatus);
     const data = useAppSelector(DataFileSlice.SearchResults);
+
+    const allPages = useAppSelector(DataFileSlice.TotalPages);
+    const currentPage = useAppSelector(DataFileSlice.CurrentPage);
 
     const [eState, setEState] = React.useState<Application.Types.Status>('idle');
     const [selectedID, setSelectetID] = React.useState<OpenXDA.Types.DataFile|null>(null);
@@ -57,14 +61,15 @@ const ByFile: Application.Types.iByComponent = (props) => {
 
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.DataFile>('DataStartTime');
     const [ascending, setAscending] = React.useState<boolean>(true);
+    const [page, setPage] = React.useState<number>(currentPage);
 
     React.useEffect(() => {
-        dispatch(DataFileSlice.DBSearch({ sortField: sortKey, ascending, filter: search }))
-    }, [search, ascending, sortKey]);
+        dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search, page }))
+    }, [search, ascending, sortKey, page]);
 
     React.useEffect(() => {
         if (cState == 'unintiated' || cState == 'changed')
-            dispatch(DataFileSlice.DBSearch({ sortField: sortKey, ascending, filter: search }))
+            dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search }))
     }, [cState, dispatch]);
 
     React.useEffect(() => {
@@ -101,11 +106,25 @@ const ByFile: Application.Types.iByComponent = (props) => {
         }).fail(() => setShowWarning('error')).done((d) => { setShowWarning('complete'); });;
     }
 
+    function getFileName(file: OpenXDA.Types.DataFile) {
+        if (file == null)
+            return '';
+        const path = file.FilePath.split('\\');
+        return path[path.length - 1];
+    }
+
+    function getPath(file: OpenXDA.Types.DataFile) {
+        if (file == null)
+            return '';
+        const path = file.FilePath.split('\\');
+        return path.slice(0, path.length - 1).join('\\');
+    }
+
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <LoadingScreen Show={showWarning == 'loading'} />
             <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'}
-                ShowLoading={cState == 'loading'} ResultNote={cState == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Data File(s)'}
+                ShowLoading={cState == 'loading'} ResultNote={cState == 'error' ? 'Could not complete Search' : ('Displaying  Data File(s)' + (50*page+1) + ' - ' + (50*page+data.length))}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
                    
@@ -131,7 +150,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<OpenXDA.Types.DataFile>
                     cols={[
-                        { key: 'Path', field: 'FilePath', label: 'File Path', headerStyle: { width: '70%' }, rowStyle: { width: '70%' }, content: (f) => f.FilePath.length > 100 ? f.FilePath.substr(f.FilePath.length - 100, 100) : f.FilePath },
+                        { key: 'FilePath', field: 'FilePath', label: 'File Path', headerStyle: { width: '70%' }, rowStyle: { width: '70%' }, content: (f) => f.FilePath.length > 100 ? f.FilePath.substr(f.FilePath.length - 100, 100) : f.FilePath },
                         { key: 'CreationTime', field: 'CreationTime', label: 'File Created', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: f => moment(f.CreationTime).format('MM/DD/YYYY HH:mm.ss.ssss') },
                         { key: 'DataStartTime', field: 'DataStartTime', label: 'Data Start', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: f => moment(f.DataStartTime).format('MM/DD/YYYY HH:mm.ss.ssss') },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
@@ -153,17 +172,40 @@ const ByFile: Application.Types.iByComponent = (props) => {
                     }}
                     onClick={(item) => setSelectetID(item.row)}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 320, width: '100%' }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     selected={(item) => false}
                 />
+                <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p-1)} />
             </div>
 
-            <Modal Show={selectedID != null} Title={'Events'} CallBack={(c,b) => {
+            <Modal Show={selectedID != null} Title={'File Details'} CallBack={(c,b) => {
                 if (c)
                     reprocess(selectedID);
                 setSelectetID(null);
             }} ShowCancel={false} ShowX={true} ConfirmText={'Reprocess File'} >
+                <div className="alert alert-primary" >
+                    System Center only tracks files that have already been processed by openXDA. The information below is based on configuration when the file was processed 
+                    and may not correspond to the file as currently stored in the Watch Directory.
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <p><strong>Path</strong>: {getPath(selectedID)}</p>
+                        <p><strong>Name</strong>: {getFileName(selectedID)}</p>
+                        <p><strong>Size</strong>: {selectedID?.FileSize}</p>
+                        <p><strong>Created</strong>: {selectedID?.CreationTime}</p>
+                        <p><strong>Last Write</strong>: {selectedID?.LastWriteTime}</p>
+                        <p><strong>Last Access</strong>: {selectedID?.LastAccessTime}</p>
+                        <p><strong>Processed</strong>: {selectedID?.ProcessingEndTime}</p>
+                    </div>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <a href={`${homePath}api/OpenXDA/DataFile/Download/${(selectedID != null ? selectedID.ID : -1)}`} target="_blank" className="btn btn-info btn-block" role="button">
+                            Get File
+                        </a>
+                    </div>
+                </div>
                 <div className="row">
                     <div className="col">
                         {eState == 'loading' ? <LoadingIcon Show={true} /> : <Table<GlobalXDA.Event>
@@ -186,19 +228,13 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         />}
                     </div>
                 </div>
-                <div className="row">
-                    <div className="col">
-                        <a href={`${homePath}api/OpenXDA/DataFile/Download/${(selectedID != null ? selectedID.ID : -1)}`} target="_blank" className="btn btn-info btn-block" role="button">
-                            Download File
-                        </a>
-                    </div>
-                </div>
+                
             </Modal>
             <Modal Show={showWarning == 'complete'} Size={'sm'} Title={'Started Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
-                openXDA has begun to reprocess this File. Note that this may take several minutes.
+                openXDA has begun to reprocess this file. Note that this may take several minutes.
             </Modal>
             <Modal Show={showWarning == 'error'} Size={'sm'} Title={'Error Reprocessing'} CallBack={(c) => setShowWarning('hide')} ShowCancel={false} ShowX={true} ConfirmText={'Close'}>
-                openXDA was unable to reprocess this File. If this error continues to occur please contact your system administrator.
+                openXDA was unable to reprocess this file. If this error continues to occur please contact your system administrator.
             </Modal>
         </div>
     )

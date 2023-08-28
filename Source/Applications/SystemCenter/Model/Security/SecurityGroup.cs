@@ -299,6 +299,10 @@ namespace SystemCenter.Model.Security
                     case "NOT LIKE":
                         filteredRows = filteredRows.Where((row) => !Regex.IsMatch(row.Field<string>(search.FieldName).ToLower(), wildcardPattern));
                         break;
+                    case "IN":
+                        List<string> groupTypes = search.SearchText.Trim('(', ')').Split(',').ToList();
+                        filteredRows = filteredRows.Where((row) => groupTypes.Contains(row.Field<string>(search.FieldName)));
+                        break;
                     default:
                         throw new Exception("Operator not found for User Group Filter.");
                 }
