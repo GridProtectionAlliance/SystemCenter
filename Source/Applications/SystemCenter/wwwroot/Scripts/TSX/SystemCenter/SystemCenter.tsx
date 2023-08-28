@@ -353,7 +353,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "Groups")
                                     return <BySecuritytGroup Roles={roles} />
                                 else if (qs['?name'] == "MATLABAnalytic")
-                                    return <MATLABAnalytic AnalyticID={parseInt(qs.AnalyticID as string)} />
+                                    return <MATLABAnalytic AnalyticID={parseInt(qs.AnalyticID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "DownloadedFiles")
                                     return <DownloadedFiles MeterID={parseInt(qs.MeterID as string)} MeterName={qs.MeterName as string } />
                                 else if (qs['?name'] == "DeviceContacts")
