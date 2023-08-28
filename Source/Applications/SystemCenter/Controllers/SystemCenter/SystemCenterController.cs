@@ -1406,4 +1406,60 @@ namespace SystemCenter.Controllers
             }
         }
     }
+
+    [RoutePrefix("api/OpenXDA/EventTag")]
+    public class EventTagController : ModelController<openXDA.Model.EventTag> { }
+
+    [RoutePrefix("api/OpenXDA/MATLABAnalytic")]
+    public class MATLABAnalyticController : ModelController<openXDA.Model.MATLABAnalytic>
+    {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                openXDA.Model.MATLABAnalytic analyticRecord = record["MATLABAnalytic"].ToObject<openXDA.Model.MATLABAnalytic>();
+                openXDA.Model.MATLABAnalyticEventType[] eventTypeRecords = record["MATLABAnalyticEventType"].ToObject<openXDA.Model.MATLABAnalyticEventType[]>();
+                openXDA.Model.MATLABAnalyticAssetType[] assetTypeRecords = record["MATLABAnalyticAssetType"].ToObject<openXDA.Model.MATLABAnalyticAssetType[]>();
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    new TableOperations<openXDA.Model.MATLABAnalytic>(connection).AddNewRecord(analyticRecord);
+
+                    analyticRecord.ID = connection.ExecuteScalar<int>($"SELECT MAX(ID) FROM MATLABAnalytic");
+                    
+                    // Add event types
+                    foreach (openXDA.Model.MATLABAnalyticEventType eventType in eventTypeRecords)
+                    {
+                        eventType.MATLABAnalyticID = analyticRecord.ID;
+                        new TableOperations<openXDA.Model.MATLABAnalyticEventType>(connection).AddNewRecord(eventType);
+                    }
+
+                    // Add asset types
+                    foreach (openXDA.Model.MATLABAnalyticAssetType assetType in assetTypeRecords)
+                    {
+                        assetType.MATLABAnalyticID = analyticRecord.ID;
+                        new TableOperations<openXDA.Model.MATLABAnalyticAssetType>(connection).AddNewRecord(assetType);
+                    }
+                }
+
+                return Ok(analyticRecord.ID);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
+    [RoutePrefix("api/OpenXDA/MATLABAnalyticEventType")]
+    public class MATLABAnalyticEventTypeController : ModelController<openXDA.Model.MATLABAnalyticEventType> { }
+
+    [RoutePrefix("api/OpenXDA/MATLABAnalyticAssetType")]
+    public class MATLABAnalyticAssetTypeController : ModelController<openXDA.Model.MATLABAnalyticAssetType> { }
+
 }
