@@ -143,8 +143,6 @@ const MeterEventChannelWindow = (props: IProps) => {
         });
     }
 
-    console.log(assets);
-    console.log(data);
     function applyUpdates(): void {
         for (let id of recordChanges.keys()) {
             const original = cloneDeep(data.find(r => r.ID == id)) as any;
