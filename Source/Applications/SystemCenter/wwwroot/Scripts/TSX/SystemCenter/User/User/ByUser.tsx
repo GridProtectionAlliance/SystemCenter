@@ -187,12 +187,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
                     sortKey={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.colKey === 'scroll' || d.colField == undefined)
-                            return;
-                        if (d.colField === sortField)
-                            dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                        else
-                            dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: true }));
+                        if (d.colKey === 'scroll' || d.colField === undefined) return;
+                        dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     onClick={(d) => history.push({pathname: homePath + 'index.cshtml', search: '?name=User&UserAccountID=' + d.row.ID })}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

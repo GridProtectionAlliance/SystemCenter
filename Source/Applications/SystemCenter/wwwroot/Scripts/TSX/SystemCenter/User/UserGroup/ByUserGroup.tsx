@@ -117,12 +117,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
                     sortKey={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.colKey === 'scroll' || d.colField == undefined)
-                            return;
-                        if (d.colField === sortField)
-                            dispatch(SecurityGroupSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                        else
-                            dispatch(SecurityGroupSlice.Sort({SortField: d.colField, Ascending: true }));
+                        if (d.colKey === 'scroll' || d.colField === undefined) return;
+                        dispatch(SecurityGroupSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     onClick={(d) => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Group&GroupID=' + d.row.ID })}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
