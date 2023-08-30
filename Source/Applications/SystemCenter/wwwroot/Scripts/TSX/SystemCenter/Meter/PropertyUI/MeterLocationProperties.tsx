@@ -121,26 +121,26 @@ const MeterLocationProperties = (props: IProps) => {
                         <button
                             type="button"
                             style={{ marginRight: 10 }}
-                            className="btn btn-primary btn-sm"
+                            className="btn btn-primary"
                             onClick={() => setShowStationSelector(true)}>Select Substation</button>
-                        <button type="button" className="btn btn-secondary btn-sm"
+                        <button type="button" className="btn btn-secondary"
                             disabled={isEmpty()}
                             onClick={() => props.UpdateMeter({ ...props.Meter, LocationID: null })}>Clear</button>
                     </div>
-                
                     <Input<OpenXDA.Types.Location> Record={props.Location} Field={'LocationKey'} Label={'Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation} />
                     <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Name'} Label={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
                     <Input<OpenXDA.Types.Location> Record={props.Location} Field={'ShortName'} Label={'Short Name'}  Feedback={'Short Name must be less than 50 characters.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
                 </div>
                 <div className="col">
-                    <div style={{ marginBottom: 10 }}>
+                    <div className="pull-right" style={{ marginBottom: 10 }}>
                         <LocationDrawings LocationID={props.Location.ID} />
                     </div>
-
-                    <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Alias'} Label={'Alias'}  Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
-                    <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Latitude'} Label={'Latitude'}  Feedback={'A numeric Latitude value between -180 and 180 is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
-                    <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Longitude'} Label={'Longitude'}  Feedback={'A numeric Longitude value between -180 and 180 is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
-                    <TextArea<OpenXDA.Types.Location> Rows={3} Record={props.Location} Field={'Description'} Label={'Description'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation} />
+                    <div style={{ marginTop: 43 }}>
+                        <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Alias'} Label={'Alias'}  Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
+                        <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Latitude'} Label={'Latitude'}  Feedback={'A numeric Latitude value between -180 and 180 is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
+                        <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Longitude'} Label={'Longitude'}  Feedback={'A numeric Longitude value between -180 and 180 is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation}/>
+                        <TextArea<OpenXDA.Types.Location> Rows={3} Record={props.Location} Field={'Description'} Label={'Description'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={props.DisableLocation} />
+                    </div>
                 </div>
             </div>
             <DefaultSelects.Location 
