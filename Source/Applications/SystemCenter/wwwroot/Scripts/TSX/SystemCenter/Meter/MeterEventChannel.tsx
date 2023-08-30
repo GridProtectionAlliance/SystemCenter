@@ -190,8 +190,6 @@ const MeterEventChannelWindow = (props: IProps) => {
         return true;
     }
 
-    
-
     if (assetStatus == 'error' || pStatus == 'error' || mtStatus == 'error' || status == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
