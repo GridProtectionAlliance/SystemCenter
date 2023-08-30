@@ -35,6 +35,7 @@ import { SelectAscending, SelectSortKey, SelectEventChannels, SelectEventChannel
 import { FetchChannels } from '../Store/EventChannelSlice';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { cloneDeep } from 'lodash';
+import { getAsset } from '../../../TS/Services/Asset';
 
 declare var homePath: string;
 
@@ -142,7 +143,8 @@ const MeterEventChannelWindow = (props: IProps) => {
         });
     }
 
-    
+    console.log(assets);
+    console.log(data);
     function applyUpdates(): void {
         for (let id of recordChanges.keys()) {
             const original = cloneDeep(data.find(r => r.ID == id)) as any;
@@ -189,6 +191,8 @@ const MeterEventChannelWindow = (props: IProps) => {
             return record.ConnectionPriority != null && IsNumber(record.ConnectionPriority);
         return true;
     }
+
+    
 
     if (assetStatus == 'error' || pStatus == 'error' || mtStatus == 'error' || status == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
@@ -272,8 +276,8 @@ const MeterEventChannelWindow = (props: IProps) => {
                             content: (c) => <Select Record={c} Field={'AssetID'} Label={''} Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'AssetID')} />
                         },
                         {
-                            key: 'ConnectionPriority', field: 'ConnectionPriority', label: 'Priority', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
-                            content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'ConnectionPriority'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'ConnectionPriority')} Valid={(f) => isValid(f, c)} />
+                            key: 'ConnectionPriority', field: 'ConnectionPriority', label: 'Priority', headerStyle: { width: '7%' }, rowStyle: { width: '8%' },
+                            content: (c) => <Select EmptyOption={true} Record={c} Field={'ConnectionPriority'} Label={''} Options={[{ Value: '0', Label: 'Primary' }, { Value: '1', Label: 'Secondary' }, { Value: '2', Label: 'Tertiary' }]} Setter={(r) => createChange(r, 'ConnectionPriority')} Disabled={assets.find(d => d.ID == c.AssetID)?.AssetType != 'Transformer'} />
                         },
                         {
                             key: 'Remove', label: '', headerStyle: { width: '3%' }, rowStyle: { width: '3%' },
