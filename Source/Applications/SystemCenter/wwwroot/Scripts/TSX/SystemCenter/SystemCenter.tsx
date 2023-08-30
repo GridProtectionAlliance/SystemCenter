@@ -324,7 +324,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "PQViewCustomers")
                                     return <ByCustomer Roles={roles} />
                                 else if (qs['?name'] == "NewMeterWizard")
-                                    return <NewMeterWizard />
+                                    return <NewMeterWizard IsEngineer={roles.indexOf('Administrator') >= 0 || roles.indexOf('Transmission SME') >= 0} />
                                 else if (qs['?name'] == "ValueListGroup")
                                     return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} />
                                 else if (qs['?name'] == "ChannelGroup")

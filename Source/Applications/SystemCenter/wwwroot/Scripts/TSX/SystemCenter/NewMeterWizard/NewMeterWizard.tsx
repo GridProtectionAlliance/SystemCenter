@@ -50,7 +50,7 @@ export interface AssetLists {
     Transformers: Array<OpenXDA.Types.Transformer>
 }
 
-export default function NewMeterWizard(props: {}) {
+export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     let history = useHistory();
     const dispatch = useAppDispatch();
 
@@ -395,7 +395,7 @@ export default function NewMeterWizard(props: {}) {
             case eventChannelsStep:
                 // The uses the same page as the next step for now
             case trendChannelsStep:
-                return <ChannelPage MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError} SetWarning={setWarning} TrendChannels={currentStep == 4} />
+                return <ChannelPage IsEngineer={props.IsEngineer}  MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError} SetWarning={setWarning} TrendChannels={currentStep == 4} />
             case assetStep:
                 return <AssetPage AssetConnections={assetConnections} Location={locationInfo} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} SetWarning={setWarning} PageID={assetPageID} />
             case connectionStep:
