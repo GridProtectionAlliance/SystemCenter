@@ -35,7 +35,6 @@ import { SelectAscending, SelectSortKey, SelectEventChannels, SelectEventChannel
 import { FetchChannels } from '../Store/EventChannelSlice';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { cloneDeep } from 'lodash';
-import { getAsset } from '../../../TS/Services/Asset';
 
 declare var homePath: string;
 
