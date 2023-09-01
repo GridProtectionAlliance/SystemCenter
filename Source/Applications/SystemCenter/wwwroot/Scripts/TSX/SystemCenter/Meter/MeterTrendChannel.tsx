@@ -293,8 +293,8 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 content: (c) => <Select Record={c} Field={'AssetID'} Label={''} Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'AssetID')} />
                             },
                             {
-                                key: 'ConnectionPriority', field: 'ConnectionPriority', label: 'Priority', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
-                                content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'ConnectionPriority'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'ConnectionPriority')} Valid={(f) => isValid(f, c)} />
+                                key: 'ConnectionPriority', field: 'ConnectionPriority', label: 'Priority', headerStyle: { width: '7%' }, rowStyle: { width: '8%' },
+                                content: (c) => <Select EmptyOption={true} Record={c} Field={'ConnectionPriority'} Label={''} Options={[{ Value: '0', Label: 'Primary' }, { Value: '1', Label: 'Secondary' }, { Value: '2', Label: 'Tertiary' }]} Setter={(r) => createChange(r, 'ConnectionPriority')} Disabled={assets.find(d => d.ID == c.AssetID)?.AssetType != 'Transformer'} />
                             },
                             {
                                 key: 'Remove', label: '', headerStyle: { width: '3%' }, rowStyle: { width: '3%' },
