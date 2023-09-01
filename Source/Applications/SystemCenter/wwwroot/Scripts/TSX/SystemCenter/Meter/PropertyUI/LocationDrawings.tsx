@@ -54,7 +54,7 @@ const LocationDrawings = (props: IProps) => {
         <div>
             <button
                 type="button"
-                className={"btn btn-primary btn-sm pull-right" + ((props.LocationID == null || props.LocationID == 0 || drawingData.length == 0) ? ' disabled' : '')}
+                className={"btn btn-primary" + ((props.LocationID == null || props.LocationID == 0 || drawingData.length == 0) ? ' disabled' : '')}
                 data-tooltip="drawings" onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
                 onClick={() => {
                     if (props.LocationID != null && props.LocationID != 0 && drawingData.length != 0)
