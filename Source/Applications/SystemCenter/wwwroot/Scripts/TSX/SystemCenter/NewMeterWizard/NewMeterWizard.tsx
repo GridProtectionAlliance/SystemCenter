@@ -438,13 +438,13 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                         { id: eventChannelsStep, long: 'Event Channel Configuration', short: 'Event' },
                         { id: trendChannelsStep, long: 'Trend Channel Configuration', short: 'Trend' },
                         { id: assetStep, long: 'Asset Configuration', short: 'Asset' },
-                        { id: connectionStep, long: 'Network Model', short: 'Network' },
+                        { id: connectionStep, long: 'Network Model', short: 'Network*' },
                         { id: additionalFieldMeterStep, long: 'Addional Meter Information', short: 'Addl Meter' },
                         { id: externalFieldStep, long: 'External Meter Information', short: 'Ext Info' },
-                        { id: lineSegmentStep, long: 'Line Segement Configuration', short: 'Line Seg' },
-                        { id: additionalFieldAssetStep, long: 'Addional Asset Information', short: 'Addl Asset' },
+                        { id: lineSegmentStep, long: 'Line Segement Configuration', short: 'Line Seg*' },
+                        { id: additionalFieldAssetStep, long: 'Addional Asset Information', short: 'Addl Asset*' },
                         { id: customerAssetGroupMeterStep, long: 'Meter Groups and Customer', short: 'Group Meter' },
-                        { id: customerAssetGroupAssetStep, long: 'Asset Groups and Customer', short: 'Group Asset' }
+                        { id: customerAssetGroupAssetStep, long: 'Asset Groups and Customer', short: 'Group Asset*' }
                     ]}
                     activeStep={currentStep}
             /></div>
