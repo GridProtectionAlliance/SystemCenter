@@ -83,6 +83,10 @@ export default function TemplateWindow(props: IProps) {
         }
     }, [show]);
 
+    function UploadFile(file: SystemCenter.ChannelTemplateFile) {
+            const blob = file.FileBlob.substr(2).match(/../g).map(h => parseInt(h, 16));
+            props.Upload(new Uint8Array(blob).buffer, file.FileName);
+    }
     const showEdit = props.IsEngineer;
     const hasDefault = templates.length > 0;
     const showDropdown = (showEdit && hasDefault) || templates.length > 1;
@@ -99,7 +103,8 @@ export default function TemplateWindow(props: IProps) {
                     if (!hasDefault)
                         setShow(true);
                     else
-                        props.Upload(new Uint8Array(templates[0].FileBlob.match(/../g).map(h => parseInt(h, 16))).buffer , templates[0].FileName);
+                        UploadFile(templates[0]);
+                        
                 }}>
                 {hasDefault? templates[0].Name : "Manage Templates" }
             </button>
@@ -111,7 +116,7 @@ export default function TemplateWindow(props: IProps) {
                 </button>
                 <div className={"dropdown-menu" + (expand? " show" : "")}>
                     {templates.map((t, i) => i > 0 ? <a className="dropdown-item" key={t.ID}
-                        onClick={() => { setExpand(false); props.Upload(new Uint8Array(t.FileBlob.match(/../g).map(h => parseInt(h, 16))).buffer, t.FileName); } }>
+                        onClick={() => { setExpand(false); UploadFile(t); } }>
                         {t.Name}
                     </a> : null)}
                     {showEdit ? <>
@@ -183,10 +188,13 @@ export default function TemplateWindow(props: IProps) {
                 </div>
                 <div className="col-6">
                     <div className="custom-file">
-                        <input type="file" className="custom-file-input" ref={fileInput} />
-                        <label className={"custom-file-label" + (template.FileName.length > 0 ? " selected" : "")} >
-                            {template.FileName.length > 0 ? template.FileName : `Choose file to use as template`}
-                        </label>
+                        <div className="form-group">
+                            <label>File</label>
+                            <input type="file" className="custom-file-input" ref={fileInput} />
+                            <label className={"custom-file-label" + (template.FileName.length > 0 ? " selected" : "")} >
+                                {template.FileName.length > 0 ? template.FileName : `Choose file to use as template`}
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
