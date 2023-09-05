@@ -31,7 +31,7 @@ import PARParser from '../../../TS/PARParser';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../Store/Store';
-import { useAppDispatch } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
 import TemplateWindow from './TemplateWindow';
 
 declare var homePath: string;
@@ -59,12 +59,34 @@ export default function ChannelPage(props: IProps) {
     const [parsedChannels, setParsedChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [channelStatus, setChannelStatus] = React.useState<Application.Types.Status>('idle');
 
+    const phases = useAppSelector(PhaseSlice.Data);
+    const measurementCharateristics = useAppSelector(MeasurementCharacteristicSlice.Data);
+    const measurementTypes = useAppSelector(MeasurmentTypeSlice.Data);
+
+    const pStatus = useAppSelector(PhaseSlice.Status);
+    const mCStatus = useAppSelector(MeasurementCharacteristicSlice.Status);
+    const mTStatus = useAppSelector(MeasurmentTypeSlice.Status);
+
     const baseWarnings: string[] = ["Ensure all Scaling values are correct.", "Ensure all virtual Channels are configured."];
     const serverParsedExtensions: string[] = ['pqd', 'sel', 'cev', 'eve', 'ctl', 'txt'];
     const webParsedExtensions: string[] = ['cfg', 'par'];
     const allTypes: string = webParsedExtensions.join(", ") + ", " + serverParsedExtensions.join(", ");
 
-    
+    React.useEffect(() => {
+        if (mTStatus == 'unintiated' || mTStatus == 'changed')
+            dispatch(MeasurmentTypeSlice.Fetch()); 
+    }, [mTStatus]);
+
+    React.useEffect(() => {
+        if (mCStatus == 'unintiated' || mCStatus == 'changed')
+            dispatch(MeasurementCharacteristicSlice.Fetch()); 
+    }, [mCStatus]);
+
+    React.useEffect(() => {
+        if (pStatus == 'unintiated' || pStatus == 'changed')
+            dispatch(PhaseSlice.Fetch()); 
+    }, [pStatus]);
+
     React.useEffect(() => {
         props.SetWarning(baseWarnings)
 
@@ -145,9 +167,9 @@ export default function ChannelPage(props: IProps) {
             }).done((data: OpenXDA.Types.Channel[]) => {
                 handleParsedChannels(data);
                 // Need to fetch these after since the server parser will add new things to these if it spots them
-                dispatch(PhaseSlice.Fetch());
-                dispatch(MeasurementCharacteristicSlice.Fetch());
-                dispatch(MeasurmentTypeSlice.Fetch());
+                dispatch(PhaseSlice.SetChanged());
+                dispatch(MeasurementCharacteristicSlice.SetChanged());
+                dispatch(MeasurmentTypeSlice.SetChanged());
             }).fail(() => {
                 setChannelStatus('error');
             });
@@ -335,13 +357,13 @@ export default function ChannelPage(props: IProps) {
                             key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Name'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
                         },
                         {
-                            key: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementTypes.map((t) => ({ Value: t, Label: t }))} />
-                        },
+                            key: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={measurementTypes.map((t) => ({ Value: t.Name, Label: t.Name }))} />
+                                },
                         {
-                            key: 'MeasurementCharacteristic', label: 'Char', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementCharacteristic'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementCharacteristics.map((t) => ({ Value: t, Label: t }))} />
-                        },
+                            key: 'MeasurementCharacteristic', label: 'Char', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementCharacteristic'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={measurementCharateristics.map((t) => ({ Value: t.Name, Label: t.Name }))} />
+                                },
                         {
-                            key: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.Phases.map((t) => ({ Value: t, Label: t }))} />
+                            key: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={phases.map((t) => ({ Value: t.Name, Label: t.Name }))} />
                         },
                         { key: 'SamplesPerHour', label: 'Sph.', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'SamplesPerHour'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
                         { key: 'PerUnitValue', label: 'Per Unit', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'PerUnitValue'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
