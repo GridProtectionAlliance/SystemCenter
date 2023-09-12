@@ -25,8 +25,8 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import CFGParser from '../../../TS/CFGParser';
-import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
-import { ConfigurableTable, Modal, ToolTip, Warning, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { CheckBox, Input, Select, TextArea } from '@gpa-gemstone/react-forms';
+import { ConfigurableTable, Modal, ToolTip, Warning, ServerErrorIcon, LoadingIcon } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
 import { TrashCan, CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
@@ -39,22 +39,25 @@ declare var homePath: string;
 
 interface IProps {
     Upload: (data: ArrayBuffer, name: string) => void,
-    IsEngineer: boolean
+    IsEngineer: boolean,
+    TrendChannels: boolean
 }
 
-const emptyTemplate = { ID: 0, Name: '', FileName: '', FileBlob: null };
+const emptyTemplate = { ID: 0, Name: '', FileName: '', FileBlob: null, ShowEvents: true, ShowTrend: true, SortOrder: 0 };
 
 export default function TemplateWindow(props: IProps) {
     const dispatch = useAppDispatch();
-    const fileInput = React.useRef(null);
 
     const [show, setShow] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<boolean>(false);
     const [expand, setExpand] = React.useState<boolean>(false);
     const [template, setTemplate] = React.useState<SystemCenter.ChannelTemplateFile>({ ...emptyTemplate });
+    const [availTemplates, setAvailTemplates] = React.useState<SystemCenter.ChannelTemplateFile[]>([]);
 
     const templates = useAppSelector(ChannelTemplateSlice.Data);
     const templateStatus = useAppSelector(ChannelTemplateSlice.Status);
+    const sortField = useAppSelector(ChannelTemplateSlice.SortField);
+    const asc = useAppSelector(ChannelTemplateSlice.Ascending);
 
     React.useEffect(() => {
         if (templateStatus == 'unintiated' || templateStatus == 'changed')
@@ -62,43 +65,31 @@ export default function TemplateWindow(props: IProps) {
     }, [templateStatus]);
 
     React.useEffect(() => {
-        $(fileInput.current).on("change", (evt: any) => {
-            let fileName = (evt as React.ChangeEvent<HTMLInputElement>).target.value.split("\\").pop();
-            if (fileName == "")
-                return;
-            let r = new FileReader();
-            r.onload = async (e) => {
-                const contents = [...new Uint8Array(e.target.result as ArrayBuffer)]
-                    .map(b => b.toString(16).padStart(2, "0"))
-                    .join("");
+        if (!show)
+            dispatch(ChannelTemplateSlice.Sort({ SortField: 'SortOrder', Ascending: false }));
+    }, [show])
 
-                setTemplate((t) => ({ ...t, FileName: fileName, FileBlob: contents }));
-            }
+    React.useEffect(() => {
+        setAvailTemplates(templates.filter(item => (item.ShowTrend && props.TrendChannels) || (item.ShowEvents && !props.TrendChannels)))
+    }, [templates, props.TrendChannels]);
 
-            r.readAsArrayBuffer(evt.target.files[0]);
-        });
-
-        return () => {
-            $(".custom-file-input").off('change');
-        }
-    }, [show]);
-
+    const loading = templateStatus == 'loading';
     function UploadFile(file: SystemCenter.ChannelTemplateFile) {
             const blob = file.FileBlob.substr(2).match(/../g).map(h => parseInt(h, 16));
             props.Upload(new Uint8Array(blob).buffer, file.FileName);
     }
     const showEdit = props.IsEngineer;
-    const hasDefault = templates.length > 0;
-    const showDropdown = (showEdit && hasDefault) || templates.length > 1;
+    const hasDefault = availTemplates.length > 0;
+    const showDropdown = (showEdit && hasDefault) || availTemplates.length > 1;
 
     return <>
         <div className="btn-group btn-group-sm">
-            <button className={"btn btn-primary" + ((hasDefault || showEdit)? "" : " disabled")}
+            <button className={"btn btn-primary" + ((!loading && (hasDefault || showEdit))? "" : " disabled")}
                 data-tooltip='DefaultChannel'
                 onMouseEnter={() => setHover(true)}
                 onMouseLeave={() => setHover(false)}
                 onClick={() => {
-                    if (!hasDefault && !showEdit )
+                    if (loading || (!hasDefault && !showEdit ))
                         return;
                     if (!hasDefault)
                         setShow(true);
@@ -106,21 +97,23 @@ export default function TemplateWindow(props: IProps) {
                         UploadFile(templates[0]);
                         
                 }}>
-                {hasDefault? templates[0].Name : "Manage Templates" }
+                {loading ? <LoadingIcon Show={true} /> : 
+                    (hasDefault ? availTemplates[0].Name : "Manage Templates" )
+                }
             </button>
             {showDropdown ? <>
                 <button type="button"
                     className={"btn btn-primary dropdown-toggle dropdown-toggle-split"}
-                    data-toggle="dropdown" onClick={() => { setExpand((x) => !x) } }>
+                    onClick={() => { setExpand((x) => !x) } }>
                 <span className="sr-only">Toggle Dropdown</span>
                 </button>
                 <div className={"dropdown-menu" + (expand? " show" : "")}>
-                    {templates.map((t, i) => i > 0 ? <a className="dropdown-item" key={t.ID}
+                    {availTemplates.map((t, i) => i > 0 ? <a className="dropdown-item" key={t.ID}
                         onClick={() => { setExpand(false); UploadFile(t); } }>
                         {t.Name}
                     </a> : null)}
                     {showEdit ? <>
-                        { templates.length > 1 ? <div className="dropdown-divider"></div> : null}
+                        {availTemplates.length > 1 ? <div className="dropdown-divider"></div> : null}
                         <a className="dropdown-item" onClick={() => { setShow(true); setExpand(false); }}>Manage Templates</a>
                     </> : null}
                 </div>
@@ -130,7 +123,7 @@ export default function TemplateWindow(props: IProps) {
             <p>No template is available.</p>
             {!showEdit? <p> Contact an Administrator or SME to add a template.</p> : null}
         </ToolTip>
-        <Modal ShowCancel={false} ShowX={true} Show={show} Title={'Manage Templates'}
+        <Modal ShowCancel={false} ShowX={true} Show={show} Title={'Manage Templates'} Size={'lg'}
             DisableConfirm={template.Name == null || template.Name.length == 0 || template.FileBlob == null || templates.find(t => t.Name == template.Name) != undefined}
             ConfirmShowToolTip={template.Name == null || template.Name.length == 0 || template.FileBlob == null || templates.find(t => t.Name == template.Name) != undefined}
             CallBack={(_, b) => {
@@ -148,33 +141,60 @@ export default function TemplateWindow(props: IProps) {
             ConfirmText={'Add Template'}
         >
             <div className="row">
-            <div className="col">
-            <Table<SystemCenter.ChannelTemplateFile>
-                cols={[
-                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: {}, rowStyle: {} },
-                    { key: 'FileName', field: 'FileName', label: 'File', headerStyle: {}, rowStyle: {} },
-                    {
-                        key: 'Btn', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                        content: (item) => <>
-                            <button className="btn btn-sm"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    dispatch(ChannelTemplateSlice.DBAction({ verb: 'DELETE', record: item }))
-                                }}><span>{TrashCan}</span></button>
-                        </>
-                    },
-                    { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 17, padding: 0 } },
-                ]}
-                tableClass="table table-hover"
-                data={templates}
-                sortKey={''}
-                ascending={false}
-                onSort={(d) => {}}
-                onClick={() => {}}
-                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 450, width: '100%' }}
-                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                selected={() => false}
+                <div className="col">
+                    <Table<SystemCenter.ChannelTemplateFile>
+                        cols={[
+                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: {}, rowStyle: {} },
+                                {
+                                    key: 'FileName', field: 'FileName', label: 'File', headerStyle: {}, rowStyle: {}
+                                },
+                                {
+                                    key: 'ShowEvents', field: 'ShowEvents', label: 'Event',
+                                    headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
+                                    content: (item) => <CheckBox<SystemCenter.ChannelTemplateFile> Field='ShowEvents' Record={item}
+                                        Setter={(r) => dispatch(ChannelTemplateSlice.DBAction({ verb: 'PATCH', record: r }))} Label='' />
+                                },
+                                {
+                                    key: 'ShowTrend', field: 'ShowTrend', label: 'Trend', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
+                                    content: (item) => <CheckBox<SystemCenter.ChannelTemplateFile> Field='ShowTrend' Record={item}
+                                        Setter={(r) => dispatch(ChannelTemplateSlice.DBAction({ verb: 'PATCH', record: r }))} Label='' />
+                                },
+                            {
+                                key: 'SortOrder', field: 'SortOrder', label: 'Sort Order', headerStyle: {}, rowStyle: {},
+                                content: (item) => <Input<SystemCenter.ChannelTemplateFile> Field='SortOrder' Type={'integer'} Valid={() => true} Record={item}
+                                    Setter={(r) => dispatch(ChannelTemplateSlice.DBAction({ verb: 'PATCH', record: r }))} Label='' />
+                            },
+                            {
+                                key: 'btn', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
+                                content: (item) => <>
+                                    <button className="btn btn-sm"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            dispatch(ChannelTemplateSlice.DBAction({ verb: 'DELETE', record: item }))
+                                        }}><span>{TrashCan}</span></button>
+                                </>
+                            },
+                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 17, padding: 0 } },
+                        ]}
+                        tableClass="table table-hover"
+                        data={templates}
+                        sortKey={sortField}
+                        ascending={asc}
+                        onSort={(d) => {
+                            if (d.colKey === "scroll" || d.colKey == 'btn')
+                                return;
+
+                            if (d.colKey === sortField)
+                                dispatch(ChannelTemplateSlice.Sort({ SortField: sortField, Ascending: asc }));
+                            else {
+                                dispatch(ChannelTemplateSlice.Sort({ SortField: d.colField as keyof SystemCenter.ChannelTemplateFile, Ascending: true }));
+                            }
+                        }}
+                        onClick={() => {}}
+                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 450, width: '100%' }}
+                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        selected={() => false}
                     />
                 </div>
             </div>
@@ -190,7 +210,21 @@ export default function TemplateWindow(props: IProps) {
                     <div className="custom-file">
                         <div className="form-group">
                             <label>File</label>
-                            <input type="file" className="custom-file-input" ref={fileInput} />
+                            <input type="file" className="custom-file-input" onChange={(evt: any) => {
+                                let fileName = (evt as React.ChangeEvent<HTMLInputElement>).target.value.split("\\").pop();
+                                if (fileName == "")
+                                    return;
+                                let r = new FileReader();
+                                r.onload = async (e) => {
+                                    const contents = [...new Uint8Array(e.target.result as ArrayBuffer)]
+                                        .map(b => b.toString(16).padStart(2, "0"))
+                                        .join("");
+
+                                    setTemplate((t) => ({ ...t, FileName: fileName, FileBlob: contents }));
+                                }
+
+                                r.readAsArrayBuffer(evt.target.files[0]);
+                            }} />
                             <label className={"custom-file-label" + (template.FileName.length > 0 ? " selected" : "")} >
                                 {template.FileName.length > 0 ? template.FileName : `Choose file to use as template`}
                             </label>

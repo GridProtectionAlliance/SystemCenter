@@ -50,6 +50,9 @@ namespace SystemCenter.Model
 	        ChannelTemplateFile.ID,
             ChannelTemplateFile.Name,
             ChannelTemplateFile.FileName,
+            ChannelTemplateFile.ShowTrend,
+            ChannelTemplateFile.ShowEvents,
+            ChannelTemplateFile.SortOrder,
 	        CONVERT(VARCHAR(MAX), ChannelTemplateFile.FileBlob, 1) AS FileBlob
         FROM
 	        ChannelTemplateFile 
@@ -58,7 +61,7 @@ namespace SystemCenter.Model
     [PatchRoles("Administrator, Transmission SME")]
     [PostRoles("Administrator, Transmission SME")]
     [DeleteRoles("Administrator, Transmission SME")]
-    public class ChannelTemplate 
+    public class ChannelTemplate
     {
         [PrimaryKey(true)]
         public int ID { get; set; }
@@ -68,6 +71,13 @@ namespace SystemCenter.Model
         public string FileBlob { get; set; }
 
         public string FileName { get; set; }
+
+        public bool ShowTrend { get; set; }
+
+        public bool ShowEvents { get; set; }
+
+        public int SortOrder { get; set; }
+
     }
 
     [RoutePrefix("api/SystemCenter/ChannelTemplateFile")]
@@ -95,8 +105,22 @@ namespace SystemCenter.Model
             }
 
             using AdoDataConnection connection = new AdoDataConnection(Connection);
-            int content = connection.ExecuteNonQuery("INSERT INTO ChanneltemplateFile (Name, FileName, FileBlob) VALUES ({0},{1}, CONVERT(VARBINARY(MAX), {2}, 1))",
-                record["Name"].ToString(), record["FileName"].ToString(), "0x" + record["FileBlob"].ToString());
+            int content = connection.ExecuteNonQuery(@"INSERT INTO ChanneltemplateFile (Name, FileName, FileBlob, ShowTrend, ShowEvents, SortOrder)
+                VALUES ({0},{1}, CONVERT(VARBINARY(MAX), {2}, 1), {3},{4},{5})",
+                record["Name"].ToString(), record["FileName"].ToString(), "0x" + record["FileBlob"].ToString(),
+                bool.Parse(record["ShowTrend"].ToString()), bool.Parse(record["ShowEvents"].ToString()), int.Parse(record["SortOrder"].ToString()));
+            return Ok(content);
+        }
+
+        public override IHttpActionResult Patch([FromBody] ChannelTemplate record)
+        {
+            if (!PatchAuthCheck())
+            {
+                return Unauthorized();
+            }
+            using AdoDataConnection connection = new AdoDataConnection(Connection);
+            int content = connection.ExecuteNonQuery(@"UPDATE ChanneltemplateFile SET ShowTrend = {0}, ShowEvents = {1}, SortOrder = {2} WHERE ID = {3}",
+                record.ShowTrend, record.ShowEvents, record.SortOrder, record.ID);
             return Ok(content);
         }
     }

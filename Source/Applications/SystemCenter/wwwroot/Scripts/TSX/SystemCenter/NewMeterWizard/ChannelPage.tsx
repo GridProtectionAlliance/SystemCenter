@@ -297,12 +297,13 @@ export default function ChannelPage(props: IProps) {
 
     return <>
                 <div className="row">
-                    <div className="col-1">
-                <TemplateWindow IsEngineer={props.IsEngineer}
+            <div className="col-1">
+                <TemplateWindow IsEngineer={props.IsEngineer} TrendChannels={props.TrendChannels}
                     Upload={(d, f) => {
                         setChannelStatus('loading');
                         ParseFile(d, f);
                     }
+
                 } />
                     </div>
                     <div className="col-1">
