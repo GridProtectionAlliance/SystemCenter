@@ -121,7 +121,7 @@ export default function TemplateWindow(props: IProps) {
         </div>
         <ToolTip Show={hover && !hasDefault} Position={'top'} Theme={'dark'} Target={"DefaultChannel"}>
             <p>No template is available.</p>
-            {!showEdit? <p> Contact an Administrator or SME to add a template.</p> : null}
+            {!showEdit? <p> Contact an Administrator or SME to add a Template.</p> : null}
         </ToolTip>
         <Modal ShowCancel={false} ShowX={true} Show={show} Title={'Manage Templates'} Size={'lg'}
             DisableConfirm={template.Name == null || template.Name.length == 0 || template.FileBlob == null || templates.find(t => t.Name == template.Name) != undefined}
