@@ -31,7 +31,8 @@ import PARParser from '../../../TS/PARParser';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../Store/Store';
-import { useAppDispatch } from '../hooks';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import TemplateWindow from './TemplateWindow';
 
 declare var homePath: string;
 
@@ -42,7 +43,8 @@ interface IProps {
     UpdateAssets: (record: OpenXDA.Types.Asset[]) => void,
     SetError: (e: string[]) => void,
     SetWarning: (w: string[]) => void,
-    TrendChannels: boolean
+    TrendChannels: boolean,
+    IsEngineer: boolean,
 }
 
 export default function ChannelPage(props: IProps) {
@@ -57,12 +59,33 @@ export default function ChannelPage(props: IProps) {
     const [parsedChannels, setParsedChannels] = React.useState<OpenXDA.Types.Channel[]>([]);
     const [channelStatus, setChannelStatus] = React.useState<Application.Types.Status>('idle');
 
-    const [hoverDefault, setHoverDefault] = React.useState<boolean>(false);
+    const phases = useAppSelector(PhaseSlice.Data);
+    const measurementCharateristics = useAppSelector(MeasurementCharacteristicSlice.Data);
+    const measurementTypes = useAppSelector(MeasurmentTypeSlice.Data);
+
+    const pStatus = useAppSelector(PhaseSlice.Status);
+    const mCStatus = useAppSelector(MeasurementCharacteristicSlice.Status);
+    const mTStatus = useAppSelector(MeasurmentTypeSlice.Status);
 
     const baseWarnings: string[] = ["Ensure all Scaling values are correct.", "Ensure all virtual Channels are configured."];
     const serverParsedExtensions: string[] = ['pqd', 'sel', 'cev', 'eve', 'ctl', 'txt'];
     const webParsedExtensions: string[] = ['cfg', 'par'];
     const allTypes: string = webParsedExtensions.join(", ") + ", " + serverParsedExtensions.join(", ");
+
+    React.useEffect(() => {
+        if (mTStatus == 'unintiated' || mTStatus == 'changed')
+            dispatch(MeasurmentTypeSlice.Fetch()); 
+    }, [mTStatus]);
+
+    React.useEffect(() => {
+        if (mCStatus == 'unintiated' || mCStatus == 'changed')
+            dispatch(MeasurementCharacteristicSlice.Fetch()); 
+    }, [mCStatus]);
+
+    React.useEffect(() => {
+        if (pStatus == 'unintiated' || pStatus == 'changed')
+            dispatch(PhaseSlice.Fetch()); 
+    }, [pStatus]);
 
     React.useEffect(() => {
         props.SetWarning(baseWarnings)
@@ -110,54 +133,52 @@ export default function ChannelPage(props: IProps) {
             return;
         }
         setChannelStatus('loading');
-        let extension = f.name.toLowerCase().substring(f.name.lastIndexOf('.') + 1, f.name.length);
+
+        let r = new FileReader();
+        r.onload = (e) => {
+            ParseFile(e.target.result as ArrayBuffer, f.name)
+        }
+           
+        r.readAsArrayBuffer(f);
+}
+    function ParseFile(content: ArrayBuffer, fileName: string) {
+        let extension = fileName.toLowerCase().substring(fileName.lastIndexOf('.') + 1, fileName.length);
+
         // Handle js parsed files
         if (webParsedExtensions.indexOf(extension) >= 0) {
-            let r = new FileReader();
-            r.onload = (e) => {
 
-                let contents = e.target.result as string;
-                let parser;
-                if (extension === 'cfg')
-                    parser = new CFGParser(contents, props.MeterKey);
-                else
-                    parser = new PARParser(contents, props.MeterKey);
+            let parser;
+            if (extension === 'cfg')
+                parser = new CFGParser(new TextDecoder('utf-8').decode(content), props.MeterKey);
+            else
+                parser = new PARParser(new TextDecoder('utf-8').decode(content), props.MeterKey);
 
-                handleParsedChannels(parser.Channels);
-            }
-            r.readAsText(f);
+            handleParsedChannels(parser.Channels);
         }
-        // Handle server parsed files
         else if (serverParsedExtensions.indexOf(extension) >= 0) {
-            let r = new FileReader();
-            r.onload = async (e) => {
-                let contents = e.target.result as ArrayBuffer;
-                $.ajax({
-                    type: 'POST',
-                    url: `${homePath}api/SystemCenter/Parse/${extension}/${props.MeterKey}`,
-                    contentType: "application/octet-stream",
-                    processData: false,
-                    data: contents,
-                    cache: false,
-                    async: true
-                }).done((data: OpenXDA.Types.Channel[]) => {
-                    handleParsedChannels(data);
-                    // Need to fetch these after since the server parser will add new things to these if it spots them
-                    dispatch(PhaseSlice.Fetch());
-                    dispatch(MeasurementCharacteristicSlice.Fetch());
-                    dispatch(MeasurmentTypeSlice.Fetch());
-                }).fail(() => {
-                    setChannelStatus('error');
-                });
-            }
-            r.readAsArrayBuffer(f);
+            $.ajax({
+                type: 'POST',
+                url: `${homePath}api/SystemCenter/Parse/${extension}/${props.MeterKey}`,
+                contentType: "application/octet-stream",
+                processData: false,
+                data: content,
+                cache: false,
+                async: true
+            }).done((data: OpenXDA.Types.Channel[]) => {
+                handleParsedChannels(data);
+                // Need to fetch these after since the server parser will add new things to these if it spots them
+                dispatch(PhaseSlice.SetChanged());
+                dispatch(MeasurementCharacteristicSlice.SetChanged());
+                dispatch(MeasurmentTypeSlice.SetChanged());
+            }).fail(() => {
+                setChannelStatus('error');
+            });
         }
         else {
             setShowCFGError(true);
             setChannelStatus('idle');
         }
     }
-
     function handleParsedChannels(newChannels: OpenXDA.Types.Channel[]) {
         if (newChannels.findIndex(chan => (chan.Trend !== props.TrendChannels)) >= 0) {
             setParsedChannels(newChannels);
@@ -267,41 +288,23 @@ export default function ChannelPage(props: IProps) {
     const NSpare = props.Channels.filter(c => IsSpare(c)).length;
 
     let body;
-    if (channelStatus === 'error') {
-        body =
-            <div style={{ width: '100%', height: '200px' }}>
+    if (channelStatus === 'error') 
+        return <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
                     <ServerErrorIcon Show={true} Size={40} Label={'A server error has occurred. Please contact your administrator.'} />
                 </div>
-            </div>
-    } else {
-        body = 
-            <>
+        </div>
+
+    return <>
                 <div className="row">
-                    <div className="col-1">
-                        <button className=/*{*/"btn btn-primary"/* + (props.TrendChannels ? 'btn-disabled' : '')}*/
-                            data-tooltip='DefaultChannel'
-                            onMouseEnter={() => setHoverDefault(true)}
-                            onMouseLeave={() => setHoverDefault(false)}
-                            onClick={() => {
-                                if (props.TrendChannels)
-                                    return;
-                                setSelectedFile('');
-                                let channels: Array<OpenXDA.Types.Channel> = [
-                                    { ID: 0, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                                    { ID: 1, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'VBN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage BN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                                    { ID: 2, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'VCN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage CN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                                    { ID: 3, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'IA', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current A', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                                    { ID: 4, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'BN', Name: 'IB', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current B', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                                    { ID: 5, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'CN', Name: 'IC', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current C', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                                    { ID: 6, Trend: props.TrendChannels, Meter: props.MeterKey, Asset: '', MeasurementType: 'Current', MeasurementCharacteristic: 'Instantaneous', Phase: 'RES', Name: 'IR', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Current RES', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0 } as OpenXDA.Types.Channel,
-                                ]
-                                props.UpdateChannels(channels);
-                                clearAssetsChannels();
-                            }}>Default Setup</button>
-                        <ToolTip Show={hoverDefault} Position={'top'} Theme={'dark'} Target={"DefaultChannel"}>
-                            <p>No Trending Channel Default Setup is available.</p>
-                        </ToolTip>
+            <div className="col-1">
+                <TemplateWindow IsEngineer={props.IsEngineer} TrendChannels={props.TrendChannels}
+                    Upload={(d, f) => {
+                        setChannelStatus('loading');
+                        ParseFile(d, f);
+                    }
+
+                } />
                     </div>
                     <div className="col-1">
                         {`Number of ${props.TrendChannels ? "Trend" : "Event"} Channels: ${currentChannels.length}`}
@@ -355,13 +358,13 @@ export default function ChannelPage(props: IProps) {
                             key: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'Name'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} />
                         },
                         {
-                            key: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementTypes.map((t) => ({ Value: t, Label: t }))} />
-                        },
+                            key: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementType'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={measurementTypes.map((t) => ({ Value: t.Name, Label: t.Name }))} />
+                                },
                         {
-                            key: 'MeasurementCharacteristic', label: 'Char', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementCharacteristic'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.MeasurementCharacteristics.map((t) => ({ Value: t, Label: t }))} />
-                        },
+                            key: 'MeasurementCharacteristic', label: 'Char', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'MeasurementCharacteristic'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={measurementCharateristics.map((t) => ({ Value: t.Name, Label: t.Name }))} />
+                                },
                         {
-                            key: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={OpenXDA.Lists.Phases.map((t) => ({ Value: t, Label: t }))} />
+                            key: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => <Select<OpenXDA.Types.Channel> Field={'Phase'} Record={item} Setter={(ch) => editChannel(ch)} Label={''} Options={phases.map((t) => ({ Value: t.Name, Label: t.Name }))} />
                         },
                         { key: 'SamplesPerHour', label: 'Sph.', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'SamplesPerHour'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
                         { key: 'PerUnitValue', label: 'Per Unit', headerStyle: { width: '7%' }, rowStyle: { width: '7%' }, content: (item) => <Input<OpenXDA.Types.Channel> Field={'PerUnitValue'} Type={'number'} Record={item} Valid={() => true} Setter={(ch) => editChannel(ch)} Label={''} /> },
@@ -403,8 +406,4 @@ export default function ChannelPage(props: IProps) {
                 </Modal>
 
             </>
-    }
-
-    return body;
-
 }

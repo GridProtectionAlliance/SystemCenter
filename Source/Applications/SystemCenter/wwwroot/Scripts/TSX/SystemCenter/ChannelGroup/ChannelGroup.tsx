@@ -32,14 +32,15 @@ import { ChannelGroupSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
+declare type Tab = 'info' | 'items'
 
-export default function ChannelGroup(props: { GroupID: number }) {
+interface IProps { GroupID: number, Tab: Tab }
+
+export default function ChannelGroup(props: IProps) {
     const dispatch = useAppDispatch();
     const record = useAppSelector((state) => ChannelGroupSlice.Datum(state, props.GroupID));
-
     const channelGroupStatus = useAppSelector(ChannelGroupSlice.Status);
-
-    const [tab, setTab] = React.useState<'items' | 'info'>('items');
+    const [tab, setTab] = React.useState(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
     React.useEffect(() => {
@@ -47,8 +48,18 @@ export default function ChannelGroup(props: { GroupID: number }) {
             dispatch(ChannelGroupSlice.Fetch());
     }, [channelGroupStatus]);
 
+    function getTab(): Tab {
+        if (props.Tab != undefined) return props.Tab;
+        else if (sessionStorage.hasOwnProperty('ChannelGroup.Tab'))
+            return JSON.parse(sessionStorage.getItem('ChannelGroup.Tab'));
+        else
+            return 'info';
+    }
+
     React.useEffect(() => {
-        sessionStorage.setItem('ChannelGroup.Tab', JSON.stringify(tab));
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('ChannelGroup.Tab', JSON.stringify(tab));
     }, [tab]);
 
     function Delete() {
@@ -56,7 +67,13 @@ export default function ChannelGroup(props: { GroupID: number }) {
         window.location.href = homePath + 'index.cshtml?name=ChannelGroups';
     }
 
+    const Tabs = [
+        { Id: "info", Label: "Channel Group Info" },
+        { Id: "items", Label: "Group Items"}
+    ]
+
     if (record == null) return null;
+
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
@@ -65,14 +82,12 @@ export default function ChannelGroup(props: { GroupID: number }) {
                 </div>
                 <div className="col">
                     <button className="btn btn-danger pull-right" hidden={record == null}
-                        onClick={() => setShowRemove(true)}>Delete Channel Group (Permanent)</button>
+                        onClick={() => setShowRemove(true)}>Delete Channel Group</button>
                 </div>
             </div>
-
-
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={(t) => setTab(t as ('items' | 'info'))} Tabs={[{ Label: 'Channel Group Info', Id: 'info' }, { Label: 'Group Items', Id: 'items'}]} />
 
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
                     <ChannelGroupInfo Record={record} />
@@ -81,6 +96,7 @@ export default function ChannelGroup(props: { GroupID: number }) {
                     <ChannelGroupItems Record={record} />
                 </div>
             </div>
+
             <Warning
                 Message={'This will permanently delete this Channel Group and cannot be undone.'}
                 Show={showRemove} Title={'Delete ' + (record?.Name ?? 'Channel Group')}

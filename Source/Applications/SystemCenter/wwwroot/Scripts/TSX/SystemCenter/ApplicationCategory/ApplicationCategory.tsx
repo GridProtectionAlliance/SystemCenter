@@ -27,23 +27,20 @@ import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interac
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ApplicationCategorySlice } from '../Store/Store';
 import { Application } from '@gpa-gemstone/application-typings';
-import { Input } from '@gpa-gemstone/react-forms';
 import ApplicationCategoryInfo from './ApplicationCategoryInfo';
 import Applications from './Applications';
 
 declare var homePath: string;
-type tab = 'appCatInfo' | 'applications'
+type Tab = 'appCatInfo' | 'applications'
 
-interface IProps { ID: number, Tab: tab }
+interface IProps { ID: number, Tab: Tab }
 
 function ApplicationCategory(props: IProps) {
-
     const [tab, setTab] = React.useState(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const acStatus = useAppSelector(ApplicationCategorySlice.Status) as Application.Types.Status;
     const applicationCategory = useAppSelector((state) => ApplicationCategorySlice.Datum(state, props.ID)) as ApplicationCategory;
-
     const dispatch = useAppDispatch();
 
     React.useEffect(() => {
@@ -51,12 +48,7 @@ function ApplicationCategory(props: IProps) {
             dispatch(ApplicationCategorySlice.Fetch());
     }, [acStatus]);
 
-    const Tabs: { Id: tab, Label: string }[] = [
-        { Id: "appCatInfo", Label: "Application Category Info" },
-        { Id: "applications", Label: "Applications" },
-    ];
-
-    function getTab(): tab {
+    function getTab(): Tab {
         if (props.Tab != undefined) return props.Tab;
         else if (sessionStorage.hasOwnProperty('ApplicationCategory.Tab'))
             return JSON.parse(sessionStorage.getItem('ApplicationCategory.Tab'));
@@ -64,7 +56,19 @@ function ApplicationCategory(props: IProps) {
             return 'appCatInfo';
     }
 
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('ApplicationCategory.Tab', JSON.stringify(tab));
+    }, [tab]);
+
+    const Tabs: { Id: Tab, Label: string }[] = [
+        { Id: "appCatInfo", Label: "Application Category Info" },
+        { Id: "applications", Label: "Applications" },
+    ];
+
     if (applicationCategory == null) return null;
+
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
@@ -75,8 +79,9 @@ function ApplicationCategory(props: IProps) {
                     <button className="btn btn-danger pull-right" hidden={applicationCategory == null} onClick={() => { setShowDelete(true);} }>Delete Application Category</button>
                 </div>
             </div>
-            <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={Tabs} />
+            <hr />
 
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "appCatInfo" ? " active" : "fade")} id="appCatInfo">
                     <ApplicationCategoryInfo ApplicationCat={applicationCategory} stateSetter={(record) => dispatch(ApplicationCategorySlice.DBAction({verb: 'PATCH', record: record}))} />
@@ -92,6 +97,6 @@ function ApplicationCategory(props: IProps) {
             <LoadingScreen Show={loadDelete} />
             </div>
     )
-
 }
+
 export default ApplicationCategory;

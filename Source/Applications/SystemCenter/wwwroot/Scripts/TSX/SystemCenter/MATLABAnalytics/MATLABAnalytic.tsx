@@ -31,8 +31,11 @@ import { MATLABAnalyticSlice, MATLABAnalyticEventTypeSlice, MATLABAnalyticAssetT
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
+declare type Tab = 'info' | 'settings'
 
-export default function MATLABAnalytic(props: { AnalyticID: number }) {
+interface IProps { AnalyticID: number, Tab: Tab }
+
+export default function MATLABAnalytic(props: IProps) {
     const dispatch = useAppDispatch();
 
     const record = useAppSelector((state) => MATLABAnalyticSlice.Datum(state, props.AnalyticID));
@@ -43,7 +46,7 @@ export default function MATLABAnalytic(props: { AnalyticID: number }) {
     const eventTypeStatus = useAppSelector(MATLABAnalyticEventTypeSlice.Status);
     const assetTypeStatus = useAppSelector(MATLABAnalyticAssetTypeSlice.Status);
 
-    const [tab, setTab] = React.useState<'info' | 'settings'>('info');
+    const [tab, setTab] = React.useState(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
     React.useEffect(() => {
@@ -61,14 +64,28 @@ export default function MATLABAnalytic(props: { AnalyticID: number }) {
             dispatch(MATLABAnalyticAssetTypeSlice.Fetch(props.AnalyticID));
     }, [assetTypeStatus]);
 
+    function getTab(): Tab {
+        if (props.Tab != undefined) return props.Tab;
+        else if (sessionStorage.hasOwnProperty('MATLABAnalytic.Tab'))
+            return JSON.parse(sessionStorage.getItem('MATLABAnalytic.Tab'));
+        else return 'info';
+    }
+
     React.useEffect(() => {
-        sessionStorage.setItem('MATLABAnalytic.Tab', JSON.stringify(tab));
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('MATLABAnalytic.Tab', JSON.stringify(tab));
     }, [tab]);
 
     function Delete() {
         dispatch(MATLABAnalyticSlice.DBAction({ verb: 'DELETE', record }));
         window.location.href = homePath + 'index.cshtml?name=MATLABAnalytics';
     }
+
+    const Tabs = [
+        { Id: "info", Label: "Analytic Info" },
+        { Id: "settings", Label: "Settings" },
+    ];
 
     if (record == null) return null;
     return (
@@ -85,7 +102,7 @@ export default function MATLABAnalytic(props: { AnalyticID: number }) {
 
 
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={(t) => setTab(t as ('info' | 'settings'))} Tabs={[{ Label: 'Analytic Info', Id: 'info' }, { Label: 'Settings', Id: 'settings' }]} />
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235 }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">

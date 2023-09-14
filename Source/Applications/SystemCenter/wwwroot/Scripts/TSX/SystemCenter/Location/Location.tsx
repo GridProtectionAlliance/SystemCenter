@@ -35,40 +35,35 @@ import LocationImagesWindow from './LocationImages';
 import LocationDrawingsWindow from './LocationDrawings';
 
 declare var homePath: string;
-type tab = 'notes' | 'locationInfo' | 'additionalFields' | 'meters' | 'assets' | 'extDB' | 'images' | 'drawings'
+type Tab = 'notes' | 'locationInfo' | 'additionalFields' | 'meters' | 'assets' | 'extDB' | 'images' | 'drawings'
 
-interface IProps { LocationID: number, Tab: tab }
+interface IProps { LocationID: number, Tab: Tab }
 
 function Location(props: IProps) {
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const [location, setLocation] = React.useState<OpenXDA.Types.Location>(null);
-    const [tab, setTab] = React.useState<tab>(getTab());
-
-    React.useEffect(() => {
-        sessionStorage.setItem('Location.Tab', JSON.stringify(tab));
-
-    }, [tab]);
-
-    React.useEffect(() => {
-        setTab(getTab());
-        return () => { sessionStorage.clear(); }
-    }, []);
+    const [tab, setTab] = React.useState(getTab());
 
     React.useEffect(() => {
         let handle = getLocation();
         handle.then((data: OpenXDA.Types.Location) => setLocation(data));
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
-
     }, [props.LocationID]);
 
-    function getTab(): tab {
+    function getTab(): Tab {
         if (props.Tab != undefined) return props.Tab;
         else if (sessionStorage.hasOwnProperty('Location.Tab'))
             return JSON.parse(sessionStorage.getItem('Location.Tab'));
         else
             return 'notes';
     }
+
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('Location.Tab', JSON.stringify(tab));
+    }, [tab]);
 
     function getLocation(): JQuery.jqXHR<OpenXDA.Types.Location> {
         if(props.LocationID == undefined) return null;
@@ -92,19 +87,16 @@ function Location(props: IProps) {
             cache: true,
             async: true
         });
-
         handle.done(() => {
             window.location.href = homePath + 'index.cshtml?name=Locations'
         })
-
         handle.then((d) => setLoadDelete(false))
-
         return handle;
     }
      
     if (location == null) return null;
 
-    const Tabs: { Id: tab, Label: string }[] = [
+    const Tabs = [
         { Id: "notes", Label: "Notes" },
         { Id: "locationInfo", Label: "Substation Info" },
         { Id: "additionalFields", Label: "Additional Fields" },
@@ -114,7 +106,6 @@ function Location(props: IProps) {
         { Id: "images", Label: "Images" },
         { Id: "drawings", Label: "Drawings" },
     ];
-
 
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
@@ -126,10 +117,9 @@ function Location(props: IProps) {
                     <button className="btn btn-danger pull-right" hidden={location == null} onClick={() => setShowDelete(true)}>Delete Substation</button>
                 </div>
             </div>
-
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={Tabs} />
 
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes">
                     <NoteWindow ID={props.LocationID} Type='Location' />
@@ -155,13 +145,12 @@ function Location(props: IProps) {
                 <div className={"tab-pane " + (tab == "drawings" ? " active" : "fade")} id="drawings">
                     <LocationDrawingsWindow Location={location} />
                 </div>
-
             </div>
+
             <Warning Message={'This will permanently delete this Substation and cannot be undone.'} Show={showDelete} Title={'Delete ' + (location?.Name ?? 'Substation')} CallBack={(conf) => { if (conf) deleteLocation(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
     )
 }
   
-
 export default Location;

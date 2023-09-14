@@ -29,7 +29,7 @@ import * as React from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SystemCenter as GlobalSC } from '../global';
 import { DataReaderSlice } from '../Store/Store';
-const DataReaders: GlobalSC.BySettingsComponent = (props) => {
+const DataReaders: Application.Types.iByComponent = (props) => {
 
     const dispatch = useAppDispatch();
 
