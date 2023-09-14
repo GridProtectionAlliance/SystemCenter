@@ -438,7 +438,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                         { id: eventChannelsStep, long: 'Event Channel Configuration', short: 'Event' },
                         { id: trendChannelsStep, long: 'Trend Channel Configuration', short: 'Trend' },
                         { id: assetStep, long: 'Asset Configuration', short: 'Asset' },
-                        { id: connectionStep, long: 'Network Model', short: 'Network*' },
+                        { id: connectionStep, long: 'Asset Connection', short: 'Connection*' },
                         { id: additionalFieldMeterStep, long: 'Additional Meter Information', short: 'Addl Meter' },
                         { id: externalFieldStep, long: 'External Meter Information', short: 'Ext Info' },
                         { id: lineSegmentStep, long: 'Line Segement Configuration', short: 'Line Seg*' },
