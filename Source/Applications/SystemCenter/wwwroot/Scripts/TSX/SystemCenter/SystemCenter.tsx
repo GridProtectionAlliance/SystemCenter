@@ -225,7 +225,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataReaders&System=OpenXDA"} to={controllerViewPath + "?name=DataReaders&System=OpenXDA"}>openXDA Data Readers</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=miMD"} to={controllerViewPath + "?name=Settings&System=miMD"}>miMD</NavLink>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=MiMD"} to={controllerViewPath + "?name=Settings&System=MiMD"}>miMD</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ApplicationNodes"} to={controllerViewPath + "?name=ApplicationNodes"}>SSO Applications</NavLink>
@@ -332,9 +332,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "Settings")
                                     return <BySettings Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
                                 else if (qs['?name'] == "DataOperations")
-                                    return <DataOperations Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
+                                    return <DataOperations Roles={roles} />
                                 else if (qs['?name'] == "DataReaders")
-                                    return <DataReaders Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
+                                    return <DataReaders Roles={roles} />
                                 else if (qs['?name'] == "ApplicationNodes")
                                     return <ByApplicationNode Roles={roles} />
                                 else if (qs['?name'] == "Groups")
