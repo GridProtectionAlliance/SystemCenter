@@ -39,27 +39,40 @@ import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interac
 import SourceImpedanceWindow from '../AssetAttribute/SourceImpedanceWindow';
 
 declare var homePath: string;
-declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'Segments' | 'SourceImpedances'
+declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels'
 
-function Asset(props: { AssetID: number }) {
+interface IProps { AssetID: number, Tab: Tab }
+
+function Asset(props: IProps) {
     let history = useHistory();
     const [asset, setAsset] = React.useState<OpenXDA.Types.Asset>(null);
-    const [tab, setTabState] = React.useState<string>(getTab());
+    const [tab, setTab] = React.useState(getTab());
     const [assetType, setAssetType] = React.useState<OpenXDA.Types.AssetTypeName>(null);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
 
     function getTab(): Tab {
-        if (sessionStorage.hasOwnProperty('Asset.Tab'))
-            return JSON.parse(sessionStorage.getItem('Asset.Tab'));
-        else
-            return 'notes';
+        if (props.Tab != undefined) return props.Tab;
+
+        let key = 'Asset.Tab';
+        if (assetType == 'Line')
+            key = 'Line.Tab';
+
+        if (sessionStorage.hasOwnProperty(key))
+                return JSON.parse(sessionStorage.getItem(key));
+        return 'assetInfo';
     }
 
-    function setTab(tab: Tab): void {
-        sessionStorage.setItem('Asset.Tab', JSON.stringify(tab));
-        setTabState(tab);
-    }
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab) {
+            let key = 'Asset.Tab';
+            if (assetType == 'Line')
+                key = 'Line.Tab';
+            sessionStorage.setItem(key, JSON.stringify(tab)); 
+        }
+            
+    }, [tab]);
 
     function getAsset() {
         return    $.ajax({
@@ -70,7 +83,6 @@ function Asset(props: { AssetID: number }) {
             cache: false,
             async: true
        })
-
     }
 
     function getAssetType(asset: OpenXDA.Types.Asset): void {
@@ -91,32 +103,24 @@ function Asset(props: { AssetID: number }) {
             cache: true,
             async: true
         });
-
         handle.done((msg) => {
             sessionStorage.clear();
             history.push({ pathname: homePath + 'index.cshtml', search: '?name=Assets' });
         });
-
         handle.then((d) => setLoadDelete(false))
-
         return handle;
     }
 
     React.useEffect(() => {
         if (props.AssetID == undefined) return () => { };
         let handle = getAsset();
-
         handle.done((data: OpenXDA.Types.Asset) => {
             setAsset(data)
             getAssetType(data)
         });
-
         return () => {
             if (handle.abort != undefined) handle.abort();
-
         }
-
-        
     }, [props.AssetID]);
 
     if (asset == null) return null;
@@ -132,11 +136,11 @@ function Asset(props: { AssetID: number }) {
        ];
 
     if (assetType == 'Line') {
-        Tabs.push({ Id: "Segments", Label: "Line Segments" });
-        Tabs.push({ Id: "SourceImpedances", Label: "Source Impedances" });
+        Tabs.push({ Id: "segments", Label: "Line Segments" });
+        Tabs.push({ Id: "sourceImpedances", Label: "Source Impedances" });
     }
-    if (assetType == 'Breaker' || assetType == 'CapacitorBank' || assetType == 'Line' || assetType == 'Transformer' || assetType == 'Bus')
-        Tabs.push({ Id: "extDB", Label: "External DB" });
+    //if (assetType == 'Breaker' || assetType == 'CapacitorBank' || assetType == 'Line' || assetType == 'Transformer' || assetType == 'Bus')
+    //    Tabs.push({ Id: "extDB", Label: "External DB" });
     
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
@@ -148,11 +152,9 @@ function Asset(props: { AssetID: number }) {
                     <button className="btn btn-danger pull-right" hidden={asset == null} onClick={() => setShowDelete(true)}>Delete Asset</button>
                 </div>
             </div>
-
-
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
-             
+
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes">
                     <NoteWindow ID={asset.ID} Type='Asset' />
@@ -175,16 +177,17 @@ function Asset(props: { AssetID: number }) {
                 <div className={"tab-pane " + (tab == "connections" ? " active" : "fade")} id="connections">
                     <AssetConnectionWindow Asset={asset} />
                 </div>
-                <div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
-                    <ExternalDBUpdate ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab} />
-                </div>
-                <div className={"tab-pane " + (tab == "SourceImpedances" ? " active" : "fade")} id="SourceImpedances">
+                {/*<div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
+                //    <ExternalDBUpdate ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab} />
+                //</div>*/}
+                <div className={"tab-pane " + (tab == "sourceImpedances" ? " active" : "fade")} id="sourceImpedances">
                     <SourceImpedanceWindow ID={asset.ID} />
                 </div>
-                <div className={"tab-pane " + (tab == "Segments" ? " active" : "fade")} id="Segments">
+                <div className={"tab-pane " + (tab == "segments" ? " active" : "fade")} id="segments">
                     <LineSegmentWindow ID={asset.ID}/>
                 </div>
             </div>
+
             <Warning Message={'This will permanently delete this Asset and cannot be undone.'} Show={showDelete} Title={'Delete ' + (asset?.AssetName ?? 'Asset')} CallBack={(conf) => { if (conf) deleteAsset(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
