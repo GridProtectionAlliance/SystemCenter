@@ -434,7 +434,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                 <ProgressBar width={'100%'} height={40}
                     steps={[
                         { id: generalStep, long: 'Meter Information', short: 'Meter' },
-                        { id: locationStep, long: 'Substation Information', short: 'Location' },
+                        { id: locationStep, long: 'Substation Information', short: 'Substation' },
                         { id: eventChannelsStep, long: 'Event Channel Configuration', short: 'Event' },
                         { id: trendChannelsStep, long: 'Trend Channel Configuration', short: 'Trend' },
                         { id: assetStep, long: 'Asset Configuration', short: 'Asset' },
