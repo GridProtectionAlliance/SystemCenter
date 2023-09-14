@@ -442,7 +442,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                         { id: additionalFieldMeterStep, long: 'Additional Meter Information', short: 'Addl Meter' },
                         { id: externalFieldStep, long: 'External Meter Information', short: 'Ext Info' },
                         { id: lineSegmentStep, long: 'Line Segement Configuration', short: 'Line Seg*' },
-                        { id: additionalFieldAssetStep, long: 'Addional Asset Information', short: 'Addl Asset*' },
+                        { id: additionalFieldAssetStep, long: 'Additional Asset Information', short: 'Addl Asset*' },
                         { id: customerAssetGroupMeterStep, long: 'Meter Groups and Customer', short: 'Group Meter' },
                         { id: customerAssetGroupAssetStep, long: 'Asset Groups and Customer', short: 'Group Asset*' }
                     ]}
