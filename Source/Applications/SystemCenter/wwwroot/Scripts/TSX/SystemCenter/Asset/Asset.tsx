@@ -53,15 +53,25 @@ function Asset(props: IProps) {
 
     function getTab(): Tab {
         if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('Asset.Tab'))
-                return JSON.parse(sessionStorage.getItem('Asset.Tab'));
-        else return 'notes';
+
+        let key = 'Asset.Tab';
+        if (assetType == 'Line')
+            key = 'Line.Tab';
+
+        if (sessionStorage.hasOwnProperty(key))
+                return JSON.parse(sessionStorage.getItem(key));
+        return 'assetInfo';
     }
 
     React.useEffect(() => {
         const saved = getTab();
-        if (saved !== tab)
-            sessionStorage.setItem('Asset.Tab', JSON.stringify(tab)); 
+        if (saved !== tab) {
+            let key = 'Asset.Tab';
+            if (assetType == 'Line')
+                key = 'Line.Tab';
+            sessionStorage.setItem(key, JSON.stringify(tab)); 
+        }
+            
     }, [tab]);
 
     function getAsset() {
@@ -129,8 +139,8 @@ function Asset(props: IProps) {
         Tabs.push({ Id: "segments", Label: "Line Segments" });
         Tabs.push({ Id: "sourceImpedances", Label: "Source Impedances" });
     }
-    if (assetType == 'Breaker' || assetType == 'CapacitorBank' || assetType == 'Line' || assetType == 'Transformer' || assetType == 'Bus')
-        Tabs.push({ Id: "extDB", Label: "External DB" });
+    //if (assetType == 'Breaker' || assetType == 'CapacitorBank' || assetType == 'Line' || assetType == 'Transformer' || assetType == 'Bus')
+    //    Tabs.push({ Id: "extDB", Label: "External DB" });
     
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
@@ -167,9 +177,9 @@ function Asset(props: IProps) {
                 <div className={"tab-pane " + (tab == "connections" ? " active" : "fade")} id="connections">
                     <AssetConnectionWindow Asset={asset} />
                 </div>
-                <div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
-                    <ExternalDBUpdate ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab} />
-                </div>
+                {/*<div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
+                //    <ExternalDBUpdate ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab} />
+                //</div>*/}
                 <div className={"tab-pane " + (tab == "sourceImpedances" ? " active" : "fade")} id="sourceImpedances">
                     <SourceImpedanceWindow ID={asset.ID} />
                 </div>
