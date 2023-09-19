@@ -125,7 +125,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                 DisableConfirm={errors.length > 0} >
-                {/*<ExternalDBForm ExternalDB={newExternalDB} Setter={setNewExternalDB} setErrors={setNewExternalDatabaseErrors} />*/}
+                <ExternalDBForm Record={record} Setter={setRecord} setErrors={setErrors} />
             </Modal>
         </div>
     )

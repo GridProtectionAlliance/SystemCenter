@@ -101,7 +101,7 @@ export default function ExternalDBWindow(props: IProps) {
                     </div>
                 </div>
                 <div className="card-body">
-                    <ExternalDBForm ExternalDB={extDBTable} Setter={(record) => setExtDBTable(record)} setErrors={setErrors} />
+                    {/*<ExternalDBForm ExternalDB={extDBTable} Setter={(record) => setExtDBTable(record)} setErrors={setErrors} />*/}
                 </div>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
