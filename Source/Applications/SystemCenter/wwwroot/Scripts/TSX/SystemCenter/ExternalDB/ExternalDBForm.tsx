@@ -39,21 +39,18 @@ export default function ExternalDBForm(props: { Record: SystemCenter.Types.Exter
         return false;
     }
 
-    function ShowDP() {
-        if (props.Record.Encrypt) {
-            setShowDataProvider(true);
-        } else {
-            setShowDataProvider(false);
-        }
-    }
-
-    // TODO: FIX - Does not work
     function DataProvider() {
-        ShowDP();
         if (showDataProvider) {
             return <TextArea<SystemCenter.Types.ExternalDatabases> Rows={3} Record={props.Record} Field={'DataProviderString'} Valid={Valid} Setter={props.Setter} />
         }
+
+        return null;
     }
+
+    React.useEffect(() => {
+        setShowDataProvider(props.Record.Encrypt);
+    }, [props.Record.Encrypt]);
+
 
     return (
         <form>
@@ -61,7 +58,8 @@ export default function ExternalDBForm(props: { Record: SystemCenter.Types.Exter
             <Input<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Schedule'} Feedback={'A Schedule of less than 50 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <TextArea<SystemCenter.Types.ExternalDatabases> Rows={3} Record={props.Record} Field={'ConnectionString'} Valid={Valid} Setter={props.Setter} />
             <CheckBox<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Encrypt'} Label={'Encrypted'} Setter={props.Setter} />
-            {DataProvider}
+            <br/>
+            {DataProvider()}
         </form>
     );
 }
