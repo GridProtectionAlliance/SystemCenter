@@ -33,10 +33,10 @@ import { ISecurityGroup } from '../Types';
 import { useSelector } from 'react-redux';
 import GroupForm from './GroupForm';
 
-const defaultSearchcols: Search.IField<Application.Types.iUserAccount>[] = [
+const defaultSearchcols: Search.IField<Application.Types.iSecurityGroup>[] = [
     { label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false },
     { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
-    { label: 'Type', key: 'Type', type: 'string', isPivotField: false },
+    { label: 'Type', key: 'Type', type: 'enum', enum: [{ Label: 'AD', Value: 'AD' }, { Label: 'Database', Value: 'Database' },{ Label: 'Azure', Value: 'Azure' }], isPivotField: false },
 ];
 
 const emptyGroup: ISecurityGroup = { Name: "", CreatedBy: "", CreatedOn: new Date(), Description: "", DisplayName: "", ID: "00000000-0000-0000-0000-000000000000", Type: "Database", UpdatedOn: new Date() };
@@ -85,8 +85,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <LoadingScreen Show={pageStatus === 'loading'} />
-            <SearchBar<ISecurityGroup> CollumnList={defaultSearchcols} SetFilter={(flds) => dispatch(SecurityGroupSlice.DBSearch({ filter: flds }))}
-                Direction={'left'} defaultCollumn={{ label: 'Name', key: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
+            <SearchBar<ISecurityGroup> CollumnList={defaultSearchcols} SetFilter={(flds) => dispatch(SecurityGroupSlice.DBSearch({ sortField, ascending, filter: flds }))}
+                Direction={'left'} defaultCollumn={{ label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                 ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' User Group(s)'}
                 GetEnum={() => {
                     return () => { }
@@ -105,7 +105,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<ISecurityGroup>
                     cols={[
-                        { key: 'Name', field: 'DisplayName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'DisplayName', field: 'DisplayName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'CreatedOn', field: 'CreatedOn', label: 'Added On', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'CreatedBy', field: 'CreatedBy', label: 'Created By', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -117,12 +117,8 @@ const ByUser: Application.Types.iByComponent = (props) => {
                     sortKey={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.colKey === 'scroll' || d.colField == undefined)
-                            return;
-                        if (d.colField === sortField)
-                            dispatch(SecurityGroupSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                        else
-                            dispatch(SecurityGroupSlice.Sort({SortField: d.colField, Ascending: true }));
+                        if (d.colKey === 'scroll' || d.colField === undefined) return;
+                        dispatch(SecurityGroupSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     onClick={(d) => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Group&GroupID=' + d.row.ID })}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

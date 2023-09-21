@@ -90,6 +90,58 @@ namespace SystemCenter.Controllers
         }
     }
 
+    [RoutePrefix("api/ChannelGroup")]
+    public class ChannelGroupController : ModelController<openXDA.Model.ChannelGroup> { }
+
+    [RoutePrefix("api/ChannelGroupDetails")]
+    public class ChannelGroupDetailsController : ModelController<openXDA.Model.ChannelGroupDetails> 
+    {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                openXDA.Model.ChannelGroupType newRecord = record.ToObject<openXDA.Model.ChannelGroupType>();
+                int result = new TableOperations<openXDA.Model.ChannelGroupType>(connection).AddNewRecord(newRecord);
+                return Ok(result);
+            }
+        }
+
+        public override IHttpActionResult Patch([FromBody] openXDA.Model.ChannelGroupDetails record)
+        {
+            if (!PatchAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                int result = new TableOperations<openXDA.Model.ChannelGroupType>(connection).AddNewOrUpdateRecord(record);
+                // Turn into channelgrouptype
+                openXDA.Model.ChannelGroupType newRecord = new TableOperations<openXDA.Model.ChannelGroupType>(connection).QueryRecordWhere("ID = {0}", record.ID);
+                return Ok(newRecord);
+            }
+        }
+
+        public override IHttpActionResult Delete(openXDA.Model.ChannelGroupDetails record)
+        {
+            if (!DeleteAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using (AdoDataConnection adoDataConnection = new AdoDataConnection(Connection))
+            {
+                int result = adoDataConnection.ExecuteNonQuery($"EXEC UniversalCascadeDelete ChannelGroupType, 'ID = {record.ID}'");
+                return Ok(result);
+            }
+        }
+    }
+
     [RoutePrefix("api/LSCVSAccount")]
     public class LSCVSAccountController : ModelController<LSCVSAccount> { }
 
@@ -756,8 +808,8 @@ namespace SystemCenter.Controllers
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     // Finding Phases that do not yet exist and adding them to the database
-                    Func<ParsedChannel, string> phaseKeyChannel = (ParsedChannel channel) => channel.Phase;
-                    Func<openXDA.Model.Phase, string> phaseKey = (openXDA.Model.Phase phase) => phase.Name;
+                    Func<ParsedChannel, string> phaseKeyChannel = (ParsedChannel channel) => channel.Phase.ToUpper();
+                    Func<openXDA.Model.Phase, string> phaseKey = (openXDA.Model.Phase phase) => phase.Name.ToUpper();
                     Func<ParsedChannel, openXDA.Model.Phase> createPhase = 
                         (ParsedChannel channel) =>
                             new openXDA.Model.Phase()
@@ -1354,4 +1406,60 @@ namespace SystemCenter.Controllers
             }
         }
     }
+
+    [RoutePrefix("api/OpenXDA/EventTag")]
+    public class EventTagController : ModelController<openXDA.Model.EventTag> { }
+
+    [RoutePrefix("api/OpenXDA/MATLABAnalytic")]
+    public class MATLABAnalyticController : ModelController<openXDA.Model.MATLABAnalytic>
+    {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                openXDA.Model.MATLABAnalytic analyticRecord = record["MATLABAnalytic"].ToObject<openXDA.Model.MATLABAnalytic>();
+                openXDA.Model.MATLABAnalyticEventType[] eventTypeRecords = record["MATLABAnalyticEventType"].ToObject<openXDA.Model.MATLABAnalyticEventType[]>();
+                openXDA.Model.MATLABAnalyticAssetType[] assetTypeRecords = record["MATLABAnalyticAssetType"].ToObject<openXDA.Model.MATLABAnalyticAssetType[]>();
+
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    new TableOperations<openXDA.Model.MATLABAnalytic>(connection).AddNewRecord(analyticRecord);
+
+                    analyticRecord.ID = connection.ExecuteScalar<int>($"SELECT MAX(ID) FROM MATLABAnalytic");
+                    
+                    // Add event types
+                    foreach (openXDA.Model.MATLABAnalyticEventType eventType in eventTypeRecords)
+                    {
+                        eventType.MATLABAnalyticID = analyticRecord.ID;
+                        new TableOperations<openXDA.Model.MATLABAnalyticEventType>(connection).AddNewRecord(eventType);
+                    }
+
+                    // Add asset types
+                    foreach (openXDA.Model.MATLABAnalyticAssetType assetType in assetTypeRecords)
+                    {
+                        assetType.MATLABAnalyticID = analyticRecord.ID;
+                        new TableOperations<openXDA.Model.MATLABAnalyticAssetType>(connection).AddNewRecord(assetType);
+                    }
+                }
+
+                return Ok(analyticRecord.ID);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
+    [RoutePrefix("api/OpenXDA/MATLABAnalyticEventType")]
+    public class MATLABAnalyticEventTypeController : ModelController<openXDA.Model.MATLABAnalyticEventType> { }
+
+    [RoutePrefix("api/OpenXDA/MATLABAnalyticAssetType")]
+    public class MATLABAnalyticAssetTypeController : ModelController<openXDA.Model.MATLABAnalyticAssetType> { }
+
 }

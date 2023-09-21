@@ -47,9 +47,7 @@ export namespace SystemCenter {
     interface MiMDDailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulFileProcessed: string, LastUnsuccessfulFileProcessed: string, LastUnsuccessfulFileProcessedExplanation: string, TotalFilesProcessed: number, TotalUnsuccessfulFilesProcessed: number, TotalSuccessfulFilesProcessed: number, ConfigChanges: number, DiagnosticAlarms: number, ComplianceIssues: number, LastConfigFileChange: string }
     interface OpenXDADailyStatistic { ID: number, Date: string, Meter: string, LastSuccessfulFileProcessed: string, LastUnsuccessfulFileProcessed: string, LastUnsuccessfulFileProcessedExplanation: string, TotalFilesProcessed: number, TotalUnsuccessfulFilesProcessed: number, TotalSuccessfulFilesProcessed: number, TotalEmailsSent: number, AverageDownloadLatency: number, AverageProcessingStartLatency: number, AverageProcessingEndLatency: number, AverageEmailLatency: number, AverageTotalProcessingLatency: number, AverageTotalEmailLatency: number }
     interface MeterDataQualitySummary { ID: number, Date: string, MeterID: number, ExpectedPoints: number, GoodPoints: number, LatchedPoints: number, UnreasonablePoints: number, NoncongruentPoints: number, DuplicatePoints: number }
-
-    interface BySettingsComponent { (props: { Roles: Array<Application.Types.SecurityRoleName>, System: 'SystemCenter' | 'OpenXDA' | 'MiMD' }): JSX.Element; }
-
+    interface ChannelTemplateFile { ID: number, Name: string, FileBlob: string, FileName: string, ShowTrend: boolean, ShowEvents: boolean, SortOrder: number }
 }
 
 // OpenXDA Models
@@ -57,7 +55,9 @@ export namespace OpenXDA {
     //Events
     interface Event { UpdatedBy: string, FileVersion: number, Description: string, SamplesPerCycle: number, SamplesPerSecond: number, TimeZoneOffset: number, Samples: number, EndTime: string, StartTime: string, Alias: string, Name: string, EventDataID: number | null, EventTypeID: number, AssetID: number, MeterID: number, FileGroupID: number, ID: number, ShortName: string }
 
-    interface EventChannel extends GemstoneXDA.Types.Channel { SourceIndices: string, MeterID: number, AssetID: number, PhaseID: number, MeasurementTypeID: number   }
+    interface EventChannel extends GemstoneXDA.Types.Channel { SourceIndices: string, MeterID: number, AssetID: number, PhaseID: number, MeasurementTypeID: number }
+    interface TrendChannel extends GemstoneXDA.Types.Channel { SourceIndices: string, MeterID: number, AssetID: number, PhaseID: number, MeasurementTypeID: number, MeasurementCharacteristicID: number }
+
     // Data Rescue
     interface DataRescueOperation { ID: number, MeterID: number, StartTime: Date, EndTime: Date, TimeShift: number, TimeShiftUnits: string, ChannelAdjustments: DataRescueChannelAdjustment[] }
     interface DataRescueChannelAdjustment { ID: number, ChannelID: number, Channel: string, Multiplier: number, Adder: number }

@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingScreen, ServerErrorIcon, ToolTip, Warning, Modal } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, ServerErrorIcon, ToolTip, Warning, Modal, ProgressBar } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CrossMark, Warning as WarningSymbol } from '@gpa-gemstone/gpa-symbols';
 import { SelectMeterStatus, FetchMeter } from '../Store/MeterSlice';
@@ -50,7 +50,7 @@ export interface AssetLists {
     Transformers: Array<OpenXDA.Types.Transformer>
 }
 
-export default function NewMeterWizard(props: {}) {
+export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     let history = useHistory();
     const dispatch = useAppDispatch();
 
@@ -395,7 +395,7 @@ export default function NewMeterWizard(props: {}) {
             case eventChannelsStep:
                 // The uses the same page as the next step for now
             case trendChannelsStep:
-                return <ChannelPage MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError} SetWarning={setWarning} TrendChannels={currentStep == 4} />
+                return <ChannelPage IsEngineer={props.IsEngineer}  MeterKey={meterInfo.AssetKey} Channels={channels} UpdateChannels={setChannels} UpdateAssets={setAssets} SetError={setError} SetWarning={setWarning} TrendChannels={currentStep == 4} />
             case assetStep:
                 return <AssetPage AssetConnections={assetConnections} Location={locationInfo} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} SetWarning={setWarning} PageID={assetPageID} />
             case connectionStep:
@@ -428,8 +428,26 @@ export default function NewMeterWizard(props: {}) {
     function disableNext() { return error.length > 0 };
 
     return (
-        <div style={{padding: 10, height: 'inherit', overflowY: 'hidden'}}>
-            <h2>New Meter Wizard</h2>
+        <div style={{ padding: 10, height: 'inherit', overflowY: 'hidden' }}>
+            <h2 style={{ width: 300, display: 'inline-block' }}>New Meter Wizard</h2>
+            <div style={{ height: 40, width: 'calc(100% - 300px)', display: 'inline-block' }}>
+                <ProgressBar width={'100%'} height={40}
+                    steps={[
+                        { id: generalStep, long: 'Meter Information', short: 'Meter' },
+                        { id: locationStep, long: 'Substation Information', short: 'Substation' },
+                        { id: eventChannelsStep, long: 'Event Channel Configuration', short: 'Event' },
+                        { id: trendChannelsStep, long: 'Trend Channel Configuration', short: 'Trend' },
+                        { id: assetStep, long: 'Asset Configuration', short: 'Asset' },
+                        { id: connectionStep, long: 'Asset Connection', short: 'Connection*' },
+                        { id: additionalFieldMeterStep, long: 'Additional Meter Information', short: 'Addl Meter' },
+                        { id: externalFieldStep, long: 'External Meter Information', short: 'Ext Info' },
+                        { id: lineSegmentStep, long: 'Line Segement Configuration', short: 'Line Seg*' },
+                        { id: additionalFieldAssetStep, long: 'Additional Asset Information', short: 'Addl Asset*' },
+                        { id: customerAssetGroupMeterStep, long: 'Meter Groups and Customer', short: 'Group Meter' },
+                        { id: customerAssetGroupAssetStep, long: 'Asset Groups and Customer', short: 'Group Asset*' }
+                    ]}
+                    activeStep={currentStep}
+            /></div>
             <hr />
             <div className="card" style={{ height: 'calc(100% - 75px)' }}>
                 <LoadingScreen Show={status === 'loading'} />

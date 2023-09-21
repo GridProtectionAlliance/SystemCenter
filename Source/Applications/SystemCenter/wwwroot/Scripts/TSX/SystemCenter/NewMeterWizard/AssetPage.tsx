@@ -1,4 +1,4 @@
-﻿//******************************************************************************************************
+//******************************************************************************************************
 //  AssetPage.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
@@ -39,7 +39,7 @@ import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
-
+import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
 
 declare var homePath: string;
 
@@ -261,9 +261,10 @@ export default function AssetPage(props: IProps) {
                     </div>
                     <div className="col" style={{padding: 20}}>
                         <div style={{ width: '100%', height: 38 }}>
-                            <div className="col-4 pull-right">
-                                <button className="btn btn-primary pull-left" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
-                                <button className="btn btn-primary pull-right" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
+                            <div className="col pull-right btn-toolbar justify-content-end">
+                                    <button className="btn btn-primary mr-4" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
+                                    <button className="btn btn-primary mr-4" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
+                                    <LocationDrawings LocationID={props.Location.ID} />
                             </div>
                         </div>
 
@@ -349,12 +350,15 @@ export default function AssetPage(props: IProps) {
                         props.UpdateChannels(channels);
                         props.UpdateAssetConnections(assetConnections);
                     }}>
-                    <li className="nav-item" style={{ width: '30%', paddingRight: 10 }}>
+                    <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
                         <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large' }}>New Asset:</legend>
+                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
                                 <div className="form-group">
                                     <button className="btn btn-primary" onClick={(e) => { e.preventDefault(); setNewEdit('New'); setShowAssetModal(true); setShowAssetSelect(false); }}>Create Asset</button>
+                                </div>
+                                <div className="form-group">
+                                    <LocationDrawings LocationID={props.Location.ID} />
                                 </div>
                             </form>
                         </fieldset>
@@ -537,7 +541,7 @@ export default function AssetPage(props: IProps) {
                                 </div>
                             </div> : null}
                         </div>
-                    </Modal>
+                </Modal>
             </>
         );
 

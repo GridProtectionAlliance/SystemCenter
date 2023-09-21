@@ -31,7 +31,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { SystemCenter as GlobalSC } from '../global';
 import { DataOperationSlice } from '../Store/Store';
 
-const DataOperations: GlobalSC.BySettingsComponent = (props) => {
+const DataOperations: Application.Types.iByComponent = (props) => {
 
     const dispatch = useAppDispatch();
 
