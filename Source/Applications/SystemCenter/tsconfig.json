@@ -13,7 +13,7 @@
     "module": "ESNext",
     "moduleResolution": "Node"
   },
-  "include": [ "wwwroot/**/*" ],
+  "include": [ "wwwroot/**/*", "EventWidgets/**/*" ],
   "exclude": [
     "node_modules"
   ]
