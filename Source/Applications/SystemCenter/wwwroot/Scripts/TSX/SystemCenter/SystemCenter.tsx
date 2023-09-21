@@ -300,7 +300,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "ByExternalDB")
                                     return <ByExternalDB Roles={roles} />
                                 else if (qs['?name'] == "ExternalDB")
-                                    return <ExternalDB ID={parseInt(qs.ID as string)} />
+                                    return <ExternalDB ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "User")
                                     return <User UserID={qs.UserAccountID as string} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Group")

@@ -22,85 +22,82 @@
 //******************************************************************************************************
 
 
-
 import * as React from 'react';
-import * as _ from 'lodash';
-import ExternalDBWindow from './ExternalDBInfo';
-import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive';
-import QueryWindow from './QueryWindow';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { ExternalDBTablesSlice } from '../Store/Store';
-import { Application } from '@gpa-gemstone/application-typings';
+import ExternalDBInfo from './ExternalDBInfo';
+/*import ExternalDBTables from './ExternalDBTables';*/
+import { useAppSelector, useAppDispatch } from '../hooks';
+import { ExternalDatabasesSlice } from '../Store/Store';
+import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
+declare type Tab = 'info' | 'tables';
 
-function ExternalDB(props: { ID: number }) {
-
-    const [tab, setTab] = React.useState(getTab);
-    const [showDelete, setShowDelete] = React.useState<boolean>(false);
-
+export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     const dispatch = useAppDispatch();
-    const extDBStatus = useAppSelector(ExternalDBTablesSlice.Status) as Application.Types.Status;
-    const datum = useAppSelector((state) => ExternalDBTablesSlice.Datum(state, props.ID))
+
+    const record = useAppSelector((state) => ExternalDatabasesSlice.Datum(state, props.ID));
+    const status = useAppSelector(ExternalDatabasesSlice.Status);
+
+    const [tab, setTab] = React.useState(getTab());
+    const [showRemove, setShowRemove] = React.useState<boolean>(false);
+
+    const Tabs = [
+        { Id: "info", Label: "Info" },
+        { Id: "tables", Label: "Tables" },
+    ];
 
     React.useEffect(() => {
-        if (extDBStatus === 'unintiated' || extDBStatus === 'changed') 
-            dispatch(ExternalDBTablesSlice.Fetch());
-    }, [dispatch, extDBStatus]);
+        if (status == 'unintiated' || status == 'changed')
+            dispatch(ExternalDatabasesSlice.Fetch());
+    }, [status]);
 
-    React.useEffect(() => {
-        sessionStorage.setItem('ExternalDB.Tab', JSON.stringify(tab));
-    }, [tab]);
-
-    function getTab(): string {
-        if (sessionStorage.hasOwnProperty('ExternalDB.Tab'))
+    function getTab(): Tab {
+        if (props.Tab != undefined) return props.Tab;
+        else if (sessionStorage.hasOwnProperty('ExternalDB.Tab'))
             return JSON.parse(sessionStorage.getItem('ExternalDB.Tab'));
-        else
-            return 'ExternalDBInfo';
+        else return 'info';
     }
 
-    if (datum == null) return null;
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('ExternalDB.Tab', JSON.stringify(tab));
+    }, [tab]);
+
+    function Delete() {
+        dispatch(ExternalDatabasesSlice.DBAction({ verb: 'DELETE', record }));
+        window.location.href = homePath + 'index.cshtml?name=ByExternalDB';
+    }
+
+    if (record == null) return null;
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
                 <div className="col">
-                    <h2>{datum.TableName}</h2>
+                    <h2>External Database</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete External DB Table</button>
+                    <button className="btn btn-danger pull-right" hidden={record == null}
+                        onClick={() => setShowRemove(true)}>Delete External DB</button>
                 </div>
             </div>
 
 
             <hr />
-            <ul className="nav nav-tabs">
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "ExternalDBInfo" ? " active" : "")} onClick={() => setTab('ExternalDBInfo')} data-toggle="tab" href="#ExternalDBInfo">Table Information</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "query" ? " active" : "")} onClick={() => setTab('query')} data-toggle="tab" href="#query">Query</a>
-                </li>
-            </ul>
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
 
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "ExternalDBInfo" ? " active" : "fade")} id="ExternalDBInfo">
-                    <ExternalDBWindow ExternalDBTables={datum} />
+            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235 }}>
+                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
+                    {/*<ExternalDBInfo Record={record} />*/}
                 </div>
-                <div className={"tab-pane " + (tab == "query" ? "active" : "fade")} id="query" >
-                    <QueryWindow ExternalDB={datum} />
+                <div className={"tab-pane " + (tab == "tables" ? " active" : "fade")} id="tables">
+                    {/*<ExternalDBTables Record={record} />*/}
                 </div>
             </div>
-            <Warning Message={'This will permanently delete the ' + (datum?.ExternalDB ?? 'External Database') + ' Table from openXDA and cannot be undone.'} Show={showDelete} Title={'Delete ' + (datum?.TableName ?? 'External Database Table')}
-                CallBack={(conf) => {
-                    if (conf)
-                        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record: datum }));
-                    window.location.href = homePath + 'index.cshtml?name=ByExternalDB';
-                    setShowDelete(false);
-                }} />
-            <LoadingScreen Show={false} />
+            <Warning
+                Message={'This will permanently delete this External Database and cannot be undone.'}
+                Show={showRemove} Title={'Delete ' + (record?.Name ?? 'External Database')}
+                CallBack={(conf) => { if (conf) Delete(); setShowRemove(false); }} />
         </div>
     )
 }
-
-
-export default ExternalDB;

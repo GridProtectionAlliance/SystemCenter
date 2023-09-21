@@ -1377,6 +1377,9 @@ namespace SystemCenter.Controllers
         }
     }
 
+    [RoutePrefix("api/SystemCenter/ExternalDatabases")]
+    public class ExternalDatabasesController : ModelController<SystemCenter.Model.ExternalDatabases> { }
+
     [RoutePrefix("api/SEbrowser/Widget")]
     public class SEBrowserWidgetController : ModelController<SEBrowser.Model.Widget> {}
 
