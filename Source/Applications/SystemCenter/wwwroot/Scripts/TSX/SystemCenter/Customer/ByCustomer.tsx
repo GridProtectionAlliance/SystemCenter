@@ -33,6 +33,8 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { CustomerSlice } from '../Store/Store';
 import CustomerForm from './CustomerForm';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { number } from 'prop-types';
+import Customer from './Customer';
 
 
 declare var homePath: string;
@@ -143,7 +145,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
-                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowModal(true); }}>Add Customer</button>
+                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setNewCustomer(getNewCustomer()); setShowModal(true); }}>Add Customer</button>
                         </form>
                     </fieldset>
                 </li>
