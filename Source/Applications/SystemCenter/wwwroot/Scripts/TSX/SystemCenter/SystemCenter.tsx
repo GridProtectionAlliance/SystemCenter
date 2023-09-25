@@ -65,6 +65,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const BySettings = React.lazy(() => import(/* webpackChunkName: "BySetting" */ './Settings/BySetting'));
     const ByValueListGroup = React.lazy(() => import(/* webpackChunkName: "ByValueListGroup" */ './ValueListGroup/ByValueListGroup'));
     const ValueListGroup = React.lazy(() => import(/* webpackChunkName: "ValueListGroup" */ './ValueListGroup/ValueListGroup'));
+    const ByChannelGroup = React.lazy(() => import(/* webpackChunkName: "ByChannelGroup" */ './ChannelGroup/ByChannelGroup'));
+    const ChannelGroup = React.lazy(() => import(/* webpackChunkName: "ChannelGroup" */ './ChannelGroup/ChannelGroup'));
     const DownloadedFiles = React.lazy(() => import(/* webpackChunkName: "DownloadedFiles" */ './DeviceHealthReport/DownloadedFiles'));
     const DeviceHealthReport = React.lazy(() => import(/* webpackChunkName: "DeviceHealthReport" */ './DeviceHealthReport/DeviceHealthReport'));
     const DeviceContacts = React.lazy(() => import(/* webpackChunkName: "DeviceContacts" */ './DeviceHealthReport/DeviceContacts'));
@@ -80,6 +82,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const SEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/WidgetCategory'));
     const BySEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/ByWidgetCategory'));
     const ByMagDurCurve = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './MagDurCurves/ByMagDurCurve'));
+    const ByEventTag = React.lazy(() => import(/* webpackChunkName: "ByEventTag" */ './EventTag/ByEventTag'));
+    const ByMATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "ByMATLABAnalytic" */ './MATLABAnalytics/ByMATLABAnalytic'));
+    const MATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "MATLABAnalytic" */ './MATLABAnalytics/MATLABAnalytic'));
 
     const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
@@ -204,6 +209,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ValueList")} to={controllerViewPath + "?name=ValueLists"}>Value Lists</NavLink>
                                 </li>
+                                <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ChannelGroup")} to={controllerViewPath + "?name=ChannelGroups"}>Channel Groups</NavLink>
+                                </li>
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=SystemCenter"} to={controllerViewPath + "?name=Settings&System=SystemCenter"}>System Center</NavLink>
                                 </li>
@@ -217,7 +225,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataReaders&System=OpenXDA"} to={controllerViewPath + "?name=DataReaders&System=OpenXDA"}>openXDA Data Readers</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=miMD"} to={controllerViewPath + "?name=Settings&System=miMD"}>miMD</NavLink>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=MiMD"} to={controllerViewPath + "?name=Settings&System=MiMD"}>miMD</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ApplicationNodes"} to={controllerViewPath + "?name=ApplicationNodes"}>SSO Applications</NavLink>
@@ -230,6 +238,12 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=MagDurCurves")} to={controllerViewPath + "?name=MagDurCurves"}>MagDur Curves</NavLink>
+                                </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=EventTags")} to={controllerViewPath + "?name=EventTags"}>Event Tags</NavLink>
+                                </li>
+                                <li className={"nav-item"}>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=MATLABAnalytics")} to={controllerViewPath + "?name=MATLABAnalytics"}>MATLAB Analytics</NavLink>
                                 </li>
                             </ul>
 
@@ -278,15 +292,15 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "RemoteXDAInstanceMain")
                                     return <RemoteXDAInstanceMain Roles={roles} />
                                 else if (qs['?name'] == "RemoteXDAInstance")
-                                    return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} />
+                                    return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "ByExternalDB")
                                     return <ByExternalDB Roles={roles} />
                                 else if (qs['?name'] == "ExternalDB")
                                     return <ExternalDB ID={parseInt(qs.ID as string)} />
                                 else if (qs['?name'] == "User")
-                                    return <User UserID={qs.UserAccountID as string} />
+                                    return <User UserID={qs.UserAccountID as string} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Group")
-                                    return <UserGroup GroupID={qs.GroupID as string} />
+                                    return <UserGroup GroupID={qs.GroupID as string} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "ByApplicationCategory")
                                     return <ByApplicationCategory Roles={roles} />
                                 else if (qs['?name'] == "DBCleanup")
@@ -296,29 +310,31 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "UserStatistics")
                                     return <UserStatistics Roles={roles} />
                                 else if (qs['?name'] == "Meter")
-                                    return <Meter MeterID={parseInt(qs.MeterID as string)} />
+                                    return <Meter MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Location")
                                     return <Location LocationID={parseInt(qs.LocationID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Asset")
-                                    return <Asset AssetID={parseInt(qs.AssetID as string)} />
+                                    return <Asset AssetID={parseInt(qs.AssetID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "AssetGroup")
-                                    return <AssetGroup AssetGroupID={parseInt(qs.AssetGroupID as string)} />
+                                    return <AssetGroup AssetGroupID={parseInt(qs.AssetGroupID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Customer")
-                                    return <Customer CustomerID={parseInt(qs.CustomerID as string)} />
+                                    return <Customer CustomerID={parseInt(qs.CustomerID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "PQViewSites")
                                     return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'PQViewDataLoader.cshtml'}></iframe>
                                 else if (qs['?name'] == "PQViewCustomers")
                                     return <ByCustomer Roles={roles} />
                                 else if (qs['?name'] == "NewMeterWizard")
-                                    return <NewMeterWizard />
+                                    return <NewMeterWizard IsEngineer={roles.indexOf('Administrator') >= 0 || roles.indexOf('Transmission SME') >= 0} />
                                 else if (qs['?name'] == "ValueListGroup")
-                                    return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} />
+                                    return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
+                                else if (qs['?name'] == "ChannelGroup")
+                                    return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Settings")
                                     return <BySettings Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
                                 else if (qs['?name'] == "DataOperations")
-                                    return <DataOperations Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
+                                    return <DataOperations Roles={roles} />
                                 else if (qs['?name'] == "DataReaders")
-                                    return <DataReaders Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
+                                    return <DataReaders Roles={roles} />
                                 else if (qs['?name'] == "ApplicationNodes")
                                     return <ByApplicationNode Roles={roles} />
                                 else if (qs['?name'] == "Groups")
@@ -331,28 +347,39 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "SEBrowserTabs")
                                     return <BySEBrowserCategory Roles={roles} />
                                 else if (qs['?name'] == "SEBrowserTab")
-                                    return <SEBrowserCategory TabID={parseInt(qs.TabID as string)} />
+                                    return <SEBrowserCategory TabID={parseInt(qs.TabID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "MagDurCurves")
                                     return <ByMagDurCurve Roles={roles} />
                                 else if (qs['?name'] == "Groups")
                                     return <BySecuritytGroup Roles={roles} />
+                                else if (qs['?name'] == "MATLABAnalytic")
+                                    return <MATLABAnalytic AnalyticID={parseInt(qs.AnalyticID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "DownloadedFiles")
                                     return <DownloadedFiles MeterID={parseInt(qs.MeterID as string)} MeterName={qs.MeterName as string } />
                                 else if (qs['?name'] == "DeviceContacts")
                                     return <DeviceContacts ID={parseInt(qs.ID as string)} Name={qs.Name as string} Field={qs.Field as 'TSC' | 'Sector'} />
                                 else if (qs['?name'] == "DeviceIssuesPage")
                                     return <DeviceIssuesPage MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} OpenMICAcronym={qs.OpenMICAcronym as string } />
-                                else if (queryString.parse(rest.location.search)['?name'] == "ValueLists") {
+                                else if (qs['?name'] == "ValueLists") {
                                     if (roles.indexOf('Administrator') < 0) return null;
                                     return <ByValueListGroup Roles={roles} />
                                 }
-                                else if (queryString.parse(rest.location.search)['?name'] == "ConfigurationHistory") {
+                                else if (qs['?name'] == "ChannelGroups")
+                                    return <ByChannelGroup Roles={roles} />
+                                else if (qs['?name'] == "ConfigurationHistory") {
                                     if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
-                                    return <ConfigurationHistory MeterConfigurationID={parseInt(queryString.parse(rest.location.search).MeterConfigurationID as string)} MeterKey={queryString.parse(rest.location.search).MeterKey as string} />
+                                    return <ConfigurationHistory MeterConfigurationID={parseInt(qs.MeterConfigurationID as string)} MeterKey={qs.MeterKey as string} />
                                 }
-                                else if (queryString.parse(rest.location.search)['?name'] == "DataFiles") {
+                                else if (qs['?name'] == "DataFiles") {
                                     if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
                                     return <DataFile Roles={roles} />
+                                }
+                                else if (queryString.parse(rest.location.search)['?name'] == "EventTags") {
+                                    return <ByEventTag Roles={roles} />
+                                }
+                                else if (queryString.parse(rest.location.search)['?name'] == "MATLABAnalytics") {
+                                    if (roles.indexOf('Administrator') < 0) return null;
+                                    return <ByMATLABAnalytic Roles={roles} />
                                 }
                                 else
                                     return <ByMeter Roles={roles} />;

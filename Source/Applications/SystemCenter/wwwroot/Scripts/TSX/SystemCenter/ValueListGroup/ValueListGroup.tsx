@@ -21,8 +21,6 @@
 //
 //******************************************************************************************************
 
-
-
 import * as React from 'react';
 import * as _ from 'lodash';
 import ValueListGroupInfo from './ValueListGroupInfo';
@@ -32,27 +30,37 @@ import { ValueListGroupSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
+declare type Tab = 'info' | 'items'
 
-export default function ValueListGroup(props: { GroupID: number }) {
+interface IProps { GroupID: number, Tab: Tab }
+
+export default function ValueListGroup(props: IProps) {
     const dispatch = useAppDispatch();
     const record = useAppSelector((state) => ValueListGroupSlice.Datum(state, props.GroupID));
-
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
-
-    const [tab, setTab] = React.useState<'items' | 'info'>('items');
+    const [tab, setTab] = React.useState(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
+
+    function getTab(): Tab {
+        if (props.Tab != undefined) return props.Tab;
+        else if (sessionStorage.hasOwnProperty('ValueListGroup.Tab'))
+            return JSON.parse(sessionStorage.getItem('ValueListGroup.Tab'));
+        else
+            return 'info';
+    }
+
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('ValueListGroup.Tab', JSON.stringify(tab));
+    }, [tab]);
 
     React.useEffect(() => {
         if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
             dispatch(ValueListGroupSlice.Fetch());
-
         return function () {
         }
     }, [dispatch, valueListGroupStatus]);
-
-    React.useEffect(() => {
-        sessionStorage.setItem('ValueListGroup.Tab', JSON.stringify(tab));
-    }, [tab]);
 
     function Delete() {
         dispatch(ValueListGroupSlice.DBAction({ verb: 'DELETE', record }))
@@ -68,14 +76,12 @@ export default function ValueListGroup(props: { GroupID: number }) {
                 </div>
                 <div className="col">
                     <button className="btn btn-danger pull-right" hidden={record == null}
-                        onClick={() => setShowRemove(true)}>Delete Value List Group (Permanent)</button>
+                        onClick={() => setShowRemove(true)}>Delete Value List Group</button>
                 </div>
             </div>
-
-
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={(t) => setTab(t as ('items' | 'info'))} Tabs={[{ Label: 'Value List Group Info', Id: 'info' }, { Label: 'List Items', Id: 'items'}]} />
 
+            <TabSelector CurrentTab={tab} SetTab={(t:Tab) => setTab(t)} Tabs={[{ Label: 'Value List Group Info', Id: 'info' }, { Label: 'List Items', Id: 'items'}]} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
                     <ValueListGroupInfo Record={record} />
@@ -84,6 +90,7 @@ export default function ValueListGroup(props: { GroupID: number }) {
                     <ValueListGroupItems Record={record} />
                 </div>
             </div>
+
             <Warning
                 Message={'This will permanently delete this Value List Group and cannot be undone.'}
                 Show={showRemove} Title={'Delete ' + (record?.Name ?? 'Value List Group')}
@@ -91,4 +98,3 @@ export default function ValueListGroup(props: { GroupID: number }) {
         </div>
     )
 }
-

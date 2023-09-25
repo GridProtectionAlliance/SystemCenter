@@ -44,12 +44,13 @@ import DataDeleteWindow from './Advanced/MeterDataDelete';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
  
 declare var homePath: string;
+declare type Tab = 'notes' | 'meterInfo' | 'additionalFields' | 'substation' | 'assets' | 'eventChannels' | 'trendChannels' | 'channelScaling' | 'configurationHistory' | 'extDB' | 'maintenance' | 'dataRescue' | 'dataMerge' | 'dataDelete'
 
-interface IProps { MeterID: number }
+interface IProps { MeterID: number, Tab: Tab }
 
 function Meter(props: IProps) {
     const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(null);
-    const [Tab, setTab] = React.useState<string>(null);
+    const [tab, setTab] = React.useState(getTab());
     const [showAdvanced, setShowAdvanced] = React.useState<boolean>(false);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
@@ -58,29 +59,24 @@ function Meter(props: IProps) {
     const [dataDeleteWindow, setDataDeleteWindow] = React.useState<React.ReactElement>();
 
     React.useEffect(() => {
-        setTab(getTab());
-        return () => { sessionStorage.clear(); }
-    }, []);
-
-    React.useEffect(() => {
-        if (Tab == null)
-            return;
-        sessionStorage.setItem('Meter.Tab', JSON.stringify(Tab));
-    }, [Tab]);
-
-    React.useEffect(() => {
         let handle = getMeter();
         handle.then((data: OpenXDA.Types.Meter) => setMeter(data));
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
-
     }, [props.MeterID]);
 
-    function getTab(): string {
-        if (sessionStorage.hasOwnProperty('Meter.Tab'))
+    function getTab(): Tab {
+        if (props.Tab != undefined) return props.Tab;
+        else if (sessionStorage.hasOwnProperty('Meter.Tab'))
             return JSON.parse(sessionStorage.getItem('Meter.Tab'));
         else
             return 'notes';
     }
+
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('Meter.Tab', JSON.stringify(tab));
+    }, [tab]);
 
     function getMeter(): JQuery.jqXHR<OpenXDA.Types.Meter> {
         if (props.MeterID == undefined) return null;
@@ -95,9 +91,7 @@ function Meter(props: IProps) {
     }
 
     function deleteMeter(): JQuery.jqXHR {
-
         setLoadDelete(true);
-
         let handle = $.ajax({
             type: "DELETE",
             url: `${homePath}api/OpenXDA/Meter/Delete`,
@@ -107,13 +101,10 @@ function Meter(props: IProps) {
             cache: true,
             async: true
         });
-
         handle.done(() => {
             window.location.href = homePath + 'index.cshtml?name=Meters'
         })
-
         handle.then((d) => setLoadDelete(false))
-
         return handle;
     }
 
@@ -121,10 +112,8 @@ function Meter(props: IProps) {
         // Create a new key to reset state whenever
         // the user navigates to data rescue
         const guid = CreateGuid();
-
         const newWindow = () =>
             <DataRescueWindow key={guid} Meter={meter} />;
-
         setShowAdvanced(false);
         setTab("dataRescue");
         setDataRescueWindow(newWindow());
@@ -134,14 +123,11 @@ function Meter(props: IProps) {
         // Create a new key to reset state whenever
         // the user navigates to data merge
         const guid = CreateGuid();
-
         const returnToMeters = () => {
             window.location.href = homePath + 'index.cshtml?name=Meters';
         };
-
         const newWindow = () =>
             <DataMergeWindow key={guid} Meter={meter} OnMerge={returnToMeters} />;
-
         setShowAdvanced(false);
         setTab("dataMerge");
         setDataMergeWindow(newWindow());
@@ -151,14 +137,11 @@ function Meter(props: IProps) {
         // Create a new key to reset state whenever
         // the user navigates to data delete
         const guid = CreateGuid();
-
         const returnToMeters = () => {
             window.location.href = homePath + 'index.cshtml?name=Meters';
         };
-
         const newWindow = () =>
             <DataDeleteWindow key={guid} Meter={meter} OnDelete={returnToMeters} />;
-
         setShowAdvanced(false);
         setTab("dataDelete");
         setDataDeleteWindow(newWindow());
@@ -190,65 +173,64 @@ function Meter(props: IProps) {
                     <button className="btn btn-light pull-right" onClick={() => setShowAdvanced(true)}>Advanced</button>
                 </div>
             </div>
-
             <hr />
-            <TabSelector CurrentTab={Tab} SetTab={setTab} Tabs={Tabs} />
 
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (Tab == "notes" ? " active" : "fade")} id="notes" style={{ maxHeight: window.innerHeight - 215 }}>
+                <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" style={{ maxHeight: window.innerHeight - 215 }}>
                     <NoteWindow ID={props.MeterID} Type='Meter' />
                 </div>
-                <div className={"tab-pane " + (Tab == "meterInfo" ? " active" : "fade")} id="meterInfo" style={{ maxHeight: window.innerHeight - 215 }}>
+                <div className={"tab-pane " + (tab == "meterInfo" ? " active" : "fade")} id="meterInfo" style={{ maxHeight: window.innerHeight - 215 }}>
                     <MeterInfoWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} />
                 </div>
-                <div className={"tab-pane " + (Tab == "additionalFields" ? " active" : "fade")} id="additionalFields" style={{ maxHeight: window.innerHeight - 215 }}>
-                    <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={Tab} />
+                <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields" style={{ maxHeight: window.innerHeight - 215 }}>
+                    <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={tab} />
                 </div>
-                <div className={"tab-pane " + (Tab == "substation" ? " active" : "fade")} id="substation" style={{ maxHeight: window.innerHeight - 215 }}>
+                <div className={"tab-pane " + (tab == "substation" ? " active" : "fade")} id="substation" style={{ maxHeight: window.innerHeight - 215 }}>
                     <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} />
                 </div>
-                <div className={"tab-pane " + (Tab == "eventChannels" ? " active" : "fade")} id="eventChannels">
-                    <MeterEventChannelWindow Meter={meter} IsVisible={Tab === "eventChannels"} />
+                <div className={"tab-pane " + (tab == "eventChannels" ? " active" : "fade")} id="eventChannels">
+                    <MeterEventChannelWindow Meter={meter} IsVisible={tab === "eventChannels"} />
                 </div>
-                <div className={"tab-pane " + (Tab == "trendChannels" ? " active" : "fade")} id="trendChannels">
-                    <MeterTrendChannelWindow Meter={meter} IsVisible={Tab === "trendChannels"} />
+                <div className={"tab-pane " + (tab == "trendChannels" ? " active" : "fade")} id="trendChannels">
+                    <MeterTrendChannelWindow Meter={meter} IsVisible={tab === "trendChannels"} />
                 </div>
-                <div className={"tab-pane " + (Tab == "channelScaling" ? " active" : "fade")} id="channelScaling">
-                    <ChannelScalingWindow Meter={meter} IsVisible={Tab === "channelScaling"} />
+                <div className={"tab-pane " + (tab == "channelScaling" ? " active" : "fade")} id="channelScaling">
+                    <ChannelScalingWindow Meter={meter} IsVisible={tab === "channelScaling"} />
                 </div>
-                <div className={"tab-pane " + (Tab == "assets" ? " active" : "fade")} id="assets">
+                <div className={"tab-pane " + (tab == "assets" ? " active" : "fade")} id="assets">
                     <MeterAssetWindow Meter={meter} />
                 </div>
-                <div className={"tab-pane " + (Tab == "configurationHistory" ? " active" : "fade")} id="configurationHistory">
+                <div className={"tab-pane " + (tab == "configurationHistory" ? " active" : "fade")} id="configurationHistory">
                     <MeterConfigurationHistoryWindow Meter={meter} />
                 </div>
-                <div className={"tab-pane " + (Tab == "extDB" ? " active" : "fade")} id="extDB">
-                    <ExternalDBUpdate ID={props.MeterID} Type='Meter' Tab={Tab} />
+                <div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
+                    <ExternalDBUpdate ID={props.MeterID} Type='Meter' Tab={tab} />
                 </div>
-                <div className={"tab-pane " + (Tab == "dataRescue" ? " active" : "fade")} id="dataRescue">
+                <div className={"tab-pane " + (tab == "dataRescue" ? " active" : "fade")} id="dataRescue">
                     {dataRescueWindow}
                 </div>
-                <div className={"tab-pane " + (Tab == "dataMerge" ? " active" : "fade")} id="dataMerge">
+                <div className={"tab-pane " + (tab == "dataMerge" ? " active" : "fade")} id="dataMerge">
                     {dataMergeWindow}
                 </div>
-                <div className={"tab-pane " + (Tab == "dataDelete" ? " active" : "fade")} id="dataDelete">
+                <div className={"tab-pane " + (tab == "dataDelete" ? " active" : "fade")} id="dataDelete">
                     {dataDeleteWindow}
                 </div>
-                <div className={"tab-pane " + (Tab == "maintenance" ? " active" : "fade")} id="maintenance">
+                <div className={"tab-pane " + (tab == "maintenance" ? " active" : "fade")} id="maintenance">
                     <MeterMaintenanceWindow Meter={meter} />
                 </div>
             </div>
+
             <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
                 <button className="btn btn-dark btn-block" onClick={showDataRescueWindow}>Data Rescue</button>
                 <button className="btn btn-dark btn-block" onClick={showDataMergeWindow}>Merge Data</button>
                 <button className="btn btn-danger btn-block" onClick={showDataDeleteWindow}>Delete Data</button>
             </Modal>
+
             <Warning Message={'This will permanently delete this Meter and cannot be undone.'} Show={showDelete} Title={'Delete ' + (meter?.Name ?? 'Meter')} CallBack={(conf) => { if (conf) deleteMeter(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
         </div>
-       
-
-            )
+    )
 }
 
 export default Meter;

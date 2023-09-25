@@ -29,7 +29,7 @@ import * as React from 'react';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SystemCenter as GlobalSC } from '../global';
 import { DataReaderSlice } from '../Store/Store';
-const DataReaders: GlobalSC.BySettingsComponent = (props) => {
+const DataReaders: Application.Types.iByComponent = (props) => {
 
     const dispatch = useAppDispatch();
 
@@ -74,6 +74,7 @@ const DataReaders: GlobalSC.BySettingsComponent = (props) => {
     }, [editnewSetting])
 
     const searchFields: Search.IField<OpenXDA.Types.DataReader>[] = [
+        { key: 'FilePattern', label: 'File Pattern', type: 'string', isPivotField: false },
         { key: 'AssemblyName', label: 'Assembly Name', type: 'string', isPivotField: false },
         { key: 'TypeName', label: 'Type Name', type: 'string', isPivotField: false },
         { key: 'LoadOrder', label: 'Load Order', type: 'number', isPivotField: false }

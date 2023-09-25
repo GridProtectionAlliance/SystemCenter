@@ -165,7 +165,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                 ShowCancel={false}
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
-                ConfirmText={'Add Group'}
+                ConfirmText={'Save'}
                 Show={showNew} >
                 <ValueListGroupForm Record={record} Setter={setRecord} />
             </Modal>

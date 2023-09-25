@@ -261,7 +261,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                         { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                        { key: 'VoltageKV', field: 'VoltageKV', label: 'Nominal Voltage (L-L kV)', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },

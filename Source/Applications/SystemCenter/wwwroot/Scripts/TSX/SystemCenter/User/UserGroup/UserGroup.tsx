@@ -22,11 +22,8 @@
 
 import * as React from 'react';
 import { LoadingScreen, ServerErrorIcon, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
-
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { CheckBox } from '@gpa-gemstone/react-forms';
 import { useHistory } from "react-router-dom";
 import { SecurityGroupSlice } from '../../Store/Store';
 import { ISecurityGroup } from '../Types';
@@ -34,20 +31,31 @@ import GroupInfo from './Info';
 import GroupUser from './GroupUsers';
 import GroupPermission from './Permissions';
 
-interface IProps {
-	GroupID: string
-}
+declare type Tab = 'info' | 'users' | 'roles'
+
+interface IProps { GroupID: string,	Tab: Tab }
 
 function UserGroup(props: IProps) {
 	const history = useHistory();
 	const dispatch = useAppDispatch();
-
 	const group: ISecurityGroup = useAppSelector((state) => SecurityGroupSlice.Datum(state, props.GroupID) as ISecurityGroup);
 	const status = useAppSelector(SecurityGroupSlice.Status);
-
-	const [tab, setTab] = React.useState<string>('info')
-
+	const [tab, setTab] = React.useState(getTab());
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);
+
+	function getTab(): Tab {
+		if (props.Tab != undefined) return props.Tab;
+		else if (sessionStorage.hasOwnProperty('UserGroup.Tab'))
+			return JSON.parse(sessionStorage.getItem('UserGroup.Tab'));
+		else
+			return 'info';
+	}
+
+	React.useEffect(() => {
+		const saved = getTab();
+		if (saved !== tab)
+			sessionStorage.setItem('UserGroup.Tab', JSON.stringify(tab));
+	}, [tab]);
 
 	React.useEffect(() => {
 		if (status == 'unintiated' || status == 'changed')
@@ -60,7 +68,7 @@ function UserGroup(props: IProps) {
 		</div>;
 
 	const Tabs = [
-		{ Id: "info", Label: "Info" },
+		{ Id: "info", Label: "User Group Info" },
 		{ Id: "users", Label: "Users" },
 		{ Id: "roles", Label: "Roles" }
 	];
@@ -77,7 +85,8 @@ function UserGroup(props: IProps) {
 			</div>
 			<LoadingScreen Show={status === 'loading'} />
 			<hr />
-			<TabSelector CurrentTab={tab} SetTab={(t) => setTab(t)} Tabs={Tabs} />
+
+			<TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
 			<div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
 				<div className={"tab-pane " + (tab === "info" ? " active" : "fade")}>
 					<GroupInfo Group={group} />
@@ -88,8 +97,8 @@ function UserGroup(props: IProps) {
 				<div className={"tab-pane " + (tab === "roles" ? " active" : "fade")} style={{ maxHeight: window.innerHeight - 215 }}>
 					{group != null ? <GroupPermission GroupID={group.ID} /> : null }
 				</div>
-
 			</div>
+
 			<Warning Message={'This will permanently delete the User Group. Users in this Group will not be deleted, but may lose their roles. Are you sure you want to continue?'} Title={'Delete ' + (group?.DisplayName ?? 'User Group')} Show={showWarning} CallBack={(c) => {
 				setShowWarning(false);
 				if (c) {

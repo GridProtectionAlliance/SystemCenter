@@ -32,7 +32,7 @@ import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
 import { PQApplications } from '../ApplicationCategory/Applications';
 import { DBCleanup } from '../DB/DBCleanup';
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
-import { OpenXDA as LocalXDA } from '../global'
+import { OpenXDA as LocalXDA, SystemCenter as LocalSystemCenter } from '../global'
 import PQISlice from './PQISlice';
 import { IApplicationRole, ISecurityGroup, IUserAccount } from '../User/Types';
 
@@ -46,6 +46,9 @@ export type RootState = ReturnType<typeof store.getState>
 export const ValueListGroupSlice = new GenericSlice<SystemCenter.Types.ValueListGroup>('ValueListGroup', `${homePath}api/ValueListGroup`, 'Name');
 export const ValueListSlice = new GenericSlice<SystemCenter.Types.ValueListItem>('ValueList', `${homePath}api/ValueList`, 'SortOrder');
 export const LocationDrawingSlice = new GenericSlice<SystemCenter.Types.LocationDrawing>('LocationDrawing', `${homePath}api/LocationDrawing`, 'Name');
+
+export const ChannelGroupSlice = new GenericSlice<SystemCenter.Types.ChannelGroup>('ChannelGroup', `${homePath}api/ChannelGroup`, 'Name');
+export const ChannelGroupDetailsSlice = new GenericSlice<SystemCenter.Types.ChannelGroupDetails>('ChannelGroupDetails', `${homePath}api/ChannelGroupDetails`, 'DisplayName');
 
 export const SystemCenterSettingSlice = new GenericSlice<SystemCenter.Types.Setting>('SystemCenterSetting', `${homePath}api/Setting`, 'Name');
 export const OpenXDASettingSlice = new GenericSlice<SystemCenter.Types.Setting>('OpenXDASetting', `${homePath}api/OpenXDA/Setting`, 'Name');
@@ -64,7 +67,7 @@ export const CustomerMeterSlice = new GenericSlice<LocalXDA.CustomerMeter>('Cust
 export const CustomerAssetSlice = new GenericSlice<LocalXDA.CustomerAsset>('CustomerAsset', `${homePath}api/SystemCenter/CustomerAsset`, 'AssetKey', false);
 
 
-export const EventTypeSlice = new GenericSlice<OpenXDA.Types.EventType>("EventType", `${homePath}api/OpenXDA/EventType`, "Name", false);
+export const EventTypeSlice = new GenericSlice<OpenXDA.Types.EventType>("EventType", `${homePath}api/OpenXDA/EventType`, "Name");
 export const LocationSlice = new GenericSlice<OpenXDA.Types.Location>("Location", `${homePath}api/OpenXDA/Location`, "LocationKey", true);
 export const DataOperationSlice = new GenericSlice<OpenXDA.Types.DataOperation>("DataOperation", `${homePath}api/OpenXDA/DataOperation`, "LoadOrder");
 export const DataReaderSlice = new GenericSlice<OpenXDA.Types.DataReader>("DataReader", `${homePath}api/OpenXDA/DataReader`, "LoadOrder");
@@ -103,6 +106,14 @@ export const SEBrowserWidgetSlice = new GenericSlice<LocalXDA.IWidget>("SEBrowse
 export const MagDurCurveSlice = new GenericSlice<LocalXDA.IMagDurCurve>('MagDurCurve', `${homePath}api/SystemCenter/StandardMagDurCurve`, 'Name');
 
 
+export const EventTagSlice = new GenericSlice<OpenXDA.Types.EventTag>("EventTag", `${homePath}api/OpenXDA/EventTag`, 'Name');
+export const MATLABAnalyticSlice = new GenericSlice<OpenXDA.Types.MATLABAnalytic>("MATLABAnalytic", `${homePath}api/OpenXDA/MATLABAnalytic`, 'LoadOrder');
+export const MATLABAnalyticEventTypeSlice = new GenericSlice<OpenXDA.Types.MATLABAnalyticEventType>("MATLABAnalyticEventType", `${homePath}api/OpenXDA/MATLABAnalyticEventType`, 'ID');
+export const MATLABAnalyticAssetTypeSlice = new GenericSlice<OpenXDA.Types.MATLABAnalyticAssetType>("MATLABAnalyticAssetType", `${homePath}api/OpenXDA/MATLABAnalyticAssetType`, 'ID');
+export const TrendChannelSlice = new GenericSlice<LocalXDA.TrendChannel>('TrendChannels', `${homePath}api/OpenXDA/TrendChannel`, 'Name');
+
+export const ChannelTemplateSlice = new GenericSlice<LocalSystemCenter.ChannelTemplateFile>('ChannelTemplate', `${homePath}api/SystemCenter/ChannelTemplateFile`, 'ID', true);
+
 const store = configureStore({
     reducer: {
         LSCVSAccount: LSCVSAccountSlice.Reducer,
@@ -119,6 +130,8 @@ const store = configureStore({
         Location: LocationSlice.Reducer,
         ValueListGroup: ValueListGroupSlice.Reducer,
         ValueList: ValueListSlice.Reducer,
+        ChannelGroup: ChannelGroupSlice.Reducer,
+        ChannelGroupDetails: ChannelGroupDetailsSlice.Reducer,
         LocationDrawing: LocationDrawingSlice.Reducer,
         SystemCenterSetting: SystemCenterSettingSlice.Reducer,
         OpenXDASetting: OpenXDASettingSlice.Reducer,
@@ -157,6 +170,13 @@ const store = configureStore({
         ApplicationRole: ApplicationRoleSlice.Reducer,
         SEBrowserWidget: SEBrowserWidgetSlice.Reducer,
         MagDurCurve: MagDurCurveSlice.Reducer,
+
+        EventTag: EventTagSlice.Reducer,
+        MATLABAnalytic: MATLABAnalyticSlice.Reducer,
+        MATLABAnalyticEventType: MATLABAnalyticEventTypeSlice.Reducer,
+        MATLABAnalyticAssetType: MATLABAnalyticAssetTypeSlice.Reducer,
+        TrendChannels: TrendChannelSlice.Reducer,
+        ChannelTemplate: ChannelTemplateSlice.Reducer
     }
 });
 export default store;

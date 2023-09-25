@@ -34,10 +34,10 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import MDMKeys from './MDMKeys';
 import CustomerAssetWindow from './CustomerAsset';
 
-
 declare var homePath: string;
+declare type Tab = 'info' | 'notes' | 'additionalFields' | 'meters' | 'assets' | 'mdm'
 
-interface IProps { CustomerID: number }
+interface IProps { CustomerID: number, Tab: Tab }
 
 const Tabs = [
     { Id: "info", Label: "Customer Info" },
@@ -50,17 +50,16 @@ const Tabs = [
 
 export default function Customer(props: IProps) {
     const dispatch = useAppDispatch();
-
-    const [tab, setTab] = React.useState<string>(getTab());
+    const [tab, setTab] = React.useState(getTab());
     const customer = useAppSelector((state) => CustomerSlice.Datum(state, props.CustomerID)) as OpenXDA.Types.Customer;
     const cStatus = useAppSelector(CustomerSlice.Status) as Application.Types.Status;
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        if (getTab() != tab)
+        const saved = getTab();
+        if (saved !== tab)
             sessionStorage.setItem('Customer.Tab', JSON.stringify(tab));
-
-    }, [tab])
+    }, [tab]);
 
     React.useEffect(() => {
         if (cStatus == 'unintiated' || cStatus == 'changed')
@@ -72,8 +71,9 @@ export default function Customer(props: IProps) {
             dispatch(CustomerSlice.Fetch());
     }, [cStatus])
 
-    function getTab(): string {
-        if (sessionStorage.hasOwnProperty('Customer.Tab'))
+    function getTab(): Tab {
+        if (props.Tab != undefined) return props.Tab;
+        else if (sessionStorage.hasOwnProperty('Customer.Tab'))
             return JSON.parse(sessionStorage.getItem('Customer.Tab'));
         else
             return 'info';
@@ -93,7 +93,8 @@ export default function Customer(props: IProps) {
         return null;
 
     if (customer == null)
-        return null
+        return null;
+
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
@@ -104,10 +105,9 @@ export default function Customer(props: IProps) {
                     <button className="btn btn-danger pull-right" hidden={customer == null} onClick={() => setShowWarning(true)}>Delete Customer</button>
                 </div>
             </div>
-
-
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
+
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="customerInfo">
                     <CustomerInfo Customer={customer} stateSetter={(record) => dispatch(CustomerSlice.DBAction({ verb: 'PATCH', record: record }))} />
@@ -128,8 +128,8 @@ export default function Customer(props: IProps) {
                     <MDMKeys CustomerID={customer.ID} />
                 </div>
             </div>
+
             <Warning Title={'Delete ' + (customer?.Name ?? 'Customer')} Show={showWarning} Message={'This will permanently delete this Customer.'} CallBack={(c) => { if (c) deleteCustomer(); setShowWarning(false)}} />
         </div>
     )
-
 }

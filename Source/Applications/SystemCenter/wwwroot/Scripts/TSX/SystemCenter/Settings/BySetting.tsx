@@ -29,18 +29,19 @@ import { SystemCenter } from '../global';
 
 declare var homePath: string;
 
-const BySetting: SystemCenter.BySettingsComponent = (props) => {
-
-    let slice = SystemCenterSettingSlice
-
-    if (props.System == 'OpenXDA')
-        slice = OpenXDASettingSlice;
-    if (props.System == 'MiMD')
-        slice = MiMDSettingSlice;
-
-    return <Setting SettingsSlice={slice} />
-
+interface IProps {
+    System: 'SystemCenter' | 'MiMD' | 'OpenXDA',
+    Roles: Application.Types.SecurityRoleName[]
 }
 
+const BySetting = (props: IProps) => {
+
+    if (props.System == 'SystemCenter')
+        return <Setting SettingsSlice={SystemCenterSettingSlice} key='SystemCenter' />
+    if (props.System == 'MiMD')
+        return <Setting SettingsSlice={MiMDSettingSlice} key='MiMD' />
+    return <Setting SettingsSlice={OpenXDASettingSlice} key='OpenXDA' />
+    
+}
 export default BySetting;
 

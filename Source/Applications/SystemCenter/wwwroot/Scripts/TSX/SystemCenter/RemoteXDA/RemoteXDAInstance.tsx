@@ -21,8 +21,6 @@
 //
 //******************************************************************************************************
 
-
-
 import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
@@ -35,17 +33,15 @@ import RemoteAssetTab from './RemoteAssetTab'
 import RemoteMeterTab from './RemoteMeterTab';
 
 declare var homePath: string;
+declare type Tab = 'systemSettings' | 'remoteMeter' | 'remoteAsset'
 
-interface IProps { Roles: Array<Application.Types.SecurityRoleName>, ID: number }
+interface IProps { Roles: Array<Application.Types.SecurityRoleName>, ID: number, Tab: Tab }
 
 function RemoteXDAInstance(props: IProps) {
     let history = useHistory();
-
-    const [tab, setTabState] = React.useState(getTab);
+    const [tab, setTab] = React.useState(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
-
     const [loading, setLoading] = React.useState<boolean>(false);
-
     const dispatch = useAppDispatch();
     const instStatus = useAppSelector(RemoteXDAInstanceSlice.Status) as Application.Types.Status;
     const connection = useAppSelector((state) => RemoteXDAInstanceSlice.Datum(state, props.ID));
@@ -57,17 +53,19 @@ function RemoteXDAInstance(props: IProps) {
 
     if (connection == null) return null;
 
-    function getTab(): string {
-        if (sessionStorage.hasOwnProperty('RemoteXDAInstance.Tab'))
+    function getTab(): Tab {
+        if (props.Tab != undefined) return props.Tab;
+        else if (sessionStorage.hasOwnProperty('RemoteXDAInstance.Tab'))
             return JSON.parse(sessionStorage.getItem('RemoteXDAInstance.Tab'));
         else
             return 'systemSettings';
     }
 
-    function setTab(tab: string): void {
-        sessionStorage.setItem('RemoteXDAInstance.Tab', JSON.stringify(tab));
-        setTabState(tab);
-    }
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('RemoteXDAInstance.Tab', JSON.stringify(tab));
+    }, [tab]);
 
     function returnMain() {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=RemoteXDAInstanceMain', state: {} })
@@ -103,8 +101,8 @@ function RemoteXDAInstance(props: IProps) {
                 </div>
             </div>
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
 
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "systemSettings" ? " active" : "fade")} id="systemSettings">
                     <SystemSettingsTab ID={props.ID} />
@@ -116,11 +114,11 @@ function RemoteXDAInstance(props: IProps) {
                     <RemoteAssetTab ID={props.ID} />
                 </div>
             </div>
+
             <Warning Message={'This will permanently delete this Remote openXDA Instance Connection and cannot be undone.'} Show={showDelete} Title={'Delete ' + (connection?.Name ?? 'Remote Connection')} CallBack={(conf) => { if (conf) deleteConnection(); setShowDelete(false); }} />
             <LoadingScreen Show={loading} />
         </div>
     )
 }
-
 
 export default RemoteXDAInstance;
