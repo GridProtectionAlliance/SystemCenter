@@ -39,6 +39,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using System.Data;
 using System.Data.Common;
+using System.Runtime.Remoting.Contexts;
 
 namespace SystemCenter.ScheduledProcesses
 {
@@ -46,8 +47,9 @@ namespace SystemCenter.ScheduledProcesses
     {
         #region [ Member ]
         public ExternalDatabases ExternalDB { get; set; }
-        public static Func<AdoDataConnection> ConnectionFactory = () => new AdoDataConnection("systemSettings");
-        public static string RegexPattern = "[{][^{}]*[}]";
+        public static readonly Func<AdoDataConnection> ConnectionFactory = () => new AdoDataConnection("systemSettings");
+        public static readonly Type[] CheckedTypes = new Type[] { typeof(Meter), typeof(Transformer), typeof(Line), typeof(Asset) };
+        public const string RegexPattern = "[{][^{}]*[}]";
         #endregion
 
         #region [ Constructor ]
@@ -86,69 +88,99 @@ namespace SystemCenter.ScheduledProcesses
                 }
                 TableOperations<AdditionalField> addlFieldsTable = new TableOperations<AdditionalField>(xdaConnection);
                 TableOperations<AdditionalFieldValue> addlValueTable = new TableOperations<AdditionalFieldValue>(xdaConnection);
+                TableOperations<ExternalOpenXDAField> xdaFieldTable = new TableOperations<ExternalOpenXDAField>(xdaConnection);
                 ExpressionContext context = new ExpressionContext();
                 using (AdoDataConnection externalConnection = GetExternalConnection(extDB))
                     foreach (extDBTables extTable in extTables)
                     {
-                        try
+                        foreach (Type t in CheckedTypes)
                         {
-                            // Todo: update db with result
-                            RetrieveData<Meter>(extTable, addlFieldsTable, addlValueTable, context, xdaConnection, externalConnection);
-                            RetrieveData<Transformer>(extTable, addlFieldsTable, addlValueTable, context, xdaConnection, externalConnection);
-                        }
-                        catch
-                        {
-
+                            var updateMethods = typeof(ScheduledExtDBTask).GetMethod("UpdateData", BindingFlags.Static | BindingFlags.Public);
+                            var typedUpdateMethod = updateMethods.MakeGenericMethod(new[] { t });
+                            typedUpdateMethod.Invoke(null, new object[] { extTable, addlFieldsTable, addlValueTable, xdaFieldTable, context, xdaConnection, externalConnection });
                         }
                     }
             }
         }
 
-        public static void RetrieveData<T>(extDBTables extTable,
-            TableOperations<AdditionalField> addlFieldsTable, TableOperations<AdditionalFieldValue> addlValuesTable,
+        public static void UpdateData<T>(extDBTables extTable,
+            TableOperations<AdditionalField> addlFieldsTable, TableOperations<AdditionalFieldValue> addlValuesTable, TableOperations<ExternalOpenXDAField> xdaFieldTable,
             ExpressionContext context,
             AdoDataConnection xdaConnection, AdoDataConnection extConnection) where T: class, new()
         {
             TableOperations<T> table = new TableOperations<T>(xdaConnection);
             IEnumerable<AdditionalField> addlFields = addlFieldsTable.QueryRecordsWhere("ParentTable = {0} AND ExternalDBTableID = {1}", table.TableName, extTable.ID);
+            // Todo: add external xda table to this, is put off for now
             if (!addlFields.Any()) return;
             IEnumerable<T> allRecords = table.QueryRecords();
             foreach (T record in allRecords)
             {
-                object[] primaryKeys = table.GetPrimaryKeys(record);
-                if (primaryKeys.Length == 0) continue;
-                AdditionalFieldValue keyValue = addlValuesTable.QueryRecordWhere(
-                    @"ParentTableID = {0} AND
+                DataRowCollection data = RetrieveDataRecord(record, extTable, table, addlValuesTable, context, extConnection).Rows;
+                if (data.Count == 0) continue;
+                foreach(AdditionalField field in addlFields)
+                {
+                    string fieldValue = data[0][field.FieldName].ToString();
+                    int recordID = GetID(record);
+                    if (recordID == -1) continue; // Should be impossible to trigger without huge overhauling of openXDA
+                    AdditionalFieldValue addlValue = addlValuesTable.QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", recordID, field.ID);
+                    if (addlValue is null)
+                    {
+                        addlValue = new AdditionalFieldValue()
+                        {
+                            ParentTableID = (int) recordID,
+                            AdditionalFieldID = field.ID,
+                            Value = fieldValue
+                        };
+                        addlValuesTable.AddNewRecord(addlValue);
+                    }
+                    else
+                    {
+                        if (fieldValue == addlValue.Value) continue;
+                        addlValue.Value = fieldValue;
+                        addlValuesTable.UpdateRecord(addlValue);
+                    }
+                }
+            }
+        }
+
+        public static DataTable RetrieveDataRecord<T>(T record, extDBTables extTable,
+            TableOperations<T> table, TableOperations<AdditionalFieldValue> addlValuesTable,
+            ExpressionContext context, AdoDataConnection externalConnection) where T: class, new()
+        {
+            int idKey = GetID(record);
+            if (idKey == -1) return null; // Should be impossible to trigger without huge overhauling of openXDA
+            AdditionalFieldValue keyValue = addlValuesTable.QueryRecordWhere(
+                @"ParentTableID = {0} AND
 	                AdditionalFieldValue.AdditionalFieldID in (
 		                Select ID From AdditionalField
 		                Where 
 			                ParentTable = {1} AND
 			                ExternalDBTableID = {2} AND
 			                IsKey = 1)"
-                    , primaryKeys[0], table.TableName, extTable.ID);
-                context.Variables.Clear();
-                context.Variables["Key"] = keyValue?.Value;
-                context.Variables[table.TableName] = record;
-                List<string> parameters = new List<string>();
-                MatchEvaluator evaluator = new MatchEvaluator((match) => RegexReplaceFunction(match, context, parameters));
-                string fullQuery = Regex.Replace(extTable.Query, RegexPattern, evaluator, RegexOptions.None, TimeSpan.FromSeconds(2));
-                try
-                {
-                    // Should be a singular row
-                    DataTable dataTable = extConnection.RetrieveData(fullQuery, parameters.ToArray());
-                }
-                catch
-                {
-                    Log.Warn($"Query: ${fullQuery} failed on external database connection for ${extTable.TableName}");
-                }
+                , idKey, table.TableName, extTable.ID);
+            context.Variables.Clear();
+            context.Variables["Key"] = keyValue?.Value ?? "null";
+            context.Variables[table.TableName] = record;
+            List<string> parameters = new List<string>();
+            MatchEvaluator evaluator = new MatchEvaluator((match) => RegexReplaceFunction(match, context, parameters));
+            string fullQuery = Regex.Replace(extTable.Query, RegexPattern, evaluator, RegexOptions.None, TimeSpan.FromSeconds(2));
+            try
+            {
+                // Should be a singular row
+                return externalConnection.RetrieveData(fullQuery, parameters.ToArray());
+            }
+            catch
+            {
+                Log.Warn($"Query: ${fullQuery} failed on external database connection for ${extTable.TableName}");
+                return null;
             }
         }
 
-        public static void SaveData<T>(IEnumerable<DataRow> externalData,
-            AdoDataConnection xdaConnection) where T: class, new()
+        private static int GetID<T>(T record) where T: class, new()
         {
-            TableOperations<T> table = new TableOperations<T>(xdaConnection);
-            // TODO: External openXDA fields
+            PropertyInfo idObj = record.GetType().GetProperty("ID", BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (idObj is null) return -1;
+            return (int) idObj.GetValue(record);
         }
 
         private static AdoDataConnection GetExternalConnection(ExternalDatabases extDB)
