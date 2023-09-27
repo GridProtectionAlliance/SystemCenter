@@ -754,8 +754,8 @@ public class LineSegmentWizardController : ApiController
         {
             TableOperations<SystemCenter.Model.extDBTables> tblTable = new TableOperations<SystemCenter.Model.extDBTables>(connection);
 
-            if (tblTable.QueryRecordCountWhere("ExternalDB = {0} AND TableName = {1}", "Fawg", tableName) > 0)
-                result = tblTable.QueryRecordWhere("ExternalDB = {0} AND TableName = {1}", "Fawg", tableName).Query;
+            // ToDo: Make sure this still works
+            result = tblTable.QueryRecordWhere("ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name = 'Fawg') AND TableName = {1}", "Fawg", tableName)?.Query ?? result;
         }
         return result;
     }
