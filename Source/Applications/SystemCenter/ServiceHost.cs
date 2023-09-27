@@ -106,6 +106,7 @@ using openXDA.APIAuthentication;
 using SystemCenter.Configuration;
 using SystemCenter.Logging;
 using SystemCenter.Model;
+using SystemCenter.ScheduledProcesses;
 using AssemblyInfo = GSF.Reflection.AssemblyInfo;
 using PQViewSite = openXDA.Model.PQViewSite;
 
@@ -258,7 +259,21 @@ namespace SystemCenter
             m_serviceHelper.AddScheduledProcess(ServiceHeartbeatHandler, "ServiceHeartbeat", "* * * * *");
             m_serviceHelper.AddScheduledProcess(ReloadConfigurationHandler, "ReloadConfiguration", "0 0 * * *");
 
-            if(systemSettings["UserAccountMetaDataUpdater"].Value != "never")
+            List<ExternalDatabases> externalDbs;
+            using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+            {
+                try
+                {
+                    externalDbs = (new TableOperations<ExternalDatabases>(connection)).QueryRecords().ToList();
+                }
+                catch (Exception ex)
+                {
+                    externalDbs = new List<ExternalDatabases>();
+                }
+            }
+            externalDbs.ForEach(ExtDBAddDB);
+
+            if (systemSettings["UserAccountMetaDataUpdater"].Value != "never")
                 m_serviceHelper.AddScheduledProcess(UserAccountMetaDataUpdaterHandler, "UserAccountMetaDataUpdater", systemSettings["UserAccountMetaDataUpdater"].Value);
             if (systemSettings["OpenMICStatisticOperation"].Value != "never")
                 m_serviceHelper.AddScheduledProcess(OpenMICStatisticOperationHandler, "OpenMICStatisticOperation", systemSettings["OpenMICStatisticOperation"].Value);
@@ -628,6 +643,27 @@ namespace SystemCenter
 
                 SendResponse(requestInfo, true);
             }
+        }
+
+        // Handle scheduled external database information fetchting
+        private void ExtDBFetchHandler(string s, object[] args)
+        {
+            try
+            {
+                ((ScheduledExtDBTask) args[0]).Run();
+            }
+            catch (Exception ex)
+            {
+                HandleException(ex);
+            }
+        }
+
+        // Schedule a new Task
+        public void ExtDBAddDB(ExternalDatabases newDB)
+        {
+            ScheduledExtDBTask task = new ScheduledExtDBTask(newDB);
+            if (task.ExternalDB.Schedule == null) return;
+            m_serviceHelper.AddScheduledProcess(ExtDBFetchHandler, $"Cleanup-{task.ExternalDB.ID}", new object[] { task }, task.ExternalDB.Schedule);
         }
 
         // Send the error to the service helper, error logger, and each service monitor
