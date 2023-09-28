@@ -662,8 +662,26 @@ namespace SystemCenter
         public void ExtDBAddDB(ExternalDatabases newDB)
         {
             ScheduledExtDBTask task = new ScheduledExtDBTask(newDB);
+            ExtDBAddDB(task);
+        }
+        private void ExtDBAddDB(ScheduledExtDBTask task)
+        {
             if (task.ExternalDB.Schedule == null) return;
-            m_serviceHelper.AddScheduledProcess(ExtDBFetchHandler, $"Cleanup-{task.ExternalDB.ID}", new object[] { task }, task.ExternalDB.Schedule);
+            m_serviceHelper.AddScheduledProcess(ExtDBFetchHandler, GetExtDBTaskName(task), new object[] { task }, task.ExternalDB.Schedule);
+        }
+
+        // Updates the schedule of a task
+        public void ExtDBChangeSchedule(ExternalDatabases newDB)
+        {
+            ScheduledExtDBTask task = new ScheduledExtDBTask(newDB);
+            m_serviceHelper.RemoveScheduledProcess(GetExtDBTaskName(task));
+            ExtDBAddDB(task);
+        }
+
+        // Gets the name of a task based on the task to be scheduled or unscheduled
+        private string GetExtDBTaskName(ScheduledExtDBTask dbTask)
+        {
+            return $"UpdateExternal-{dbTask.ExternalDB.ID}";
         }
 
         // Send the error to the service helper, error logger, and each service monitor
