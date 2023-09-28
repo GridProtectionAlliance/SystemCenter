@@ -28,6 +28,7 @@ using Flee.PublicTypes;
 using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
+using Microsoft.Graph.ExternalConnectors;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
 
@@ -41,10 +42,10 @@ namespace SystemCenter.Controllers
             public T xdaRecord { get; set; }
             public extDBTables table { get; set; }
         }
-        [HttpPost, Route("RetrieveData")]
-        public IHttpActionResult RetrieveExternalData([FromBody] ExternalQuery query)
+        [HttpPost, Route("RetrieveRecord")]
+        public IHttpActionResult RetrieveRecord([FromBody] ExternalQuery query)
         {
-            if (!PostAuthCheck() || ViewOnly)
+            if (!PostAuthCheck())
                 return Unauthorized();
             try
             {
@@ -57,7 +58,7 @@ namespace SystemCenter.Controllers
                         TableOperations<T> xdaTable = new TableOperations<T>(xdaConnection);
                         TableOperations<AdditionalFieldValue> afvTable = new TableOperations<AdditionalFieldValue>(xdaConnection);
                         ExpressionContext context = new ExpressionContext();
-                        DataTable data = ScheduledExtDBTask.RetrieveDataRecord(query.xdaRecord, query.table, xdaTable, afvTable, )
+                        DataTable data = ScheduledExtDBTask.RetrieveDataRecord(query.xdaRecord, query.table, xdaTable, afvTable, context, extConnection);
                         return Ok(1);
                     }
                 }
