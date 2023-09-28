@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
-/*import ExternalDBTableForm from './ExternalDBTableForm';*/
+import ExternalDBTableForm from './ExternalDBTableForm';
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
@@ -141,7 +141,7 @@ export default function ExternalDBTables(props: { ID: number }) {
                         dispatch(ExternalDBTablesSlice.DBAction({ verb: 'POST', record }));
                 }}
             >
-{/*                <ExternalDBTableForm Record={record} Setter={setRecord} SetErrors={setErrors} />*/}
+                <ExternalDBTableForm Record={record} Setter={setRecord} SetErrors={setErrors} />
             </Modal>
         </div>
 
