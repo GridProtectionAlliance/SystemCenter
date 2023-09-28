@@ -24,22 +24,15 @@
 using GSF.Data;
 using GSF.Data.Model;
 using log4net;
-using Microsoft.AspNet.SignalR.Infrastructure;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Web.Http.Results;
-using System.Web.UI.HtmlControls;
 using SystemCenter.Model;
 using Flee.PublicTypes;
 using openXDA.Model;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Data;
-using System.Data.Common;
-using System.Runtime.Remoting.Contexts;
 
 namespace SystemCenter.ScheduledProcesses
 {
@@ -176,19 +169,19 @@ namespace SystemCenter.ScheduledProcesses
             }
         }
 
-        private static int GetID<T>(T record) where T: class, new()
-        {
-            PropertyInfo idObj = record.GetType().GetProperty("ID", BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-            if (idObj is null) return -1;
-            return (int) idObj.GetValue(record);
-        }
-
-        private static AdoDataConnection GetExternalConnection(ExternalDatabases extDB)
+        public static AdoDataConnection GetExternalConnection(ExternalDatabases extDB)
         {
             if (extDB.Encrypt)
                 return new AdoDataConnection(extDB.ConnectionString);
             else
                 return new AdoDataConnection(extDB.ConnectionString, extDB.DataProviderString);
+        }
+
+        private static int GetID<T>(T record) where T: class, new()
+        {
+            PropertyInfo idObj = record.GetType().GetProperty("ID", BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+            if (idObj is null) return -1;
+            return (int) idObj.GetValue(record);
         }
 
         private static string RegexReplaceFunction(Match match, ExpressionContext context, List<string> parameters)

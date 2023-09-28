@@ -38,9 +38,11 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web.Http;
 using SystemCenter.Model;
+using SystemCenter.ScheduledProcesses;
 
 namespace SystemCenter.Controllers
 {
@@ -1378,7 +1380,47 @@ namespace SystemCenter.Controllers
     }
 
     [RoutePrefix("api/SystemCenter/ExternalDatabases")]
-    public class ExternalDatabasesController : ModelController<SystemCenter.Model.ExternalDatabases> { }
+    public class ExternalDatabasesController : ModelController<ExternalDatabases> 
+    {
+        // TODO: make a patch/new update service host with new schedule, problem is we don't have access to it in here...
+
+        [HttpPost, Route("TestConnection")]
+        public IHttpActionResult TestConnection([FromBody] ExternalDatabases record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using(AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(record))
+                {
+                    return Ok(1);
+                }
+            }
+            catch
+            {
+                return Ok(0);
+            }
+        }
+
+        [HttpPost, Route("UnscheduledUpdate")]
+        public IHttpActionResult UnscheduledUpdate([FromBody] ExternalDatabases record)
+        {
+            if (!PostAuthCheck() || ViewOnly)
+                return Unauthorized();
+            try
+            {
+                ScheduledExtDBTask.Run(record);
+                return Ok(1);
+            }
+            catch
+            {
+                return Ok(0);
+            }
+        }
+    }
+
+    [RoutePrefix("api/SystemCenter/extDBTables")]
+    public class ExternalTableController : ModelController<extDBTables> { }
 
     [RoutePrefix("api/SEbrowser/Widget")]
     public class SEBrowserWidgetController : ModelController<SEBrowser.Model.Widget> {}
