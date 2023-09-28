@@ -531,6 +531,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ChannelGroupItem.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\AppHost.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTables.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\EventTag\ByEventTag.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\EventTag\EventTagForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\hooks.ts" />

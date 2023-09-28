@@ -24,7 +24,7 @@
 
 import * as React from 'react';
 import ExternalDBInfo from './ExternalDBInfo';
-/*import ExternalDBTables from './ExternalDBTables';*/
+import ExternalDBTables from './ExternalDBTables';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDatabasesSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
@@ -88,10 +88,10 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235 }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
-                    {/*<ExternalDBInfo Record={record} />*/}
+                    <ExternalDBInfo Record={record} />
                 </div>
                 <div className={"tab-pane " + (tab == "tables" ? " active" : "fade")} id="tables">
-                    {/*<ExternalDBTables Record={record} />*/}
+                    <ExternalDBTables ID={record.ID} />
                 </div>
             </div>
             <Warning
