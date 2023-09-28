@@ -468,6 +468,10 @@ INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDB
 ('Transformer','VoltageKV','Maximo','Transformer_A','OperatingKV')
 GO
 
+/* Connections to external databases */
+/* TODO: the rest of these are wrong that aren't fawg now */
+INSERT INTO ExternalDatabases (Name, ConnectionString, Encrypt) VALUES ('FAWG', 'dbFawg', 'true')
+GO
 
 /* PQView Query for Meter */
 INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
@@ -578,9 +582,9 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
             ) T1')
 GO
 /* FAWG Query for LineSegments */
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('LineSegment','Fawg','
-                        (
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+           ('LineSegment',(SELECT ID FROM ExternalDatabases WHERE Name = 'Fawg'),'
+			 (
              SELECT
                     Lines.Lines_Id,
 	                Lines.fromBusNumber,
@@ -609,8 +613,8 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 GO
 
 /* FAWG Query for Transformers */
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('Transformer','Fawg','
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+           ('Transformer',(SELECT ID FROM ExternalDatabases WHERE Name = 'Fawg'),'
             (
             SELECT
 				XFR.PosSeqResistanceHigh,
