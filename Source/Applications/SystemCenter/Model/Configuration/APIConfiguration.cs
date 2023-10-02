@@ -22,13 +22,6 @@
 //******************************************************************************************************
 
 
-
-using GSF.Data;
-using GSF.Data.Model;
-using System.Collections.Generic;
-using System.Linq;
-using System;
-using GSF;
 using GSF.Configuration;
 using System.Configuration;
 using System.ComponentModel;
@@ -44,7 +37,7 @@ namespace SystemCenter.Model
         [Setting]
         [DefaultValue("http://localhost:8989")]
         [SettingName("Url")]
-        public string Host { get; set; }
+        public string OpenXDAHost { get; set; }
 
         /// <summary>
         /// Gets or sets openXDA API Key
@@ -52,7 +45,7 @@ namespace SystemCenter.Model
         [Setting]
         [DefaultValue("SystemCenter")]
         [SettingName("APIKey")]
-        public string Key { get; set; }
+        public string OpenXDAKey { get; set; }
 
         /// <summary>
         /// Gets or sets openXDA API Token
@@ -60,6 +53,22 @@ namespace SystemCenter.Model
         [Setting]
         [DefaultValue("")]
         [SettingName("APIToken")]
-        public string Token { get; set; }
+        public string OpenXDAToken { get; set; }
+
+        /// <summary>
+        /// Gets or sets MiMD API Key
+        /// </summary>
+        [Setting]
+        [DefaultValue("SystemCenter")]
+        [SettingName("APIKey")]
+        public string MiMDKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets MiMD API Token
+        /// </summary>
+        [Setting]
+        [DefaultValue("")]
+        [SettingName("APIToken")]
+        public string MiMDToken { get; set; }
     }
 }

@@ -112,7 +112,7 @@ namespace SystemCenter.Model
             {
                 APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
 
-                APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
+                APIQuery query = new APIQuery(settings.OpenXDAKey, settings.OpenXDAToken, settings.OpenXDAHost.Split(';'));
 
                 void ConfigureRequest(HttpRequestMessage request)
                 {
@@ -137,7 +137,7 @@ namespace SystemCenter.Model
             {
                 APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
 
-                APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
+                APIQuery query = new APIQuery(settings.OpenXDAKey, settings.OpenXDAToken, settings.OpenXDAHost.Split(';'));
 
                 void ConfigureRequest(HttpRequestMessage request)
                 {

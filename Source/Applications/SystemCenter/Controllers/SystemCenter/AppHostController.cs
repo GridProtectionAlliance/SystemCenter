@@ -66,7 +66,7 @@ namespace SystemCenter.Controllers
 
             [Category]
             [SettingName("XDA")]
-            public APIConfiguration APISettings { get; } = new APIConfiguration();
+            public APIConfiguration XDAAPISettings { get; } = new APIConfiguration();
         }
 
         [Route(), HttpGet]
@@ -107,9 +107,9 @@ namespace SystemCenter.Controllers
         [Route("xdaConsole/{id}/Send/{session}"), HttpPost]
         public IHttpActionResult XDAConsoleSend(int id, string session, [FromBody] object postData)
         {
-            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
 
-            APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
+            APIQuery query = new APIQuery(settings.OpenXDAKey, settings.OpenXDAToken, GetXDABaseURL(id) + "/");
 
             var json = JsonConvert.SerializeObject(postData);
 
@@ -128,9 +128,9 @@ namespace SystemCenter.Controllers
         [Route("xdaConsole/{id}/Connect"), HttpGet]
         public IHttpActionResult XDAConsoleConnect(int id)
         {
-            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
 
-            APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
+            APIQuery query = new APIQuery(settings.OpenXDAKey, settings.OpenXDAToken, GetXDABaseURL(id) + "/");
 
             void ConfigureRequest(HttpRequestMessage request)
             {
@@ -146,9 +146,9 @@ namespace SystemCenter.Controllers
         [Route("xdaConsole/{id}/Retrieve/{session}"), HttpGet]
         public IHttpActionResult XDAConsoleRetrive(int id, string session)
         {
-            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
 
-            APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
+            APIQuery query = new APIQuery(settings.OpenXDAKey, settings.OpenXDAToken, GetXDABaseURL(id) + "/");
 
             void ConfigureRequest(HttpRequestMessage request)
             {
@@ -164,7 +164,7 @@ namespace SystemCenter.Controllers
         [Route("xdaConsole/{id}/Ping"), HttpGet]
         public IHttpActionResult XDAPing(int id)
         {
-            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
 
             APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
 
