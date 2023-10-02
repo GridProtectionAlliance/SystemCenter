@@ -36,7 +36,7 @@ using System.ComponentModel;
 namespace SystemCenter.Model
 {
     /// <summary>
-    /// Loads settings form openXDA and SystemCenter Settings Tables.
+    /// Loads settings from openXDA and SystemCenter Settings Tables.
     /// </summary>
     /// <remarks>
     /// This is a derivative of the openXDA Configuration Loader but specifically for SystemCenter
@@ -116,8 +116,8 @@ namespace SystemCenter.Model
 
         private IEnumerable<string[]> LoadSystemCenterSettings(AdoDataConnection connection)
         {
-            TableOperations<SystemCenter.Model.Setting> settingTable = new TableOperations<SystemCenter.Model.Setting>(connection);
-            List<SystemCenter.Model.Setting> settingList = settingTable.QueryRecords().ToList();
+            TableOperations<Setting> settingTable = new TableOperations<Setting>(connection);
+            List<Setting> settingList = settingTable.QueryRecords().ToList();
 
             /*
             foreach (IGrouping<string, SystemCenter.Model.Setting> grouping in settingList.GroupBy(setting => setting.Name))
