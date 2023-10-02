@@ -50,6 +50,7 @@ function Asset(props: IProps) {
     const [assetType, setAssetType] = React.useState<OpenXDA.Types.AssetTypeName>(null);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
+    const [forceReload, setForceReload] = React.useState<boolean>(false);
 
     function getTab(): Tab {
         if (props.Tab != undefined) return props.Tab;
@@ -121,7 +122,7 @@ function Asset(props: IProps) {
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [props.AssetID]);
+    }, [props.AssetID, forceReload]);
 
     if (asset == null) return null;
 
@@ -184,7 +185,7 @@ function Asset(props: IProps) {
                     <SourceImpedanceWindow ID={asset.ID} />
                 </div>
                 <div className={"tab-pane " + (tab == "segments" ? " active" : "fade")} id="segments">
-                    <LineSegmentWindow ID={asset.ID}/>
+                    <LineSegmentWindow ID={asset.ID} OnChange={() => { setForceReload( x=> !x) }} />
                 </div>
             </div>
 

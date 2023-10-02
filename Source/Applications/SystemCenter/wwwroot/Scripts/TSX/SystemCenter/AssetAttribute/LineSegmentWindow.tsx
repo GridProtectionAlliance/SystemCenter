@@ -29,22 +29,21 @@ import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
 import moment from 'moment';
 
-function LineSegmentWindow(props: { ID: number, InnerOnly?: boolean }): JSX.Element {
+interface IProps { ID: number, InnerOnly?: boolean, OnChange?: () => void; }
+function LineSegmentWindow(props: IProps): JSX.Element {
     const [segments, setSegments] = React.useState<Array<OpenXDA.Types.LineSegment>>([]);
     const [showFawg, setShowFawg] = React.useState<boolean>(false);
 
 
     React.useEffect(() => {
-        getData();
-        
+        const h = getSegments();
+        return () => { if (h != null && h.abort != null) h.abort(); }
     }, [props.ID]);
 
-    function getData(): void {
-        getSegments();
-    }
 
-    function getSegments(): void {
-       $.ajax({
+
+    function getSegments() {
+       return $.ajax({
            type: "GET",
            url: `${homePath}api/OpenXDA/Line/${props.ID}/LineSegments?_=${moment()}`,
             contentType: "application/json; charset=utf-8",
@@ -53,6 +52,7 @@ function LineSegmentWindow(props: { ID: number, InnerOnly?: boolean }): JSX.Elem
             async: true
        }).done((data: Array<OpenXDA.Types.LineSegment>) => {
            setSegments(data);
+           props.OnChange();
        });
     }
 
@@ -86,7 +86,7 @@ function LineSegmentWindow(props: { ID: number, InnerOnly?: boolean }): JSX.Elem
                 rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 selected={(item) => false}
             />
-            {showFawg ? <LineSegmentWizard LineID={props.ID} closeWizard={() => { setShowFawg(false); getData(); }} LineKey={''} LineName={''} /> : null}
+            {showFawg ? <LineSegmentWizard LineID={props.ID} closeWizard={() => { setShowFawg(false); getSegments(); }} LineKey={''} LineName={''} /> : null}
         </>);
     const wizardButton = (<button className={"btn btn-primary" + ((props.InnerOnly ?? false) ? " pull-right" : "")} onClick={(evt) => setShowFawg(true)}>Line Segment Wizard</button>);
 
