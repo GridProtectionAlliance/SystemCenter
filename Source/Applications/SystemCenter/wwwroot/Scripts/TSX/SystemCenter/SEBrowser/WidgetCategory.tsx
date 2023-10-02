@@ -31,8 +31,9 @@ import CategoryInfo from './CategoryInfo';
 import WidgetByCategory from './WidgetByCategory';
 
 declare var homePath: string;
+declare type Tab = 'info' | 'widgets'
 
-interface IProps { TabID: number }
+interface IProps { TabID: number, Tab: Tab }
 
 const Tabs = [
     { Id: "info", Label: "Tab Info" },
@@ -41,16 +42,15 @@ const Tabs = [
 
 export default function WidgetCategory(props: IProps) {
     const dispatch = useAppDispatch();
-
-    const [tab, setTab] = React.useState<string>(getTab());
+    const [tab, setTab] = React.useState(getTab());
     const category = useAppSelector((state) => WidgetCategorySlice.Datum(state, props.TabID));
     const cStatus = useAppSelector(WidgetCategorySlice.Status) as Application.Types.Status;
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
     React.useEffect(() => {
-        if (getTab() != tab)
+        const saved = getTab();
+        if (saved !== tab)
             sessionStorage.setItem('WidgetCategory.Tab', JSON.stringify(tab));
-
     }, [tab])
 
     React.useEffect(() => {
@@ -58,8 +58,9 @@ export default function WidgetCategory(props: IProps) {
             dispatch(WidgetCategorySlice.Fetch());
     }, [cStatus])
 
-    function getTab(): string {
-        if (sessionStorage.hasOwnProperty('WidgetCategory.Tab'))
+    function getTab(): Tab {
+        if (props.Tab != undefined) return props.Tab;
+        else if (sessionStorage.hasOwnProperty('WidgetCategory.Tab'))
             return JSON.parse(sessionStorage.getItem('WidgetCategory.Tab'));
         else
             return 'info';
@@ -78,8 +79,8 @@ export default function WidgetCategory(props: IProps) {
     if (cStatus == 'error')
         return null;
 
-    if (category == null)
-        return null
+    if (category == null) return null
+
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
@@ -90,21 +91,19 @@ export default function WidgetCategory(props: IProps) {
                     <button className="btn btn-danger pull-right" hidden={category == null} onClick={() => setShowWarning(true)}>Delete Tab</button>
                 </div>
             </div>
-
-
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
+
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="customerInfo">
                     <CategoryInfo Tab={category} stateSetter={(record) => dispatch(WidgetCategorySlice.DBAction({ verb: 'PATCH', record: record }))} />
                 </div>
-                
                 <div className={"tab-pane " + (tab == "widgets" ? " active" : "fade")} id="widgets" >
                     <WidgetByCategory CategoryID={category.ID} />
                 </div>
             </div>
+
             <Warning Title={'Delete ' + (category?.Name ?? 'SE Browser Tab')} Show={showWarning} Message={'This will permanently delete this SE Browser Tab.'} CallBack={(c) => { if (c) deleteTab(); setShowWarning(false) }} />
         </div>
     )
-
 }

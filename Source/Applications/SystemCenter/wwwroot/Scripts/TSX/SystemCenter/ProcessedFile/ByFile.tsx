@@ -62,6 +62,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.DataFile>('DataStartTime');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [page, setPage] = React.useState<number>(currentPage);
+    const totalRecords = useAppSelector(DataFileSlice.TotalRecords);
 
     React.useEffect(() => {
         dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search, page }))
@@ -124,7 +125,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
         <div style={{ width: '100%', height: '100%' }}>
             <LoadingScreen Show={showWarning == 'loading'} />
             <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'}
-                ShowLoading={cState == 'loading'} ResultNote={cState == 'error' ? 'Could not complete Search' : ('Displaying  Data File(s)' + (50*page+1) + ' - ' + (50*page+data.length))}
+                ShowLoading={cState == 'loading'}
+                ResultNote={cState == 'error' ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (50 * page + 1) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
                 GetEnum={(setOptions, field) => {
                     let handle = null;
                    

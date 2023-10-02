@@ -808,8 +808,8 @@ namespace SystemCenter.Controllers
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     // Finding Phases that do not yet exist and adding them to the database
-                    Func<ParsedChannel, string> phaseKeyChannel = (ParsedChannel channel) => channel.Phase;
-                    Func<openXDA.Model.Phase, string> phaseKey = (openXDA.Model.Phase phase) => phase.Name;
+                    Func<ParsedChannel, string> phaseKeyChannel = (ParsedChannel channel) => channel.Phase.ToUpper();
+                    Func<openXDA.Model.Phase, string> phaseKey = (openXDA.Model.Phase phase) => phase.Name.ToUpper();
                     Func<ParsedChannel, openXDA.Model.Phase> createPhase = 
                         (ParsedChannel channel) =>
                             new openXDA.Model.Phase()

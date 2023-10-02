@@ -31,10 +31,13 @@ import OpenXDAIssuesPage from './OpenXDAIssuesPage';
 import DownloadedFilesPage from './DownloadedFilesPage';
 import DataQualityIssuesPage from './DataQualityIssuesPage';
 
-type DeviceIssuesPageTab = 'notes' | 'openmic' | 'mimd' | 'xda' | 'files' | 'dq'
-function DeviceIssuesPage(props: {MeterID: number, OpenMICAcronym: string, Tab? : DeviceIssuesPageTab}) {
+declare type Tab = 'notes' | 'openmic' | 'mimd' | 'xda' | 'files' | 'dq'
+
+interface IProps { MeterID: number, OpenMICAcronym: string, Tab: Tab }
+
+function DeviceIssuesPage(props: IProps) {
     const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(null);
-    const [tab, setTab] = React.useState<DeviceIssuesPageTab>(props?.Tab ?? 'notes');
+    const [tab, setTab] = React.useState(getTab());
 
     React.useEffect(() => {
         let handle = getMeter();
@@ -57,17 +60,29 @@ function DeviceIssuesPage(props: {MeterID: number, OpenMICAcronym: string, Tab? 
         })
     }
 
+    function getTab(): Tab {
+        if (props.Tab != undefined) return props.Tab;
+        else if (sessionStorage.hasOwnProperty('DeviceIssuesPage.Tab'))
+            return JSON.parse(sessionStorage.getItem('DeviceIssuesPage.Tab'));
+        else
+            return 'notes';
+    }
+
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('DeviceIssuesPage.Tab', JSON.stringify(tab));
+    }, [tab]);
 
     if (meter == null) return null;
 
-    const Tabs: {Id: DeviceIssuesPageTab, Label: string }[] = [
+    const Tabs = [
         { Id: "notes", Label: "Notes" },
         { Id: "openmic", Label: "openMIC" },
         { Id: "mimd", Label: "miMD" },
         { Id: "xda", Label: "openXDA" },
         { Id: "dq", Label: "Data Quality" },
         { Id: "files", Label: "Last 50 Downloaded Files" },
-
     ];
 
     return (
@@ -78,8 +93,8 @@ function DeviceIssuesPage(props: {MeterID: number, OpenMICAcronym: string, Tab? 
                 </div>
             </div>
             <hr />
-            <TabSelector CurrentTab={tab} SetTab={(t:DeviceIssuesPageTab) => setTab(t)} Tabs={Tabs} />
 
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" style={{ maxHeight: window.innerHeight - 215 }}>
                     <NoteWindow ID={props.MeterID} Type='Meter' />
@@ -99,11 +114,8 @@ function DeviceIssuesPage(props: {MeterID: number, OpenMICAcronym: string, Tab? 
                 <div className={"tab-pane " + (tab == "files" ? " active" : "fade")} id="files" style={{ maxHeight: window.innerHeight - 215 }}>
                     <DownloadedFilesPage Meter={meter} />
                 </div>
-
             </div>
         </div>
-       
-
     )
 }
 

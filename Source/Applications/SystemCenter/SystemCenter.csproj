@@ -279,6 +279,7 @@
     <Compile Include="Controllers\SystemCenter\SystemCenterController.cs" />
     <Compile Include="Model\Configuration\APIConfiguration.cs" />
     <Compile Include="Model\Configuration\ConfigurationLoader.cs" />
+    <Compile Include="Model\ChannelTemplate.cs" />
     <Compile Include="Model\DetailedMeterAsset.cs" />
     <Compile Include="Model\Security\RemoteUserAccount.cs" />
     <Compile Include="Model\Security\ApplicationRole.cs" />
@@ -513,6 +514,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\MATLABAnalyticInfo.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\MATLABAnalyticSQLSetting.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Meter\PropertyUI\LocationDrawings.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\TemplateWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\CustomerAssetGroupPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Meter\MeterMaintenance.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\RemoteXDA\RemoteAssetForm.tsx" />

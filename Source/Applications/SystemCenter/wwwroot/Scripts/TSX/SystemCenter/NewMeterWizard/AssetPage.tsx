@@ -1,4 +1,4 @@
-﻿//******************************************************************************************************
+//******************************************************************************************************
 //  AssetPage.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
@@ -38,6 +38,7 @@ import { Modal, Search } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import AssetSelect from '../Asset/AssetSelect';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
 
 declare var homePath: string;
@@ -329,12 +330,11 @@ export default function AssetPage(props: IProps) {
                                 index = assetConnections.findIndex(assetConnection => assetConnection.Parent == asset.AssetKey || assetConnection.Child == asset.AssetKey);
                             }
                         });
-
-                        //Convert assets from slice to correct typing
-                        $.each(selected, (index, record) => {
-                            let assetRecord = { ...assets.find((asset) => asset.ID === record.ID), AssetType: record.AssetType as OpenXDA.Types.AssetTypeName, Channels: channels.filter((channel) => channel.Asset == record.AssetKey) };
-                            //Push converted asset to list
-                            list.push(assetRecord);
+                        let promises = [];
+                        $.each(selected, async (index, record) => {
+                            let assetRecord = getAssetWithAdditionalFields(record.ID, record.AssetType as OpenXDA.Types.AssetTypeName);
+                            // Push promises into promises
+                            promises.push(assetRecord);
                         });
 
                         //Add the new assets that have been created by the user
@@ -344,9 +344,9 @@ export default function AssetPage(props: IProps) {
 
                         //Update selected
                         setSelectedAssets(selected);
+                        Promise.all(promises).then(d => { props.UpdateAssets(list.concat(d)) })
 
                         //Update props
-                        props.UpdateAssets(list);
                         props.UpdateChannels(channels);
                         props.UpdateAssetConnections(assetConnections);
                     }}>

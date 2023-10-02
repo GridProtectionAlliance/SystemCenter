@@ -22,7 +22,7 @@
 
 import * as React from 'react';
 import { LoadingScreen, ServerErrorIcon, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application } from '@gpa-gemstone/application-typings';
 import * as _ from 'lodash';
 import UserInfo from './Info';
 import UserPermissions from './Permissions';
@@ -32,21 +32,31 @@ import { CheckBox } from '@gpa-gemstone/react-forms';
 import { UserAccountSlice } from '../../Store/Store';
 import { useHistory } from "react-router-dom";
 
-interface IProps {
-	UserID: string
-}
+declare type Tab = 'userInfo' | 'permissions' | 'additionalFields'
+
+interface IProps { UserID: string, Tab: Tab }
 
 function User(props: IProps) {
 	const history = useHistory();
 	const dispatch = useAppDispatch();
-
 	const user = useAppSelector((state) => UserAccountSlice.Datum(state, props.UserID));
 	const status: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
-
-	const [tab, setTab] = React.useState<string>('userInfo')
-
+	const [tab, setTab] = React.useState(getTab());
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
+	function getTab(): Tab {
+		if (props.Tab != undefined) return props.Tab;
+		else if (sessionStorage.hasOwnProperty('User.Tab'))
+			return JSON.parse(sessionStorage.getItem('User.Tab'));
+		else
+			return 'userInfo';
+	}
+
+	React.useEffect(() => {
+		const saved = getTab();
+		if (saved !== tab)
+			sessionStorage.setItem('User.Tab', JSON.stringify(tab));
+	}, [tab]);
 
 	React.useEffect(() => {
 		if (status === 'unintiated' || status === 'changed')
@@ -76,7 +86,8 @@ function User(props: IProps) {
 			</div>
 			<LoadingScreen Show={status === 'loading'} />
 			<hr />
-			<TabSelector CurrentTab={tab} SetTab={(t) => setTab(t)} Tabs={Tabs} />
+
+			<TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
 			<div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
 				<div className={"tab-pane " + (tab === "userInfo" ? " active" : "fade")}>
 					<UserInfo AccountId={props.UserID} />
@@ -96,8 +107,8 @@ function User(props: IProps) {
 						CreateValue={(fld) => ({ Value: '', ID: 0, UserAccountID: props.UserID, AdditionalUserFieldID: fld.ID })}
 					/>
 				</div>
-
 			</div>
+
 			<Warning Message={
 				(user == null || user.Type == 'Database' ? 'This will permanently remove the User. Are you sure you want to continue?' :
 					'This will remove the User from openXDA. The User may still have rights and the ability to log in to the system if they are in an Azure or Active Directory group. Contact your domain administrator to have the User removed from Azure or AD.')
@@ -110,8 +121,6 @@ function User(props: IProps) {
 			}} />
 		</div>
 	)
-
-
 }
 
 export default User;

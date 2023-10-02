@@ -32,7 +32,7 @@ import AdditionalUserFieldSlice from './AdditionalUserFieldSlice';
 import { PQApplications } from '../ApplicationCategory/Applications';
 import { DBCleanup } from '../DB/DBCleanup';
 import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategory';
-import { OpenXDA as LocalXDA } from '../global'
+import { OpenXDA as LocalXDA, SystemCenter as LocalSystemCenter } from '../global'
 import PQISlice from './PQISlice';
 import { IApplicationRole, ISecurityGroup, IUserAccount } from '../User/Types';
 
@@ -112,6 +112,7 @@ export const MATLABAnalyticEventTypeSlice = new GenericSlice<OpenXDA.Types.MATLA
 export const MATLABAnalyticAssetTypeSlice = new GenericSlice<OpenXDA.Types.MATLABAnalyticAssetType>("MATLABAnalyticAssetType", `${homePath}api/OpenXDA/MATLABAnalyticAssetType`, 'ID');
 export const TrendChannelSlice = new GenericSlice<LocalXDA.TrendChannel>('TrendChannels', `${homePath}api/OpenXDA/TrendChannel`, 'Name');
 
+export const ChannelTemplateSlice = new GenericSlice<LocalSystemCenter.ChannelTemplateFile>('ChannelTemplate', `${homePath}api/SystemCenter/ChannelTemplateFile`, 'ID', true);
 
 const store = configureStore({
     reducer: {
@@ -175,6 +176,7 @@ const store = configureStore({
         MATLABAnalyticEventType: MATLABAnalyticEventTypeSlice.Reducer,
         MATLABAnalyticAssetType: MATLABAnalyticAssetTypeSlice.Reducer,
         TrendChannels: TrendChannelSlice.Reducer,
+        ChannelTemplate: ChannelTemplateSlice.Reducer
     }
 });
 export default store;
