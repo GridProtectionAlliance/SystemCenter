@@ -450,6 +450,9 @@
     <Content Include="wwwroot\Images\NodeTiles\SystemCenter.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+	<Content Include="wwwroot\Images\NodeTiles\MiMD.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="wwwroot\index.cshtml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -504,7 +507,6 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\MultipleAssetsPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\MagDurCurves\ByMagDurCurve.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\MagDurCurves\CurveForm.tsx" />
-
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\ByMATLABAnalytic.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\MATLABAnalytic.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\MATLABAnalyticForm.tsx" />
