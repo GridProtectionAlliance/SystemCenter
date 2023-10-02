@@ -55,12 +55,12 @@ function LineSegmentAttributes(props: { NewEdit: Application.Types.NewEdit, Asse
         <>
             <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Label={'Bus (from)'} Field={'FromBus'} Feedback={''} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Label={'Bus (to)'}  Field={'ToBus'} Feedback={''} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'Length'} Feedback={'A numeric Length value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'R0'} Feedback={'A numeric R0 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'X0'} Feedback={'A numeric X0 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'R1'} Feedback={'A numeric R1 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'X1'} Feedback={'A numeric X1 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'A numeric Thermal Rating value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'Length'} Label={'Length (miles)'} Feedback={'A numeric Length value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'R0'} Label={'R0 (Ohm)'} Feedback={'A numeric R0 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'X0'} Label={'X0 (Ohm)'} Feedback={'A numeric X0 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'R1'} Label={'R1 (Ohm)'} Feedback={'A numeric R1 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'X1'} Label={'X1 (Ohm)'} Feedback={'A numeric X1 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating (MVA)'} Feedback={'A numeric Thermal Rating value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <CheckBox<OpenXDA.Types.LineSegment> Record={props.Asset} Field={'IsEnd'} Label={'End of Line?'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
         </>
     );
