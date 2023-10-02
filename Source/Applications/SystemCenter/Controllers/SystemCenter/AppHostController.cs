@@ -21,6 +21,13 @@
 //
 //******************************************************************************************************
 
+using GSF.Configuration;
+using GSF.Data;
+using GSF.Data.Model;
+using GSF.Reflection;
+using Newtonsoft.Json;
+using openXDA.APIAuthentication;
+using openXDA.Model;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -29,13 +36,6 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Web.Http;
-using GSF.Configuration;
-using GSF.Data;
-using GSF.Data.Model;
-using GSF.Reflection;
-using Newtonsoft.Json;
-using openXDA.APIAuthentication;
-using openXDA.Model;
 using SystemCenter.Model;
 using ConfigurationLoader = SystemCenter.Model.ConfigurationLoader;
 
@@ -66,7 +66,12 @@ namespace SystemCenter.Controllers
 
             [Category]
             [SettingName("XDA")]
-            public APIConfiguration APISettings { get; } = new APIConfiguration();
+            public APIConfiguration XDAAPISettings { get; } = new APIConfiguration();
+
+            [Category]
+            [SettingName("MiMD")]
+            public APIConfiguration MiMDAPISettings { get; } = new APIConfiguration();
+
         }
 
         [Route(), HttpGet]
@@ -76,6 +81,9 @@ namespace SystemCenter.Controllers
 
             // Add SystemCenter
             hosts.Add(GetSystemCenter());
+
+            // Add MiMD
+            hosts.Add(GetMiMD());
 
             // Add XDA Nodes
             using (AdoDataConnection connection = CreateDbConnection())
@@ -107,7 +115,7 @@ namespace SystemCenter.Controllers
         [Route("xdaConsole/{id}/Send/{session}"), HttpPost]
         public IHttpActionResult XDAConsoleSend(int id, string session, [FromBody] object postData)
         {
-            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
 
             APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
 
@@ -128,7 +136,7 @@ namespace SystemCenter.Controllers
         [Route("xdaConsole/{id}/Connect"), HttpGet]
         public IHttpActionResult XDAConsoleConnect(int id)
         {
-            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
 
             APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
 
@@ -146,7 +154,7 @@ namespace SystemCenter.Controllers
         [Route("xdaConsole/{id}/Retrieve/{session}"), HttpGet]
         public IHttpActionResult XDAConsoleRetrive(int id, string session)
         {
-            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
 
             APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
 
@@ -158,13 +166,13 @@ namespace SystemCenter.Controllers
             HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest,
                 $"/api/Console/Retrieve/{session}", User).Result;
 
-           return ResponseMessage(responseMessage);
+            return ResponseMessage(responseMessage);
         }
 
         [Route("xdaConsole/{id}/Ping"), HttpGet]
         public IHttpActionResult XDAPing(int id)
         {
-            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
 
             APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
 
@@ -175,8 +183,80 @@ namespace SystemCenter.Controllers
 
             // it's using a random endpoint that returns Hello.
             // #ToDo switch this to a sepcific Ping endpoint when cleaning up the XDA
+            HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"api/AlarmLimits").Result;
+
+            return ResponseMessage(responseMessage);
+        }
+
+        [Route("MiMDConsole/Ping"), HttpGet]
+        public IHttpActionResult MiMDPing()
+        {
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).MiMDAPISettings;
+
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetMiMDBaseURL() + "/");
+
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+
+            HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"api/MiMD/Ping", User).Result;
+
+            return ResponseMessage(responseMessage);
+        }
+
+        [Route("MiMDConsole/Connect"), HttpGet]
+        public IHttpActionResult MiMDConsoleConnect()
+        {
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).MiMDAPISettings;
+
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetMiMDBaseURL() + "/");
+
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+
+            HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/MiMD/Console/Connect", User).Result;
+
+            return ResponseMessage(responseMessage);
+        }
+
+        [Route("MiMDConsole/Retrieve/{session}"), HttpGet]
+        public IHttpActionResult MiMDConsoleRetrive(string session)
+        {
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).MiMDAPISettings;
+
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetMiMDBaseURL() + "/");
+
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Get;
+            }
+
             HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest,
-                $"api/AlarmLimits").Result;
+                $"api/MiMD/Console/Retrieve/{session}", User).Result;
+
+            return ResponseMessage(responseMessage);
+        }
+
+        [Route("MiMDConsole/Send/{session}"), HttpPost]
+        public IHttpActionResult MiMDConsoleSend(string session, [FromBody] object postData)
+        {
+            APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).MiMDAPISettings;
+
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetMiMDBaseURL() + "/");
+
+            var json = JsonConvert.SerializeObject(postData);
+
+            void ConfigureRequest(HttpRequestMessage request)
+            {
+                request.Method = HttpMethod.Post;
+                request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+            }
+
+            HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest,
+                $"api/MiMD/Console/Send/{session}", User).Result;
 
             return ResponseMessage(responseMessage);
         }
@@ -188,6 +268,14 @@ namespace SystemCenter.Controllers
             using (AdoDataConnection connection = CreateDbConnection())
             {
                 return new TableOperations<HostRegistration>(connection).QueryRecordWhere("ID = {0}", id)?.URL ?? "";
+            }
+        }
+
+        private string GetMiMDBaseURL()
+        {
+            using (AdoDataConnection connection = CreateDbConnection())
+            {
+                return connection.ExecuteScalar("", "SELECT Value FROM [SystemCenter.Setting] WHERE Name = {0}", "MiMD.Url");
             }
         }
 
@@ -219,6 +307,21 @@ namespace SystemCenter.Controllers
             };
         }
 
+        private AppHost GetMiMD()
+        {
+            return new AppHost()
+            {
+                Image = "../Images/NodeTiles/MiMD.png",
+                Properties = new AppProperty[] {
+                    new AppProperty() { Name= "Host", Value = GetMiMDBaseURL() },
+                    new AppProperty() { Name= "Database", Value = DatabaseName },
+                },
+                PingURL = "./api/SystemCenter/AppHost/MiMDConsole/Ping",
+                ConsoleURL = "./api/SystemCenter/AppHost/MiMDConsole",
+                Name = "MiMD"
+            };
+        }
+
         private string DatabaseName
         {
             get
@@ -245,4 +348,5 @@ namespace SystemCenter.Controllers
     {
         protected override IAPIConsoleHost Host => Program.Host;
     }
+
 }

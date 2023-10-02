@@ -22,13 +22,6 @@
 //******************************************************************************************************
 
 
-
-using GSF.Data;
-using GSF.Data.Model;
-using System.Collections.Generic;
-using System.Linq;
-using System;
-using GSF;
 using GSF.Configuration;
 using System.Configuration;
 using System.ComponentModel;
@@ -39,7 +32,7 @@ namespace SystemCenter.Model
     public class APIConfiguration
     {
         /// <summary>
-        /// Gets or sets openXDA Host
+        /// Gets or sets Host
         /// </summary>
         [Setting]
         [DefaultValue("http://localhost:8989")]
@@ -47,7 +40,7 @@ namespace SystemCenter.Model
         public string Host { get; set; }
 
         /// <summary>
-        /// Gets or sets openXDA API Key
+        /// Gets or sets API Key
         /// </summary>
         [Setting]
         [DefaultValue("SystemCenter")]
@@ -55,7 +48,7 @@ namespace SystemCenter.Model
         public string Key { get; set; }
 
         /// <summary>
-        /// Gets or sets openXDA API Token
+        /// Gets or sets API Token
         /// </summary>
         [Setting]
         [DefaultValue("")]

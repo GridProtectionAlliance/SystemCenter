@@ -42,10 +42,11 @@ namespace SystemCenter
     {
         public void Configuration(IAppBuilder app)
         {
-            app.Use((context, next) =>
+            app.Use(async (context, next) =>
             {
+                context.Request.Environment["AuthenticationOptions"] = AuthenticationOptions.Readonly;
+                await next.Invoke();
                 context.Response.Headers.Remove("Server");
-                return next.Invoke();
             });
 
             app.UseStageMarker(PipelineStage.PostAcquireState);
