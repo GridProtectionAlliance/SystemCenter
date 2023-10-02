@@ -495,7 +495,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
 
-            APIQuery query = new APIQuery(settings.OpenXDAKey, settings.OpenXDAToken, settings.OpenXDAHost.Split(';'));
+            APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
             void ConfigureRequest(HttpRequestMessage request)
             {
                 request.Method = HttpMethod.Get;
@@ -557,7 +557,7 @@ namespace SystemCenter.Controllers.OpenXDA
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
 
-            APIQuery query = new APIQuery(settings.OpenXDAKey, settings.OpenXDAToken, settings.OpenXDAHost.Split(';'));
+            APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
             void ConfigureRequest(HttpRequestMessage request)
             {
                 request.Method = HttpMethod.Get;

@@ -32,6 +32,7 @@ using GSF;
 using GSF.Configuration;
 using System.Configuration;
 using System.ComponentModel;
+using openXDA.Model;
 
 namespace SystemCenter.Model
 {
@@ -101,8 +102,8 @@ namespace SystemCenter.Model
 
         private IEnumerable<string[]> LoadXDASettings(AdoDataConnection connection)
         {
-            TableOperations<Setting> settingTable = new TableOperations<Setting>(connection);
-            List<Setting> settingList = settingTable.QueryRecords().ToList();
+            TableOperations<openXDA.Model.Setting> settingTable = new TableOperations<openXDA.Model.Setting>(connection);
+            List<openXDA.Model.Setting> settingList = settingTable.QueryRecords().ToList();
 
             /*
             foreach (IGrouping<string, Setting> grouping in settingList.GroupBy(setting => setting.Name))
@@ -116,8 +117,8 @@ namespace SystemCenter.Model
 
         private IEnumerable<string[]> LoadSystemCenterSettings(AdoDataConnection connection)
         {
-            TableOperations<Setting> settingTable = new TableOperations<Setting>(connection);
-            List<Setting> settingList = settingTable.QueryRecords().ToList();
+            TableOperations<SystemCenter.Model.Setting> settingTable = new TableOperations<SystemCenter.Model.Setting>(connection);
+            List<SystemCenter.Model.Setting> settingList = settingTable.QueryRecords().ToList();
 
             /*
             foreach (IGrouping<string, SystemCenter.Model.Setting> grouping in settingList.GroupBy(setting => setting.Name))

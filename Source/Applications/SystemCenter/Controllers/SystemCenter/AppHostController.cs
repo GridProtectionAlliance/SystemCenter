@@ -117,7 +117,7 @@ namespace SystemCenter.Controllers
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
 
-            APIQuery query = new APIQuery(settings.OpenXDAKey, settings.OpenXDAToken, GetXDABaseURL(id) + "/");
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
 
             var json = JsonConvert.SerializeObject(postData);
 
@@ -138,7 +138,7 @@ namespace SystemCenter.Controllers
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
 
-            APIQuery query = new APIQuery(settings.OpenXDAKey, settings.OpenXDAToken, GetXDABaseURL(id) + "/");
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
 
             void ConfigureRequest(HttpRequestMessage request)
             {
@@ -156,7 +156,7 @@ namespace SystemCenter.Controllers
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
 
-            APIQuery query = new APIQuery(settings.OpenXDAKey, settings.OpenXDAToken, GetXDABaseURL(id) + "/");
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
 
             void ConfigureRequest(HttpRequestMessage request)
             {
@@ -174,7 +174,7 @@ namespace SystemCenter.Controllers
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).XDAAPISettings;
 
-            APIQuery query = new APIQuery(settings.OpenXDAKey, settings.OpenXDAToken, GetXDABaseURL(id) + "/");
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetXDABaseURL(id) + "/");
 
             void ConfigureRequest(HttpRequestMessage request)
             {
@@ -193,7 +193,7 @@ namespace SystemCenter.Controllers
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).MiMDAPISettings;
 
-            APIQuery query = new APIQuery(settings.MiMDKey, settings.MiMDToken, GetMiMDBaseURL() + "/");
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetMiMDBaseURL() + "/");
 
             void ConfigureRequest(HttpRequestMessage request)
             {
@@ -210,7 +210,7 @@ namespace SystemCenter.Controllers
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).MiMDAPISettings;
 
-            APIQuery query = new APIQuery(settings.MiMDKey, settings.MiMDToken, GetMiMDBaseURL() + "/");
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetMiMDBaseURL() + "/");
 
             void ConfigureRequest(HttpRequestMessage request)
             {
@@ -227,7 +227,7 @@ namespace SystemCenter.Controllers
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).MiMDAPISettings;
 
-            APIQuery query = new APIQuery(settings.MiMDKey, settings.MiMDToken, GetMiMDBaseURL() + "/");
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetMiMDBaseURL() + "/");
 
             void ConfigureRequest(HttpRequestMessage request)
             {
@@ -245,7 +245,7 @@ namespace SystemCenter.Controllers
         {
             APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).MiMDAPISettings;
 
-            APIQuery query = new APIQuery(settings.MiMDKey, settings.MiMDToken, GetMiMDBaseURL() + "/");
+            APIQuery query = new APIQuery(settings.Key, settings.Token, GetMiMDBaseURL() + "/");
 
             var json = JsonConvert.SerializeObject(postData);
 

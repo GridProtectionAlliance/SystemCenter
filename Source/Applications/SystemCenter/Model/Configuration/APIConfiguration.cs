@@ -32,43 +32,27 @@ namespace SystemCenter.Model
     public class APIConfiguration
     {
         /// <summary>
-        /// Gets or sets openXDA Host
+        /// Gets or sets Host
         /// </summary>
         [Setting]
         [DefaultValue("http://localhost:8989")]
         [SettingName("Url")]
-        public string OpenXDAHost { get; set; }
+        public string Host { get; set; }
 
         /// <summary>
-        /// Gets or sets openXDA API Key
+        /// Gets or sets API Key
         /// </summary>
         [Setting]
         [DefaultValue("SystemCenter")]
         [SettingName("APIKey")]
-        public string OpenXDAKey { get; set; }
+        public string Key { get; set; }
 
         /// <summary>
-        /// Gets or sets openXDA API Token
+        /// Gets or sets API Token
         /// </summary>
         [Setting]
         [DefaultValue("")]
         [SettingName("APIToken")]
-        public string OpenXDAToken { get; set; }
-
-        /// <summary>
-        /// Gets or sets MiMD API Key
-        /// </summary>
-        [Setting]
-        [DefaultValue("SystemCenter")]
-        [SettingName("APIKey")]
-        public string MiMDKey { get; set; }
-
-        /// <summary>
-        /// Gets or sets MiMD API Token
-        /// </summary>
-        [Setting]
-        [DefaultValue("")]
-        [SettingName("APIToken")]
-        public string MiMDToken { get; set; }
+        public string Token { get; set; }
     }
 }
