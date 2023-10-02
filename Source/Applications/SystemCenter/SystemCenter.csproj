@@ -364,6 +364,7 @@
     <None Include="wwwroot\Content\Site.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <TypeScriptCompile Include="EventWidgets\TSX\Store.tsx" />
     <TypeScriptCompile Include="EventWidgets\TSX\global.tsx" />
     <TypeScriptCompile Include="EventWidgets\TSX\WidgetWrapper.tsx" />
     <TypeScriptCompile Include="EventWidgets\TSX\Widget\AssetFaultSegments.tsx" />
@@ -676,6 +677,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\CategoryInfo.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetByCategory.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\ByWidget.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataOperations.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataReaders.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\Setting.tsx" />

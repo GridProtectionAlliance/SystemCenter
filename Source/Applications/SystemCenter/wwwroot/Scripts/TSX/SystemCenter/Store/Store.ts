@@ -35,7 +35,7 @@ import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategor
 import { OpenXDA as LocalXDA, SystemCenter as LocalSystemCenter } from '../global'
 import PQISlice from './PQISlice';
 import { IApplicationRole, ISecurityGroup, IUserAccount } from '../User/Types';
-
+import { EventWidget } from '../../../../../EventWidgets/TSX/global';
 
 declare var homePath: string;
 
@@ -102,7 +102,8 @@ export const SecurityGroupSlice = new GenericSlice<ISecurityGroup>("SecurityGrou
 export const ApplicationRoleSlice = new GenericSlice<IApplicationRole>("ApplicationRole", `${homePath}api/SystemCenter/ApplicationRole`, "Name", false)
 
 export const WidgetCategorySlice = new GenericSlice<LocalXDA.IWidgetCategory>("WidgetCategory", `${homePath}api/SystemCenter/WidgetCategory`, "OrderBy", true)
-export const SEBrowserWidgetSlice = new GenericSlice<LocalXDA.IWidget>("SEBrowserWidget", `${homePath}api/SystemCenter/WidgetView`, "Name", true)
+export const SEBrowserWidgetSlice = new GenericSlice<LocalXDA.IWidget>("SEBrowserWidget", `${homePath}api/SEbrowser/Widget`, "Name", true);
+export const SEBrowserWidgetViewSlice = new GenericSlice<EventWidget.IWidgetView>("SEBrowserWidgetView", `${homePath}api/SEbrowser/WidgetView`, "Name", true)
 export const MagDurCurveSlice = new GenericSlice<LocalXDA.IMagDurCurve>('MagDurCurve', `${homePath}api/SystemCenter/StandardMagDurCurve`, 'Name');
 
 
@@ -169,8 +170,8 @@ const store = configureStore({
         WidgetCategory: WidgetCategorySlice.Reducer,
         ApplicationRole: ApplicationRoleSlice.Reducer,
         SEBrowserWidget: SEBrowserWidgetSlice.Reducer,
+        SEBrowserWidgetView: SEBrowserWidgetViewSlice.Reducer,
         MagDurCurve: MagDurCurveSlice.Reducer,
-
         EventTag: EventTagSlice.Reducer,
         MATLABAnalytic: MATLABAnalyticSlice.Reducer,
         MATLABAnalyticEventType: MATLABAnalyticEventTypeSlice.Reducer,

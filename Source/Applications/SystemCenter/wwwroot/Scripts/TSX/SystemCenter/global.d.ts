@@ -114,9 +114,9 @@ export namespace OpenXDA {
     }
 
     interface IWidget {
-        CategoryID?: number,
         ID: number,
         Name: string,
+        Type: string,
         Setting: string,
         Enabled: boolean
     }

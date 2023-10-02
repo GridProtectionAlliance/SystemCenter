@@ -23,35 +23,47 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA as LocalXDA } from '../global';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { SEBrowserWidgetSlice } from '../Store/Store'
+import { SEBrowserWidgetSlice, SEBrowserWidgetViewSlice } from '../Store/Store'
 import Table from '@gpa-gemstone/react-table';
-import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, Modal, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
-import WidgetForm from './WidgetForm';
+import { EventWidget } from '../../../../../EventWidgets/TSX/global';
+import { Select } from '@gpa-gemstone/react-forms';
+import { cross } from 'd3';
 declare var homePath: string;
 
 interface IProps { CategoryID: number }
 
 const WidgetByCategory = (props: IProps) => {
     const dispatch = useAppDispatch();
-    const data = useAppSelector(SEBrowserWidgetSlice.Data);
-    const status = useAppSelector(SEBrowserWidgetSlice.Status);
-    const categoryID = useAppSelector(SEBrowserWidgetSlice.ParentID);
+    const data = useAppSelector(SEBrowserWidgetViewSlice.Data);
+    const status = useAppSelector(SEBrowserWidgetViewSlice.Status);
+    const categoryID = useAppSelector(SEBrowserWidgetViewSlice.ParentID);
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
-    const [showEdit, setShowEdit] = React.useState<boolean>(false);
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
-    const sortField = useAppSelector(SEBrowserWidgetSlice.SortField);
-    const ascending = useAppSelector(SEBrowserWidgetSlice.Ascending);
+    const sortField = useAppSelector(SEBrowserWidgetViewSlice.SortField);
+    const ascending = useAppSelector(SEBrowserWidgetViewSlice.Ascending);
+    const [record, setRecord] = React.useState<EventWidget.IWidgetView>(null);
+    const allWidgets = useAppSelector(SEBrowserWidgetSlice.Data);
+    const allWidgetStatus = useAppSelector(SEBrowserWidgetSlice.Status);
 
-    const [record, setRecord] = React.useState<LocalXDA.IWidget>(null);
-    const [errors, setErrors] = React.useState<string[]>([]);
+    React.useEffect(() => {
+        if (allWidgetStatus == 'unintiated' || allWidgetStatus == 'changed')
+            dispatch(SEBrowserWidgetSlice.Fetch())
+    }, [allWidgetStatus]);
+
+    React.useEffect(() => {
+        if (allWidgets.length == 0)
+            return;
+        if (record == null)
+            return setRecord({ ...allWidgets[0], CategoryID: props.CategoryID, setting: {} })
+    }, [allWidgets])
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || categoryID != props.CategoryID)
-            dispatch(SEBrowserWidgetSlice.Fetch(props.CategoryID))
+            dispatch(SEBrowserWidgetViewSlice.Fetch(props.CategoryID))
     }, [status, categoryID, props.CategoryID])
 
     if (status == 'error')
@@ -59,7 +71,7 @@ const WidgetByCategory = (props: IProps) => {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>SE Browser Widgets:</h4>
+                        <h4>PQ Browser Widgets:</h4>
                     </div>
                 </div>
             </div>
@@ -77,7 +89,7 @@ const WidgetByCategory = (props: IProps) => {
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>SE Browser Widgets:</h4>
+                        <h4>PQ Browser Widgets:</h4>
                     </div>
                 </div>
             </div>
@@ -95,30 +107,23 @@ const WidgetByCategory = (props: IProps) => {
         <div className="card-header">
             <div className="row">
                 <div className="col">
-                        <h4>SE Browser Widgets:</h4>
+                        <h4>PQ Browser Widgets:</h4>
                 </div>
             </div>
         </div>
         <div className="card-body">
                 <div style={{ width: '100%', height: window.innerHeight - 420 }}>
-                    <Table<LocalXDA.IWidget>
+                    <Table<EventWidget.IWidgetView>
                     cols={[
                             {
                                 key: 'Name', field: 'Name', label: 'Widget Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
                             },
                             {
-                                key: 'Enabled', field: 'Enabled', label: 'Enabled', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
+                                key: 'Type', field: 'Type', label: 'Widget Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
                             },
                             {
                                 key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                                 content: (c) => <>
-                                    <button className="btn btn-sm"
-                                        onClick={(e) => {
-                                            setRecord(c);
-                                            setShowEdit(true);
-                                        }}>
-                                        <span>{Pencil}</span>
-                                    </button>
                                     <button className="btn btn-sm"
                                         onClick={(e) => {
                                             setRecord(c);
@@ -141,9 +146,9 @@ const WidgetByCategory = (props: IProps) => {
                                 return;
 
                             if (d.colKey === sortField)
-                                dispatch(SEBrowserWidgetSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
+                                dispatch(SEBrowserWidgetViewSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
                             else 
-                                dispatch(SEBrowserWidgetSlice.Sort({ SortField: d.colField, Ascending: true }));
+                                dispatch(SEBrowserWidgetViewSlice.Sort({ SortField: d.colField, Ascending: true }));
                         }}
                     onClick={() => { }}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -157,35 +162,34 @@ const WidgetByCategory = (props: IProps) => {
             <div className="btn-group mr-2">
                     <button className="btn btn-primary pull-right" onClick={() => {
                         setShowAdd(true);
-                        setRecord({ Enabled: false, ID: 0, Name: '', Setting: '', CategoryID: props.CategoryID });
+                        //setRecord({ Enabled: false, ID: 0, Name: '', CategoryID: props.CategoryID });
                 }}>Add Widget</button>
             </div>
         </div>
         </div>
         <Warning Message={'This will remove the Widget from this Tab.'} Show={showRemove} Title={'Remove ' + (record?.Name ?? 'Widget')}
-            CallBack={(c) => { if (c) dispatch(SEBrowserWidgetSlice.DBAction({ record, verb: 'DELETE' })); setShowRemove(false); }}
+            CallBack={(c) => { if (c) dispatch(SEBrowserWidgetViewSlice.DBAction({ record, verb: 'DELETE' })); setShowRemove(false); }}
         />
-        <Modal Title={showEdit ? 'Edit ' + (record?.Name ?? 'Widget') : 'Add New Widget'}
-            Show={showEdit || showAdd}
+        <Modal Title={`Add Widget`}
+            Show={showAdd}
             CallBack={(c) => {
-                if (c && showAdd)
-                    dispatch(SEBrowserWidgetSlice.DBAction({ verb: 'POST', record }))
-                if (c && showEdit)
-                    dispatch(SEBrowserWidgetSlice.DBAction({ verb: 'PATCH', record }))
+                if (c)
+                    dispatch(SEBrowserWidgetViewSlice.DBAction({ verb: 'POST', record }))
                  setShowAdd(false);
-                setShowEdit(false);
             }}
+            DisableConfirm={data.find(d => d.ID == (record?.ID ?? 0)) != null}
+            ConfirmShowToolTip={data.find(d => d.ID == (record?.ID ?? 0)) != null}
+            ConfirmToolTipContent={<p>{CrossMark} This widget is already in this Category</p>}
             ShowX={true}
             ShowCancel={false}
-            ConfirmText={showAdd ? 'Add Widget' : 'Save Changes'}
-            ConfirmShowToolTip={errors.length > 0 || (showAdd && data.findIndex(r => r.ID == record.ID) >= 0)}
-            DisableConfirm={errors.length > 0 || (showAdd && data.findIndex(r => r.ID == record.ID) >= 0)}
-            ConfirmToolTipContent={<>
-                {errors.map(e => <p> {CrossMark} {e}</p>)}
-                {showAdd && data.findIndex(r => r.ID == record.ID) >= 0 ? <p> {CrossMark} This Widget already exists in the Tab.</p>: null }
-            </>}
+            ConfirmText={'Add Widget'}
         >
-            <WidgetForm Widget={record} stateSetter={setRecord} allowTypeChange={showAdd} setErrors={setErrors} />
+            {record != null ?
+                <Select<EventWidget.IWidgetView> Record={record} Field={'ID'}
+                    Label='Widget'
+                    Setter={(record) => setRecord({ ...record, CategoryID: props.CategoryID, ID: parseInt(record.ID.toString()) })}
+                    Options={allWidgets.map(o => ({ Value: o.ID.toString(), Label: o.Name }))}
+                /> : null}
         </Modal>
     </>
 }
