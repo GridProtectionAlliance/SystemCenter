@@ -73,6 +73,7 @@ export const DataOperationSlice = new GenericSlice<OpenXDA.Types.DataOperation>(
 export const DataReaderSlice = new GenericSlice<OpenXDA.Types.DataReader>("DataReader", `${homePath}api/OpenXDA/DataReader`, "LoadOrder");
 export const ExternalDatabasesSlice = new GenericSlice<SystemCenter.Types.ExternalDatabases>("ExternalDatabases", `${homePath}api/SystemCenter/ExternalDatabases`, "Name", false);
 export const ExternalDBTablesSlice = new GenericSlice<SystemCenter.Types.ExternalDataBaseTable>("ExternalDataBaseTable", `${homePath}api/OpenXDA/ExternalDBTables`, "TableName", false);
+export const AdditionalFieldsSlice = new GenericSlice<SystemCenter.Types.AdditionalField>("AdditionalField", `${homePath}api/OpenXDA/AdditionalFields`, "FieldName", false);
 export const ApplicationNodeSlice = new GenericSlice<Application.Types.iApplicationNode>("ApplicationNode", `${homePath}api/OpenXDA/ApplicationNode`, "Name", false);
 export const LSCVSAccountSlice = new GenericSlice<SystemCenter.Types.LSCVSAccount>("LSCVSAccount", `${homePath}api/LSCVSAccount`, "AccountID", false);
 export const DBCleanupSlice = new GenericSlice<DBCleanup>("DBCleanup", `${homePath}api/OpenXDA/DBCleanup`, "ID", true);
@@ -174,6 +175,7 @@ const store = configureStore({
         SEBrowserWidgetView: SEBrowserWidgetViewSlice.Reducer,
         MagDurCurve: MagDurCurveSlice.Reducer,
         ExternalDatabases: ExternalDatabasesSlice.Reducer,
+        AdditionalFields: AdditionalFieldsSlice.Reducer,
         EventTag: EventTagSlice.Reducer,
         MATLABAnalytic: MATLABAnalyticSlice.Reducer,
         MATLABAnalyticEventType: MATLABAnalyticEventTypeSlice.Reducer,

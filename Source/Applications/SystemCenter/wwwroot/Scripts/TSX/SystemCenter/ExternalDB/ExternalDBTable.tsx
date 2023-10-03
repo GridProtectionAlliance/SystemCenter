@@ -24,7 +24,7 @@
 
 import * as React from 'react';
 import ExternalDBTableInfo from './ExternalDBTableInfo';
-//import ExternalDBTableFields from './ExternalDBTableFields';
+import ExternalDBTableFields from './ExternalDBTableFields';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
@@ -91,7 +91,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                     <ExternalDBTableInfo Record={record} />
                 </div>
                 <div className={"tab-pane " + (tab == "fields" ? " active" : "fade")} id="fields">
-                    {/*<ExternalDBTableFields ID={record.ID} />*/}
+                    <ExternalDBTableFields TableName={record.TableName} ID={record.ID} />
                 </div>
             </div>
             <Warning
