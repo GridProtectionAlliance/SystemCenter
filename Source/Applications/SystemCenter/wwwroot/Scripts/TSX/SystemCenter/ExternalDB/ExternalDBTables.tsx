@@ -23,6 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
+import { useHistory } from "react-router-dom";
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
@@ -32,6 +33,7 @@ import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
 export default function ExternalDBTables(props: { ID: number }) {
+    let history = useHistory();
     const dispatch = useAppDispatch();
 
     const data = useAppSelector(ExternalDBTablesSlice.Data);
@@ -67,6 +69,11 @@ export default function ExternalDBTables(props: { ID: number }) {
         dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
         setShowWarning(false);
         setRecord(emptyRecord);
+    }
+
+    function handleSelect(item) {
+        if (item.colKey == 'btns') return;
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDBTable&ID=' + item.row.ID })
     }
 
     return (
@@ -109,7 +116,7 @@ export default function ExternalDBTables(props: { ID: number }) {
                                 if (d.colKey == 'btns' || d.colKey == 'scroll' || d.colField == null) return;
                                 dispatch(ExternalDBTablesSlice.Sort({ SortField: d.colField, Ascending: !asc }));
                             }}
-                            onClick={() => { }}
+                            onClick={handleSelect}
                             theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             tbodyStyle={{ display: 'block', maxHeight: window.innerHeight - 455, }}
                             rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
