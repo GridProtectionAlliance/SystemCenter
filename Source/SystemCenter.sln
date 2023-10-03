@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29613.14
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34003.232
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{6AA858DD-E319-459F-A5A5-FBDB89D63214}"
 EndProject
@@ -53,6 +53,16 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WiX", "WiX", "{598B0FE9-B4EA-4797-982D-BF243F3C5BEC}"
 	ProjectSection(SolutionItems) = preProject
 		Dependencies\WiX\WixUIExtension.dll = Dependencies\WiX\WixUIExtension.dll
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "openXDA", "openXDA", "{2F51CE6F-8773-420E-9BBC-948F4F9771E4}"
+	ProjectSection(SolutionItems) = preProject
+		Dependencies\openXDA\FaultData.dll = Dependencies\openXDA\FaultData.dll
+		Dependencies\openXDA\openXDA.APIAuthentication.dll = Dependencies\openXDA\openXDA.APIAuthentication.dll
+		Dependencies\openXDA\openXDA.Configuration.dll = Dependencies\openXDA\openXDA.Configuration.dll
+		Dependencies\openXDA\openXDA.DataPusher.dll = Dependencies\openXDA\openXDA.DataPusher.dll
+		Dependencies\openXDA\openXDA.Model.dll = Dependencies\openXDA\openXDA.Model.dll
+		Dependencies\openXDA\openXDA.PQI.dll = Dependencies\openXDA\openXDA.PQI.dll
 	EndProjectSection
 EndProject
 Global
@@ -107,6 +117,7 @@ Global
 		{847B0BE1-54CD-4A68-B0DB-6EA2CD8F672F} = {6AA858DD-E319-459F-A5A5-FBDB89D63214}
 		{F5BD3958-FFBE-415F-BC25-25C30DD7C26F} = {6AA858DD-E319-459F-A5A5-FBDB89D63214}
 		{598B0FE9-B4EA-4797-982D-BF243F3C5BEC} = {6AA858DD-E319-459F-A5A5-FBDB89D63214}
+		{2F51CE6F-8773-420E-9BBC-948F4F9771E4} = {6AA858DD-E319-459F-A5A5-FBDB89D63214}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {77720899-DA0C-45E0-AE45-677A89071A7B}
