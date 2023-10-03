@@ -235,10 +235,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DBCleanup"} to={controllerViewPath + "?name=DBCleanup"}>Database Cleanup</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=SEBrowserTab")} to={controllerViewPath + "?name=SEBrowserTabs"}>SE Browser Tabs</NavLink>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=SEBrowserTab")} to={controllerViewPath + "?name=SEBrowserTabs"}>PQ Browser Tabs</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=SEBrowserWidget")} to={controllerViewPath + "?name=SEBrowserWidget"}>SE Browser Widgets</NavLink>
+                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=SEBrowserWidget")} to={controllerViewPath + "?name=SEBrowserWidget"}>PQ Browser Widgets</NavLink>
                                 </li>
                                 <li className={"nav-item"}>
                                     <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=MagDurCurves")} to={controllerViewPath + "?name=MagDurCurves"}>MagDur Curves</NavLink>
