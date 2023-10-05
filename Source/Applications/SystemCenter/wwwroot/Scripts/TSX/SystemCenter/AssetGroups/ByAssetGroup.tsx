@@ -91,7 +91,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     function getAdditionalMeterFields(setFields) {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Meter/FieldName/0`,
+            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Meter/FieldName/0`,
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true
@@ -120,7 +120,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     function getAdditionalAssetFields(setFields) {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Asset/FieldName/0`,
+            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Asset/FieldName/0`,
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true

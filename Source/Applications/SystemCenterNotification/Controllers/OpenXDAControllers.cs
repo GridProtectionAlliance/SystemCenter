@@ -309,10 +309,9 @@ namespace SystemCenter.Notifications.Controllers
     [RoutePrefix("api/openXDA/Event/Location")]
     public class OpenXDALocationController : DetailedLocationController<DetailedLocation> { }
 
-    [RoutePrefix("api/openXDA/AdditionalField")]
-    public class AdditionalFieldController : ModelController<AdditionalField>
+    [RoutePrefix("api/openXDA/AdditionalFieldView")]
+    public class AdditionalFieldViewController : ModelController<AdditionalFieldView>
     {
-
         [HttpGet, Route("ParentTable/{openXDAParentTable}/{sort}/{ascending:int}")]
         public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable, string sort, int ascending)
         {
@@ -327,15 +326,18 @@ namespace SystemCenter.Notifications.Controllers
                 if (sort != null && sort != string.Empty)
                     orderByExpression = $"{sort} {(ascending == 1 ? "ASC" : "DESC")}";
 
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
-                    IEnumerable<AdditionalField> records = new TableOperations<AdditionalField>(connection).QueryRecords(orderByExpression, new RecordRestriction("ParentTable = {0}", openXDAParentTable));
-                    if (!User.IsInRole("Administrator"))
-                    {
-                        records = records.Where(x => !x.IsSecure);
-                    }
 
-                    return Ok(records);
+                    string sqlFormat = $@"
+                        SELECT * FROM
+                            ({CustomView}) FullTbl
+                        WHERE ParentTable = {{0}}
+                        {(User.IsInRole("Administrator") ? "" : "AND IsSecure = 0")}
+                        ORDER BY {orderByExpression}";
+                    DataTable dataTable = connection.RetrieveData(sqlFormat, openXDAParentTable);
+
+                    return Ok(dataTable);
                 }
             }
             else
@@ -343,7 +345,6 @@ namespace SystemCenter.Notifications.Controllers
                 return Unauthorized();
             }
         }
-
     }
 
     [RoutePrefix("api/openXDA/TriggeredEmailDataSource")]

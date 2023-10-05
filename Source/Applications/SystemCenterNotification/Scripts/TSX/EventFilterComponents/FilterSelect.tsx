@@ -88,7 +88,7 @@ function FilterSelect(props: IProps) {
     function getAdditionalFields(setFields) {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${props.Type}/FieldName/0`,
+            url: `${homePath}api/openXDA/AdditionalFieldView/ParentTable/${props.Type}/FieldName/0`,
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true

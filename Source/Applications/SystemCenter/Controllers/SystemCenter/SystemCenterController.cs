@@ -537,9 +537,11 @@ namespace SystemCenter.Controllers
     public class PQApplicationsController : ModelController<openXDA.Model.PQApplications> { }
 
     [RoutePrefix("api/SystemCenter/AdditionalField")]
-    public class AdditionalFieldController : ModelController<AdditionalFieldView>
-    {
+    public class AdditionalFieldController : ModelController<AdditionalFieldView> { }
 
+    [RoutePrefix("api/SystemCenter/AdditionalFieldView")]
+    public class AdditionalFieldViewController : ModelController<AdditionalFieldView>
+    {
         [HttpGet, Route("ParentTable/{openXDAParentTable}/{sort}/{ascending:int}")]
         public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable, string sort, int ascending)
         {

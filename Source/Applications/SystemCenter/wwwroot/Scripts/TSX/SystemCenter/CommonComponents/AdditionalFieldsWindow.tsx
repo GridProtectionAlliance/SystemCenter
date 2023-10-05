@@ -93,7 +93,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     function getFields(): JQuery.jqXHR {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/${props.Type}/${sortKey}/${(ascending? '1' : '0')}`,
+            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/${props.Type}/${sortKey}/${(ascending? '1' : '0')}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,

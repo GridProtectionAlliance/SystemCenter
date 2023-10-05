@@ -79,7 +79,7 @@ export default function AssetSelect(props: IProps) {
     function getAdditionalAssetFields(setFields) {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Asset/FieldName/0`,
+            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Asset/FieldName/0`,
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true
