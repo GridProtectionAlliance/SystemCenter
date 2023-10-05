@@ -42,8 +42,8 @@ export default function ExternalDBTables(props: { ID: number }) {
     const status = useAppSelector(ExternalDBTablesSlice.Status);
     const parentID = useAppSelector(ExternalDBTablesSlice.ParentID);
 
-    const emptyRecord: SystemCenter.Types.ExternalDataBaseTable = { ID: 0, TableName: '', ExtDBID: 0, Query: '' };
-    const [record, setRecord] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(emptyRecord);
+    const emptyRecord: SystemCenter.Types.extDBTables = { ID: 0, TableName: '', ExtDBID: 0, Query: '' };
+    const [record, setRecord] = React.useState<SystemCenter.Types.extDBTables>(emptyRecord);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -88,7 +88,7 @@ export default function ExternalDBTables(props: { ID: number }) {
             <div className="card-body">
                 <div className="row">
                     <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0, overflowY: 'auto' }}>
-                        <Table<SystemCenter.Types.ExternalDataBaseTable>
+                        <Table<SystemCenter.Types.extDBTables>
                             cols={[
                                 { key: 'TableName', field: 'TableName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 {
@@ -110,7 +110,7 @@ export default function ExternalDBTables(props: { ID: number }) {
                             ]}
                             tableClass="table table-hover"
                             data={data}
-                            sortKey={sortKey}
+                            sortKey={sortKey.toString()}
                             ascending={asc}
                             onSort={(d) => {
                                 if (d.colKey == 'btns' || d.colKey == 'scroll' || d.colField == null) return;

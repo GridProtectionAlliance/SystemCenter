@@ -30,12 +30,12 @@ import { useAppDispatch } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
 
 interface IProps {
-    ExternalDB: SystemCenter.Types.ExternalDataBaseTable;
+    ExternalDB: SystemCenter.Types.extDBTables;
 }
 
 export default function QueryWindow(props: IProps) {
 
-    const [extDBTable, setExtDBTable] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(props.ExternalDB)
+    const [extDBTable, setExtDBTable] = React.useState<SystemCenter.Types.extDBTables>(props.ExternalDB)
     const dispatch = useAppDispatch();
 
     React.useEffect(() => {
@@ -53,7 +53,7 @@ export default function QueryWindow(props: IProps) {
                 </div>
                 <div className="card-body">
                     <form>
-                        <TextArea<SystemCenter.Types.ExternalDataBaseTable> Rows={10} Record={extDBTable} Field={'Query'} Valid={() => true} Setter={setExtDBTable} />
+                        <TextArea<SystemCenter.Types.extDBTables> Rows={10} Record={extDBTable} Field={'Query'} Valid={() => true} Setter={setExtDBTable} />
                     </form>
                 </div>
                 <div className="card-footer">
