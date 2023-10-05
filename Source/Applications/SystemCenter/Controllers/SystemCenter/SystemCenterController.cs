@@ -1411,13 +1411,14 @@ namespace SystemCenter.Controllers
         }
 
         [HttpPost, Route("UnscheduledUpdate")]
-        public IHttpActionResult UnscheduledUpdate([FromBody] ExternalDatabases record)
+        public IHttpActionResult UnscheduledUpdate([FromBody] JObject record)
         {
             if (!PostAuthCheck() || ViewOnly)
                 return Unauthorized();
             try
             {
-                ScheduledExtDBTask.Run(record);
+                ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+                ScheduledExtDBTask.Run(extDB);
                 return Ok(1);
             }
             catch
@@ -1431,12 +1432,13 @@ namespace SystemCenter.Controllers
     public class ExternalTableController : ModelController<extDBTables>
     {
         [HttpPost, Route("RetrieveTable")]
-        public IHttpActionResult RetrieveTable([FromBody] extDBTables table)
+        public IHttpActionResult RetrieveTable([FromBody] JObject record)
         {
             if (!PostAuthCheck())
                 return Unauthorized();
             try
             {
+                extDBTables table = record.ToObject<extDBTables>();
                 using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
                 {
                     ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
