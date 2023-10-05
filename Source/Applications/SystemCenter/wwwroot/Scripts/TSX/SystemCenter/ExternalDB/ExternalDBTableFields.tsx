@@ -31,7 +31,7 @@ import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
-export default function ExternalDBTables(props: { TableName: string, ID: number }) {
+export default function ExternalDBTableFields(props: { TableName: string, ID: number }) {
     let history = useHistory();
     const dispatch = useAppDispatch();
 
