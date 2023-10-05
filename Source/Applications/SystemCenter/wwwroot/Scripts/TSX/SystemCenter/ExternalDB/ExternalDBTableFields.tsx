@@ -26,7 +26,7 @@ import { useHistory } from "react-router-dom";
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { AdditionalFieldsSlice } from '../Store/Store';
-//import ExternalDBTableFieldsForm from './ExternalDBTableFieldsForm';
+import ExternalDBTableFieldForm from './ExternalDBTableFieldForm';
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
@@ -62,18 +62,14 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
             dispatch(AdditionalFieldsSlice.Fetch(props.ID));
     }, [status, parentID, props.ID]);
 
-    // TODO: Needs to be updated with additional fields values
-    //React.useEffect(() => {
-    //    let e = [];
-    //    if (record.TableName == null || record.TableName.length == 0) {
-    //        e.push('A Table Name is required.');
-    //    }
-    //    if (record.Query == null || record.Query.length == 0) {
-    //        e.push('A Query is required.')
-    //    }
+    React.useEffect(() => {
+        let e = [];
+        if (record.FieldName == null || record.FieldName.length == 0) {
+            e.push('A Field Name is required.');
+        }
 
-    //    setErrors(e);
-    //}, [record]);
+        setErrors(e);
+    }, [record]);
 
     function Delete() {
         dispatch(AdditionalFieldsSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
@@ -98,12 +94,12 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                 { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 {
-                                    key: 'IsSecure', label: 'Secure', field: 'IsSecure', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                    content: (item) => item.IsSecure ? HeavyCheckMark : CrossMark
-                                },
-                                {
                                     key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                                     content: (item) => item.Searchable ? HeavyCheckMark : CrossMark
+                                },
+                                {
+                                    key: 'IsSecure', label: 'Secure', field: 'IsSecure', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                    content: (item) => item.IsSecure ? HeavyCheckMark : CrossMark
                                 },
                                 {
                                     key: 'IsInfo', label: 'Info', field: 'IsInfo', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
@@ -150,7 +146,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary pull-right"
                         onClick={() => { setRecord({ ...emptyRecord, ParentTable: props.TableName, ExternalDBTableID: props.ID }); setShowModal(true); }}
-                    >Add Table</button>
+                    >Add Field</button>
                 </div>
             </div>
             <Warning
@@ -169,7 +165,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                         dispatch(AdditionalFieldsSlice.DBAction({ verb: 'POST', record }));
                 }}
             >
-                {/*<ExternalDBTableFieldsForm Record={record} Setter={setRecord} SetErrors={setErrors} />*/}
+                <ExternalDBTableFieldForm Record={record} Setter={setRecord} SetErrors={setErrors} />
             </Modal>
         </div>
 
