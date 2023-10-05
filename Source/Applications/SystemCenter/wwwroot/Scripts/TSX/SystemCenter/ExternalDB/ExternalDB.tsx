@@ -27,7 +27,7 @@ import ExternalDBInfo from './ExternalDBInfo';
 import ExternalDBTables from './ExternalDBTables';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDatabasesSlice } from '../Store/Store';
-import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { Modal, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'tables';
@@ -40,6 +40,12 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     const [tab, setTab] = React.useState(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
+
+    // Testing db variables
+    const [isTesting, setIsTesting] = React.useState<boolean>(false);
+    const [testMessage, setTestMessage] = React.useState<string>("");
+    const [showTestPopup, setShowTestPopup] = React.useState<boolean>(false);
+
 
     const Tabs = [
         { Id: "info", Label: "Info" },
@@ -69,6 +75,39 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
         window.location.href = homePath + 'index.cshtml?name=ByExternalDB';
     }
 
+    const TestExternal = React.useCallback(() => {
+        setIsTesting(true);
+        let handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/SystemCenter/ExternalDatabases/TestConnection`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(record),
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+        handle.done((success: boolean) => {
+            if (success)
+                setTestMessage("Connection to database successful!");
+            else
+                setTestMessage("Connection to database failure.")
+        });
+        handle.fail(() => {
+            setTestMessage("OpenXDA server connection failure. External database connection test not performed.")
+        });
+        handle.then(() => {
+            setIsTesting(false);
+            setShowTestPopup(true);
+        });
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        };
+    }, [record, setTestMessage, setIsTesting, setShowTestPopup]);
+
+    const ClosePopup = React.useCallback(() => {
+        setShowTestPopup(false);
+    }, [setShowTestPopup]);
+
     if (record == null) return null;
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
@@ -80,7 +119,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                     <button className="btn btn-danger pull-right" hidden={record == null}
                         onClick={() => setShowRemove(true)}>Delete External DB</button>
                     <button className="btn btn-primary pull-right" hidden={record == null}
-                        onClick={() => { } }>Query External DB</button>
+                        onClick={TestExternal}>Query External DB</button>
                 </div>
             </div>
 
@@ -100,6 +139,10 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 Message={'This will permanently delete this External Database and cannot be undone.'}
                 Show={showRemove} Title={'Delete ' + (record?.Name ?? 'External Database')}
                 CallBack={(conf) => { if (conf) Delete(); setShowRemove(false); }} />
+            <Modal Title={"Connection Test Results"} Show={showTestPopup} ConfirmBtnClass={'btn-secondary'} ConfirmText={'Close'}
+                ShowX={true} ShowCancel={false} Size={'sm'} CallBack={ClosePopup}>
+                <p>{testMessage}</p>
+            </Modal>
         </div>
     )
 }

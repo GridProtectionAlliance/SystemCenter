@@ -1392,13 +1392,14 @@ namespace SystemCenter.Controllers
         // TODO: make a patch/new update service host with new schedule, problem is we don't have access to it in here...
 
         [HttpPost, Route("TestConnection")]
-        public IHttpActionResult TestConnection([FromBody] ExternalDatabases record)
+        public IHttpActionResult TestConnection([FromBody] JObject record)
         {
             if (!PostAuthCheck())
                 return Unauthorized();
             try
             {
-                using(AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(record))
+                ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+                using (AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(extDB))
                 {
                     return Ok(1);
                 }
