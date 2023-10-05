@@ -66,7 +66,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     function Delete() {
         dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record }));
-        window.location.href = homePath + 'index.cshtml?name=ExternalDBTable&ID=' + record.ID;
+        window.location.href = homePath + 'index.cshtml?name=ExternalDB&ID=' + record.ExtDBID;
     }
 
     if (record == null) return null;
