@@ -130,7 +130,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
             }
         }
 
-        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+        handle.done((d: Array<SystemCenter.Types.AdditionalFieldView>) => {
             let ordered = _.orderBy(defaultSearchcols.concat(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<SCGlobal.DeviceHealthReport>
             ))), ['label'], ["asc"]);

@@ -41,8 +41,10 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web.Http;
+using System.Web.UI.WebControls;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SystemCenter.Controllers
 {
@@ -535,7 +537,7 @@ namespace SystemCenter.Controllers
     public class PQApplicationsController : ModelController<openXDA.Model.PQApplications> { }
 
     [RoutePrefix("api/SystemCenter/AdditionalField")]
-    public class AdditionalFieldController : ModelController<AdditionalField>
+    public class AdditionalFieldController : ModelController<AdditionalFieldView>
     {
 
         [HttpGet, Route("ParentTable/{openXDAParentTable}/{sort}/{ascending:int}")]
@@ -554,13 +556,16 @@ namespace SystemCenter.Controllers
 
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
-                    IEnumerable<AdditionalField> records = new TableOperations<AdditionalField>(connection).QueryRecords(orderByExpression, new RecordRestriction( "ParentTable = {0}", openXDAParentTable));
-                    if (!User.IsInRole("Administrator"))
-                    {
-                        records = records.Where(x => !x.IsSecure);
-                    }
 
-                    return Ok(records);
+                    string sqlFormat = $@"
+                        SELECT * FROM
+                            ({CustomView}) FullTbl
+                        WHERE ParentTable = {{0}}
+                        {(User.IsInRole("Administrator") ? "" : "AND IsSecure = 0")}
+                        ORDER BY {orderByExpression}";
+                    DataTable dataTable = connection.RetrieveData(sqlFormat, openXDAParentTable);
+
+                    return Ok(dataTable);
                 }
             }
             else
@@ -577,8 +582,8 @@ namespace SystemCenter.Controllers
 
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
-                    string tableName = new TableOperations<extDBTables>(connection).TableName;
-                    DataTable dataTbl = connection.RetrieveData($"SELECT DISTINCT [ExternalDB] from {tableName}");
+                    string tableName = TableOperations<ExternalDatabases>.GetTableName();
+                    DataTable dataTbl = connection.RetrieveData($"SELECT DISTINCT [Name] from {tableName}");
                     return Ok(dataTbl);
                 }
             }
@@ -1420,7 +1425,32 @@ namespace SystemCenter.Controllers
     }
 
     [RoutePrefix("api/SystemCenter/extDBTables")]
-    public class ExternalTableController : ModelController<extDBTables> { }
+    public class ExternalTableController : ModelController<extDBTables>
+    {
+        [HttpPost, Route("RetrieveTable")]
+        public IHttpActionResult RetrieveTable([FromBody] extDBTables table)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+                {
+                    ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
+                    if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
+                    using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
+                    {
+                        // Todo: is this ok? also, look at ScheduledExtDBTask that has a similiar question
+                        return Ok(extConnection.RetrieveData("Select * From {1}", table.TableName));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
 
     [RoutePrefix("api/SEbrowser/Widget")]
     public class SEBrowserWidgetController : ModelController<SEBrowser.Model.Widget> {}

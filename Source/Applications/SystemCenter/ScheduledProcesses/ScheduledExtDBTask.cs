@@ -160,6 +160,7 @@ namespace SystemCenter.ScheduledProcesses
             try
             {
                 // Should be a singular row
+                // Todo: Code review question, should this query be implied to have the Select * From extTable.TableName or no?
                 return externalConnection.RetrieveData(fullQuery, parameters.ToArray());
             }
             catch

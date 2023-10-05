@@ -271,11 +271,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ControllerHelpers.cs" />
-    <Compile Include="Controllers\ExternalDB\ExternalDBController.cs" />
-    <Compile Include="Controllers\ExternalDB\FawgController.cs" />
+    <Compile Include="Controllers\ExternalDB\ExternalModelController.cs" />
     <Compile Include="Controllers\ExternalDB\LineSegmentWizardController.cs" />
-    <Compile Include="Controllers\ExternalDB\PQViewController.cs" />
-    <Compile Include="Controllers\ExternalDB\MaximoController.cs" />
     <Compile Include="Controllers\OpenMIC\OpenMICController.cs" />
     <Compile Include="Controllers\OpenXDA\AssetGroups\OpenXDAAssetGroupsController.cs" />
     <Compile Include="Controllers\OpenXDA\Meters\OpenXDADataRescueController.cs" />
