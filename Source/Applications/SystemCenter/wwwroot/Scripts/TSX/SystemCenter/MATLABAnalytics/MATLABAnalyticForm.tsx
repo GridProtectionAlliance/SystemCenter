@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  MATLABAnalyticForm.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -115,7 +115,7 @@ export default function MATLABAnalyticForm(props: {
                                 if (selectedEventTypes.findIndex((t) => t.EventTypeID == et.Value) !== -1) {
                                     eventTypesCopy = eventTypesCopy.filter((t) => t.EventTypeID !== et.Value);
                                 } else {
-                                    eventTypesCopy.push({ ID: 0, MATLABAnalyticID: props.Record.ID, EventTypeID: et.Value });
+                                    eventTypesCopy.push({ ID: 0, MATLABAnalyticID: props.Record.ID, EventTypeID: et.Value as number });
                                 }
                             });
                             setSelectedEventTypes(eventTypesCopy);
@@ -129,7 +129,7 @@ export default function MATLABAnalyticForm(props: {
                                 if (selectedAssetTypes.findIndex((t) => t.AssetTypeID == at.Value) !== -1) {
                                     assetTypesCopy = assetTypesCopy.filter((t) => t.AssetTypeID !== at.Value);
                                 } else {
-                                    assetTypesCopy.push({ ID: 0, MATLABAnalyticID: props.Record.ID, AssetTypeID: at.Value });
+                                    assetTypesCopy.push({ ID: 0, MATLABAnalyticID: props.Record.ID, AssetTypeID: at.Value as number });
                                 }
                             });
                             setSelectedAssetTypes(assetTypesCopy);
