@@ -18,7 +18,9 @@
 //  ----------------------------------------------------------------------------------------------------
 //  06/17/2021 - Billy Ernest
 //       Generated original version of source code.
-//
+//  09|25|2023 - Ariana Armstrong 
+//       Modified original source code; Incorporated 'Number' and 'Category' fields into 
+//       'Substation Drawings' table.
 //******************************************************************************************************
 
 
@@ -31,7 +33,7 @@ import { SystemCenter as SCGlobal } from '../global';
 import Table from '@gpa-gemstone/react-table';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { LocationDrawingSlice } from '../Store/Store';
-import { Input } from '@gpa-gemstone/react-forms';
+import { Input, Select } from '@gpa-gemstone/react-forms';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 
@@ -43,8 +45,9 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
     const sortKey = useAppSelector(LocationDrawingSlice.SortField);
     const ascending: boolean = useAppSelector(LocationDrawingSlice.Ascending);
     const parentID: number = useAppSelector(LocationDrawingSlice.ParentID) as number;
-    const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '' };
+    const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '', Number: '', Category: '' };
     const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
+    const [category, setCategory] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || parentID !== props.Location.ID)
@@ -53,6 +56,30 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
         return function () {
         }
     }, [dispatch, status, props.Location.ID]);
+
+    React.useEffect(() => {
+        let categoryHandle = getValueList("Category", setCategory);
+
+        return () => {
+            if (categoryHandle != null && categoryHandle.abort != null) categoryHandle.abort();
+        }
+    }, [])
+
+    function getValueList(listName: string, setter: (value: Array<SystemCenter.Types.ValueListItem>) => void): JQuery.jqXHR<Array<SystemCenter.Types.ValueListItem>> {
+        let h = $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Group/${listName}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: `json`,
+            cache: false,
+            async: true
+        });
+        h.done((dCat: Array<SystemCenter.Types.ValueListItem>) => {
+            setter(dCat);
+
+        });
+        return h;
+    }
 
     return (
         <div className="card" style={{ marginBottom: 10 }}>
@@ -70,6 +97,8 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                             { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                             { key: 'Link', field: 'Link', label: 'Link', headerStyle: { width: '30%' }, rowStyle: { width: '30%' }, content: (item, key, style) => <a href={item[key] as string} target='_blank'>{item[key]}</a> },
                             { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'calc(30%)' }, rowStyle: { width: '30%' } },
+                            { key: 'Number', field: 'Number', label: 'Number', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                            { key: 'Category', field: 'Category', label: 'Category', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                             {
                                 key: 'EditDelete',
                                 label: '',
@@ -115,6 +144,9 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                             <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={() => record.Name != null && record.Name.length > 0 && record.Name.length <= 200} Setter={(r) => setRecord(r)} />
                             <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Link'} Feedback={'A Link is required.'} Valid={() => (record.Link != null && record.Link.length > 0)} Setter={(r) => setRecord(r)} />
                             <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Description'} Type='text' Valid={() => true} Setter={(r) => setRecord(r)} />
+                            <Select<SystemCenter.Types.LocationDrawing> Record={record} Field={'Category'} Options={category.map(item => { return { Value: item.Value, Label: item.Value } })} Label={'Category'} Setter={(r) => setRecord(r)} />
+                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Number'} Feedback={'A Number of less than 200 characters is optional.'} Valid={() => record.Number != null && record.Number.length > 0 && record.Number.length <= 200} AllowNull={true} Setter={(r) => setRecord(r)} />
+
                         </div>
                         <div className="modal-footer">
                             <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => dispatch(LocationDrawingSlice.DBAction({ verb: 'PATCH', record }))}>Save changes</button>
