@@ -33,6 +33,7 @@ import ExternalDBForm from './ExternalDBForm';
 
 export default function ExternalDBInfo(props: { Record: SystemCenter.Types.ExternalDatabases }) { 
     const [record, setRecord] = React.useState<SystemCenter.Types.ExternalDatabases>(props.Record);
+    const [origRecord, setOrigRecord] = React.useState<SystemCenter.Types.ExternalDatabases>(props.Record);
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('update' | 'none')>('none');
@@ -67,10 +68,13 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Exter
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (((record == props.Record) || errors.length > 0) ? ' disabled' : '')}
+                    <button className={"btn btn-primary" + (((record == origRecord) || errors.length > 0) ? ' disabled' : '')}
                         onClick={() => {
-                            if (errors.length == 0)
+                            if (errors.length == 0) {
                                 dispatch(ExternalDatabasesSlice.DBAction({ verb: 'PATCH', record }));
+                                setOrigRecord(record);
+                            }
+
                         }}
                         hidden={record.ID == 0} data-tooltip={'Update-Info'}
                         onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
@@ -78,13 +82,13 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Exter
                 <div className="btn-group mr-2">
                     <button className="btn btn-default"
                         onClick={() => {
-                            setRecord(props.Record);
+                            setRecord(origRecord);
                         }}
-                        disabled={record == props.Record}>Reset</button>
+                        disabled={record == origRecord}>Reset</button>
                 </div>
                 <ToolTip Position={'top'} Target={"Update-Info"}
-                    Show={hover == 'update' && (errors.length > 0 || (record == props.Record))}>
-                    {(record == props.Record) ? <p>No changes made.</p> : null}
+                    Show={hover == 'update' && (errors.length > 0 || (record == origRecord))}>
+                    {(record == origRecord) ? <p>No changes made.</p> : null}
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
                 </ToolTip>
             </div>
