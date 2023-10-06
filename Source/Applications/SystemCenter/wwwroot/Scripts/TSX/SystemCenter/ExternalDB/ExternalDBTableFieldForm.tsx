@@ -54,7 +54,7 @@ export default function ExternalDBTableFieldForm(props: IProps) {
 
     return (
         <form>
-            <Input<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'FieldName'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'FieldName'} Label={'Field Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'Type'} Setter={props.Setter}
                 Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }].concat(valueListGroupData.map(x => { return { Value: x.Name, Label: x.Name } }))} />
             <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'Searchable'} Label={'Searchable'} Setter={props.Setter} />
