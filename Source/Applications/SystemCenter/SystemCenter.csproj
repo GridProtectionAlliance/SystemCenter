@@ -364,6 +364,30 @@
     <None Include="wwwroot\Content\Site.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <TypeScriptCompile Include="EventWidgets\TSX\Store.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\global.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\WidgetWrapper.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\AssetFaultSegments.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\AssetHistoryStats.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\AssetHistoryTable.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\AssetVoltageDisturbances.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\BreakerPerformance.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\CapBankAnalyticOverview.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\CorrelatedSags.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\ESRIMap.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\FaultInfo.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\FileInfo.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\InterruptionReport.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\Lightning.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\LineParameters.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\MatlabAnalyticResults.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\NoteWindow.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\OpenSEE.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\PQI.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\PQICurves.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\RelayPerformance.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\SOE.tsx" />
+    <TypeScriptCompile Include="EventWidgets\TSX\Widget\StructureInfo.tsx" />
     <TypeScriptCompile Include="webpack.config.notready.ts" />
     <Content Include="wwwroot\Content\dashboard.css" />
     <Content Include="wwwroot\Groups.cshtml" />
@@ -653,6 +677,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\CategoryInfo.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetForm.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\WidgetByCategory.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\SEBrowser\ByWidget.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataOperations.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataReaders.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\Setting.tsx" />

@@ -22,9 +22,14 @@
 //******************************************************************************************************
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
-import { Select, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
+import { Select, CheckBox, Input } from '@gpa-gemstone/react-forms';
 import { OpenXDA as LocalXDA } from '../global';
+import { AllWidgets } from '../../../../../EventWidgets/TSX/WidgetWrapper';
+import { useSelector } from 'react-redux';
+import { useAppSelector } from '../hooks';
+import { SEBrowserWidgetSlice } from '../Store/Store';
+import { cloneDeep } from 'lodash';
+
 
 declare var homePath: string;
 
@@ -32,35 +37,24 @@ interface IProps {
     Widget: LocalXDA.IWidget,
     stateSetter: (tab: LocalXDA.IWidget) => void,
     setErrors?: (e: string[]) => void,
-    allowTypeChange: boolean
 }
 
 
 export default function WidgetForm(props: IProps) {
     const [errors, setErrors] = React.useState<string[]>([]);
-    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
-    const [options, setOptions] = React.useState<LocalXDA.IWidget[]>([]);
+    const allWidgets = useAppSelector(SEBrowserWidgetSlice.Data);
 
-    React.useEffect(() => {
-        setStatus('loading')
-        const handle = getAll();
-        return () => { if (handle.abort != undefined) handle.abort(); }
-    }, [])
-
-    React.useEffect(() => {
-        if (status != 'changed')
-            return;
-        setStatus('loading')
-        const handle = getAll();
-        return () => { if (handle.abort != undefined) handle.abort(); }
-    }, [status])
-    
     React.useEffect(() => {
         let e = [];
-        if (props.Widget.Setting == null || props.Widget.Setting.length == 0 || !isJson(props.Widget.Setting))
-            e.push('Settings in a valid json format (e.g., {}) are required.')
+        if (props.Widget.Name == null || props.Widget.Name.length == 0)
+            e.push('Name is required.');
+        if (props.Widget.Type == null || props.Widget.Type.length == 0)
+            e.push('Type is required.');
+        if (allWidgets.find(w => w.Name.toLowerCase() == props.Widget.Name.toLowerCase() && w.ID != props.Widget.ID) != null)
+            e.push('Name must be unique.');
+        
         setErrors(e);
-    }, [props.Widget])
+    }, [props.Widget.Setting, props.Widget.Name, props.Widget.Type])
 
     React.useEffect(() => {
         if (props.setErrors != undefined)
@@ -68,54 +62,61 @@ export default function WidgetForm(props: IProps) {
     }, [props.setErrors, errors])
 
     React.useEffect(() => {
-        if (props.Widget.ID > 0)
-            return;
-        if (options.length == 0)
-            return;
-        props.stateSetter({ ...options[0], CategoryID: props.Widget.CategoryID });
+        if (AllWidgets.map(w => w.Name).indexOf(props.Widget.Type) < 0)
+            props.stateSetter({ ...props.Widget, Type: null })
+    }, [props.Widget.Type])
 
-    }, [props.Widget.ID, options])
-    function getAll() {
-        return $.ajax({
-            type: 'GET',
-            url: `${homePath}api/SystemCenter/WidgetView/All`,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            async: true
-        }).done((d) => { setStatus('idle'); setOptions(d); }, () => setStatus('error'));
-    }
-
-    function isJson(text: string) {
-        try { JSON.parse(text); } catch { return false; }
-        return true;
-    }
-
-
-    function valid(field: keyof (LocalXDA.IWidget)): boolean {
-        if (field == 'Setting')
-            return props.Widget.Setting != null && props.Widget.Setting.length > 0 && isJson(props.Widget.Setting);
-        return true;
-    }
 
     return (
         <div className="col">
-            <Select<LocalXDA.IWidget> Record={props.Widget} Field={'ID'}
-                Label='Widget'
-                Setter={(record) => {
-                    if (props.Widget.ID == record.ID)
-                        return;
-                    props.stateSetter({ ...options.find((w) => w.ID == record.ID), CategoryID: props.Widget.CategoryID });
-                }}
-                Options={options.map(o => ({ Value: o.ID.toString(), Label: o.Name }))} Disabled={!props.allowTypeChange} />
-            <div className="alert alert-primary">
-                Any changes to Settings or Enabled will apply to all {props.Widget.Name} Widgets, including those in other Tabs.
-            </div>
-            <TextArea<LocalXDA.IWidget>
-                Rows={10} Record={props.Widget} Field={'Setting'}
-                Feedback={'Settings in a valid json format (e.g., {}) are required.'}
-                Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <Input<LocalXDA.IWidget> Record={props.Widget} Setter={props.stateSetter} Field={'Name'}
+                Valid={() => true} />
+            <Select<LocalXDA.IWidget> Record={props.Widget} Field={'Type'}
+                Label='Type'
+                Setter={(record) => props.stateSetter(record)}
+                Options={AllWidgets.map(o => ({ Value: o.Name, Label: o.Name }))}
+                EmptyOption={true}
+                EmptyLabel=''
+            />
+            {props.Widget.Type == null ?
+                <div className="alert alert-danger">
+                    This Widget is not available. Please ensure a valid Type is selected.
+                </div> :
+                <WidgetSetting Settings={props.Widget.Setting}
+                    SetSetting={(s) => props.stateSetter({ ...props.Widget, Setting: s })}
+                    Type={props.Widget.Type} />
+                }
             <CheckBox Record={props.Widget} Field={'Enabled'} Setter={(record) => props.stateSetter(record)} Label={'Enabled'} />
+
         </div>
     )
 
+}
+
+const WidgetSetting = (props: { Settings: string, Type: string, SetSetting: (s: string) => void }) => {
+    const [data, setData] = React.useState<object>({});
+    const Jsx = React.useMemo(() => AllWidgets.find(w => w.Name == props.Type)?.Settings ?? null, [props.Type])
+    const defaults = React.useMemo(() => AllWidgets.find(w => w.Name == props.Type)?.DefaultSettings ?? null, [props.Type])
+
+    React.useEffect(() => {
+        const settings = props.Settings == null || props.Settings.length == 0 ? {} : JSON.parse(props.Settings);
+        const s = cloneDeep(defaults ?? {});
+        for (const [k, v] of Object.entries(defaults ?? {})) {
+            if (settings.hasOwnProperty(k))
+                s[k] = cloneDeep(settings[k]);
+        }
+        setData(s);
+    }, [props.Type, defaults]);
+
+    React.useEffect(() => {
+        const s = JSON.stringify(data);
+        props.SetSetting(s);
+    }, [data])
+
+    if (Jsx == null || defaults == null)
+        return <div className="alert alert-info">
+            This Widget has no settings.
+        </div>;
+
+    return <Jsx Settings={(data ?? defaults) as any} SetSettings = {setData} />
 }

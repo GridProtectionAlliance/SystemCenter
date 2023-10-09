@@ -270,7 +270,7 @@ function SectionEdit(props: IProps): JSX.Element {
                                     content: (item) => computeImpedances(item).Xs.toFixed(2)
                                 },
                                 {
-                                    field: "ThermalRating", key: "ThermalRating", label: "Thermal Rating",
+                                    field: "ThermalRating", key: "ThermalRating", label: "Thermal Rating (MVA)",
                                     content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'ThermalRating'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={() => true} />
                                 },
                                 {

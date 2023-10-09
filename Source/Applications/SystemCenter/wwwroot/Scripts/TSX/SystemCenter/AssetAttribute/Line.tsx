@@ -62,18 +62,18 @@ function LineAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: Open
     if (props.Asset == null || props.Asset.Detail == null) return null;
     return (
         <>
-            <Input<OpenXDA.Types.Line> Record={props.Asset} Field={'MaxFaultDistance'} Label={'Max Fault Distance'} Feedback={'Max Fault Distance must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.Line> Record={props.Asset} Field={'MinFaultDistance'} Label={'Min Fault Distance'} Feedback={'Min Fault Distance must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.Line> Record={props.Asset} Help={'If this field is left blank the system will use Length as the maximum fault distance.'} Field={'MaxFaultDistance'} Label={'Max Fault Distance'} Feedback={'Max Fault Distance must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.Line> Record={props.Asset} Help={'If this field is left blank the system will use 0 as the minimum fault distance.'} Field={'MinFaultDistance'} Label={'Min Fault Distance'} Feedback={'Min Fault Distance must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
             <div className="alert alert-info" role="alert">
                 <p>Reactance, Length, and Thermal Rating are based on the Line Segments associated with this Line.</p>
                 <p>To change these values, edit the properties of the Line Segements.</p>
             </div>
-            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'Length'} Feedback={'Length is a required numeric field.'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
-            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'R0'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
-            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'X0'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
-            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'R1'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
-            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'X1'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
-            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'ThermalRating'} Label={'Thermal Rating'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'Length'} Label={'Length (miles)'} Feedback={'Length is a required numeric field.'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'R0'}  Label={'R0 (Ohm)'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'X0'} Label={'X0 (Ohm)'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'R1'} Label={'R1 (Ohm)'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'X1'} Label={'X1 (Ohm)'}  Valid={valid} Setter={updateLineDetail} Disabled={true} />
+            <Input<OpenXDA.Types.LineDetail> Record={props.Asset.Detail} Field={'ThermalRating'} Label={'Thermal Rating MVA'} Valid={valid} Setter={updateLineDetail} Disabled={true} />
         </>
     );
 }

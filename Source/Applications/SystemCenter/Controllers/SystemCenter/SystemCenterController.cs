@@ -1326,8 +1326,8 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/WidgetCategory")]
     public class SEBrowserWidgetCategoryController : ModelController<SEBrowser.Model.WidgetCategory> { }
 
-    [RoutePrefix("api/SystemCenter/WidgetView")]
-    public class SEBrowserWidgetController : ModelController<SEBrowser.Model.WidgetView> 
+    [RoutePrefix("api/SEbrowser/WidgetView")]
+    public class SEBrowserWidgetViewController : ModelController<SEBrowser.Model.WidgetView> 
     {
         public override IHttpActionResult Delete(WidgetView record)
         {
@@ -1345,26 +1345,6 @@ namespace SystemCenter.Controllers
             }
         }
 
-        public override IHttpActionResult Patch([FromBody] WidgetView record)
-        {
-            if (!PatchAuthCheck())
-                return Unauthorized();
-
-            using (AdoDataConnection connection = new AdoDataConnection(Connection))
-            {
-                TableOperations<Widget> tbl = new TableOperations<Widget>(connection);
-                Widget model = tbl.QueryRecordWhere("ID = {0}", record.ID);
-                if (model is null)
-                    return InternalServerError();
-
-                model.Setting = record.Setting;
-                model.Enabled = record.Enabled;
-                return Ok(tbl.UpdateRecord(model));
-            }
-
-            return base.Patch(record);
-        }
-
         public override IHttpActionResult Post([FromBody] JObject record)
         {
             if (!PostAuthCheck())
@@ -1378,17 +1358,6 @@ namespace SystemCenter.Controllers
                     CategoryID = record["CategoryID"].Value<int>(),
                     WidgetID = record["ID"].Value<int>()
                 });
-
-                //Save Settings And Enabled 
-                TableOperations<Widget> widgetTbl = new TableOperations<Widget>(connection);
-                Widget model = widgetTbl.QueryRecordWhere("ID = {0}", record["ID"].Value<int>());
-
-                if (model is null)
-                    return InternalServerError();
-
-                model.Setting = record["Setting"].Value<string>();
-                model.Enabled = record["Enabled"].Value<bool>();
-                widgetTbl.UpdateRecord(model);
 
                 return Ok(1);
             }
@@ -1406,6 +1375,9 @@ namespace SystemCenter.Controllers
             }
         }
     }
+
+    [RoutePrefix("api/SEbrowser/Widget")]
+    public class SEBrowserWidgetController : ModelController<SEBrowser.Model.Widget> {}
 
     [RoutePrefix("api/OpenXDA/EventTag")]
     public class EventTagController : ModelController<openXDA.Model.EventTag> { }

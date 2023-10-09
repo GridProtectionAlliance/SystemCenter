@@ -27,6 +27,7 @@ module.exports = env => {
             // Add '.ts' and '.tsx' as resolvable extensions.
             extensions: [".webpack.js", ".web.js", ".ts", ".tsx", ".js", ".css"],
             alias: {
+                leaflet_css: __dirname + "/node_modules/leaflet/dist/leaflet.css"
             }
         },
         module: {
@@ -41,6 +42,15 @@ module.exports = env => {
                     include: path.resolve(__dirname, 'wwwroot'),
                     use: [{ loader: 'style-loader' }, { loader: 'css-loader'}],
                 },
+                {
+                    test: /leaflet\.css$/,
+                    use: [{ loader: 'style-loader' }, { loader: 'css-loader' }],
+                },
+                {
+                    test: /\.(woff|woff2|ttf|eot|svg|png|gif)(\?v=[0-9]\.[0-9]\.[0-9])?$/,
+                    loader: 'url-loader',
+                    options: { limit: 100000 }
+                }
             ]
         },
         externals: {
@@ -60,7 +70,7 @@ module.exports = env => {
     if (env.NODE_ENV == 'development') {
         config.module.rules.push({
             test: /\.tsx?$/,
-            include: path.resolve(__dirname, 'wwwroot', "Scripts"),
+            include: [path.resolve(__dirname, 'wwwroot', "Scripts"), path.resolve(__dirname, 'EventWidgets', "TSX")],
             loader: "ts-loader", options: { transpileOnly: true }
         });
 
@@ -69,14 +79,14 @@ module.exports = env => {
     else if (env.NODE_ENV == 'none') {
         config.module.rules.push({
             test: /\.tsx?$/,
-            include: path.resolve(__dirname, 'wwwroot', "Scripts"),
+            include: [path.resolve(__dirname, 'wwwroot', "Scripts"), path.resolve(__dirname, 'EventWidgets', "TSX")],
             loader: "ts-loader", options: { transpileOnly: true }
         });
     }
     else {
         config.module.rules.push({
             test: /\.tsx?$/,
-            include: path.resolve(__dirname, 'wwwroot', "Scripts"),
+            include: [path.resolve(__dirname, 'wwwroot', "Scripts"), path.resolve(__dirname, 'EventWidgets', "TSX")],
             loader: "ts-loader"
         });
     }
