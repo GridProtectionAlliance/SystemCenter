@@ -97,11 +97,6 @@ export default function ExternalDBTables(props: { ID: number }) {
                                         <button className="btn btn-sm" onClick={(e) => {
                                             e.preventDefault();
                                             setRecord(item);
-                                            setShowModal(true);
-                                        }}>{Pencil}</button>
-                                        <button className="btn btn-sm" onClick={(e) => {
-                                            e.preventDefault();
-                                            setRecord(item);
                                             setShowWarning(true)
                                         }}>{TrashCan}</button>
                                     </>
