@@ -128,7 +128,7 @@ export default function ExternalDBTables(props: { ID: number }) {
                 </div>
             </div>
             <Warning
-                Message={'This will permanently delete this External DB Table and cannot be undone.'}
+                Message={'This will permanently delete this External DB Table and ALL associated fields. This cannot be undone.'}
                 Show={showWarning} Title={'Delete ' + (record?.TableName ?? 'External DB Table')}
                 CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }} />
             <Modal Title={record.ID == 0 ? 'Add New Table' : 'Edit ' + (record?.TableName ?? 'Table')} Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
