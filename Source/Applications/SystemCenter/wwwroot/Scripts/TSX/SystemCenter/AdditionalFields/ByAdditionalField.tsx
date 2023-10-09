@@ -105,6 +105,10 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                 <Table
                     cols={[
                         { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        {
+                            key: 'ParentTable', field: 'ParentTable', label: 'Parent Table', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                            content: (item) => item.ParentTable != null ? item.ParentTable : 'No Associated Table'
+                        },
                         { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
