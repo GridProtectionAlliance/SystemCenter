@@ -40,10 +40,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const ascending = useAppSelector(AdditionalFieldsSlice.Ascending);
 
     const [errors, setErrors] = React.useState<string[]>([]);
-    const [showNew, setShowNew] = React.useState<boolean>(false);
     const [mode, setMode] = React.useState<'View' | 'Add' | 'Edit'>('View');
-    const [showWarning, setShowWarning] = React.useState<boolean>(false);
-    const [showModal, setShowModal] = React.useState<boolean>(false);
 
     const emptyRecord: SystemCenter.Types.AdditionalField = {
         ID: 0,
@@ -97,7 +94,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => {
                                 event.preventDefault()
                                 setRecord({ ...emptyRecord });
-                                setShowNew(true);
+                                setMode('Add');
                             }}>Add Additional Field</button>
                         </form>
                     </fieldset>
