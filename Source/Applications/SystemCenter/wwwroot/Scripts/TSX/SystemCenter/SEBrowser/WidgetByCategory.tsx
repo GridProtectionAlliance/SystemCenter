@@ -58,7 +58,7 @@ const WidgetByCategory = (props: IProps) => {
         if (allWidgets.length == 0)
             return;
         if (record == null)
-            return setRecord({ ...allWidgets[0], CategoryID: props.CategoryID, setting: {} })
+            return setRecord({ ...allWidgets[0], CategoryID: props.CategoryID })
     }, [allWidgets])
 
     React.useEffect(() => {
