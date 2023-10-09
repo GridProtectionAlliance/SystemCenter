@@ -38,6 +38,7 @@ declare var homePath: string;
 
 function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
     let history = useHistory();
+    const dispatch = useAppDispatch();
     const [groupList, setGroupList] = React.useState<Array<OpenXDA.Types.AssetGroup>>([]);
     const [sortField, setSortField] = React.useState<string>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -55,6 +56,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
     };
 
     React.useEffect(() => {
+        dispatch(AssetGroupSlice.SetChanged());
         return getData();
     }, [props.AssetGroupID, counter]);
 
