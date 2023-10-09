@@ -64,11 +64,6 @@ export default function Customer(props: IProps) {
     React.useEffect(() => {
         if (cStatus == 'unintiated' || cStatus == 'changed')
             dispatch(CustomerSlice.Fetch());
-    }, []);
-
-    React.useEffect(() => {
-        if (cStatus == 'unintiated' || cStatus == 'changed')
-            dispatch(CustomerSlice.Fetch());
     }, [cStatus])
 
     function getTab(): Tab {

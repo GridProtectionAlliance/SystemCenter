@@ -18,18 +18,22 @@
 //  ----------------------------------------------------------------------------------------------------
 //  10/14/2020 - C. Lackner
 //       Generated original version of source code.
-//
+//  10|9|23 - Ariana Armstrong
+//    Revised hooks to handle side effects related to data fetching and storge for AssetGroupInfoWindow
 //******************************************************************************************************
 
 import * as React from 'react';
 import _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { useHistory } from 'react-router-dom';
 import AssetgroupInfoWindow from './AssetGroupInfo';
 import AssetAssetGroupWindow from './AssetAssetGroup';
 import MeterAssetGroupWindow from './MeterAssetGroup';
 import AssetGroupAssetGroupWindow from './AssetGroupAssetGroup';
 import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { AssetGroupSlice } from '../Store/Store';
+import { useAppSelector, useAppDispatch } from '../hooks';
+
 
 declare var homePath: string;
 declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup'
@@ -38,12 +42,13 @@ interface IProps { AssetGroupID: number, Tab: Tab }
 
 function AssetGroup(props: IProps) {
     let history = useHistory();
-    const [assetGroup, setAssetGroup] = React.useState<OpenXDA.Types.AssetGroup>(null);
-    const [allAssetGroups, setAllAssetGroups] = React.useState<Array<OpenXDA.Types.AssetGroup>>([]);
+    const dispatch = useAppDispatch();
     const [tab, setTab] = React.useState(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
-    const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
-    
+    const group = useAppSelector((state) => AssetGroupSlice.Datum(state, props.AssetGroupID)) as OpenXDA.Types.AssetGroup;
+    const gStatus = useAppSelector(AssetGroupSlice.Status) as Application.Types.Status;
+    const allAssetGroup = useAppSelector(AssetGroupSlice.Data);
+
     function getTab(): Tab {
         if (props.Tab != undefined) return props.Tab;
         else if (sessionStorage.hasOwnProperty('AssetGroup.Tab'))
@@ -58,68 +63,25 @@ function AssetGroup(props: IProps) {
             sessionStorage.setItem('AssetGroup.Tab', JSON.stringify(tab));
     }, [tab]);
 
-    function getAssetGroup() {
-       let handle =  $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/AssetGroup/One/${props.AssetGroupID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-       })
-        handle.done((data: OpenXDA.Types.AssetGroup) => {
-           setAssetGroup(data)
-        });
-        return handle;
-    }
-
     React.useEffect(() => {
-        return getData();
-    }, [props.AssetGroupID]);
+        if (gStatus == 'unintiated' || gStatus == 'changed')
+            dispatch(AssetGroupSlice.Fetch());
+    }, [gStatus])
 
-    function getAllAssetGroups(): JQueryXHR {
-        let handle =  $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/AssetGroup`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        })
-        handle.done(aas => setAllAssetGroups(aas));
-        return handle;
+    function deleteAssetGroup() {
+        dispatch(AssetGroupSlice.DBAction({
+            verb: 'DELETE', record: group
+        }));
+        window.location.href = homePath + 'index.cshtml?name=AssetGroups'
     }
 
-    function getData() {
-        let handle1 = getAssetGroup();
-        let handle2 = getAllAssetGroups();
-        return function cleanup() {
-            if (handle1.abort != null)
-                handle1.abort();
-            if (handle2.abort != null)
-                handle2.abort();
-        }
-    }
-
-    function deleteAssetGroup(): JQuery.jqXHR {
-        let handle = $.ajax({
-            type: "DELETE",
-            url: `${homePath}api/OpenXDA/AssetGroup/Delete`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(assetGroup),
-            dataType: 'json',
-            cache: true,
-            async: true
-        });
-        handle.done((msg) => {
-            sessionStorage.clear();
-            history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroups'});
-        });
-        handle.then((d) => setLoadDelete(false))
+    if (gStatus == 'unintiated')
         return null;
-    }
 
-    if (assetGroup == null) return null;
+    if (gStatus == 'error')
+        return null;
+
+    if (group == null) return null;
 
     const Tabs = [
         { Id: "info", Label: "Asset Group Info" },
@@ -131,7 +93,7 @@ function AssetGroup(props: IProps) {
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
                 <div className="col">
-                    <h2>{assetGroup.Name}</h2>
+                    <h2>{group.Name}</h2>
                 </div>
                 <div className="col">
                     <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete Asset Group</button>
@@ -142,7 +104,7 @@ function AssetGroup(props: IProps) {
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
-                    <AssetgroupInfoWindow AssetGroup={assetGroup} StateSetter={(data) => setAssetGroup(data)} AllAssetGroups={allAssetGroups} />
+                    <AssetgroupInfoWindow AssetGroup={group} StateSetter={(data) => dispatch(AssetGroupSlice.DBAction({ verb: 'PATCH', record: data }))} AllAssetGroups={allAssetGroup} />
                 </div>
                 <div className={"tab-pane " + (tab == "asset" ? " active" : "fade")} id="asset">
                     <AssetAssetGroupWindow AssetGroupID={props.AssetGroupID} />
@@ -155,8 +117,8 @@ function AssetGroup(props: IProps) {
                 </div>
             </div>
 
-            <Warning Message={'This will permanently delete this Asset Group and cannot be undone.'} Show={showDelete} Title={'Delete ' + (assetGroup?.Name ?? 'Asset Group')} CallBack={(conf) => { if (conf) deleteAssetGroup(); setShowDelete(false); }} />
-            <LoadingScreen Show={loadDelete} />
+            <Warning Message={'This will permanently delete this Asset Group and cannot be undone.'} Show={showDelete} Title={'Delete ' + (group?.Name ?? 'Asset Group')} CallBack={(conf) => { if (conf) deleteAssetGroup(); setShowDelete(false); }} />
+            <LoadingScreen Show={gStatus == 'loading'} />
         </div>
     )
 }
