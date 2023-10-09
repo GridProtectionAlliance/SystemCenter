@@ -31,12 +31,16 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Search, Warning } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { useAppDispatch, useAppSelector } from '../hooks';
+import { AssetGroupSlice } from '../Store/Store';
+
 
 declare var homePath: string;
 
 function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
 
     let history = useHistory();
+    const dispatch = useAppDispatch();
     const [meterList, setMeterList] = React.useState<Array<SystemCenter.Types.DetailedMeter>>([]);
     const [sortField, setSortField] = React.useState<string>('MeterName');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -45,6 +49,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
     const [removeMeter, setRemoveMeter] = React.useState<number>(-1);
 
     React.useEffect(() => {
+        dispatch(AssetGroupSlice.SetChanged());
         return getData();
     }, [props.AssetGroupID, counter])
 

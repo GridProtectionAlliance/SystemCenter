@@ -26,7 +26,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
-import { AssetTypeSlice } from '../Store/Store';
+import { AssetGroupSlice, AssetTypeSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Warning } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
@@ -49,6 +49,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     const dispatch = useAppDispatch();
 
     React.useEffect(() => {
+        dispatch(AssetGroupSlice.SetChanged());
         return getData();
     }, [props.AssetGroupID, counter]);
 
