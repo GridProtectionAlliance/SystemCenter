@@ -26,7 +26,7 @@
 SETLOCAL
 
 SET pwd=%CD%
-IF "%git%" == "" SET git=%PROGRAMFILES(X86)%\Git\cmd\git.exe
+IF "%git%" == "" SET git=%PROGRAMFILES%\Git\cmd\git.exe
 IF "%replace%" == "" SET replace=\\GPAWEB\NightlyBuilds\Tools\ReplaceInFiles\ReplaceInFiles.exe
 
 SET defaulttarget=%LOCALAPPDATA%\Temp\SystemCenter
@@ -60,6 +60,7 @@ GOTO UpdateRepository
 ECHO.
 ECHO Getting latest version...
 "%git%" clone "%remote%" .
+"%git%" submodule update --recursive
 GOTO UpdateDependencies
 
 :UpdateRepository
@@ -68,6 +69,7 @@ ECHO Updating to latest version...
 "%git%" fetch
 "%git%" reset --hard origin/master
 "%git%" clean -f -d -x
+"%git%" submodule update --recursive
 GOTO UpdateDependencies
 
 :UpdateDependencies
