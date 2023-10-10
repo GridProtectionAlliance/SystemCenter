@@ -92,6 +92,11 @@
       <GitServer Condition="'$(GitServer)' == ''">git@github.com:GridProtectionAlliance/SystemCenter.git</GitServer>
     </PropertyGroup>
   </Target>
+  <Target Name="AfterUpdateRepository">
+      <Message Text="Getting latest updates from submodule..."/>
+      <Exec Command="%22$(GitClient)%22 submodule update --recursive --remote" WorkingDirectory="$(LocalFolder)" Condition="'$(SetUpWorkspace)' != 'False'"/>
+  </Target>
+
 
   <Target Name="BeforeVersionSource">
     <Message Text="SkipVersioning = --$(SkipVersioning)--"/>
