@@ -52,7 +52,7 @@ namespace SystemCenter.Controllers
             {"TimeZones", "UTC"},
             {"Make", "GPA"},
             {"Model", "PQMeter"},
-            {"Unit", "Unknown"}
+            {"Unit", "Unknown"},
             {"Category", "Oneline"}
         };
 
