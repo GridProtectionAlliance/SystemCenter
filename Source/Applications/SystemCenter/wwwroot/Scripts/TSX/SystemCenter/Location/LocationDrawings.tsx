@@ -81,6 +81,16 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
         return h;
     }
 
+    function valid(field: keyof (SystemCenter.Types.LocationDrawing)): boolean {
+        if (field == 'Name')
+            return record.Name != null && record.Name.length > 0 && record.Name.length <= 200;
+        else if (field == 'Link')
+            return record.Link != null && record.Link.length > 0;
+        else if (field == 'Number')
+            return record.Number == null || record.Number.length <=50;
+        return true;
+    }
+
     return (
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -94,16 +104,16 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
                     <Table<SystemCenter.Types.LocationDrawing>
                         cols={[
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'Link', field: 'Link', label: 'Link', headerStyle: { width: '30%' }, rowStyle: { width: '30%' }, content: (item, key, style) => <a href={item[key] as string} target='_blank'>{item[key]}</a> },
-                            { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'calc(30%)' }, rowStyle: { width: '30%' } },
-                            { key: 'Number', field: 'Number', label: 'Number', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'Category', field: 'Category', label: 'Category', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                            { key: 'Link', field: 'Link', label: 'Link', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => <a href={item[key] as string} target='_blank'>{item[key]}</a> },
+                            { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                            { key: 'Number', field: 'Number', label: 'Number', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                            { key: 'Category', field: 'Category', label: 'Category', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                             {
                                 key: 'EditDelete',
                                 label: '',
-                                headerStyle: { width: 300 },
-                                rowStyle: { width: 300 },
+                                headerStyle: { width: '10%' },
+                                rowStyle: { width: '10%' },
                                 content: (item, key, style) =>
                                     <span>
                                         <button title='Edit Link' className="btn" data-toggle="modal" data-target="#exampleModal" onClick={(e) => { setRecord(item) }}>{Pencil}</button>
@@ -135,17 +145,17 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
                         <div className="modal-header">
-                            <h5 className="modal-title">Add New List Item</h5>
+                            <h5 className="modal-title">Add New Drawing</h5>
                             <button type="button" className="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
                         </div>
                         <div className="modal-body">
-                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={() => record.Name != null && record.Name.length > 0 && record.Name.length <= 200} Setter={(r) => setRecord(r)} />
-                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Link'} Feedback={'A Link is required.'} Valid={() => (record.Link != null && record.Link.length > 0)} Setter={(r) => setRecord(r)} />
-                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Description'} Type='text' Valid={() => true} Setter={(r) => setRecord(r)} />
+                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={(r) => setRecord(r)} />
+                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Link'} Feedback={'A Link is required.'} Valid={valid} Setter={(r) => setRecord(r)} />
+                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Description'} Valid={valid} Setter={(r) => setRecord(r)} />
                             <Select<SystemCenter.Types.LocationDrawing> Record={record} Field={'Category'} Options={category.map(item => { return { Value: item.Value, Label: item.Value } })} Label={'Category'} Setter={(r) => setRecord(r)} />
-                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Number'} Feedback={'A Number of less than 200 characters is optional.'} Valid={() => record.Number != null && record.Number.length > 0 && record.Number.length <= 200} AllowNull={true} Setter={(r) => setRecord(r)} />
+                            <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Number'} Feedback={'Number must be less than 50 characters.'} Valid={valid} AllowNull={true} Setter={(r) => setRecord(r)} />
 
                         </div>
                         <div className="modal-footer">

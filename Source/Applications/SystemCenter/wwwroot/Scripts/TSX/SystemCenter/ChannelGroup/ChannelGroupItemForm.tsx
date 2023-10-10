@@ -74,7 +74,7 @@ export default function ChannelGroupItemForm(props: IProps) {
 
     return (
         <>
-            <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'DisplayName'} Label='Name' Feedback={'A Name of less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'DisplayName'} Label='Name' Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <Select<SystemCenter.Types.ChannelGroupDetails> Record={props.Record} Field={'MeasurementTypeID'} Label='Measurement Type'
                 Options={measurementTypeData.map((item => ({ Value: item.ID.toString(), Label: item.Name })))} Setter={props.Setter}
             />
