@@ -53,6 +53,7 @@ namespace SystemCenter.Controllers
             {"Make", "GPA"},
             {"Model", "PQMeter"},
             {"Unit", "Unknown"}
+            {"Category", "Oneline"}
         };
 
         [HttpGet, Route("Group/{groupName}")]
