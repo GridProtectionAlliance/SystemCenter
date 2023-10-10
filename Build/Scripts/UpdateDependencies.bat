@@ -60,6 +60,7 @@ GOTO UpdateRepository
 ECHO.
 ECHO Getting latest version...
 "%git%" clone "%remote%" .
+"%git%" submodule update --recursive
 GOTO UpdateDependencies
 
 :UpdateRepository
@@ -68,6 +69,7 @@ ECHO Updating to latest version...
 "%git%" fetch
 "%git%" reset --hard origin/master
 "%git%" clean -f -d -x
+"%git%" submodule update --recursive
 GOTO UpdateDependencies
 
 :UpdateDependencies
