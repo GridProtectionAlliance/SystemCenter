@@ -32,7 +32,7 @@ import { CrossMark, Pencil, TrashCan, HeavyCheckMark } from '@gpa-gemstone/gpa-s
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
 export default function ExternalDBTableFields(props: { TableName: string, ID: number }) {
-    let history = useHistory();
+
     const dispatch = useAppDispatch();
 
     const data = useAppSelector(AdditionalFieldsSlice.Data);

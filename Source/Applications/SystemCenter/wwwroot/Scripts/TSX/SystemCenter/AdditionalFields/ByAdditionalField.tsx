@@ -38,7 +38,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const search = useAppSelector(AdditionalFieldsSlice.SearchFilters);
     const sortField = useAppSelector(AdditionalFieldsSlice.SortField);
     const ascending = useAppSelector(AdditionalFieldsSlice.Ascending);
-    // TODO: Fix fields caching from external dbs page
+    const parentID = useAppSelector(AdditionalFieldsSlice.ParentID);
 
     const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
@@ -72,6 +72,11 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
         }
     ];
     const AdditionalFieldDefaultSearchField: Search.IField<SystemCenter.Types.AdditionalField> = { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false };
+
+    React.useEffect(() => {
+        if (parentID !== null)
+            dispatch(AdditionalFieldsSlice.Fetch());
+    }, [parentID]);
 
     React.useEffect(() => {
         if (status === 'unintiated' || status === 'changed')
