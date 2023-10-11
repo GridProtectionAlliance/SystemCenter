@@ -25,10 +25,10 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, Modal, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
-import { CrossMark, HeavyCheckMark, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols'
+import { CrossMark, HeavyCheckMark, Pencil, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols'
 
 declare var homePath: string;
 declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer' | 'Company' | 'ValueListGroup' | 'Asset' | OpenXDA.Types.AssetTypeName;
@@ -52,7 +52,16 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     const [ascending, setAscending] = React.useState<boolean>(false);
 
     const [state, setState] = React.useState<'idle' | 'loading' | 'error'>('idle');
-    const [hover, setHover] = React.useState<('None' | 'Save' | 'Clear' )>('None');
+    const [hover, setHover] = React.useState<('None' | 'Save' | 'Clear')>('None');
+
+    // Note: There only ever should be one key field, but this is so we do not have to rely on that
+    const [keyField, setKeyField] = React.useState<SystemCenter.Types.AdditionalFieldView>(undefined);
+    // Key Modal Controls and Vars
+    const [showExt, setShowExt] = React.useState<('hide'|'ext'|'fail')>('hide');
+    const [externalData, setExternalData] = React.useState<any[]>(undefined);
+    const [selectedExternal, setSelectedExternal] = React.useState<any>(undefined);
+    const [ascExt, setAscExt] = React.useState<boolean>(false);
+    const [sortExt, setSortExt] = React.useState<string>("");
 
     React.useEffect(() => {
         // This line autosaves data on navigation away via props.ID so that anything unsaved is saved before it goes away
@@ -141,6 +150,29 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             getData();
         });
     }
+
+    const getExternalData = React.useCallback((keyField: SystemCenter.Types.AdditionalFieldView) => {
+        setKeyField(keyField);
+        if (keyField.ExternalDBTableID == null) return;
+        let handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/extDBTables/RetrieveTable/${keyField.ExternalDBTableID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done((extData: any[]) => {
+            if (extData != null && extData.length !== 0) {
+                setShowExt('ext');
+                setExternalData(extData);
+            } else
+                setShowExt('fail');
+        });
+        handle.fail(() => {
+            setShowExt('fail');
+        });
+        return handle;
+    }, [homePath, setExternalData]);
 
     function HasValueChanged(): boolean {
         
@@ -242,7 +274,19 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 },
                 {
                     key: 'Value', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
-                        return <ValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
+                        return (
+                            <div className="form-inline">
+                                <div className="form-group">
+                                    <ValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking}
+                                        Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
+                                    {item.IsKey ? <button className="btn btn-sm pull-right" onClick={(e) => {
+                                        e.preventDefault();
+                                        const handle = getExternalData(item);
+                                        return () => { if (handle != null && handle.abort != null) handle.abort(); };
+                                    }}>{Pencil}</button> : null}
+                                </div>
+                            </div>
+                        );
                     }
                 },
 
@@ -270,10 +314,55 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             selected={() => false}
         />);
 
+    let keyModal = (
+        <>
+            <Modal Title={"Select External Record to Key to Local Record"} ShowCancel={true} ShowX={true} CallBack={(conf) => {
+                setShowExt('hide');
+                if (conf) {
+                    const newFields = [...additionalFieldValuesWorking];
+                    const alteredID = newFields.findIndex(field => field.AdditionalFieldID === keyField.ID);
+                    if (alteredID === -1) return;
+                    newFields[alteredID].Value = selectedExternal[keyField.FieldName];
+                    setAdditionalFieldValuesWorking(newFields);
+                }
+            }} Show={showExt === 'ext'} Size={'xlg'}>
+                {(externalData == null || externalData.length === 0) ? null :
+                    <Table<any>
+                        cols={
+                            Object.keys(externalData[0]).map((field: string) => {
+                                return { key: field, field: field, label: field }
+                            })}
+                        tableClass="table table-hover"
+                        data={externalData}
+                        sortKey={sortExt}
+                        ascending={ascExt}
+                        onSort={(d) => {
+                            if (d.colKey === sortExt)
+                                setAscExt(!ascExt);
+                            else {
+                                setAscExt(true);
+                                setSortExt(d.colKey);
+                            }
+                        }}
+                        onClick={(d) => { setSelectedExternal(d.row); }}
+                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
+                        tbodyStyle={{ display: 'block', width: '100%', overflowX: 'scroll' }}
+                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
+                        selected={(item) => _.isEqual(item, selectedExternal)} />
+                }
+            </Modal>
+            <Modal Title={'External Query Failure'} ConfirmBtnClass={'btn btn-secondary'} ConfirmText={'Close'}
+                CallBack={() => { setShowExt('hide'); }} Show={showExt === 'fail'} ShowCancel={false}>
+                <p>Could not query external database table associated with this field. Please contact your administrator.</p>
+            </Modal> 
+        </>
+    )
+
     if (props.InnerOnly ?? false) return (
         <>
             <h4 style={{ width: '100%', padding: '10px' }}>Additional Fields: </h4>
             {tableComponent}
+            {keyModal}
         </>);
 
     return (
@@ -301,6 +390,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                     </ToolTip>
                 </div>
             </div>
+            {keyModal}
         </div>);
 }
 
