@@ -1431,46 +1431,22 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/extDBTables")]
     public class ExternalTableController : ModelController<extDBTables>
     {
-        [HttpPost, Route("RetrieveTable")]
-        public IHttpActionResult RetrieveTable([FromBody] JObject record)
+        [HttpGet, Route("RetrieveTable/{extTableID:int}")]
+        public IHttpActionResult RetrieveTableByID(int extTableID)
         {
-            if (!PostAuthCheck())
+            if (!GetAuthCheck())
                 return Unauthorized();
             try
             {
-                extDBTables table = record.ToObject<extDBTables>();
                 using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
                 {
+                    extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
                     ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
                     if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
                     using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
                     {
                         // Todo: is this ok? also, look at ScheduledExtDBTask that has a similiar question
-                        return Ok(extConnection.RetrieveData("Select * From {1}", table.TableName));
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-        [HttpPost, Route("RetrieveXDAParentTable")]
-        public IHttpActionResult RetrieveXDAParentTable([FromBody] JObject record)
-        {
-            if (!PostAuthCheck())
-                return Unauthorized();
-            try
-            {
-                extDBTables table = record.ToObject<extDBTables>();
-                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
-                {
-                    ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
-                    if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
-                    using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
-                    {
-                        // Todo: is this ok? also, look at ScheduledExtDBTask that has a similiar question
-                        return Ok(extConnection.RetrieveData("Select * From {1}", table.TableName));
+                        return Ok(extConnection.RetrieveData($"Select * From {table.TableName}"));
                     }
                 }
             }
