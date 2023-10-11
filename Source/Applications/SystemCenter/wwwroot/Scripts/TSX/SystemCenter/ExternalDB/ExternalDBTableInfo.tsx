@@ -23,6 +23,7 @@
 
 
 import * as React from 'react';
+import * as _ from 'lodash';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppDispatch } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
@@ -33,12 +34,15 @@ import ExternalDBTableForm from './ExternalDBTableForm';
 
 export default function ExternalDBInfo(props: { Record: SystemCenter.Types.extDBTables }) {
     const [record, setRecord] = React.useState<SystemCenter.Types.extDBTables>(props.Record);
-    const [origRecord, setOrigRecord] = React.useState<SystemCenter.Types.extDBTables>(props.Record);
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('update' | 'none')>('none');
 
     const dispatch = useAppDispatch();
+
+    const isChanged = React.useMemo(() => {
+        return _.isEqual(record, props.Record);
+    }, [record, props.Record]);
 
     React.useEffect(() => {
         let e = [];
@@ -52,6 +56,9 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.extDB
         setErrors(e);
     }, [record]);
 
+    React.useEffect(() => {
+        setRecord(props.Record);
+    }, [props.Record]);
 
     if (record == null) return;
     return (
@@ -68,11 +75,10 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.extDB
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (((record == origRecord) || errors.length > 0) ? ' disabled' : '')}
+                    <button className={"btn btn-primary" + ((isChanged || errors.length > 0) ? ' disabled' : '')}
                         onClick={() => {
                             if (errors.length == 0) {
                                 dispatch(ExternalDBTablesSlice.DBAction({ verb: 'PATCH', record }));
-                                setOrigRecord(record);
                             }
                         }}
                         hidden={record.ID == 0} data-tooltip={'Update-Info-Table'}
@@ -81,13 +87,13 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.extDB
                 <div className="btn-group mr-2">
                     <button className="btn btn-default"
                         onClick={() => {
-                            setRecord(origRecord);
+                            setRecord(props.Record);
                         }}
-                        disabled={record == origRecord}>Reset</button>
+                        disabled={isChanged}>Reset</button>
                 </div>
                 <ToolTip Position={'top'} Target={"Update-Info-Table"}
-                    Show={hover == 'update' && (errors.length > 0 || (record == origRecord))}>
-                    {(record == origRecord) ? <p>No changes made.</p> : null}
+                    Show={hover == 'update' && (errors.length > 0 || isChanged)}>
+                    {isChanged ? <p>No changes made.</p> : null}
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
                 </ToolTip>
             </div>
