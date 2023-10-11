@@ -29,6 +29,8 @@ using GSF.Data;
 using GSF.Data.Model;
 using GSF.Web.Model;
 using Microsoft.Graph.ExternalConnectors;
+using Newtonsoft.Json.Linq;
+using openXDA.Model;
 using SystemCenter.Model;
 using SystemCenter.ScheduledProcesses;
 
@@ -42,30 +44,36 @@ namespace SystemCenter.Controllers
             public T xdaRecord { get; set; }
             public extDBTables table { get; set; }
         }
-        [HttpPost, Route("RetrieveRecord")]
-        public IHttpActionResult RetrieveRecord([FromBody] ExternalQuery query)
+        [HttpPost, Route("RetrieveExternalRecord")]
+        public IHttpActionResult RetrieveExternalRecord([FromBody] JObject query)
         {
             if (!PostAuthCheck())
                 return Unauthorized();
             try
             {
                 using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
-                {
-                    ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", query.table.ExtDBID);
-                    if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${query.table.TableName}");
-                    using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
-                    {
-                        TableOperations<T> xdaTable = new TableOperations<T>(xdaConnection);
-                        TableOperations<AdditionalFieldValue> afvTable = new TableOperations<AdditionalFieldValue>(xdaConnection);
-                        ExpressionContext context = new ExpressionContext();
-                        DataTable data = ScheduledExtDBTask.RetrieveDataRecord(query.xdaRecord, query.table, xdaTable, afvTable, context, extConnection);
-                        return Ok(1);
-                    }
-                }
+                    return Ok(ExecuteExternalQuery(query, xdaConnection));
             }
             catch (Exception ex)
             {
                 return InternalServerError(ex);
+            }
+        }
+
+        // This is seperated specifically for assets controller to use without making the whole thing an extension
+        public static DataTable ExecuteExternalQuery(JObject extQuery, AdoDataConnection xdaConnection)
+        {
+            T xdaRecord = extQuery["xdaRecord"].ToObject<T>();
+            extDBTables table = extQuery["table"].ToObject<extDBTables>();
+            ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
+            if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
+            using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
+            {
+                TableOperations<T> xdaTable = new TableOperations<T>(xdaConnection);
+                TableOperations<AdditionalFieldValue> afvTable = new TableOperations<AdditionalFieldValue>(xdaConnection);
+                ExpressionContext context = new ExpressionContext();
+                DataTable data = ScheduledExtDBTask.RetrieveDataRecord<T>(xdaRecord, table, xdaTable, afvTable, context, extConnection);
+                return data;
             }
         }
     }
