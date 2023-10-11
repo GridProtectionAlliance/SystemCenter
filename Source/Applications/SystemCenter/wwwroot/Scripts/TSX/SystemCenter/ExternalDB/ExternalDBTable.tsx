@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ExternalDBTable.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -28,6 +28,8 @@ import ExternalDBTableFields from './ExternalDBTableFields';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { SystemCenter as gemstoneSC } from '@gpa-gemstone/application-typings';
+import QueryTestDialog from './QueryTestDialog';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'fields';
@@ -40,6 +42,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     const [tab, setTab] = React.useState(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
+    const [showDialog, setShowDialog] = React.useState<boolean>(false);
 
     const Tabs = [
         { Id: "info", Label: "Info" },
@@ -51,6 +54,12 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
             dispatch(ExternalDBTablesSlice.Fetch());
     }, [status]);
 
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('ExternalDBTable.Tab', JSON.stringify(tab));
+    }, [tab]);
+
     function getTab(): Tab {
         if (props.Tab != undefined) return props.Tab;
         else if (sessionStorage.hasOwnProperty('ExternalDBTable.Tab'))
@@ -58,16 +67,14 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
         else return 'info';
     }
 
-    React.useEffect(() => {
-        const saved = getTab();
-        if (saved !== tab)
-            sessionStorage.setItem('ExternalDBTable.Tab', JSON.stringify(tab));
-    }, [tab]);
-
     function Delete() {
         dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record }));
         window.location.href = homePath + 'index.cshtml?name=ExternalDB&ID=' + record.ExtDBID;
     }
+
+    const SaveTable = React.useCallback((table: gemstoneSC.Types.extDBTables) => {
+        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'PATCH', record: table }));
+    }, [dispatch, ExternalDBTablesSlice.DBAction]);
 
     if (record == null) return null;
     return (
@@ -79,6 +86,8 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 <div className="col">
                     <button className="btn btn-danger pull-right" hidden={record == null}
                         onClick={() => setShowRemove(true)}>Delete Table</button>
+                    <button className="btn btn-primary pull-right" hidden={record == null}
+                        onClick={() => { setShowDialog(true); } }>Query Table</button>
                 </div>
             </div>
 
@@ -94,6 +103,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                     <ExternalDBTableFields TableName={record.TableName} ID={record.ID} />
                 </div>
             </div>
+            <QueryTestDialog ExtTable={record} SetExtTable={SaveTable} Show={showDialog} SetShow={setShowDialog} />
             <Warning
                 Message={'This will permanently delete this External DB Table and cannot be undone.'}
                 Show={showRemove} Title={'Delete ' + (record?.TableName ?? 'Table')}
