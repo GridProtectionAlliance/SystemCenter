@@ -28,7 +28,7 @@ import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import AdditionalFieldForm from '../ExternalDB/ExternalDBTableFieldForm';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { AdditionalFieldsSlice } from '../Store/Store';
+import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
 
 const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const dispatch = useAppDispatch();
@@ -38,6 +38,9 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const search = useAppSelector(AdditionalFieldsSlice.SearchFilters);
     const sortField = useAppSelector(AdditionalFieldsSlice.SortField);
     const ascending = useAppSelector(AdditionalFieldsSlice.Ascending);
+
+    const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
+    const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [mode, setMode] = React.useState<'View' | 'Add' | 'Edit'>('View');
@@ -56,7 +59,16 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalField>(emptyRecord);
 
     const AdditionalFieldSearchField: Array<Search.IField<SystemCenter.Types.AdditionalField>> = [
-        { label: 'Database Name', key: 'Name', type: 'string', isPivotField: false },
+        { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false },
+        { label: 'Parent Table', key: 'ParentTable', type: 'string', isPivotField: false },
+        {
+            label: 'Type', key: 'Type', isPivotField: false, type: 'enum',
+            enum: [
+                { Value: 'string', Label: 'string' },
+                { Value: 'integer', Label: 'integer' },
+                { Value: 'number', Label: 'number' }
+            ].concat(valueListGroupData.map(x => { return { Value: x.Name, Label: x.Name } }))
+        }
     ];
     const AdditionalFieldDefaultSearchField: Search.IField<SystemCenter.Types.AdditionalField> = { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false };
 
@@ -64,6 +76,12 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
         if (status === 'unintiated' || status === 'changed')
             dispatch(AdditionalFieldsSlice.DBSearch({ filter: search }));
     }, [status]);
+
+
+    React.useEffect(() => {
+        if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
+            dispatch(ValueListGroupSlice.Fetch());
+    }, [valueListGroupStatus]);
 
     React.useEffect(() => {
         let e = [];
@@ -107,7 +125,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                         { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'ParentTable', field: 'ParentTable', label: 'Parent Table', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: (item) => item.ParentTable != null ? item.ParentTable : 'No Associated Table'
+                            content: (item) => item.ParentTable != '' ? item.ParentTable : 'No Associated Table'
                         },
                         { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
