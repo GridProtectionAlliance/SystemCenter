@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListGroupSlice } from '../Store/Store';
 import { Input, Select, CheckBox } from '@gpa-gemstone/react-forms';
@@ -55,6 +55,9 @@ export default function ExternalDBTableFieldForm(props: IProps) {
     return (
         <form>
             <Input<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'FieldName'} Label={'Field Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
+            <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'ParentTable'} Setter={props.Setter}
+                Options={[{ Value: 'Meter', Label: 'Meter' }, { Value: 'Location', Label: 'Location' }, { Value: 'Customer', Label: 'Customer' }, { Value: 'Company', Label: 'Company' }, { Value: 'ValueListGroup', Label: 'ValueListGroup' }, { Value: 'Asset', Label: 'Asset' },
+                    { Value: 'Line', Label: 'Line' }, { Value: 'LineSegment', Label: 'LineSegment' }, { Value: 'Breaker', Label: 'Breaker' }, { Value: 'CapacitorBank', Label: 'CapacitorBank' }, { Value: 'Transformer', Label: 'Transformer' }, { Value: 'CapacitorBankRelay', Label: 'CapacitorBankRelay' }, { Value: 'DER', Label: 'DER' }]} />
             <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'Type'} Setter={props.Setter}
                 Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }].concat(valueListGroupData.map(x => { return { Value: x.Name, Label: x.Name } }))} />
             <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'Searchable'} Label={'Searchable'} Setter={props.Setter} />

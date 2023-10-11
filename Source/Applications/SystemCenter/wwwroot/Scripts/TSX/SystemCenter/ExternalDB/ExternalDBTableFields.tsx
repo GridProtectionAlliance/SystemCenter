@@ -31,7 +31,7 @@ import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
-export default function ExternalDBTableFields(props: { TableName: string, ID: number }) {
+export default function ExternalDBTableFields(props: { ID: number }) {
 
     const dispatch = useAppDispatch();
 
@@ -78,7 +78,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     }
 
     function DisassociateField() {
-        dispatch(AdditionalFieldsSlice.DBAction({ verb: 'PATCH', record: { ...record, ParentTable: '', ExternalDBTableID: null } }));
+        dispatch(AdditionalFieldsSlice.DBAction({ verb: 'PATCH', record: { ...record, ExternalDBTableID: null } }));
         setRecord(emptyRecord);
     }
 
@@ -97,6 +97,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                         <Table<SystemCenter.Types.AdditionalField>
                             cols={[
                                 { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'ParentTable', field: 'ParentTable', label: 'Parent Table', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 {
                                     key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
@@ -155,7 +156,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
             <div className="card-footer">
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary pull-right"
-                        onClick={() => { setRecord({ ...emptyRecord, ParentTable: props.TableName, ExternalDBTableID: props.ID }); setShowModal(true); }}
+                        onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setShowModal(true); }}
                     >Add Field</button>
                 </div>
             </div>
