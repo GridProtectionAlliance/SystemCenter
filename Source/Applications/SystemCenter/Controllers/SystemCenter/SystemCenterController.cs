@@ -1455,6 +1455,30 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
+        [HttpPost, Route("RetrieveXDAParentTable")]
+        public IHttpActionResult RetrieveXDAParentTable([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                extDBTables table = record.ToObject<extDBTables>();
+                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+                {
+                    ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
+                    if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
+                    using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
+                    {
+                        // Todo: is this ok? also, look at ScheduledExtDBTask that has a similiar question
+                        return Ok(extConnection.RetrieveData("Select * From {1}", table.TableName));
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 
     [RoutePrefix("api/SEbrowser/Widget")]
