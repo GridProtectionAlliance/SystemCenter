@@ -53,7 +53,8 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
         IsKey: false,
     };
     const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalField>(emptyRecord);
-    const [showWarning, setShowWarning] = React.useState<boolean>(false);
+    const [showDeleteWarning, setShowDeleteWarning] = React.useState<boolean>(false);
+    const [showDisassociateWarning, setShowDisassociateWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
@@ -73,7 +74,11 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
     function Delete() {
         dispatch(AdditionalFieldsSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
-        setShowWarning(false);
+        setRecord(emptyRecord);
+    }
+
+    function DisassociateField() {
+        dispatch(AdditionalFieldsSlice.DBAction({ verb: 'PATCH', record: { ...record, ParentTable: '', ExternalDBTableID: null } }));
         setRecord(emptyRecord);
     }
 
@@ -120,8 +125,13 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                         <button className="btn btn-sm" onClick={(e) => {
                                             e.preventDefault();
                                             setRecord(item);
-                                            setShowWarning(true)
+                                            setShowDeleteWarning(true);
                                         }}>{TrashCan}</button>
+                                        <button className="btn btn-sm" onClick={(e) => {
+                                            e.preventDefault();
+                                            setRecord(item);
+                                            setShowDisassociateWarning(true);
+                                        }}>{CrossMark}</button>
                                     </>
                                 },
                                 { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
@@ -151,8 +161,14 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
             </div>
             <Warning
                 Message={'This will permanently delete this External DB Table Field and cannot be undone.'}
-                Show={showWarning} Title={'Delete ' + (record?.FieldName ?? 'External DB Table Field')}
-                CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }} />
+                Show={showDeleteWarning} Title={'Delete ' + (record?.FieldName ?? 'External DB Table Field')}
+                CallBack={(conf) => { if (conf) Delete(); setShowDeleteWarning(false); }} />
+
+            <Warning
+                Message={'This will disassociate this field from this External DB Table. The field will not be deleted and can be associated again.'}
+                Show={showDisassociateWarning} Title={'Disassociate ' + (record?.FieldName ?? 'External DB Table Field') + ' From ' + (record?.ParentTable ?? 'External DB Table')}
+                CallBack={(conf) => { if (conf) DisassociateField(); setShowDisassociateWarning(false); }} />
+
             <Modal Title={record.ID == 0 ? 'Add New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}

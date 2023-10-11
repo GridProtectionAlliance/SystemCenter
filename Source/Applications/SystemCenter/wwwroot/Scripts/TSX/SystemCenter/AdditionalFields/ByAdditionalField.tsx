@@ -38,6 +38,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const search = useAppSelector(AdditionalFieldsSlice.SearchFilters);
     const sortField = useAppSelector(AdditionalFieldsSlice.SortField);
     const ascending = useAppSelector(AdditionalFieldsSlice.Ascending);
+    // TODO: Fix fields caching from external dbs page
 
     const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
