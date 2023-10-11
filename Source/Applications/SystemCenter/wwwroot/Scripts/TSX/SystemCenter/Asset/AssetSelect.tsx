@@ -32,6 +32,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 
 declare var homePath: string;
 
+//TODO: Everything that uses this should use FilterSelect in common components instead
 interface IProps {
     OnCloseFunction: (selectedArrays: Array<SystemCenter.Types.DetailedAsset>, confirmed: boolean) => void,
     SelectedAssets: Array<SystemCenter.Types.DetailedAsset>,
