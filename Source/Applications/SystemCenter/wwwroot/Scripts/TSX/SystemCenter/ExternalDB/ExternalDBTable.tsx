@@ -86,8 +86,8 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 <div className="col">
                     <button className="btn btn-danger pull-right" hidden={record == null}
                         onClick={() => setShowRemove(true)}>Delete Table</button>
-                    <button className="btn btn-primary pull-right" hidden={record == null}
-                        onClick={() => { setShowDialog(true); } }>Query Table</button>
+                    <button className="btn btn-light pull-right" hidden={record == null}
+                        onClick={() => { setShowDialog(true); } }>Test Table Query</button>
                 </div>
             </div>
 
