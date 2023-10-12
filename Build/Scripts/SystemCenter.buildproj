@@ -94,7 +94,7 @@
   </Target>
   <Target Name="AfterUpdateRepository">
       <Message Text="Getting latest updates from submodule..."/>
-      <Exec Command="%22$(GitClient)%22 submodule update --recursive" WorkingDirectory="$(LocalFolder)" Condition="'$(SetUpWorkspace)' != 'False'"/>
+      <Exec Command="%22$(GitClient)%22 submodule update --recursive --init" WorkingDirectory="$(LocalFolder)" Condition="'$(SetUpWorkspace)' != 'False'"/>
   </Target>
 
 
