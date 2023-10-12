@@ -58,6 +58,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
         IsKey: false,
     };
     const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalField>(emptyRecord);
+    const [fieldValues, setFieldValues] = React.useState<SystemCenter.Types.AdditionalFieldValue[]>([])
 
     const AdditionalFieldSearchField: Array<Search.IField<SystemCenter.Types.AdditionalField>> = [
         { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false },
@@ -89,6 +90,10 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
 
+    //React.useEffect(() => {
+    //    getFieldValues();
+    //}, [fieldValues]);
+
     React.useEffect(() => {
         let e = [];
         if (record.FieldName == null || record.FieldName.length == 0) {
@@ -97,6 +102,19 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
 
         setErrors(e);
     }, [record]);
+
+    function getFieldValues(): void {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/SystemCenter/AdditionalFieldValue/`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: true,
+            async: true
+        }).done((vals: Array<SystemCenter.Types.AdditionalFieldValue>) => {
+            setFieldValues(vals);
+        });
+    }
 
 
     return (
@@ -150,6 +168,11 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             key: 'IsKey', label: 'Key', field: 'IsKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                             content: (item) => item.IsKey ? HeavyCheckMark : CrossMark
                         },
+                        // TODO: this don't work
+                        //{
+                        //    key: 'Value', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                        //    content: (item) => fieldValues.find((v) => v.AdditionalFieldID === item.ID).Value
+                        //},
                         { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                     ]}
                     tableClass="table table-hover"
