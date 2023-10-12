@@ -144,8 +144,13 @@ export default function ChannelPage(props: IProps) {
     function ParseFile(content: ArrayBuffer, fileName: string) {
         let extension = fileName.toLowerCase().substring(fileName.lastIndexOf('.') + 1, fileName.length);
 
+        // CFG files are only valid for events
+        if (extension == 'cfg' && props.TrendChannels) {
+            setShowCFGError(true);
+            setChannelStatus('idle');
+        }
         // Handle js parsed files
-        if (webParsedExtensions.indexOf(extension) >= 0) {
+        else if (webParsedExtensions.indexOf(extension) >= 0) {
 
             let parser;
             if (extension === 'cfg')
@@ -393,7 +398,7 @@ export default function ChannelPage(props: IProps) {
                         selected={(item) => false}
                     />
                 </div>
-                <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}.`} CallBack={() => setShowCFGError(false)} />
+                <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}. Note COMTRADE files for trending data are automatically ingested using the event channels and can not be uploaded in the wizard.`} CallBack={() => setShowCFGError(false)} />
                 <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare Channels. This will remove ${NSpare} Channels from the configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
                 <Modal Title="Scale Channels" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Close Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
                     <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels} ChannelStatus={channelStatus} Key={props.MeterKey} />
