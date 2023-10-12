@@ -28,7 +28,7 @@ import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-ty
 import { LoadingIcon, Modal } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table';
 import { Warning } from '@gpa-gemstone/gpa-symbols';
-import { TextArea, Select, Input } from '@gpa-gemstone/react-forms';
+import { TextArea, Select, Input, CheckBox } from '@gpa-gemstone/react-forms';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ByMeterSlice, ByAssetSlice } from '../Store/Store';
 import FilterSelect from '../CommonComponents/FilterSelect';
@@ -49,7 +49,8 @@ export default function QueryTestDialog(props: IProps) {
     // Select Properties
     const parentTableOptions = ['Meter', 'Location', 'Customer', 'Asset',
         "Line", "Breaker", "Bus", "Capacitor Bank", "Capacitor Bank Relay", "Transformer", "DER"].map(name => { return { Value: name, Label: name } });
-    const [parentTable, setParentTable] = React.useState<{ TableName: string }>({ TableName: parentTableOptions[0].Value });
+    interface TableOptions { ShowTableSelect: boolean, TableName: string };
+    const [parentTable, setParentTable] = React.useState<TableOptions>({ ShowTableSelect: true, TableName: parentTableOptions[0].Value });
     const [showRecordSelect, setShowRecordSelect] = React.useState<boolean>(false);
 
     // Needed to Select Record for Query
@@ -109,6 +110,7 @@ export default function QueryTestDialog(props: IProps) {
     }, [props.ExtTable]);
 
     React.useEffect(() => {
+        if (testStatus === 'idle') setTestStatus('unintiated');
         setXdaRecord(undefined);
     }, [parentTable]);
 
@@ -129,19 +131,42 @@ export default function QueryTestDialog(props: IProps) {
             data: JSON.stringify({ xdaRecord: xdaRecord, table: table })
         });
         handle.done((extData: any) => {
-            setTestStatus('idle');
-            if (extData == null || extData.length === 0) {
+            setTestData(extData);
+            if (extData == null || extData.length !== 1) {
                 // This doesn't make that much sense on the face of it, 
                 // but its useful to differentiate between a successful connection with no data and one with data
                 setTestStatus('changed');
             } else {
-                setTestData(extData);
                 setTestStatus('idle');
             }
         })
         handle.fail(() => { setTestStatus("error"); })
         return handle;
     }, [setTestStatus, slice.APIPath, xdaRecord, table]);
+
+    const requestTestAll = React.useCallback(() => {
+        setTestStatus('loading');
+        let handle = $.ajax({
+            type: "POST",
+            url: `api/SystemCenter/extDBTables/RetrieveTable`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true,
+            data: JSON.stringify(table)
+        });
+        handle.done((extData: any) => {
+            setTestData(extData);
+            if (extData == null || extData.length === 0) {
+                // This doesn't make that much sense on the face of it, 
+                // but its useful to differentiate between a successful connection with no data and one with data
+                setTestStatus('changed');
+            } else {
+                setTestStatus('idle');
+            }
+        })
+        handle.fail(() => { setTestStatus("error"); })
+        return handle;
+    }, [setTestStatus, table]);
 
     const changeQuery = React.useCallback((newTable: SystemCenter.Types.extDBTables) => {
         setTable(newTable);
@@ -174,7 +199,7 @@ export default function QueryTestDialog(props: IProps) {
                 return (
                     <div style={{ margin: 'auto' }}>
                         {Warning}
-                        <span>Table successfully queried, but no results were found. Please change test record or edit the table query.</span>
+                        <span>{`Table successfully queried, but ${testData?.length ?? 0} results were found. Please change test record or edit the table query. Only one record should be found per XDA record, or all records if no record is selected.`}</span>
                     </div>);
             case 'idle':
                 // Setting state and setting data should be batched, but just in case
@@ -205,7 +230,8 @@ export default function QueryTestDialog(props: IProps) {
     return (
         <>
             <Modal Title={"Test External Table Query"} Show={props.Show && !showRecordSelect}
-                ConfirmText={(testStatus === 'idle' ? "Save and Close" : "Test Query")} DisableConfirm={(testStatus !== 'idle' && xdaRecord === undefined)}
+                ConfirmText={(testStatus === 'idle' ? "Save and Close" : "Test Query")}
+                DisableConfirm={(testStatus !== 'idle' && (parentTable.ShowTableSelect && xdaRecord === undefined))}
                 Size={'xlg'} ShowCancel={true} ShowX={true} CancelText={'Close'} CallBack={conf => {
                     if (conf) {
                         if (testStatus === 'idle') {
@@ -213,6 +239,9 @@ export default function QueryTestDialog(props: IProps) {
                             props.SetShow(false);
                         } else if (xdaRecord !== undefined) {
                             const handle = requestTest();
+                            return () => { if (handle != null && handle.abort != null) handle.abort(); }
+                        } else if (!parentTable.ShowTableSelect) {
+                            const handle = requestTestAll();
                             return () => { if (handle != null && handle.abort != null) handle.abort(); }
                         }
                     } else {
@@ -222,14 +251,20 @@ export default function QueryTestDialog(props: IProps) {
                 <div className="row" style={{ display: 'inline-block', width: 'calc(100% - 20px)', height: 'auto', paddingLeft: '18px' }}>
                     <TextArea<SystemCenter.Types.extDBTables> Rows={10} Record={table} Field={'Query'} Valid={() => true} Setter={changeQuery} />
                 </div>
-                <div className="row" style={{ alignItems: "center", display: 'flex', width: '100%', height: 'auto' }}>
-                    <div className="col" style={{ width: '50%', height: '100%', float: 'left' }}>
-                    <Select<{ TableName: string }> Label={'Select XDA Table'} Record={parentTable} Setter={setParentTable}
-                            Field={'TableName'} Options={parentTableOptions} />
-                    </div>
-                    <div className="col" style={{ width: "50%", height: `100%`, float: 'right' }}>
-                        <button className="btn btn-primary pull-left" hidden={false}
-                            onClick={() => { setShowRecordSelect(true); }}>Get Xda Record</button>
+                <div className="row" style={{ display: 'inline-block', width: 'calc(100% - 20px)', height: 'auto', paddingLeft: '18px' }}>
+                    <CheckBox<TableOptions> Label={'Test Using XDA Data'} Record={parentTable} Setter={setParentTable}
+                        Field={'ShowTableSelect'} />
+                </div>
+                <div className="form-inline">
+                    <div className="form-group">
+                        {parentTable.ShowTableSelect ?
+                            <>
+                                <Select<TableOptions> Label={'Select XDA Table'} Record={parentTable} Setter={setParentTable}
+                                        Field={'TableName'} Options={parentTableOptions} />
+                                <button className="btn btn-primary pull-right" hidden={false}
+                                    onClick={() => { setShowRecordSelect(true); }}>Get Xda Record</button>
+                            </>
+                        : null}
                     </div>
                 </div>
                 <div className="row" style={{ display: 'flex', width: '100%', height: 'auto', paddingLeft: '18px' }}>
