@@ -32,8 +32,44 @@ export default class PARParser {
         let analogCounts = parseInt(data[1][1].slice(0, data[1][1].length));
         let digitalCounts = parseInt(data[1][2].slice(0, data[1][2].length));
 
-        this.Analogs = data.slice(2, analogCounts + 2).map((a: Array<string>, index: number) => { return { ID: index, Meter: meterKey, Asset: '', MeasurementType: this.parseType(a[4]), MeasurementCharacteristic: 'Instantaneous', Phase: this.parsePhase(a[2]), Name: a[1], SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: a[3], Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: a[0] } as OpenXDA.Types.Series], ConnectionPriority: 0, Trend: false } as OpenXDA.Types.Channel });
-        this.Digitals = data.slice(2 + analogCounts, 2 + analogCounts + digitalCounts).map((a: Array<string>, index: number) => { return { ID: index + analogCounts, Meter: meterKey, Asset: '', MeasurementType: 'Digital', MeasurementCharacteristic: 'Instantaneous', Phase: this.parsePhase(a[2]), Name: a[1], SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: a[3], Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: a[0], ConnectionPriority: 0 } as OpenXDA.Types.Series] } as OpenXDA.Types.Channel })
+        this.Analogs = data.slice(2, analogCounts + 2).map((a: Array<string>, index: number) => (
+            {
+                ID: index,
+                Meter: meterKey,
+                Asset: '',
+                MeasurementType: this.parseType(a[4]),
+                MeasurementCharacteristic: 'Instantaneous',
+                Phase: this.parsePhase(a[2]),
+                Name: a[1],
+                SamplesPerHour: 0,
+                PerUnitValue: null,
+                HarmonicGroup: 0,
+                Description: a[3],
+                Enabled: true,
+                Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: a[0] } as OpenXDA.Types.Series],
+                ConnectionPriority: 0,
+                Trend: false                
+            } as OpenXDA.Types.Channel
+        ));
+        this.Digitals = data.slice(2 + analogCounts, 2 + analogCounts + digitalCounts).map((a: Array<string>, index: number) => (
+             {
+                ID: index + analogCounts,
+                Meter: meterKey,
+                Asset: '',
+                MeasurementType: 'Digital',
+                MeasurementCharacteristic: 'Instantaneous',
+                Phase: this.parsePhase(a[2]),
+                Name: a[1],
+                SamplesPerHour: 0,
+                PerUnitValue: null,
+                HarmonicGroup: 0,
+                Description: a[3],
+                Enabled: true,
+                Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: a[0], ConnectionPriority: 0 } as OpenXDA.Types.Series],
+                ConnectionPriority: 0,
+                Trend: false              
+            } as OpenXDA.Types.Channel
+        ))
         this.Channels = this.Analogs.concat(this.Digitals);
     }
 
