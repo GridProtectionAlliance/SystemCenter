@@ -1387,9 +1387,48 @@ namespace SystemCenter.Controllers
     }
 
     [RoutePrefix("api/SystemCenter/ExternalDatabases")]
-    public class ExternalDatabasesController : ModelController<ExternalDatabases> 
+    public class ExternalDatabasesController : ModelController<ExternalDatabases>
     {
-        // TODO: make a patch/new update service host with new schedule, problem is we don't have access to it in here...
+        private static ServiceHost Host = Program.Host;
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck() || ViewOnly)
+                return Unauthorized();
+
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    ExternalDatabases newRecord = record.ToObject<ExternalDatabases>();
+                    int result = new TableOperations<ExternalDatabases>(connection).AddNewRecord(newRecord);
+                    Host.ExtDBChangeSchedule(newRecord);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        
+        public override IHttpActionResult Patch([FromBody] ExternalDatabases record)
+        {
+            if (!PatchAuthCheck() || ViewOnly)
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    int result = new TableOperations<ExternalDatabases>(connection).UpdateRecord(record);
+                    Host.ExtDBChangeSchedule(record);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
 
         [HttpPost, Route("TestConnection")]
         public IHttpActionResult TestConnection([FromBody] JObject record)
@@ -1401,12 +1440,12 @@ namespace SystemCenter.Controllers
                 ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
                 using (AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(extDB))
                 {
-                    return Ok(1);
+                    return Ok(0);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                return Ok(0);
+                return InternalServerError(ex);
             }
         }
 
@@ -1419,11 +1458,11 @@ namespace SystemCenter.Controllers
             {
                 ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
                 ScheduledExtDBTask.Run(extDB);
-                return Ok(1);
-            }
-            catch
-            {
                 return Ok(0);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
             }
         }
     }
