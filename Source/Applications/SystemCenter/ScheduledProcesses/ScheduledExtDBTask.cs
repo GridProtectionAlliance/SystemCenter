@@ -104,7 +104,8 @@ namespace SystemCenter.ScheduledProcesses
             AdoDataConnection xdaConnection, AdoDataConnection extConnection) where T: class, new()
         {
             TableOperations<T> table = new TableOperations<T>(xdaConnection);
-            IEnumerable<AdditionalField> addlFields = addlFieldsTable.QueryRecordsWhere("ParentTable = {0} AND ExternalDBTableID = {1}", table.TableName, extTable.ID);
+            // Ignore key fields, since those don't make sense to not be auto updated
+            IEnumerable<AdditionalField> addlFields = addlFieldsTable.QueryRecordsWhere("ParentTable = {0} AND ExternalDBTableID = {1} AND IsKey = 0", table.TableName, extTable.ID);
             // Todo: add external xda table to this, is put off for now
             if (!addlFields.Any()) return;
             IEnumerable<T> allRecords = table.QueryRecords();
@@ -154,15 +155,28 @@ namespace SystemCenter.ScheduledProcesses
 			                IsKey = 1)"
                 , idKey, table.TableName, extTable.ID);
             context.Variables.Clear();
-            context.Variables["Key"] = keyValue?.Value ?? "null";
+            if (keyValue?.Value is not null)
+                context.Variables["Key"] = keyValue.Value;
             context.Variables[table.TableName] = record;
+            return ExecuteQueryWithContext(extTable, context, externalConnection);
+        }
+
+        public static DataTable RetrieveDataTable(extDBTables extTable, AdoDataConnection externalConnection)
+        {
+            ExpressionContext context = new ExpressionContext();
+            context.Variables.Clear();
+            return ExecuteQueryWithContext(extTable, context, externalConnection);
+        }
+
+        //Context should have all vars loaded in
+        private static DataTable ExecuteQueryWithContext(extDBTables extTable,
+            ExpressionContext context, AdoDataConnection externalConnection)
+        {
             List<string> parameters = new List<string>();
             MatchEvaluator evaluator = new MatchEvaluator((match) => RegexReplaceFunction(match, context, parameters));
             string fullQuery = Regex.Replace(extTable.Query, RegexPattern, evaluator, RegexOptions.None, TimeSpan.FromSeconds(2));
             try
             {
-                // Should be a singular row
-                // Todo: Code review question, should this query be implied to have the Select * From extTable.TableName or no?
                 return externalConnection.RetrieveData(fullQuery, parameters.ToArray());
             }
             catch
