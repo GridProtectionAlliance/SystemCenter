@@ -90,19 +90,25 @@ export default function ChannelPage(props: IProps) {
     React.useEffect(() => {
         props.SetWarning(baseWarnings)
 
-        // Need two seperate inputs because the page is expected to go between event and trend mode, thus if the same file is used it won't trigger the event
         $(fileInput.current).on("change", (evt: any) => {
+            if (evt.target.value == null)
+                return;
             let fileName = (evt as React.ChangeEvent<HTMLInputElement>).target.value.split("\\").pop();
             if (fileName == "")
                 return;
             setSelectedFile(fileName);
             readSingleFile(evt as React.ChangeEvent<HTMLInputElement>);
+            $(fileInput.current).val(null);
         });
 
         return () => {
             $(".custom-file-input").off('change');
         }
     }, [])
+
+    React.useEffect(() => {
+        setSelectedFile('');
+    }, [props.TrendChannels]);
 
     React.useEffect(() => {
         setCurrentChannels(getCurrentChannels(props.TrendChannels));
