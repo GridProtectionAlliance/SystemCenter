@@ -23,7 +23,8 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { OpenXDA as LocalXDA } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { LoadingIcon, Modal, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
@@ -31,11 +32,10 @@ import Table from '@gpa-gemstone/react-table';
 import { CrossMark, HeavyCheckMark, Pencil, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols'
 
 declare var homePath: string;
-declare type AdditionalFieldType = 'Meter' | 'Location' | 'Customer' | 'Company' | 'ValueListGroup' | 'Asset' | OpenXDA.Types.AssetTypeName;
 
 interface IProps {
     ID: number,
-    Type: AdditionalFieldType,
+    Type: LocalXDA.AdditionalFieldType,
     Tab?: string,
     //Change properties of page
     InnerOnly?: boolean,
