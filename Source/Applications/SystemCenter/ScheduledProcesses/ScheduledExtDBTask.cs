@@ -41,7 +41,9 @@ namespace SystemCenter.ScheduledProcesses
         #region [ Member ]
         public ExternalDatabases ExternalDB { get; set; }
         public static readonly Func<AdoDataConnection> ConnectionFactory = () => new AdoDataConnection("systemSettings");
-        public static readonly Type[] CheckedTypes = new Type[] { typeof(Meter), typeof(Transformer), typeof(Line), typeof(Asset) };
+        // Line segment excluded, special case
+        public static readonly Type[] CheckedTypes = new Type[] { typeof(Meter), typeof(Location), typeof(Model.Customer),
+            typeof(Line), typeof(Breaker), typeof(Bus), typeof(CapBank), typeof(Transformer), typeof(CapBankRelay), typeof(Asset) };
         public const string RegexPattern = "[{][^{}]*[}]";
         #endregion
 
