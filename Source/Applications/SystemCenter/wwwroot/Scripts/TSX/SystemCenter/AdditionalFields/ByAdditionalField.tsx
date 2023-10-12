@@ -101,7 +101,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<SystemCenter.Types.extDBTables>
+            <SearchBar<SystemCenter.Types.AdditionalField>
                 CollumnList={AdditionalFieldSearchField}
                 SetFilter={(flds) => dispatch(AdditionalFieldsSlice.DBSearch({ filter: flds }))}
                 Direction={'left'}

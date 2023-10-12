@@ -100,7 +100,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                     <ExternalDBTableInfo Record={record} />
                 </div>
                 <div className={"tab-pane " + (tab == "fields" ? " active" : "fade")} id="fields">
-                    <ExternalDBTableFields ID={record.ID} />
+                    <ExternalDBTableFields TableName={record.TableName} ID={record.ID} />
                 </div>
             </div>
             <QueryTestDialog ExtTable={record} SetExtTable={SaveTable} Show={showDialog} SetShow={setShowDialog} />
