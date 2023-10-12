@@ -43,7 +43,7 @@ namespace SystemCenter.ScheduledProcesses
         public static readonly Func<AdoDataConnection> ConnectionFactory = () => new AdoDataConnection("systemSettings");
         // Line segment excluded, special case
         public static readonly Type[] CheckedTypes = new Type[] { typeof(Meter), typeof(Location), typeof(Model.Customer),
-            typeof(Line), typeof(Breaker), typeof(Bus), typeof(CapBank), typeof(Transformer), typeof(CapBankRelay), typeof(Asset) };
+            typeof(Line), typeof(Breaker), typeof(Bus), typeof(CapBank), typeof(Transformer), typeof(CapBankRelay), typeof(DER), typeof(Asset) };
         public const string RegexPattern = "[{][^{}]*[}]";
         #endregion
 

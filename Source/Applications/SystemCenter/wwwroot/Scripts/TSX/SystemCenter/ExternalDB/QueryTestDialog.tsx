@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import * as $ from 'jquery';
-import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, Modal } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table';
 import { Warning } from '@gpa-gemstone/gpa-symbols';
@@ -41,38 +41,35 @@ interface IProps {
 }
 
 export default function QueryTestDialog(props: IProps) {
-    // Allowed Tables
-    const TableOptions = ["Meter", "Transformer", "Asset", "Line"];
-
     // General Control Variables
     const selectStorageID = "ExternalDB_QueryTestDialog"
 
     // External Table Buffer
     const [table, setTable] = React.useState<SystemCenter.Types.extDBTables>(props.ExtTable);
-
     // Select Properties
-    const parentTableOptions = TableOptions.map(name => { return { Value: name, Label: name } });
-    const [parentTable, setParentTable] = React.useState<{ TableName: string }>({ TableName: TableOptions[0] });
+    const parentTableOptions = ['Meter', 'Location', 'Customer', 'Asset',
+        "Line", "Breaker", "Bus", "Capacitor Bank", "Capacitor Bank Relay", "Transformer", "DER"].map(name => { return { Value: name, Label: name } });
+    const [parentTable, setParentTable] = React.useState<{ TableName: string }>({ TableName: parentTableOptions[0].Value });
     const [showRecordSelect, setShowRecordSelect] = React.useState<boolean>(false);
 
     // Needed to Select Record for Query
     const dispatch = useAppDispatch();
     const slice = React.useMemo(() => {
         switch (parentTable.TableName) {
-            default: case 'Meter': return ByMeterSlice;
-            case 'Asset': case 'Transformer': case 'Line': return ByAssetSlice;
+            case 'Meter': return ByMeterSlice;
+            default: return ByAssetSlice;
         }
     }, [parentTable]);
     const dataSelect = React.useMemo(() => {
         switch (parentTable.TableName) {
-            default: case 'Meter': return ByMeterSlice.Data;
-            case 'Asset': case 'Transformer': case 'Line': return ByAssetSlice.Data;
+            case 'Meter': return ByMeterSlice.Data;
+            default: return ByAssetSlice.Data;
         }
     }, [parentTable]);
     const statusSelect = React.useMemo(() => {
         switch (parentTable.TableName) {
-            default: case 'Meter': return ByMeterSlice.Status;
-            case 'Asset': case 'Transformer': case 'Line': return ByAssetSlice.Status;
+            case 'Meter': return ByMeterSlice.Status;
+            default: return ByAssetSlice.Status;
         }
     }, [parentTable]);
     const data: any[] = useAppSelector(dataSelect as (state: any) => any[]);
@@ -87,25 +84,13 @@ export default function QueryTestDialog(props: IProps) {
 
     const filterType = React.useMemo(() => {
         switch (parentTable.TableName) {
-            default: case "Meter":
+            case "Meter": case "Location": case "Customer": case "Asset":
                 localStorage.removeItem(selectStorageID);
-                return 'Meter';
-            case "Asset":
-                localStorage.removeItem(selectStorageID);
-                return'Asset';
-            case 'Transformer':
+                return parentTable.TableName;
+            default:
                 localStorage.setItem(selectStorageID, JSON.stringify([{
                     FieldName: "AssetType",
-                    SearchText: "(Transformer)",
-                    Operator: "IN",
-                    Type: "enum",
-                    isPivotColumn: false
-                }]));
-                return 'Asset';
-            case 'Line':
-                localStorage.setItem(selectStorageID, JSON.stringify([{
-                    FieldName: "AssetType",
-                    SearchText: "(Line)",
+                    SearchText: `(${parentTable.TableName.replace(/\s/g, "")})`,
                     Operator: "IN",
                     Type: "enum",
                     isPivotColumn: false

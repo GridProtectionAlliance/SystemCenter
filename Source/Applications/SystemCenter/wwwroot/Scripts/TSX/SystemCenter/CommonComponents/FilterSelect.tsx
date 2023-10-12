@@ -24,8 +24,8 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { ByMeterSlice, ByAssetSlice, AssetTypeSlice } from '../Store/Store';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { ByMeterSlice, ByAssetSlice, AssetTypeSlice, ByLocationSlice, CustomerSlice } from '../Store/Store';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Search } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -36,14 +36,14 @@ interface IProps {
     OnCloseFunction: (selected: Set<number>, confirmed: boolean) => void,
     Selected: Set<number>,
     ShowModal: boolean,
-    Type: ('Meter' | 'Asset'),
+    Type: ('Meter'|'Location'|'Customer'|'Asset'),
     Single?: boolean,
     StorageID?: string,
     Title?: string,
     children?: React.ReactNode
 }
 
-type Data = (SystemCenter.Types.DetailedMeter | SystemCenter.Types.DetailedAsset);
+type Data = (SystemCenter.Types.DetailedMeter | SystemCenter.Types.DetailedLocation | OpenXDA.Types.Customer |SystemCenter.Types.DetailedAsset);
 
 export default function FilterSelect(props: IProps) {
     const assetType = useAppSelector(AssetTypeSlice.Data);
@@ -55,6 +55,8 @@ export default function FilterSelect(props: IProps) {
             default: console.error(`Unexpected type ${props.Type} found. Using meter...`);
             // Default falls-through to Meter
             case 'Meter': return ByMeterSlice.Data;
+            case 'Location': return ByLocationSlice.Data;
+            case 'Customer': return CustomerSlice.Data;
             case 'Asset': return ByAssetSlice.Data;
         }
     }, [props.Type]);
@@ -150,11 +152,53 @@ export default function FilterSelect(props: IProps) {
                     { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                 ]}
-                Title={props.Title === undefined ? "Select Assets" : props.Title}
+                Title={props.Title === undefined ? "Select Meters" : props.Title}
                 GetEnum={getEnum}
                 GetAddlFields={getAdditionalAssetFields}>
                 {props.children}
             </DefaultSelects.Meter>
+        );
+        case "Location": return (
+            <DefaultSelects.Location
+                Slice={ByLocationSlice}
+                Selection={selectedData as SystemCenter.Types.DetailedLocation[]}
+                OnClose={closeCallback}
+                Show={props.ShowModal}
+                Type={(props.Single ?? false) ? 'single' : 'multiple'}
+                StorageID={props.StorageID}
+                Columns={[
+                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'LocationKey', field: 'LocationKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
+                    { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                    { key: 'Assets', field: 'Assets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                ]}
+                Title={props.Title === undefined ? "Select Locations" : props.Title}
+                GetEnum={getEnum}
+                GetAddlFields={getAdditionalAssetFields}>
+                {props.children}
+            </DefaultSelects.Location>
+        );
+        case "Customer": return (
+            <DefaultSelects.Customer
+                Slice={CustomerSlice}
+                Selection={selectedData as OpenXDA.Types.Customer[]}
+                OnClose={closeCallback}
+                Show={props.ShowModal}
+                Type={(props.Single ?? false) ? 'single' : 'multiple'}
+                StorageID={props.StorageID}
+                Columns={[
+                    { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'CustomerKey', field: 'CustomerKey', label: 'Key', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
+                    { key: 'LSCVS', field: 'LSCVS', label: 'LSCVS', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                    { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
+                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                ]}
+                Title={props.Title === undefined ? "Select Assets" : props.Title}
+                GetEnum={getEnum}
+                GetAddlFields={getAdditionalAssetFields}>
+                {props.children}
+            </DefaultSelects.Customer>
         );
         case "Asset": return (
             <DefaultSelects.Asset
