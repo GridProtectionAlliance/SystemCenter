@@ -24,6 +24,7 @@
 import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
+import { IsCron } from '@gpa-gemstone/helper-functions';
 
 export default function ExternalDBForm(props: { Record: SystemCenter.Types.ExternalDatabases, Setter: (record: SystemCenter.Types.ExternalDatabases) => void, setErrors?: (e: string[]) => void }) {
 
@@ -33,7 +34,7 @@ export default function ExternalDBForm(props: { Record: SystemCenter.Types.Exter
         if (field == 'Name')
             return props.Record.Name != null && props.Record.Name.length > 0 && props.Record.Name.length <= 200;
         else if (field == 'Schedule')
-            return props.Record.Schedule != null && props.Record.Schedule.length > 0 && props.Record.Schedule.length <= 50;
+            return props.Record.Schedule != null && IsCron(props.Record.Schedule);
         else if (field == 'ConnectionString' || field == 'DataProviderString')
             return true;
         return false;
@@ -55,7 +56,7 @@ export default function ExternalDBForm(props: { Record: SystemCenter.Types.Exter
     return (
         <form>
             <Input<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
-            <Input<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Schedule'} Feedback={'A Schedule of less than 50 characters is required.'} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Schedule'} Feedback={'A Cron Schedule of less than 50 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <TextArea<SystemCenter.Types.ExternalDatabases> Rows={3} Record={props.Record} Field={'ConnectionString'} Valid={Valid} Setter={props.Setter} />
             <CheckBox<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Encrypt'} Label={'Encrypted'} Setter={props.Setter} />
             <br/>
