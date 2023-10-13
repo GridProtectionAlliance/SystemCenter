@@ -63,7 +63,7 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Exter
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ overflow: 'scroll' }}>
+            <div className="card-body" style={{ height: window.innerHeight - 350, maxHeight: window.innerHeight - 350 }}>
                 <ExternalDBForm Record={record} Setter={setRecord} />
             </div>
             <div className="card-footer">

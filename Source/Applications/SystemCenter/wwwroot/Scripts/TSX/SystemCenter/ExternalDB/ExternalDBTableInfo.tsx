@@ -70,7 +70,7 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.extDB
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ overflow: 'scroll' }}>
+            <div className="card-body" style={{ height: window.innerHeight - 350, maxHeight: window.innerHeight - 350 }}>
                 <ExternalDBTableForm Record={record} Setter={setRecord} />
             </div>
             <div className="card-footer">
