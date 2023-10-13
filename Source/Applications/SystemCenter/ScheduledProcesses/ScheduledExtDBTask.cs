@@ -128,7 +128,16 @@ namespace SystemCenter.ScheduledProcesses
                 if (data.Count == 0) continue;
                 foreach(AdditionalField field in addlFields)
                 {
-                    string fieldValue = data[0][field.FieldName].ToString();
+                    string fieldValue;
+                    try
+                    {
+                        fieldValue = data[0][field.FieldName].ToString();
+                    }
+                    catch
+                    {
+                        Log.Warn($"Additional field with no field in external database found: ID {field.ID}, Name {field.FieldName}, External Table {extTable.TableName}");
+                        continue;
+                    }
                     int recordID = GetID(record);
                     if (recordID == -1) continue; // Should be impossible to trigger without huge overhauling of openXDA
                     AdditionalFieldValue addlValue = addlValuesTable.QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", recordID, field.ID);
