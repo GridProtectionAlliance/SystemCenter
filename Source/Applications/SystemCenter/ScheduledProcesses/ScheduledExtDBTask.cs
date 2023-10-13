@@ -45,12 +45,25 @@ namespace SystemCenter.ScheduledProcesses
         public static readonly Type[] CheckedTypes = new Type[] { typeof(Meter), typeof(Location), typeof(Model.Customer),
             typeof(Line), typeof(Breaker), typeof(Bus), typeof(CapBank), typeof(Transformer), typeof(CapBankRelay), typeof(DER), typeof(Asset) };
         public const string RegexPattern = "[{][^{}]*[}]";
+
+        private static IDictionary<Type, string> TypeTableNameDict;
         #endregion
 
         #region [ Constructor ]
         public ScheduledExtDBTask(ExternalDatabases task)
         {
             ExternalDB = task;
+        }
+
+        static ScheduledExtDBTask()
+        {
+            TypeTableNameDict = new Dictionary<Type, string>();
+            foreach (Type type in CheckedTypes)
+            {
+                Type tableOp = typeof(TableOperations<>).MakeGenericType(type);
+                var getTableName = tableOp.GetMethod("GetTableName", BindingFlags.Static | BindingFlags.Public);
+                TypeTableNameDict.Add(type, (string) getTableName.Invoke(null, new object[] { }));
+            }
         }
         #endregion
 
@@ -154,9 +167,8 @@ namespace SystemCenter.ScheduledProcesses
 			                ExternalDBTableID = {2} AND
 			                IsKey = 1)"
                 , idKey, table.TableName, extTable.ID);
-            context.Variables.Clear();
-            if (keyValue?.Value is not null)
-                context.Variables["Key"] = keyValue.Value;
+            DefineAllowedVariables(context);
+            context.Variables["Key"] = keyValue?.Value;
             context.Variables[table.TableName] = record;
             return ExecuteQueryWithContext(extTable, context, externalConnection);
         }
@@ -164,8 +176,28 @@ namespace SystemCenter.ScheduledProcesses
         public static DataTable RetrieveDataTable(extDBTables extTable, AdoDataConnection externalConnection)
         {
             ExpressionContext context = new ExpressionContext();
-            context.Variables.Clear();
+            DefineAllowedVariables(context);
             return ExecuteQueryWithContext(extTable, context, externalConnection);
+        }
+
+        private static void DefineAllowedVariables(ExpressionContext context)
+        {
+            context.Variables.Clear();
+            // Define special var key
+            context.Variables.DefineVariable("key", typeof(string));
+            context.Variables["key"] = null;
+            // Define all vars that could be pulled from openXDA
+            foreach(Type type in CheckedTypes)
+            {
+                string tableName;
+                if (!TypeTableNameDict.TryGetValue(type, out tableName))
+                {
+                    Log.Warn($"Type {type.Name} checked in Scheduled DB Task could not find associated table name.");
+                    continue;
+                }
+                context.Variables.DefineVariable(tableName, type);
+                context.Variables[tableName] = null;
+            }
         }
 
         //Context should have all vars loaded in
@@ -175,15 +207,7 @@ namespace SystemCenter.ScheduledProcesses
             List<string> parameters = new List<string>();
             MatchEvaluator evaluator = new MatchEvaluator((match) => RegexReplaceFunction(match, context, parameters));
             string fullQuery = Regex.Replace(extTable.Query, RegexPattern, evaluator, RegexOptions.None, TimeSpan.FromSeconds(2));
-            try
-            {
-                return externalConnection.RetrieveData(fullQuery, parameters.ToArray());
-            }
-            catch
-            {
-                Log.Warn($"Query: ${fullQuery} failed on external database connection for ${extTable.TableName}");
-                return null;
-            }
+             return externalConnection.RetrieveData(fullQuery, parameters.ToArray());
         }
 
         public static AdoDataConnection GetExternalConnection(ExternalDatabases extDB)
@@ -205,9 +229,12 @@ namespace SystemCenter.ScheduledProcesses
         {
             try
             {
-                string matchValue = match.Value.Substring(1, match.Value.Length - 2).Trim();
-                IDynamicExpression expression = context.CompileDynamic(matchValue);
-                string eval = expression.Evaluate().ToString();
+                string variable = match.Value.Substring(1, match.Value.Length - 2).Trim();
+                string stringExpression = $"if({variable.Split('.')[0]} <> null, {variable}.toString(), null)";
+                IGenericExpression<string> expression = context.CompileGeneric<string>(stringExpression);
+                string eval = expression.Evaluate();
+                if (eval is null) return "null";
+
                 // Quick explaination, we need to transform something like {object.property} into an index on a parameter so that
                 // GSF can handle the parameters. This is needed because we cannot use VARCHAR arguements directly, it is DB dependant
                 int parameterNumber = parameters.FindIndex(para => para == eval);
@@ -219,8 +246,8 @@ namespace SystemCenter.ScheduledProcesses
             }
             catch (Exception ex)
             {
-                Log.Warn($"Error when parsing query for scheduled update: ${ex.Message}. Using \"null\" as value...");
-                return "null";
+                Log.Error($"Error when parsing query for external database update: ${ex.Message}. Query not ran.");
+                throw ex;
             }
         }
         #endregion
