@@ -18,6 +18,8 @@
 //  ----------------------------------------------------------------------------------------------------
 //  01/22/2020 - Billy Ernest
 //       Generated original version of source code.
+//  10|16|2023 - Ariana Armstrong
+//       Included a conditional rendering statement for 'Channels' tab.
 //
 //******************************************************************************************************
 
@@ -172,11 +174,11 @@ function Asset(props: IProps) {
                 <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
                     <AssetMeterWindow Asset={asset} />
                 </div>
-                <div className={"tab-pane " + (tab == "channels" ? " active" : "fade")} id="channels">
-                    <AssetChannelWindow Asset={asset} />
-                </div>
+                {tab == "channels" ? <div className={"tab-pane " + (tab == "channels" ? "active" : "fade")} id="channels">
+                    <AssetChannelWindow Asset={asset} Name={asset.AssetName} ID={asset.ID}/>
+                </div> : null}
                 <div className={"tab-pane " + (tab == "connections" ? " active" : "fade")} id="connections">
-                    <AssetConnectionWindow Asset={asset} />
+                    <AssetConnectionWindow Asset={asset} Name={asset.AssetName} ID={asset.ID} />
                 </div>
                 {/*<div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
                 //    <ExternalDBUpdate ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab} />

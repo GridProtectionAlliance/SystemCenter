@@ -31,7 +31,7 @@ import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-interface IProps { Asset: OpenXDA.Types.Asset }
+interface IProps { Asset: OpenXDA.Types.Asset, Name: string, ID: number }
 
 interface ChannelDetail { //TODO: Move to Gemstone
     ID: number,
@@ -58,7 +58,8 @@ interface ChannelDetail { //TODO: Move to Gemstone
     Phase: string,
     Mapping: string,
     SeriesTypeID: string,
-    SeriesType: string
+    SeriesType: string,
+    ChannelTrend: boolean
 }
 
 
@@ -69,13 +70,13 @@ const AssetChannelWindow = (props: IProps) => {
     const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
     const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
     const [status, setStatus] = React.useState<Application.Types.Status>('idle');
-
+    
 
     const [sortField, setSortField] = React.useState<keyof (ChannelDetail)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
 
-
+    
     React.useEffect(() => {
         let channelHandle = getChannels();
 
@@ -92,7 +93,7 @@ const AssetChannelWindow = (props: IProps) => {
         return $.ajax(
             {
                 type: "GET",
-                url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/ConnectedChannels`,
+                url: `${homePath}api/OpenXDA/Asset/${props.ID}/ConnectedChannels`,
                 contentType: "application/json; charset=utf-A",
                 dataType: 'json',
                 cache: true,
