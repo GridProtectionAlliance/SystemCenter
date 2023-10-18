@@ -69,7 +69,7 @@ ECHO Updating to latest version...
 "%git%" fetch
 "%git%" reset --hard origin/master
 "%git%" clean -f -d -x
-"%git%" submodule update --recursive
+"%git%" submodule update --recursive --init
 GOTO UpdateDependencies
 
 :UpdateDependencies

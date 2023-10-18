@@ -90,19 +90,25 @@ export default function ChannelPage(props: IProps) {
     React.useEffect(() => {
         props.SetWarning(baseWarnings)
 
-        // Need two seperate inputs because the page is expected to go between event and trend mode, thus if the same file is used it won't trigger the event
         $(fileInput.current).on("change", (evt: any) => {
+            if (evt.target.value == null)
+                return;
             let fileName = (evt as React.ChangeEvent<HTMLInputElement>).target.value.split("\\").pop();
             if (fileName == "")
                 return;
             setSelectedFile(fileName);
             readSingleFile(evt as React.ChangeEvent<HTMLInputElement>);
+            $(fileInput.current).val(null);
         });
 
         return () => {
             $(".custom-file-input").off('change');
         }
     }, [])
+
+    React.useEffect(() => {
+        setSelectedFile('');
+    }, [props.TrendChannels]);
 
     React.useEffect(() => {
         setCurrentChannels(getCurrentChannels(props.TrendChannels));
@@ -116,36 +122,18 @@ export default function ChannelPage(props: IProps) {
         props.SetWarning(e);
     }, [currentChannels]);
 
-    function getCurrentChannels(trendChannels: boolean): OpenXDA.Types.Channel[] {
-        let newCurrent: OpenXDA.Types.Channel[] = _.cloneDeep(props.Channels);
-        return newCurrent.filter((item) => (item.Trend === trendChannels));
-    }
 
-    function readSingleFile(evt: React.ChangeEvent<HTMLInputElement>) {
-        //Retrieve the first (and only!) File from the FileList object
-        var f = evt.target.files[0];
-
-        if (!f) {
-            return;
-        }
-        if (f.name.indexOf('.') < 0) {
-            setShowCFGError(true);
-            return;
-        }
-        setChannelStatus('loading');
-
-        let r = new FileReader();
-        r.onload = (e) => {
-            ParseFile(e.target.result as ArrayBuffer, f.name)
-        }
-           
-        r.readAsArrayBuffer(f);
-}
-    function ParseFile(content: ArrayBuffer, fileName: string) {
+    const ParseFile = React.useCallback((content: ArrayBuffer, fileName: string) => {
         let extension = fileName.toLowerCase().substring(fileName.lastIndexOf('.') + 1, fileName.length);
 
+        // CFG files are only valid for events
+        if (extension == 'cfg' && props.TrendChannels) {
+            setShowCFGError(true);
+            setChannelStatus('idle');
+            setSelectedFile('');
+        }
         // Handle js parsed files
-        if (webParsedExtensions.indexOf(extension) >= 0) {
+        else if (webParsedExtensions.indexOf(extension) >= 0) {
 
             let parser;
             if (extension === 'cfg')
@@ -177,18 +165,45 @@ export default function ChannelPage(props: IProps) {
         else {
             setShowCFGError(true);
             setChannelStatus('idle');
+            setSelectedFile('');
         }
+    }, [props.TrendChannels]);
+
+    function getCurrentChannels(trendChannels: boolean): OpenXDA.Types.Channel[] {
+        let newCurrent: OpenXDA.Types.Channel[] = _.cloneDeep(props.Channels);
+        return newCurrent.filter((item) => (item.Trend === trendChannels));
     }
-    function handleParsedChannels(newChannels: OpenXDA.Types.Channel[]) {
+
+    function readSingleFile(evt: React.ChangeEvent<HTMLInputElement>) {
+        //Retrieve the first (and only!) File from the FileList object
+        var f = evt.target.files[0];
+
+        if (!f) {
+            return;
+        }
+        if (f.name.indexOf('.') < 0) {
+            setShowCFGError(true);
+            return;
+        }
+        setChannelStatus('loading');
+
+        let r = new FileReader();
+        r.onload = (e) => {
+            ParseFile(e.target.result as ArrayBuffer, f.name)
+        }
+           
+        r.readAsArrayBuffer(f);
+    }
+    const handleParsedChannels = React.useCallback((newChannels: OpenXDA.Types.Channel[]) => {
         if (newChannels.findIndex(chan => (chan.Trend !== props.TrendChannels)) >= 0) {
             setParsedChannels(newChannels);
             setShowDialog(true);
         } else
             addChannels(newChannels, false);
-    }
+    }, [props.TrendChannels]);
 
     // Note: This will only add channels of the type (Trend or event) that match the mode of the component defined in props.TrendChannels
-    function addChannels(newChannels: OpenXDA.Types.Channel[], addAll: boolean) {
+    const addChannels = React.useCallback((newChannels: OpenXDA.Types.Channel[], addAll: boolean) => {
         const filteredChannels = addAll ? newChannels : newChannels.filter(chan => (chan.Trend === props.TrendChannels));
         const otherChannels = addAll ? [] : getCurrentChannels(!props.TrendChannels);
         const allChannels: OpenXDA.Types.Channel[] = [...otherChannels, ...filteredChannels];
@@ -196,7 +211,7 @@ export default function ChannelPage(props: IProps) {
         allChannels.forEach((chan, index) => chan.ID = index);
         props.UpdateChannels(allChannels);
         clearAssetsChannels();
-    }
+    }, [props.TrendChannels]);
 
     function deleteChannel(index:number): void {
         let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
@@ -393,7 +408,7 @@ export default function ChannelPage(props: IProps) {
                         selected={(item) => false}
                     />
                 </div>
-                <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}.`} CallBack={() => setShowCFGError(false)} />
+                <Warning Show={showCFGError} Title={'Error Parsing File'} Message={`File type not supported. Please select a file of the following types: ${allTypes}. Note COMTRADE files for trending data are automatically ingested using the event channels and can not be uploaded in the wizard.`} CallBack={() => setShowCFGError(false)} />
                 <Warning Show={showSpareWarning} Title={'Remove Spare Channels'} Message={`This will remove all Spare Channels. This will remove ${NSpare} Channels from the configuration.`} CallBack={(conf) => { if (conf) clearSpareChannels(); setShowSpareWarning(false); }} />
                 <Modal Title="Scale Channels" ShowX={true} ShowCancel={false} Show={showScaling} ConfirmText="Close Scaling Window" CallBack={() => setShowScaling(false)} Size='xlg'>
                     <ChannelScalingForm Channels={currentChannels} UpdateChannels={editChannels} ChannelStatus={channelStatus} Key={props.MeterKey} />
