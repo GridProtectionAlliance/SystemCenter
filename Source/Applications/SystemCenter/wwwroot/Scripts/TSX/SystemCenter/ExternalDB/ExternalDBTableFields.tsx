@@ -27,7 +27,7 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
 import ExternalDBTableFieldForm from './ExternalDBTableFieldForm';
 import Table from '@gpa-gemstone/react-table';
-import { CrossMark, Pencil, TrashCan, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, Pencil, TrashCan, HeavyCheckMark, Warning } from '@gpa-gemstone/gpa-symbols';
 import { Modal, SearchBar } from '@gpa-gemstone/react-interactive';
 import { SelectPopup } from '@gpa-gemstone/common-pages';
 
@@ -62,6 +62,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [showExisting, setShowExisting] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
+    const [warnings, setWarnings] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         if (!showExisting && (status == 'unintiated' || status == 'changed' || parentID !== props.ID))
@@ -87,6 +88,15 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
         setErrors(e);
     }, [record]);
+
+    React.useEffect(() => {
+        let w = [];
+        if (record.IsKey && data.findIndex((d) => d.IsKey) !== -1) {
+            w.push('A key field already exists.');
+        }
+
+        setWarnings(w);
+    }, [record, data]);
 
     function Delete() {
         dispatch(AdditionalFieldsSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
@@ -187,8 +197,13 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
             </Modal>
 
             <Modal Title={record.ID == 0 ? 'Add New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showNew} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
-                ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                ConfirmShowToolTip={errors.length > 0 || warnings.length > 0}
+                ConfirmToolTipContent={
+                    <>
+                        { warnings.map((w, i) => <p key={i}>{Warning} {w}</p>) }
+                        { errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>) }
+                    </>
+                }
                 DisableConfirm={errors.length > 0}
                 ShowX={true} CallBack={(conf) => {
                     setShowNew(false);
