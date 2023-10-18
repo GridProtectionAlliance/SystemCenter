@@ -28,7 +28,7 @@ import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
 import ExternalDBTableFieldForm from './ExternalDBTableFieldForm';
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
-import { Modal, Warning, SearchBar } from '@gpa-gemstone/react-interactive';
+import { Modal, SearchBar } from '@gpa-gemstone/react-interactive';
 import { SelectPopup } from '@gpa-gemstone/common-pages';
 
 export default function ExternalDBTableFields(props: { TableName: string, ID: number }) {
@@ -58,8 +58,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     };
     const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalField>(emptyRecord);
     const [origFields, setOrigFields] = React.useState<SystemCenter.Types.AdditionalField[]>(data);
-    const [showDeleteWarning, setShowDeleteWarning] = React.useState<boolean>(false);
-    const [showDisassociateWarning, setShowDisassociateWarning] = React.useState<boolean>(false);
+    const [showRemove, setShowRemove] = React.useState<boolean>(false);
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [showExisting, setShowExisting] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -147,13 +146,8 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                         <button className="btn btn-sm" onClick={(e) => {
                                             e.preventDefault();
                                             setRecord(item);
-                                            setShowDeleteWarning(true);
+                                            setShowRemove(true);
                                         }}>{TrashCan}</button>
-                                        <button className="btn btn-sm" onClick={(e) => {
-                                            e.preventDefault();
-                                            setRecord(item);
-                                            setShowDisassociateWarning(true);
-                                        }}>{CrossMark}</button>
                                     </>
                                 },
                                 { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
@@ -186,18 +180,11 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     >Add New Field</button>
                 </div>
             </div>
-            <Warning
-                Message={'This will permanently delete this External DB Table Field and cannot be undone.'}
-                Show={showDeleteWarning} Title={'Delete ' + (record?.FieldName ?? 'External DB Table Field')}
-                CallBack={(conf) => { if (conf) Delete(); setShowDeleteWarning(false); }} />
 
-            <Warning
-                Message={'This will disassociate this field from this External DB Table. The field will not be deleted and can be associated again.'}
-                Show={showDisassociateWarning} Title={'Disassociate ' + (record?.FieldName ?? 'External DB Table Field') + ' From ' + (props.TableName ?? 'External DB Table')}
-                CallBack={(conf) => {
-                    if (conf) DisassociateField(record);
-                    setShowDisassociateWarning(false);
-                }} />
+            <Modal Title={'Remove External DB Table Field'} Show={showRemove} CallBack={() => setShowRemove(false)} ShowCancel={false} ConfirmText={'Close'} >
+                <button className="btn btn-danger btn-block" onClick={() => { DisassociateField(record); setShowRemove(false); }}>Disassociate Field From This Table</button>
+                <button className="btn btn-danger btn-block" onClick={() => { Delete(); setShowRemove(false); }}>Delete Field Permanently</button>
+            </Modal>
 
             <Modal Title={record.ID == 0 ? 'Add New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showNew} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0}
