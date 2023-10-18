@@ -54,8 +54,8 @@ export default function ExternalDBTableFieldForm(props: IProps) {
 
     return (
         <form>
-            <Input<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'FieldName'} Label={'Field Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
-            <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'ParentTable'} Setter={props.Setter}
+            <Input<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'FieldName'} Label={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
+            <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'ParentTable'} Label={'Parent Type'} Setter={props.Setter}
                 Options={[{ Value: 'Meter', Label: 'Meter' }, { Value: 'Location', Label: 'Location' }, { Value: 'Customer', Label: 'Customer' }, { Value: 'Company', Label: 'Company' }, { Value: 'Asset', Label: 'Asset' },
                     { Value: 'Line', Label: 'Line' }, { Value: 'LineSegment', Label: 'LineSegment' }, { Value: 'Breaker', Label: 'Breaker' }, { Value: 'CapacitorBank', Label: 'CapacitorBank' }, { Value: 'Transformer', Label: 'Transformer' }, { Value: 'CapacitorBankRelay', Label: 'CapacitorBankRelay' }, { Value: 'DER', Label: 'DER' }]} />
             <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'Type'} Setter={props.Setter}

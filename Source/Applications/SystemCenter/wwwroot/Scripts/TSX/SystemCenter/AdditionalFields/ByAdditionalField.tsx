@@ -61,7 +61,23 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
 
     const AdditionalFieldSearchField: Array<Search.IField<SystemCenter.Types.AdditionalField>> = [
         { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false },
-        { label: 'Parent Table', key: 'ParentTable', type: 'string', isPivotField: false },
+        {
+            label: 'Parent Type', key: 'ParentTable', type: 'enum', isPivotField: false,
+            enum: [
+                { Value: 'Meter', Label: 'Meter' },
+                { Value: 'Location', Label: 'Location' },
+                { Value: 'Customer', Label: 'Customer' },
+                { Value: 'Company', Label: 'Company' },
+                { Value: 'Asset', Label: 'Asset' },
+                { Value: 'Line', Label: 'Line' },
+                { Value: 'LineSegment', Label: 'LineSegment' },
+                { Value: 'Breaker', Label: 'Breaker' },
+                { Value: 'CapacitorBank', Label: 'CapacitorBank' },
+                { Value: 'Transformer', Label: 'Transformer' },
+                { Value: 'CapacitorBankRelay', Label: 'CapacitorBankRelay' },
+                { Value: 'DER', Label: 'DER' }
+            ]
+        },
         // Todo: maybe override query results to allow for ExternalDBTableID to be used as a boolean?
         { label: 'External DB', key: 'ExternalDBTableID', type: 'boolean', isPivotField: false },
         {
@@ -132,7 +148,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                     cols={[
                         { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
-                            key: 'ParentTable', field: 'ParentTable', label: 'Parent Table', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                            key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                             content: (item) => item.ParentTable != '' ? item.ParentTable : 'No Associated Table'
                         },
                         {
