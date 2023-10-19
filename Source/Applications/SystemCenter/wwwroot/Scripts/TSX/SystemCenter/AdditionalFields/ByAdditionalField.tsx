@@ -26,7 +26,7 @@ import Table from '@gpa-gemstone/react-table';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
-import AdditionalFieldForm from '../ExternalDB/ExternalDBTableFieldForm';
+import AdditionalFieldForm from './AdditionalFieldForm';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
 
@@ -111,6 +111,10 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
         let e = [];
         if (record.FieldName == null || record.FieldName.length == 0) {
             e.push('A Field Name is required.');
+        }
+
+        if (record.ExternalDBTableID == 0) {
+            e.push('An External DB Table is required.')
         }
 
         setErrors(e);
