@@ -30,6 +30,7 @@ import { LoadingIcon, Modal, ServerErrorIcon, ToolTip, Warning } from '@gpa-gems
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark, HeavyCheckMark, Pencil, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols'
+import AdditionalFieldsKeyModal from './AdditionalFieldsKeyModal';
 
 declare var homePath: string;
 
@@ -56,12 +57,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
 
     // Note: There only ever should be one key field, but this is so we do not have to rely on that
     const [keyField, setKeyField] = React.useState<SystemCenter.Types.AdditionalFieldView>(undefined);
-    // Key Modal Controls and Vars
-    const [showExt, setShowExt] = React.useState<('hide'|'ext'|'fail')>('hide');
-    const [externalData, setExternalData] = React.useState<any[]>(undefined);
-    const [selectedExternal, setSelectedExternal] = React.useState<any>(undefined);
-    const [ascExt, setAscExt] = React.useState<boolean>(false);
-    const [sortExt, setSortExt] = React.useState<string>("");
+    const [showExt, setShowExt] = React.useState<boolean>(false);
 
     React.useEffect(() => {
         // This line autosaves data on navigation away via props.ID so that anything unsaved is saved before it goes away
@@ -151,29 +147,6 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         });
     }
 
-    const getExternalData = React.useCallback((keyField: SystemCenter.Types.AdditionalFieldView) => {
-        setKeyField(keyField);
-        if (keyField.ExternalDBTableID == null) return;
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/extDBTables/RetrieveTable/${keyField.ExternalDBTableID}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: true,
-            async: true
-        }).done((extData: any[]) => {
-            if (extData != null && extData.length !== 0) {
-                setShowExt('ext');
-                setExternalData(extData);
-            } else
-                setShowExt('fail');
-        });
-        handle.fail(() => {
-            setShowExt('fail');
-        });
-        return handle;
-    }, [homePath, setExternalData]);
-
     function HasValueChanged(): boolean {
         
         return additionalFieldValuesWorking.some((item, index) => {
@@ -235,6 +208,14 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         return result;
     }
 
+    const KeyModalCallback = React.useCallback((newValue: string) => {
+        const newFields = [...additionalFieldValuesWorking];
+        const alteredID = newFields.findIndex(field => field.AdditionalFieldID === keyField.ID);
+        if (alteredID === -1) return;
+        newFields[alteredID].Value = newValue;
+        setAdditionalFieldValuesWorking(newFields);
+    }, [additionalFieldValuesWorking, setAdditionalFieldValuesWorking, keyField]);
+
     if (state == 'loading' && !(props.InnerOnly ?? false))
         return (
             <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
@@ -277,12 +258,12 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                         return (
                             <div className="form-inline">
                                 <div className="form-group">
-                                    <ValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking}
+                                    <ValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} Disabled={item.IsKey}
                                         Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
                                     {item.IsKey ? <button className="btn btn-sm pull-right" onClick={(e) => {
                                         e.preventDefault();
-                                        const handle = getExternalData(item);
-                                        return () => { if (handle != null && handle.abort != null) handle.abort(); };
+                                        setShowExt(true);
+                                        setKeyField(item);
                                     }}>{Pencil}</button> : null}
                                 </div>
                             </div>
@@ -314,55 +295,11 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             selected={() => false}
         />);
 
-    let keyModal = (
-        <>
-            <Modal Title={"Select External Record to Key to Local Record"} ShowCancel={true} ShowX={true} CallBack={(conf) => {
-                setShowExt('hide');
-                if (conf) {
-                    const newFields = [...additionalFieldValuesWorking];
-                    const alteredID = newFields.findIndex(field => field.AdditionalFieldID === keyField.ID);
-                    if (alteredID === -1) return;
-                    newFields[alteredID].Value = selectedExternal[keyField.FieldName];
-                    setAdditionalFieldValuesWorking(newFields);
-                }
-            }} Show={showExt === 'ext'} Size={'xlg'}>
-                {(externalData == null || externalData.length === 0) ? null :
-                    <Table<any>
-                        cols={
-                            Object.keys(externalData[0]).map((field: string) => {
-                                return { key: field, field: field, label: field }
-                            })}
-                        tableClass="table table-hover"
-                        data={externalData}
-                        sortKey={sortExt}
-                        ascending={ascExt}
-                        onSort={(d) => {
-                            if (d.colKey === sortExt)
-                                setAscExt(!ascExt);
-                            else {
-                                setAscExt(true);
-                                setSortExt(d.colKey);
-                            }
-                        }}
-                        onClick={(d) => { setSelectedExternal(d.row); }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
-                        tbodyStyle={{ display: 'block', width: '100%', overflowX: 'scroll' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
-                        selected={(item) => _.isEqual(item, selectedExternal)} />
-                }
-            </Modal>
-            <Modal Title={'External Query Failure'} ConfirmBtnClass={'btn btn-secondary'} ConfirmText={'Close'}
-                CallBack={() => { setShowExt('hide'); }} Show={showExt === 'fail'} ShowCancel={false}>
-                <p>Could not query external database table associated with this field. Please contact your administrator.</p>
-            </Modal> 
-        </>
-    )
-
     if (props.InnerOnly ?? false) return (
         <>
             <h4 style={{ width: '100%', padding: '10px' }}>Additional Fields: </h4>
             {tableComponent}
-            {keyModal}
+            <AdditionalFieldsKeyModal KeyField={keyField} SetKeyFieldValue={KeyModalCallback} Show={showExt} SetShow={setShowExt} />
         </>);
 
     return (
@@ -390,7 +327,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                     </ToolTip>
                 </div>
             </div>
-            {keyModal}
+            <AdditionalFieldsKeyModal KeyField={keyField} SetKeyFieldValue={KeyModalCallback} Show={showExt} SetShow={setShowExt} />
         </div>);
 }
 
@@ -400,7 +337,8 @@ interface IValueFieldProps {
     Field: SystemCenter.Types.AdditionalField,
     Values: SystemCenter.Types.AdditionalFieldValue[],
     ParentTableID: number,
-    Setter: (val: SystemCenter.Types.AdditionalFieldValue[]) => void
+    Setter: (val: SystemCenter.Types.AdditionalFieldValue[]) => void,
+    Disabled: boolean
 }
 const ValueField = (props: IValueFieldProps) => {
     const [valueListItems, setValueListItems] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
@@ -457,10 +395,10 @@ const ValueField = (props: IValueFieldProps) => {
     }
 
     if (props.Field.Type == 'number' || props.Field.Type == 'integer')
-        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'number'} Setter={Setter} Feedback={props.Field.FieldName + ' requires an integer value.'} />
+        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'number'} Disabled={props.Disabled} Setter={Setter} Feedback={props.Field.FieldName + ' requires an integer value.'} />
     if (props.Field.Type == 'string')
-        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'text'} Setter={Setter} />
+        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'text'} Disabled={props.Disabled} Setter={Setter} />
     if (props.Field.Type == 'boolean')
-        return <CheckBox<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Label={''} Setter={Setter} />
-    return <Select<SystemCenter.Types.AdditionalFieldValue> EmptyOption={true} Record={props.Values[valueIndex]} Field={'Value'} Label={''} Setter={Setter} Options={valueListItems.map(x => ({ Value: x.ID.toString(), Label: x.Value }))} />
+        return <CheckBox<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Label={''} Disabled={props.Disabled} Setter={Setter} />
+    return <Select<SystemCenter.Types.AdditionalFieldValue> EmptyOption={true} Record={props.Values[valueIndex]} Field={'Value'} Label={''} Disabled={props.Disabled} Setter={Setter} Options={valueListItems.map(x => ({ Value: x.ID.toString(), Label: x.Value }))} />
 }
