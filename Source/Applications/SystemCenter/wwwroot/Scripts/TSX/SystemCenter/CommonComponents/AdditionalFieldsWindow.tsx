@@ -66,7 +66,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         return getData();
     }, [props.ID, props.Type, props.Tab]);
 
-    React.useEffect(() => { setAdditionalFieldValuesWorking(additionalFieldValues) }, [additionalFieldValues])
+    React.useEffect(() => { setAdditionalFieldValuesWorking(_.cloneDeep(additionalFieldValues)) }, [additionalFieldValues])
 
     React.useEffect(() => {
         let h = getFields();
@@ -209,7 +209,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     }
 
     const KeyModalCallback = React.useCallback((newValue: string) => {
-        const newFields = [...additionalFieldValuesWorking];
+        const newFields = _.cloneDeep(additionalFieldValuesWorking);
         const alteredID = newFields.findIndex(field => field.AdditionalFieldID === keyField.ID);
         if (alteredID === -1) return;
         newFields[alteredID].Value = newValue;
@@ -258,7 +258,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                         return (
                             <div className="form-inline">
                                 <div className="form-group">
-                                    <AdditionalFieldsValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} Disabled={item.IsKey}
+                                    <AdditionalFieldsValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} Disabled={false}
                                         Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
                                     {item.IsKey ? <button className="btn btn-sm pull-right" onClick={(e) => {
                                         e.preventDefault();

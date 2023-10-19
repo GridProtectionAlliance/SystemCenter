@@ -74,7 +74,6 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
             cache: true,
             async: true
         }).done((extData: any[]) => {
-            console.log(extData);
             if (extData != null && extData.length !== 0) {
                 setStatus('idle');
                 setExternalData(extData);
