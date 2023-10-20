@@ -31,7 +31,7 @@ import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-interface IProps { Asset: OpenXDA.Types.Asset, Name: string, ID: number }
+interface IProps { Name: string, ID: number }
 
 interface ChannelDetail { //TODO: Move to Gemstone
     ID: number,
