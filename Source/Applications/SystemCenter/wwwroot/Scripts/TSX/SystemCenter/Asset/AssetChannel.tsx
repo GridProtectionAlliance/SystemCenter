@@ -75,7 +75,6 @@ const AssetChannelWindow = (props: IProps) => {
     const [ascending, setAscending] = React.useState<boolean>(true);
 
 
-    
     React.useEffect(() => {
         let channelHandle = getChannels();
 
