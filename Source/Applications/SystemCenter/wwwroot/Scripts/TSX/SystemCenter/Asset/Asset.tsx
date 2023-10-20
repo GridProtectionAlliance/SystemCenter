@@ -174,7 +174,7 @@ function Asset(props: IProps) {
                 <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
                     <AssetMeterWindow Asset={asset} />
                 </div>
-                {tab == "channels" ? <div className={"tab-pane " + (tab == "channels" ? "active" : "fade")} id="channels">
+                {tab == "channels" ? <div className={"tab-pane active" } id="channels">
                     <AssetChannelWindow Asset={asset} Name={asset.AssetName} ID={asset.ID}/>
                 </div> : null}
                 <div className={"tab-pane " + (tab == "connections" ? " active" : "fade")} id="connections">
