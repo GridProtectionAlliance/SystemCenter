@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDatabasesSlice, ExternalDBTablesSlice, ValueListGroupSlice } from '../Store/Store';
 import { Input, Select, CheckBox } from '@gpa-gemstone/react-forms';
@@ -61,10 +61,8 @@ export default function AdditionalFieldForm(props: IProps) {
     }, [externalDBStatus]);
 
     React.useEffect(() => {
-        if (externalDBTablesStatus == 'unintiated' || externalDBTablesStatus == 'changed' || (extDBRecord.ID != 0 && externalDBTableParentID != extDBRecord.ID)) {
+        if (externalDBTablesStatus == 'unintiated' || externalDBTablesStatus == 'changed' || (extDBRecord.ID != 0 && externalDBTableParentID != extDBRecord.ID))
             dispatch(ExternalDBTablesSlice.Fetch(extDBRecord.ID));
-            console.log('nah');
-        }
 
     }, [externalDBTablesStatus, externalDBTableParentID, extDBRecord]);
 

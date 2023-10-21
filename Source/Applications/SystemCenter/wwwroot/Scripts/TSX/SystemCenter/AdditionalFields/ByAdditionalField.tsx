@@ -43,6 +43,9 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
 
+    const allAddlFields = useAppSelector(AdditionalFieldsSlice.Data);
+    const allAddlFieldsStatus = useAppSelector(AdditionalFieldsSlice.Status);
+
     const [errors, setErrors] = React.useState<string[]>([]);
     const [mode, setMode] = React.useState<'View' | 'Add' | 'Edit'>('View');
 
@@ -108,14 +111,20 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     }, [valueListGroupStatus]);
 
     React.useEffect(() => {
-        let e = [];
-        if (record.FieldName == null || record.FieldName.length == 0) {
-            e.push('A Field Name is required.');
-        }
+        if (allAddlFieldsStatus == 'unintiated' || allAddlFieldsStatus == 'changed')
+            dispatch(AdditionalFieldsSlice.Fetch());
+    }, [allAddlFieldsStatus]);
 
-        if (record.ExternalDBTableID == 0) {
-            e.push('An External DB Table is required.')
-        }
+    React.useEffect(() => {
+        let e = [];
+        if (record.FieldName == null || record.FieldName.length == 0)
+            e.push('A Field Name is required.');
+
+        if (record.ExternalDBTableID == 0)
+            e.push('An External DB Table is required.');
+
+        if (allAddlFields.findIndex((a) => a.FieldName.toLowerCase() == record.FieldName?.toLowerCase() && a.ParentTable == record.ParentTable) !== -1)
+            e.push('An Additional Field with this Parent Type already exists.');
 
         setErrors(e);
     }, [record]);
