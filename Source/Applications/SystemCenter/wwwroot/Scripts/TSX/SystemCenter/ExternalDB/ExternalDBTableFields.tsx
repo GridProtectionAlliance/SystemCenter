@@ -65,9 +65,9 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     const [warnings, setWarnings] = React.useState<string[]>([]);
 
     React.useEffect(() => {
-        if (!showExisting && (status == 'unintiated' || status == 'changed' || parentID !== props.ID))
+        if (!showExisting && !showNew && (status == 'unintiated' || status == 'changed' || parentID !== props.ID))
             dispatch(AdditionalFieldsSlice.Fetch(props.ID));
-    }, [showExisting, status, parentID, props.ID, parentID]);
+    }, [showExisting, showNew, status, parentID, props.ID, parentID]);
 
     React.useEffect(() => {
         if (showExisting)
@@ -79,12 +79,20 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
 
+    React.useEffect(() => {
+        if (showNew)
+            dispatch(AdditionalFieldsSlice.Fetch());
+    }, [showNew]);
+
 
     React.useEffect(() => {
         let e = [];
         if (record.FieldName == null || record.FieldName.length == 0) {
             e.push('A Field Name is required.');
         }
+
+        if (data.findIndex((a) => a.FieldName.toLowerCase() == record.FieldName?.toLowerCase() && a.ParentTable == record.ParentTable) !== -1)
+            e.push('An Additional Field with this Parent Type already exists.');
 
         setErrors(e);
     }, [record]);
