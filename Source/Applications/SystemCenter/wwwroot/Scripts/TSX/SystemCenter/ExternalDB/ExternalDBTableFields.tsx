@@ -72,7 +72,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     React.useEffect(() => {
         if (showExisting || showNew)
             dispatch(AdditionalFieldsSlice.Fetch());
-    }, [showExisting]);
+    }, [showExisting, showNew]);
 
     React.useEffect(() => {
         if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
