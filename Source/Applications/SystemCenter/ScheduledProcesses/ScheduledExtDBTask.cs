@@ -112,20 +112,27 @@ namespace SystemCenter.ScheduledProcesses
         }
 
         public static void UpdateData<T>(extDBTables extTable,
-            TableOperations<AdditionalField> addlFieldsTable, TableOperations<AdditionalFieldValue> addlValuesTable, TableOperations<ExternalOpenXDAField> xdaFieldTable,
+            TableOperations<AdditionalField> addlFieldsTable, TableOperations<AdditionalFieldValue> addlValuesTable, 
+            TableOperations<ExternalOpenXDAField> xdaFieldTable,
             ExpressionContext context,
             AdoDataConnection xdaConnection, AdoDataConnection extConnection) where T: class, new()
         {
             TableOperations<T> table = new TableOperations<T>(xdaConnection);
             // Ignore key fields, since those don't make sense to not be auto updated
             IEnumerable<AdditionalField> addlFields = addlFieldsTable.QueryRecordsWhere("ParentTable = {0} AND ExternalDBTableID = {1} AND IsKey = 0", table.TableName, extTable.ID);
+            IEnumerable<ExternalOpenXDAField> xdaFields = xdaFieldTable.QueryRecordsWhere("ParentTable = {0} AND ExternalDBTableID = {1}", table.TableName, extTable.ID);
             // Todo: add external xda table to this, is put off for now
-            if (!addlFields.Any()) return;
+            if (!addlFields.Any() && !xdaFields.Any()) return;
             IEnumerable<T> allRecords = table.QueryRecords();
             foreach (T record in allRecords)
             {
+                int recordID = GetID(record);
+                if (recordID == -1) continue; // Should be impossible to trigger without huge overhauling of openXDA
                 DataRowCollection data = RetrieveDataRecord(record, extTable, table, addlValuesTable, context, extConnection).Rows;
+                // 0 records is not a problem, since not every XDA record exists externally, just skip it
                 if (data.Count == 0) continue;
+                if (data.Count != 1)
+                    Log.Warn($"{data.Count} external records found for table {extTable.TableName} using xda record with ID {recordID} from xda table {table.TableName}. Table query should result in one and only one record...");
                 foreach(AdditionalField field in addlFields)
                 {
                     string fieldValue;
@@ -138,8 +145,6 @@ namespace SystemCenter.ScheduledProcesses
                         Log.Warn($"Additional field with no field in external database found: ID {field.ID}, Name {field.FieldName}, External Table {extTable.TableName}");
                         continue;
                     }
-                    int recordID = GetID(record);
-                    if (recordID == -1) continue; // Should be impossible to trigger without huge overhauling of openXDA
                     AdditionalFieldValue addlValue = addlValuesTable.QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", recordID, field.ID);
                     if (addlValue is null)
                     {
@@ -157,6 +162,30 @@ namespace SystemCenter.ScheduledProcesses
                         addlValue.Value = fieldValue;
                         addlValuesTable.UpdateRecord(addlValue);
                     }
+                }
+                foreach (ExternalOpenXDAField field in xdaFields)
+                {
+                    object fieldValue;
+                    try
+                    {
+                        fieldValue = data[0][field.FieldName];
+                    }
+                    catch
+                    {
+                        Log.Warn($"External OpenXDA field with no field in external database found: ID {field.ID}, Name {field.FieldName}, External Table {extTable.TableName}");
+                        continue;
+                    }
+                    PropertyInfo fieldPropInfo = record.GetType().GetProperty(field.FieldName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
+                    if (fieldPropInfo is null) 
+                    {
+                        Log.Error($"External OpenXDA field defined that does not exist on the xda model {field.FieldName} on table {field.ParentTable}");
+                        continue;
+                    }
+                    // Todo: confirm this works
+                    if (fieldValue == fieldPropInfo.GetValue(record)) continue;
+                    // Todo: Make sure this actually sets value properly
+                    fieldPropInfo.SetValue(record, fieldValue);
+                    table.UpdateRecord(record);
                 }
             }
         }
