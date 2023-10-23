@@ -256,17 +256,9 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 {
                     key: 'Value', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
                         return (
-                            <div className="form-inline">
-                                <div className="form-group">
-                                    <AdditionalFieldsValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} Disabled={false}
-                                        Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
-                                    {item.IsKey ? <button className="btn btn-sm pull-right" onClick={(e) => {
-                                        e.preventDefault();
-                                        setShowExt(true);
-                                        setKeyField(item);
-                                    }}>{Pencil}</button> : null}
-                                </div>
-                            </div>
+                            <AdditionalFieldsValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking}
+                                Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)}
+                                KeyCallback={() => { setShowExt(true); setKeyField(item); }} />
                         );
                     }
                 },
@@ -290,7 +282,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             }}
             onClick={() => { }}
             theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
+            tbodyStyle={{ display: 'block', overflow: 'fixed', maxHeight: window.innerHeight - 455, }}
             rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
             selected={() => false}
         />);

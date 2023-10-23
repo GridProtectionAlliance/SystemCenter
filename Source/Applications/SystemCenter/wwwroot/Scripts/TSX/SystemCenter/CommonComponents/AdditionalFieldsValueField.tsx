@@ -23,9 +23,10 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from '../AssetAttribute/Asset';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
+import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -34,7 +35,9 @@ interface IValueFieldProps {
     Values: SystemCenter.Types.AdditionalFieldValue[],
     ParentTableID: number,
     Setter: (val: SystemCenter.Types.AdditionalFieldValue[]) => void,
-    Disabled: boolean
+    KeyCallback: () => void,
+    DisplayKeyInBox?: boolean,
+    IncludeLabel?: boolean
 }
 
 const AdditionalFieldsValueField = (props: IValueFieldProps) => {
@@ -90,14 +93,56 @@ const AdditionalFieldsValueField = (props: IValueFieldProps) => {
     if (valueIndex == -1 || props.Values[valueIndex] == undefined) {
         return null;
     }
-
+    if (props.Field.IsKey)
+        if (props.DisplayKeyInBox ?? false)
+            return (
+                <>
+                    {(props.IncludeLabel ?? false) ? 
+                        <label>{props.Field.FieldName}</label> : null
+                    }
+                    <div className="row" style={{height: "67px"}}>
+                        <div className="form-group" style={{width: "calc(100% - 75px)", paddingLeft: "15px"}}>
+                            <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''}
+                                Type={'text'} Disabled={true} Setter={Setter} />
+                        </div>
+                        <button className="btn btn-sm pull-right" style={{ height: '38px' }} onClick={(e) => {
+                            e.preventDefault();
+                            props.KeyCallback();
+                        }}>{Pencil}</button>
+                        <button className="btn btn-sm pull-right" style={{height: '38px'}} onClick={(e) => {
+                            e.preventDefault();
+                            const newRecord = { ...props.Values[valueIndex] }
+                            newRecord.Value = null;
+                            Setter(newRecord);
+                        }}>{TrashCan}</button>
+                    </div>
+                </>                    );
+            else
+                return (
+                    <>
+                        {props.Values[valueIndex]['Value']}
+                        <button className="btn btn-sm pull-right" onClick={(e) => {
+                            e.preventDefault();
+                            props.KeyCallback();
+                        }}>{Pencil}</button>
+                        <button className="btn btn-sm pull-right" onClick={(e) => {
+                            e.preventDefault();
+                            const newRecord = { ...props.Values[valueIndex] }
+                            newRecord.Value = null;
+                            Setter(newRecord);
+                        }}>{TrashCan}</button>
+                    </>);
     if (props.Field.Type == 'number' || props.Field.Type == 'integer')
-        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'number'} Disabled={props.Disabled} Setter={Setter} Feedback={props.Field.FieldName + ' requires an integer value.'} />
+        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
+            Type={'number'} Disabled={false} Setter={Setter} Feedback={props.Field.FieldName + ' requires an integer value.'} />
     if (props.Field.Type == 'string')
-        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''} Type={'text'} Disabled={props.Disabled} Setter={Setter} />
+        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
+            Type={'text'} Disabled={false} Setter={Setter} />
     if (props.Field.Type == 'boolean')
-        return <CheckBox<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Label={''} Disabled={props.Disabled} Setter={Setter} />
-    return <Select<SystemCenter.Types.AdditionalFieldValue> EmptyOption={true} Record={props.Values[valueIndex]} Field={'Value'} Label={''} Disabled={props.Disabled} Setter={Setter} Options={valueListItems.map(x => ({ Value: x.ID.toString(), Label: x.Value }))} />
+        return <CheckBox<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
+            Disabled={false} Setter={Setter} />
+    return <Select<SystemCenter.Types.AdditionalFieldValue> EmptyOption={true} Record={props.Values[valueIndex]} Field={'Value'} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
+        Disabled={false} Setter={Setter} Options={valueListItems.map(x => ({ Value: x.ID.toString(), Label: x.Value }))} />
 }
 
 
