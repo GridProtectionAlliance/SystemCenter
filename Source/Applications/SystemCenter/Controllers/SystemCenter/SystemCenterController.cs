@@ -536,6 +536,9 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/OpenXDA/PQApplications")]
     public class PQApplicationsController : ModelController<openXDA.Model.PQApplications> { }
 
+    [RoutePrefix("api/SystemCenter/ExternalOpenXDAField")]
+    public class ExternalOpenXDAFieldController : ModelController<ExternalOpenXDAField> { }
+
     [RoutePrefix("api/SystemCenter/AdditionalField")]
     public class AdditionalFieldController : ModelController<AdditionalField> { }
 

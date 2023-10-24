@@ -542,6 +542,8 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableInfo.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTables.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalXDAFields\ExternalDBXdaFieldsForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalXDAFields\ExternalDBXdaFields.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\QueryTestDialog.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\EventTag\ByEventTag.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\EventTag\EventTagForm.tsx" />

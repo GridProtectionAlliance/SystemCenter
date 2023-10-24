@@ -30,9 +30,10 @@ import { ExternalDBTablesSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { SystemCenter as gemstoneSC } from '@gpa-gemstone/application-typings';
 import QueryTestDialog from './QueryTestDialog';
+import ExternalDBXdaFields from './ExternalXDAFields/ExternalDBXdaFields';
 
 declare var homePath: string;
-declare type Tab = 'info' | 'fields';
+declare type Tab = 'info' | 'fields' | 'xda';
 
 export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     const dispatch = useAppDispatch();
@@ -46,7 +47,8 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     const Tabs = [
         { Id: "info", Label: "Info" },
-        { Id: "fields", Label: "Fields" },
+        { Id: "fields", Label: "Addl. Fields" },
+        { Id: "xda", Label: "XDA Fields" },
     ];
 
     React.useEffect(() => {
@@ -101,6 +103,9 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 </div>
                 <div className={"tab-pane " + (tab == "fields" ? " active" : "fade")} id="fields">
                     <ExternalDBTableFields TableName={record.TableName} ID={record.ID} />
+                </div>
+                <div className={"tab-pane " + (tab == "xda" ? " active" : "fade")} id="xda">
+                    <ExternalDBXdaFields ID={record.ID} />
                 </div>
             </div>
             <QueryTestDialog ExtTable={record} SetExtTable={SaveTable} Show={showDialog} SetShow={setShowDialog} />
