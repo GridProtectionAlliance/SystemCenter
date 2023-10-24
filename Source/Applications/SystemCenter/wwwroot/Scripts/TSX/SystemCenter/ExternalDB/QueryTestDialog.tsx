@@ -25,12 +25,12 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import * as $ from 'jquery';
 import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingIcon, Modal } from '@gpa-gemstone/react-interactive';
-import Table from '@gpa-gemstone/react-table';
+import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import Table, { Column } from '@gpa-gemstone/react-table';
 import { Warning } from '@gpa-gemstone/gpa-symbols';
-import { TextArea, Select, Input, CheckBox } from '@gpa-gemstone/react-forms';
+import { Select, CheckBox } from '@gpa-gemstone/react-forms';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { ByMeterSlice, ByAssetSlice } from '../Store/Store';
+import { ByMeterSlice, ByAssetSlice, ByLocationSlice, CustomerSlice } from '../Store/Store';
 import FilterSelect from '../CommonComponents/FilterSelect';
 
 interface IProps {
@@ -42,34 +42,37 @@ interface IProps {
 
 export default function QueryTestDialog(props: IProps) {
     // General Control Variables
-    const selectStorageID = "ExternalDB_QueryTestDialog"
-
-    // External Table Buffer
-    const [table, setTable] = React.useState<SystemCenter.Types.extDBTables>(props.ExtTable);
-    // Select Properties
+    const selectStorageID = "ExternalDB_QueryTestDialog";
     const parentTableOptions = ['Meter', 'Location', 'Customer', 'Asset',
         "Line", "Breaker", "Bus", "Capacitor Bank", "Capacitor Bank Relay", "Transformer", "DER"].map(name => { return { Value: name, Label: name } });
+    const pickParentStep = 1; const pickRecordStep = 2; const sendTestStep = 3;
     interface TableOptions { ShowTableSelect: boolean, TableName: string };
+    const [step, setStep] = React.useState<number>(pickParentStep);
     const [parentTable, setParentTable] = React.useState<TableOptions>({ ShowTableSelect: true, TableName: parentTableOptions[0].Value });
-    const [showRecordSelect, setShowRecordSelect] = React.useState<boolean>(false);
 
     // Needed to Select Record for Query
     const dispatch = useAppDispatch();
     const slice = React.useMemo(() => {
         switch (parentTable.TableName) {
             case 'Meter': return ByMeterSlice;
+            case 'Location': return ByLocationSlice;
+            case 'Customer': return CustomerSlice;
             default: return ByAssetSlice;
         }
     }, [parentTable]);
     const dataSelect = React.useMemo(() => {
         switch (parentTable.TableName) {
             case 'Meter': return ByMeterSlice.Data;
+            case 'Location': return ByLocationSlice.Data;
+            case 'Customer': return CustomerSlice.Data;
             default: return ByAssetSlice.Data;
         }
     }, [parentTable]);
     const statusSelect = React.useMemo(() => {
         switch (parentTable.TableName) {
             case 'Meter': return ByMeterSlice.Status;
+            case 'Location': return ByLocationSlice.Status;
+            case 'Customer': return CustomerSlice.Status;
             default: return ByAssetSlice.Status;
         }
     }, [parentTable]);
@@ -77,10 +80,11 @@ export default function QueryTestDialog(props: IProps) {
     const status = useAppSelector(statusSelect);
 
     // Query Properties
-    type allowedRecordTypes = SystemCenter.Types.DetailedMeter | SystemCenter.Types.DetailedAsset;
+    type allowedRecordTypes = SystemCenter.Types.DetailedMeter | SystemCenter.Types.DetailedAsset | OpenXDA.Types.Customer | SystemCenter.Types.DetailedLocation;
     const [xdaRecord, setXdaRecord] = React.useState<allowedRecordTypes>(undefined);
     const [selectedRecord, setSelectedRecord] = React.useState<Set<number>>(new Set());
     const [testStatus, setTestStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [errorMsg, setErrorMsg] = React.useState<string>("");
     const [testData, setTestData] = React.useState<any>(undefined);
 
     const filterType = React.useMemo(() => {
@@ -100,26 +104,6 @@ export default function QueryTestDialog(props: IProps) {
         }
     }, [parentTable]);
 
-    React.useEffect(() => {
-        if (status === 'unintiated' || status == 'changed')
-            dispatch(slice.Fetch());
-    }, [status]);
-
-    React.useEffect(() => {
-        setTable(props.ExtTable);
-    }, [props.ExtTable]);
-
-    React.useEffect(() => {
-        if (testStatus === 'idle') setTestStatus('unintiated');
-        setXdaRecord(undefined);
-    }, [parentTable]);
-
-    React.useEffect(() => {
-        const newSelect = new Set<number>();
-        if (xdaRecord !== undefined) newSelect.add(xdaRecord.ID);
-        setSelectedRecord(newSelect);
-    }, [xdaRecord]);
-
     const requestTest = React.useCallback(() => {
         setTestStatus('loading');
         let handle = $.ajax({
@@ -128,7 +112,7 @@ export default function QueryTestDialog(props: IProps) {
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true,
-            data: JSON.stringify({ xdaRecord: xdaRecord, table: table })
+            data: JSON.stringify({ xdaRecord: xdaRecord, table: props.ExtTable })
         });
         handle.done((extData: any) => {
             setTestData(extData);
@@ -139,10 +123,14 @@ export default function QueryTestDialog(props: IProps) {
             } else {
                 setTestStatus('idle');
             }
-        })
-        handle.fail(() => { setTestStatus("error"); })
+        });
+        handle.fail((msg) => {
+            setTestStatus("error");
+            if (msg.status == 500)
+                setErrorMsg(msg.responseJSON.ExceptionMessage);
+        });
         return handle;
-    }, [setTestStatus, slice.APIPath, xdaRecord, table]);
+    }, [setTestStatus, slice.APIPath, xdaRecord, props.ExtTable]);
 
     const requestTestAll = React.useCallback(() => {
         setTestStatus('loading');
@@ -152,7 +140,7 @@ export default function QueryTestDialog(props: IProps) {
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true,
-            data: JSON.stringify(table)
+            data: JSON.stringify(props.ExtTable)
         });
         handle.done((extData: any) => {
             setTestData(extData);
@@ -163,122 +151,129 @@ export default function QueryTestDialog(props: IProps) {
             } else {
                 setTestStatus('idle');
             }
-        })
-        handle.fail(() => { setTestStatus("error"); })
+        });
+        handle.fail((msg) => {
+            setTestStatus("error");
+            if (msg.status == 500)
+                setErrorMsg(msg.responseJSON.ExceptionMessage);
+        });
         return handle;
-    }, [setTestStatus, table]);
-
-    const changeQuery = React.useCallback((newTable: SystemCenter.Types.extDBTables) => {
-        setTable(newTable);
-        if (testStatus === 'idle') setTestStatus('unintiated');
-    }, [setTable, setTestStatus, testStatus]);
+    }, [setTestStatus, props.ExtTable]);
 
     const onSelectCallback = React.useCallback((selected: Set<number>, conf: boolean) => {
-        if (conf)
+        if (conf) {
             setXdaRecord(data.find(item => selected.has(item.ID)));
-        setShowRecordSelect(false);
-    }, [setXdaRecord, data, setShowRecordSelect]);
+            setStep(step => step + 1);
+        }
+        else setStep(step => step - 1);
+    }, [setXdaRecord, data, step, setStep]);
 
-    const getResponseMessage = React.useCallback(() => {
-        switch (testStatus) {
-            default: case 'unintiated':
-                return (
-                    <div style={{ margin: 'auto' }}>
-                        {Warning}
-                        <span>Test not yet ran.</span>
-                    </div>);
-            case 'loading':
-                return <LoadingIcon Show={true} Label={"Test in progress..."} />;
-            case 'error':
-                return (
-                    <div style={{ margin: 'auto' }}>
-                        {Warning}
-                        <span>Test failure. Please change test parameters, edit table query, or ensure that the database connection is valid.</span>
-                    </div>);
-            case 'changed':
-                return (
-                    <div style={{ margin: 'auto' }}>
-                        {Warning}
-                        <span>{`Table successfully queried, but ${testData?.length ?? 0} results were found. Please change test record or edit the table query. Only one record should be found per XDA record, or all records if no record is selected.`}</span>
-                    </div>);
-            case 'idle':
-                // Setting state and setting data should be batched, but just in case
-                if (testData == null) return null;
-                return (
-                    <>
-                        Test results:
+    const getBody = React.useCallback(() => {
+        if (step === sendTestStep) {
+            switch (testStatus) {
+                case 'loading': return (<LoadingIcon Show={true} Label={"Test in progress..."} />);
+                case 'error': return (<ServerErrorIcon Show={true} Size={40} Label={errorMsg} />);
+                case 'changed':
+                    return (
+                        <div style={{ margin: 'auto' }}>
+                            {Warning}
+                            <span>{`Table successfully queried, but ${testData?.length ?? 0} results were found. Please change test record or edit the table query. Only one record should be found per XDA record, or all records if no record is selected.`}</span>
+                        </div>);
+                case 'idle':
+                    // Setting state and setting data should be batched, but just in case
+                    if (testData == null) return null;
+                    return (
                         <Table<any>
-                            cols={
-                                Object.keys(testData[0]).map((field: string) => {
-                                    return { key: field, field: field, label: field }
-                                })}
+                            cols={(
+                                parentTable.ShowTableSelect ?
+                                    [
+                                        { key: 'label', field: 'label', label: 'Field', content: (item) => { return item; } },
+                                        { key: 'only', field: 'only', label: 'Value', content: (item) => { return testData[0][item]; } }
+                                    ] :
+                                    Object.keys(testData[0]).map((field: string) => {
+                                        return { key: field, field: field, label: field }
+                                    })
+                                )}
                             tableClass="table table-hover"
-                            data={testData}
+                            data={(parentTable.ShowTableSelect ? Object.keys(testData[0]) : testData)}
                             sortKey={null}
                             ascending={true}
                             onSort={() => { }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
+                            onClick={() => { }}
+                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflow: 'auto' }}
                             tbodyStyle={{ display: 'block', width: '100%', overflowX: 'scroll' }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
-                            selected={() => false}
-                        />
-                    </>
-                );
+                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflow: 'auto' }}
+                            selected={() => false} />);
+            }
+        } else {
+            return (
+                <>
+                    <div className="row" style={{ display: 'inline-block', width: 'calc(100% - 20px)', height: 'auto', paddingLeft: '18px' }}>
+                        <CheckBox<TableOptions> Label={'Use Parent Type'} Record={parentTable} Setter={setParentTable}
+                            Field={'ShowTableSelect'} />
+                    </div>
+                    <div className="row" style={{ display: 'inline-block', width: 'calc(100% - 20px)', height: 'auto', paddingLeft: '18px' }}>
+                        {parentTable.ShowTableSelect ?
+                            <Select<TableOptions> Label={''} Record={parentTable} Setter={setParentTable}
+                                Field={'TableName'} Options={parentTableOptions} />
+                            : null}
+                    </div>
+                </>);
         }
-    }, [testStatus, testData]);
+    }, [parentTable, setParentTable, parentTableOptions, testStatus, testData]);
+
+    React.useEffect(() => {
+        if (status === 'unintiated' || status == 'changed')
+            dispatch(slice.Fetch());
+    }, [status]);
+
+    React.useEffect(() => {
+        setXdaRecord(undefined);
+    }, [parentTable]);
+
+    React.useEffect(() => {
+        setXdaRecord(undefined);
+        setStep(pickParentStep);
+        setParentTable({ ShowTableSelect: true, TableName: parentTableOptions[0].Value });
+    }, [props.Show]);
+
+    React.useEffect(() => {
+        if (step === sendTestStep) {
+            let handle;
+            if (xdaRecord !== undefined) {
+                handle = requestTest();
+            } else {
+                handle = requestTestAll();
+            }
+            return (() => { if (handle != null && handle.abort != null) handle.abort(); })
+        }
+    }, [step, xdaRecord]);
+
+    React.useEffect(() => {
+        const newSelect = new Set<number>();
+        if (xdaRecord !== undefined) newSelect.add(xdaRecord.ID);
+        setSelectedRecord(newSelect);
+    }, [xdaRecord]);
 
     return (
         <>
-            <Modal Title={"Test External Table Query"} Show={props.Show && !showRecordSelect}
-                ConfirmText={(testStatus === 'idle' ? "Save and Close" : "Test Query")}
-                DisableConfirm={(testStatus !== 'idle' && (parentTable.ShowTableSelect && xdaRecord === undefined))}
-                Size={'xlg'} ShowCancel={true} ShowX={true} CancelText={'Close'} CallBack={conf => {
+            <Modal Title={"Test External Table Query"} Show={props.Show && step !== pickRecordStep}
+                ConfirmText={(step !==  sendTestStep ? "Next" : "Finish")} Size={step === pickParentStep ? 'sm' : (parentTable.ShowTableSelect ? 'lg' : 'xlg')} ShowCancel={true} ShowX={true}
+                CancelText={(step !== pickParentStep ? 'Back' : 'Close')} CallBack={conf => {
                     if (conf) {
-                        if (testStatus === 'idle') {
-                            props.SetExtTable(table);
-                            props.SetShow(false);
-                        } else if (xdaRecord !== undefined) {
-                            const handle = requestTest();
-                            return () => { if (handle != null && handle.abort != null) handle.abort(); }
-                        } else if (!parentTable.ShowTableSelect) {
-                            const handle = requestTestAll();
-                            return () => { if (handle != null && handle.abort != null) handle.abort(); }
-                        }
+                        if (step === pickParentStep && !parentTable.ShowTableSelect) setStep(sendTestStep);
+                        else if (step === sendTestStep) props.SetShow(false);
+                        else setStep(step => step + 1);
                     } else {
-                        props.SetShow(false);
+                        if (step === sendTestStep && !parentTable.ShowTableSelect) setStep(pickParentStep);
+                        else if (step === pickParentStep) props.SetShow(false);
+                        else setStep(step => step - 1)
                     }
                 }}>
-                <div className="row" style={{ display: 'inline-block', width: 'calc(100% - 20px)', height: 'auto', paddingLeft: '18px' }}>
-                    <TextArea<SystemCenter.Types.extDBTables> Rows={10} Record={table} Field={'Query'} Valid={() => true} Setter={changeQuery} />
-                </div>
-                <div className="row" style={{ display: 'inline-block', width: 'calc(100% - 20px)', height: 'auto', paddingLeft: '18px' }}>
-                    <CheckBox<TableOptions> Label={'Test Using XDA Data'} Record={parentTable} Setter={setParentTable}
-                        Field={'ShowTableSelect'} />
-                </div>
-                <div className="form-inline">
-                    <div className="form-group">
-                        {parentTable.ShowTableSelect ?
-                            <>
-                                <Select<TableOptions> Label={'Select XDA Table'} Record={parentTable} Setter={setParentTable}
-                                        Field={'TableName'} Options={parentTableOptions} />
-                                <button className="btn btn-primary pull-right" hidden={false}
-                                    onClick={() => { setShowRecordSelect(true); }}>Get Xda Record</button>
-                            </>
-                        : null}
-                    </div>
-                </div>
-                <div className="row" style={{ display: 'flex', width: '100%', height: 'auto', paddingLeft: '18px' }}>
-                    {xdaRecord === undefined ? null :
-                        <Input<any> Record={xdaRecord} Field={parentTable.TableName === 'Meter' ? 'Name' : 'AssetName'} Setter={() => { }}
-                            Valid={() => { return true; }} Disabled={true} Label='Selected XDA Record' />
-                    }
-                </div>
-                <div className="row" style={{ display: 'flex', width: '100%', height: 'auto', alignContent: 'center', justifyContent: 'center' }}>
-                    {getResponseMessage()}
-                </div>
+                {getBody()}
             </Modal>
             <FilterSelect OnCloseFunction={onSelectCallback} Selected={selectedRecord}
-                ShowModal={showRecordSelect} Type={filterType} Single={true} StorageID={selectStorageID} Title='Select Xda Record' />
+                ShowModal={step === pickRecordStep} Type={filterType} Single={true} StorageID={selectStorageID} Title='Select Xda Record' />
         </>
     );
 }
