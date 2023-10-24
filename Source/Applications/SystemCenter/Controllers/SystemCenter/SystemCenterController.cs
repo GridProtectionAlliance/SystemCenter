@@ -157,7 +157,7 @@ namespace SystemCenter.Controllers
     public class DBCleanupController : ModelController<openXDA.Model.DBCleanup> { }
 
     [RoutePrefix("api/SystemCenter/Customer")]
-    public class CustomerController : ModelController<Customer>
+    public class CustomerController : ExternalModelController<Customer>
     {
         public override IHttpActionResult Post([FromBody] JObject record)
         {
