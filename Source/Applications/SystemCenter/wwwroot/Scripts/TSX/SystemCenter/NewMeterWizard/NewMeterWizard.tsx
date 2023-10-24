@@ -384,7 +384,17 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
 
     }, [currentStep])
 
-    const secondaryHeader = React.useMemo(() => { return null; }, []);
+    const secondaryHeader = React.useMemo(() => {
+        if (currentStep === eventChannelsStep)
+            return <p className="pull-right">
+                Number of Event Channels: {channels.reduce((p, c) => c.Trend? p : (p+1),0)}
+            </p>;
+        else if (currentStep === trendChannelsStep)
+            return <p className="pull-right">
+                Number of Trend Channels: {channels.reduce((p, c) => c.Trend ? (p+1) : p, 0)}
+            </p>;
+        return null;
+    }, [currentStep]);
 
     function getPage() {
         if (status === 'error')

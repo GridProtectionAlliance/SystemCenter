@@ -311,54 +311,54 @@ export default function ChannelPage(props: IProps) {
         </div>
 
     return <>
-                <div className="row">
-            <div className="col-1">
-                <TemplateWindow IsEngineer={props.IsEngineer} TrendChannels={props.TrendChannels}
-                    Upload={(d, f) => {
-                        setChannelStatus('loading');
-                        ParseFile(d, f);
-                    }
-
-                } />
-                    </div>
-                    <div className="col-1">
-                        {`Number of ${props.TrendChannels ? "Trend" : "Event"} Channels: ${currentChannels.length}`}
-                    </div>
-                    <div className="col-5">
-                        <div className="form-group" style={{ width: '100%' }}>
-                            <div className="custom-file">
-                                <input type="file" className="custom-file-input" ref={fileInput} />
-                                <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile : `Choose file for ${props.TrendChannels ? 'trend' : 'event'} channel data.`}</label>
-                            </div>
+            <div className="row">
+                <div className="col-lg-2 col-4">
+                    <TemplateWindow IsEngineer={props.IsEngineer} TrendChannels={props.TrendChannels}
+                        Upload={(d, f) => {
+                            setChannelStatus('loading');
+                            ParseFile(d, f);
+                    }} />
+                </div>
+                <div className="d-none col-5 col-xl-4 d-lg-block">
+                    <div className="form-group" style={{ width: '100%' }}>
+                        <div className="custom-file">
+                            <input type="file" className="custom-file-input" ref={fileInput} />
+                            <label className={"custom-file-label" + (selectedFile.length > 0 ? " selected" : "")} > {selectedFile.length > 0 ? selectedFile : `Choose file for ${props.TrendChannels ? 'trend' : 'event'} channel data.`}</label>
                         </div>
                     </div>
-                    <div className="col-2">
-                        <button className="btn btn-primary pull-right" disabled={NSpare == 0} onClick={() => setShowSpareWarning(true)}>Remove Spare</button>
-                    </div>
-                    <div className="col-1">
-                        <button className="btn btn-primary pull-right" disabled={currentChannels.length === 0} onClick={() => {
+                </div>
+            <div className="col-4 col-lg-3 col-xl-2">
+                <BtnWDropdown Label='Remove Spare' CallBack={() => setShowSpareWarning(true)} Size={'sm'} Disabled={NSpare == 0}
+                    Options={[{
+                        Label: 'Remove All', Disabled: currentChannels.length === 0, Callback: () => {
                             props.UpdateChannels(getCurrentChannels(!props.TrendChannels)); // Set props to only non-shown channels for current page
                             setSelectedFile('');
                         }
-                        }>Remove All</button>
-                    </div>
-                    <div className="col-1">
-                        <button className="btn btn-primary pull-right" disabled={currentChannels.length == 0} onClick={() => {
-                            setShowScaling(true);
-                        }
-                        }>Scale</button>
-                    </div>
+                    }]}
+                    ShowToolTip={true}
+                    btnClass={'btn-primary' }
+                    TooltipContent={<>
+                        {NSpare == 0 ? <p>no spare channels where identified.</p> : null}
+                        {NSpare > 0 ? <p>Channels are considered Spare if the Description is "spare" or they are digital with description "A00 analog channel 00". </p> : null}
+                    </>}
+                />
+                </div>
+            <div className="d-none col-2 d-xl-block">
+                    <button className="btn btn-primary btn-block" disabled={currentChannels.length == 0} onClick={() => {
+                        setShowScaling(true);
+                    }
+                    }>Scale</button>
+                </div>
 
-                    {props.TrendChannels ? null :
-                        <div className="col-1">
-                            <button className="btn btn-primary pull-right" onClick={() => {
-                                let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0, Trend: false } as OpenXDA.Types.Channel
-                                let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
-                                channels.push(channel);
-                                props.UpdateChannels(channels);
-                            }}>Add</button>
-                        </div>}
-
+                {props.TrendChannels ? null :
+                    <div className="col-4 col-lg-2">
+                        <button className="btn btn-primary btn-block" onClick={() => {
+                            let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0, Trend: false } as OpenXDA.Types.Channel
+                            let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
+                            channels.push(channel);
+                            props.UpdateChannels(channels);
+                        }}>Add</button>
+                    </div>}
                 </div>
                 <div style={{ width: '100%', maxHeight: innerHeight - 410, padding: 30 }}>
                     <ConfigurableTable<OpenXDA.Types.Channel> cols={[
@@ -421,4 +421,57 @@ export default function ChannelPage(props: IProps) {
                 </Modal>
 
             </>
+}
+
+const BtnWDropdown = (props:
+    {
+        Label: string,
+        CallBack: () => void,
+        Options: { Label: string, Callback: () => void, Group?: number, Disabled?: boolean }[],
+        Size?: 'sm' | 'lg' | 'xlg',
+        btnClass?: string,
+        TooltipContent?: JSX.Element,
+        Disabled?: boolean,
+        ShowToolTip?: boolean,
+    }) => {
+
+    const size = props.Size === undefined ? 'sm' : props.Size;
+    const className = props.btnClass === undefined ? 'btn-primary' : props.btnClass;
+    const disabled = props.Disabled === undefined ? false : props.Disabled;
+    const guid = React.useRef<string>('aaaaaaaaa');
+    const [hover, setHover] = React.useState<boolean>(false);
+    const [showDropdown, setShowDropdown] = React.useState<boolean>(false);
+
+    return (
+        <div className={`btn-group btn-group-${size}`}>
+            <button className={`btn ${className} ${(disabled ? "" : " disabled")}`}
+                data-tooltip={guid.current}
+                onMouseEnter={() => setHover(true)}
+                onMouseLeave={() => setHover(false)}
+                onClick={() => {
+                    if (disabled)
+                        return;
+                   props.CallBack();
+                }}> {props.Label}
+            </button>
+            <button type="button"
+                className={`btn ${className} dropdown-toggle dropdown-toggle-split`}
+                onClick={() => { setShowDropdown((x) => !x) }}>
+                <span className="sr-only">Toggle Dropdown</span>
+            </button>
+            <div className={"dropdown-menu" + (showDropdown ? " show" : "")}>
+                {props.Options.map((t, i) => <>
+                    {i > 0 && props.Options[i].Group !== props.Options[i - 1].Group ?
+                        <div key={t.Label + '-divider'} className="dropdown-divider"></div> : null}
+                    <a className="dropdown-item" key={t.Label}
+                        onClick={() => { setShowDropdown(false); t.Callback(); }}>
+                        {t.Label}
+                    </a>
+                </>)}
+            </div>
+            <ToolTip Show={hover && (props.ShowToolTip != undefined || props.ShowToolTip)}
+                Position={'top'} Theme={'dark'} Target={guid.current}>
+                {props.TooltipContent}
+            </ToolTip>
+    </div>)
 }
