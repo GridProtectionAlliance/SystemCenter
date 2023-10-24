@@ -25,10 +25,10 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { LoadingScreen, Search, ToolTip } from '@gpa-gemstone/react-interactive';
 import MeterProperties from './PropertyUI/MeterProperties';
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import AdditionalFieldsProperties from '../CommonComponents/AdditionalFieldsProperties';
 
 declare var homePath: string;
 
@@ -41,9 +41,12 @@ const MeterInforWindow = (props: IProps) => {
     const [assetKey, setAssetKey] = React.useState<string>(props.Meter.AssetKey);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
-    React.useEffect(() => { setMeter(props.Meter) }, [props.Meter]);
+    const saveAddl = React.useRef<() => JQuery.jqXHR<void>>(undefined);
+    const resetAddl = React.useRef<() => void>(undefined);
+    const [addlFieldChanged, setAddlFieldChanged] = React.useState<string[]>([]);
+    const [addlFieldError, setAddlFieldError] = React.useState<string[]>([]);
 
-   
+    React.useEffect(() => { setMeter(props.Meter); }, [props.Meter]);
 
     React.useEffect(() => {
         if (assetKey != meter.AssetKey)
@@ -56,11 +59,10 @@ const MeterInforWindow = (props: IProps) => {
 
     }, [assetKey]);
 
-  
-    function updateMeter(): void {
+    function updateMeter(): () => void {
         setLoading(true);
-        let updatedMeter: OpenXDA.Types.Meter = _.clone(meter);
-        $.ajax({
+        const updatedMeter: OpenXDA.Types.Meter = _.clone(meter);
+        const mainHandle = $.ajax({
             type: "PATCH",
             url: `${homePath}api/OpenXDA/Meter/Update`,
             contentType: "application/json; charset=utf-8",
@@ -70,8 +72,22 @@ const MeterInforWindow = (props: IProps) => {
             async: true
         }).done((meterID: Number) => {
             props.StateSetter(updatedMeter);
-            setLoading(false);
         });
+
+        // If addl does not exist, do only main
+        let addlHandle;
+        let allHandles;
+        if (saveAddl.current !== undefined) {
+            addlHandle = saveAddl.current();
+            allHandles = Promise.all([mainHandle, addlHandle]);
+        } else allHandles = mainHandle;
+
+        allHandles.then(() => { setLoading(false); }, () => { setLoading(false); });
+
+        return () => {
+            if (mainHandle != null && mainHandle.abort != null) mainHandle.abort();
+            if (addlHandle != null && addlHandle.abort != null) addlHandle.abort();
+        }
     }
 
     function validateAssetKey(): JQuery.jqXHR<string> {
@@ -123,14 +139,15 @@ const MeterInforWindow = (props: IProps) => {
     }
 
     function validMeter() {
-        return (valid('AssetKey') && valid('Name') && valid('ShortName') && valid('Alias') && valid('Make') && valid('Model'));
+        return addlFieldError.length === 0 || (valid('AssetKey') && valid('Name') && valid('ShortName') && valid('Alias') && valid('Make') && valid('Model'));
     }
     
 
     function hasChanged(): boolean {
         if (props.Meter == null)
             return false;
-        return props.Meter.AssetKey != meter.AssetKey ||
+        return addlFieldChanged.length > 0 ||
+            props.Meter.AssetKey != meter.AssetKey ||
             props.Meter.Name != meter.Name ||
             props.Meter.ShortName != meter.ShortName ||
             props.Meter.Alias != meter.Alias ||
@@ -153,11 +170,12 @@ const MeterInforWindow = (props: IProps) => {
             </div>
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
                 <MeterProperties Meter={meter} StateSetter={setMeter} />
+                <AdditionalFieldsProperties ID={meter.ID} ParentTable={'Meter'} AddlFieldSaveRef={saveAddl} SetChangedList={setAddlFieldChanged} SetErrorList={setAddlFieldError} ResetAddlFieldRef={resetAddl} />
                 <LoadingScreen Show={loading} />
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (validMeter() && hasChanged() ? '' : ' disabled')} type="submit" onClick={() => { if (validMeter() && hasChanged()) updateMeter() }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                    <button className={"btn btn-primary" + (validMeter() && hasChanged() ? '' : ' disabled')} type="submit" onClick={() => { if (validMeter() && hasChanged()) return updateMeter(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                 </div>
                 <ToolTip Show={(!validMeter() || !hasChanged()) && hover == 'submit' } Position={'top'} Theme={'dark'} Target={"submit"}>
                     {!hasChanged() ? <p> No changes made.</p> : null}
@@ -167,9 +185,13 @@ const MeterInforWindow = (props: IProps) => {
                     {!valid('Alias') ? <p> {CrossMark} Alias must be less than 200 characters.</p> : null}
                     {!valid('Make') ? <p> {CrossMark} Make is required.</p> : null}
                     {!valid('Model') ? <p> {CrossMark} Model is required.</p> : null}
+                    {addlFieldError.map((message,i) => <p key={i}> {CrossMark} {message}</p>)}
                 </ToolTip>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-default" + (hasChanged() ? '' : ' disabled')} data-tooltip="clear" onClick={() => setMeter(props.Meter)} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
+                    <button className={"btn btn-default" + (hasChanged() ? '' : ' disabled')} data-tooltip="clear" onClick={() => {
+                        setMeter(props.Meter);
+                        if (resetAddl.current !== undefined) resetAddl.current();
+                    }} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                 </div>
                 <ToolTip Show={hasChanged() && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
                     {props.Meter.AssetKey != meter.AssetKey ? <p> {Warning} Changes to Key will be discarded.</p> : null}
@@ -180,6 +202,7 @@ const MeterInforWindow = (props: IProps) => {
                     {props.Meter.Model != meter.Model ? <p> {Warning} Changes to Model will be discarded.</p> : null}
                     {props.Meter.TimeZone != meter.TimeZone ? <p> {Warning} Changes to Time Zone will be discarded.</p> : null}
                     {props.Meter.Description != meter.Description ? <p> {Warning} Changes to Description will be discarded.</p> : null}
+                    {addlFieldChanged.map((message, i) => <p key={i}> {Warning} {message}</p>)}
                 </ToolTip>
             </div>
 

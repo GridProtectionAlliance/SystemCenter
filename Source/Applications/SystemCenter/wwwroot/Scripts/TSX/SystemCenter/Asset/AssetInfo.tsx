@@ -38,6 +38,7 @@ import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import DERAttributes from '../AssetAttribute/DER';
+import AdditionalFieldsProperties from '../CommonComponents/AdditionalFieldsProperties';
 
 declare var homePath: string;
 
@@ -52,8 +53,17 @@ function AssetInfoWindow(props: IProps) {
     const [allAssets, setAllAssets] = React.useState<OpenXDA.Types.Asset[]>([]);
     const [errors, setErrors] = React.useState<string[]>([]);
     const [editAsset, setEditAsset] = React.useState<OpenXDA.Types.Asset>(props.Asset);
-    const [hasChanged, setHasChanged] = React.useState<boolean>(false)
+    const [hasChanged, setHasChanged] = React.useState<boolean>(false);
 
+    const saveAddlAsset = React.useRef<() => JQuery.jqXHR<void>>(undefined);
+    const resetAddlAsset = React.useRef<() => void>(undefined);
+    const [addlFieldChangedAsset, setAddlFieldChangedAsset] = React.useState<string[]>([]);
+    const [addlFieldErrorAsset, setAddlFieldErrorAsset] = React.useState<string[]>([]);
+
+    const saveAddlType = React.useRef<() => JQuery.jqXHR<void>>(undefined);
+    const resetAddlType = React.useRef<() => void>(undefined);
+    const [addlFieldChangedType, setAddlFieldChangedType] = React.useState<string[]>([]);
+    const [addlFieldErrorType, setAddlFieldErrorType] = React.useState<string[]>([]);
 
     const [state, setState] = React.useState<'error' | 'idle' | 'loading'>('idle');
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
@@ -95,11 +105,8 @@ function AssetInfoWindow(props: IProps) {
     }, [editAsset]);
 
     React.useEffect(() => {
-        if (_.isEqual(asset, editAsset))
-            setHasChanged(false);
-        else
-            setHasChanged(true);
-    }, [asset, editAsset])
+        setHasChanged(addlFieldChangedType.length > 0 || addlFieldChangedAsset.length > 0 || !_.isEqual(asset, editAsset));
+    }, [asset, editAsset, addlFieldChangedAsset, addlFieldChangedType])
 
     function showAttributes(): JSX.Element {
         if (asset.AssetType == 'Breaker')
@@ -118,7 +125,6 @@ function AssetInfoWindow(props: IProps) {
             return <LineSegmentAttributes NewEdit={'Edit'} Asset={editAsset as OpenXDA.Types.LineSegment} UpdateState={setEditAsset} />;
         else if (asset.AssetType == 'DER')
             return <DERAttributes NewEdit={'Edit'} Asset={editAsset as OpenXDA.Types.DER} UpdateState={setEditAsset} />;
-
     }
 
     function changedFields(): string[] {
@@ -324,7 +330,27 @@ function AssetInfoWindow(props: IProps) {
 
     function SaveChanges() {
         setState('loading');
-        editExistingAsset(editAsset).then((d) => props.StateSetter(_.cloneDeep(props.Asset)), (d) => setState('error'))
+        const mainHandle = editExistingAsset(editAsset);
+        let allHandles = [mainHandle];
+
+        // If addls do not exist, do only main
+        let addlHandleAsset;
+        if (saveAddlAsset.current !== undefined) {
+            addlHandleAsset = saveAddlAsset.current();
+            allHandles.push(addlHandleAsset);
+        }
+        let addlHandleType;
+        if (saveAddlType.current !== undefined) {
+            addlHandleType = saveAddlType.current();
+            allHandles.push(addlHandleType);
+        }
+
+        Promise.all(allHandles).then(() => { setState('idle'); }, () => { setState('error'); });
+
+        return () => {
+            if (addlHandleAsset != null && addlHandleAsset.abort != null) addlHandleAsset.abort();
+            if (addlHandleType != null && addlHandleType.abort != null) addlHandleType.abort();
+        }
 
     }
 
@@ -340,27 +366,45 @@ function AssetInfoWindow(props: IProps) {
             <div className="row" style={{ height: window.innerHeight - 420, maxHeight: window.innerHeight - 420, overflowY: 'auto' }}>
                 <div className="col">
                     <AssetAttributes.AssetAttributeFields Asset={editAsset} NewEdit='Edit' AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setEditAsset} GetDifferentAsset={() => { }} HideAssetType={false} HideSelectAsset={true} />
+                    <AdditionalFieldsProperties ID={editAsset.ID} ParentTable={"Asset"} AddlFieldSaveRef={saveAddlAsset} SetChangedList={setAddlFieldChangedAsset} SetErrorList={setAddlFieldErrorAsset} ResetAddlFieldRef={resetAddlAsset} SingleColumn={true} />
                 </div>
                 <div className="col">
                     {showAttributes()}
+                    <AdditionalFieldsProperties ID={editAsset.ID} ParentTable={asset.AssetType} AddlFieldSaveRef={saveAddlType} SetChangedList={setAddlFieldChangedType} SetErrorList={setAddlFieldErrorType} ResetAddlFieldRef={resetAddlType} SingleColumn={true} />
                 </div>
             </div>
         </div>
         <div className="card-footer">
             <div className="btn-group mr-2">
-                <button className={"btn btn-primary" + (errors.length == 0 && hasChanged ? '' : ' disabled')} type="submit" onClick={() => { if (errors.length == 0 && hasChanged) SaveChanges() }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                <button className={"btn btn-primary" + (errors.length == 0 && addlFieldErrorAsset.length === 0 && addlFieldErrorType.length === 0 && hasChanged ? '' : ' disabled')} type="submit" onClick={() => { if (errors.length == 0 && addlFieldErrorAsset.length === 0 && addlFieldErrorType.length === 0 && hasChanged) return SaveChanges(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
             </div>
-            <ToolTip Show={(errors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+            <ToolTip Show={(errors.length > 0 || addlFieldErrorAsset.length > 0 || addlFieldErrorType.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
                 {!hasChanged ? <p> No changes made.</p> : null}
                 {errors.map((t, i) => <p key={i}>
                     {CrossMark} {t}
                 </p>)}
+                {addlFieldErrorAsset.map((t, i) => <p key={`a_${i}`}>
+                    {CrossMark} {t}
+                </p>)}
+                {addlFieldErrorType.map((t, i) => <p key={`t_${i}`}>
+                    {CrossMark} {t}
+                </p>)}
             </ToolTip>
             <div className="btn-group mr-2">
-                <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear" onClick={() => setEditAsset(asset)} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
+                <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear" onClick={() => {
+                    setEditAsset(asset);
+                    if (resetAddlAsset.current !== undefined) resetAddlAsset.current();
+                    if (resetAddlType.current !== undefined) resetAddlType.current();
+                }} onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
             </div>
             <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
                 {changedFields().map((t, i) => <p key={i}> {Warning} Changes to {t} will be discarded.</p>)}
+                {addlFieldErrorAsset.map((t, i) => <p key={`a_${i}`}>
+                    {Warning} {t}
+                </p>)}
+                {addlFieldErrorType.map((t, i) => <p key={`t_${i}`}>
+                    {Warning} {t}
+                </p>)}
             </ToolTip>
         </div>
 
