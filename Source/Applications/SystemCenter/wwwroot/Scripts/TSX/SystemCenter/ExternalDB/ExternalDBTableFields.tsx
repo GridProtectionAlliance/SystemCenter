@@ -130,7 +130,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                         <Table<SystemCenter.Types.AdditionalField>
                             cols={[
                                 { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'ParentTable', field: 'ParentTable', label: 'Parent Table', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 {
                                     key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
@@ -236,7 +236,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 Type={'multiple'}
                 Columns={[
                     { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'ParentTable', field: 'ParentTable', label: 'Parent Table', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     {
                         key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
@@ -258,7 +258,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 Searchbar={(children) => <SearchBar<SystemCenter.Types.AdditionalField>
                         CollumnList={[
                             { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false },
-                            { label: 'Parent Table', key: 'ParentTable', type: 'string', isPivotField: false },
+                            { label: 'Parent Type', key: 'ParentTable', type: 'string', isPivotField: false },
                             {
                                 label: 'Type', key: 'Type', isPivotField: false, type: 'enum',
                                 enum: [
