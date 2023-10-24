@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  AdditionalFieldsWindow.tsx - Gbtc
+//  AdditionalFieldsValueField.tsx - Gbtc
 //
 //  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -18,6 +18,8 @@
 //  ----------------------------------------------------------------------------------------------------
 //  01/28/2020 - Billy Ernest
 //       Generated original version of source code.
+//  10/19/2023 - Gabriel Santos
+//       Seperated Code into it's own file
 //
 //******************************************************************************************************
 
