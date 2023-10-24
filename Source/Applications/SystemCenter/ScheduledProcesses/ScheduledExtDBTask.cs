@@ -189,7 +189,7 @@ namespace SystemCenter.ScheduledProcesses
             }
         }
 
-        public static DataRowCollection RetrieveDataRecord<T>(T record, extDBTables extTable,
+        public static DataTable RetrieveDataRecordTable<T>(T record, extDBTables extTable,
             TableOperations<T> table, TableOperations<AdditionalField> addlTable, TableOperations<AdditionalFieldValue> addlValuesTable,
             ExpressionContext context, AdoDataConnection externalConnection) where T: class, new()
         {
@@ -206,7 +206,14 @@ namespace SystemCenter.ScheduledProcesses
             DefineAllowedVariables(context);
             context.Variables["Key"] = keyValue?.Value;
             context.Variables[table.TableName] = record;
-            DataRowCollection data = ExecuteQueryWithContext(extTable, context, externalConnection).Rows;
+            return ExecuteQueryWithContext(extTable, context, externalConnection);
+        }
+
+        public static DataRowCollection RetrieveDataRecord<T>(T record, extDBTables extTable,
+            TableOperations<T> table, TableOperations<AdditionalField> addlTable, TableOperations<AdditionalFieldValue> addlValuesTable,
+            ExpressionContext context, AdoDataConnection externalConnection) where T : class, new()
+        {
+            DataRowCollection data = RetrieveDataRecordTable(record, extTable, table, addlTable, addlValuesTable, context, externalConnection)?.Rows;
             if (data is null || data.Count != 1) return null;
             return data;
         }

@@ -61,7 +61,7 @@ namespace SystemCenter.Controllers
         }
 
         // This is seperated specifically for assets controller to use without making the whole thing an extension
-        public static DataRowCollection ExecuteExternalQuery(JObject extQuery, AdoDataConnection xdaConnection)
+        public static DataTable ExecuteExternalQuery(JObject extQuery, AdoDataConnection xdaConnection)
         {
             T xdaRecord = extQuery["xdaRecord"].ToObject<T>();
             extDBTables table = extQuery["table"].ToObject<extDBTables>();
@@ -73,7 +73,7 @@ namespace SystemCenter.Controllers
                 TableOperations<AdditionalField> afTable = new TableOperations<AdditionalField>(xdaConnection);
                 TableOperations<AdditionalFieldValue> afvTable = new TableOperations<AdditionalFieldValue>(xdaConnection);
                 ExpressionContext context = new ExpressionContext();
-                DataRowCollection data = ScheduledExtDBTask.RetrieveDataRecord<T>(xdaRecord, table, xdaTable, afTable, afvTable, context, extConnection);
+                DataTable data = ScheduledExtDBTask.RetrieveDataRecordTable<T>(xdaRecord, table, xdaTable, afTable, afvTable, context, extConnection);
                 return data;
             }
         }
