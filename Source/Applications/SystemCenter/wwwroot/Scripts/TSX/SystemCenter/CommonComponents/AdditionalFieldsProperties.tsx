@@ -24,21 +24,20 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
-import { OpenXDA as LocalXDA } from '../global';
 import { AssetAttributes } from '../AssetAttribute/Asset';
-import { LoadingIcon, LoadingScreen, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
-import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
-import Table from '@gpa-gemstone/react-table';
-import { CrossMark, HeavyCheckMark, Pencil, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols'
+import { LoadingIcon, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import AdditionalFieldsKeyModal from './AdditionalFieldsKeyModal';
 import AdditionalFieldsValueField from './AdditionalFieldsValueField';
+import { OpenXDA } from '../global';
 
 declare var homePath: string;
 
 interface IProps {
     ID: number,
-    ParentTable: string,
-    AddlFieldSaveRef: React.MutableRefObject<() => (() => void)>,
+    ParentTable: OpenXDA.AdditionalFieldType,
+    SingleColumn?: boolean,
+    AddlFieldSaveRef: React.MutableRefObject<() => JQuery.jqXHR<void>>,
+    ResetAddlFieldRef: React.MutableRefObject<() => void>,
     SetErrorList?: (errorText: string[]) => void,
     SetChangedList?: (changedText: string[]) => void
 }
@@ -101,8 +100,8 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
 
     const getData = React.useCallback(() => {
         setStatus('loading');
-        let fieldHandle = getFields();
-        let fieldValueHandle = getFieldValues();
+        const fieldHandle = getFields();
+        const fieldValueHandle = getFieldValues();
         Promise.all([fieldHandle, fieldValueHandle])
             .then(() => { setStatus('idle') }, () => { setStatus('error') });
 
@@ -113,8 +112,8 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
     }, [getFields, getFieldValues, setStatus]);
 
     const addOrUpdateValues = React.useCallback(() => {
-        let handle;
-        $.ajax({
+        setStatus('loading');
+        return $.ajax({
             type: "PATCH",
             url: `${homePath}api/SystemCenter/AdditionalFieldValue/Array`,
             contentType: "application/json; charset=utf-8",
@@ -122,11 +121,16 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
             dataType: 'json',
             cache: true,
             async: true
-        }).done(() => handle = getData());
-        return () => {
-            if (handle.abort != undefined) handle.abort();
-        }
-    }, [additionalFieldValuesWorking, getData, homePath]);
+        }).done(() => {
+            const fieldHandle = getFields();
+            const fieldValueHandle = getFieldValues();
+            return Promise.all([fieldHandle, fieldValueHandle]);
+        }).done(() => {
+            setStatus('idle');
+            props.SetChangedList([]);
+            changedList.current = [];
+        }).fail(() => { setStatus('error') })
+    }, [additionalFieldValuesWorking, getFields, getFieldValues, setStatus, homePath]);
 
     const KeyModalCallback = React.useCallback((newValue: string) => {
         const newFields = [...additionalFieldValuesWorking];
@@ -136,19 +140,17 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
         setAdditionalFieldValuesWorking(newFields);
     }, [additionalFieldValuesWorking, setAdditionalFieldValuesWorking, keyField]);
 
-    React.useEffect(() => { setAdditionalFieldValuesWorking(_.cloneDeep(additionalFieldValues)); }, [additionalFieldValues]);
+    const ResetCallback = React.useCallback(() => {
+        setAdditionalFieldValuesWorking(_.cloneDeep(additionalFieldValues));
+    }, [additionalFieldValues, setAdditionalFieldValuesWorking]);
+
+    React.useEffect(ResetCallback, [additionalFieldValues]);
+    React.useEffect(() => { props.ResetAddlFieldRef.current = ResetCallback }, [ResetCallback, props.ResetAddlFieldRef]);
     React.useEffect(() => { props.AddlFieldSaveRef.current = addOrUpdateValues; }, [addOrUpdateValues, props.AddlFieldSaveRef]);
 
     React.useEffect(() => {
         return getData();
     }, [props.ID, props.ParentTable]);
-
-    React.useEffect(() => {
-        console.log(additionalFieldValues)
-        console.log(additionalFieldValues.length / 2)
-        console.log(additionalFieldValues.slice(0, additionalFieldValues.length / 2))
-        console.log(additionalFieldValues.slice(additionalFieldValues.length / 2, additionalFieldValues.length))
-    }, [additionalFields]);
 
     React.useEffect(() => {
         if (props.SetErrorList === undefined) return;
@@ -190,25 +192,40 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
         }
     }, [additionalFieldValuesWorking]);
 
+    let columnBody;
+    if (props.SingleColumn ?? false) columnBody = (
+        <div className="col">
+            {additionalFields.map((item,i) =>
+                <AdditionalFieldsValueField key={i} Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} IncludeLabel={true}
+                    Setter={setAdditionalFieldValuesWorking}
+                    KeyCallback={() => { setShowExt(true); setKeyField(item); }} DisplayKeyInBox={true} />
+            )}
+        </div>);
+    else columnBody = (
+        <>
+            <div className="col">
+                {additionalFields.slice(0, additionalFields.length / 2 + 0.5).map((item, i) =>
+                    <AdditionalFieldsValueField key={`l_${i}`} Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} IncludeLabel={true}
+                        Setter={setAdditionalFieldValuesWorking}
+                        KeyCallback={() => { setShowExt(true); setKeyField(item); }} DisplayKeyInBox={true} />
+                )}
+            </div>
+            <div className="col">
+                {additionalFields.slice(additionalFields.length / 2 + 0.5, additionalFields.length + 0.5).map((item, i) =>
+                    <AdditionalFieldsValueField key={`r_${i}`} Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} IncludeLabel={true}
+                        Setter={setAdditionalFieldValuesWorking}
+                        KeyCallback={() => { setShowExt(true); setKeyField(item); }} DisplayKeyInBox={true} />
+                )}
+            </div>
+        </>);
+
+
     return (
         <div className="row">
-            <LoadingScreen Show={status === 'loading'} />
+            <LoadingIcon Show={status === 'loading'} />
             <ServerErrorIcon Show={status === 'error'} Size={40} Label={'A Server Error Occurred. Could Not Load Additional Fields for this Record. Please Reload the Application.'} />
             <AdditionalFieldsKeyModal KeyField={keyField} SetKeyFieldValue={KeyModalCallback} Show={showExt} SetShow={setShowExt} />
-            <div className="col">
-                {additionalFields.slice(0, additionalFields.length / 2 + 0.5).map(item =>
-                    <AdditionalFieldsValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} IncludeLabel={true}
-                        Setter={setAdditionalFieldValuesWorking}
-                        KeyCallback={() => { setShowExt(true); setKeyField(item); }} DisplayKeyInBox={true} />
-                )}
-            </div>
-            <div className="col">
-                {additionalFields.slice(additionalFields.length / 2 + 0.5, additionalFields.length + 0.5).map(item =>
-                    <AdditionalFieldsValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} IncludeLabel={true}
-                        Setter={setAdditionalFieldValuesWorking}
-                        KeyCallback={() => { setShowExt(true); setKeyField(item); }} DisplayKeyInBox={true} />
-                )}
-            </div>
+            {status === 'idle' ? columnBody : null}
         </div>);
 }
 
