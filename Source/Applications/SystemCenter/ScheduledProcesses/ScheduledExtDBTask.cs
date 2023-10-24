@@ -128,11 +128,9 @@ namespace SystemCenter.ScheduledProcesses
             {
                 int recordID = GetID(record);
                 if (recordID == -1) continue; // Should be impossible to trigger without huge overhauling of openXDA
-                DataRowCollection data = RetrieveDataRecord(record, extTable, table, addlValuesTable, context, extConnection).Rows;
-                // 0 records is not a problem, since not every XDA record exists externally, just skip it
-                if (data.Count == 0) continue;
-                if (data.Count != 1)
-                    Log.Warn($"{data.Count} external records found for table {extTable.TableName} using xda record with ID {recordID} from xda table {table.TableName}. Table query should result in one and only one record...");
+                DataRowCollection data = RetrieveDataRecord(record, extTable, table, addlFieldsTable, addlValuesTable, context, extConnection);
+                // null means no specifc record was found
+                if (data is null) continue;
                 foreach(AdditionalField field in addlFields)
                 {
                     string fieldValue;
@@ -163,6 +161,7 @@ namespace SystemCenter.ScheduledProcesses
                         addlValuesTable.UpdateRecord(addlValue);
                     }
                 }
+                bool hasXdaChanges = false;
                 foreach (ExternalOpenXDAField field in xdaFields)
                 {
                     object fieldValue;
@@ -181,34 +180,35 @@ namespace SystemCenter.ScheduledProcesses
                         Log.Error($"External OpenXDA field defined that does not exist on the xda model {field.FieldName} on table {field.ParentTable}");
                         continue;
                     }
-                    // Todo: confirm this works
-                    if (fieldValue == fieldPropInfo.GetValue(record)) continue;
-                    // Todo: Make sure this actually sets value properly
+                    // This should work for primatives
+                    if (fieldValue.Equals(fieldPropInfo.GetValue(record))) continue;
                     fieldPropInfo.SetValue(record, fieldValue);
-                    table.UpdateRecord(record);
+                    hasXdaChanges = true;
                 }
+                if (hasXdaChanges) table.UpdateRecord(record);
             }
         }
 
-        public static DataTable RetrieveDataRecord<T>(T record, extDBTables extTable,
-            TableOperations<T> table, TableOperations<AdditionalFieldValue> addlValuesTable,
+        public static DataRowCollection RetrieveDataRecord<T>(T record, extDBTables extTable,
+            TableOperations<T> table, TableOperations<AdditionalField> addlTable, TableOperations<AdditionalFieldValue> addlValuesTable,
             ExpressionContext context, AdoDataConnection externalConnection) where T: class, new()
         {
             int idKey = GetID(record);
             if (idKey == -1) return null; // Should be impossible to trigger without huge overhauling of openXDA
-            AdditionalFieldValue keyValue = addlValuesTable.QueryRecordWhere(
-                @"ParentTableID = {0} AND
-	                AdditionalFieldValue.AdditionalFieldID in (
-		                Select ID From AdditionalField
-		                Where 
-			                ParentTable = {1} AND
-			                ExternalDBTableID = {2} AND
-			                IsKey = 1)"
-                , idKey, table.TableName, extTable.ID);
+            AdditionalField keyField = addlTable.QueryRecordWhere("ParentTable = {0} AND ExternalDBTableID = {1} AND IsKey = 1", table.TableName, extTable.ID);
+            AdditionalFieldValue keyValue = null;
+            if (keyField is not null)
+            {
+                keyValue = addlValuesTable.QueryRecordWhere( "ParentTableID = {0} AND AdditionalFieldValue.AdditionalFieldID = {1}", idKey, keyField.ID);
+                // Assumption, if key field exists, then key field is required to query a singular record
+                if (keyValue is null) return null;
+            }
             DefineAllowedVariables(context);
             context.Variables["Key"] = keyValue?.Value;
             context.Variables[table.TableName] = record;
-            return ExecuteQueryWithContext(extTable, context, externalConnection);
+            DataRowCollection data = ExecuteQueryWithContext(extTable, context, externalConnection).Rows;
+            if (data is null || data.Count != 1) return null;
+            return data;
         }
 
         public static DataTable RetrieveDataTable(extDBTables extTable, AdoDataConnection externalConnection)
