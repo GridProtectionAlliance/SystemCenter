@@ -82,7 +82,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
             ]
         },
         // Todo: maybe override query results to allow for ExternalDBTableID to be used as a boolean?
-        { label: 'External DB', key: 'ExternalDBTableID', type: 'boolean', isPivotField: false },
+        // { label: 'External DB', key: 'ExternalDBTableID', type: 'boolean', isPivotField: false },
         {
             label: 'Type', key: 'Type', isPivotField: false, type: 'enum',
             enum: [
