@@ -446,7 +446,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
-            <div className="row" style={{ marginTop: 10 }}>
+            <div className="row">
                     <div className="col-8 col-xl-2">
                         <h2 style={{ display: 'inline-block' }}>New Meter Wizard</h2>
                     </div>
