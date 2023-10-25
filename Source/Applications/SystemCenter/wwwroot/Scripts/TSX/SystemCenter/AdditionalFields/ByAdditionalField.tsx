@@ -68,16 +68,16 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
             label: 'Parent Type', key: 'ParentTable', type: 'enum', isPivotField: false,
             enum: [
                 { Value: 'Meter', Label: 'Meter' },
-                { Value: 'Location', Label: 'Location' },
+                { Value: 'Location', Label: 'Substation' },
                 { Value: 'Customer', Label: 'Customer' },
                 { Value: 'Company', Label: 'Company' },
                 { Value: 'Asset', Label: 'Asset' },
                 { Value: 'Line', Label: 'Line' },
-                { Value: 'LineSegment', Label: 'LineSegment' },
+                { Value: 'LineSegment', Label: 'Line Segment' },
                 { Value: 'Breaker', Label: 'Breaker' },
-                { Value: 'CapacitorBank', Label: 'CapacitorBank' },
+                { Value: 'CapacitorBank', Label: 'Capacitor Bank' },
                 { Value: 'Transformer', Label: 'Transformer' },
-                { Value: 'CapacitorBankRelay', Label: 'CapacitorBankRelay' },
+                { Value: 'CapacitorBankRelay', Label: 'Capacitor Bank Relay' },
                 { Value: 'DER', Label: 'DER' }
             ]
         },
@@ -168,7 +168,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             key: 'ExternalDB', field: 'ExternalDBTableID', label: 'External DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                             content: (item) => item.ExternalDBTableID !== null ? HeavyCheckMark : CrossMark
                         },
-                        { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'Type', field: 'Type', label: 'Field Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                             content: (item) => item.Searchable ? HeavyCheckMark : CrossMark

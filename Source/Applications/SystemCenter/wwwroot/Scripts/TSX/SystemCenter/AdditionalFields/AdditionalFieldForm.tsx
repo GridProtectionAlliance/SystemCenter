@@ -95,9 +95,9 @@ export default function AdditionalFieldForm(props: IProps) {
         <form>
             <Input<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'FieldName'} Label={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'ParentTable'} Label={'Parent Type'} Setter={props.Setter}
-                Options={[{ Value: 'Meter', Label: 'Meter' }, { Value: 'Location', Label: 'Location' }, { Value: 'Customer', Label: 'Customer' }, { Value: 'Company', Label: 'Company' }, { Value: 'Asset', Label: 'Asset' },
-                    { Value: 'Line', Label: 'Line' }, { Value: 'LineSegment', Label: 'LineSegment' }, { Value: 'Breaker', Label: 'Breaker' }, { Value: 'CapacitorBank', Label: 'CapacitorBank' }, { Value: 'Transformer', Label: 'Transformer' }, { Value: 'CapacitorBankRelay', Label: 'CapacitorBankRelay' }, { Value: 'DER', Label: 'DER' }]} />
-            <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'Type'} Setter={props.Setter}
+                Options={[{ Value: 'Meter', Label: 'Meter' }, { Value: 'Location', Label: 'Substation' }, { Value: 'Customer', Label: 'Customer' }, { Value: 'Company', Label: 'Company' }, { Value: 'Asset', Label: 'Asset' },
+                    { Value: 'Line', Label: 'Line' }, { Value: 'LineSegment', Label: 'Line Segment' }, { Value: 'Breaker', Label: 'Breaker' }, { Value: 'CapacitorBank', Label: 'Capacitor Bank' }, { Value: 'Transformer', Label: 'Transformer' }, { Value: 'CapacitorBankRelay', Label: 'Capacitor Bank Relay' }, { Value: 'DER', Label: 'DER' }]} />
+            <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'Type'} Label={'Field Type'} Setter={props.Setter}
                 Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }].concat(valueListGroupData.map(x => { return { Value: x.Name, Label: x.Name } }))} />
             <Select<SystemCenter.Types.ExternalDatabases> Record={extDBRecord} Field={'ID'} Label={'External DB'} Setter={setExtDBRecord}
                 Options={[{ Label: '', Value: '0' }].concat(externalDBData.map((e) => { return { Label: e.Name, Value: e.ID.toString() } }))} />

@@ -114,7 +114,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
             async: true
         });
         handle.done(() => {
-            setPopupMessage("Unscheduled Update has Ran!");
+            setPopupMessage("Unscheduled update successful.");
         });
         handle.fail(() => {
             setPopupMessage(`Unscheduled Update Failure.`)
