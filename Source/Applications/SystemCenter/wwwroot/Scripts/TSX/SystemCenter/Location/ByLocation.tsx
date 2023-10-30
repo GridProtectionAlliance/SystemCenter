@@ -112,7 +112,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     function getAdditionalFields(setFields) {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Location/FieldName/0`,
+            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Location/FieldName/0`,
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true
@@ -126,7 +126,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
             }
         }
 
-        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+        handle.done((d: Array<SystemCenter.Types.AdditionalFieldView>) => {
             let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedLocation>
             )), ['label'], ["asc"]);

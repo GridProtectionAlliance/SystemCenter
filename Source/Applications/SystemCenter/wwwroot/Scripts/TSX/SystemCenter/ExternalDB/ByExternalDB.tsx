@@ -23,92 +23,58 @@
 
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
-import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBForm from './ExternalDBForm';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { ExternalDBTablesSlice } from '../Store/Store';
+import { ExternalDatabasesSlice } from '../Store/Store';
 
 declare var homePath: string;
 
-const defaultSearchcols: Array<Search.IField<SystemCenter.Types.ExternalDataBaseTable>> = [
-    { label: 'Table Name', key: 'TableName', type: 'string', isPivotField: false },
-    { label: 'External Database', key: 'ExternalDB', type: 'string', isPivotField: false },
-];
-
 const ByExternalDB: Application.Types.iByComponent = (props) => {
     let history = useHistory();
-    const blankExternalDB = {
-        ID: 0,
-        TableName: null,
-        ExternalDB: 'Maximo',
-        Query: ''
-    }
-
-    const [newExternalDB, setNewExternalDB] = React.useState<SystemCenter.Types.ExternalDataBaseTable>(blankExternalDB);
-    const [showNew, setShowNew] = React.useState<boolean>(false);
-    const [newExternalDatabaseErrors, setNewExternalDatabaseErrors] = React.useState<string[]>([]);
-    const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.ExternalDataBaseTable>('TableName');
-    const [ascending, setAscending] = React.useState<boolean>(true);
-
     const dispatch = useAppDispatch();
-    const extDBStatus = useAppSelector(ExternalDBTablesSlice.Status) as Application.Types.Status;
-    const searchResults = useAppSelector(ExternalDBTablesSlice.SearchResults);
-    const searchState = useAppSelector(ExternalDBTablesSlice.SearchStatus);
-    const searchFilters = useAppSelector(ExternalDBTablesSlice.SearchFilters);
+
+    const data = useAppSelector(ExternalDatabasesSlice.SearchResults);
+    const status = useAppSelector(ExternalDatabasesSlice.SearchStatus);
+    const search = useAppSelector(ExternalDatabasesSlice.SearchFilters);
+    const sortField = useAppSelector(ExternalDatabasesSlice.SortField);
+    const ascending = useAppSelector(ExternalDatabasesSlice.Ascending);
+
+    const [showNew, setShowNew] = React.useState<boolean>(false);
+    const [errors, setErrors] = React.useState<string[]>([]);
+
+    const emptyRecord = { ID: 0, Name: '', Schedule: '', ConnectionString: '', DataProviderString: '', Encrypt: false };
+    const [record, setRecord] = React.useState<SystemCenter.Types.ExternalDatabases>(emptyRecord);
+
+    const ExternalDBSearchField: Array<Search.IField<SystemCenter.Types.ExternalDatabases>> = [
+        { label: 'Database Name', key: 'Name', type: 'string', isPivotField: false },
+    ];
+    const ExternalDBDefaultSearchField: Search.IField<SystemCenter.Types.ExternalDatabases> = { label: 'Database Name', key: 'Name', type: 'string', isPivotField: false };
 
     React.useEffect(() => {
-        if (extDBStatus === 'unintiated' || extDBStatus === 'changed')
-            dispatch(ExternalDBTablesSlice.Fetch());
-    }, [dispatch, extDBStatus]);
-
-    React.useEffect(() => {
-        if (searchState === 'unintiated' || searchState === 'changed') 
-            dispatch(ExternalDBTablesSlice.DBSearch({ filter: searchFilters, ascending: ascending, sortField: sortKey }));
-    }, [dispatch, searchState]);
-
-    React.useEffect(() => {
-        dispatch(ExternalDBTablesSlice.DBSearch({ sortField: sortKey, ascending, filter: searchFilters }))
-    }, [ascending, sortKey]);
+        if (status === 'unintiated' || status === 'changed')
+            dispatch(ExternalDatabasesSlice.DBSearch({ filter: search }));
+    }, [status]);
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDB&ID=' + item.row.ID })
     }
 
-    const standardSearch: Search.IField<SystemCenter.Types.ExternalDataBaseTable> = { label: 'Table Name', key: 'TableName', type: 'string', isPivotField: false };
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<SystemCenter.Types.ExternalDataBaseTable>
-                CollumnList={defaultSearchcols}
-                SetFilter={(flds) => dispatch(ExternalDBTablesSlice.DBSearch({ filter: flds, ascending: ascending, sortField: sortKey}))}
+            <SearchBar<SystemCenter.Types.extDBTables>
+                CollumnList={ExternalDBSearchField}
+                SetFilter={(flds) => dispatch(ExternalDatabasesSlice.DBSearch({ filter: flds }))}
                 Direction={'left'}
-                defaultCollumn={standardSearch}
+                defaultCollumn={ExternalDBDefaultSearchField}
                 Width={'50%'}
                 Label={'Search'}
-                ShowLoading={searchState == 'loading'}
-                ResultNote={searchState == 'error' ? 'Could not complete Search' : 'Found ' + searchResults.length + ' External Database Table(s)'}
-                GetEnum={(setOptions, field) => {
-                    let handle = null;
-                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
-                        return () => { };
-
-                    handle = $.ajax({
-                        type: "GET",
-                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-                        contentType: "application/json; charset=utf-8",
-                        dataType: 'json',
-                        cache: true,
-                        async: true
-                    });
-
-                    handle.done(d => setOptions(d.map(item => ({ Value: item.ID, Label: item.Value }))))
-                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
-                }}
-
+                ShowLoading={status == 'loading'}
+                ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' External Database(s)'}
             >
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
@@ -116,34 +82,27 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                         <form>
                             <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => {
                                 event.preventDefault()
-                                setNewExternalDB(blankExternalDB);
+                                setRecord({ ...emptyRecord });
                                 setShowNew(true);
-                            }}>Add External Database Table</button>
+                            }}>Add External Database</button>
                         </form>
                     </fieldset>
                 </li>
             </SearchBar>
+
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table
                     cols={[
-                        { key: 'TableName', field: 'TableName', label: 'Table Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'ExternalDB', field: 'ExternalDB', label: 'External Database', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
+                        { key: 'Name', field: 'Name', label: 'Database Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
                     ]}
                     tableClass="table table-hover"
-                    data={searchResults}
-                    sortKey={sortKey}
+                    data={data}
+                    sortKey={sortField}
                     ascending={ascending}
                     onSort={(d) => {
-                        if (d.colKey === "Scroll")
-                            return;
-
-                        if (d.colKey === sortKey)
-                            setAscending(!ascending);
-                        else {
-                            setAscending(true);
-                            setSortKey(d.colField);
-                        }
+                        if (d.colKey === null) return;
+                        dispatch(ExternalDatabasesSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     onClick={handleSelect}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
@@ -153,16 +112,20 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                 />
             </div>
 
-            <Modal Show={showNew} Title={'Add New External Database Table'}
-                ShowCancel={true}
-                CallBack={(conf) => { if(conf) dispatch(ExternalDBTablesSlice.DBAction({ verb: 'POST', record: newExternalDB })); setShowNew(false); }}
-                DisableConfirm={newExternalDatabaseErrors.length > 0}
+            <Modal Title={'Add New External Database'}
+                CallBack={(conf) => {
+                    if (conf) dispatch(ExternalDatabasesSlice.DBAction({ verb: 'POST', record }));
+                    setShowNew(false);
+                }}
+                Show={showNew}
+                ShowCancel={false}
                 ShowX={true}
-                ConfirmShowToolTip={newExternalDatabaseErrors.length > 0}
-                ConfirmToolTipContent={
-                    newExternalDatabaseErrors.map((t, i) => <p key={i}> {CrossMark} {t} </p>)
-                }>
-                <ExternalDBForm ExternalDB={newExternalDB} Setter={setNewExternalDB} setErrors={setNewExternalDatabaseErrors} />
+                ConfirmBtnClass={'btn-primary'}
+                ConfirmText={'Add ExternalDB'}
+                ConfirmShowToolTip={errors.length > 0}
+                ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                DisableConfirm={errors.length > 0} >
+                <ExternalDBForm Record={record} Setter={setRecord} setErrors={setErrors} />
             </Modal>
         </div>
     )

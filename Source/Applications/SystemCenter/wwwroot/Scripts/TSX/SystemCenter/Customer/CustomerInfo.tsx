@@ -22,12 +22,11 @@
 //******************************************************************************************************
 import * as React from 'react';
 import * as _ from 'lodash';
-declare var homePath: string;
-
 import CustomerForm from './CustomerForm';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA } from '@gpa-gemstone/application-typings'
+import AdditionalFieldsProperties from '../CommonComponents/AdditionalFieldsProperties';
 
 interface IProps { Customer: OpenXDA.Types.Customer, stateSetter: (customer: OpenXDA.Types.Customer) => void }
 
@@ -37,6 +36,11 @@ export default function CustomerInfo(props: IProps) {
     const [warnings, setWarning] = React.useState<string[]>([]);
     const [errors, setError] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('None' | 'Clear' | 'Submit')>('None');
+
+    const saveAddl = React.useRef<() => JQuery.jqXHR<void>>(undefined);
+    const resetAddl = React.useRef<() => void>(undefined);
+    const [addlFieldChanged, setAddlFieldChanged] = React.useState<string[]>([]);
+    const [addlFieldError, setAddlFieldError] = React.useState<string[]>([]);
 
     React.useEffect(() => {
         setCustomer(props.Customer)
@@ -68,34 +72,42 @@ export default function CustomerInfo(props: IProps) {
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div className="row" style={{ height: window.innerHeight - 420, maxHeight: window.innerHeight - 420, overflowY: 'auto' }}>
-                    <CustomerForm Customer={customer} stateSetter={setCustomer} setErrors={setError} />
-                </div>
+            <div className="card-body" style={{ overflowY: "auto", maxHeight: window.innerHeight - 355 }}>
+                <CustomerForm Customer={customer} stateSetter={setCustomer} setErrors={setError} />
+                <AdditionalFieldsProperties ID={customer.ID} ParentTable={'Customer'} AddlFieldSaveRef={saveAddl} SetChangedList={setAddlFieldChanged} SetErrorList={setAddlFieldError} ResetAddlFieldRef={resetAddl} SingleColumn={true} />
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (warnings.length == 0 || errors.length > 0 ? ' disabled' : '')} onClick={() => {
-                        if (warnings.length > 0 && errors.length == 0)
-                            props.stateSetter(customer)
+                    <button className={"btn btn-primary" + (((warnings.length == 0 && addlFieldChanged.length === 0) || errors.length > 0 || addlFieldError.length > 0) ? ' disabled' : '')} onClick={() => {
+                        if ((warnings.length > 0 || addlFieldChanged.length > 0) && errors.length == 0 && addlFieldError.length === 0) {
+                            props.stateSetter(customer);
+                            if (saveAddl.current !== undefined) {
+                                const addlHandle = saveAddl.current();
+                                return () => {
+                                    if (addlHandle != null && addlHandle.abort != null) addlHandle.abort();
+                                }
+                            }
+                        }
                     }}
                         onMouseEnter={() => setHover('Submit')} onMouseLeave={() => setHover('None')} data-tooltip={"Update"}
                     >Update</button>
                 </div>
-                <ToolTip Show={hover == 'Submit' && (errors.length > 0)} Position={'top'} Theme={'dark'} Target={"Update"}>
+                <ToolTip Show={hover == 'Submit' && (errors.length > 0 || addlFieldError.length > 0)} Position={'top'} Theme={'dark'} Target={"Update"}>
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+                    {addlFieldError.map((t, i) => <p key={`a_${i}`}>{CrossMark} {t}</p>)}
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className="btn btn-default" onClick={() => {
-                        if (warnings.length > 0)
-                            setCustomer(props.Customer)
+                        if (warnings.length > 0) setCustomer(props.Customer);
+                        if (resetAddl.current !== undefined) resetAddl.current();
                     }
-                    } disabled={warnings.length == 0}
+                    } disabled={warnings.length == 0 && addlFieldChanged.length === 0}
                         onMouseEnter={() => setHover('Clear')} onMouseLeave={() => setHover('None')} data-tooltip={"Clr"}
                     >Reset</button>
                 </div>
-                <ToolTip Show={hover == 'Clear' && (warnings.length > 0)} Position={'top'} Theme={'dark'} Target={"Clr"}>
+                <ToolTip Show={hover == 'Clear' && (warnings.length > 0 || addlFieldChanged.length > 0)} Position={'top'} Theme={'dark'} Target={"Clr"}>
                     {warnings.map((t, i) => <p key={i}>{Warning} {t}</p>)}
+                    {addlFieldChanged.map((t, i) => <p key={`a_${i}`}>{Warning} {t}</p>)}
                 </ToolTip>
             </div>
 

@@ -121,6 +121,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\..\Dependencies\openXDA\FaultData.dll</HintPath>
     </Reference>
+    <Reference Include="Flee, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\..\Dependencies\NuGet\Flee.2.0.0\lib\netstandard2.0\Flee.dll</HintPath>
+    </Reference>
     <Reference Include="GSF.Communication">
       <HintPath>..\..\Dependencies\GSF\GSF.Communication.dll</HintPath>
     </Reference>
@@ -240,6 +243,11 @@
     <Reference Include="System.Numerics.Vectors">
       <HintPath>..\..\Dependencies\GSF\System.Numerics.Vectors.dll</HintPath>
     </Reference>
+    <Reference Include="System.Reflection, Version=4.1.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\Dependencies\NuGet\System.Reflection.4.3.0\lib\net462\System.Reflection.dll</HintPath>
+      <Private>True</Private>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Runtime" />
     <Reference Include="System.Transactions" />
     <Reference Include="System.Web" />
@@ -263,11 +271,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controllers\ControllerHelpers.cs" />
-    <Compile Include="Controllers\ExternalDB\ExternalDBController.cs" />
-    <Compile Include="Controllers\ExternalDB\FawgController.cs" />
+    <Compile Include="Controllers\ExternalDB\ExternalModelController.cs" />
     <Compile Include="Controllers\ExternalDB\LineSegmentWizardController.cs" />
-    <Compile Include="Controllers\ExternalDB\PQViewController.cs" />
-    <Compile Include="Controllers\ExternalDB\MaximoController.cs" />
     <Compile Include="Controllers\OpenMIC\OpenMICController.cs" />
     <Compile Include="Controllers\OpenXDA\AssetGroups\OpenXDAAssetGroupsController.cs" />
     <Compile Include="Controllers\OpenXDA\Meters\OpenXDADataRescueController.cs" />
@@ -284,6 +289,7 @@
     <Compile Include="Model\Security\RemoteUserAccount.cs" />
     <Compile Include="Model\Security\ApplicationRole.cs" />
     <Compile Include="Model\Security\SecurityGroup.cs" />
+    <Compile Include="ScheduledProcesses\ScheduledExtDBTask.cs" />
     <Compile Include="ScheduledTasks\OpenMICMeterStatisticOperation.cs" />
     <Compile Include="ScheduledTasks\UserAccountMetaDataUpdater.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineSegmentController.cs" />
@@ -360,6 +366,7 @@
       <Link>TagDefinitions.xml</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\DocComments.xml" />
     <Content Include="tsconfig.webpack.json" />
     <None Include="wwwroot\Content\Site.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -511,11 +518,15 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Location\LocationImages.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\Asset\AssetSelect.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\ApplicationCard.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AdditionalFields\AdditionalFieldForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AdditionalFields\ByAdditionalField.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\ConsoleWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\Common.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\Types.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\FawgLineSegmentWizard\TapSelect.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\AssetAttribute\SourceImpedanceWindow.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsKeyModal.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsValueField.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ByChannelGroup.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ChannelGroupItemForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ChannelGroup.tsx" />
@@ -524,6 +535,16 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ChannelGroup\ChannelGroupItem.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsWindow.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\AppHost\AppHost.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\AdditionalFieldsProperties.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTable.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableFieldForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableFields.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTableInfo.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalDBTables.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalXDAFields\ExternalDBXdaFieldsForm.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\ExternalXDAFields\ExternalDBXdaFields.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\QueryTestDialog.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\EventTag\ByEventTag.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\EventTag\EventTagForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\hooks.ts" />
@@ -532,6 +553,7 @@
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\NewMeterWizard\MultipleAssetsPage.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\MagDurCurves\ByMagDurCurve.tsx" />
     <Content Include="wwwroot\Scripts\TSX\SystemCenter\MagDurCurves\CurveForm.tsx" />
+    <Content Include="wwwroot\Scripts\TSX\SystemCenter\CommonComponents\FilterSelect.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\ByMATLABAnalytic.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\MATLABAnalytic.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\MATLABAnalytics\MATLABAnalyticForm.tsx" />
@@ -681,7 +703,6 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataOperations.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataReaders.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\Setting.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\QueryWindow.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\EventChannelSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\PQISlice.ts" />

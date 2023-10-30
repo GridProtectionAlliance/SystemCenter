@@ -1,7 +1,7 @@
 //******************************************************************************************************
-//  ExternalDBInfo.tsx - Gbtc
+//  ExternalDBTableInfo.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -16,42 +16,49 @@
 //
 //  Code Modification History:
 //  ----------------------------------------------------------------------------------------------------
-//  10/28/2021 - Samuel Robinson
+//  10/03/2023 - Parker Dinsdale
 //       Generated original version of source code.
 //
 //******************************************************************************************************
 
 
 import * as React from 'react';
+import * as _ from 'lodash';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppDispatch } from '../hooks';
-import { ExternalDatabasesSlice } from '../Store/Store';
+import { ExternalDBTablesSlice } from '../Store/Store';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
-import ExternalDBForm from './ExternalDBForm';
+import ExternalDBTableForm from './ExternalDBTableForm';
 
 
-export default function ExternalDBInfo(props: { Record: SystemCenter.Types.ExternalDatabases }) { 
-    const [record, setRecord] = React.useState<SystemCenter.Types.ExternalDatabases>(props.Record);
-    const [origRecord, setOrigRecord] = React.useState<SystemCenter.Types.ExternalDatabases>(props.Record);
+export default function ExternalDBInfo(props: { Record: SystemCenter.Types.extDBTables }) {
+    const [record, setRecord] = React.useState<SystemCenter.Types.extDBTables>(props.Record);
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('update' | 'none')>('none');
 
     const dispatch = useAppDispatch();
 
+    const isChanged = React.useMemo(() => {
+        return _.isEqual(record, props.Record);
+    }, [record, props.Record]);
+
     React.useEffect(() => {
         let e = [];
-        if (record.Name === null || record.Name.length === 0) {
+        if (record.TableName === null || record.TableName.length === 0) {
             e.push('A Name is required.');
         }
-        if (record.Schedule === null || record.Schedule.length === 0) {
-            e.push('A Schedule is required.');
+        if (record.Query === null || record.Query.length === 0) {
+            e.push('A Query is required.');
         }
 
         setErrors(e);
     }, [record]);
 
+    React.useEffect(() => {
+        setRecord(props.Record);
+    }, [props.Record]);
 
     if (record == null) return;
     return (
@@ -59,36 +66,34 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Exter
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>External Database Information:</h4>
+                        <h4>External DB Table Information:</h4>
                     </div>
                 </div>
             </div>
             <div className="card-body" style={{ height: window.innerHeight - 350, maxHeight: window.innerHeight - 350 }}>
-                <ExternalDBForm Record={record} Setter={setRecord} />
+                <ExternalDBTableForm Record={record} Setter={setRecord} />
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (((record == origRecord) || errors.length > 0) ? ' disabled' : '')}
+                    <button className={"btn btn-primary" + ((isChanged || errors.length > 0) ? ' disabled' : '')}
                         onClick={() => {
                             if (errors.length == 0) {
-                                dispatch(ExternalDatabasesSlice.DBAction({ verb: 'PATCH', record }));
-                                setOrigRecord(record);
+                                dispatch(ExternalDBTablesSlice.DBAction({ verb: 'PATCH', record }));
                             }
-
                         }}
-                        hidden={record.ID == 0} data-tooltip={'Update-Info'}
+                        hidden={record.ID == 0} data-tooltip={'Update-Info-Table'}
                         onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
                 </div>
                 <div className="btn-group mr-2">
                     <button className="btn btn-default"
                         onClick={() => {
-                            setRecord(origRecord);
+                            setRecord(props.Record);
                         }}
-                        disabled={record == origRecord}>Reset</button>
+                        disabled={isChanged}>Reset</button>
                 </div>
-                <ToolTip Position={'top'} Target={"Update-Info"}
-                    Show={hover == 'update' && (errors.length > 0 || (record == origRecord))}>
-                    {(record == origRecord) ? <p>No changes made.</p> : null}
+                <ToolTip Position={'top'} Target={"Update-Info-Table"}
+                    Show={hover == 'update' && (errors.length > 0 || isChanged)}>
+                    {isChanged ? <p>No changes made.</p> : null}
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
                 </ToolTip>
             </div>
