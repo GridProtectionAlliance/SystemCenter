@@ -41,6 +41,7 @@ import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import MultipleAssetsPage from './MultipleAssetsPage';
 import CustomerAssetGroupPage from './CustomerAssetGroupPage';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
+import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
 
 // Define Step Numbers
 const generalStep: number = 1;
@@ -393,6 +394,8 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             return <p className="pull-right">
                 Number of Trend Channels: {channels.reduce((p, c) => c.Trend ? (p+1) : p, 0)}
             </p>;
+        else if (currentStep === assetStep)
+            return <LocationDrawings LocationID={locationInfo.ID} />
         return null;
     }, [currentStep]);
 
