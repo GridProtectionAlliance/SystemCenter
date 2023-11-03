@@ -447,7 +447,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
             <div className="row">
-                    <div className="col-8 col-xl-2">
+                <div className="col-8 col-xl-2 align-self-center">
                         <h2 style={{ display: 'inline-block' }}>New Meter Wizard</h2>
                     </div>
                     <div className="d-none col-xl-8 d-xl-block">
@@ -469,7 +469,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                             activeStep={currentStep}
                         />
                     </div>
-                    <div className="col-4 col-xl-2">
+                <div className="col-4 col-xl-2 align-self-center">
                         <button className="btn btn-block btn-primary pull-right" onClick={clearData} >{(currentStep > saveStep) ? "Save and Close Wizard" : "Reset Wizard"}</button>
                     </div>
                 </div>
@@ -486,7 +486,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                             </div>
                         </div>
                     </div>
-                    <div className="card-body">
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0 }}>
                             {getPage()}
                     </div>
                     <div className="card-footer">
