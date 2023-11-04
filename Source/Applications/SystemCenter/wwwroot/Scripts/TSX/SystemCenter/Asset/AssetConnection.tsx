@@ -38,7 +38,7 @@ interface AssetConnection {
     AssetKey: string
 }
 
-function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
+function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number}): JSX.Element{
     let history = useHistory();
     let dispatch = useAppDispatch();
 
@@ -60,24 +60,24 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
     React.useEffect(() => {
         let handle = getAssetConnections();
         return () => { if (handle != null || handle.abort != null) handle.abort();}
-    }, [props.Asset, trigger])
+    }, [props.ID, trigger])
 
     React.useEffect(() => {
-        if (props.Asset.ID > 0) {
+        if (props.ID > 0) {
             let sqlString = `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN Asset ON `
-            sqlString = sqlString +  `Asset.AssetTypeID <> ${props.Asset["AssetTypeID"]} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND `
-            sqlString = sqlString +  `Asset.ID IN (SELECT AssetID FROM AssetLocation WHERE LocationID IN (Select LocationID FROM AssetLocation WHERE AssetID = ${props.Asset.ID})) `
+            sqlString = sqlString +  `Asset.AssetTypeID <> ${props.TypeID} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND `
+            sqlString = sqlString +  `Asset.ID IN (SELECT AssetID FROM AssetLocation WHERE LocationID IN (Select LocationID FROM AssetLocation WHERE AssetID = ${props.ID})) `
             sqlString = sqlString +  `GROUP BY AssetRelationshipTypeAssetType.AssetTypeID, AssetRelationshipTypeAssetType.AssetRelationshipTypeID `
             sqlString = sqlString +  `HAVING COUNT(Asset.ID) > 0)`
             const filter: Search.IFilter<OpenXDA.Types.AssetConnectionType>[] = [
-                { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType WHERE AssetTypeID = ${props.Asset["AssetTypeID"]})`, Operator: 'IN', Type: 'number', isPivotColumn: false },
+                { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType WHERE AssetTypeID = ${props.TypeID})`, Operator: 'IN', Type: 'number', isPivotColumn: false },
                 {
                     FieldName: 'ID', SearchText: sqlString, Operator: 'IN', Type: 'number', isPivotColumn: false
                 }
                 ]
             dispatch(AssetConnectionTypeSlice.DBSearch({ filter: filter }))
         }
-        }, [props.Asset])
+        }, [props.TypeID])
 
     React.useEffect(() => {
         if (selectedTypeID == 0) {
@@ -105,7 +105,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
         setStatus('loading');
         return $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/AssetConnections`,
+            url: `${homePath}api/OpenXDA/Asset/${props.ID}/AssetConnections`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -118,8 +118,8 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
 
     function getAssets(): JQuery.jqXHR<string> {
         const filter = [
-            { FieldName: 'ID', SearchText: `(SELECT AssetID FROM AssetLocation WHERE LocationID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = ${props.Asset.ID}))`, Operator: 'IN', Type: 'number', isPivotColumn: false },
-            { FieldName: 'AssetTypeID', SearchText: `(SELECT AssetTypeID FROM AssetRelationshipTypeAssetType WHERE AssetRelationshipTypeID = ${selectedTypeID} AND AssetTypeID <> ${props.Asset["AssetTypeID"]})`, Operator: 'IN', Type: 'number', isPivotColumn: false }
+            { FieldName: 'ID', SearchText: `(SELECT AssetID FROM AssetLocation WHERE LocationID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = ${props.ID}))`, Operator: 'IN', Type: 'number', isPivotColumn: false },
+            { FieldName: 'AssetTypeID', SearchText: `(SELECT AssetTypeID FROM AssetRelationshipTypeAssetType WHERE AssetRelationshipTypeID = ${selectedTypeID} AND AssetTypeID <> ${props.TypeID})`, Operator: 'IN', Type: 'number', isPivotColumn: false }
         ]
         setStatus('loading');
         return $.ajax({
@@ -140,7 +140,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
         setStatus('loading')
         return $.ajax({
             type: "DELETE",
-            url: `${homePath}api/OpenXDA/Asset/${props.Asset.ID}/AssetConnection/${connection.AssetID}`,
+            url: `${homePath}api/OpenXDA/Asset/${props.ID}/AssetConnection/${connection.AssetID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -160,7 +160,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
             url: `${homePath}api/OpenXDA/AssetConnection/Add`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
-            data: JSON.stringify({ ID: 0, AssetRelationshipTypeID: selectedTypeID, ParentID: props.Asset.ID, ChildID: selectedAssetID}),
+            data: JSON.stringify({ ID: 0, AssetRelationshipTypeID: selectedTypeID, ParentID: props.ID, ChildID: selectedAssetID}),
             cache: false,
             async: true
         }).done(() => {
@@ -271,7 +271,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
 
             </div>
 
-            <Modal Show={showModal} Title={'Add Connection to ' + (props.Asset?.AssetName ?? 'Asset')} ShowCancel={false} ShowX={true}
+            <Modal Show={showModal} Title={'Add Connection to ' + (props.Name ?? 'Asset')} ShowCancel={false} ShowX={true}
                 CallBack={(conf) => {
                     if (conf)
                         addConnection();
@@ -303,7 +303,7 @@ function AssetConnectionWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Eleme
                         </div>
                     </> :
                     <div className="alert alert-warning" role="alert">
-                        <p>There are no Assets at this Substation that can be connected to {props.Asset.AssetName}.</p>
+                        <p>There are no Assets at this Substation that can be connected to {props.Name}.</p>
                     </div>}
             </Modal>
         </div>

@@ -18,6 +18,8 @@
 //  ----------------------------------------------------------------------------------------------------
 //  01/22/2020 - Billy Ernest
 //       Generated original version of source code.
+//  10/16/2023 - Ariana Armstrong
+//       Included a conditional rendering statement for 'Channels' tab.
 //
 //******************************************************************************************************
 
@@ -157,36 +159,33 @@ function Asset(props: IProps) {
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes">
+            {tab === 'notes'? <div className={"tab-pane active"}>
                     <NoteWindow ID={asset.ID} Type='Asset' />
-                </div>
-                <div className={"tab-pane " + (tab == "assetInfo" ? " active" : "fade")} id="assetInfo">
+                </div>: null}
+                {tab === 'assetInfo'? <div className={"tab-pane active"}>
                     <AssetInfoWindow Asset={asset} StateSetter={setAsset} />
-                </div>
-                <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
+                </div>: null}
+                {tab === 'additionalFields'? <div className={"tab-pane active"}>
                     <AdditionalFieldsWindow ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab}/>
-                </div>
-                <div className={"tab-pane " + (tab == "substations" ? " active" : "fade")} id="substations">
+                </div>: null}
+                {tab === 'substations'? <div className={"tab-pane active"} >
                     <AssetLocationWindow Asset={asset} />
-                </div>
-                <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
+                </div>: null}
+                {tab === 'meters'? <div className={"tab-pane active"}>
                     <AssetMeterWindow Asset={asset} />
-                </div>
-                <div className={"tab-pane " + (tab == "channels" ? " active" : "fade")} id="channels">
-                    <AssetChannelWindow Asset={asset} />
-                </div>
-                <div className={"tab-pane " + (tab == "connections" ? " active" : "fade")} id="connections">
-                    <AssetConnectionWindow Asset={asset} />
-                </div>
-                {/*<div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
-                //    <ExternalDBUpdate ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab} />
-                //</div>*/}
-                <div className={"tab-pane " + (tab == "sourceImpedances" ? " active" : "fade")} id="sourceImpedances">
+                </div>: null}
+                {tab == "channels" ? <div className={"tab-pane active" }>
+                    <AssetChannelWindow Name={asset.AssetName} ID={asset.ID}/>
+                </div> : null}
+                {tab === 'connections'? <div className={"tab-pane active"}>
+                    <AssetConnectionWindow Name={asset.AssetName} ID={asset.ID} TypeID={asset["AssetTypeID"]}/>
+                </div>: null }
+                {tab === 'sourceImpedances'? <div className={"tab-pane active"}>
                     <SourceImpedanceWindow ID={asset.ID} />
-                </div>
-                <div className={"tab-pane " + (tab == "segments" ? " active" : "fade")} id="segments">
+                </div> : null}
+                {tab === 'segments' ? <div className={"tab-pane active"} >
                     <LineSegmentWindow ID={asset.ID} OnChange={() => { setForceReload( x=> !x) }} />
-                </div>
+                </div>: null}
             </div>
 
             <Warning Message={'This will permanently delete this Asset and cannot be undone.'} Show={showDelete} Title={'Delete ' + (asset?.AssetName ?? 'Asset')} CallBack={(conf) => { if (conf) deleteAsset(); setShowDelete(false); }} />
