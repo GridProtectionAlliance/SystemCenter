@@ -70,7 +70,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             sqlString = sqlString +  `GROUP BY AssetRelationshipTypeAssetType.AssetTypeID, AssetRelationshipTypeAssetType.AssetRelationshipTypeID `
             sqlString = sqlString +  `HAVING COUNT(Asset.ID) > 0)`
             const filter: Search.IFilter<OpenXDA.Types.AssetConnectionType>[] = [
-                { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType WHERE AssetTypeID = ${props.Asset["AssetTypeID"]})`, Operator: 'IN', Type: 'number', isPivotColumn: false },
+                { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType WHERE AssetTypeID = ${props.TypeID})`, Operator: 'IN', Type: 'number', isPivotColumn: false },
                 {
                     FieldName: 'ID', SearchText: sqlString, Operator: 'IN', Type: 'number', isPivotColumn: false
                 }
