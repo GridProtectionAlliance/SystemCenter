@@ -31,7 +31,7 @@ import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
-interface IProps { Asset: OpenXDA.Types.Asset, Name: string, ID: number }
+interface IProps { Name: string, ID: number }
 
 interface ChannelDetail { //TODO: Move to Gemstone
     ID: number,
@@ -70,13 +70,9 @@ const AssetChannelWindow = (props: IProps) => {
     const pStatus = useAppSelector(PhaseSlice.Status) as Application.Types.Status;
     const mtStatus = useAppSelector(MeasurmentTypeSlice.Status) as Application.Types.Status;
     const [status, setStatus] = React.useState<Application.Types.Status>('idle');
-    
-
     const [sortField, setSortField] = React.useState<keyof (ChannelDetail)>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
 
-
-    
     React.useEffect(() => {
         let channelHandle = getChannels();
 
@@ -86,7 +82,7 @@ const AssetChannelWindow = (props: IProps) => {
             if (channelHandle != null && channelHandle.abort != null)
                 channelHandle.abort();
         }
-    }, [props.Asset]);
+    }, [props.ID]);
 
     function getChannels(): JQuery.jqXHR<ChannelDetail[]> {
         setStatus('loading');
