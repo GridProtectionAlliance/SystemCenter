@@ -18,7 +18,7 @@
 //  ----------------------------------------------------------------------------------------------------
 //  01/22/2020 - Billy Ernest
 //       Generated original version of source code.
-//  10/16/2023 - Ariana Armstrong
+//  10|16|2023 - Ariana Armstrong
 //       Included a conditional rendering statement for 'Channels' tab.
 //
 //******************************************************************************************************

@@ -39,6 +39,7 @@ interface AssetConnection {
 }
 
 function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number}): JSX.Element{
+
     let history = useHistory();
     let dispatch = useAppDispatch();
 
