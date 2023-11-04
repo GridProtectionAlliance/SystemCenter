@@ -84,7 +84,7 @@ const AssetChannelWindow = (props: IProps) => {
             if (channelHandle != null && channelHandle.abort != null)
                 channelHandle.abort();
         }
-    }, [props.Asset]);
+    }, [props.ID]);
 
     function getChannels(): JQuery.jqXHR<ChannelDetail[]> {
         setStatus('loading');

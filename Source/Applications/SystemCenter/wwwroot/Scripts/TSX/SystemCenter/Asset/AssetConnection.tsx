@@ -38,7 +38,7 @@ interface AssetConnection {
     AssetKey: string
 }
 
-function AssetConnectionWindow(props: { Name: string, ID: number}): JSX.Element{
+function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number}): JSX.Element{
     let history = useHistory();
     let dispatch = useAppDispatch();
 
@@ -60,12 +60,12 @@ function AssetConnectionWindow(props: { Name: string, ID: number}): JSX.Element{
     React.useEffect(() => {
         let handle = getAssetConnections();
         return () => { if (handle != null || handle.abort != null) handle.abort();}
-    }, [props.Asset, trigger])
+    }, [props.ID, trigger])
 
     React.useEffect(() => {
         if (props.ID > 0) {
             let sqlString = `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN Asset ON `
-            sqlString = sqlString +  `Asset.AssetTypeID <> ${props.Asset["AssetTypeID"]} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND `
+            sqlString = sqlString +  `Asset.AssetTypeID <> ${props.TypeID} AND Asset.AssetTypeID = AssetRelationshipTypeAssetType.assetTypeID AND `
             sqlString = sqlString +  `Asset.ID IN (SELECT AssetID FROM AssetLocation WHERE LocationID IN (Select LocationID FROM AssetLocation WHERE AssetID = ${props.ID})) `
             sqlString = sqlString +  `GROUP BY AssetRelationshipTypeAssetType.AssetTypeID, AssetRelationshipTypeAssetType.AssetRelationshipTypeID `
             sqlString = sqlString +  `HAVING COUNT(Asset.ID) > 0)`
@@ -77,7 +77,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number}): JSX.Element{
                 ]
             dispatch(AssetConnectionTypeSlice.DBSearch({ filter: filter }))
         }
-        }, [props.Asset])
+        }, [props.TypeID])
 
     React.useEffect(() => {
         if (selectedTypeID == 0) {
@@ -119,7 +119,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number}): JSX.Element{
     function getAssets(): JQuery.jqXHR<string> {
         const filter = [
             { FieldName: 'ID', SearchText: `(SELECT AssetID FROM AssetLocation WHERE LocationID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = ${props.ID}))`, Operator: 'IN', Type: 'number', isPivotColumn: false },
-            { FieldName: 'AssetTypeID', SearchText: `(SELECT AssetTypeID FROM AssetRelationshipTypeAssetType WHERE AssetRelationshipTypeID = ${selectedTypeID} AND AssetTypeID <> ${props.Asset["AssetTypeID"]})`, Operator: 'IN', Type: 'number', isPivotColumn: false }
+            { FieldName: 'AssetTypeID', SearchText: `(SELECT AssetTypeID FROM AssetRelationshipTypeAssetType WHERE AssetRelationshipTypeID = ${selectedTypeID} AND AssetTypeID <> ${props.TypeID})`, Operator: 'IN', Type: 'number', isPivotColumn: false }
         ]
         setStatus('loading');
         return $.ajax({
