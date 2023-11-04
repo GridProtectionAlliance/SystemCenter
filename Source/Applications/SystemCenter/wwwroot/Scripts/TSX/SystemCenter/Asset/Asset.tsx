@@ -177,9 +177,9 @@ function Asset(props: IProps) {
                 {tab == "channels" ? <div className={"tab-pane active" } id="channels">
                     <AssetChannelWindow Asset={asset} Name={asset.AssetName} ID={asset.ID}/>
                 </div> : null}
-                {tab === 'connetctions'? <div className={"tab-pane " + (tab == "connections" ? " active" : "fade")} id="connections"> ... : null}
+                {tab === 'connetctions'? <div className={"tab-pane active"} id="connections">
                     <AssetConnectionWindow Asset={asset} Name={asset.AssetName} ID={asset.ID} />
-                </div>
+                </div>: null }
                 {/*<div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
                 //    <ExternalDBUpdate ID={asset.ID} Type={(assetType == null) ? "Asset" : assetType} Tab={tab} />
                 //</div>*/}
