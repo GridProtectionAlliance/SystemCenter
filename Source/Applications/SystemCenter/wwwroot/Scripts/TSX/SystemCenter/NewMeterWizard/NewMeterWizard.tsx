@@ -476,8 +476,8 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                         <button className="btn btn-block btn-primary pull-right" onClick={clearData} >{(currentStep > saveStep) ? "Save and Close Wizard" : "Reset Wizard"}</button>
                     </div>
                 </div>
-            <div className="row" style={{flex: 1}}>
-                <div className="card" style={{width: '100%'}}>
+            <div className="row" style={{flex: 1, overflow: 'hidden'}}>
+                <div className="card" style={{width: '100%', height: '100%'}}>
                     <LoadingScreen Show={status === 'loading'} />
                     <div className="card-header">
                         <div className="row">
@@ -489,7 +489,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                             </div>
                         </div>
                     </div>
-                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0 }}>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
                             {getPage()}
                     </div>
                     <div className="card-footer">
