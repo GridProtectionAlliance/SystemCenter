@@ -335,7 +335,7 @@ export default function AssetPage(props: IProps) {
                                             setSortKey(d.colKey);
                                         }}
                                         onClick={(fld) => { }}
-                                        tableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed', height: 'calc(100%-16px)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+                                        tableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed', height: 'calc(100% - 16px)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
                                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                                         tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
                                         rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
