@@ -78,6 +78,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     const TestExternal = React.useCallback(() => {
         setRequestStatus('loading');
+        setPopupTitle("Connection Test Results");
         let handle = $.ajax({
             type: "POST",
             url: `${homePath}api/SystemCenter/ExternalDatabases/TestConnection`,
@@ -89,12 +90,10 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
         });
         handle.done(() => {
             setPopupMessage("Connection to database successful!");
+            setRequestStatus('idle');
         });
         handle.fail(() => {
-            setPopupMessage("Unable to connect to external database. Check connection settings.")
-        });
-        handle.then(() => {
-            setPopupTitle("Connection Test Results");
+            setPopupMessage("Unable to connect to external database. Check connection settings.");
             setRequestStatus('idle');
         });
         return () => {
@@ -104,6 +103,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     const RequestUpdate = React.useCallback(() => {
         setRequestStatus('loading');
+        setPopupTitle("Update Results");
         let handle = $.ajax({
             type: "POST",
             url: `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate`,
@@ -115,12 +115,10 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
         });
         handle.done(() => {
             setPopupMessage("Unscheduled update successful.");
+            setRequestStatus('idle');
         });
         handle.fail(() => {
-            setPopupMessage(`Unscheduled Update Failure.`)
-        });
-        handle.then(() => {
-            setPopupTitle("Update Results");
+            setPopupMessage(`Unscheduled Update Failure.`);
             setRequestStatus('idle');
         });
         return () => {
