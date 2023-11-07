@@ -68,9 +68,10 @@ export default function AssetPage(props: IProps) {
     const aStatus = useAppSelector(SelectAssetStatus);
     const byAssetStatus = useAppSelector(ByAssetSlice.Status);
     const detailedAssets = useAppSelector(ByAssetSlice.Data);
-
+    
     const [newEditAsset, setNewEditAsset] = React.useState<AssetType>(AssetAttributes.getNewAsset('Line'));
     const [editAssetKey, setEditAssetKey] = React.useState<string>('');
+    const allAssetKeys = React.useMemo(() => detailedAssets.filter(a => a.ID !== newEditAsset.ID).map(a => a.AssetKey).concat(props.Assets.map(a => a.AssetKey)), [detailedAssets, props.Assets, newEditAsset.ID])
 
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
@@ -407,7 +408,7 @@ export default function AssetPage(props: IProps) {
                 <Modal Show={showAssetModal}
                     Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + (newEditAsset?.AssetName ?? 'Asset')}
                     ConfirmBtnClass={'btn-success'}
-                    ConfirmText={newEdit == 'Edit' ? 'Add' : 'Save'}
+                    ConfirmText={newEdit == 'Edit' ? 'Save' : 'Add'}
                     CancelBtnClass={'btn-danger'}
                     CancelText={'Close'}
                     Size={'xlg'}
@@ -442,10 +443,10 @@ export default function AssetPage(props: IProps) {
                         props.UpdateAssets(list);
                         setNewEditAsset(AssetAttributes.getNewAsset('Line'));                        
                     }}
-                    DisableConfirm={newEdit == 'New' && (AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).length > 0) }
-                    ConfirmShowToolTip={newEdit == 'New' && (AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).length > 0)}
+                    DisableConfirm={(AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0) }
+                    ConfirmShowToolTip={AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0}
                     ConfirmToolTipContent={
-                        AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                        AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
                     }
                 >
                     <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
