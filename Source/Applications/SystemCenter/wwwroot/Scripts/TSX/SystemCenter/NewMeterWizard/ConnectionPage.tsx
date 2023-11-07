@@ -348,16 +348,15 @@ export default function ConnectionPage(props: IProps) {
         <Modal Show={showAssetConnection} Size={'sm'} Title={'Add New Connection to ' + (props.CurrentAsset?.AssetKey ?? 'Asset')}
             ConfirmText={'Save'}
             DisableConfirm={assetConnectionTypes.length == 0 ||
-                currentConnections.findIndex(c => c.Asset.AssetKey == selectedAssetKey && c.Connection.AssetRelationshipTypeID == selectedTypeID) >= 0}
+                currentConnections.findIndex(c => c.Asset?.AssetKey == selectedAssetKey && c.Connection.AssetRelationshipTypeID == selectedTypeID) >= 0}
             ShowX={true}
             ShowCancel={false}
-            ConfirmShowToolTip={currentConnections.findIndex(c => c.Asset.AssetKey == selectedAssetKey && c.Connection.AssetRelationshipTypeID == selectedTypeID) >= 0}
+            ConfirmShowToolTip={currentConnections.findIndex(c => c.Asset?.AssetKey == selectedAssetKey && c.Connection.AssetRelationshipTypeID == selectedTypeID) >= 0}
             ConfirmToolTipContent={<p> {CrossMark} This connection already exists.</p>}
             CallBack={(confirmed) => {
                 setShowAssetConnection(false);
                 if (!confirmed)
                     return;
-
                 let childConnection = selectedAssetKey;
                 let connectionType = selectedTypeID;
                 let assetConnections = _.clone(props.AssetConnections);
@@ -368,8 +367,9 @@ export default function ConnectionPage(props: IProps) {
                         return { Asset: props.AllAssets.find(asset => asset.AssetKey == ac.Child), Connection: ac };
                     return { Asset: props.AllAssets.find(asset => asset.AssetKey == ac.Parent), Connection: ac };
                 }
-
-                setCurrentConnections([...currentConnections.map(createConn), createConn(newConnection)]);
+                const a = createConn(newConnection);
+                const b = currentConnections.map(createConn)
+                setCurrentConnections([...currentConnections, createConn(newConnection)]);
                 assetConnections.push(newConnection);
                 props.UpdateAssetConnections(assetConnections);
 
