@@ -25,20 +25,24 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import Table from '@gpa-gemstone/react-table';
+import Table, { Column } from '@gpa-gemstone/react-table';
 
 interface IProps {
     Assets: Array<OpenXDA.Types.Asset>,
     GetInnerComponent: (
         Asset: OpenXDA.Types.Asset
     ) => JSX.Element,
-    Style?: React.CSSProperties
 }
 
-export default function MultipleAssetsPage(props: IProps) {
+const MultipleAssetsPage: React.FC<IProps> = (props) => {
     const [tableState, setTableState] = React.useState<Application.Types.Status>('unintiated');
     const [currentAsset, setCurrentAsset] = React.useState<OpenXDA.Types.Asset>(null);
 
+    const [sortKey, setSortKey] = React.useState<string>('AssetName');
+    const [asc, setAsc] = React.useState<boolean>(true);
+
+    const tableData = React.useMemo(() => _.orderBy(props.Assets, [sortKey], [(!asc ? "asc" : "desc")]),
+        [props.Assets, sortKey, asc]);
     React.useEffect(() => {
         if (props.Assets === undefined) return;
         if (props.Assets.length === 0) {
@@ -50,58 +54,148 @@ export default function MultipleAssetsPage(props: IProps) {
         }
     }, [props.Assets]);
 
-    let tableBody;
-    if (tableState == 'loading')
-        tableBody = (
-            <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
-                <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                    <LoadingIcon Show={true} Size={40} />
-                </div>
-            </div>);
-    else if (tableState == 'error' || currentAsset == null)
-        tableBody = (
-            <div style={{ width: '100%', height: '200px' }}>
+    const selectionCols: Column<OpenXDA.Types.Asset>[] = React.useMemo(() => [
+        {
+            key: 'AssetName', field: 'AssetName',
+            label: 'Name', headerStyle: { width: 'auto' },
+            rowStyle: { width: 'auto' }
+        },
+        {
+            key: 'AssetKey', field: 'AssetKey',
+            label: 'Key', headerStyle: { width: 'auto' },
+            rowStyle: { width: 'auto' }
+        },
+        {
+            key: 'AssetType', field: 'AssetType',
+            label: 'Type', headerStyle: { width: 'auto' },
+            rowStyle: { width: 'auto' }
+        },
+        {
+            key: 'Scroll', label: '',
+            headerStyle: { width: '5px', padding: 0 },
+            rowStyle: { width: '0px', padding: 0 },
+            content: () => null
+        }
+    ], []);
+
+    const reducedSelectionCols: Column<OpenXDA.Types.Asset>[] = React.useMemo(() => [
+        {
+            key: 'AssetKey', field: 'AssetKey',
+            label: 'Key', headerStyle: { width: 'auto' },
+            rowStyle: { width: 'auto' }
+        },
+     
+        {
+            key: 'Scroll', label: '',
+            headerStyle: { width: '5px', padding: 0 },
+            rowStyle: { width: '0px', padding: 0 },
+            content: () => null
+        }
+    ], []);
+
+    if (tableState == 'error' || currentAsset == null || props.Assets === undefined)
+        return <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
                     <ServerErrorIcon Show={true} Size={40} Label={currentAsset == null ? 'No Assets found for this Meter.' : 'A Server Error Occurred. Please Reload the Application.'} />
                 </div>
-            </div>);
-    else
-        tableBody = (props.GetInnerComponent(currentAsset));
+            </div>
 
-    if (props.Assets === undefined) return;
-
+  
     return (
-        <>
-            <div className="row" style={{ margin: -20, height: '100%' }}>
-                <div className="col" style={{ ...props.Style, ...{ padding: 0, height: '100%' } }}>
-                    <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540}}>
-                        <h4 style={{ width: '100%', padding: '10px' }}>Select Asset: </h4>
-                        <Table<OpenXDA.Types.Asset>
-                            cols={[
-                                { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'VoltageKV', field: 'VoltageKV', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }
-                            ]}
-                            tableClass="table table-hover"
-                            data={props.Assets}
-                            sortKey={null}
-                            ascending={true}
-                            onSort={(d) => { }}
-                            onClick={(item) => setCurrentAsset(item.row)}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: 'calc(100% - 16px)' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 400, width: '100%' }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={(item) => (item.ID === currentAsset?.ID)}
-                        />
+        <><div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="col-6 d-none d-xl-flex" style={{
+                    height: '100%',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
+                    <div className="row">
+                        <div className="col">
+                            <h4>Select Asset: </h4>
+                        </div>
+                    </div>
+                    <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                        <div className="col" style={{
+                            height: '100%', overflow: 'hidden',
+                            display: 'flex', flexDirection: 'column'
+                        }}>
+                            <Table<OpenXDA.Types.Asset>
+                                cols={selectionCols}
+                                tableClass="table table-hover "
+                                data={tableData}
+                                sortKey={sortKey}
+                                ascending={asc}
+                                onSort={(d) => {
+                                    if (d.colKey === "Scroll")
+                                        return;
+                                    if (d.colKey === sortKey)
+                                        setAsc((x) => !x);
+                                    else
+                                        setAsc(false);
+                                    setSortKey(d.colKey);
+                                }}
+                                onClick={(item) => setCurrentAsset(item.row)}
+                                tableStyle={{
+                                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                    tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                }}
+                                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                selected={(item) => (item.ID === currentAsset?.ID)}
+                            />
+                        </div>
                     </div>
                 </div>
-                <div className="col" style={{ padding: 0, height: '100%' }}>
-                    {tableBody}
+                <div className="col-6 d-flex d-xl-none" style={{
+                    height: '100%',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    flexDirection: 'column'
+                }}>
+                    <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                        <div className="col" style={{
+                            height: '100%', overflow: 'hidden',
+                            display: 'flex', flexDirection: 'column'
+                        }}>
+                            <Table<OpenXDA.Types.Asset>
+                                cols={reducedSelectionCols}
+                                tableClass="table table-hover "
+                                data={tableData}
+                                sortKey={sortKey}
+                                ascending={asc}
+                                onSort={(d) => {
+                                    if (d.colKey === "Scroll")
+                                        return;
+                                    if (d.colKey === sortKey)
+                                        setAsc((x) => !x);
+                                    else
+                                        setAsc(false);
+                                    setSortKey(d.colKey);
+                                }}
+                                onClick={(item) => setCurrentAsset(item.row)}
+                                tableStyle={{
+                                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                    tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                }}
+                                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                selected={(item) => (item.ID === currentAsset?.ID)}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="col-6" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+                    {props.GetInnerComponent(currentAsset)}
                 </div>
             </div>
+
+        </div>
         </>
     );
 
 }
 
+export default MultipleAssetsPage;

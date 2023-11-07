@@ -431,7 +431,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             case customerAssetGroupMeterStep:
                 return <CustomerAssetGroupPage ID={meterID} Type={'Meter'} Name={meterInfo.AssetKey} SetWarning={setWarning} />
             case customerAssetGroupAssetStep:
-                return <MultipleAssetsPage Assets={assets} Style={{width: '30%'}} GetInnerComponent={(currentAsset) => <CustomerAssetGroupPage ID={currentAsset.ID} Type={'Asset'} Name={currentAsset.AssetKey} SetWarning={setWarning} />} />
+                return <MultipleAssetsPage Assets={assets} GetInnerComponent={(currentAsset) => <CustomerAssetGroupPage ID={currentAsset.ID} Type={'Asset'} Name={currentAsset.AssetKey} SetWarning={setWarning} />} />
         }
     };
 
