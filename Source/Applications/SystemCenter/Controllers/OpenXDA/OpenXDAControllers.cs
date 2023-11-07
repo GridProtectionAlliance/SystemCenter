@@ -128,10 +128,25 @@ namespace SystemCenter.Controllers.OpenXDA
                 return InternalServerError(ex);
             }
         }
+        [HttpPost, Route("RetrieveExternalRecord")]
+        public IHttpActionResult RetrieveExternalRecord([FromBody] JObject query)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+                    return Ok(ExternalModelController<DetailedAsset>.ExecuteExternalQuery(query, xdaConnection));
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 
     [RoutePrefix("api/OpenXDA/ByMeter")]
-    public class OpenXDAByMeterController : ModelController<DetailedMeter> { }
+    public class OpenXDAByMeterController : ExternalModelController<DetailedMeter> { }
 
     [RoutePrefix("api/OpenXDA/MeasurementType")]
     public class MeasurementTypeController:ModelController<MeasurementType> {}
@@ -191,16 +206,21 @@ namespace SystemCenter.Controllers.OpenXDA
                 {
                     string afTbl = TableOperations<AdditionalField>.GetTableName();
                     string afvTbl = TableOperations<AdditionalFieldValue>.GetTableName();
+                    string extTbl = TableOperations<ExternalDatabases>.GetTableName();
+                    string tblTbl = TableOperations<extDBTables>.GetTableName();
 
                     using (AdoDataConnection connection = new AdoDataConnection(Connection))
                     {
-                        string query = $@"SELECT MIN(UpdatedOn) AS lastUpdate, {afTbl}.ExternalDB AS name  
+                        string query = $@"SELECT MIN(UpdatedOn) AS lastUpdate, {extTbl}.Name as name 
                                                     FROM 
-                                                    {afTbl} LEFT JOIN {afvTbl} ON {afTbl}.ID = {afvTbl}.AdditionalFieldID
+                                                    {extTbl} LEFT JOIN 
+		                                            {tblTbl} ON {extTbl}.ID = {tblTbl}.ExtDBID LEFT JOIN 
+		                                            {afTbl} ON {tblTbl}.ID = {afTbl}.ExternalDBTableID LEFT JOIN 
+		                                            {afvTbl} ON {afTbl}.ID = {afvTbl}.AdditionalFieldID
                                                     WHERE 
                                                         {afTbl}.ParentTable = 'Bus'
-                                                        AND {afTbl}.ExternalDB IS NOT NULL AND {afTbl}.ExternalDB <> ''
-                                                    GROUP BY {afTbl}.ExternalDB";
+                                                        AND {extTbl}.Name <> ''
+                                                    GROUP BY {extTbl}.Name";
 
                         DataTable table = connection.RetrieveData(query);
 

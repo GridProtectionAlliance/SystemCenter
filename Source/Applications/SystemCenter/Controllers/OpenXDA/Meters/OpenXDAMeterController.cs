@@ -528,13 +528,13 @@ namespace SystemCenter.Controllers.OpenXDA
 
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    string query = $@"SELECT MIN(UpdatedOn) AS lastUpdate, {afTbl}.ExternalDB AS name  
+                    string query = $@"SELECT MIN(UpdatedOn) AS lastUpdate, {afTbl}.ExternalDBTableID AS name  
                                                 FROM 
                                                 {afTbl} LEFT JOIN {afvTbl} ON {afTbl}.ID = {afvTbl}.AdditionalFieldID
                                                 WHERE 
                                                     {afTbl}.ParentTable = 'Meter'
-                                                    AND {afTbl}.ExternalDB IS NOT NULL AND {afTbl}.ExternalDB <> ''
-                                                GROUP BY {afTbl}.ExternalDB";
+                                                    AND {afTbl}.ExternalDBTableID IS NOT NULL AND {afTbl}.ExternalDBTableID <> ''
+                                                GROUP BY {afTbl}.ExternalDBTableID";
 
                     DataTable table = connection.RetrieveData(query);
 

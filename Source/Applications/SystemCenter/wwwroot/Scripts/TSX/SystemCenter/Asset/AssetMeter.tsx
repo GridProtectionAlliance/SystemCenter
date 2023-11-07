@@ -109,7 +109,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     function getAdditionalMeterFields(setFields) {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Meter/FieldName/0`,
+            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Meter/FieldName/0`,
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true
@@ -123,7 +123,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
             }
         }
 
-        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+        handle.done((d: Array<SystemCenter.Types.AdditionalFieldView>) => {
             let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedMeter>
             )), ['label'], ["asc"]);

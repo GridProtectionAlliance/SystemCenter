@@ -57,6 +57,21 @@ public class LineSegmentWizardController : ApiController
             }
         }
     }
+    private string fawgQuery
+    {
+        get
+        {
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
+                    return connection.ExecuteScalar<string>("SELECT TOP 1 Value FROM [Systemcenter.Setting] WHERE Name = 'FAWG.LineSegmentQuery'");
+            }
+            catch
+            {
+                return null;
+            }
+        }
+    }
     #endregion
 
     #region [ Internal Classes ]
@@ -747,17 +762,7 @@ public class LineSegmentWizardController : ApiController
 
     private string GetFawgTableQuery()
     {
-        string tableName = "LineSegment";
-        string result = tableName;
-
-        using (AdoDataConnection connection = new AdoDataConnection(Connection))
-        {
-            TableOperations<SystemCenter.Model.extDBTables> tblTable = new TableOperations<SystemCenter.Model.extDBTables>(connection);
-
-            if (tblTable.QueryRecordCountWhere("ExternalDB = {0} AND TableName = {1}", "Fawg", tableName) > 0)
-                result = tblTable.QueryRecordWhere("ExternalDB = {0} AND TableName = {1}", "Fawg", tableName).Query;
-        }
-        return result;
+        return fawgQuery ?? "LineSegment";
     }
 
     /// <summary>

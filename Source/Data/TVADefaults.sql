@@ -468,119 +468,129 @@ INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDB
 ('Transformer','VoltageKV','Maximo','Transformer_A','OperatingKV')
 GO
 
-
-/* PQView Query for Meter */
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('ConnectionType','PQView','
-            (
-             SELECT
-                    Site.name As name,
-	               ConnectionType.name AS connectiontype
-                FROM
-                    SITE JOIN
-                    ConnectionType ON ConnectionType.ID = Site.ConnectionTypeID
-            ) T1')
+/* Connections to external databases */
+/* TODO: the rest of these are wrong that aren't fawg now */
+INSERT INTO ExternalDatabases (Name, ConnectionString, Encrypt) VALUES ('FAWG', 'dbFawg', 'true')
 GO
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('Vendor','PQView','
-            (
-             SELECT 
-                site.name as name,
-                SitePropertyValue.valueText AS Value 
-                FROM 
-                    Site JOIN 
-                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
-                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
-                WHERE 
-                    SiteProperty.name = ''Vendor''
+--/* PQView Query for Meter */
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('ConnectionType','PQView','
+--            (
+--             SELECT
+--                    Site.name As name,
+--	               ConnectionType.name AS connectiontype
+--                FROM
+--                    SITE JOIN
+--                    ConnectionType ON ConnectionType.ID = Site.ConnectionTypeID
+--            ) T1')
+--GO
 
-            ) T1')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('Vendor','PQView','
+--            (
+--             SELECT 
+--                site.name as name,
+--                SitePropertyValue.valueText AS Value 
+--                FROM 
+--                    Site JOIN 
+--                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
+--                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
+--                WHERE 
+--                    SiteProperty.name = ''Vendor''
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('Equipment','PQView','
-            (
-             SELECT 
-                site.name as name,
-                SitePropertyValue.valueText AS Value 
-                FROM 
-                    Site JOIN 
-                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
-                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
-                WHERE 
-                    SiteProperty.name = ''Equipment''
+--            ) T1')
+--GO
 
-            ) T1')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('Equipment','PQView','
+--            (
+--             SELECT 
+--                site.name as name,
+--                SitePropertyValue.valueText AS Value 
+--                FROM 
+--                    Site JOIN 
+--                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
+--                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
+--                WHERE 
+--                    SiteProperty.name = ''Equipment''
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('SerialNumber','PQView','
-            (
-             SELECT 
-                site.name as name,
-                SitePropertyValue.valueText AS Value 
-                FROM 
-                    Site JOIN 
-                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
-                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
-                WHERE 
-                    SiteProperty.name = ''Serial Number''
+--            ) T1')
+--GO
 
-            ) T1')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('SerialNumber','PQView','
+--            (
+--             SELECT 
+--                site.name as name,
+--                SitePropertyValue.valueText AS Value 
+--                FROM 
+--                    Site JOIN 
+--                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
+--                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
+--                WHERE 
+--                    SiteProperty.name = ''Serial Number''
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('Version','PQView','
-            (
-             SELECT 
-                site.name as name,
-                SitePropertyValue.valueText AS Value 
-                FROM 
-                    Site JOIN 
-                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
-                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
-                WHERE 
-                    SiteProperty.name = ''Version''
+--            ) T1')
+--GO
 
-            ) T1')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('Version','PQView','
+--            (
+--             SELECT 
+--                site.name as name,
+--                SitePropertyValue.valueText AS Value 
+--                FROM 
+--                    Site JOIN 
+--                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
+--                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
+--                WHERE 
+--                    SiteProperty.name = ''Version''
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('WebAlias','PQView','
-            (
-             SELECT 
-                site.name as name,
-                SitePropertyValue.valueText AS Value 
-                FROM 
-                    Site JOIN 
-                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
-                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
-                WHERE 
-                    SiteProperty.name = ''Web Alias''
+--            ) T1')
+--GO
 
-            ) T1')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('WebAlias','PQView','
+--            (
+--             SELECT 
+--                site.name as name,
+--                SitePropertyValue.valueText AS Value 
+--                FROM 
+--                    Site JOIN 
+--                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
+--                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
+--                WHERE 
+--                    SiteProperty.name = ''Web Alias''
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('InstrumentLocation','PQView','
-            (
-             SELECT 
-                site.name as name,
-                SitePropertyValue.valueText AS Value 
-                FROM 
-                    Site JOIN 
-                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
-                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
-                WHERE 
-                    SiteProperty.name = ''Instrument Location''
+--            ) T1')
+--GO
 
-            ) T1')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('InstrumentLocation','PQView','
+--            (
+--             SELECT 
+--                site.name as name,
+--                SitePropertyValue.valueText AS Value 
+--                FROM 
+--                    Site JOIN 
+--                    SitePropertyValue ON Site.id = SitePropertyValue.siteID JOIN 
+--                    SiteProperty On SiteProperty.ID = SitePropertyValue.sitePropertyID 
+--                WHERE 
+--                    SiteProperty.name = ''Instrument Location''
+
+--            ) T1')
+--GO
 /* FAWG Query for LineSegments */
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('LineSegment','Fawg','
-                        (
+
+Update dbo.[SystemCenter.Setting]
+Set Value = 'True'
+Where Name = 'FAWG.Enabled'
+GO
+
+/* FAWG Query for Line Segments */
+INSERT INTO [SystemCenter.Setting](Name, Value, DefaultValue) VALUES('FAWG.LineSegmentQuery', '
+			 (
              SELECT
                     Lines.Lines_Id,
 	                Lines.fromBusNumber,
@@ -605,12 +615,11 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
                     Branches.Description = ''Fawg One'' AND
 					Lines.ISD < (SELECT YEAR((SELECT GetDate()))*100 + Month((SELECT GetDate()))) AND
 					Lines.OSD > (SELECT YEAR((SELECT GetDate()))*100 + Month((SELECT GetDate())))
-            ) T1')
+            ) T1', '')
 GO
 
 /* FAWG Query for Transformers */
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('Transformer','Fawg','
+INSERT INTO [SystemCenter.Setting](Name, Value, DefaultValue) VALUES('FAWG.TransformerQuery', '
             (
             SELECT
 				XFR.PosSeqResistanceHigh,
@@ -637,397 +646,397 @@ INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
 				Branches ON XFR.Branches_Id = Branches.Branches_Id
 			WHERE
 				Branches.Description = ''Fawg One'' AND XFR.isInService = 1
-            ) T1')
+            ) T1', '')
 GO
 
 
 
 
-/* MAximo Queries for Substation and Meters */
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('Meter','Maximo','
-            (
-             SELECT 
-	            A.UNID AS UNID,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            A.Location_Name AS Location_Name,
-	            A.TVA_ALIS AS TVA_ALIAS,
-	            B.Description AS Description,
-	            B.MeterSector AS MeterSector,
-	            B.MSCO AS MSCO,
-	            B.StationLine AS StationLine,
-	            C.Asset_Desc AS Asset_Desc,
-	            C.Serial_No AS Serial_No,
-	            C.TVA_Model_No AS TVA_Model_No,
-	            C.ASSET_STATUS_CD AS Status,
-	            D.Company_Name AS Manufacturer,
-	            E.Company_Name AS Supplier
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
-	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD LEFT JOIN
-	            EAMDM.EAM_OD_COMPANY_MV E ON C.SUPPLIER_CD = E.COMPANY_CD
-            )')
-GO
+--/* MAximo Queries for Substation and Meters */
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('Meter','Maximo','
+--            (
+--             SELECT 
+--	            A.UNID AS UNID,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            A.Location_Name AS Location_Name,
+--	            A.TVA_ALIS AS TVA_ALIAS,
+--	            B.Description AS Description,
+--	            B.MeterSector AS MeterSector,
+--	            B.MSCO AS MSCO,
+--	            B.StationLine AS StationLine,
+--	            C.Asset_Desc AS Asset_Desc,
+--	            C.Serial_No AS Serial_No,
+--	            C.TVA_Model_No AS TVA_Model_No,
+--	            C.ASSET_STATUS_CD AS Status,
+--	            D.Company_Name AS Manufacturer,
+--	            E.Company_Name AS Supplier
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+--	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD LEFT JOIN
+--	            EAMDM.EAM_OD_COMPANY_MV E ON C.SUPPLIER_CD = E.COMPANY_CD
+--            )')
+--GO
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('Location','Maximo','
-            (
-            SELECT 
-	            A.UNID AS UNID,
-	            B.City AS City,
-	            B.County AS County,
-	            B.Customer1 AS Customer1,
-	            B.Customer2 AS Customer2,
-	            B.Customer3 AS Customer3,
-	            B.Description AS Description,
-	            B.MeterSector AS MeterSector,
-	            B.State AS State,
-	            B.StationLine AS StationLine,
-	            B.Stationowner AS Stationowner,
-	            B.StreetAddress AS StreetAddress,
-	            B.TomArea AS TomArea,
-	            B.Unit AS Unit,
-	            B.ZipCode AS ZipCode,
-	            B.ADCC AS Adcc
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key	
-            )')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('Location','Maximo','
+--            (
+--            SELECT 
+--	            A.UNID AS UNID,
+--	            B.City AS City,
+--	            B.County AS County,
+--	            B.Customer1 AS Customer1,
+--	            B.Customer2 AS Customer2,
+--	            B.Customer3 AS Customer3,
+--	            B.Description AS Description,
+--	            B.MeterSector AS MeterSector,
+--	            B.State AS State,
+--	            B.StationLine AS StationLine,
+--	            B.Stationowner AS Stationowner,
+--	            B.StreetAddress AS StreetAddress,
+--	            B.TomArea AS TomArea,
+--	            B.Unit AS Unit,
+--	            B.ZipCode AS ZipCode,
+--	            B.ADCC AS Adcc
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key	
+--            )')
+--GO
 
-/* MAximo Queries for Breakers, Lines, CapBanks */
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('Breaker','Maximo','
-            (
-            SELECT 
-	            A.UNID AS UNID,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            A.Location_Name AS Location_Name,
-	            B.Description AS Description,
-				B.OperatingKVTrans AS OperatingKV,
-	            B.StationLine AS StationLine,
-	            C.Asset_Desc AS Asset_Desc,
-	            C.TVA_Model_No AS TVA_Model_No,
-	            C.ASSET_STATUS_CD AS Status,
-	            D.Company_Name AS Manufacturer
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
-	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
-			WHERE A.CLASSSTRUCTURE_ID IN (''1009'', ''1010'')
-            )')
-GO
+--/* MAximo Queries for Breakers, Lines, CapBanks */
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('Breaker','Maximo','
+--            (
+--            SELECT 
+--	            A.UNID AS UNID,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            A.Location_Name AS Location_Name,
+--	            B.Description AS Description,
+--				B.OperatingKVTrans AS OperatingKV,
+--	            B.StationLine AS StationLine,
+--	            C.Asset_Desc AS Asset_Desc,
+--	            C.TVA_Model_No AS TVA_Model_No,
+--	            C.ASSET_STATUS_CD AS Status,
+--	            D.Company_Name AS Manufacturer
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+--	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+--			WHERE A.CLASSSTRUCTURE_ID IN (''1009'', ''1010'')
+--            )')
+--GO
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('CapBank','Maximo','
-            (
-            SELECT 
-	            A.UNID AS UNID,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            A.Location_Name AS Location_Name,
-	            B.Description AS Description,
-				B.OperatingKVTrans AS OperatingKV,
-	            B.StationLine AS StationLine,
-				B.BankKVAR AS BankVAR,
-				B.CapacitorCount AS CapCount,
-				B.CapacitorKV AS CapKV,
-				B.CapacitorKVAR AS CapKVAR,
-	            C.Asset_Desc AS Asset_Desc,
-	            C.TVA_Model_No AS TVA_Model_No,
-	            C.ASSET_STATUS_CD AS Status,
-	            D.Company_Name AS Manufacturer
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
-	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD
-			WHERE
-				A.CLASSSTRUCTURE_ID  = ''1012''
-            )')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('CapBank','Maximo','
+--            (
+--            SELECT 
+--	            A.UNID AS UNID,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            A.Location_Name AS Location_Name,
+--	            B.Description AS Description,
+--				B.OperatingKVTrans AS OperatingKV,
+--	            B.StationLine AS StationLine,
+--				B.BankKVAR AS BankVAR,
+--				B.CapacitorCount AS CapCount,
+--				B.CapacitorKV AS CapKV,
+--				B.CapacitorKVAR AS CapKVAR,
+--	            C.Asset_Desc AS Asset_Desc,
+--	            C.TVA_Model_No AS TVA_Model_No,
+--	            C.ASSET_STATUS_CD AS Status,
+--	            D.Company_Name AS Manufacturer
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+--	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD
+--			WHERE
+--				A.CLASSSTRUCTURE_ID  = ''1012''
+--            )')
+--GO
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('Line','Maximo','
-            (
-           SELECT 
-	            A.UNID AS UNID,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            A.ADDRESS_CD AS ADDRESS,
-				A.TVA_AREA AS TVA_Area,
-				A.TVA_DRAWING_NO AS DrawingNo,
-				B.Description AS Description,
-				B.OperatingKVTrans AS OperatingKV,
-	            B.StationLine AS StationLine,
-				B.PhasingDWG AS PhasingDWG,
-				B.Remarks AS Remarks,
-				B.StructureListDWG AS StructureListDWG
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key
-			WHERE
-				A.CLASSSTRUCTURE_ID  = ''1034''
-            )')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('Line','Maximo','
+--            (
+--           SELECT 
+--	            A.UNID AS UNID,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            A.ADDRESS_CD AS ADDRESS,
+--				A.TVA_AREA AS TVA_Area,
+--				A.TVA_DRAWING_NO AS DrawingNo,
+--				B.Description AS Description,
+--				B.OperatingKVTrans AS OperatingKV,
+--	            B.StationLine AS StationLine,
+--				B.PhasingDWG AS PhasingDWG,
+--				B.Remarks AS Remarks,
+--				B.StructureListDWG AS StructureListDWG
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key
+--			WHERE
+--				A.CLASSSTRUCTURE_ID  = ''1034''
+--            )')
+--GO
 
-/* Maximo Tables For Transformers */
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('Transformer_A','Maximo','
-            (
-           SELECT 
-	            A.UNID AS UNID,
-	            A.Location_Name AS Location_Name,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            B.Description AS Description,
-	            B.OperatingKVTrans AS OperatingKV,
-	            B.StationLine AS StationLine,
-	            B.PhasePosition AS Phase,
-	            C.Asset_Desc AS Asset_Desc,
-	            C.TVA_Model_No AS TVA_Model_No,
-	            C.Serial_No AS Serial_No,
-	            C.ASSET_LONG_DESC AS Long_Desc,
-	            D.Company_Name AS Manufacturer
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
-	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
-            WHERE
-                A.CLASSSTRUCTURE_ID  = ''1069''
-            )')
-GO
+--/* Maximo Tables For Transformers */
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('Transformer_A','Maximo','
+--            (
+--           SELECT 
+--	            A.UNID AS UNID,
+--	            A.Location_Name AS Location_Name,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            B.Description AS Description,
+--	            B.OperatingKVTrans AS OperatingKV,
+--	            B.StationLine AS StationLine,
+--	            B.PhasePosition AS Phase,
+--	            C.Asset_Desc AS Asset_Desc,
+--	            C.TVA_Model_No AS TVA_Model_No,
+--	            C.Serial_No AS Serial_No,
+--	            C.ASSET_LONG_DESC AS Long_Desc,
+--	            D.Company_Name AS Manufacturer
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+--	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+--            WHERE
+--                A.CLASSSTRUCTURE_ID  = ''1069''
+--            )')
+--GO
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('Transformer_B','Maximo','
-            (
-           SELECT 
-	            A.UNID AS UNID,
-	            A.Location_Name AS Location_Name,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            B.Description AS Description,
-	            B.OperatingKVTrans AS OperatingKV,
-	            B.StationLine AS StationLine,
-	            B.PhasePosition AS Phase,
-	            C.Asset_Desc AS Asset_Desc,
-	            C.TVA_Model_No AS TVA_Model_No,
-	            C.Serial_No AS Serial_No,
-	            C.ASSET_LONG_DESC AS Long_Desc,
-	            D.Company_Name AS Manufacturer
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
-	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
-            WHERE
-                A.CLASSSTRUCTURE_ID  = ''1069''
-            )')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('Transformer_B','Maximo','
+--            (
+--           SELECT 
+--	            A.UNID AS UNID,
+--	            A.Location_Name AS Location_Name,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            B.Description AS Description,
+--	            B.OperatingKVTrans AS OperatingKV,
+--	            B.StationLine AS StationLine,
+--	            B.PhasePosition AS Phase,
+--	            C.Asset_Desc AS Asset_Desc,
+--	            C.TVA_Model_No AS TVA_Model_No,
+--	            C.Serial_No AS Serial_No,
+--	            C.ASSET_LONG_DESC AS Long_Desc,
+--	            D.Company_Name AS Manufacturer
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+--	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+--            WHERE
+--                A.CLASSSTRUCTURE_ID  = ''1069''
+--            )')
+--GO
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('Transformer_C','Maximo','
-            (
-           SELECT 
-	            A.UNID AS UNID,
-	            A.Location_Name AS Location_Name,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            B.Description AS Description,
-	            B.OperatingKVTrans AS OperatingKV,
-	            B.StationLine AS StationLine,
-	            B.PhasePosition AS Phase,
-	            C.Asset_Desc AS Asset_Desc,
-	            C.TVA_Model_No AS TVA_Model_No,
-	            C.Serial_No AS Serial_No,
-	            C.ASSET_LONG_DESC AS Long_Desc,
-	            D.Company_Name AS Manufacturer
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
-	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
-            WHERE
-                A.CLASSSTRUCTURE_ID  = ''1069''
-            )')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('Transformer_C','Maximo','
+--            (
+--           SELECT 
+--	            A.UNID AS UNID,
+--	            A.Location_Name AS Location_Name,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            B.Description AS Description,
+--	            B.OperatingKVTrans AS OperatingKV,
+--	            B.StationLine AS StationLine,
+--	            B.PhasePosition AS Phase,
+--	            C.Asset_Desc AS Asset_Desc,
+--	            C.TVA_Model_No AS TVA_Model_No,
+--	            C.Serial_No AS Serial_No,
+--	            C.ASSET_LONG_DESC AS Long_Desc,
+--	            D.Company_Name AS Manufacturer
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+--	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+--            WHERE
+--                A.CLASSSTRUCTURE_ID  = ''1069''
+--            )')
+--GO
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('LTC_A','Maximo','
-            (
-           SELECT 
-	            A.UNID AS UNID,
-	            A.Location_Name AS Location_Name,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            B.Description AS Description,
-	            B.OperatingKVTrans AS OperatingKV,
-	            B.StationLine AS StationLine,
-	            B.PhasePosition AS Phase,
-	            C.Asset_Desc AS Asset_Desc,
-	            C.Serial_No AS Serial_No
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
-            WHERE
-               A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
-            )')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('LTC_A','Maximo','
+--            (
+--           SELECT 
+--	            A.UNID AS UNID,
+--	            A.Location_Name AS Location_Name,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            B.Description AS Description,
+--	            B.OperatingKVTrans AS OperatingKV,
+--	            B.StationLine AS StationLine,
+--	            B.PhasePosition AS Phase,
+--	            C.Asset_Desc AS Asset_Desc,
+--	            C.Serial_No AS Serial_No
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
+--            WHERE
+--               A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
+--            )')
+--GO
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('LTC_B','Maximo','
-            (
-           SELECT 
-	            A.UNID AS UNID,
-	            A.Location_Name AS Location_Name,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            B.Description AS Description,
-	            B.OperatingKVTrans AS OperatingKV,
-	            B.StationLine AS StationLine,
-	            B.PhasePosition AS Phase,
-	            C.Asset_Desc AS Asset_Desc,
-	            C.Serial_No AS Serial_No
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
-            WHERE
-                A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
-            )')
-GO
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('LTC_B','Maximo','
+--            (
+--           SELECT 
+--	            A.UNID AS UNID,
+--	            A.Location_Name AS Location_Name,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            B.Description AS Description,
+--	            B.OperatingKVTrans AS OperatingKV,
+--	            B.StationLine AS StationLine,
+--	            B.PhasePosition AS Phase,
+--	            C.Asset_Desc AS Asset_Desc,
+--	            C.Serial_No AS Serial_No
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
+--            WHERE
+--                A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
+--            )')
+--GO
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('LTC_C','Maximo','
-            (
-           SELECT 
-	            A.UNID AS UNID,
-	            A.Location_Name AS Location_Name,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            B.Description AS Description,
-	            B.OperatingKVTrans AS OperatingKV,
-	            B.StationLine AS StationLine,
-	            B.PhasePosition AS Phase,
-	            C.Asset_Desc AS Asset_Desc,
-	            C.Serial_No AS Serial_No
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
-            WHERE
-                A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
-            )')
-GO
-
-
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('LTC_C','Maximo','
+--            (
+--           SELECT 
+--	            A.UNID AS UNID,
+--	            A.Location_Name AS Location_Name,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            B.Description AS Description,
+--	            B.OperatingKVTrans AS OperatingKV,
+--	            B.StationLine AS StationLine,
+--	            B.PhasePosition AS Phase,
+--	            C.Asset_Desc AS Asset_Desc,
+--	            C.Serial_No AS Serial_No
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
+--            WHERE
+--                A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
+--            )')
+--GO
 
 
-/* Maximo Table for Trip Coils */
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('TripCoil','Maximo','
-            (
-            SELECT 
-	            A.UNID AS UNID,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            A.Location_Name AS Location_Name,
-	            B.Description AS Description,
-	            B.StationLine AS StationLine,
-	            C.Asset_Desc AS Asset_Desc
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key 
-			WHERE A.CLASSSTRUCTURE_ID = ''1128''
-            )')
-GO
 
-/* Maximo Table For Instrument Transformers */
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('INSTXFR_A','Maximo','
-            (
-           SELECT 
-	            A.UNID AS UNID,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            A.Location_Name AS Location_Name,
-				A.LOCATION_SUB_CLASS_NAME AS LocationSubCLass,
-	            B.Description AS Description,
-				B.OperatingKVTrans AS OperatingKV,
-	            B.StationLine AS StationLine,
-				B.PhasePosition AS Phase,
-	            C.Asset_Desc AS Asset_Desc,
-	            C.TVA_Model_No AS TVA_Model_No,
-				C.Serial_No AS Serial_No,
-	            D.Company_Name AS Manufacturer
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
-	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
-			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'') 
-            )')
-GO
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('INSTXFR_B','Maximo','
-            (
-           SELECT 
-	            A.UNID AS UNID,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            A.Location_Name AS Location_Name,
-				A.LOCATION_SUB_CLASS_NAME AS LocationSubCLass,
-	            B.Description AS Description,
-				B.OperatingKVTrans AS OperatingKV,
-	            B.StationLine AS StationLine,
-				B.PhasePosition AS Phase,
-	            C.Asset_Desc AS Asset_Desc,
-	            C.TVA_Model_No AS TVA_Model_No,
-				C.Serial_No AS Serial_No,
-	            D.Company_Name AS Manufacturer
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
-	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
-			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'')
-            )')
-GO
+--/* Maximo Table for Trip Coils */
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('TripCoil','Maximo','
+--            (
+--            SELECT 
+--	            A.UNID AS UNID,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            A.Location_Name AS Location_Name,
+--	            B.Description AS Description,
+--	            B.StationLine AS StationLine,
+--	            C.Asset_Desc AS Asset_Desc
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key 
+--			WHERE A.CLASSSTRUCTURE_ID = ''1128''
+--            )')
+--GO
 
-INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
-           ('INSTXFR_C','Maximo','
-            (
-           SELECT 
-	            A.UNID AS UNID,
-	            A.UNIT_CD AS UNIT,
-	            A.Function_CD AS Function,
-	            A.Location_Name AS Location_Name,
-				A.LOCATION_SUB_CLASS_NAME AS LocationSubCLass,
-	            B.Description AS Description,
-				B.OperatingKVTrans AS OperatingKV,
-	            B.StationLine AS StationLine,
-				B.PhasePosition AS Phase,
-	            C.Asset_Desc AS Asset_Desc,
-	            C.TVA_Model_No AS TVA_Model_No,
-				C.Serial_No AS Serial_No,
-	            D.Company_Name AS Manufacturer
-            FROM 
-	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
-	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
-	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
-	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
-			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'')
-            )')
-GO
+--/* Maximo Table For Instrument Transformers */
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('INSTXFR_A','Maximo','
+--            (
+--           SELECT 
+--	            A.UNID AS UNID,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            A.Location_Name AS Location_Name,
+--				A.LOCATION_SUB_CLASS_NAME AS LocationSubCLass,
+--	            B.Description AS Description,
+--				B.OperatingKVTrans AS OperatingKV,
+--	            B.StationLine AS StationLine,
+--				B.PhasePosition AS Phase,
+--	            C.Asset_Desc AS Asset_Desc,
+--	            C.TVA_Model_No AS TVA_Model_No,
+--				C.Serial_No AS Serial_No,
+--	            D.Company_Name AS Manufacturer
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+--	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+--			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'') 
+--            )')
+--GO
+
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('INSTXFR_B','Maximo','
+--            (
+--           SELECT 
+--	            A.UNID AS UNID,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            A.Location_Name AS Location_Name,
+--				A.LOCATION_SUB_CLASS_NAME AS LocationSubCLass,
+--	            B.Description AS Description,
+--				B.OperatingKVTrans AS OperatingKV,
+--	            B.StationLine AS StationLine,
+--				B.PhasePosition AS Phase,
+--	            C.Asset_Desc AS Asset_Desc,
+--	            C.TVA_Model_No AS TVA_Model_No,
+--				C.Serial_No AS Serial_No,
+--	            D.Company_Name AS Manufacturer
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+--	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+--			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'')
+--            )')
+--GO
+
+--INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
+--           ('INSTXFR_C','Maximo','
+--            (
+--           SELECT 
+--	            A.UNID AS UNID,
+--	            A.UNIT_CD AS UNIT,
+--	            A.Function_CD AS Function,
+--	            A.Location_Name AS Location_Name,
+--				A.LOCATION_SUB_CLASS_NAME AS LocationSubCLass,
+--	            B.Description AS Description,
+--				B.OperatingKVTrans AS OperatingKV,
+--	            B.StationLine AS StationLine,
+--				B.PhasePosition AS Phase,
+--	            C.Asset_Desc AS Asset_Desc,
+--	            C.TVA_Model_No AS TVA_Model_No,
+--				C.Serial_No AS Serial_No,
+--	            D.Company_Name AS Manufacturer
+--            FROM 
+--	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+--	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+--	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+--	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+--			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'')
+--            )')
+--GO
 
 INSERT INTO ValueListGroup (Name, Description) VALUES ('TSC', 'List of TSCs - Value is TSC name, AltValue is department number') 
 GO

@@ -89,7 +89,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
     function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Customer/FieldName/0`,
+            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Customer/FieldName/0`,
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true
@@ -103,7 +103,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
             }
         }
 
-        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+        handle.done((d: Array<SystemCenter.Types.AdditionalFieldView>) => {
             let ordered = _.orderBy((SearchFields.Customer as Search.IField<OpenXDA.Types.Customer>[]).concat(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type) } as Search.IField<OpenXDA.Types.Customer>
             ))), ['label'], ["asc"]);

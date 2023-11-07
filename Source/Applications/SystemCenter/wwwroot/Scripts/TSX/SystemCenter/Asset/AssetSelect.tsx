@@ -32,6 +32,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 
 declare var homePath: string;
 
+//TODO: Everything that uses this should use FilterSelect in common components instead
 interface IProps {
     OnCloseFunction: (selectedArrays: Array<SystemCenter.Types.DetailedAsset>, confirmed: boolean) => void,
     SelectedAssets: Array<SystemCenter.Types.DetailedAsset>,
@@ -79,7 +80,7 @@ export default function AssetSelect(props: IProps) {
     function getAdditionalAssetFields(setFields) {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/AdditionalField/ParentTable/Asset/FieldName/0`,
+            url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Asset/FieldName/0`,
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true
@@ -93,7 +94,7 @@ export default function AssetSelect(props: IProps) {
             }
         }
 
-        handle.done((d: Array<SystemCenter.Types.AdditionalField>) => {
+        handle.done((d: Array<SystemCenter.Types.AdditionalFieldView>) => {
 
             let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedAsset>

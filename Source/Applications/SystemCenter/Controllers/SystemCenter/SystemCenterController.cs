@@ -38,9 +38,13 @@ using System.Collections.Generic;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Web.Http;
+using System.Web.UI.WebControls;
 using SystemCenter.Model;
+using SystemCenter.ScheduledProcesses;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace SystemCenter.Controllers
 {
@@ -153,7 +157,7 @@ namespace SystemCenter.Controllers
     public class DBCleanupController : ModelController<openXDA.Model.DBCleanup> { }
 
     [RoutePrefix("api/SystemCenter/Customer")]
-    public class CustomerController : ModelController<Customer>
+    public class CustomerController : ExternalModelController<Customer>
     {
         public override IHttpActionResult Post([FromBody] JObject record)
         {
@@ -532,10 +536,15 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/OpenXDA/PQApplications")]
     public class PQApplicationsController : ModelController<openXDA.Model.PQApplications> { }
 
-    [RoutePrefix("api/SystemCenter/AdditionalField")]
-    public class AdditionalFieldController : ModelController<AdditionalField>
-    {
+    [RoutePrefix("api/SystemCenter/ExternalOpenXDAField")]
+    public class ExternalOpenXDAFieldController : ModelController<ExternalOpenXDAField> { }
 
+    [RoutePrefix("api/SystemCenter/AdditionalField")]
+    public class AdditionalFieldController : ModelController<AdditionalField> { }
+
+    [RoutePrefix("api/SystemCenter/AdditionalFieldView")]
+    public class AdditionalFieldViewController : ModelController<AdditionalFieldView>
+    {
         [HttpGet, Route("ParentTable/{openXDAParentTable}/{sort}/{ascending:int}")]
         public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable, string sort, int ascending)
         {
@@ -552,13 +561,16 @@ namespace SystemCenter.Controllers
 
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
-                    IEnumerable<AdditionalField> records = new TableOperations<AdditionalField>(connection).QueryRecords(orderByExpression, new RecordRestriction( "ParentTable = {0}", openXDAParentTable));
-                    if (!User.IsInRole("Administrator"))
-                    {
-                        records = records.Where(x => !x.IsSecure);
-                    }
 
-                    return Ok(records);
+                    string sqlFormat = $@"
+                        SELECT * FROM
+                            ({CustomView}) FullTbl
+                        WHERE ParentTable = {{0}}
+                        {(User.IsInRole("Administrator") ? "" : "AND IsSecure = 0")}
+                        ORDER BY {orderByExpression}";
+                    DataTable dataTable = connection.RetrieveData(sqlFormat, openXDAParentTable);
+
+                    return Ok(dataTable);
                 }
             }
             else
@@ -575,8 +587,8 @@ namespace SystemCenter.Controllers
 
                 using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
                 {
-                    string tableName = new TableOperations<extDBTables>(connection).TableName;
-                    DataTable dataTbl = connection.RetrieveData($"SELECT DISTINCT [ExternalDB] from {tableName}");
+                    string tableName = TableOperations<ExternalDatabases>.GetTableName();
+                    DataTable dataTbl = connection.RetrieveData($"SELECT DISTINCT [Name] from {tableName}");
                     return Ok(dataTbl);
                 }
             }
@@ -1374,6 +1386,135 @@ namespace SystemCenter.Controllers
                 TableOperations<Widget> tbl = new TableOperations<Widget>(connection);
                 return Ok(tbl.QueryRecords());
             }
+        }
+    }
+
+    [RoutePrefix("api/SystemCenter/ExternalDatabases")]
+    public class ExternalDatabasesController : ModelController<ExternalDatabases>
+    {
+        private static ServiceHost Host = Program.Host;
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck() || ViewOnly)
+                return Unauthorized();
+
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    ExternalDatabases newRecord = record.ToObject<ExternalDatabases>();
+                    int result = new TableOperations<ExternalDatabases>(connection).AddNewRecord(newRecord);
+                    Host.ExtDBChangeSchedule(newRecord);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        
+        public override IHttpActionResult Patch([FromBody] ExternalDatabases record)
+        {
+            if (!PatchAuthCheck() || ViewOnly)
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    int result = new TableOperations<ExternalDatabases>(connection).UpdateRecord(record);
+                    Host.ExtDBChangeSchedule(record);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpPost, Route("TestConnection")]
+        public IHttpActionResult TestConnection([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+                using (AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(extDB))
+                {
+                    return Ok(0);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpPost, Route("UnscheduledUpdate")]
+        public IHttpActionResult UnscheduledUpdate([FromBody] JObject record)
+        {
+            if (!PostAuthCheck() || ViewOnly)
+                return Unauthorized();
+            try
+            {
+                ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+                ScheduledExtDBTask.Run(extDB);
+                return Ok(0);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+    }
+
+    [RoutePrefix("api/SystemCenter/extDBTables")]
+    public class ExternalTableController : ModelController<extDBTables>
+    {
+        [HttpGet, Route("RetrieveTable/{extTableID:int}")]
+        public IHttpActionResult RetrieveTableByID(int extTableID)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+                {
+                    extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
+                    return Ok(QueryExternal(table, xdaConnection));
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        [HttpPost, Route("RetrieveTable")]
+        public IHttpActionResult RetrieveTable([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+                {
+                    extDBTables table = record.ToObject<extDBTables>();
+                    return Ok(QueryExternal(table, xdaConnection));
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+        private DataTable QueryExternal(extDBTables table, AdoDataConnection xdaConnection)
+        {
+            ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
+            if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
+            using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
+                return ScheduledExtDBTask.RetrieveDataTable(table, extConnection);
         }
     }
 

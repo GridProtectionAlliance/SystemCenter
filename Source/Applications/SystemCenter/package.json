@@ -27,7 +27,7 @@
     "url-loader": "4.1.1"
   },
   "dependencies": {
-    "@gpa-gemstone/application-typings": "0.0.61",
+    "@gpa-gemstone/application-typings": "0.0.62",
     "@gpa-gemstone/common-pages": "0.0.78",
     "@gpa-gemstone/gpa-symbols": "0.0.28",
     "@gpa-gemstone/helper-functions": "0.0.26",

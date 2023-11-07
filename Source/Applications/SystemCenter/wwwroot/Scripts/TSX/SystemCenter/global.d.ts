@@ -52,6 +52,9 @@ export namespace SystemCenter {
 
 // OpenXDA Models
 export namespace OpenXDA {
+    // Additional Field Types
+    type AdditionalFieldType = 'Meter' | 'Location' | 'Customer' | 'Company' | 'ValueListGroup' | 'Asset' | GemstoneXDA.Types.AssetTypeName;
+
     //Events
     interface Event { UpdatedBy: string, FileVersion: number, Description: string, SamplesPerCycle: number, SamplesPerSecond: number, TimeZoneOffset: number, Samples: number, EndTime: string, StartTime: string, Alias: string, Name: string, EventDataID: number | null, EventTypeID: number, AssetID: number, MeterID: number, FileGroupID: number, ID: number, ShortName: string }
 
