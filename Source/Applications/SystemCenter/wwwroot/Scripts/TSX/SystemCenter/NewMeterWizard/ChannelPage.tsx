@@ -427,7 +427,7 @@ export default function ChannelPage(props: IProps) {
                     ShowToolTip={true}
                     BtnClass={'btn-primary' }
                     TooltipContent={<>
-                        {NSpare == 0 ? <p>no spare channels where identified.</p> : null}
+                        {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
                         {NSpare > 0 ? <p>Channels are considered Spare if the Description is "spare" or they are digital with description "A00 analog channel 00". </p> : null}
                     </>}
                 />
