@@ -281,7 +281,7 @@ export default function AssetPage(props: IProps) {
             key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }
         },
         {
-            key: 'VoltageKV', field: 'VoltageKV', label: '(kV)', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }
+            key: 'VoltageKV', field: 'VoltageKV', label: 'kV', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }
         },
         {
             key: 'Channels', label: 'Channels', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
