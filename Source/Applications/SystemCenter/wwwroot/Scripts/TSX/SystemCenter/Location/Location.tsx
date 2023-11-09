@@ -29,7 +29,6 @@ import LocationMeterWindow from './LocationMeter';
 import LocationAssetWindow from './LocationAsset';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
-import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { TabSelector, Warning, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import LocationImagesWindow from './LocationImages';
 import LocationDrawingsWindow from './LocationDrawings';
@@ -102,7 +101,6 @@ function Location(props: IProps) {
         { Id: "additionalFields", Label: "Additional Fields" },
         { Id: "meters", Label: "Meters" },
         { Id: "assets", Label: "Assets" },
-        { Id: "extDB", Label: "External DB" },
         { Id: "images", Label: "Images" },
         { Id: "drawings", Label: "Drawings" },
     ];
@@ -135,9 +133,6 @@ function Location(props: IProps) {
                 </div>
                 <div className={"tab-pane " + (tab == "assets" ? " active" : "fade")} id="assets">
                     <LocationAssetWindow Location={location} />
-                </div>
-                <div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
-                    <ExternalDBUpdate ID={props.LocationID} Type='Location' Tab={tab} />
                 </div>
                 <div className={"tab-pane " + (tab == "images" ? " active" : "fade")} id="images">
                     <LocationImagesWindow Location={location} />

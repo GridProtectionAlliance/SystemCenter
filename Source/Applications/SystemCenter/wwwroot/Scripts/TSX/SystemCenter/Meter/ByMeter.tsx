@@ -108,16 +108,6 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                         <button className="btn btn-primary" data-tooltip onClick={goNewMeterWizard} hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}>New Meter</button>
                     </fieldset>
                 </li>
-                <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
-                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                        <form>
-                            <div className="form-group">
-                                <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
-                            </div>
-                        </form>
-                    </fieldset>
-                </li>
             </DefaultSearch.Meter>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<SystemCenter.Types.DetailedMeter>
