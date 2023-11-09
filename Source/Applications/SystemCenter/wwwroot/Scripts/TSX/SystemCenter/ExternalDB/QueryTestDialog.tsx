@@ -35,7 +35,6 @@ import FilterSelect from '../CommonComponents/FilterSelect';
 
 interface IProps {
     ExtTable: SystemCenter.Types.extDBTables;
-    SetExtTable: (table: SystemCenter.Types.extDBTables) => void;
     Show: boolean;
     SetShow: (show: boolean) => void;
 }
@@ -248,6 +247,7 @@ export default function QueryTestDialog(props: IProps) {
             }
             return (() => { if (handle != null && handle.abort != null) handle.abort(); })
         }
+        else (setTestStatus('unintiated'));
     }, [step, xdaRecord]);
 
     React.useEffect(() => {
@@ -259,7 +259,7 @@ export default function QueryTestDialog(props: IProps) {
     return (
         <>
             <Modal Title={"Test External Table Query"} Show={props.Show && step !== pickRecordStep}
-                ConfirmText={(step !==  sendTestStep ? "Next" : "Finish")} Size={step === pickParentStep ? 'sm' : (parentTable.ShowTableSelect ? 'lg' : 'xlg')} ShowCancel={true} ShowX={true}
+                ConfirmText={(step !==  sendTestStep ? "Next" : "Finish")} Size={step === pickParentStep ? 'sm' : (parentTable.ShowTableSelect ? 'lg' : 'xlg')} ShowCancel={true} ShowX={false}
                 CancelText={(step !== pickParentStep ? 'Back' : 'Close')} CallBack={conf => {
                     if (conf) {
                         if (step === pickParentStep && !parentTable.ShowTableSelect) setStep(sendTestStep);

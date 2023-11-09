@@ -24,14 +24,17 @@
 import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
+import QueryTestDialog from './QueryTestDialog';
 
 interface IProps {
     Record: SystemCenter.Types.extDBTables,
     Setter: (record: SystemCenter.Types.extDBTables) => void,
-    SetErrors?: (e: string[]) => void
+    SetErrors?: (e: string[]) => void,
+    HideTestButton?: boolean
 }
 
 export default function ExternalDBTableForm(props: IProps) {
+    const [showDialog, setShowDialog] = React.useState<boolean>(false);
 
     function Valid(field: keyof (SystemCenter.Types.extDBTables)): boolean {
         if (field == 'TableName')
@@ -46,6 +49,9 @@ export default function ExternalDBTableForm(props: IProps) {
         <>
             <Input<SystemCenter.Types.extDBTables> Record={props.Record} Field={'TableName'} Label='Name' Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <TextArea<SystemCenter.Types.extDBTables> Rows={8} Record={props.Record} Field={'Query'} Valid={Valid} Setter={props.Setter} />
+            <button className="btn btn-primary pull-left" hidden={props.HideTestButton ?? true}
+                onClick={() => { setShowDialog(true); }}>Test Table Query</button>
+            <QueryTestDialog ExtTable={props.Record} Show={showDialog} SetShow={setShowDialog} />
         </>
     );
 }
