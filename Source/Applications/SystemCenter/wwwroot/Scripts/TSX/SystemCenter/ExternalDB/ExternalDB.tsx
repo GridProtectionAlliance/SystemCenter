@@ -42,11 +42,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     const [tab, setTab] = React.useState(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
-    // Testing db variables
-    const [popupMessage, setPopupMessage] = React.useState<string>("");
-    const [popupTitle, setPopupTitle] = React.useState<string>("");
     const [requestStatus, setRequestStatus] = React.useState<Application.Types.Status>('unintiated');
-
 
     const Tabs = [
         { Id: "info", Label: "Info" },
@@ -76,34 +72,8 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
         window.location.href = homePath + 'index.cshtml?name=ByExternalDB';
     }
 
-    const TestExternal = React.useCallback(() => {
-        setRequestStatus('loading');
-        setPopupTitle("Connection Test Results");
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/SystemCenter/ExternalDatabases/TestConnection`,
-            contentType: "application/json; charset=utf-8",
-            data: JSON.stringify(record),
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-        handle.done(() => {
-            setPopupMessage("Connection to database successful!");
-            setRequestStatus('idle');
-        });
-        handle.fail(() => {
-            setPopupMessage("Unable to connect to external database. Check connection settings.");
-            setRequestStatus('idle');
-        });
-        return () => {
-            if (handle != null && handle.abort != null) handle.abort();
-        };
-    }, [record, setPopupMessage, setRequestStatus, setPopupTitle]);
-
     const RequestUpdate = React.useCallback(() => {
         setRequestStatus('loading');
-        setPopupTitle("Update Results");
         let handle = $.ajax({
             type: "POST",
             url: `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate`,
@@ -114,17 +84,15 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
             async: true
         });
         handle.done(() => {
-            setPopupMessage("Unscheduled update successful.");
             setRequestStatus('idle');
         });
         handle.fail(() => {
-            setPopupMessage(`Unscheduled Update Failure.`);
-            setRequestStatus('idle');
+            setRequestStatus('error');
         });
         return () => {
             if (handle != null && handle.abort != null) handle.abort();
         };
-    }, [record, setPopupMessage, setRequestStatus, setPopupTitle]);
+    }, [record, setRequestStatus]);
 
     const ClosePopup = React.useCallback(() => {
         setRequestStatus('unintiated');
@@ -142,8 +110,6 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                     <button className="btn btn-danger pull-right" hidden={record == null}
                         onClick={() => setShowRemove(true)}>Delete External DB</button>
                     <button className="btn btn-light pull-right" hidden={record == null}
-                        onClick={TestExternal}>Test DB Connection</button>
-                    <button className="btn btn-primary pull-right" hidden={record == null}
                         onClick={RequestUpdate}>Perform Update</button>
                 </div>
             </div>
@@ -164,9 +130,9 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 Message={'This will permanently delete this External Database and cannot be undone.'}
                 Show={showRemove} Title={'Delete ' + (record?.Name ?? 'External Database')}
                 CallBack={(conf) => { if (conf) Delete(); setShowRemove(false); }} />
-            <Modal Title={popupTitle} Show={requestStatus === 'idle'} ConfirmBtnClass={'btn-secondary'} ConfirmText={'Close'}
+            <Modal Title="Update Results" Show={requestStatus === 'idle' || requestStatus === 'error'} ConfirmBtnClass={'btn-secondary'} ConfirmText={'Close'}
                 ShowX={true} ShowCancel={false} Size={'sm'} CallBack={ClosePopup}>
-                <p>{popupMessage}</p>
+                <p>{requestStatus === 'idle' ? "Unscheduled update successful." : "Unscheduled Update Failure."}</p>
             </Modal>
         </div>
     )
