@@ -246,11 +246,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                             <form>
                             <div className="form-group">
                                 <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowNewModal(true); }}>Add Asset</button>
-                                </div>
-                            <div className="form-group">
-                                <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>Update Ext DB </button>
-                                </div>
-                                    
+                            </div>
                             </form>
                         </fieldset>
                 </li>
