@@ -69,12 +69,12 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     function Delete() {
         dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record }));
-        window.location.href = homePath + 'index.cshtml?name=ExternalDB&ID=' + record.ExtDBID;
+        GoToExternalDB();
     }
 
-    const SaveTable = React.useCallback((table: gemstoneSC.Types.extDBTables) => {
-        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'PATCH', record: table }));
-    }, [dispatch, ExternalDBTablesSlice.DBAction]);
+    function GoToExternalDB() {
+        window.location.href = homePath + 'index.cshtml?name=ExternalDB&ID=' + record.ExtDBID;
+    }
 
     if (record == null) return null;
     return (
@@ -86,6 +86,8 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 <div className="col">
                     <button className="btn btn-danger pull-right" hidden={record == null}
                         onClick={() => setShowRemove(true)}>Delete Table</button>
+                    <button className="btn btn-light pull-right" hidden={record?.ExtDBID == null}
+                        onClick={() => GoToExternalDB()}>Navigate to External Database</button>
                 </div>
             </div>
 
