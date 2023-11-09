@@ -22,13 +22,19 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
 import { IsCron } from '@gpa-gemstone/helper-functions';
+import { LoadingIcon, LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
 
-export default function ExternalDBForm(props: { Record: SystemCenter.Types.ExternalDatabases, Setter: (record: SystemCenter.Types.ExternalDatabases) => void, setErrors?: (e: string[]) => void }) {
-
+export default function ExternalDBForm(props: {
+    Record: SystemCenter.Types.ExternalDatabases,
+    Setter: (record: SystemCenter.Types.ExternalDatabases) => void,
+    setErrors?: (e: string[]) => void,
+    HideTestButton?: boolean
+}) {
     const [showDataProvider, setShowDataProvider] = React.useState<boolean>(false);
+    const [requestStatus, setRequestStatus] = React.useState<Application.Types.Status>('unintiated');
 
     function Valid(field: keyof (SystemCenter.Types.ExternalDatabases)): boolean {
         if (field == 'Name')
@@ -48,19 +54,51 @@ export default function ExternalDBForm(props: { Record: SystemCenter.Types.Exter
         return null;
     }
 
+    const TestExternal = React.useCallback(() => {
+        setRequestStatus('loading');
+        let handle = $.ajax({
+            type: "POST",
+            url: `api/SystemCenter/ExternalDatabases/TestConnection`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(props.Record),
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+        handle.done(() => {
+            setRequestStatus('idle');
+        });
+        handle.fail(() => {
+            setRequestStatus('error');
+        });
+        return () => {
+            if (handle != null && handle.abort != null) handle.abort();
+        };
+    }, [props.Record, setRequestStatus]);
+
+    const ClosePopup = React.useCallback(() => {
+        setRequestStatus('unintiated');
+    }, [setRequestStatus]);
+
     React.useEffect(() => {
         setShowDataProvider(props.Record.Encrypt);
     }, [props.Record.Encrypt]);
 
-
     return (
-        <form>
+        <>
             <Input<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <Input<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Schedule'} Feedback={'A Cron Schedule of less than 50 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <TextArea<SystemCenter.Types.ExternalDatabases> Rows={3} Record={props.Record} Field={'ConnectionString'} Valid={Valid} Setter={props.Setter} />
             <CheckBox<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Encrypt'} Label={'Encrypted'} Setter={props.Setter} />
             <br/>
             {DataProvider()}
-        </form>
+            <button className="btn btn-primary pull-left" hidden={props.HideTestButton ?? true}
+                onClick={TestExternal}>Test DB Connection</button>
+            <Modal Title="Connection Test Results" Show={requestStatus === 'error' || requestStatus === 'idle'} ConfirmBtnClass={'btn-secondary'} ConfirmText={'Close'}
+                ShowX={true} ShowCancel={false} Size={'sm'} CallBack={ClosePopup}>
+                <p>{requestStatus === 'idle' ? "Connection to database successful." : "Unable to connect to external database. Check connection settings."}</p>
+            </Modal>
+            <LoadingScreen Show={requestStatus === 'loading'} />
+        </>
     );
 }
