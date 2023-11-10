@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ExternalDBForm.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -33,7 +33,8 @@ export default function ExternalDBForm(props: {
     setErrors?: (e: string[]) => void,
     HideTestButton?: boolean
 }) {
-    const [showDataProvider, setShowDataProvider] = React.useState<boolean>(false);
+
+    const [showConnectionString, setShowConnectionString] = React.useState<boolean>(false);
     const [requestStatus, setRequestStatus] = React.useState<Application.Types.Status>('unintiated');
 
     function Valid(field: keyof (SystemCenter.Types.ExternalDatabases)): boolean {
@@ -46,9 +47,9 @@ export default function ExternalDBForm(props: {
         return false;
     }
 
-    function DataProvider() {
-        if (showDataProvider) {
-            return <TextArea<SystemCenter.Types.ExternalDatabases> Rows={3} Record={props.Record} Field={'DataProviderString'} Valid={Valid} Setter={props.Setter} />
+    function ConnectionString() {
+        if (showConnectionString) {
+            return <TextArea<SystemCenter.Types.ExternalDatabases> Rows={3} Record={props.Record} Field={'ConnectionString'} Label={'Connection String'} Valid={Valid} Setter={props.Setter} />
         }
 
         return null;
@@ -81,17 +82,17 @@ export default function ExternalDBForm(props: {
     }, [setRequestStatus]);
 
     React.useEffect(() => {
-        setShowDataProvider(props.Record.Encrypt);
+        setShowConnectionString(props.Record.Encrypt);
     }, [props.Record.Encrypt]);
 
     return (
         <>
             <Input<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <Input<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Schedule'} Feedback={'Schedule must be in cron format.'} Valid={Valid} Setter={props.Setter} Help={'In order of minutes, hours, day of the month, month, weekday. For example, a Schedule of every midnight would be * 0 * * *'} />
-            <TextArea<SystemCenter.Types.ExternalDatabases> Rows={3} Record={props.Record} Field={'ConnectionString'} Valid={Valid} Setter={props.Setter} />
+            <TextArea<SystemCenter.Types.ExternalDatabases> Rows={3} Record={props.Record} Field={'DataProviderString'} Label={'Data Provider String'} Valid={Valid} Setter={props.Setter} />
             <CheckBox<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Encrypt'} Label={'Encrypted'} Setter={props.Setter} />
             <br/>
-            {DataProvider()}
+            {ConnectionString()}
             <button className="btn btn-primary pull-left" hidden={props.HideTestButton ?? true}
                 onClick={TestExternal}>Test DB Connection</button>
             <Modal Title="Connection Test Results" Show={requestStatus === 'error' || requestStatus === 'idle'} ConfirmBtnClass={'btn-secondary'} ConfirmText={'Close'}
