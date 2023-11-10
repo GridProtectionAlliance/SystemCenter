@@ -27,6 +27,7 @@ import { useHistory } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { IsCron } from '@gpa-gemstone/helper-functions';
 import ExternalDBForm from './ExternalDBForm';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ExternalDatabasesSlice } from '../Store/Store';
@@ -59,6 +60,17 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
         if (status === 'unintiated' || status === 'changed')
             dispatch(ExternalDatabasesSlice.DBSearch({ filter: search }));
     }, [status]);
+
+    React.useEffect(() => {
+        let e = [];
+        if (record.Name == null || record.Name.length == 0)
+            e.push('A Name is required.');
+
+        if (record.Schedule?.length != 0 && (record.Schedule != null && !IsCron(record.Schedule)))
+            e.push('Schedule must be in cron format.');
+
+        setErrors(e);
+    }, [record]);
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDB&ID=' + item.row.ID })
@@ -114,7 +126,10 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
 
             <Modal Title={'Add New External Database'}
                 CallBack={(conf) => {
-                    if (conf) dispatch(ExternalDatabasesSlice.DBAction({ verb: 'POST', record }));
+                    if (conf) {
+                        record.Schedule = record.Schedule?.length == 0 ? null : record.Schedule;
+                        dispatch(ExternalDatabasesSlice.DBAction({ verb: 'POST', record }));
+                    }
                     setShowNew(false);
                 }}
                 Show={showNew}
