@@ -40,6 +40,8 @@ import AssetSelect from '../Asset/AssetSelect';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
+import { GetNodeSize } from '@gpa-gemstone/helper-functions';
+import Table, { Column } from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
 
@@ -59,21 +61,34 @@ type AssetType = OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBa
 
 export default function AssetPage(props: IProps) {
     const dispatch = useAppDispatch();
+
     const assetTypes = useAppSelector(AssetTypeSlice.Data);
     const atStatus = useAppSelector(AssetTypeSlice.Status);
     const assets = useAppSelector(SelectAssets);
     const aStatus = useAppSelector(SelectAssetStatus);
     const byAssetStatus = useAppSelector(ByAssetSlice.Status);
     const detailedAssets = useAppSelector(ByAssetSlice.Data);
-
+    
     const [newEditAsset, setNewEditAsset] = React.useState<AssetType>(AssetAttributes.getNewAsset('Line'));
     const [editAssetKey, setEditAssetKey] = React.useState<string>('');
+    const allAssetKeys = React.useMemo(() => detailedAssets.filter(a => a.ID !== newEditAsset.ID).map(a => a.AssetKey).concat(props.Assets.map(a => a.AssetKey)), [detailedAssets, props.Assets, newEditAsset.ID])
 
     const [newEdit, setNewEdit] = React.useState<'New' | 'Edit'>('New');
     const [showAssetModal, setShowAssetModal] = React.useState<boolean>(false);
 
     const [showAssetSelect, setShowAssetSelect] = React.useState<boolean>(false);
     const [selectedAssets, setSelectedAssets] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
+
+    const [sortKey, setSortKey] = React.useState<string>();
+    const [asc, setAsc] = React.useState<boolean>(false);
+    const assetData = React.useMemo(() => {
+        const u = _.cloneDeep(props.Assets);
+        if (sortKey === 'Channels')
+            u.sort((a, b) => (asc? 1 : -1)* (a.Channels.length > b.Channels.length ? 1 : -1));
+        else
+            return _.orderBy(u, [sortKey], [asc ? 'asc' : 'desc']);
+        return u;
+    }, [asc, sortKey, props.Assets])
 
     const defaultFilt: Search.IFilter<SystemCenter.Types.DetailedAsset> = {
         FieldName: 'ID',
@@ -95,7 +110,7 @@ export default function AssetPage(props: IProps) {
             return function () {
             }
         }
-    }, [dispatch, atStatus]);
+    }, [atStatus]);
 
     React.useEffect(() => {
         if (aStatus === 'unintiated' || aStatus === 'changed') {
@@ -103,13 +118,13 @@ export default function AssetPage(props: IProps) {
             return function () {
             }
         }
-    }, [dispatch, aStatus]);
+    }, [aStatus]);
 
     React.useEffect(() => {
         if (byAssetStatus === 'unintiated' || byAssetStatus === 'changed') {
             dispatch(ByAssetSlice.Fetch());
         }
-    }, [dispatch, byAssetStatus]);
+    }, [byAssetStatus]);
 
     React.useEffect(() => {
         let e = [];
@@ -162,21 +177,23 @@ export default function AssetPage(props: IProps) {
 
 
     }, [newEditAsset.AssetType]);
-
+    
     function editAsset(index: number) {
+        const asset = props.Assets.find(a => a.AssetKey === assetData[index].AssetKey);
         setNewEdit('Edit');
-        setNewEditAsset(props.Assets[index]);
-        setEditAssetKey(props.Assets[index].AssetKey);
+        setNewEditAsset(asset);
+        setEditAssetKey(asset.AssetKey);
         setShowAssetModal(true);
     }
 
     function deleteAsset(index: number) {
+        const i = props.Assets.findIndex(a => a.AssetKey === assetData[index].AssetKey);
         let list = _.clone(props.Assets);
-        let record: Array<OpenXDA.Types.Asset> = list.splice(index, 1);
+        let record: Array<OpenXDA.Types.Asset> = list.splice(i, 1);
         let assetConnections: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
         let channels: Array<OpenXDA.Types.Channel> = _.clone(props.Channels);
 
-        $.each(channels, (index, channel) => {
+        $.each(channels, (i, channel) => {
             if (channel.Asset == record[0].AssetKey)
                 channel.Asset = ''
         });
@@ -249,62 +266,86 @@ export default function AssetPage(props: IProps) {
             return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} />;
     }
 
+    const assetRows = [
+        {
+            key: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
+            content: (item) => (item.ID == 0 ? 'New' : 'Existing')
+        },
+        {
+            key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }
+        },
+        {
+            key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' }
+        },
+        {
+            key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }
+        },
+        {
+            key: 'VoltageKV', field: 'VoltageKV', label: 'kV', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }
+        },
+        {
+            key: 'Channels', label: 'Channels', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
+            content: (item) => item.Channels.length
+        },
+        {
+            key: 'Buttons', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
+            content: (item, key, field, style, index) => <>
+                <button className="btn btn-sm" onClick={(e) => editAsset(index)}><span>{Pencil}</span></button>
+                <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span>{TrashCan}</span></button>
+            </>
+        },
+        {
+            key: 'Scroll', label: '', headerStyle: { width: '5px', padding: 0 }, rowStyle: { width: '0px', padding: 0 },
+            content: () => null 
+        }] as Column<AssetType>[];
+
         return (
-            <>
-                <div className="row" style={{margin: -20}}>
-                    <div className="col-lg-4">
-                        <ul style={{ width: '100%', height: window.innerHeight - 305, maxHeight: window.innerHeight - 305, overflowY: 'auto', padding: 0, margin: 0 }}>
+            <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="d-none d-sm-block col-6 col-lg-4" style={{ overflow: 'hidden',height: '100%' }}>
+                        <ul style={{ width: '100%', height: '100%', overflowY: 'auto'}}>
                             {
-                                props.Channels.map((channel, index) => <li style={{textDecoration: (channel.Asset.length > 0 ? 'line-through' : null)}} key={index}>{channel.Name + ' - ' + channel.Description}</li>)
+                                props.Channels.map((channel) => <li style={{textDecoration: (channel.Asset.length > 0 ? 'line-through' : null)}} key={channel.ID}>{channel.Name + ' - ' + channel.Description}</li>)
                             }
                         </ul>
                     </div>
-                    <div className="col" style={{padding: 20}}>
-                        <div style={{ width: '100%', height: 38 }}>
-                            <div className="col pull-right btn-toolbar justify-content-end">
-                                    <button className="btn btn-primary mr-4" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
-                                    <button className="btn btn-primary mr-4" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
-                                    <LocationDrawings LocationID={props.Location.ID} />
+                    <div className="col-12 col-sm-6 col-lg-8" style={{ overflow: 'hidden', height: '100%' }}>
+                        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                            <div className="row">
+                                <div className="col">
+                                    <div className="col pull-right btn-toolbar justify-content-end">
+                                        <button className="btn btn-primary mr-4" onClick={() => { setNewEdit('New'); setShowAssetModal(true); }}>Add New</button>
+                                        <button className="btn btn-primary mr-4" onClick={() => { setShowAssetSelect(true); }}>Add Existing</button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-
-                        <div style={{ width: '100%', maxHeight: window.innerHeight - 350, padding: 30, overflowY: 'auto' }}>
-                            <table className="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Status</th>
-                                        <th>Key</th>
-                                        <th>Name</th>
-                                        <th>Type</th>
-                                        <th>kV</th>
-                                        <th>Channels</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {
-                                        props.Assets.map((asset: OpenXDA.Types.Asset, index, array) => {
-                                            return (
-                                                <tr key={index} onClick={(e) => {e.stopPropagation(); editAsset(index);}}>
-                                                    <td style={{ width: '10%' }}>{(asset.ID == 0 ? 'New' : 'Existing')}</td>
-                                                    <td style={{ width: '20%' }}>{asset.AssetKey}</td>
-                                                    <td style={{ width: '30%' }}>{asset.AssetName}</td>
-                                                    <td style={{ width: '10%' }}>{asset.AssetType}</td>
-                                                    <td style={{ width: '10%' }}>{asset.VoltageKV}</td>
-                                                    <td style={{ width: '10%' }}>{asset.Channels.length}</td>
-                                                    <td style={{ width: '10%' }}>
-                                                        <button className="btn btn-sm" data-toggle='modal' data-target='#assetModal' onClick={(e) => editAsset(index)}><span>{Pencil}</span></button>
-                                                        <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span>{TrashCan}</span></button>
-                                                    </td>
-                                                </tr>
-                                            )
-                                        })
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className="col" style={{height: '100%'}}>
+                                    <Table <AssetType> cols={assetRows}
+                                        tableClass="table table-hover"
+                                        data={assetData}
+                                        sortKey={sortKey}
+                                        ascending={asc}
+                                        onSort={(d) => {
+                                            if (d.colKey === "Scroll" || d.colKey == 'Buttons')
+                                                return;
+                                            if (d.colKey === sortKey)
+                                                setAsc((x) => !x);
+                                            else
+                                                setAsc(false);
+                                            setSortKey(d.colKey);
+                                        }}
+                                        onClick={(fld) => { }}
+                                        tableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed', height: 'calc(100% - 16px)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+                                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        selected={(item) => false}
+                                    />
+                                </div>
+                            </div>
+                        </div>                        
                     </div>
-
                 </div>
                 <AssetSelect Type='multiple' StorageID={props.PageID} Title="Add Transmission Assets to Meter" ShowModal={showAssetSelect} SelectedAssets={selectedAssets}
                     OnCloseFunction={(selected, confirm) => {
@@ -367,7 +408,7 @@ export default function AssetPage(props: IProps) {
                 <Modal Show={showAssetModal}
                     Title={newEdit == 'New' ? 'Add New Asset to Meter' : 'Edit ' + (newEditAsset?.AssetName ?? 'Asset')}
                     ConfirmBtnClass={'btn-success'}
-                    ConfirmText={newEdit == 'Edit' ? 'Add' : 'Save'}
+                    ConfirmText={newEdit == 'Edit' ? 'Save' : 'Add'}
                     CancelBtnClass={'btn-danger'}
                     CancelText={'Close'}
                     Size={'xlg'}
@@ -402,10 +443,10 @@ export default function AssetPage(props: IProps) {
                         props.UpdateAssets(list);
                         setNewEditAsset(AssetAttributes.getNewAsset('Line'));                        
                     }}
-                    DisableConfirm={newEdit == 'New' && (AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).length > 0) }
-                    ConfirmShowToolTip={newEdit == 'New' && (AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).length > 0)}
+                    DisableConfirm={(AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0) }
+                    ConfirmShowToolTip={AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).length > 0}
                     ConfirmToolTipContent={
-                        AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                        AssetAttributes.AssetError(newEditAsset, newEditAsset.AssetType, allAssetKeys).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
                     }
                 >
                     <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
@@ -542,7 +583,7 @@ export default function AssetPage(props: IProps) {
                             </div> : null}
                         </div>
                 </Modal>
-            </>
+            </div>
         );
 
 }

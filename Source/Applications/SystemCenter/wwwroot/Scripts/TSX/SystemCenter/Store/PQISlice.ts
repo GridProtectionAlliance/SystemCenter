@@ -25,6 +25,7 @@
 
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { Application, PQI } from '@gpa-gemstone/application-typings';
+import _ from 'lodash';
 
 export interface Address { Path: string, Company: string, Facilities: string, AddressLine1: string, AdressLine2: string, City: string, StateOrProvince: string, PostalCode: string, Country: string, Primary: boolean }
 export interface Company { Addresses: string, Path: string, Type: string, Name: string, Industry: string }
@@ -84,6 +85,7 @@ export const PQISlice = createSlice({
             state.StatusFacilites = 'idle';
             state.Error = null;
             state.Facilities = action.payload;
+            _.orderBy(state.Facilities, ['Name'], ['desc']);
         });
         builder.addCase(FetchPQIFacilities.pending, (state, action) => {
             state.StatusFacilites = 'loading';
@@ -97,6 +99,7 @@ export const PQISlice = createSlice({
             state.StatusAddresses = 'idle';
             state.Error = null;
             state.Addresses = action.payload;
+            _.orderBy(state.Addresses, ['Country', 'StateOrProvince', 'City', 'AddressLine1'], ['desc', 'desc', 'desc', 'desc']);
         });
         builder.addCase(FetchPQIAddresses.pending, (state, action) => {
             state.StatusAddresses = 'loading';
@@ -110,6 +113,7 @@ export const PQISlice = createSlice({
             state.StatusCompanies = 'idle';
             state.Error = null;
             state.Companies = action.payload;
+            _.orderBy(state.Companies, ['Name'], ['desc']);
         });
         builder.addCase(FetchPQICompanies.pending, (state, action) => {
             state.StatusCompanies = 'loading';

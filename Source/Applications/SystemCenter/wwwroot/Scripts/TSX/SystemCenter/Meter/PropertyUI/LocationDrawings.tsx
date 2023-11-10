@@ -28,6 +28,7 @@ import { LocationDrawingSlice } from '../../Store/Store';
 import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table';
 import { useAppDispatch, useAppSelector } from '../../hooks';
+import { CreateGuid } from '@gpa-gemstone/helper-functions';
 
 interface IProps {
     LocationID: number | null
@@ -35,6 +36,7 @@ interface IProps {
 
 const LocationDrawings = (props: IProps) => {
     const dispatch = useAppDispatch();
+    const guid = React.useRef(CreateGuid());
 
     const drawingData = useAppSelector(LocationDrawingSlice.Data);
     const drawingStatus = useAppSelector(LocationDrawingSlice.Status);
@@ -55,7 +57,7 @@ const LocationDrawings = (props: IProps) => {
             <button
                 type="button"
                 className={"btn btn-primary" + ((props.LocationID == null || props.LocationID == 0 || drawingData.length == 0) ? ' disabled' : '')}
-                data-tooltip="drawings" onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
+                data-tooltip={guid.current} onMouseEnter={() => setHover('drawings')} onMouseLeave={() => setHover('none')}
                 onClick={() => {
                     if (props.LocationID != null && props.LocationID != 0 && drawingData.length != 0)
                         setShowDrawings(true);
@@ -87,7 +89,8 @@ const LocationDrawings = (props: IProps) => {
                 </div>
             </Modal>
 
-            <ToolTip Show={hover === 'drawings' && (props.LocationID == null || props.LocationID == 0 || drawingData.length == 0)} Theme={'dark'} Position={'top'} Target={'drawings'} Zindex={9999}>
+            <ToolTip Show={hover === 'drawings' && (props.LocationID == null || props.LocationID == 0 || drawingData.length == 0)}
+                Theme={'dark'} Position={'top'} Target={guid.current} Zindex={9999}>
                 <p>No drawings associated with this substation.</p>
             </ToolTip>
         </div>

@@ -27,7 +27,7 @@ import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
 import { LoadingIcon, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import Table from '@gpa-gemstone/react-table';
+import Table, { Column } from '@gpa-gemstone/react-table';
 import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { cross } from 'd3';
 
@@ -62,6 +62,9 @@ export default function ConnectionPage(props: IProps) {
 
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
     const [currentConnections, setCurrentConnections] = React.useState<IConnection[]>([]);
+
+    const [asc, setAsc] = React.useState<boolean>(true);
+    const [sortKey, setSortKey] = React.useState<string>('AssetName');
 
     React.useEffect(() => {
         if (selectedAssetKey === undefined) return;
@@ -115,6 +118,21 @@ export default function ConnectionPage(props: IProps) {
             setSelectedTypeID(assetConnectionTypes[0].ID);
     }, [assetConnectionTypes, selectedTypeID]);
 
+    React.useEffect(() => {
+        setCurrentConnections((c) => {
+            const u = _.cloneDeep(c);
+            if (sortKey == 'AssetName')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetName > b.Asset.AssetName ? 1 : -1));
+            if (sortKey == 'AssetKey')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetKey > b.Asset.AssetKey ? 1 : -1));
+            if (sortKey == 'VoltageKV')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.VoltageKV > b.Asset.VoltageKV ? 1 : -1));
+            if (sortKey == 'AssetType')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetType > b.Asset.AssetType ? 1 : -1));
+            return u;
+        })
+       
+    }, [asc, sortKey])
     function getAssetConnections(filter: Search.IFilter<AssetConnectionByID>[]): JQuery.jqXHR<AssetConnectionByID> {
         setStatus('loading');
         return $.ajax({
@@ -138,7 +156,16 @@ export default function ConnectionPage(props: IProps) {
                     return { Asset: props.AllAssets.find(asset => asset.AssetKey == ac.Child), Connection: ac };
                 return { Asset: props.AllAssets.find(asset => asset.AssetKey == ac.Parent), Connection: ac };
             }
-            setCurrentConnections([...oldConnections.map(createConn), ...newConnections.map(createConn)]);
+            const u = [...oldConnections.map(createConn), ...newConnections.map(createConn)];
+            if (sortKey == 'AssetName')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetName > b.Asset.AssetName ? 1 : -1));
+            if (sortKey == 'AssetKey')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetKey > b.Asset.AssetKey ? 1 : -1));
+            if (sortKey == 'VoltageKV')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.VoltageKV > b.Asset.VoltageKV ? 1 : -1));
+            if (sortKey == 'AssetType')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetType > b.Asset.AssetType ? 1 : -1));
+            setCurrentConnections(u);
         }).fail(() => setStatus('error'));
     }
 
@@ -169,110 +196,195 @@ export default function ConnectionPage(props: IProps) {
         setCurrentConnections(currentList);
     }
 
-    let tableBody;
+    const standardCols: Column<IConnection>[] = React.useMemo(() => [{
+        key: 'AssetName', field: 'Asset', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+        content: item => item.Asset.AssetName
+        },
+        {
+            key: 'AssetKey', field: 'Asset', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+            content: item => item.Asset.AssetKey
+        },
+        {
+            key: 'AssetType', field: 'Asset', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+            content: item => item.Asset.AssetType
+        },
+        {
+            key: 'VoltageKV', field: 'Asset', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+            content: item => item.Asset.VoltageKV
+        },
+        {
+            key: 'btns', field: 'Asset', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+            content: (item) => item.Asset.ID > 0 ? null :
+                <button className="btn btn-sm"
+                    onClick={(e) => deleteAssetConnection(item.Connection)}>
+                    {TrashCan}
+                </button>
+        },
+        { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },], []);
+
+    const reducedCols: Column<IConnection>[] = React.useMemo(() => [{
+        key: 'AssetName', field: 'Asset', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+        content: item => item.Asset.AssetName
+    },
+    {
+        key: 'AssetKey', field: 'Asset', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+        content: item => item.Asset.AssetKey
+    },
+    
+    {
+        key: 'btns', field: 'Asset', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+        content: (item) => item.Asset.ID > 0 ? null :
+            <button className="btn btn-sm"
+                onClick={(e) => deleteAssetConnection(item.Connection)}>
+                {TrashCan}
+            </button>
+    },
+    { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },], []);
     if (status === 'loading')
-        tableBody = (
-            <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
-                <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                    <LoadingIcon Show={true} Size={40} />
-                </div>
-            </div>);
-    else if (status === 'error')
-        tableBody = (
-            <div style={{ width: '100%', height: '200px' }}>
+        return <div style={{
+            width: '100%', height: '200px',
+            opacity: 0.5, backgroundColor: '#000000',
+        }}>
+            <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
+                <LoadingIcon Show={true} Size={40} />
+            </div>
+        </div>;
+
+    if (status === 'error')
+        return <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
                     <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
                 </div>
-            </div>);
-    else
-        tableBody = (
-            <div className="col" style={{ width: '100%', height: '100%' }}>
-                <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540}}>
-                    <button className="btn btn-primary pull-right" onClick={() => setShowAssetConnection(true)} disabled={props.AllAssets.length <= 1}>Add Connection</button>
-                    <h4 style={{ width: '100%', padding: '10px' }}>Assets Connected to Asset - {props.CurrentAsset.AssetName} </h4>
-                    <Table<IConnection>
-                        cols={[
-                            {
-                                key: 'AssetName', field: 'Asset', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: item => item.Asset.AssetName
-                            },
-                            {
-                                key: 'AssetKey', field: 'Asset', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: item => item.Asset.AssetKey                            },
-                            {
-                                key: 'AssetType', field: 'Asset', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: item => item.Asset.AssetType                            },
-                            {
-                                key: 'VoltageKV', field: 'Asset', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: item => item.Asset.VoltageKV
-                            },
-                            {
-                                key: 'btns', field: 'Asset', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item) => item.Asset.ID > 0 ? null :
-                                    <button className="btn btn-sm"
-                                        onClick={(e) => deleteAssetConnection(item.Connection)}>
-                                        {TrashCan}
-                                    </button>
-                            },
-                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={currentConnections}
-                        sortKey={''}
-                        ascending={false}
-                        onSort={(d) => { }}
-                        onClick={() => { }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
-                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={() => false}
-                    />
-                </div>
-            </div>);
-
-    return (
-        <>
-            {tableBody}
-            <Modal Show={showAssetConnection} Size={'sm'} Title={'Add New Connection to ' + (props.CurrentAsset?.AssetKey ?? 'Asset')}
-                ConfirmText={'Save'}
-                DisableConfirm={assetConnectionTypes.length == 0 ||
-                    currentConnections.findIndex(c => c.Asset.AssetKey == selectedAssetKey && c.Connection.AssetRelationshipTypeID == selectedTypeID) >= 0}
-                ShowX={true}
-                ShowCancel={false}
-                ConfirmShowToolTip={currentConnections.findIndex(c => c.Asset.AssetKey == selectedAssetKey && c.Connection.AssetRelationshipTypeID == selectedTypeID) >= 0}
-                ConfirmToolTipContent={<p> {CrossMark} This connection already exists.</p>}
-                CallBack={(confirmed) => {
-                    setShowAssetConnection(false);
-                    if (!confirmed)
-                        return;
-
-                    let childConnection = selectedAssetKey;
-                    let connectionType = selectedTypeID;
-                    let assetConnections = _.clone(props.AssetConnections);
-                    let newConnection: OpenXDA.Types.AssetConnection = { ID: 0, AssetRelationshipTypeID: connectionType, Parent: props.CurrentAsset.AssetKey, Child: childConnection };
-
-                    const createConn = (ac) => {
-                        if (ac.Parent == props.CurrentAsset.AssetKey)
-                            return { Asset: props.AllAssets.find(asset => asset.AssetKey == ac.Child), Connection: ac };
-                        return { Asset: props.AllAssets.find(asset => asset.AssetKey == ac.Parent), Connection: ac };
-                    }
-
-                    setCurrentConnections([...currentConnections.map(createConn), createConn(newConnection)]);
-                    assetConnections.push(newConnection);
-                    props.UpdateAssetConnections(assetConnections);
-
-                }}
-            >
-                <div className="form-group">
-                    <label>Select Connecting Asset:</label>
-                    <select value={selectedAssetKey} className="form-control" onChange={(evt) => { setSelectedAssetKey((evt.target.value) as string); }}>
+            </div>;
+    
+    return <>
+        <div className="row">
+            <div className="d-none d-lg-block col-8 ">
+                <h4>Assets Connected to Asset - {props.CurrentAsset.AssetName} </h4>
+            </div>
+            <div className="d-block d-lg-none col-6 ">
+                <h4>Assets Connected</h4>
+            </div>
+            <div className="col-6 col-lg-4">
+                <button className="btn btn-primary pull-right" onClick={() => setShowAssetConnection(true)}
+                    disabled={props.AllAssets.length <= 1}>Add Connection
+                </button>
+            </div>
+        </div>
+        <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+            <div className="col d-none d-lg-block">
+                <Table<IConnection>
+                    cols={[
                         {
-                            props.AllAssets.filter(asset => asset.AssetKey != props.CurrentAsset.AssetKey).map((asset, index) => <option key={index} value={asset.AssetKey} >{`${asset.AssetName} (${asset.AssetKey})`}</option>)
-                        }
-                    </select>
-                </div>
-                {assetConnectionTypes.length > 0 ?
-                    < div className="form-group">
+                            key: 'AssetName', field: 'Asset', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                            content: item => item.Asset.AssetName
+                        },
+                        {
+                            key: 'AssetKey', field: 'Asset', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                            content: item => item.Asset.AssetKey
+                        },
+                        {
+                            key: 'AssetType', field: 'Asset', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                            content: item => item.Asset.AssetType
+                        },
+                        {
+                            key: 'VoltageKV', field: 'Asset', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                            content: item => item.Asset.VoltageKV
+                        },
+                        {
+                            key: 'btns', field: 'Asset', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                            content: (item) => item.Asset.ID > 0 ? null :
+                                <button className="btn btn-sm"
+                                    onClick={(e) => deleteAssetConnection(item.Connection)}>
+                                    {TrashCan}
+                                </button>
+                        },
+                        { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                    ]}
+                    tableClass="table table-hover"
+                    data={currentConnections}
+                    sortKey={sortKey}
+                    ascending={asc}
+                    onSort={(d) => {
+                        if (d.colKey === "scroll" || d.colKey == 'btns')
+                            return;
+                        if (d.colKey === sortKey)
+                            setAsc((x) => !x);
+                        else
+                            setAsc(false);
+                        setSortKey(d.colKey);
+                    }}
+                    onClick={() => { }}
+                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
+                    rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    selected={() => false}
+                />
+            </div>
+            <div className="col d-sm-block d-none d-lg-none">
+                <Table<IConnection>
+                    cols={reducedCols}
+                    tableClass="table table-hover"
+                    data={currentConnections}
+                    sortKey={sortKey}
+                    ascending={asc}
+                    onSort={(d) => {
+                        if (d.colKey === "scroll" || d.colKey == 'btns')
+                            return;
+                        if (d.colKey === sortKey)
+                            setAsc((x) => !x);
+                        else
+                            setAsc(false);
+                        setSortKey(d.colKey);
+                    }}
+                    onClick={() => { }}
+                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
+                    rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    selected={() => false}
+                />
+            </div>
+        </div>
+        <Modal Show={showAssetConnection} Size={'sm'} Title={'Add New Connection to ' + (props.CurrentAsset?.AssetKey ?? 'Asset')}
+            ConfirmText={'Save'}
+            DisableConfirm={assetConnectionTypes.length == 0 ||
+                currentConnections.findIndex(c => c.Asset?.AssetKey == selectedAssetKey && c.Connection.AssetRelationshipTypeID == selectedTypeID) >= 0}
+            ShowX={true}
+            ShowCancel={false}
+            ConfirmShowToolTip={currentConnections.findIndex(c => c.Asset?.AssetKey == selectedAssetKey && c.Connection.AssetRelationshipTypeID == selectedTypeID) >= 0}
+            ConfirmToolTipContent={<p> {CrossMark} This connection already exists.</p>}
+            CallBack={(confirmed) => {
+                setShowAssetConnection(false);
+                if (!confirmed)
+                    return;
+                let childConnection = selectedAssetKey;
+                let connectionType = selectedTypeID;
+                let assetConnections = _.clone(props.AssetConnections);
+                let newConnection: OpenXDA.Types.AssetConnection = { ID: 0, AssetRelationshipTypeID: connectionType, Parent: props.CurrentAsset.AssetKey, Child: childConnection };
+
+                const createConn = (ac) => {
+                    if (ac.Parent == props.CurrentAsset.AssetKey)
+                        return { Asset: props.AllAssets.find(asset => asset.AssetKey == ac.Child), Connection: ac };
+                    return { Asset: props.AllAssets.find(asset => asset.AssetKey == ac.Parent), Connection: ac };
+                }
+                const a = createConn(newConnection);
+                const b = currentConnections.map(createConn)
+                setCurrentConnections([...currentConnections, createConn(newConnection)]);
+                assetConnections.push(newConnection);
+                props.UpdateAssetConnections(assetConnections);
+
+            }}
+        >
+            <div className="form-group">
+                <label>Select Connecting Asset:</label>
+                <select value={selectedAssetKey} className="form-control" onChange={(evt) => { setSelectedAssetKey((evt.target.value) as string); }}>
+                    {
+                        props.AllAssets.filter(asset => asset.AssetKey != props.CurrentAsset.AssetKey).map((asset, index) => <option key={index} value={asset.AssetKey} >{`${asset.AssetName} (${asset.AssetKey})`}</option>)
+                    }
+                </select>
+            </div>
+            {assetConnectionTypes.length > 0 ?
+                < div className="form-group">
                     <label>Select Connection Type:</label>
                     <select value={selectedTypeID} className="form-control" onChange={(evt) => {
                         setSelectedTypeID(parseInt(evt.target.value))
@@ -281,12 +393,10 @@ export default function ConnectionPage(props: IProps) {
                             assetConnectionTypes.map((act, index) => <option key={index} value={act.ID} >{act.Name}</option>)
                         }
                     </select>
-                    </div> : <div className="alert alert-warning" role="alert">
-                        <p>There is no Asset Connection available to connect these Assets.</p>
-                    </div>}
-            </Modal>
-        </>
-    );
-
+                </div> : <div className="alert alert-warning" role="alert">
+                    <p>There is no Asset Connection available to connect these Assets.</p>
+                </div>}
+        </Modal>
+    </>;
 }
 

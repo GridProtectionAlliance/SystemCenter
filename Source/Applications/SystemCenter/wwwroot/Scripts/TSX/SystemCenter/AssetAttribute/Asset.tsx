@@ -241,9 +241,11 @@ export namespace AssetAttributes {
         return value.toString().match(regex) != null;
     }
 
-    export function AttributeError(asset: OpenXDA.Types.DetailedAsset): string[]  {
+    export function AttributeError(asset: OpenXDA.Types.DetailedAsset, allKeys: string[] = []): string[]  {
         let errors = [];
-
+        if (allKeys.length > 0 && allKeys.includes(asset.AssetKey))
+            errors.push('The Key must be unique.')
+            
         if (asset.AssetKey == null || asset.AssetKey.length == 0)
             errors.push('A Key is required.')
         if (asset.AssetName == null || asset.AssetName.length == 0)
@@ -255,10 +257,10 @@ export namespace AssetAttributes {
 
     }
 
-    export function AssetError(asset: OpenXDA.Types.DetailedAsset, type: OpenXDA.Types.AssetTypeName): string[] {
+    export function AssetError(asset: OpenXDA.Types.DetailedAsset, type: OpenXDA.Types.AssetTypeName, allKeys: string[] = []): string[] {
         let errors = [];
 
-        errors = AttributeError(asset);
+        errors = AttributeError(asset, allKeys);
 
         if (type == 'LineSegment') {
             if ((asset as OpenXDA.Types.LineSegment).Length == null || !AssetAttributes.isRealNumber((asset as OpenXDA.Types.LineSegment).Length))
