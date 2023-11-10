@@ -123,7 +123,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
         if (record.ExternalDBTableID == 0)
             e.push('An External DB Table is required.');
 
-        if (allAddlFields.findIndex((a) => a.FieldName.toLowerCase() == record.FieldName?.toLowerCase() && a.ParentTable == record.ParentTable) !== -1)
+        if (allAddlFields.findIndex((a) => a.ID != record.ID && a.FieldName.toLowerCase() == record.FieldName?.toLowerCase() && a.ParentTable == record.ParentTable) !== -1)
             e.push('An Additional Field with this Parent Type already exists.');
 
         setErrors(e);

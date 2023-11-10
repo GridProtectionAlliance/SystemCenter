@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ExternalDBTableFields.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -115,7 +115,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
             e.push('A Field Name is required.');
         }
 
-        if (data.findIndex((a) => a.FieldName.toLowerCase() == record.FieldName?.toLowerCase() && a.ParentTable == record.ParentTable) !== -1)
+        if (data.findIndex((a) => a.ID != record.ID && a.FieldName.toLowerCase() == record.FieldName?.toLowerCase() && a.ParentTable == record.ParentTable) !== -1)
             e.push('An Additional Field with this Parent Type already exists.');
 
         setErrors(e);
@@ -123,9 +123,8 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
     React.useEffect(() => {
         let w = [];
-        if (record.IsKey && data.findIndex((d) => d.IsKey) !== -1) {
+        if (record.IsKey && data.findIndex((d) => d.ID != record.ID && d.IsKey) !== -1)
             w.push('A key field already exists.');
-        }
 
         setWarnings(w);
     }, [record, data]);
@@ -226,7 +225,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 </div>
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary"
-                        onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setShowNew(true); }}
+                        onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setMode('new'); }}
                     >Add New Field</button>
                 </div>
             </div>
@@ -236,7 +235,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 <button className="btn btn-danger btn-block" onClick={() => { setTableStatus('changed'); Delete(); setShowRemove(false); }}>Delete Field Permanently</button>
             </Modal>
 
-            <Modal Title={record.ID == 0 ? 'Add New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showNew} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
+            <Modal Title={record.ID == 0 ? 'Add New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={mode == 'new' || mode == 'edit'} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0 || warnings.length > 0}
                 ConfirmToolTipContent={
                     <>
@@ -270,7 +269,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                         fieldsInTable.filter((o) => selected.findIndex((s) => s.ID === o.ID) < 0).forEach((f) => DisassociateField(f));
                     }
                 }}
-                Show={showExisting}
+                Show={mode == 'existing'}
                 Type={'multiple'}
                 Columns={[
                     { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
