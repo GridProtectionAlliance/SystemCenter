@@ -33,7 +33,7 @@ import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 declare var homePath: string;
 
 interface IValueFieldProps {
-    Field: SystemCenter.Types.AdditionalField,
+    Field: SystemCenter.Types.AdditionalFieldView,
     Values: SystemCenter.Types.AdditionalFieldValue[],
     ParentTableID: number,
     Setter: (val: SystemCenter.Types.AdditionalFieldValue[]) => void,
@@ -98,27 +98,9 @@ const AdditionalFieldsValueField = (props: IValueFieldProps) => {
     if (props.Field.IsKey)
         if (props.DisplayKeyInBox ?? false)
             return (
-                <>
-                    {(props.IncludeLabel ?? false) ? 
-                        <label>{props.Field.FieldName}</label> : null
-                    }
-                    <div className="row" style={{height: "67px"}}>
-                        <div className="form-group" style={{width: "calc(100% - 75px)", paddingLeft: "15px"}}>
-                            <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''}
-                                Type={'text'} Disabled={true} Setter={Setter} />
-                        </div>
-                        <button className="btn btn-sm pull-right" style={{ height: '38px' }} onClick={(e) => {
-                            e.preventDefault();
-                            props.KeyCallback();
-                        }}>{Pencil}</button>
-                        <button className="btn btn-sm pull-right" style={{height: '38px'}} onClick={(e) => {
-                            e.preventDefault();
-                            const newRecord = { ...props.Values[valueIndex] }
-                            newRecord.Value = null;
-                            Setter(newRecord);
-                        }}>{TrashCan}</button>
-                    </div>
-                </>                    );
+                <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
+                    Type={'text'} Disabled={true} Setter={Setter} Help={`Key value to external database ${props.Field.ExternalDB}. It is editable in the additional field tab.`} />
+           );
             else
                 return (
                     <>
