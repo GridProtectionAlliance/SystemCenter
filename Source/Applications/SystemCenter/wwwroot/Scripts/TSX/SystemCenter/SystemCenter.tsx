@@ -49,6 +49,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ByExternalDB = React.lazy(() => import(/* webpackChunkname: "ByExternalDB" */ './ExternalDB/ByExternalDB'));
     const ExternalDB = React.lazy(() => import(/* webpackChunkname: "ExternalDB" */ './ExternalDB/ExternalDB'));
     const ExternalDBTable = React.lazy(() => import(/* webpackChunkname: "ExternalDB" */ './ExternalDB/ExternalDBTable'));
+    const ByExternalDBTable = React.lazy(() => import(/* webpackChunkname: "ByExternalDBTable" */ './ExternalDBTable/ByExternalDBTable'));
     const ByAdditionalField = React.lazy(() => import(/* webpackChunkname: "ByAdditionalField" */ './AdditionalFields/ByAdditionalField'));
     const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/User/ByUser'));
     const BySecuritytGroup = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/UserGroup/ByUserGroup'));
@@ -206,6 +207,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByExternalDB") || (location.pathname + location.search).includes(controllerViewPath + "?name=ExternalDB")} to={controllerViewPath + "?name=ByExternalDB"}>External Databases</NavLink>
                                 </li>
+                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByExternalDBTable") || (location.pathname + location.search).includes(controllerViewPath + "?name=ExternalDBTable")} to={controllerViewPath + "?name=ByExternalDBTable"}>External Database Tables</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -309,6 +313,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ExternalDB ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "ExternalDBTable")
                                     return <ExternalDBTable ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
+                                else if (qs['?name'] == "ByExternalDBTable")
+                                    return <ByExternalDBTable Roles={roles} />
                                 else if (qs['?name'] == "ByAdditionalField")
                                     return <ByAdditionalField Roles={roles} />
                                 else if (qs['?name'] == "User")

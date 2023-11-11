@@ -83,7 +83,7 @@ const ByExternalDBTable: Application.Types.iByComponent = (props) => {
                         { key: 'Name', field: 'TableName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'ExternalDB', field: 'ExtDBID', label: 'External DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: (item) => externalDBData.find((d) => d.ID == item.ExtDBID)
+                            content: (item) => externalDBData.find((d) => d.ID == item.ExtDBID)?.Name
                         },
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
                     ]}
