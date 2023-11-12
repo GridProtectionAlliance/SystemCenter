@@ -102,10 +102,10 @@ export default function AdditionalFieldForm(props: IProps) {
             <Select<SystemCenter.Types.ExternalDatabases> Record={extDBRecord} Field={'ID'} Label={'External DB'} Setter={setExtDBRecord}
                 Options={[{ Label: '', Value: '0' }].concat(externalDBData.map((e) => { return { Label: e.Name, Value: e.ID.toString() } }))} />
             {ExtDBTables()}
-            <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'Searchable'} Label={'Searchable'} Setter={props.Setter} />
-            <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'IsSecure'} Label={'Secure'} Setter={props.Setter} />
-            <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'IsInfo'} Label={'Info'} Setter={props.Setter} />
-            <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'IsKey'} Label={'Key'} Setter={props.Setter} />
+            <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'Searchable'} Label={'Searchable'} Setter={props.Setter} Help={'Make this field searchable?'} />
+            <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'IsSecure'} Label={'Secure'} Setter={props.Setter} Help={'Is this a secure field?'} />
+            <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'IsInfo'} Label={'Info'} Setter={props.Setter} Help={'Is this an info field?'} />
+            <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'IsKey'} Label={'Key'} Setter={props.Setter} Help={'Is this a key field?'} />
         </form>
 
     );
