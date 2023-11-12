@@ -208,7 +208,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByExternalDB") || (location.pathname + location.search).includes(controllerViewPath + "?name=ExternalDB")} to={controllerViewPath + "?name=ByExternalDB"}>External Databases</NavLink>
                                 </li>
                                 <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByExternalDBTable") || (location.pathname + location.search).includes(controllerViewPath + "?name=ExternalDBTable")} to={controllerViewPath + "?name=ByExternalDBTable"}>External Database Tables</NavLink>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByExtDBTable")} to={controllerViewPath + "?name=ByExtDBTable"}>External Database Tables</NavLink>
                                 </li>
                             </ul>
 
@@ -313,7 +313,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <ExternalDB ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "ExternalDBTable")
                                     return <ExternalDBTable ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "ByExternalDBTable")
+                                else if (qs['?name'] == "ByExtDBTable")
                                     return <ByExternalDBTable Roles={roles} />
                                 else if (qs['?name'] == "ByAdditionalField")
                                     return <ByAdditionalField Roles={roles} />
