@@ -33,6 +33,12 @@ import { ExternalDatabasesSlice } from '../Store/Store';
 
 declare var homePath: string;
 
+const ExternalDBSearchField: Array<Search.IField<SystemCenter.Types.ExternalDatabases>> = [
+    { label: 'Database Name', key: 'Name', type: 'string', isPivotField: false },
+];
+const ExternalDBDefaultSearchField: Search.IField<SystemCenter.Types.ExternalDatabases> = { label: 'Database Name', key: 'Name', type: 'string', isPivotField: false };
+const emptyRecord = { ID: 0, Name: '', Schedule: '', ConnectionString: '', DataProviderString: '', Encrypt: false };
+
 const ByExternalDB: Application.Types.iByComponent = (props) => {
     let history = useHistory();
     const dispatch = useAppDispatch();
@@ -46,13 +52,8 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
-    const emptyRecord = { ID: 0, Name: '', Schedule: '', ConnectionString: '', DataProviderString: '', Encrypt: false };
     const [record, setRecord] = React.useState<SystemCenter.Types.ExternalDatabases>(emptyRecord);
 
-    const ExternalDBSearchField: Array<Search.IField<SystemCenter.Types.ExternalDatabases>> = [
-        { label: 'Database Name', key: 'Name', type: 'string', isPivotField: false },
-    ];
-    const ExternalDBDefaultSearchField: Search.IField<SystemCenter.Types.ExternalDatabases> = { label: 'Database Name', key: 'Name', type: 'string', isPivotField: false };
 
     React.useEffect(() => {
         if (status === 'unintiated' || status === 'changed')
@@ -63,10 +64,9 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDB&ID=' + item.row.ID })
     }
 
-
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<SystemCenter.Types.extDBTables>
+            <SearchBar<SystemCenter.Types.ExternalDatabases>
                 CollumnList={ExternalDBSearchField}
                 SetFilter={(flds) => dispatch(ExternalDatabasesSlice.DBSearch({ filter: flds }))}
                 Direction={'left'}
