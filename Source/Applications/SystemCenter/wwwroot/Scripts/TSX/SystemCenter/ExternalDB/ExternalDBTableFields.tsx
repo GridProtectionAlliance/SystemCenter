@@ -225,7 +225,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 </div>
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary"
-                        onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setMode('new'); }}
+                        onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setShowNew(true); }}
                     >Add New Field</button>
                 </div>
             </div>
@@ -235,7 +235,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 <button className="btn btn-danger btn-block" onClick={() => { setTableStatus('changed'); Delete(); setShowRemove(false); }}>Delete Field Permanently</button>
             </Modal>
 
-            <Modal Title={record.ID == 0 ? 'Add New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={mode == 'new' || mode == 'edit'} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
+            <Modal Title={record.ID == 0 ? 'Add New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showNew} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0 || warnings.length > 0}
                 ConfirmToolTipContent={
                     <>
@@ -269,7 +269,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                         fieldsInTable.filter((o) => selected.findIndex((s) => s.ID === o.ID) < 0).forEach((f) => DisassociateField(f));
                     }
                 }}
-                Show={mode == 'existing'}
+                Show={showExisting}
                 Type={'multiple'}
                 Columns={[
                     { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
