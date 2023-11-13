@@ -33,7 +33,7 @@ import { LoadingScreen, Modal, SearchBar, ServerErrorIcon } from '@gpa-gemstone/
 import { SelectPopup } from '@gpa-gemstone/common-pages';
 import { SearchStatus } from '../Store/AssetSlice';
 
-const emptyRecord: SystemCenter.Types.AdditionalField = {
+const emptyRecord: SystemCenter.Types.AdditionalFieldView = {
     ID: 0,
     ParentTable: '',
     FieldName: '',
@@ -43,7 +43,9 @@ const emptyRecord: SystemCenter.Types.AdditionalField = {
     Searchable: false,
     IsInfo: false,
     IsKey: false,
+    ExternalDB: null
 };
+const filterStorage = "ExternalDBTableFields";
 
 export default function ExternalDBTableFields(props: { TableName: string, ID: number }) {
 
@@ -57,13 +59,13 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
 
-    const [fieldsInTable, setFieldsInTable] = React.useState<SystemCenter.Types.AdditionalField[]>([]);
+    const [fieldsInTable, setFieldsInTable] = React.useState<SystemCenter.Types.AdditionalFieldView[]>([]);
     const parentID = React.useRef<number>(-1);
     const [tableStatus, setTableStatus] = React.useState<Application.Types.Status>('unintiated');
     const [asc, setAsc] = React.useState<boolean>(false);
     const [sortKey, setSortKey] = React.useState<string>('FieldName');
 
-    const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalField>(emptyRecord);
+    const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalFieldView>(emptyRecord);
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [showExisting, setShowExisting] = React.useState<boolean>(false);
@@ -129,7 +131,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
         setWarnings(w);
     }, [record, data]);
 
-    const sortData = React.useCallback((sortData: SystemCenter.Types.AdditionalField[]) => {
+    const sortData = React.useCallback((sortData: SystemCenter.Types.AdditionalFieldView[]) => {
         setFieldsInTable(_.orderBy(sortData, [sortKey], [(!asc ? "asc" : "desc")]));
     }, [setFieldsInTable, sortKey, asc]);
 
@@ -162,7 +164,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                         <LoadingScreen Show={tableStatus === 'loading'} />
                         {tableStatus === 'error' ?
                             <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} /> :
-                            <Table<SystemCenter.Types.AdditionalField>
+                            <Table<SystemCenter.Types.AdditionalFieldView>
                                 cols={[
                                     { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                     { key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
@@ -257,7 +259,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
             </Modal>
 
             {/* TODO: for some reason, you have to click on a column key to sort the table before any of the addl fields are populated that weren't part of the original fields */}
-            <SelectPopup<SystemCenter.Types.AdditionalField>
+            <SelectPopup<SystemCenter.Types.AdditionalFieldView>
                 Slice={AdditionalFieldsSlice}
                 Title={"Add Fields to " + (props.TableName ?? 'External DB Table')}
                 Selection={fieldsInTable}
@@ -293,25 +295,26 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     },
                 ]}
                 Searchbar={(children) => <SearchBar<SystemCenter.Types.AdditionalField>
-                        CollumnList={[
-                            { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false },
-                            { label: 'Parent Type', key: 'ParentTable', type: 'string', isPivotField: false },
-                            {
-                                label: 'Type', key: 'Type', isPivotField: false, type: 'enum',
-                                enum: [
-                                    { Value: 'string', Label: 'string' },
-                                    { Value: 'integer', Label: 'integer' },
-                                    { Value: 'number', Label: 'number' }
-                                ].concat(valueListGroupData.map(x => { return { Value: x.Name, Label: x.Name } }))
-                            }
-                        ]}
-                        SetFilter={(flds) => dispatch(AdditionalFieldsSlice.DBSearch({ filter: flds }))}
-                        Direction={'left'}
-                        defaultCollumn={{ label: 'Name', key: 'FieldName', type: 'string', isPivotField: false }}
-                        Width={'50%'}
-                        Label={'Search'}
-                        ShowLoading={searchStatus == 'loading'}
-                        ResultNote={searchStatus == 'error' ? 'Could not complete Search' : 'Found ' + searchData.length + ' Additional Field(s)'}
+                    CollumnList={[
+                        { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false },
+                        { label: 'Parent Type', key: 'ParentTable', type: 'string', isPivotField: false },
+                        {
+                            label: 'Type', key: 'Type', isPivotField: false, type: 'enum',
+                            enum: [
+                                { Value: 'string', Label: 'string' },
+                                { Value: 'integer', Label: 'integer' },
+                                { Value: 'number', Label: 'number' }
+                            ].concat(valueListGroupData.map(x => { return { Value: x.Name, Label: x.Name } }))
+                        }
+                    ]}
+                    SetFilter={(flds) => dispatch(AdditionalFieldsSlice.DBSearch({ filter: flds }))}
+                    Direction={'left'}
+                    defaultCollumn={{ label: 'Name', key: 'FieldName', type: 'string', isPivotField: false }}
+                    Width={'50%'}
+                    Label={'Search'}
+                    ShowLoading={searchStatus == 'loading'}
+                    StorageID={filterStorage}
+                    ResultNote={searchStatus == 'error' ? 'Could not complete Search' : 'Found ' + searchData.length + ' Additional Field(s)'}
                     >
                         {children}
                     </SearchBar>
