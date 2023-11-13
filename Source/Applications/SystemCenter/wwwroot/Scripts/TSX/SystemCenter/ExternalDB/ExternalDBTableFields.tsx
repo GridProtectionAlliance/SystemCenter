@@ -28,10 +28,9 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
 import ExternalDBTableFieldForm from './ExternalDBTableFieldForm';
 import Table from '@gpa-gemstone/react-table';
-import { CrossMark, Pencil, TrashCan, HeavyCheckMark, Warning } from '@gpa-gemstone/gpa-symbols';
-import { LoadingScreen, Modal, SearchBar, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { CrossMark, Pencil, TrashCan, HeavyCheckMark, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols';
+import { LoadingScreen, Modal, SearchBar, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { SelectPopup } from '@gpa-gemstone/common-pages';
-import { SearchStatus } from '../Store/AssetSlice';
 
 const emptyRecord: SystemCenter.Types.AdditionalFieldView = {
     ID: 0,
@@ -72,6 +71,8 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     const [errors, setErrors] = React.useState<string[]>([]);
     const [warnings, setWarnings] = React.useState<string[]>([]);
 
+    const [overWriteFields, setOverWriteFields] = React.useState<SystemCenter.Types.AdditionalFieldView[]>([]);
+
     React.useEffect(() => {
         if (status !== 'idle') return;
         if (tableStatus === 'unintiated' || tableStatus === 'changed' || parentID.current !== props.ID) {
@@ -79,14 +80,13 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
             parentID.current = props.ID;
             const handle = $.ajax({
                 type: "GET",
-                url: `${homePath}api/SystemCenter/AdditionalField/${parentID.current}/${sortKey}/${asc ? '1' : '0'}`,
+                url: `${homePath}api/SystemCenter/AdditionalFieldView/${parentID.current}/${sortKey}/${asc ? '1' : '0'}`,
                 contentType: "application/json; charset=utf-8",
                 dataType: 'json',
                 cache: false,
                 async: true
             });
             handle.done((results) => {
-                console.log(JSON.parse(results.toString()))
                 sortData(JSON.parse(results.toString()));
                 setTableStatus('idle');
             });
@@ -130,6 +130,18 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
         setWarnings(w);
     }, [record, data]);
+
+    /* TODO: we don't have any way to filter for null values here... this might need a gsf update
+    React.useEffect(() => {
+        localStorage.setItem(filterStorage, JSON.stringify([{
+            FieldName: "ExternalDB",
+            SearchText: ``,
+            Operator: "LIKE",
+            Type: "integer",
+            isPivotColumn: false
+        }]));
+    }, [props.ID]);
+    */
 
     const sortData = React.useCallback((sortData: SystemCenter.Types.AdditionalFieldView[]) => {
         setFieldsInTable(_.orderBy(sortData, [sortKey], [(!asc ? "asc" : "desc")]));
@@ -237,11 +249,19 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 <button className="btn btn-danger btn-block" onClick={() => { setTableStatus('changed'); Delete(); setShowRemove(false); }}>Delete Field Permanently</button>
             </Modal>
 
+            <Warning Title={'Overwrite Field Association'} Show={overWriteFields.length !== 0} CallBack={c => {
+                if (c) {
+                    overWriteFields.forEach((f) => AssociateField(f));
+                    setTableStatus('changed');
+                }
+                setOverWriteFields([]);
+            }} Message={`Associating the selected ${overWriteFields.length} field(s) with ${props.TableName ?? 'this table'} will overwrite an existing connection in ${overWriteFields.filter(f => f.ExternalDBTableID != null).length} field(s). This cannot be undone.`} />
+
             <Modal Title={record.ID == 0 ? 'Add New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showNew} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0 || warnings.length > 0}
                 ConfirmToolTipContent={
                     <>
-                        { warnings.map((w, i) => <p key={i}>{Warning} {w}</p>) }
+                        { warnings.map((w, i) => <p key={i}>{WarningIcon} {w}</p>) }
                         { errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>) }
                     </>
                 }
@@ -258,7 +278,6 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 <ExternalDBTableFieldForm Record={record} Setter={setRecord} SetErrors={setErrors} />
             </Modal>
 
-            {/* TODO: for some reason, you have to click on a column key to sort the table before any of the addl fields are populated that weren't part of the original fields */}
             <SelectPopup<SystemCenter.Types.AdditionalFieldView>
                 Slice={AdditionalFieldsSlice}
                 Title={"Add Fields to " + (props.TableName ?? 'External DB Table')}
@@ -267,7 +286,9 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     setShowExisting(false);
                     if (conf) {
                         setTableStatus('changed');
-                        selected.filter((s) => fieldsInTable.findIndex((o) => o.ID === s.ID) < 0).forEach((f) => AssociateField(f));
+                        const associateFields = selected.filter((s) => fieldsInTable.findIndex((o) => o.ID === s.ID) < 0);
+                        if (associateFields.findIndex(f => f.ExternalDBTableID != null) !== -1) setOverWriteFields(associateFields);
+                        else associateFields.forEach((f) => AssociateField(f));
                         fieldsInTable.filter((o) => selected.findIndex((s) => s.ID === o.ID) < 0).forEach((f) => DisassociateField(f));
                     }
                 }}
@@ -277,6 +298,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'ExternalDB', field: 'ExternalDB', label: 'External DataBase', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     {
                         key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                         content: (item) => item.Searchable ? HeavyCheckMark : CrossMark
@@ -298,6 +320,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     CollumnList={[
                         { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false },
                         { label: 'Parent Type', key: 'ParentTable', type: 'string', isPivotField: false },
+                        { label: 'External Database', key: 'ExternalDB', type: 'string', isPivotField: false },
                         {
                             label: 'Type', key: 'Type', isPivotField: false, type: 'enum',
                             enum: [

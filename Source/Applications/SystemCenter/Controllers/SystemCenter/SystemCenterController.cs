@@ -555,7 +555,7 @@ namespace SystemCenter.Controllers
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    AdditionalFieldView newRecord = record.ToObject<AdditionalFieldView>();
+                    AdditionalField newRecord = record.ToObject<AdditionalFieldView>();
                     int result = new TableOperations<AdditionalField>(connection).AddNewRecord(newRecord);
                     return Ok(result);
                 }
@@ -574,7 +574,7 @@ namespace SystemCenter.Controllers
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    int result = new TableOperations<AdditionalFieldView>(connection).UpdateRecord(record);
+                    int result = new TableOperations<AdditionalField>(connection).UpdateRecord(record);
                     return Ok(result);
                 }
             }
@@ -592,7 +592,7 @@ namespace SystemCenter.Controllers
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    int result = new TableOperations<AdditionalFieldView>(connection).DeleteRecord(record);
+                    int result = new TableOperations<AdditionalField>(connection).DeleteRecord(record);
                     return Ok(result);
                 }
             }
