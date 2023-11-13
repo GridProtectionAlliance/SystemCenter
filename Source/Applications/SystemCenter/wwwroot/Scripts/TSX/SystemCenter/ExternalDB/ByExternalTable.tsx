@@ -48,6 +48,7 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
     const search = useAppSelector(ExternalDBTablesSlice.SearchFilters);
     const sortField = useAppSelector(ExternalDBTablesSlice.SortField);
     const ascending = useAppSelector(ExternalDBTablesSlice.Ascending);
+    const parentID = useAppSelector(ExternalDBTablesSlice.ParentID);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
@@ -55,9 +56,14 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
     const [record, setRecord] = React.useState<SystemCenter.Types.extDBTables>(emptyRecord);
 
     React.useEffect(() => {
-        if (status === 'unintiated' || status === 'changed')
+        if (parentID != null)
+            dispatch(ExternalDBTablesSlice.Fetch());
+    }, [parentID]);
+
+    React.useEffect(() => {
+        if ((status === 'unintiated' || status === 'changed') && parentID == null)
             dispatch(ExternalDBTablesSlice.DBSearch({ filter: search }));
-    }, [status]);
+    }, [status, parentID]);
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDBTable&ID=' + item.row.ID })
