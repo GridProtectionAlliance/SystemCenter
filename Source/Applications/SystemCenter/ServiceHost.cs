@@ -662,20 +662,15 @@ namespace SystemCenter
         public void ExtDBAddDB(ExternalDatabases newDB)
         {
             ScheduledExtDBTask task = new ScheduledExtDBTask(newDB);
-            ExtDBAddDB(task);
-        }
-        private void ExtDBAddDB(ScheduledExtDBTask task)
-        {
             if (task.ExternalDB.Schedule == null) return;
             m_serviceHelper.AddScheduledProcess(ExtDBFetchHandler, GetExtDBTaskName(task), new object[] { task }, task.ExternalDB.Schedule);
         }
 
         // Updates the schedule of a task
-        public void ExtDBChangeSchedule(ExternalDatabases newDB)
+        public void ExtDBRemoveDB(ExternalDatabases oldDB)
         {
-            ScheduledExtDBTask task = new ScheduledExtDBTask(newDB);
+            ScheduledExtDBTask task = new ScheduledExtDBTask(oldDB);
             m_serviceHelper.RemoveScheduledProcess(GetExtDBTaskName(task));
-            ExtDBAddDB(task);
         }
 
         // Gets the name of a task based on the task to be scheduled or unscheduled

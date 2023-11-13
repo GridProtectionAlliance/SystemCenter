@@ -30,6 +30,7 @@ using GSF.EMAX;
 using GSF.PQDIF.Logical;
 using GSF.SELEventParser;
 using GSF.Web.Model;
+using Microsoft.Graph;
 using Newtonsoft.Json.Linq;
 using openXDA.Configuration;
 using SEBrowser.Model;
@@ -545,6 +546,61 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/AdditionalFieldView")]
     public class AdditionalFieldViewController : ModelController<AdditionalFieldView>
     {
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    AdditionalFieldView newRecord = record.ToObject<AdditionalFieldView>();
+                    int result = new TableOperations<AdditionalField>(connection).AddNewRecord(newRecord);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Patch([FromBody] AdditionalFieldView record)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    int result = new TableOperations<AdditionalFieldView>(connection).UpdateRecord(record);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Delete([FromBody] AdditionalFieldView record)
+        {
+            if (!DeleteAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    int result = new TableOperations<AdditionalFieldView>(connection).DeleteRecord(record);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
         [HttpGet, Route("ParentTable/{openXDAParentTable}/{sort}/{ascending:int}")]
         public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable, string sort, int ascending)
         {
@@ -1404,7 +1460,7 @@ namespace SystemCenter.Controllers
                 {
                     ExternalDatabases newRecord = record.ToObject<ExternalDatabases>();
                     int result = new TableOperations<ExternalDatabases>(connection).AddNewRecord(newRecord);
-                    Host.ExtDBChangeSchedule(newRecord);
+                    Host.ExtDBAddDB(newRecord);
                     return Ok(result);
                 }
             }
@@ -1423,7 +1479,27 @@ namespace SystemCenter.Controllers
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
                     int result = new TableOperations<ExternalDatabases>(connection).UpdateRecord(record);
-                    Host.ExtDBChangeSchedule(record);
+                    Host.ExtDBRemoveDB(record);
+                    Host.ExtDBAddDB(record);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Delete([FromBody] ExternalDatabases record)
+        {
+            if (!DeleteAuthCheck() || ViewOnly)
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    int result = new TableOperations<ExternalDatabases>(connection).DeleteRecord(record);
+                    Host.ExtDBRemoveDB(record);
                     return Ok(result);
                 }
             }
