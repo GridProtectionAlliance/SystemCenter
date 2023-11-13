@@ -45,9 +45,6 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Exter
         if (record.Name === null || record.Name.length === 0) {
             e.push('A Name is required.');
         }
-        if (record.Schedule === null || record.Schedule.length === 0) {
-            e.push('A Schedule is required.');
-        }
 
         setErrors(e);
     }, [record]);
