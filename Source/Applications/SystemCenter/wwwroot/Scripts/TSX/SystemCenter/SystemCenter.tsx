@@ -47,6 +47,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const RemoteXDAInstanceMain = React.lazy(() => import(/* webpackChunkname: "RemoteXDA" */ './RemoteXDA/RemoteXDAInstanceMain'))
     const RemoteXDAInstance = React.lazy(() => import(/* webpackChunkname: "RemoteXDA" */ './RemoteXDA/RemoteXDAInstance'))
     const ByExternalDB = React.lazy(() => import(/* webpackChunkname: "ByExternalDB" */ './ExternalDB/ByExternalDB'));
+    const ByExternalTable = React.lazy(() => import(/* webpackChunkname: "ByExternalTable" */ './ExternalDB/ByExternalTable'));
     const ExternalDB = React.lazy(() => import(/* webpackChunkname: "ExternalDB" */ './ExternalDB/ExternalDB'));
     const ExternalDBTable = React.lazy(() => import(/* webpackChunkname: "ExternalDB" */ './ExternalDB/ExternalDBTable'));
     const ByAdditionalField = React.lazy(() => import(/* webpackChunkname: "ByAdditionalField" */ './AdditionalFields/ByAdditionalField'));
@@ -206,6 +207,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByExternalDB") || (location.pathname + location.search).includes(controllerViewPath + "?name=ExternalDB")} to={controllerViewPath + "?name=ByExternalDB"}>External Databases</NavLink>
                                 </li>
+                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
+                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByExternalTable") || (location.pathname + location.search).includes(controllerViewPath + "?name=ByExternalTable")} to={controllerViewPath + "?name=ByExternalTable"}>External Tables</NavLink>
+                                </li>
                             </ul>
 
                             <hr />
@@ -305,6 +309,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} Tab={qs.Tab as any}/>
                                 else if (qs['?name'] == "ByExternalDB")
                                     return <ByExternalDB Roles={roles} />
+                                else if (qs['?name'] == "ByExternalTable")
+                                    return <ByExternalTable Roles={roles} />
                                 else if (qs['?name'] == "ExternalDB")
                                     return <ExternalDB ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "ExternalDBTable")

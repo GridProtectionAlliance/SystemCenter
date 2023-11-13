@@ -25,13 +25,13 @@ import * as React from 'react';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
 import { IsCron } from '@gpa-gemstone/helper-functions';
-import { LoadingIcon, LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal } from '@gpa-gemstone/react-interactive';
 
 export default function ExternalDBForm(props: {
     Record: SystemCenter.Types.ExternalDatabases,
     Setter: (record: SystemCenter.Types.ExternalDatabases) => void,
     setErrors?: (e: string[]) => void,
-    HideTestButton?: boolean
+    ShowTestButton?: boolean
 }) {
     const [showDataProvider, setShowDataProvider] = React.useState<boolean>(false);
     const [requestStatus, setRequestStatus] = React.useState<Application.Types.Status>('unintiated');
@@ -92,7 +92,7 @@ export default function ExternalDBForm(props: {
             <CheckBox<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Encrypt'} Label={'Encrypted'} Setter={props.Setter} />
             <br/>
             {DataProvider()}
-            <button className="btn btn-primary pull-left" hidden={props.HideTestButton ?? true}
+            <button className="btn btn-primary pull-left" hidden={!(props.ShowTestButton ?? false)}
                 onClick={TestExternal}>Test DB Connection</button>
             <Modal Title="Connection Test Results" Show={requestStatus === 'error' || requestStatus === 'idle'} ConfirmBtnClass={'btn-secondary'} ConfirmText={'Close'}
                 ShowX={true} ShowCancel={false} Size={'sm'} CallBack={ClosePopup}>

@@ -23,18 +23,34 @@
 
 import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Input, TextArea } from '@gpa-gemstone/react-forms';
+import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import QueryTestDialog from './QueryTestDialog';
+import { ExternalDatabasesSlice } from '../Store/Store';
+import { useAppDispatch, useAppSelector } from '../hooks';
 
 interface IProps {
     Record: SystemCenter.Types.extDBTables,
     Setter: (record: SystemCenter.Types.extDBTables) => void,
     SetErrors?: (e: string[]) => void,
-    HideTestButton?: boolean
+    ShowTestButton?: boolean,
+    ShowSelectExternalDB?: boolean
 }
 
 export default function ExternalDBTableForm(props: IProps) {
     const [showDialog, setShowDialog] = React.useState<boolean>(false);
+
+    const dispatch = useAppDispatch();
+    const extDbData = useAppSelector(ExternalDatabasesSlice.Data);
+    const extDbStatus = useAppSelector(ExternalDatabasesSlice.Status);
+
+    React.useEffect(() => {
+        if (extDbStatus === 'unintiated' || extDbStatus === 'changed')
+            dispatch(ExternalDatabasesSlice.Fetch());
+    }, [extDbStatus]);
+
+    const dbOptions = React.useMemo(() => {
+        return extDbData.map(db => { return { Label: db.Name, Value: db.ID.toString()} })
+    }, [extDbData])
 
     function Valid(field: keyof (SystemCenter.Types.extDBTables)): boolean {
         if (field == 'TableName')
@@ -47,9 +63,12 @@ export default function ExternalDBTableForm(props: IProps) {
 
     return (
         <>
+            {(props.ShowSelectExternalDB ?? false) ?
+                <Select<SystemCenter.Types.extDBTables> Record={props.Record} Field={'ExtDBID'} Label='External Database' Setter={props.Setter} Options={dbOptions} />
+                : null}
             <Input<SystemCenter.Types.extDBTables> Record={props.Record} Field={'TableName'} Label='Name' Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
             <TextArea<SystemCenter.Types.extDBTables> Rows={8} Record={props.Record} Field={'Query'} Valid={Valid} Setter={props.Setter} />
-            <button className="btn btn-primary pull-left" hidden={props.HideTestButton ?? true}
+            <button className="btn btn-primary pull-left" hidden={!(props.ShowTestButton ?? false)}
                 onClick={() => { setShowDialog(true); }}>Test Table Query</button>
             <QueryTestDialog ExtTable={props.Record} Show={showDialog} SetShow={setShowDialog} />
         </>
