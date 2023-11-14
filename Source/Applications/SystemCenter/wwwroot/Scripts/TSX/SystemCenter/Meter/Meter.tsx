@@ -202,9 +202,9 @@ function Meter(props: IProps) {
                 <div className={"tab-pane " + (tab == "configurationHistory" ? " active" : "fade")} id="configurationHistory">
                     <MeterConfigurationHistoryWindow Meter={meter} />
                 </div>
-                <div className={"tab-pane " + (tab == "dataRescue" ? " active" : "fade")} id="dataRescue">
+                {tab == "dataRescue" ? <div className={"tab-pane active"}>
                     {dataRescueWindow}
-                </div>
+                </div> : null }
                 <div className={"tab-pane " + (tab == "dataMerge" ? " active" : "fade")} id="dataMerge">
                     {dataMergeWindow}
                 </div>
