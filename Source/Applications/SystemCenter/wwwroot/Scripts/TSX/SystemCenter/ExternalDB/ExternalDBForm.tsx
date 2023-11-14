@@ -68,10 +68,6 @@ export default function ExternalDBForm(props: {
         };
     }, [props.Record, setRequestStatus]);
 
-    const ClosePopup = React.useCallback(() => {
-        setRequestStatus('unintiated');
-    }, [setRequestStatus]);
-
     return (
         <>
             <Input<SystemCenter.Types.ExternalDatabases> Record={props.Record} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
@@ -85,7 +81,7 @@ export default function ExternalDBForm(props: {
             <button className="btn btn-primary pull-left" hidden={!(props.ShowTestButton ?? false)}
                 onClick={TestExternal}>Test DB Connection</button>
             <Modal Title="Connection Test Results" Show={requestStatus === 'error' || requestStatus === 'idle'} ConfirmBtnClass={'btn-secondary'} ConfirmText={'Close'}
-                ShowX={true} ShowCancel={false} Size={'sm'} CallBack={ClosePopup}>
+                ShowX={true} ShowCancel={false} Size={'sm'} CallBack={setRequestStatus('unintiated')}>
                 <p>{requestStatus === 'idle' ? "Connection to database successful." : "Unable to connect to external database. Check connection settings."}</p>
             </Modal>
             <LoadingScreen Show={requestStatus === 'loading'} />
