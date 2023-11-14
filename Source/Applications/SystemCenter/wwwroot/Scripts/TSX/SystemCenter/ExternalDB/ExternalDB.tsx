@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ExternalDB.tsx - Gbtc
 //
-//  Copyright © 2020, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2020, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -92,7 +92,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
         return () => {
             if (handle != null && handle.abort != null) handle.abort();
         };
-    }, [record, setRequestStatus]);
+    }, [record]);
 
     const ClosePopup = React.useCallback(() => {
         setRequestStatus('unintiated');
