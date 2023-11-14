@@ -201,7 +201,7 @@ function Meter(props: IProps) {
                 </div>
                 {tab == "configurationHistory" ?<div className={"tab-pane active" }>
                     <MeterConfigurationHistoryWindow Meter={meter} />
-                </div>
+                </div> : null}
                 {tab == "dataRescue" ? <div className={"tab-pane active"}>
                     {dataRescueWindow}
                 </div> : null }
