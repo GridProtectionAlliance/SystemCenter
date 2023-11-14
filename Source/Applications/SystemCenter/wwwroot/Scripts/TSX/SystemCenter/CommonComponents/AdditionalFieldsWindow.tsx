@@ -317,10 +317,10 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
                 {tableComponent}
                 <ToolTip Show={hoverEdit !== 'None'} Position={'left'} Theme={'dark'} Target={hoverEdit}>
-                    Opens Edit Menu for Key Field
+                    Select Key Field Value
                 </ToolTip>
                 <ToolTip Show={hoverDelete !== 'None'} Position={'left'} Theme={'dark'} Target={hoverDelete}>
-                    Clears Key Field
+                    Clear Key Field Value
                 </ToolTip>
             </div>
             <div className="card-footer">  
