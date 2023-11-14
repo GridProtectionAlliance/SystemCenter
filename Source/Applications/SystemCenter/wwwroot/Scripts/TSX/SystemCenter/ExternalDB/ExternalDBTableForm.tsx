@@ -67,7 +67,7 @@ export default function ExternalDBTableForm(props: IProps) {
                 <Select<SystemCenter.Types.extDBTables> Record={props.Record} Field={'ExtDBID'} Label='External Database' Setter={props.Setter} Options={dbOptions} />
                 : null}
             <Input<SystemCenter.Types.extDBTables> Record={props.Record} Field={'TableName'} Label='Name' Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
-            <TextArea<SystemCenter.Types.extDBTables> Rows={8} Record={props.Record} Field={'Query'} Valid={Valid} Setter={props.Setter} Help={'Query should be a valid SQL query.'} />
+            <TextArea<SystemCenter.Types.extDBTables> Rows={8} Record={props.Record} Field={'Query'} Valid={Valid} Setter={props.Setter} Help={'SQL query where {XDA properties} should be in curly braces, e.g. {key} or {meter.Name}'} />
             <button className="btn btn-primary pull-left" hidden={!(props.ShowTestButton ?? false)}
                 onClick={() => { setShowDialog(true); }}>Test Table Query</button>
             <QueryTestDialog ExtTable={props.Record} Show={showDialog} SetShow={setShowDialog} />
