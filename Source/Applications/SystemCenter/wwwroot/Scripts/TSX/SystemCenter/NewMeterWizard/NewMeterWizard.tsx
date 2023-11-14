@@ -51,8 +51,12 @@ const trendChannelsStep: number = eventChannelsStep + 1;
 const assetStep: number = trendChannelsStep + 1;
 const connectionStep: number = assetStep + 1;
 const additionalFieldMeterStep: number = connectionStep + 1;
+/* Also undo external turn on in addl
 const externalFieldStep: number = additionalFieldMeterStep + 1;
 const customerAssetGroupMeterStep: number = externalFieldStep + 1;
+*/
+const externalFieldStep: number = 999;
+const customerAssetGroupMeterStep: number = additionalFieldMeterStep + 1;
 const additionalFieldAssetStep: number = customerAssetGroupMeterStep + 1;
 const customerAssetGroupAssetStep: number = additionalFieldAssetStep + 1;
 const lineSegmentStep: number = customerAssetGroupAssetStep + 1;
@@ -421,7 +425,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             case connectionStep:
                 return <MultipleAssetsPage Assets={assets.filter(asset => asset.AssetType != 'LineSegment')} GetInnerComponent={(currentAsset) => <ConnectionPage AllAssets={assets} CurrentAsset={currentAsset} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />} />
             case additionalFieldMeterStep:
-                return <AdditionalFieldsWindow ID={meterID} Type='Meter' HideExternal={true} InnerOnly={true} />
+                return <AdditionalFieldsWindow ID={meterID} Type='Meter' HideExternal={false} InnerOnly={true} />
             case externalFieldStep:
                 return <ExternalDBUpdate ID={meterID} Type='Meter' InnerOnly={true} />
             case lineSegmentStep:
@@ -463,7 +467,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                                 { id: assetStep, long: 'Asset Configuration', short: 'Asset' },
                                 { id: connectionStep, long: 'Asset Connection', short: 'Connection*' },
                                 { id: additionalFieldMeterStep, long: 'Additional Meter Information', short: 'Addl Meter' },
-                                { id: externalFieldStep, long: 'External Meter Information', short: 'Ext Info' },
+                                /*{ id: externalFieldStep, long: 'External Meter Information', short: 'Ext Info' }, */
                                 { id: lineSegmentStep, long: 'Line Segement Configuration', short: 'Line Seg*' },
                                 { id: additionalFieldAssetStep, long: 'Additional Asset Information', short: 'Addl Asset*' },
                                 { id: customerAssetGroupMeterStep, long: 'Meter Groups and Customer', short: 'Group Meter' },
