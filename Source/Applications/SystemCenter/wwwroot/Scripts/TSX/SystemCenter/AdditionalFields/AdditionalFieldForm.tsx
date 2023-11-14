@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  AdditionalFieldForm.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -102,10 +102,10 @@ export default function AdditionalFieldForm(props: IProps) {
             <Select<SystemCenter.Types.ExternalDatabases> Record={extDBRecord} Field={'ID'} Label={'External DB'} Setter={setExtDBRecord}
                 Options={[{ Label: '', Value: '0' }].concat(externalDBData.map((e) => { return { Label: e.Name, Value: e.ID.toString() } }))} />
             {ExtDBTables()}
-            <CheckBox<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'Searchable'} Label={'Searchable'} Setter={props.Setter} Help={'Make this field searchable?'} />
-            <CheckBox<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'IsSecure'} Label={'Secure'} Setter={props.Setter} Help={'Is this a secure field?'} />
-            <CheckBox<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'IsInfo'} Label={'Info'} Setter={props.Setter} Help={'Is this an info field?'} />
-            <CheckBox<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'IsKey'} Label={'Key'} Setter={props.Setter} Help={'Is this a key field?'} />
+            <CheckBox<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'Searchable'} Label={'Searchable'} Setter={props.Setter} Help={'Enable to use this field as a Search Filter.'} />
+            <CheckBox<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'IsSecure'} Label={'Secure'} Setter={props.Setter} Help={'Enable to make this field only visible to admins.'} />
+            <CheckBox<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'IsInfo'} Label={'Info'} Setter={props.Setter} Help={'Enable to display this field and its Value in the Info tab.'} />
+            <CheckBox<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'IsKey'} Label={'Key'} Setter={props.Setter} Help={'Enable if this is an External Database Key.'} />
         </form>
 
     );
