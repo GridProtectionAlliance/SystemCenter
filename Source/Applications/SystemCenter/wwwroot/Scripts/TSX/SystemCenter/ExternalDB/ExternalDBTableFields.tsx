@@ -245,7 +245,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
             </div>
 
             <Modal Title={'Remove External DB Table Field'} Show={showRemove} CallBack={() => setShowRemove(false)} ShowCancel={false} ConfirmText={'Close'} >
-                <button className="btn btn-danger btn-block" onClick={() => { setTableStatus('changed'); DisassociateField(record); setShowRemove(false); }}>Disassociate Field From This Table</button>
+                <button className="btn btn-danger btn-block" onClick={() => { setTableStatus('changed'); DisassociateField(record); setShowRemove(false); }}>Remove Field From Table</button>
                 <button className="btn btn-danger btn-block" onClick={() => { setTableStatus('changed'); Delete(); setShowRemove(false); }}>Delete Field Permanently</button>
             </Modal>
 
