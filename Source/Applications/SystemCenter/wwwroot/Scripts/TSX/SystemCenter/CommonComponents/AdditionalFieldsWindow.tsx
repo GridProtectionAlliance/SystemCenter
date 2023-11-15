@@ -55,6 +55,9 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     const [state, setState] = React.useState<'idle' | 'loading' | 'error'>('idle');
     const [hover, setHover] = React.useState<('None' | 'Save' | 'Clear')>('None');
 
+    const [hoverEdit, setHoverEdit] = React.useState<(string)>('None');
+    const [hoverDelete, setHoverDelete] = React.useState<(string)>('None');
+
     // Note: There only ever should be one key field, but this is so we do not have to rely on that
     const [keyField, setKeyField] = React.useState<SystemCenter.Types.AdditionalFieldView>(undefined);
     const [showExt, setShowExt] = React.useState<boolean>(false);
@@ -242,24 +245,36 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                         return (props.HideExternal ?? false) ? '' : item.ExternalDB
                     }
                 },
-                { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => `${item.Type}${item.IsKey ? " (external key)" : ""}`},
                 {
                     key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
                         return item.Searchable ? HeavyCheckMark : ''
                     }
                 },
                 {
-                    key: 'IsKey', label: 'Is Key Field', field: 'IsKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
-                        return item.IsKey ? HeavyCheckMark : ''
-                    }
-                },
-                {
                     key: 'Value', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
                         return (
                             <AdditionalFieldsValueField Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking}
-                                Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)}
-                                KeyCallback={() => { setShowExt(true); setKeyField(item); }} />
+                                Setter={(val: SystemCenter.Types.AdditionalFieldValue[]) => setAdditionalFieldValuesWorking(val)} />
                         );
+                    }
+                },
+                {
+                    key: 'IsKey', label: '', field: 'IsKey', headerStyle: { width: '100px' }, rowStyle: { width: '100px' }, content: (item) => {
+                        return item.IsKey ?
+                            <>
+                                <button data-tooltip={`${item.ID}_edit`} onMouseEnter={() => setHoverEdit(`${item.ID}_edit`)} onMouseLeave={() => setHoverEdit('None')}
+                                    className="btn btn-sm pull-left" onClick={(e) => {
+                                    e.preventDefault();
+                                    setShowExt(true);
+                                    setKeyField(item);
+                                }}>{Pencil}</button>
+                                <button data-tooltip={`${item.ID}_delete`} onMouseEnter={() => setHoverDelete(`${item.ID}_delete`)} onMouseLeave={() => setHoverDelete('None')}
+                                    className="btn btn-sm pull-right" onClick={(e) => {
+                                    e.preventDefault();
+                                    KeyModalCallback(null);
+                                }}>{CrossMark}</button>
+                            </> : null
                     }
                 },
 
@@ -301,6 +316,12 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             </div>
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
                 {tableComponent}
+                <ToolTip Show={hoverEdit !== 'None'} Position={'left'} Theme={'dark'} Target={hoverEdit}>
+                    Select Key Field Value
+                </ToolTip>
+                <ToolTip Show={hoverDelete !== 'None'} Position={'left'} Theme={'dark'} Target={hoverDelete}>
+                    Clear Key Field Value
+                </ToolTip>
             </div>
             <div className="card-footer">  
                 <div className="btn-group mr-2">

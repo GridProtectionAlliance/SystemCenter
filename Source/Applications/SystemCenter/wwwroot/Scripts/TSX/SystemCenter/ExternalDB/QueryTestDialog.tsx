@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import * as $ from 'jquery';
 import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import Table, { Column } from '@gpa-gemstone/react-table';
+import Table from '@gpa-gemstone/react-table';
 import { Warning } from '@gpa-gemstone/gpa-symbols';
 import { Select, CheckBox } from '@gpa-gemstone/react-forms';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -35,18 +35,19 @@ import FilterSelect from '../CommonComponents/FilterSelect';
 
 interface IProps {
     ExtTable: SystemCenter.Types.extDBTables;
-    SetExtTable: (table: SystemCenter.Types.extDBTables) => void;
     Show: boolean;
     SetShow: (show: boolean) => void;
 }
 
+// General Control Variables
+const selectStorageID = "ExternalDB_QueryTestDialog";
+const parentTableOptions = ['Meter', 'Location', 'Customer', 'Asset',
+    "Line", "Line Segment", "Breaker", "Bus", "Capacitor Bank", "Capacitor Bank Relay", "Transformer", "DER"].map(name => { return { Value: name, Label: name } });
+const pickParentStep = 1; const pickRecordStep = 2; const sendTestStep = 3;
+interface TableOptions { ShowTableSelect: boolean, TableName: string };
+type allowedRecordTypes = SystemCenter.Types.DetailedMeter | SystemCenter.Types.DetailedAsset | OpenXDA.Types.Customer | SystemCenter.Types.DetailedLocation;
+
 export default function QueryTestDialog(props: IProps) {
-    // General Control Variables
-    const selectStorageID = "ExternalDB_QueryTestDialog";
-    const parentTableOptions = ['Meter', 'Location', 'Customer', 'Asset',
-        "Line", "Breaker", "Bus", "Capacitor Bank", "Capacitor Bank Relay", "Transformer", "DER"].map(name => { return { Value: name, Label: name } });
-    const pickParentStep = 1; const pickRecordStep = 2; const sendTestStep = 3;
-    interface TableOptions { ShowTableSelect: boolean, TableName: string };
     const [step, setStep] = React.useState<number>(pickParentStep);
     const [parentTable, setParentTable] = React.useState<TableOptions>({ ShowTableSelect: true, TableName: parentTableOptions[0].Value });
 
@@ -80,7 +81,6 @@ export default function QueryTestDialog(props: IProps) {
     const status = useAppSelector(statusSelect);
 
     // Query Properties
-    type allowedRecordTypes = SystemCenter.Types.DetailedMeter | SystemCenter.Types.DetailedAsset | OpenXDA.Types.Customer | SystemCenter.Types.DetailedLocation;
     const [xdaRecord, setXdaRecord] = React.useState<allowedRecordTypes>(undefined);
     const [selectedRecord, setSelectedRecord] = React.useState<Set<number>>(new Set());
     const [testStatus, setTestStatus] = React.useState<Application.Types.Status>('unintiated');
@@ -247,6 +247,7 @@ export default function QueryTestDialog(props: IProps) {
             }
             return (() => { if (handle != null && handle.abort != null) handle.abort(); })
         }
+        else (setTestStatus('unintiated'));
     }, [step, xdaRecord]);
 
     React.useEffect(() => {
@@ -258,7 +259,7 @@ export default function QueryTestDialog(props: IProps) {
     return (
         <>
             <Modal Title={"Test External Table Query"} Show={props.Show && step !== pickRecordStep}
-                ConfirmText={(step !==  sendTestStep ? "Next" : "Finish")} Size={step === pickParentStep ? 'sm' : (parentTable.ShowTableSelect ? 'lg' : 'xlg')} ShowCancel={true} ShowX={true}
+                ConfirmText={(step !==  sendTestStep ? "Next" : "Finish")} Size={step === pickParentStep ? 'sm' : (parentTable.ShowTableSelect ? 'lg' : 'xlg')} ShowCancel={true} ShowX={false}
                 CancelText={(step !== pickParentStep ? 'Back' : 'Close')} CallBack={conf => {
                     if (conf) {
                         if (step === pickParentStep && !parentTable.ShowTableSelect) setStep(sendTestStep);

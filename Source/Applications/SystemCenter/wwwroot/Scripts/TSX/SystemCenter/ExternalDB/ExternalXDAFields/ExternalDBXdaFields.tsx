@@ -30,6 +30,13 @@ import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
+const emptyRecord: SystemCenter.Types.ExternalOpenXDAField = {
+    ID: -1,
+    ParentTable: 'Meter',
+    FieldName: 'Name',
+    ExternalDBTableID: -1
+};
+
 export default function ExternalDBXdaFields(props: { ID: number }) {
     const dispatch = useAppDispatch();
 
@@ -39,12 +46,6 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
     const status = useAppSelector(ExternalXDAFieldsSlice.Status);
     const parentID = useAppSelector(ExternalXDAFieldsSlice.ParentID);
 
-    const emptyRecord: SystemCenter.Types.ExternalOpenXDAField = {
-        ID: -1,
-        ParentTable: 'Meter',
-        FieldName: 'Name',
-        ExternalDBTableID: -1
-    };
     const [record, setRecord] = React.useState<SystemCenter.Types.ExternalOpenXDAField>(emptyRecord);
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
     const [showEdit, setShowEdit] = React.useState<boolean>(false);
@@ -120,7 +121,7 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                 CallBack={(conf) => {
                     if (conf) {
                         dispatch(ExternalXDAFieldsSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
-                        setRecord(undefined);
+                        setRecord(emptyRecord);
                     }
                     setShowRemove(false);
                 }}

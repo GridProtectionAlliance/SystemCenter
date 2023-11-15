@@ -288,6 +288,9 @@
       <!-- log4net Dependencies -->
       <ComponentRef Id="log4net" />
 
+		<!-- Flee Dependencies -->
+		<ComponentRef Id="Flee" />
+
       <!-- ValidateAssemblyBindings Tool -->
       <ComponentRef Id="ValidateAssemblyBindings" />
 
@@ -370,6 +373,11 @@
       <Component Id="log4net">
         <File Id="log4net.dll" Name="log4net.dll" Source="$(var.SolutionDir)\Dependencies\NuGet\log4net.2.0.3\lib\net40-full\log4net.dll" />
       </Component>
+
+		<!-- Flee Dependencies -->
+		<Component Id="Flee">
+			<File Id="Flee.dll" Name="Flee.dll" Source="$(var.SolutionDir)\Dependencies\NuGet\Flee.2.0.0\lib\netstandard2.0\Flee.dll" />
+		</Component>
 
       <!-- ValidateAssemblyBindings Tool -->
       <Component Id="ValidateAssemblyBindings">

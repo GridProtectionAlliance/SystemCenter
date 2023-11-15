@@ -53,10 +53,6 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
 
     const [status, setStatus] = React.useState<Application.Types.Status>('idle');
 
-    // Note: There only ever should be one key field, but this is so we do not have to rely on that
-    const [keyField, setKeyField] = React.useState<SystemCenter.Types.AdditionalFieldView>(undefined);
-    const [showExt, setShowExt] = React.useState<boolean>(false);
-
     const getFields = React.useCallback(() => {
         const filt: Search.IFilter<SystemCenter.Types.AdditionalFieldView>[] = [{
             FieldName: 'ParentTable',
@@ -132,14 +128,6 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
         }).fail(() => { setStatus('error') })
     }, [additionalFieldValuesWorking, getFields, getFieldValues, setStatus, homePath]);
 
-    const KeyModalCallback = React.useCallback((newValue: string) => {
-        const newFields = [...additionalFieldValuesWorking];
-        const alteredID = newFields.findIndex(field => field.AdditionalFieldID === keyField.ID);
-        if (alteredID === -1) return;
-        newFields[alteredID].Value = newValue;
-        setAdditionalFieldValuesWorking(newFields);
-    }, [additionalFieldValuesWorking, setAdditionalFieldValuesWorking, keyField]);
-
     const ResetCallback = React.useCallback(() => {
         setAdditionalFieldValuesWorking(_.cloneDeep(additionalFieldValues));
     }, [additionalFieldValues, setAdditionalFieldValuesWorking]);
@@ -197,8 +185,7 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
         <div className="col">
             {additionalFields.map((item,i) =>
                 <AdditionalFieldsValueField key={i} Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} IncludeLabel={true}
-                    Setter={setAdditionalFieldValuesWorking}
-                    KeyCallback={() => { setShowExt(true); setKeyField(item); }} DisplayKeyInBox={true} />
+                    Setter={setAdditionalFieldValuesWorking} />
             )}
         </div>);
     else columnBody = (
@@ -206,15 +193,13 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
             <div className="col">
                 {additionalFields.slice(0, additionalFields.length / 2 + 0.5).map((item, i) =>
                     <AdditionalFieldsValueField key={`l_${i}`} Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} IncludeLabel={true}
-                        Setter={setAdditionalFieldValuesWorking}
-                        KeyCallback={() => { setShowExt(true); setKeyField(item); }} DisplayKeyInBox={true} />
+                        Setter={setAdditionalFieldValuesWorking} />
                 )}
             </div>
             <div className="col">
                 {additionalFields.slice(additionalFields.length / 2 + 0.5, additionalFields.length + 0.5).map((item, i) =>
                     <AdditionalFieldsValueField key={`r_${i}`} Field={item} ParentTableID={props.ID} Values={additionalFieldValuesWorking} IncludeLabel={true}
-                        Setter={setAdditionalFieldValuesWorking}
-                        KeyCallback={() => { setShowExt(true); setKeyField(item); }} DisplayKeyInBox={true} />
+                        Setter={setAdditionalFieldValuesWorking} />
                 )}
             </div>
         </>);
@@ -224,7 +209,6 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
         <div className="row">
             <LoadingIcon Show={status === 'loading'} />
             <ServerErrorIcon Show={status === 'error'} Size={40} Label={'A Server Error Occurred. Could Not Load Additional Fields for this Record. Please Reload the Application.'} />
-            <AdditionalFieldsKeyModal KeyField={keyField} SetKeyFieldValue={KeyModalCallback} Show={showExt} SetShow={setShowExt} />
             {status === 'idle' ? columnBody : null}
         </div>);
 }

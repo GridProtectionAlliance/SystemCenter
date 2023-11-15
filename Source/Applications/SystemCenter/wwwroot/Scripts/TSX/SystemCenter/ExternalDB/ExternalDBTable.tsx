@@ -29,7 +29,6 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { SystemCenter as gemstoneSC } from '@gpa-gemstone/application-typings';
-import QueryTestDialog from './QueryTestDialog';
 import ExternalDBXdaFields from './ExternalXDAFields/ExternalDBXdaFields';
 
 declare var homePath: string;
@@ -43,7 +42,6 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     const [tab, setTab] = React.useState(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
-    const [showDialog, setShowDialog] = React.useState<boolean>(false);
 
     const Tabs = [
         { Id: "info", Label: "Info" },
@@ -71,12 +69,12 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     function Delete() {
         dispatch(ExternalDBTablesSlice.DBAction({ verb: 'DELETE', record }));
-        window.location.href = homePath + 'index.cshtml?name=ExternalDB&ID=' + record.ExtDBID;
+        GoToExternalDB();
     }
 
-    const SaveTable = React.useCallback((table: gemstoneSC.Types.extDBTables) => {
-        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'PATCH', record: table }));
-    }, [dispatch, ExternalDBTablesSlice.DBAction]);
+    function GoToExternalDB() {
+        window.location.href = homePath + 'index.cshtml?name=ExternalDB&ID=' + record.ExtDBID;
+    }
 
     if (record == null) return null;
     return (
@@ -88,8 +86,8 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 <div className="col">
                     <button className="btn btn-danger pull-right" hidden={record == null}
                         onClick={() => setShowRemove(true)}>Delete Table</button>
-                    <button className="btn btn-light pull-right" hidden={record == null}
-                        onClick={() => { setShowDialog(true); } }>Test Table Query</button>
+                    <button className="btn btn-light pull-right" hidden={record?.ExtDBID == null}
+                        onClick={GoToExternalDB}>Database Details</button>
                 </div>
             </div>
 
@@ -108,7 +106,6 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                     <ExternalDBXdaFields ID={record.ID} />
                 </div>
             </div>
-            <QueryTestDialog ExtTable={record} SetExtTable={SaveTable} Show={showDialog} SetShow={setShowDialog} />
             <Warning
                 Message={'This will permanently delete this External DB Table and cannot be undone.'}
                 Show={showRemove} Title={'Delete ' + (record?.TableName ?? 'Table')}

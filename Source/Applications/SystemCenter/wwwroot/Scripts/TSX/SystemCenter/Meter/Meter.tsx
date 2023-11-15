@@ -36,7 +36,6 @@ import MeterMaintenanceWindow from '../Meter/MeterMaintenance';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import MeterConfigurationHistoryWindow from './MeterConfigurationHistory';
-import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { Warning, LoadingScreen, TabSelector, Modal } from '@gpa-gemstone/react-interactive';
 import DataRescueWindow from './Advanced/MeterDataRescue';
 import DataMergeWindow from './Advanced/MeterDataMerge';
@@ -159,7 +158,6 @@ function Meter(props: IProps) {
         { Id: "trendChannels", Label: "Trend Channels" },
         { Id: "channelScaling", Label: "Scale Channels" },
         { Id: "configurationHistory", Label: "Configuration History" },
-        { Id: "extDB", Label: "External DB" },
         { Id: "maintenance", Label: "Maintenance" }];
 
     return (
@@ -201,15 +199,12 @@ function Meter(props: IProps) {
                 <div className={"tab-pane " + (tab == "assets" ? " active" : "fade")} id="assets">
                     <MeterAssetWindow Meter={meter} />
                 </div>
-                <div className={"tab-pane " + (tab == "configurationHistory" ? " active" : "fade")} id="configurationHistory">
+                {tab == "configurationHistory" ?<div className={"tab-pane active" }>
                     <MeterConfigurationHistoryWindow Meter={meter} />
-                </div>
-                <div className={"tab-pane " + (tab == "extDB" ? " active" : "fade")} id="extDB">
-                    <ExternalDBUpdate ID={props.MeterID} Type='Meter' Tab={tab} />
-                </div>
-                <div className={"tab-pane " + (tab == "dataRescue" ? " active" : "fade")} id="dataRescue">
+                </div> : null}
+                {tab == "dataRescue" ? <div className={"tab-pane active"}>
                     {dataRescueWindow}
-                </div>
+                </div> : null }
                 <div className={"tab-pane " + (tab == "dataMerge" ? " active" : "fade")} id="dataMerge">
                     {dataMergeWindow}
                 </div>

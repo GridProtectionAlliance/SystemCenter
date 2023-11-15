@@ -45,9 +45,6 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Exter
         if (record.Name === null || record.Name.length === 0) {
             e.push('A Name is required.');
         }
-        if (record.Schedule === null || record.Schedule.length === 0) {
-            e.push('A Schedule is required.');
-        }
 
         setErrors(e);
     }, [record]);
@@ -64,7 +61,7 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Exter
                 </div>
             </div>
             <div className="card-body" style={{ height: window.innerHeight - 350, maxHeight: window.innerHeight - 350 }}>
-                <ExternalDBForm Record={record} Setter={setRecord} />
+                <ExternalDBForm Record={record} Setter={setRecord} ShowTestButton={true} />
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
@@ -74,7 +71,6 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Exter
                                 dispatch(ExternalDatabasesSlice.DBAction({ verb: 'PATCH', record }));
                                 setOrigRecord(record);
                             }
-
                         }}
                         hidden={record.ID == 0} data-tooltip={'Update-Info'}
                         onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>

@@ -30,6 +30,20 @@ import AdditionalFieldForm from './AdditionalFieldForm';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
 
+const AdditionalFieldDefaultSearchField: Search.IField<SystemCenter.Types.AdditionalFieldView> = { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false };
+const emptyRecord: SystemCenter.Types.AdditionalFieldView = {
+    ID: 0,
+    ParentTable: '',
+    FieldName: '',
+    Type: 'string',
+    ExternalDBTableID: null,
+    IsSecure: false,
+    Searchable: false,
+    IsInfo: false,
+    IsKey: false,
+    ExternalDB: null,
+};
+
 const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const dispatch = useAppDispatch();
 
@@ -48,22 +62,11 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [mode, setMode] = React.useState<'View' | 'Add' | 'Edit'>('View');
+    const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalFieldView>(emptyRecord);
 
-    const emptyRecord: SystemCenter.Types.AdditionalField = {
-        ID: 0,
-        ParentTable: '',
-        FieldName: '',
-        Type: 'string',
-        ExternalDBTableID: null,
-        IsSecure: false,
-        Searchable: false,
-        IsInfo: false,
-        IsKey: false,
-    };
-    const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalField>(emptyRecord);
-
-    const AdditionalFieldSearchField: Array<Search.IField<SystemCenter.Types.AdditionalField>> = [
+    const AdditionalFieldSearchField: Array<Search.IField<SystemCenter.Types.AdditionalFieldView>> = [
         { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false },
+        { label: 'External Database', key: 'ExternalDB', type: 'string', isPivotField: false },
         {
             label: 'Parent Type', key: 'ParentTable', type: 'enum', isPivotField: false,
             enum: [
@@ -92,7 +95,6 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
             ].concat(valueListGroupData.map(x => { return { Value: x.Name, Label: x.Name } }))
         }
     ];
-    const AdditionalFieldDefaultSearchField: Search.IField<SystemCenter.Types.AdditionalField> = { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false };
 
     React.useEffect(() => {
         if (parentID !== null)
@@ -123,7 +125,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
         if (record.ExternalDBTableID == 0)
             e.push('An External DB Table is required.');
 
-        if (allAddlFields.findIndex((a) => a.FieldName.toLowerCase() == record.FieldName?.toLowerCase() && a.ParentTable == record.ParentTable) !== -1)
+        if (allAddlFields.findIndex((a) => a.ID != record.ID && a.FieldName.toLowerCase() == record.FieldName?.toLowerCase() && a.ParentTable == record.ParentTable) !== -1)
             e.push('An Additional Field with this Parent Type already exists.');
 
         setErrors(e);
@@ -132,7 +134,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<SystemCenter.Types.AdditionalField>
+            <SearchBar<SystemCenter.Types.AdditionalFieldView>
                 CollumnList={AdditionalFieldSearchField}
                 SetFilter={(flds) => dispatch(AdditionalFieldsSlice.DBSearch({ filter: flds }))}
                 Direction={'left'}
@@ -157,17 +159,14 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table
+                <Table<SystemCenter.Types.AdditionalFieldView>
                     cols={[
                         { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                             content: (item) => item.ParentTable != '' ? item.ParentTable : 'No Associated Table'
                         },
-                        {
-                            key: 'ExternalDB', field: 'ExternalDBTableID', label: 'External DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: (item) => item.ExternalDBTableID !== null ? HeavyCheckMark : CrossMark
-                        },
+                        { key: 'ExternalDB', field: 'ExternalDB', label: 'External DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Type', field: 'Type', label: 'Field Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },

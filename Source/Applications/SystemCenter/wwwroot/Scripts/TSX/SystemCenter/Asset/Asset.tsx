@@ -30,7 +30,6 @@ import AssetInfoWindow from './AssetInfo';
 import AssetLocationWindow from './AssetLocation';
 import AssetMeterWindow from './AssetMeter';
 import AssetChannelWindow from './AssetChannel';
-import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import { useHistory } from 'react-router-dom';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AssetConnectionWindow from './AssetConnection';

@@ -193,9 +193,6 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                         <div className="form-group">
                             <div className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowNew(true); }}>Add Substation</div>
                         </div>
-                        <div className="form-group">
-                            <button className="btn btn-primary" data-toggle='modal' data-target="#extDBModal" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault() }}>Update Ext DB </button>
-                        </div>
                     </form>
                 </fieldset>
             </li>

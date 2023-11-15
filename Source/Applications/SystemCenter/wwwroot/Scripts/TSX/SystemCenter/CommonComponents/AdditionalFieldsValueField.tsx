@@ -33,12 +33,10 @@ import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 declare var homePath: string;
 
 interface IValueFieldProps {
-    Field: SystemCenter.Types.AdditionalField,
+    Field: SystemCenter.Types.AdditionalFieldView,
     Values: SystemCenter.Types.AdditionalFieldValue[],
     ParentTableID: number,
     Setter: (val: SystemCenter.Types.AdditionalFieldValue[]) => void,
-    KeyCallback: () => void,
-    DisplayKeyInBox?: boolean,
     IncludeLabel?: boolean
 }
 
@@ -95,51 +93,13 @@ const AdditionalFieldsValueField = (props: IValueFieldProps) => {
     if (valueIndex == -1 || props.Values[valueIndex] == undefined) {
         return null;
     }
-    if (props.Field.IsKey)
-        if (props.DisplayKeyInBox ?? false)
-            return (
-                <>
-                    {(props.IncludeLabel ?? false) ? 
-                        <label>{props.Field.FieldName}</label> : null
-                    }
-                    <div className="row" style={{height: "67px"}}>
-                        <div className="form-group" style={{width: "calc(100% - 75px)", paddingLeft: "15px"}}>
-                            <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={''}
-                                Type={'text'} Disabled={true} Setter={Setter} />
-                        </div>
-                        <button className="btn btn-sm pull-right" style={{ height: '38px' }} onClick={(e) => {
-                            e.preventDefault();
-                            props.KeyCallback();
-                        }}>{Pencil}</button>
-                        <button className="btn btn-sm pull-right" style={{height: '38px'}} onClick={(e) => {
-                            e.preventDefault();
-                            const newRecord = { ...props.Values[valueIndex] }
-                            newRecord.Value = null;
-                            Setter(newRecord);
-                        }}>{TrashCan}</button>
-                    </div>
-                </>                    );
-            else
-                return (
-                    <>
-                        {props.Values[valueIndex]['Value']}
-                        <button className="btn btn-sm pull-right" onClick={(e) => {
-                            e.preventDefault();
-                            props.KeyCallback();
-                        }}>{Pencil}</button>
-                        <button className="btn btn-sm pull-right" onClick={(e) => {
-                            e.preventDefault();
-                            const newRecord = { ...props.Values[valueIndex] }
-                            newRecord.Value = null;
-                            Setter(newRecord);
-                        }}>{TrashCan}</button>
-                    </>);
+    if (props.Field.Type == 'string' || props.Field.IsKey)
+        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
+            Type={'text'} Disabled={props.Field.IsKey} Setter={Setter}
+            Help={(props.Field.IsKey && props.IncludeLabel) ? `Key value to external database ${props.Field.ExternalDB}. It is editable in the additional field tab.` : undefined} />
     if (props.Field.Type == 'number' || props.Field.Type == 'integer')
         return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
             Type={'number'} Disabled={false} Setter={Setter} Feedback={props.Field.FieldName + ' requires an integer value.'} />
-    if (props.Field.Type == 'string')
-        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
-            Type={'text'} Disabled={false} Setter={Setter} />
     if (props.Field.Type == 'boolean')
         return <CheckBox<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
             Disabled={false} Setter={Setter} />
