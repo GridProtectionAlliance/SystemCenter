@@ -25,6 +25,9 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useHistory } from 'react-router-dom';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
+import { ToolTip } from '@gpa-gemstone/react-interactive';
 declare var homePath: string;
 declare var ace: any;
 
@@ -34,6 +37,8 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
     const [tab, setTab] = React.useState<'configuration' | 'filesProcessed'>('configuration');
     const [filesProcessed, setFilesProcessed] = React.useState<Array<OpenXDA.Types.DataFile>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
+    const roles = useAppSelector(SelectRoles);
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
     React.useLayoutEffect(() => getData(), [props.MeterConfigurationID]);
 
     function getData() {
@@ -98,7 +103,11 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
 
     }
 
-
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return true;
+        return false;
+    }
     
     if (meterConfiguration == null) return null;
     return (
@@ -127,8 +136,12 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                 <div className={"tab-pane " + (tab == "configuration" ? " active" : "fade")} id="configuration">
                     <div id="template" style={{ height: window.innerHeight - 275 }} ></div>
                     <div className="btn-group mr-2">
-                        <button className="btn btn-primary pull-right" onClick={saveEdit} disabled={!changed}>Save Edit</button>
+                        <button className={"btn btn-primary pull-right" + (hasPermissions() ? ' disabled' : '')} onClick={saveEdit} disabled={!changed} data-tooltip='SaveEdits'
+                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}>Save Edit</button>
                     </div>
+                    <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"SaveEdits"}>
+                        <p>You do not have permission.</p>
+                    </ToolTip>
                     <div className="btn-group mr-2">
                         <button className="btn btn-danger pull-right" onClick={getData} disabled={!changed}>Reset</button>
                     </div>

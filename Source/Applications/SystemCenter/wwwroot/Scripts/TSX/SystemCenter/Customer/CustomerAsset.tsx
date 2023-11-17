@@ -29,8 +29,9 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { CustomerAssetSlice } from '../Store/Store'
 import Table from '@gpa-gemstone/react-table';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { LoadingIcon, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import AssetSelect from '../Asset/AssetSelect';
+import { SelectRoles } from '../Store/UserSettings';
 declare var homePath: string;
 
 interface IProps { Customer: OpenXDA.Types.Customer }
@@ -44,6 +45,9 @@ const CustomerAssetWindow = (props: IProps) => {
     const ascending = useAppSelector(CustomerAssetSlice.Ascending);
 
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerAsset | null>(null);
+
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
 
     React.useEffect(() => {
@@ -66,6 +70,12 @@ const CustomerAssetWindow = (props: IProps) => {
                 }
             }))
         })
+    }
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return true;
+        return false;
     }
 
     if (status == 'error')
@@ -116,9 +126,9 @@ const CustomerAssetWindow = (props: IProps) => {
         <div className="card-body">
                 <div style={{ width: '100%', height: window.innerHeight - 420 }}>
                     <Table<LocalXDA.CustomerAsset>
-                    cols={[
+                        cols={[
                             {
-                            key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
+                                key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
                             },
                             {
                                 key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
@@ -128,7 +138,7 @@ const CustomerAssetWindow = (props: IProps) => {
                             },
                             {
                                 key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveRecord(c)}><span>{TrashCan}</span></button>
+                                content: (c) => <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (!hasPermissions()) setRemoveRecord(c) }}><span>{TrashCan}</span></button>
                             },
                             { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
@@ -157,10 +167,14 @@ const CustomerAssetWindow = (props: IProps) => {
         </div>
         <div className="card-footer">
             <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right" onClick={() => {
+                    <button className={"btn btn-primary pull-right" + (hasPermissions() ? ' disabled' : '')} data-tooltip='AssignedAssets'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions())
                         setShowAdd(true);
                 }}>Add Asset</button>
             </div>
+                <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"AssignedAssets"}>
+                    <p>You do not have permission.</p>
+                </ToolTip>
         </div>
         </div>
         <Warning Message={'This will permanently remove the Asset from this Customer and can affect PQ Digest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove ' + (removeRecord?.AssetName ?? 'Asset') + ' from ' + (props.Customer?.Name ?? 'Customer')} CallBack={(c) => { if (c) dispatch(CustomerAssetSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />

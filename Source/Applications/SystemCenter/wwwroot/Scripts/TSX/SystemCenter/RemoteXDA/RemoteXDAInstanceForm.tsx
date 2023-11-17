@@ -30,8 +30,9 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { createPortal } from "react-dom";
 import { UserAccountSliceRemote } from '../Store/Store';
 import { IsCron } from '@gpa-gemstone/helper-functions';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
 import { LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { SelectRoles } from '../Store/UserSettings';
 
 const BlankRemoteXDAInstance: OpenXDA.Types.RemoteXDAInstance = {
     ID: 0,
@@ -96,6 +97,9 @@ export default function RemoteXDAInstanceForm(props: IProps) {
     const [showFailure, setShowFailure] = React.useState<(boolean)>(false);
     const [loading, setLoading] = React.useState<(boolean)>(false);
 
+    const roles = useAppSelector(SelectRoles);
+    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none' | 'reset')>('none');
+
     React.useEffect(() => {
         if (userStatus === 'unintiated' || userStatus === 'changed') {
             dispatch(UserAccountSliceRemote.Fetch());
@@ -120,8 +124,9 @@ export default function RemoteXDAInstanceForm(props: IProps) {
 
     React.useEffect(() => {
         let e = [];
-        if (!RemoteXDAInstanceComparator(props.BaseInstance, formInstance))
-            e.push("No changes made.")
+        if (!RemoteXDAInstanceComparator(props.BaseInstance, formInstance) && !hasPermissions()) { e.push("You do not have permission."); }
+        else { e.push("No changes made."); }
+
         if (!valid('Name'))
             e.push('A Name of less than 200 characters is required.');
         if (!valid('Address'))
@@ -199,23 +204,44 @@ export default function RemoteXDAInstanceForm(props: IProps) {
         };
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0)
+            return false;
+        return true;
+    }
+
     return (
         <div id='rXDAFormRoot'>
             {loading ? <LoadingScreen Show={true} /> :
                 <form>
                     <div className="col" style={{ width: '50%', float: "left" }}>
-                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Name'} Label={'Name'} Feedback={"A Name of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} />
-                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Address'} Label={'URL'} Feedback={"A URL of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} />
-                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Frequency'} Label={'Frequency'} Feedback={"Frequency in a valid cron format is required."} Valid={valid} Setter={setFormInstance} Help={'In order of minutes, hours, day of the month, month, weekday. For example, a Frequency of every midnight would be * 0 * * *'} />
+                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Name'} Label={'Name'} Feedback={"A Name of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions()} />
+                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Address'} Label={'URL'} Feedback={"A URL of less than 200 characters is required."} Valid={valid} Setter={setFormInstance} Disabled={!hasPermissions()} />
+                        <Input<OpenXDA.Types.RemoteXDAInstance> Record={formInstance} Field={'Frequency'} Label={'Frequency'} Feedback={"Frequency in a valid cron format is required."} Valid={valid} Setter={setFormInstance} Help={'In order of minutes, hours, day of the month, month, weekday. For example, a Frequency of every midnight would be * 0 * * *'}
+                            Disabled={!hasPermissions()}/>
                     </div>
                     <div className="col" style={{ width: '50%', float: "right" }}>
                         <Input<Application.Types.iUserAccount> Record={instanceUser} Field={'Name'} Label={'User'} Valid={() => instanceUser.Name !== null} Setter={() => { }} Disabled={true} />
-                        <button type="button" className="btn btn-primary btn-block" onClick={() => { setShowUserSearch(true); }}> Add or Change User </button>
+                        <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='EditUser' onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')}
+                                onClick={() => { if (hasPermissions()) setShowUserSearch(true); }}> Add or Change User </button>
                         {formInstance.ID > 0 ? <>
-                            <button type="button" className="btn btn-primary btn-block" onClick={testConnection}> Test Remote Connection </button>
-                            <button type="button" className="btn btn-primary btn-block" onClick={pushRemoteConfig}> Push Meters and Assets to Remote </button>
+
+                            <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='TestConnection' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
+                                onClick={() => { if (hasPermissions()) testConnection }}> Test Remote Connection </button>
+
+                            <button type="button" className={"btn btn-primary btn-block" + (hasPermissions() ? '' : ' disabled')} data-tooltip='PushRemote' onMouseEnter={() => setHover('reset')} onMouseLeave={() => setHover('none')}
+                                onClick={() => { if (hasPermissions()) pushRemoteConfig }}> Push Meters and Assets to Remote </button>
                         </> : null}
                     </div>
+                    <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"TestConnection"}>
+                        {<p>You do not have permission.</p>}
+                    </ToolTip>
+                    <ToolTip Show={hover == 'clear' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"EditUser"}>
+                        {<p>You do not have permission.</p>}
+                    </ToolTip>
+                    <ToolTip Show={hover == 'reset' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"PushRemote"}>
+                        {<p>You do not have permission.</p>}
+                    </ToolTip>
                 </form>
             }
             {domReady ? createPortal(<>

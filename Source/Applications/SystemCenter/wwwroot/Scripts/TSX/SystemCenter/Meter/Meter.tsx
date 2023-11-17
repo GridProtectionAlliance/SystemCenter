@@ -41,6 +41,8 @@ import DataRescueWindow from './Advanced/MeterDataRescue';
 import DataMergeWindow from './Advanced/MeterDataMerge';
 import DataDeleteWindow from './Advanced/MeterDataDelete';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
  
 declare var homePath: string;
 declare type Tab = 'notes' | 'meterInfo' | 'additionalFields' | 'substation' | 'assets' | 'eventChannels' | 'trendChannels' | 'channelScaling' | 'configurationHistory' | 'extDB' | 'maintenance' | 'dataRescue' | 'dataMerge' | 'dataDelete'
@@ -56,6 +58,7 @@ function Meter(props: IProps) {
     const [dataRescueWindow, setDataRescueWindow] = React.useState<React.ReactElement>();
     const [dataMergeWindow, setDataMergeWindow] = React.useState<React.ReactElement>();
     const [dataDeleteWindow, setDataDeleteWindow] = React.useState<React.ReactElement>();
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         let handle = getMeter();
@@ -167,8 +170,8 @@ function Meter(props: IProps) {
                     <h2>{meter.Name} ({meter.AssetKey})</h2>
                 </div>
                 <div className="col" style={{maxHeight: 50}}>
-                    <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete Meter</button>
-                    <button className="btn btn-light pull-right" onClick={() => setShowAdvanced(true)}>Advanced</button>
+                    <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)} hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0}>Delete Meter</button>
+                    <button className="btn btn-light pull-right" onClick={() => setShowAdvanced(true)} hidden={roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0}>Advanced</button>
                 </div>
             </div>
             <hr />

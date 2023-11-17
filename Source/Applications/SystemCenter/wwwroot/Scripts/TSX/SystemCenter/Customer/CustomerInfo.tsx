@@ -27,6 +27,8 @@ import { ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
 import { OpenXDA } from '@gpa-gemstone/application-typings'
 import AdditionalFieldsProperties from '../CommonComponents/AdditionalFieldsProperties';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 
 interface IProps { Customer: OpenXDA.Types.Customer, stateSetter: (customer: OpenXDA.Types.Customer) => void }
 
@@ -36,6 +38,7 @@ export default function CustomerInfo(props: IProps) {
     const [warnings, setWarning] = React.useState<string[]>([]);
     const [errors, setError] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('None' | 'Clear' | 'Submit')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     const saveAddl = React.useRef<() => JQuery.jqXHR<void>>(undefined);
     const resetAddl = React.useRef<() => void>(undefined);
@@ -62,6 +65,12 @@ export default function CustomerInfo(props: IProps) {
             w.push('Changes to PQI Facility will be lost.')
         setWarning(w);
     }, [customer, props.Customer])
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return true;
+        return false;
+    }
 
     return (
         <div className="card" style={{ marginBottom: 10 }}>
@@ -95,6 +104,9 @@ export default function CustomerInfo(props: IProps) {
                 <ToolTip Show={hover == 'Submit' && (errors.length > 0 || addlFieldError.length > 0)} Position={'top'} Theme={'dark'} Target={"Update"}>
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
                     {addlFieldError.map((t, i) => <p key={`a_${i}`}>{CrossMark} {t}</p>)}
+                </ToolTip>
+                <ToolTip Show={hover == 'Submit' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"Update"}>
+                    <p>You do not have permission.</p>
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className="btn btn-default" onClick={() => {

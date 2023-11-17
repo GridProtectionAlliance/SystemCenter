@@ -28,9 +28,10 @@ import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import { ByMeterSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Search, Warning } from '@gpa-gemstone/react-interactive';
+import { Search, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { SelectRoles } from '../Store/UserSettings';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { AssetGroupSlice } from '../Store/Store';
 
@@ -47,6 +48,8 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [counter, setCounter] = React.useState<number>(0);
     const [removeMeter, setRemoveMeter] = React.useState<number>(-1);
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         dispatch(AssetGroupSlice.SetChanged());
@@ -151,6 +154,12 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
         handle.done(d => setCounter(x => x + 1))
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return true;
+        return false;
+    }
+
     return (
         <>
         <div className="card" style={{ marginBottom: 10 }}>
@@ -169,7 +178,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                             { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             {
                                 key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveMeter(c.ID)}><span>{TrashCan}</span></button>
+                                content: (c) => <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (!hasPermissions()) setRemoveMeter(c.ID) }}><span>{TrashCan}</span></button>
                             },
                             { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
@@ -202,8 +211,12 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                        <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Meters</button>
-                </div>
+                        <button className={"btn btn-primary" + (hasPermissions() ? ' disabled' : '')} data-tooltip='AddMeters'
+                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) setShowAdd(true) }}>Add Meters</button>
+                    </div>
+                    <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddMeters"}>
+                        <p>You do not have permission.</p>
+                    </ToolTip>
             </div>
 
             </div>

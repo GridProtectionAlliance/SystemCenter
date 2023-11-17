@@ -28,12 +28,17 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useHistory } from 'react-router-dom';
 import { isEqual } from 'lodash';
 import { Input, CheckBox } from '@gpa-gemstone/react-forms';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
+import { ToolTip } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
 function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, StateSetter: (asset: OpenXDA.Types.AssetGroup) => void, AllAssetGroups: Array<OpenXDA.Types.AssetGroup> }) {
     let history = useHistory();
     const [assetGroup, setAssetGroup] = React.useState<OpenXDA.Types.AssetGroup>(null);
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         setAssetGroup(props.AssetGroup);
@@ -65,6 +70,12 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
 
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return true;
+        return false;
+    }
+
     if (assetGroup == null) return null;
     return (
         <div className="card" style={{ marginBottom: 10 }}>
@@ -78,9 +89,9 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
             <div className="card-body">
                 <div className="row" style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
                     <div className="col">
-                        <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique Name of less than 50 characters is required.'} Valid={valid} Setter={setAssetGroup} Disabled={false} />
-                        <CheckBox<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in PQ Dashboard'} Setter={setAssetGroup} Disabled={false} />
-                        <CheckBox<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'DisplayEmail'} Label={'Show Asset Group in Email Subscription'} Setter={setAssetGroup} Disabled={false} />
+                        <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'Name'} Label={'Name'} Feedback={'A unique Name of less than 50 characters is required.'} Valid={valid} Setter={setAssetGroup} Disabled={hasPermissions()} />
+                        <CheckBox<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'DisplayDashboard'} Label={'Show Asset Group in PQ Dashboard'} Setter={setAssetGroup} Disabled={hasPermissions()} />
+                        <CheckBox<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'DisplayEmail'} Label={'Show Asset Group in Email Subscription'} Setter={setAssetGroup} Disabled={hasPermissions()} />
                     </div>
                     <div className="col">
                         <Input<OpenXDA.Types.AssetGroup> Record={assetGroup} Field={'Assets'} Label={'Num. of Transmission Assets'}  Valid={() => true} Setter={setAssetGroup} Disabled={true} />
@@ -91,11 +102,17 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" type="submit" onClick={() => {
-                        editExistingAssetGroup();
-                        props.StateSetter(assetGroup);
-                    }} disabled={isEqual(assetGroup, props.AssetGroup)}>Save Changes</button>
+                    <button className={"btn btn-primary" + (isEqual(assetGroup, props.AssetGroup) ? ' disabled' : '')} type="submit" data-tooltip='SaveInfo'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => {
+                            if (!hasPermissions()) {
+                                editExistingAssetGroup();
+                                props.StateSetter(assetGroup);
+                            }
+                        }}>Save Changes</button>
                 </div>
+                <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"SaveInfo"}>
+                    <p>You do not have permission.</p> 
+                </ToolTip>
                 <div className="btn-group mr-2">
                     <button className="btn btn-default" onClick={() => setAssetGroup(props.AssetGroup)} disabled={isEqual(assetGroup, props.AssetGroup)}>Clear Changes</button>
                 </div>

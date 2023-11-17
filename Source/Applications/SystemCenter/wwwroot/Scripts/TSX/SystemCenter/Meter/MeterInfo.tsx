@@ -24,10 +24,13 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
+import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { LoadingScreen, Search, ToolTip } from '@gpa-gemstone/react-interactive';
 import MeterProperties from './PropertyUI/MeterProperties';
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 import AdditionalFieldsProperties from '../CommonComponents/AdditionalFieldsProperties';
 
 declare var homePath: string;
@@ -40,6 +43,7 @@ const MeterInforWindow = (props: IProps) => {
     const [assetKeyValid, setAssetKeyValid] = React.useState<boolean>(true);
     const [assetKey, setAssetKey] = React.useState<string>(props.Meter.AssetKey);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
+    const roles = useAppSelector(SelectRoles);
 
     const saveAddl = React.useRef<() => JQuery.jqXHR<void>>(undefined);
     const resetAddl = React.useRef<() => void>(undefined);
@@ -142,6 +146,11 @@ const MeterInforWindow = (props: IProps) => {
         return addlFieldError.length === 0 || (valid('AssetKey') && valid('Name') && valid('ShortName') && valid('Alias') && valid('Make') && valid('Model'));
     }
     
+   function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return true;
+        return false;
+    }
 
     function hasChanged(): boolean {
         if (props.Meter == null)
@@ -177,8 +186,8 @@ const MeterInforWindow = (props: IProps) => {
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (validMeter() && hasChanged() ? '' : ' disabled')} type="submit" onClick={() => { if (validMeter() && hasChanged()) return updateMeter(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                 </div>
-                <ToolTip Show={(!validMeter() || !hasChanged()) && hover == 'submit' } Position={'top'} Theme={'dark'} Target={"submit"}>
-                    {!hasChanged() ? <p> No changes made.</p> : null}
+                <ToolTip Show={(!validMeter() || !hasChanged()) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+                    {hasPermissions() ? <p>You do not have permission.</p> : !hasChanged() ? <p> No changes made.</p> : null}
                     {!valid('AssetKey') ? <p> {CrossMark} A unique Key of less than 50 characters is required.</p> : null}
                     {!valid('Name') ? <p> {CrossMark} A Name of less than 200 characters is required.</p> : null}
                     {!valid('ShortName') ? <p> {CrossMark} Short Name must be less than 50 characters.</p> : null}
