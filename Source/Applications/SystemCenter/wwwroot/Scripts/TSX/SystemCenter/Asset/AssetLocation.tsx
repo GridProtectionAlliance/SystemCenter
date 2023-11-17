@@ -27,6 +27,9 @@ import { OpenXDA } from '@gpa-gemstone/application-typings';
 import Table from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
+import { ToolTip } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
@@ -37,6 +40,9 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [allLocations, setAllLocations] = React.useState<Array<OpenXDA.Types.Location>>([]);
     const [newLocation, setNewLocation] = React.useState<OpenXDA.Types.Location>();
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
+
     React.useEffect(() => {
         getData();
     }, [props.Asset]);
@@ -110,6 +116,12 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             history.push({ pathname: homePath + 'index.cshtml', search: '?name=Location&LocationID=' + item.row.ID})
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return true;
+        return false;
+    }
+
     return (
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -129,9 +141,11 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                             { key: 'Longitude', field: 'Longitude', label: 'Longitude', headerStyle: { width: 'calc(10%)' }, rowStyle: { width: '10%' } },
                             {
                                 key: 'Delete', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (asset, key, style) => <>
-                                    <button className="btn btn-sm" onClick={(e) => {
-                                        e.preventDefault();
-                                        deleteLocation(asset);
+                                    <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => {
+                                        if (!hasPermissions()) {
+                                            e.preventDefault();
+                                            deleteLocation(asset);
+                                        }
                                     }}><span>{TrashCan}</span></button>
                                 </>
                             },
@@ -162,9 +176,12 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right" data-toggle='modal' data-target='#locationModal'>Add Substation</button>
+                    <button className={"btn btn-primary pull-right" + (hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (hasPermissions() ? ' disabled' : '')} data-target='#locationModal' data-tooltip='AddSubst'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}>Add Substation</button>
                 </div>
-
+                <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddSubst"}>
+                    <p>You do not have permission.</p>
+                </ToolTip>
             </div>
 
             <div className="modal" id="locationModal">

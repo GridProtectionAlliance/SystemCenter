@@ -28,8 +28,9 @@ import Table from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
-import { Search } from '@gpa-gemstone/react-interactive';
+import { Search, ToolTip } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 
@@ -43,6 +44,8 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     const allMeters = useAppSelector(ByMeterSlice.Data);
     const mStatus = useAppSelector(ByMeterSlice.Status);
     const mParentID = useAppSelector(ByMeterSlice.ParentID);
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         if (mStatus == 'unintiated' || mStatus == 'changed' || mParentID != null)
@@ -151,6 +154,12 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
         });
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return true;
+        return false;
+    }
+
     return (
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -198,8 +207,12 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Change Meters</button>
+                    <button className={"btn btn-primary" + (hasPermissions() ? ' disabled' : '')} data-tooltip='ChangeMeters'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) setShowAdd(true); }}>Change Meters</button>
                 </div>
+                <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"ChangeMeters"}>
+                    <p>You do not have permission.</p>
+                </ToolTip>
             </div>
             <DefaultSelects.Meter
                 Slice={ByMeterSlice}

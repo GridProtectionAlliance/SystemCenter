@@ -27,8 +27,13 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from './Asset';
 import { getSpareBreakersForSubstation } from '../../../TS/Services/Asset';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 
 function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Breaker, UpdateState: (newEditAsset: OpenXDA.Types.Breaker) => void, ShowSpare?: boolean }): JSX.Element {
+
+    const roles = useAppSelector(SelectRoles);
+
     function valid(field: keyof(OpenXDA.Types.Breaker)): boolean {
         if (field == 'ThermalRating')
             return props.Asset.ThermalRating != null && AssetAttributes.isRealNumber(props.Asset.ThermalRating);
@@ -48,6 +53,12 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
     }
     const [spares, setSpares] = React.useState<Array<OpenXDA.Types.Breaker>>([]);
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     React.useEffect(() => {
         getSpareBreakersForSubstation(props.Asset).then(sps => {
             setSpares(sps);
@@ -57,13 +68,13 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
     if (props.Asset == null) return null;
     return (
         <>
-            <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'A numeric Thermal Rating value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={ props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Speed'} Feedback={'A numeric Speed value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripTime'} Label={'Trip Time Limit'} Feedback={'An integer Trip Time Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'PickupTime'} Label={'Pickup Time Limit'} Feedback={'An integer Pickup Time Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition Limit'} Feedback={'A numeric Trip Coil Condition Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'EDNAPoint'} Label={'eDNA Point'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'AirGapResistor'} Label={'Air Gap Resistor'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'A numeric Thermal Rating value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+            <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Speed'} Feedback={'A numeric Speed value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+            <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripTime'} Label={'Trip Time Limit'} Feedback={'An integer Trip Time Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+            <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'PickupTime'} Label={'Pickup Time Limit'} Feedback={'An integer Pickup Time Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+            <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition Limit'} Feedback={'A numeric Trip Coil Condition Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+            <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'EDNAPoint'} Label={'eDNA Point'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+            <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'AirGapResistor'} Label={'Air Gap Resistor'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
             {props.ShowSpare ?
                 <>
                     <div className="alert alert-info" role="alert">
@@ -87,7 +98,7 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
 
                 </select>
             </div>
-            <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Spare'} Label={'Use Spare Instead'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+                    <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Spare'} Label={'Use Spare Instead'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
                </> : null}
         </>
     );

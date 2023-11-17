@@ -27,6 +27,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { FetchAsset, SelectAssetKeysLowerCase, SelectAssets, SelectAssetStatus } from '../Store/AssetSlice';
+import { SelectRoles } from '../Store/UserSettings';
 
 interface AssetAttributesProps {
     Asset: OpenXDA.Types.Asset,
@@ -47,6 +48,7 @@ export namespace AssetAttributes {
         const currentKeys = useAppSelector(SelectAssetKeysLowerCase);
         const allAssets = useAppSelector(SelectAssets);
         const assetStatus = useAppSelector(SelectAssetStatus);
+        const roles = useAppSelector(SelectRoles);
 
         React.useEffect(() => {
             if (assetStatus == 'unintiated' || assetStatus == 'changed')
@@ -103,6 +105,11 @@ export namespace AssetAttributes {
             return false;
         }
 
+        function hasPermissions(): boolean {
+            if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+                return true;
+            return false;
+        }
 
         if (props.Asset == null)
             return null;
@@ -127,10 +134,10 @@ export namespace AssetAttributes {
                     }}
                     Disabled={props.NewEdit == 'Edit' || props.Asset.ID != 0}
                 /> : null}
-            <Input<OpenXDA.Types.Asset> Record={props.Asset} Field={'AssetKey'} Label={'Key'} Feedback={'A unique Key of less than 50 characters is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.Asset> Record={props.Asset} Field={'AssetName'} Label={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.Asset> Record={props.Asset} Field={'VoltageKV'} Label={'Nominal Voltage (L-L kV)'} Feedback={'A numeric Nominal Voltage value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <TextArea<OpenXDA.Types.Asset> Rows={3} Record={props.Asset} Field={'Description'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.Asset> Record={props.Asset} Field={'AssetKey'} Label={'Key'} Feedback={'A unique Key of less than 50 characters is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || hasPermissions()} />
+            <Input<OpenXDA.Types.Asset> Record={props.Asset} Field={'AssetName'} Label={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || hasPermissions()} />
+            <Input<OpenXDA.Types.Asset> Record={props.Asset} Field={'VoltageKV'} Label={'Nominal Voltage (L-L kV)'} Feedback={'A numeric Nominal Voltage value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || hasPermissions()} />
+            <TextArea<OpenXDA.Types.Asset> Rows={3} Record={props.Asset} Field={'Description'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || hasPermissions()} />
         </React.Fragment >
         );
     }
