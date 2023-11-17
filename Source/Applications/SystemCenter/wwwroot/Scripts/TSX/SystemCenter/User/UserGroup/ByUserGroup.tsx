@@ -130,7 +130,10 @@ const ByUser: Application.Types.iByComponent = (props) => {
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
                 Title={'Add New User Group'} CallBack={(confirm) => {
                     if (confirm)
-                        dispatch(SecurityGroupSlice.DBAction({ verb: 'POST', record: { ...newGroup, Name: newGroup.DisplayName } }))
+                        dispatch(SecurityGroupSlice.DBAction({ 
+                            verb: 'POST', 
+                            record: { ...newGroup, Name: ((newGroup.Name?.length ?? 0) > 0? newGroup.Name : newGroup.DisplayName) }
+                         }))
                     setShowModal(false);
                 }}
                 ConfirmShowToolTip={groupError.length > 0}

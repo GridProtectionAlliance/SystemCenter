@@ -90,8 +90,10 @@ function GroupForm(props: IProps) {
             cache: false,
             async: true
         }).done((d) => {
-            if (d == 1)
+            if (d.length() > 0) {
                 setValid('valid');
+                props.Setter({ ...props.Group, Name: d })
+            }
             else
                 setValid('invalid');
         }).fail((d) => {

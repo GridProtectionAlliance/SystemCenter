@@ -63,8 +63,6 @@ namespace SystemCenter.Model.Security
     [RoutePrefix("api/SystemCenter/FullSecurityGroup")]
     public class SecurityGroupController : ModelController<SecurityGroup>
     {
-        // #ToDo: Add Graph Connectivity once GSF is merged
-
         private AzureADSettings m_azureADSettings;
         private GraphServiceClient m_graphClient;
 
@@ -143,12 +141,12 @@ namespace SystemCenter.Model.Security
 
             string sid = UserInfo.GroupNameToSID(groupName);
             if (UserInfo.IsGroupSID(sid))
-                return Ok(1);
+                return Ok(sid);
            
             if (IsValidAzureADGroupName(groupName).Result)
-                return Ok(1);
+                return Ok(groupName);
 
-            return Ok(0);
+            return Ok("");
         }
 
         [HttpPost]
