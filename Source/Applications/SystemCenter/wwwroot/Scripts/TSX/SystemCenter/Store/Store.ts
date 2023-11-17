@@ -35,6 +35,7 @@ import { ApplicationCategory } from '../ApplicationCategory/ByApplicationCategor
 import { OpenXDA as LocalXDA, SystemCenter as LocalSystemCenter } from '../global'
 import PQISlice from './PQISlice';
 import { IApplicationRole, ISecurityGroup, IUserAccount } from '../User/Types';
+import UserSettingsReducer from './UserSettings';
 import { EventWidget } from '../../../../../EventWidgets/TSX/global';
 
 declare var homePath: string;
@@ -120,6 +121,7 @@ export const ChannelTemplateSlice = new GenericSlice<LocalSystemCenter.ChannelTe
 
 const store = configureStore({
     reducer: {
+        UserSettings: UserSettingsReducer,
         LSCVSAccount: LSCVSAccountSlice.Reducer,
         EventTypeAssetType: EventTypeAssetTypeSlice.Reducer,
         AssetGroup: AssetGroupSlice.Reducer,
