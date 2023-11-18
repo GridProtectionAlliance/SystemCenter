@@ -1567,6 +1567,26 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
+
+        [HttpGet, Route("RetrieveTableCount/{extTableID:int}")]
+        public IHttpActionResult RetrieveTableCount(int extTableID)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+                {
+                    extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
+                    return Ok(QueryExternalCount(table, xdaConnection));
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
         [HttpPost, Route("RetrieveTable")]
         public IHttpActionResult RetrieveTable([FromBody] JObject record)
         {
@@ -1592,6 +1612,15 @@ namespace SystemCenter.Controllers
             using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
                 return ScheduledExtDBTask.RetrieveDataTable(table, extConnection);
         }
+
+        private int QueryExternalCount(extDBTables table, AdoDataConnection xdaConnection)
+        {
+            ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
+            if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
+            using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
+                return ScheduledExtDBTask.RetrieveDataCount(table, extConnection);
+        }
+
     }
 
     [RoutePrefix("api/SEbrowser/Widget")]

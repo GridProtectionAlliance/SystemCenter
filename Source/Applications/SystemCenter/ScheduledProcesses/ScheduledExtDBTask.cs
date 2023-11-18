@@ -225,6 +225,19 @@ namespace SystemCenter.ScheduledProcesses
             return ExecuteQueryWithContext(extTable, context, externalConnection);
         }
 
+        /// <summary>
+        /// Returns the number of records in the external database
+        /// </summary>
+        /// <param name="extTable"> the <see cref="extDBTables"/></param>
+        /// <param name="externalConnection"> the <see cref="AdoDataConnection"/> to the external system </param>
+        /// <returns>the number of rows found in the Table</returns>
+        public static int RetrieveDataCount(extDBTables extTable, AdoDataConnection externalConnection)
+        {
+            ExpressionContext context = new ExpressionContext();
+            DefineAllowedVariables(context);
+            return ExecuteCountQueryWithContext(extTable, context, externalConnection);
+        }
+
         private static void DefineAllowedVariables(ExpressionContext context)
         {
             context.Variables.Clear();
@@ -252,7 +265,17 @@ namespace SystemCenter.ScheduledProcesses
             List<string> parameters = new List<string>();
             MatchEvaluator evaluator = new MatchEvaluator((match) => RegexReplaceFunction(match, context, parameters));
             string fullQuery = Regex.Replace(extTable.Query, RegexPattern, evaluator, RegexOptions.None, TimeSpan.FromSeconds(2));
-             return externalConnection.RetrieveData(fullQuery, parameters.ToArray());
+            return externalConnection.RetrieveData(fullQuery, parameters.ToArray());
+        }
+
+        private static int ExecuteCountQueryWithContext(extDBTables extTable,
+                       ExpressionContext context, AdoDataConnection externalConnection)
+        {
+            List<string> parameters = new List<string>();
+            MatchEvaluator evaluator = new MatchEvaluator((match) => RegexReplaceFunction(match, context, parameters));
+            string fullQuery = Regex.Replace(extTable.Query, RegexPattern, evaluator, RegexOptions.None, TimeSpan.FromSeconds(2));
+            fullQuery = $"select count(*) from ({fullQuery}) T";
+            return externalConnection.ExecuteScalar<int>(fullQuery, parameters.ToArray());
         }
 
         public static AdoDataConnection GetExternalConnection(ExternalDatabases extDB)
