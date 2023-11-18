@@ -401,7 +401,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
         else if (currentStep === assetStep)
             return <LocationDrawings LocationID={locationInfo.ID} />
         return null;
-    }, [currentStep]);
+    }, [currentStep, channels ]);
 
     function getPage() {
         if (status === 'error')
