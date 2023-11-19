@@ -1,52 +1,7 @@
-﻿INSERT INTO AdditionalField (ParentTable, FieldName) VALUES ('Meter', 'Maximo Asset Number (UID)')
-GO
-
-INSERT INTO AdditionalField (ParentTable, FieldName) VALUES ('Location', 'Maximo Asset Number (UID)')
-GO
-
-INSERT INTO AdditionalField (ParentTable, FieldName) VALUES 
-('Breaker', 'Maximo Breaker Asset Number (UID)'),
-('Breaker', 'Maximo TripCoil Asset Number (UID)')
-GO
-
-
-INSERT INTO AdditionalField (ParentTable, FieldName) VALUES ('Line', 'Maximo Asset Number (UID)')
-GO
-
-
-INSERT INTO AdditionalField (ParentTable, FieldName) VALUES ('CapBank', 'Maximo Asset Number (UID)')
-GO
-
-INSERT INTO AdditionalField (ParentTable, FieldName) VALUES
+﻿INSERT INTO AdditionalField (ParentTable, FieldName) VALUES
 ('Transformer', 'FAWG High Side Bus'),
-('Transformer', 'FAWG Low Side Bus'),
-('Transformer', 'Maximo Phase A Asset Number (UID)'),
-('Transformer', 'Maximo Phase B Asset Number (UID)'),
-('Transformer', 'Maximo Phase C Asset Number (UID)'),
-('Transformer', 'Phase A LTC Asset Number (UID)'),
-('Transformer', 'Phase B LTC Asset Number (UID)'),
-('Transformer', 'Phase C LTC Asset Number (UID)')
+('Transformer', 'FAWG Low Side Bus')
 GO
-
-INSERT INTO AdditionalField (ParentTable, FieldName) VALUES
-('Transformer', 'Phase A Inst. XFR Asset Number (UID)'),
-('Transformer', 'Phase B Inst. XFR Asset Number (UID)'),
-('Transformer', 'Phase C Inst. XFR Asset Number (UID)'),
-('Line', 'Phase A Inst. XFR Asset Number (UID)'),
-('Line', 'Phase B Inst. XFR Asset Number (UID)'),
-('Line', 'Phase C Inst. XFR Asset Number (UID)'),
-('Breaker', 'Phase A Inst. XFR Asset Number (UID)'),
-('Breaker', 'Phase B Inst. XFR Asset Number (UID)'),
-('Breaker', 'Phase C Inst. XFR Asset Number (UID)'),
-('CapBank', 'Phase A Inst. XFR Asset Number (UID)'),
-('CapBank', 'Phase B Inst. XFR Asset Number (UID)'),
-('CapBank', 'Phase C Inst. XFR Asset Number (UID)'),
-('Bus', 'Phase A Inst. XFR Asset Number (UID)'),
-('Bus', 'Phase B Inst. XFR Asset Number (UID)'),
-('Bus', 'Phase C Inst. XFR Asset Number (UID)')
-GO
-
-
 
 /* Alias will hold the Name Field Matching PQView*/
 
@@ -62,7 +17,6 @@ INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable
 ('Meter', 'UTC Offset','PQView','site','utcoffset'),
 ('Meter', 'Use DST Correction','PQView','site','dst')
 GO
-
 
 /* XDA Fields */
 INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
@@ -90,387 +44,9 @@ INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable
 ('LineSegment', 'ToBusNumber','Fawg','LineSegment','ToBusName')
 GO
 
-/* Fields From Maximo for Meter */
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Meter', 'Function','Maximo','Meter','Function'),
-('Meter', 'Location Name','Maximo','Meter','Location_Name'),
-('Meter', 'Meter Sector','Maximo','Meter','METERSECTOR'),
-('Meter', 'TVA Model No','Maximo','Meter','TVA_MODEL_NO'),
-('Meter', 'Unit','Maximo','Meter','Unit'),
-('Meter', 'Asset Desc','Maximo','Meter','Asset_Desc'),
-('Meter', 'Serial No (Maximo)','Maximo','Meter','SERIAL_NO'),
-('Meter', 'Station/Line','Maximo','Meter','STATIONLINE'),
-('Meter', 'MSCO','Maximo','Meter','MSCO'),
-('Meter', 'Supplier','Maximo','Meter','Supplier'),
-('Meter', 'Manufacturer','Maximo','Meter','MANUFACTURER'),
-('Meter', 'Status','Maximo','Meter','Status'),
-('Meter', 'TVA Alias','Maximo','Meter','TVA_Alias')
-GO
-
-/* XDA Fields */
-INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
-('Meter','Description','Maximo','Meter','DESCRIPTION')
-GO
-
-/* Fields From Maximo for Substations */
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Location', 'City','Maximo','Location','City'),
-('Location', 'County','Maximo','Location','County'),
-('Location', 'State','Maximo','Location','State'),
-('Location', 'Street Address','Maximo','Location','StreetAddress'),
-('Location', 'ZIP Code','Maximo','Location','ZipCode'),
-('Location', 'Customer 1','Maximo','Location','Customer1'),
-('Location', 'Customer 2','Maximo','Location','Customer2'),
-('Location', 'Customer 3','Maximo','Location','Customer3'),
-('Location', 'Meter Sector','Maximo','Location','METERSECTOR'),
-('Location', 'Unit','Maximo','Location','Unit'),
-('Location', 'Station/Line','Maximo','Location','STATIONLINE'),
-('Location', 'ADCC','Maximo','Location','Adcc')
-GO
-
-/* XDA Fields */
-INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
-('Location','Description','Maximo','Location','DESCRIPTION')
-GO
-
-/* Fields From Maximo for Breakers */
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Breaker', 'Function','Maximo','Breaker','Function'),
-('Breaker', 'Location Name','Maximo','Breaker','Location_Name'),
-('Breaker', 'TVA Model No','Maximo','Breaker','TVA_MODEL_NO'),
-('Breaker', 'Unit','Maximo','Breaker','Unit'),
-('Breaker', 'Asset Desc','Maximo','Breaker','Asset_Desc'),
-('Breaker', 'Station/Line','Maximo','Breaker','STATIONLINE'),
-('Breaker', 'Manufacturer','Maximo','Breaker','MANUFACTURER'),
-('Breaker', 'Status','Maximo','Breaker','Status'),
-
-('Breaker', 'Function TripCoil','Maximo','TripCoil','Function'),
-('Breaker', 'Location Name TripCoil','Maximo','TripCoil','Location_Name'),
-('Breaker', 'Unit TripCoil','Maximo','TripCoil','Unit'),
-('Breaker', 'Station/Line TripCoil','Maximo','TripCoil','STATIONLINE'),
-('Breaker', 'Asset Desc TripCoil','Maximo','TripCoil','Asset_Desc'),
-('Breaker', 'Desc TripCoil','Maximo','TripCoil','Description')
-
-GO
-
-INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
-('Breaker','Description','Maximo','Breaker','DESCRIPTION'),
-('Breaker','VoltageKV','Maximo','Breaker','OperatingKV')
-GO
-
-/* Fields From Maximo for CapBank */
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('CapBank', 'Function','Maximo','CapBank','Function'),
-('CapBank', 'Location Name','Maximo','CapBank','Location_Name'),
-('CapBank', 'TVA Model No','Maximo','CapBank','TVA_MODEL_NO'),
-('CapBank', 'Unit','Maximo','CapBank','Unit'),
-('CapBank', 'Asset Desc','Maximo','CapBank','Asset_Desc'),
-('CapBank', 'Station/Line','Maximo','CapBank','STATIONLINE'),
-('CapBank', 'Manufacturer','Maximo','CapBank','MANUFACTURER'),
-('CapBank', 'Status','Maximo','CapBank','Status'),
-('CapBank', 'Capacitor KV','Maximo','CapBank','CapKV'),
-('CapBank', 'Bank KVAR','Maximo','CapBank','BankVAR')
-GO
-
-INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
-('CapBank','Description','Maximo','CapBank','DESCRIPTION'),
-('CapBank','VoltageKV','Maximo','CapBank','OperatingKV'),
-('CapBank','CapacitancePerBank','Maximo','CapBank','CapKVAR'),
-('CapBank','NumberOfBanks','Maximo','CapBank','CapCount')
-GO
-
-/* Fields From Maximo for Lines */
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Line', 'Function','Maximo','Line','Function'),
-('Line', 'Unit','Maximo','Line','Unit'),
-('Line', 'Address','Maximo','Line','Address'),
-('Line', 'TVA Area','Maximo','Line','TVA_Area'),
-('Line', 'Drawing No','Maximo','Line','DrawingNo'),
-('Line', 'Station/Line','Maximo','Line','StationLine'),
-('Line', 'Phasing Drawing','Maximo','Line','PhasingDWG'),
-('Line', 'Structure List Drawing','Maximo','Line','StructureListDWG')
-GO
-INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
-('Line','Description','Maximo','Line','DESCRIPTION'),
-('Line','VoltageKV','Maximo','Line','OperatingKV')
-GO
-
-/* Fields from Maximo for Transformer */
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Transformer', 'Function Phase A','Maximo','Transformer_A','Function'),
-('Transformer', 'Location Name Phase A','Maximo','Transformer_A','Location_Name'),
-('Transformer', 'Unit Phase A','Maximo','Transformer_A','Unit'),
-('Transformer', 'Station/Line Phase A','Maximo','Transformer_A','STATIONLINE'),
-('Transformer', 'Asset Desc Phase A','Maximo','Transformer_A','Asset_Desc'),
-('Transformer', 'TVA Model No Phase A','Maximo','Transformer_A','TVA_MODEL_NO'),
-('Transformer', 'Serial No Phase A','Maximo','Transformer_A','Serial_No'),
-('Transformer', 'Manufacturer Phase A','Maximo','Transformer_A','MANUFACTURER'),
-('Transformer', 'Long Description Phase A','Maximo','Transformer_A','Long_Desc'),
-
-('Transformer', 'Function Phase B','Maximo','Transformer_B','Function'),
-('Transformer', 'Location Name Phase B','Maximo','Transformer_B','Location_Name'),
-('Transformer', 'Unit Phase B','Maximo','Transformer_B','Unit'),
-('Transformer', 'Station/Line Phase B','Maximo','Transformer_B','STATIONLINE'),
-('Transformer', 'Asset Desc Phase B','Maximo','Transformer_B','Asset_Desc'),
-('Transformer', 'TVA Model No Phase B','Maximo','Transformer_B','TVA_MODEL_NO'),
-('Transformer', 'Serial No Phase B','Maximo','Transformer_B','Serial_No'),
-('Transformer', 'Manufacturer Phase B','Maximo','Transformer_B','MANUFACTURER'),
-('Transformer', 'Long Description Phase B','Maximo','Transformer_B','Long_Desc'),
-
-('Transformer', 'Function Phase C','Maximo','Transformer_C','Function'),
-('Transformer', 'Location Name Phase C','Maximo','Transformer_C','Location_Name'),
-('Transformer', 'Unit Phase C','Maximo','Transformer_C','Unit'),
-('Transformer', 'Station/Line Phase C','Maximo','Transformer_C','STATIONLINE'),
-('Transformer', 'Asset Desc Phase C','Maximo','Transformer_C','Asset_Desc'),
-('Transformer', 'TVA Model No Phase C','Maximo','Transformer_C','TVA_MODEL_NO'),
-('Transformer', 'Serial No Phase C','Maximo','Transformer_C','Serial_No'),
-('Transformer', 'Manufacturer Phase C','Maximo','Transformer_C','MANUFACTURER'),
-('Transformer', 'Long Description Phase C','Maximo','Transformer_C','Long_Desc')
-GO
-
-/* Fields from Maximo for LTC */
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Transformer', 'Function Phase A LTC','Maximo','LTC_A','Function'),
-('Transformer', 'Location Name Phase A LTC','Maximo','LTC_A','Location_Name'),
-('Transformer', 'Unit Phase A LTC','Maximo','LTC_A','Unit'),
-('Transformer', 'Station/Line Phase A LTC','Maximo','LTC_A','STATIONLINE'),
-('Transformer', 'Asset Desc Phase A LTC','Maximo','LTC_A','Asset_Desc'),
-('Transformer', 'Serial No Phase A LTC','Maximo','LTC_A','Serial_No'),
-('Transformer', 'Desc. Phase A LTC','Maximo','LTC_A','DESCRIPTION'),
-('Transformer', 'Operating KV Phase A LTC','Maximo','LTC_A','OperatingKV'),
-('Transformer', 'Function Phase B LTC','Maximo','LTC_B','Function'),
-('Transformer', 'Location Name Phase B LTC','Maximo','LTC_B','Location_Name'),
-('Transformer', 'Unit Phase B LTC','Maximo','LTC_B','Unit'),
-('Transformer', 'Station/Line Phase B LTC','Maximo','LTC_B','STATIONLINE'),
-('Transformer', 'Asset Desc Phase B LTC','Maximo','LTC_B','Asset_Desc'),
-('Transformer', 'Serial No Phase B LTC','Maximo','LTC_B','Serial_No'),
-('Transformer', 'Desc. Phase B LTC','Maximo','LTC_B','DESCRIPTION'),
-('Transformer', 'Operating KV Phase B LTC','Maximo','LTC_B','OperatingKV'),
-('Transformer', 'Function Phase C LTC','Maximo','LTC_C','Function'),
-('Transformer', 'Location Name Phase C LTC','Maximo','LTC_C','Location_Name'),
-('Transformer', 'Unit Phase C LTC','Maximo','LTC_C','Unit'),
-('Transformer', 'Station/Line Phase C LTC','Maximo','LTC_C','STATIONLINE'),
-('Transformer', 'Asset Desc Phase C LTC','Maximo','LTC_C','Asset_Desc'),
-('Transformer', 'Serial No Phase C LTC','Maximo','LTC_C','Serial_No'),
-('Transformer', 'Desc. Phase C LTC','Maximo','LTC_C','DESCRIPTION'),
-('Transformer', 'Operating KV Phase C LTC','Maximo','LTC_C','OperatingKV')
-GO
-
-/* Fields From Maximo for Instrument Transformers */
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Breaker', 'INST. XFR A Function','Maximo','INSTXFR_A','Function'),
-('Breaker', 'INST. XFR A Location Name','Maximo','INSTXFR_A','Location_Name'),
-('Breaker', 'INST. XFR A  Model No','Maximo','INSTXFR_A','TVA_MODEL_NO'),
-('Breaker', 'INST. XFR A Unit','Maximo','INSTXFR_A','Unit'),
-('Breaker', 'INST. XFR A Asset Desc','Maximo','INSTXFR_A','Asset_Desc'),
-('Breaker', 'INST. XFR A Station/Line','Maximo','INSTXFR_A','STATIONLINE'),
-('Breaker', 'INST. XFR A Manufacturer','Maximo','INSTXFR_A','MANUFACTURER'),
-('Breaker', 'INST. XFR A Class','Maximo','INSTXFR_A','LocationSubClass'),
-('Breaker', 'INST. XFR A Desc','Maximo','INSTXFR_A','Description'),
-('Breaker', 'INST. XFR A KV','Maximo','INSTXFR_A','OperatingKV'),
-('Breaker', 'INST. XFR A Phase','Maximo','INSTXFR_A','Phase'),
-('Breaker', 'INST. XFR A Serial No.','Maximo','INSTXFR_A','Serial_No'),
-
-('Breaker', 'INST. XFR B Function','Maximo','INSTXFR_B','Function'),
-('Breaker', 'INST. XFR B Location Name','Maximo','INSTXFR_B','Location_Name'),
-('Breaker', 'INST. XFR B  Model No','Maximo','INSTXFR_B','TVA_MODEL_NO'),
-('Breaker', 'INST. XFR B Unit','Maximo','INSTXFR_B','Unit'),
-('Breaker', 'INST. XFR B Asset Desc','Maximo','INSTXFR_B','Asset_Desc'),
-('Breaker', 'INST. XFR B Station/Line','Maximo','INSTXFR_B','STATIONLINE'),
-('Breaker', 'INST. XFR B Manufacturer','Maximo','INSTXFR_B','MANUFACTURER'),
-('Breaker', 'INST. XFR B Class','Maximo','INSTXFR_B','LocationSubClass'),
-('Breaker', 'INST. XFR B Desc','Maximo','INSTXFR_B','Description'),
-('Breaker', 'INST. XFR B KV','Maximo','INSTXFR_B','OperatingKV'),
-('Breaker', 'INST. XFR B Phase','Maximo','INSTXFR_B','Phase'),
-('Breaker', 'INST. XFR B Serial No.','Maximo','INSTXFR_B','Serial_No'),
-
-('Breaker', 'INST. XFR C Function','Maximo','INSTXFR_C','Function'),
-('Breaker', 'INST. XFR C Location Name','Maximo','INSTXFR_C','Location_Name'),
-('Breaker', 'INST. XFR C  Model No','Maximo','INSTXFR_C','TVA_MODEL_NO'),
-('Breaker', 'INST. XFR C Unit','Maximo','INSTXFR_C','Unit'),
-('Breaker', 'INST. XFR C Asset Desc','Maximo','INSTXFR_C','Asset_Desc'),
-('Breaker', 'INST. XFR C Station/Line','Maximo','INSTXFR_C','STATIONLINE'),
-('Breaker', 'INST. XFR C Manufacturer','Maximo','INSTXFR_C','MANUFACTURER'),
-('Breaker', 'INST. XFR C Class','Maximo','INSTXFR_C','LocationSubClass'),
-('Breaker', 'INST. XFR C Desc','Maximo','INSTXFR_C','Description'),
-('Breaker', 'INST. XFR C KV','Maximo','INSTXFR_C','OperatingKV'),
-('Breaker', 'INST. XFR C Phase','Maximo','INSTXFR_C','Phase'),
-('Breaker', 'INST. XFR C Serial No.','Maximo','INSTXFR_C','Serial_No')
-GO
-
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Line', 'INST. XFR A Function','Maximo','INSTXFR_A','Function'),
-('Line', 'INST. XFR A Location Name','Maximo','INSTXFR_A','Location_Name'),
-('Line', 'INST. XFR A  Model No','Maximo','INSTXFR_A','TVA_MODEL_NO'),
-('Line', 'INST. XFR A Unit','Maximo','INSTXFR_A','Unit'),
-('Line', 'INST. XFR A Asset Desc','Maximo','INSTXFR_A','Asset_Desc'),
-('Line', 'INST. XFR A Station/Line','Maximo','INSTXFR_A','STATIONLINE'),
-('Line', 'INST. XFR A Manufacturer','Maximo','INSTXFR_A','MANUFACTURER'),
-('Line', 'INST. XFR A Class','Maximo','INSTXFR_A','LocationSubClass'),
-('Line', 'INST. XFR A Desc','Maximo','INSTXFR_A','Description'),
-('Line', 'INST. XFR A KV','Maximo','INSTXFR_A','OperatingKV'),
-('Line', 'INST. XFR A Phase','Maximo','INSTXFR_A','Phase'),
-('Line', 'INST. XFR A Serial No.','Maximo','INSTXFR_A','Serial_No'),
-
-('Line', 'INST. XFR B Function','Maximo','INSTXFR_B','Function'),
-('Line', 'INST. XFR B Location Name','Maximo','INSTXFR_B','Location_Name'),
-('Line', 'INST. XFR B  Model No','Maximo','INSTXFR_B','TVA_MODEL_NO'),
-('Line', 'INST. XFR B Unit','Maximo','INSTXFR_B','Unit'),
-('Line', 'INST. XFR B Asset Desc','Maximo','INSTXFR_B','Asset_Desc'),
-('Line', 'INST. XFR B Station/Line','Maximo','INSTXFR_B','STATIONLINE'),
-('Line', 'INST. XFR B Manufacturer','Maximo','INSTXFR_B','MANUFACTURER'),
-('Line', 'INST. XFR B Class','Maximo','INSTXFR_B','LocationSubClass'),
-('Line', 'INST. XFR B Desc','Maximo','INSTXFR_B','Description'),
-('Line', 'INST. XFR B KV','Maximo','INSTXFR_B','OperatingKV'),
-('Line', 'INST. XFR B Phase','Maximo','INSTXFR_B','Phase'),
-('Line', 'INST. XFR B Serial No.','Maximo','INSTXFR_B','Serial_No'),
-
-('Line', 'INST. XFR C Function','Maximo','INSTXFR_C','Function'),
-('Line', 'INST. XFR C Location Name','Maximo','INSTXFR_C','Location_Name'),
-('Line', 'INST. XFR C  Model No','Maximo','INSTXFR_C','TVA_MODEL_NO'),
-('Line', 'INST. XFR C Unit','Maximo','INSTXFR_C','Unit'),
-('Line', 'INST. XFR C Asset Desc','Maximo','INSTXFR_C','Asset_Desc'),
-('Line', 'INST. XFR C Station/Line','Maximo','INSTXFR_C','STATIONLINE'),
-('Line', 'INST. XFR C Manufacturer','Maximo','INSTXFR_C','MANUFACTURER'),
-('Line', 'INST. XFR C Class','Maximo','INSTXFR_C','LocationSubClass'),
-('Line', 'INST. XFR C Desc','Maximo','INSTXFR_C','Description'),
-('Line', 'INST. XFR C KV','Maximo','INSTXFR_C','OperatingKV'),
-('Line', 'INST. XFR C Phase','Maximo','INSTXFR_C','Phase'),
-('Line', 'INST. XFR C Serial No.','Maximo','INSTXFR_C','Serial_No')
-GO
-
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Bus', 'INST. XFR A Function','Maximo','INSTXFR_A','Function'),
-('Bus', 'INST. XFR A Location Name','Maximo','INSTXFR_A','Location_Name'),
-('Bus', 'INST. XFR A  Model No','Maximo','INSTXFR_A','TVA_MODEL_NO'),
-('Bus', 'INST. XFR A Unit','Maximo','INSTXFR_A','Unit'),
-('Bus', 'INST. XFR A Asset Desc','Maximo','INSTXFR_A','Asset_Desc'),
-('Bus', 'INST. XFR A Station/Line','Maximo','INSTXFR_A','STATIONLINE'),
-('Bus', 'INST. XFR A Manufacturer','Maximo','INSTXFR_A','MANUFACTURER'),
-('Bus', 'INST. XFR A Class','Maximo','INSTXFR_A','LocationSubClass'),
-('Bus', 'INST. XFR A Desc','Maximo','INSTXFR_A','Description'),
-('Bus', 'INST. XFR A KV','Maximo','INSTXFR_A','OperatingKV'),
-('Bus', 'INST. XFR A Phase','Maximo','INSTXFR_A','Phase'),
-('Bus', 'INST. XFR A Serial No.','Maximo','INSTXFR_A','Serial_No'),
-
-('Bus', 'INST. XFR B Function','Maximo','INSTXFR_B','Function'),
-('Bus', 'INST. XFR B Location Name','Maximo','INSTXFR_B','Location_Name'),
-('Bus', 'INST. XFR B  Model No','Maximo','INSTXFR_B','TVA_MODEL_NO'),
-('Bus', 'INST. XFR B Unit','Maximo','INSTXFR_B','Unit'),
-('Bus', 'INST. XFR B Asset Desc','Maximo','INSTXFR_B','Asset_Desc'),
-('Bus', 'INST. XFR B Station/Line','Maximo','INSTXFR_B','STATIONLINE'),
-('Bus', 'INST. XFR B Manufacturer','Maximo','INSTXFR_B','MANUFACTURER'),
-('Bus', 'INST. XFR B Class','Maximo','INSTXFR_B','LocationSubClass'),
-('Bus', 'INST. XFR B Desc','Maximo','INSTXFR_B','Description'),
-('Bus', 'INST. XFR B KV','Maximo','INSTXFR_B','OperatingKV'),
-('Bus', 'INST. XFR B Phase','Maximo','INSTXFR_B','Phase'),
-('Bus', 'INST. XFR B Serial No.','Maximo','INSTXFR_B','Serial_No'),
-
-('Bus', 'INST. XFR C Function','Maximo','INSTXFR_C','Function'),
-('Bus', 'INST. XFR C Location Name','Maximo','INSTXFR_C','Location_Name'),
-('Bus', 'INST. XFR C  Model No','Maximo','INSTXFR_C','TVA_MODEL_NO'),
-('Bus', 'INST. XFR C Unit','Maximo','INSTXFR_C','Unit'),
-('Bus', 'INST. XFR C Asset Desc','Maximo','INSTXFR_C','Asset_Desc'),
-('Bus', 'INST. XFR C Station/Line','Maximo','INSTXFR_C','STATIONLINE'),
-('Bus', 'INST. XFR C Manufacturer','Maximo','INSTXFR_C','MANUFACTURER'),
-('Bus', 'INST. XFR C Class','Maximo','INSTXFR_C','LocationSubClass'),
-('Bus', 'INST. XFR C Desc','Maximo','INSTXFR_C','Description'),
-('Bus', 'INST. XFR C KV','Maximo','INSTXFR_C','OperatingKV'),
-('Bus', 'INST. XFR C Phase','Maximo','INSTXFR_C','Phase'),
-('Bus', 'INST. XFR C Serial No.','Maximo','INSTXFR_C','Serial_No')
-GO
-
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('CapBank', 'INST. XFR A Function','Maximo','INSTXFR_A','Function'),
-('CapBank', 'INST. XFR A Location Name','Maximo','INSTXFR_A','Location_Name'),
-('CapBank', 'INST. XFR A  Model No','Maximo','INSTXFR_A','TVA_MODEL_NO'),
-('CapBank', 'INST. XFR A Unit','Maximo','INSTXFR_A','Unit'),
-('CapBank', 'INST. XFR A Asset Desc','Maximo','INSTXFR_A','Asset_Desc'),
-('CapBank', 'INST. XFR A Station/Line','Maximo','INSTXFR_A','STATIONLINE'),
-('CapBank', 'INST. XFR A Manufacturer','Maximo','INSTXFR_A','MANUFACTURER'),
-('CapBank', 'INST. XFR A Class','Maximo','INSTXFR_A','LocationSubClass'),
-('CapBank', 'INST. XFR A Desc','Maximo','INSTXFR_A','Description'),
-('CapBank', 'INST. XFR A KV','Maximo','INSTXFR_A','OperatingKV'),
-('CapBank', 'INST. XFR A Phase','Maximo','INSTXFR_A','Phase'),
-('CapBank', 'INST. XFR A Serial No.','Maximo','INSTXFR_A','Serial_No'),
-
-('CapBank', 'INST. XFR B Function','Maximo','INSTXFR_B','Function'),
-('CapBank', 'INST. XFR B Location Name','Maximo','INSTXFR_B','Location_Name'),
-('CapBank', 'INST. XFR B  Model No','Maximo','INSTXFR_B','TVA_MODEL_NO'),
-('CapBank', 'INST. XFR B Unit','Maximo','INSTXFR_B','Unit'),
-('CapBank', 'INST. XFR B Asset Desc','Maximo','INSTXFR_B','Asset_Desc'),
-('CapBank', 'INST. XFR B Station/Line','Maximo','INSTXFR_B','STATIONLINE'),
-('CapBank', 'INST. XFR B Manufacturer','Maximo','INSTXFR_B','MANUFACTURER'),
-('CapBank', 'INST. XFR B Class','Maximo','INSTXFR_B','LocationSubClass'),
-('CapBank', 'INST. XFR B Desc','Maximo','INSTXFR_B','Description'),
-('CapBank', 'INST. XFR B KV','Maximo','INSTXFR_B','OperatingKV'),
-('CapBank', 'INST. XFR B Phase','Maximo','INSTXFR_B','Phase'),
-('CapBank', 'INST. XFR B Serial No.','Maximo','INSTXFR_B','Serial_No'),
-
-('CapBank', 'INST. XFR C Function','Maximo','INSTXFR_C','Function'),
-('CapBank', 'INST. XFR C Location Name','Maximo','INSTXFR_C','Location_Name'),
-('CapBank', 'INST. XFR C  Model No','Maximo','INSTXFR_C','TVA_MODEL_NO'),
-('CapBank', 'INST. XFR C Unit','Maximo','INSTXFR_C','Unit'),
-('CapBank', 'INST. XFR C Asset Desc','Maximo','INSTXFR_C','Asset_Desc'),
-('CapBank', 'INST. XFR C Station/Line','Maximo','INSTXFR_C','STATIONLINE'),
-('CapBank', 'INST. XFR C Manufacturer','Maximo','INSTXFR_C','MANUFACTURER'),
-('CapBank', 'INST. XFR C Class','Maximo','INSTXFR_C','LocationSubClass'),
-('CapBank', 'INST. XFR C Desc','Maximo','INSTXFR_C','Description'),
-('CapBank', 'INST. XFR C KV','Maximo','INSTXFR_C','OperatingKV'),
-('CapBank', 'INST. XFR C Phase','Maximo','INSTXFR_C','Phase'),
-('CapBank', 'INST. XFR C Serial No.','Maximo','INSTXFR_C','Serial_No')
-GO
-
-
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Transformer', 'INST. XFR A Function','Maximo','INSTXFR_A','Function'),
-('Transformer', 'INST. XFR A Location Name','Maximo','INSTXFR_A','Location_Name'),
-('Transformer', 'INST. XFR A  Model No','Maximo','INSTXFR_A','TVA_MODEL_NO'),
-('Transformer', 'INST. XFR A Unit','Maximo','INSTXFR_A','Unit'),
-('Transformer', 'INST. XFR A Asset Desc','Maximo','INSTXFR_A','Asset_Desc'),
-('Transformer', 'INST. XFR A Station/Line','Maximo','INSTXFR_A','STATIONLINE'),
-('Transformer', 'INST. XFR A Manufacturer','Maximo','INSTXFR_A','MANUFACTURER'),
-('Transformer', 'INST. XFR A Class','Maximo','INSTXFR_A','LocationSubClass'),
-('Transformer', 'INST. XFR A Desc','Maximo','INSTXFR_A','Description'),
-('Transformer', 'INST. XFR A KV','Maximo','INSTXFR_A','OperatingKV'),
-('Transformer', 'INST. XFR A Phase','Maximo','INSTXFR_A','Phase'),
-('Transformer', 'INST. XFR A Serial No.','Maximo','INSTXFR_A','Serial_No'),
-
-('Transformer', 'INST. XFR B Function','Maximo','INSTXFR_B','Function'),
-('Transformer', 'INST. XFR B Location Name','Maximo','INSTXFR_B','Location_Name'),
-('Transformer', 'INST. XFR B  Model No','Maximo','INSTXFR_B','TVA_MODEL_NO'),
-('Transformer', 'INST. XFR B Unit','Maximo','INSTXFR_B','Unit'),
-('Transformer', 'INST. XFR B Asset Desc','Maximo','INSTXFR_B','Asset_Desc'),
-('Transformer', 'INST. XFR B Station/Line','Maximo','INSTXFR_B','STATIONLINE'),
-('Transformer', 'INST. XFR B Manufacturer','Maximo','INSTXFR_B','MANUFACTURER'),
-('Transformer', 'INST. XFR B Class','Maximo','INSTXFR_B','LocationSubClass'),
-('Transformer', 'INST. XFR B Desc','Maximo','INSTXFR_B','Description'),
-('Transformer', 'INST. XFR B KV','Maximo','INSTXFR_B','OperatingKV'),
-('Transformer', 'INST. XFR B Phase','Maximo','INSTXFR_B','Phase'),
-('Transformer', 'INST. XFR B Serial No.','Maximo','INSTXFR_B','Serial_No'),
-
-('Transformer', 'INST. XFR C Function','Maximo','INSTXFR_C','Function'),
-('Transformer', 'INST. XFR C Location Name','Maximo','INSTXFR_C','Location_Name'),
-('Transformer', 'INST. XFR C  Model No','Maximo','INSTXFR_C','TVA_MODEL_NO'),
-('Transformer', 'INST. XFR C Unit','Maximo','INSTXFR_C','Unit'),
-('Transformer', 'INST. XFR C Asset Desc','Maximo','INSTXFR_C','Asset_Desc'),
-('Transformer', 'INST. XFR C Station/Line','Maximo','INSTXFR_C','STATIONLINE'),
-('Transformer', 'INST. XFR C Manufacturer','Maximo','INSTXFR_C','MANUFACTURER'),
-('Transformer', 'INST. XFR C Class','Maximo','INSTXFR_C','LocationSubClass'),
-('Transformer', 'INST. XFR C Desc','Maximo','INSTXFR_C','Description'),
-('Transformer', 'INST. XFR C KV','Maximo','INSTXFR_C','OperatingKV'),
-('Transformer', 'INST. XFR C Phase','Maximo','INSTXFR_C','Phase'),
-('Transformer', 'INST. XFR C Serial No.','Maximo','INSTXFR_C','Serial_No')
-GO
-
-INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
-('Transformer','Description','Maximo','Transformer_A','DESCRIPTION'),
-('Transformer','VoltageKV','Maximo','Transformer_A','OperatingKV')
-GO
-
 /* Connections to external databases */
-/* TODO: the rest of these are wrong that aren't fawg now */
-INSERT INTO ExternalDatabases (Name, ConnectionString, Encrypt) VALUES ('FAWG', 'dbFawg', 'true')
+/* TODO: PQView needs updating, so do some fawg addl fields */
+INSERT INTO dbo.[ExternalDatabases] (Name, ConnectionString, Encrypt) VALUES ('FAWG', 'dbFawg', 'true')
 GO
 
 --/* PQView Query for Meter */
@@ -649,394 +225,864 @@ INSERT INTO [SystemCenter.Setting](Name, Value, DefaultValue) VALUES('FAWG.Trans
             ) T1', '')
 GO
 
+--/* MAXIMO DATABASE ENTRY */
+INSERT INTO dbo.[ExternalDatabases] (Name, ConnectionString,Encrypt) VALUES
+    ('Maximo','dbMaximo', 1)
+GO
 
+--/* MAximo Queries for Meters */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('Meter',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+        SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    A.UNIT_CD AS Unit,
+	    A.Function_CD AS Function,
+	    A.Location_Name AS Location_Name,
+	    A.TVA_ALIS AS TVA_Alias,
+	    B.Description AS Description,
+	    B.MeterSector AS METERSECTOR,
+	    B.MSCO AS MSCO,
+	    B.StationLine AS STATIONLINE,
+	    C.Asset_Desc AS Asset_Desc,
+	    C.Serial_No AS SERIAL_NO,
+	    C.TVA_Model_No AS TVA_MODEL_NO,
+	    C.ASSET_STATUS_CD AS Status,
+	    D.Company_Name AS MANUFACTURER,
+	    E.Company_Name AS Supplier
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	    EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	    EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD LEFT JOIN
+	    EAMDM.EAM_OD_COMPANY_MV E ON C.SUPPLIER_CD = E.COMPANY_CD
+	WHERE Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL)
+    )')
+GO
+/* Fields From Maximo for Meter */
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'Function'),
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'Location_Name'),
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'METERSECTOR'),
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'TVA_MODEL_NO'),
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'Unit'),
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'Asset_Desc'),
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'SERIAL_NO'),
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'STATIONLINE'),
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'MSCO'),
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'Supplier'),
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'MANUFACTURER'),
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'Status'),
+('Meter', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'), 'TVA_Alias')
+GO
 
+/* XDA Fields */
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDBTableID) VALUES
+('Meter','Description',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Meter'))
+GO
 
---/* MAximo Queries for Substation and Meters */
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('Meter','Maximo','
---            (
---             SELECT 
---	            A.UNID AS UNID,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            A.Location_Name AS Location_Name,
---	            A.TVA_ALIS AS TVA_ALIAS,
---	            B.Description AS Description,
---	            B.MeterSector AS MeterSector,
---	            B.MSCO AS MSCO,
---	            B.StationLine AS StationLine,
---	            C.Asset_Desc AS Asset_Desc,
---	            C.Serial_No AS Serial_No,
---	            C.TVA_Model_No AS TVA_Model_No,
---	            C.ASSET_STATUS_CD AS Status,
---	            D.Company_Name AS Manufacturer,
---	            E.Company_Name AS Supplier
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
---	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD LEFT JOIN
---	            EAMDM.EAM_OD_COMPANY_MV E ON C.SUPPLIER_CD = E.COMPANY_CD
---            )')
---GO
+--/* MAximo Queries for Substations */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('Location',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+    SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    B.City AS City,
+	    B.County AS County,
+	    B.Customer1 AS Customer1,
+	    B.Customer2 AS Customer2,
+	    B.Customer3 AS Customer3,
+	    B.Description AS Description,
+	    B.MeterSector AS METERSECTOR,
+	    B.State AS State,
+	    B.StationLine AS STATIONLINE,
+	    B.Stationowner AS Stationowner,
+	    B.StreetAddress AS StreetAddress,
+	    B.TomArea AS TomArea,
+	    B.Unit AS Unit,
+	    B.ZipCode AS ZipCode,
+	    B.ADCC AS Adcc
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key	
+	WHERE Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL)
+    )')
+GO
 
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('Location','Maximo','
---            (
---            SELECT 
---	            A.UNID AS UNID,
---	            B.City AS City,
---	            B.County AS County,
---	            B.Customer1 AS Customer1,
---	            B.Customer2 AS Customer2,
---	            B.Customer3 AS Customer3,
---	            B.Description AS Description,
---	            B.MeterSector AS MeterSector,
---	            B.State AS State,
---	            B.StationLine AS StationLine,
---	            B.Stationowner AS Stationowner,
---	            B.StreetAddress AS StreetAddress,
---	            B.TomArea AS TomArea,
---	            B.Unit AS Unit,
---	            B.ZipCode AS ZipCode,
---	            B.ADCC AS Adcc
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key	
---            )')
---GO
+/* Fields From Maximo for Substations */
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Location', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'), 1, 'Maximo_Asset_Number_(UID)')
+GO
 
---/* MAximo Queries for Breakers, Lines, CapBanks */
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('Breaker','Maximo','
---            (
---            SELECT 
---	            A.UNID AS UNID,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            A.Location_Name AS Location_Name,
---	            B.Description AS Description,
---				B.OperatingKVTrans AS OperatingKV,
---	            B.StationLine AS StationLine,
---	            C.Asset_Desc AS Asset_Desc,
---	            C.TVA_Model_No AS TVA_Model_No,
---	            C.ASSET_STATUS_CD AS Status,
---	            D.Company_Name AS Manufacturer
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
---	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
---			WHERE A.CLASSSTRUCTURE_ID IN (''1009'', ''1010'')
---            )')
---GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+('Location',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'),'City'),
+('Location',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'),'County'),
+('Location',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'),'State'),
+('Location',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'),'StreetAddress'),
+('Location',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'),'ZipCode'),
+('Location',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'),'Customer1'),
+('Location',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'),'Customer2'),
+('Location',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'),'Customer3'),
+('Location',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'),'METERSECTOR'),
+('Location',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'),'Unit'),
+('Location',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'),'STATIONLINE'),
+('Location',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'),'Adcc')
+GO
 
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('CapBank','Maximo','
---            (
---            SELECT 
---	            A.UNID AS UNID,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            A.Location_Name AS Location_Name,
---	            B.Description AS Description,
---				B.OperatingKVTrans AS OperatingKV,
---	            B.StationLine AS StationLine,
---				B.BankKVAR AS BankVAR,
---				B.CapacitorCount AS CapCount,
---				B.CapacitorKV AS CapKV,
---				B.CapacitorKVAR AS CapKVAR,
---	            C.Asset_Desc AS Asset_Desc,
---	            C.TVA_Model_No AS TVA_Model_No,
---	            C.ASSET_STATUS_CD AS Status,
---	            D.Company_Name AS Manufacturer
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
---	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD
---			WHERE
---				A.CLASSSTRUCTURE_ID  = ''1012''
---            )')
---GO
+/* XDA Fields */
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDBTableID) VALUES
+('Location','Description',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Location'))
+GO
 
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('Line','Maximo','
---            (
---           SELECT 
---	            A.UNID AS UNID,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            A.ADDRESS_CD AS ADDRESS,
---				A.TVA_AREA AS TVA_Area,
---				A.TVA_DRAWING_NO AS DrawingNo,
---				B.Description AS Description,
---				B.OperatingKVTrans AS OperatingKV,
---	            B.StationLine AS StationLine,
---				B.PhasingDWG AS PhasingDWG,
---				B.Remarks AS Remarks,
---				B.StructureListDWG AS StructureListDWG
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key
---			WHERE
---				A.CLASSSTRUCTURE_ID  = ''1034''
---            )')
---GO
+/* Maximo Table for Breakers */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('Breaker',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+    SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    A.UNIT_CD AS Unit,
+	    A.Function_CD AS Function,
+	    A.Location_Name AS Location_Name,
+	    B.Description AS Description,
+		B.OperatingKVTrans AS VoltageKV,
+	    B.StationLine AS STATIONLINE,
+	    C.Asset_Desc AS Asset_Desc,
+	    C.TVA_Model_No AS TVA_MODEL_NO,
+	    C.ASSET_STATUS_CD AS Status,
+	    D.Company_Name AS MANUFACTURER
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	    EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	    EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+	WHERE A.CLASSSTRUCTURE_ID IN (''1009'', ''1010'')
+	AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+    )')
+GO
 
---/* Maximo Tables For Transformers */
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('Transformer_A','Maximo','
---            (
---           SELECT 
---	            A.UNID AS UNID,
---	            A.Location_Name AS Location_Name,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            B.Description AS Description,
---	            B.OperatingKVTrans AS OperatingKV,
---	            B.StationLine AS StationLine,
---	            B.PhasePosition AS Phase,
---	            C.Asset_Desc AS Asset_Desc,
---	            C.TVA_Model_No AS TVA_Model_No,
---	            C.Serial_No AS Serial_No,
---	            C.ASSET_LONG_DESC AS Long_Desc,
---	            D.Company_Name AS Manufacturer
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
---	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
---            WHERE
---                A.CLASSSTRUCTURE_ID  = ''1069''
---            )')
---GO
+/* Fields From Maximo for Breakers */
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Breaker'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Breaker'),'Function'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Breaker'),'Location_Name'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Breaker'),'TVA_MODEL_NO'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Breaker'),'Unit'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Breaker'),'Asset_Desc'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Breaker'),'STATIONLINE'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Breaker'),'MANUFACTURER'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Breaker'),'Status')
 
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('Transformer_B','Maximo','
---            (
---           SELECT 
---	            A.UNID AS UNID,
---	            A.Location_Name AS Location_Name,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            B.Description AS Description,
---	            B.OperatingKVTrans AS OperatingKV,
---	            B.StationLine AS StationLine,
---	            B.PhasePosition AS Phase,
---	            C.Asset_Desc AS Asset_Desc,
---	            C.TVA_Model_No AS TVA_Model_No,
---	            C.Serial_No AS Serial_No,
---	            C.ASSET_LONG_DESC AS Long_Desc,
---	            D.Company_Name AS Manufacturer
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
---	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
---            WHERE
---                A.CLASSSTRUCTURE_ID  = ''1069''
---            )')
---GO
+GO
 
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('Transformer_C','Maximo','
---            (
---           SELECT 
---	            A.UNID AS UNID,
---	            A.Location_Name AS Location_Name,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            B.Description AS Description,
---	            B.OperatingKVTrans AS OperatingKV,
---	            B.StationLine AS StationLine,
---	            B.PhasePosition AS Phase,
---	            C.Asset_Desc AS Asset_Desc,
---	            C.TVA_Model_No AS TVA_Model_No,
---	            C.Serial_No AS Serial_No,
---	            C.ASSET_LONG_DESC AS Long_Desc,
---	            D.Company_Name AS Manufacturer
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
---	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
---            WHERE
---                A.CLASSSTRUCTURE_ID  = ''1069''
---            )')
---GO
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDBTableID) VALUES
+('Breaker','Description',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Breaker')),
+('Breaker','VoltageKV',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Breaker'))
+GO
 
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('LTC_A','Maximo','
---            (
---           SELECT 
---	            A.UNID AS UNID,
---	            A.Location_Name AS Location_Name,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            B.Description AS Description,
---	            B.OperatingKVTrans AS OperatingKV,
---	            B.StationLine AS StationLine,
---	            B.PhasePosition AS Phase,
---	            C.Asset_Desc AS Asset_Desc,
---	            C.Serial_No AS Serial_No
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
---            WHERE
---               A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
---            )')
---GO
+/* Maximo Table for Trip Coils */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('TripCoil',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+    SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    A.UNIT_CD AS Unit,
+	    A.Function_CD AS Function,
+	    A.Location_Name AS Location_Name,
+	    B.Description AS Description,
+	    B.StationLine AS STATIONLINE,
+	    C.Asset_Desc AS Asset_Desc
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	    EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key 
+	WHERE A.CLASSSTRUCTURE_ID = ''1128''
+	AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+    )')
+GO
 
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('LTC_B','Maximo','
---            (
---           SELECT 
---	            A.UNID AS UNID,
---	            A.Location_Name AS Location_Name,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            B.Description AS Description,
---	            B.OperatingKVTrans AS OperatingKV,
---	            B.StationLine AS StationLine,
---	            B.PhasePosition AS Phase,
---	            C.Asset_Desc AS Asset_Desc,
---	            C.Serial_No AS Serial_No
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
---            WHERE
---                A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
---            )')
---GO
+/* Fields From Maximo for TripCoils */
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'TripCoil'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'TripCoil'),'Function'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'TripCoil'),'Location_Name'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'TripCoil'),'Unit'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'TripCoil'),'STATIONLINE'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'TripCoil'),'Asset_Desc'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'TripCoil'),'Description')
+GO
 
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('LTC_C','Maximo','
---            (
---           SELECT 
---	            A.UNID AS UNID,
---	            A.Location_Name AS Location_Name,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            B.Description AS Description,
---	            B.OperatingKVTrans AS OperatingKV,
---	            B.StationLine AS StationLine,
---	            B.PhasePosition AS Phase,
---	            C.Asset_Desc AS Asset_Desc,
---	            C.Serial_No AS Serial_No
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
---            WHERE
---                A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
---            )')
---GO
+/* Maximo Table For Instrument Transformers A */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('INSTXFR_A',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+    SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    A.UNIT_CD AS Unit,
+	    A.Function_CD AS Function,
+	    A.Location_Name AS Location_Name,
+		A.LOCATION_SUB_CLASS_NAME AS LocationSubClass,
+	    B.Description AS Description,
+		B.OperatingKVTrans AS OperatingKV,
+	    B.StationLine AS STATIONLINE,
+		B.PhasePosition AS Phase,
+	    C.Asset_Desc AS Asset_Desc,
+	    C.TVA_Model_No AS TVA_MODEL_NO,
+		C.Serial_No AS Serial_No,
+	    D.Company_Name AS MANUFACTURER
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	    EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	    EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+	WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'') 
+	AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+    )')
+GO
 
+/* XDA Fields */
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'), 1, 'Maximo_Asset_Number_(UID)'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'), 1, 'Maximo_Asset_Number_(UID)'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'), 1, 'Maximo_Asset_Number_(UID)'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'), 1, 'Maximo_Asset_Number_(UID)'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+/* Breaker Fields */
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Function'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Location_Name'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'TVA_MODEL_NO'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Unit'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Asset_Desc'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'STATIONLINE'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'MANUFACTURER'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'LocationSubClass'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Description'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'OperatingKV'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Phase'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Serial_No'),
+/* Line Fields */
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Function'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Location_Name'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'TVA_MODEL_NO'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Unit'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Asset_Desc'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'STATIONLINE'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'MANUFACTURER'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'LocationSubClass'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Description'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'OperatingKV'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Phase'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Serial_No'),
+/* Bus Fields */
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Function'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Location_Name'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'TVA_MODEL_NO'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Unit'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Asset_Desc'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'STATIONLINE'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'MANUFACTURER'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'LocationSubClass'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Description'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'OperatingKV'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Phase'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Serial_No'),
+/* CapBank Fields */
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Function'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Location_Name'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'TVA_MODEL_NO'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Unit'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Asset_Desc'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'STATIONLINE'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'MANUFACTURER'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'LocationSubClass'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Description'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'OperatingKV'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Phase'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Serial_No'),
+/* Transformer Fields */
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Function'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Location_Name'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'TVA_MODEL_NO'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Unit'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Asset_Desc'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'STATIONLINE'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'MANUFACTURER'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'LocationSubClass'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Description'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'OperatingKV'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Phase'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_A'),'Serial_No')
+GO
 
+/* Maximo Table For Instrument Transformers B */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('INSTXFR_B',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+    SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    A.UNIT_CD AS Unit,
+	    A.Function_CD AS Function,
+	    A.Location_Name AS Location_Name,
+		A.LOCATION_SUB_CLASS_NAME AS LocationSubClass,
+	    B.Description AS Description,
+		B.OperatingKVTrans AS OperatingKV,
+	    B.StationLine AS STATIONLINE,
+		B.PhasePosition AS Phase,
+	    C.Asset_Desc AS Asset_Desc,
+	    C.TVA_Model_No AS TVA_MODEL_NO,
+		C.Serial_No AS Serial_No,
+	    D.Company_Name AS MANUFACTURER
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	    EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	    EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+	WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'')
+	AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+    )')
+GO
 
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'), 1, 'Maximo_Asset_Number_(UID)'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'), 1, 'Maximo_Asset_Number_(UID)'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'), 1, 'Maximo_Asset_Number_(UID)'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'), 1, 'Maximo_Asset_Number_(UID)'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'), 1, 'Maximo_Asset_Number_(UID)')
+GO
 
---/* Maximo Table for Trip Coils */
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('TripCoil','Maximo','
---            (
---            SELECT 
---	            A.UNID AS UNID,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            A.Location_Name AS Location_Name,
---	            B.Description AS Description,
---	            B.StationLine AS StationLine,
---	            C.Asset_Desc AS Asset_Desc
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key 
---			WHERE A.CLASSSTRUCTURE_ID = ''1128''
---            )')
---GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+/* Breaker Fields */
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Function'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Location_Name'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'TVA_MODEL_NO'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Unit'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Asset_Desc'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'STATIONLINE'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'MANUFACTURER'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'LocationSubClass'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Description'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'OperatingKV'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Phase'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Serial_No'),
+/* Line Fields */
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Function'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Location_Name'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'TVA_MODEL_NO'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Unit'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Asset_Desc'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'STATIONLINE'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'MANUFACTURER'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'LocationSubClass'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Description'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'OperatingKV'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Phase'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Serial_No'),
+/* Bus Fields */
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Function'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Location_Name'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'TVA_MODEL_NO'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Unit'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Asset_Desc'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'STATIONLINE'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'MANUFACTURER'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'LocationSubClass'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Description'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'OperatingKV'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Phase'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Serial_No'),
+/* CapBank Fields */
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Function'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Location_Name'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'TVA_MODEL_NO'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Unit'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Asset_Desc'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'STATIONLINE'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'MANUFACTURER'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'LocationSubClass'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Description'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'OperatingKV'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Phase'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Serial_No'),
+/* Transformer Fields */
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Function'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Location_Name'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'TVA_MODEL_NO'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Unit'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Asset_Desc'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'STATIONLINE'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'MANUFACTURER'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'LocationSubClass'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Description'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'OperatingKV'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Phase'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_B'),'Serial_No')
+GO
 
---/* Maximo Table For Instrument Transformers */
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('INSTXFR_A','Maximo','
---            (
---           SELECT 
---	            A.UNID AS UNID,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            A.Location_Name AS Location_Name,
---				A.LOCATION_SUB_CLASS_NAME AS LocationSubCLass,
---	            B.Description AS Description,
---				B.OperatingKVTrans AS OperatingKV,
---	            B.StationLine AS StationLine,
---				B.PhasePosition AS Phase,
---	            C.Asset_Desc AS Asset_Desc,
---	            C.TVA_Model_No AS TVA_Model_No,
---				C.Serial_No AS Serial_No,
---	            D.Company_Name AS Manufacturer
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
---	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
---			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'') 
---            )')
---GO
+/* Maximo Table For Instrument Transformers C */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('INSTXFR_C',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+    SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    A.UNIT_CD AS Unit,
+	    A.Function_CD AS Function,
+	    A.Location_Name AS Location_Name,
+		A.LOCATION_SUB_CLASS_NAME AS LocationSubCLass,
+	    B.Description AS Description,
+		B.OperatingKVTrans AS OperatingKV,
+	    B.StationLine AS STATIONLINE,
+		B.PhasePosition AS Phase,
+	    C.Asset_Desc AS Asset_Desc,
+	    C.TVA_Model_No AS TVA_MODEL_NO,
+		C.Serial_No AS Serial_No,
+	    D.Company_Name AS MANUFACTURER
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	    EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	    EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+	WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'')
+	AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+    )')
+GO
+/* XDA Fields */
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'), 1, 'Maximo_Asset_Number_(UID)'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'), 1, 'Maximo_Asset_Number_(UID)'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'), 1, 'Maximo_Asset_Number_(UID)'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'), 1, 'Maximo_Asset_Number_(UID)'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+/* Breaker Fields */
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Function'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Location_Name'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'TVA_MODEL_NO'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Unit'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Asset_Desc'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'STATIONLINE'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'MANUFACTURER'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'LocationSubClass'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Description'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'OperatingKV'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Phase'),
+('Breaker', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Serial_No'),
+/* Line Fields */
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Function'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Location_Name'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'TVA_MODEL_NO'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Unit'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Asset_Desc'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'STATIONLINE'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'MANUFACTURER'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'LocationSubClass'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Description'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'OperatingKV'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Phase'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Serial_No'),
+/* Bus Fields */
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Function'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Location_Name'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'TVA_MODEL_NO'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Unit'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Asset_Desc'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'STATIONLINE'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'MANUFACTURER'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'LocationSubClass'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Description'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'OperatingKV'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Phase'),
+('Bus', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Serial_No'),
+/* CapBank Fields */
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Function'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Location_Name'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'TVA_MODEL_NO'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Unit'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Asset_Desc'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'STATIONLINE'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'MANUFACTURER'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'LocationSubClass'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Description'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'OperatingKV'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Phase'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Serial_No'),
+/* Transformer Fields */
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Function'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Location_Name'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'TVA_MODEL_NO'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Unit'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Asset_Desc'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'STATIONLINE'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'MANUFACTURER'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'LocationSubClass'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Description'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'OperatingKV'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Phase'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'INSTXFR_C'),'Serial_No')
+GO
 
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('INSTXFR_B','Maximo','
---            (
---           SELECT 
---	            A.UNID AS UNID,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            A.Location_Name AS Location_Name,
---				A.LOCATION_SUB_CLASS_NAME AS LocationSubCLass,
---	            B.Description AS Description,
---				B.OperatingKVTrans AS OperatingKV,
---	            B.StationLine AS StationLine,
---				B.PhasePosition AS Phase,
---	            C.Asset_Desc AS Asset_Desc,
---	            C.TVA_Model_No AS TVA_Model_No,
---				C.Serial_No AS Serial_No,
---	            D.Company_Name AS Manufacturer
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
---	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
---			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'')
---            )')
---GO
+/* Maximo Table For Cap Banks */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('CapBank',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+    SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    A.UNIT_CD AS Unit,
+	    A.Function_CD AS Function,
+	    A.Location_Name AS Location_Name,
+	    B.Description AS Description,
+		B.OperatingKVTrans AS VoltageKV,
+	    B.StationLine AS STATIONLINE,
+		B.BankKVAR AS BankVAR,
+		B.CapacitorCount AS NumberOfBanks,
+		B.CapacitorKV AS CapKV,
+		B.CapacitorKVAR AS CapacitancePerBank,
+	    C.Asset_Desc AS Asset_Desc,
+	    C.TVA_Model_No AS TVA_MODEL_NO,
+	    C.ASSET_STATUS_CD AS Status,
+	    D.Company_Name AS MANUFACTURER
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	    EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	    EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD
+	WHERE
+		A.CLASSSTRUCTURE_ID  = ''1012''
+		AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+    )')
+GO
 
---INSERT INTO extDBTables (TableName,ExternalDB,Query) VALUES
---           ('INSTXFR_C','Maximo','
---            (
---           SELECT 
---	            A.UNID AS UNID,
---	            A.UNIT_CD AS UNIT,
---	            A.Function_CD AS Function,
---	            A.Location_Name AS Location_Name,
---				A.LOCATION_SUB_CLASS_NAME AS LocationSubCLass,
---	            B.Description AS Description,
---				B.OperatingKVTrans AS OperatingKV,
---	            B.StationLine AS StationLine,
---				B.PhasePosition AS Phase,
---	            C.Asset_Desc AS Asset_Desc,
---	            C.TVA_Model_No AS TVA_Model_No,
---				C.Serial_No AS Serial_No,
---	            D.Company_Name AS Manufacturer
---            FROM 
---	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
---	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
---	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
---	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
---			WHERE A.CLASSSTRUCTURE_ID IN (''1070'', ''1071'',''1072'',''1073'')
---            )')
---GO
+/* Fields From Maximo for CapBank */
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank'),'Function'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank'),'Location_Name'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank'),'TVA_MODEL_NO'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank'),'Unit'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank'),'Asset_Desc'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank'),'STATIONLINE'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank'),'MANUFACTURER'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank'),'Status'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank'),'CapKV'),
+('CapBank', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank'),'BankVAR')
+GO
+
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDBTableID) VALUES
+('CapBank','Description',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank')),
+('CapBank','VoltageKV',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank')),
+('CapBank','CapacitancePerBank',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank')),
+('CapBank','NumberOfBanks',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'CapBank'))
+GO
+
+/* Maximo Table For Lines */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('Line',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+    SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    A.UNIT_CD AS Unit,
+	    A.Function_CD AS Function,
+	    A.ADDRESS_CD AS ADDRESS,
+		A.TVA_AREA AS TVA_Area,
+		A.TVA_DRAWING_NO AS DrawingNo,
+		B.Description AS Description,
+		B.OperatingKVTrans AS VoltageKV,
+	    B.StationLine AS StationLine,
+		B.PhasingDWG AS PhasingDWG,
+		B.Remarks AS Remarks,
+		B.StructureListDWG AS StructureListDWG
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key
+	WHERE
+		A.CLASSSTRUCTURE_ID  = ''1034''
+		AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+    )')
+GO
+
+/* Fields From Maximo for Lines */
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Line'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Line'),'Function'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Line'),'Unit'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Line'),'Address'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Line'),'TVA_Area'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Line'),'DrawingNo'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Line'),'StationLine'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Line'),'PhasingDWG'),
+('Line', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Line'),'StructureListDWG')
+GO
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDBTableID) VALUES
+('Line','Description',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Line')),
+('Line','VoltageKV',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Line'))
+GO
+
+/* Maximo Tables For Transformer A*/
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('Transformer_A',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+    SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    A.Location_Name AS Location_Name,
+	    A.UNIT_CD AS Unit,
+	    A.Function_CD AS Function,
+	    B.Description AS Description,
+	    B.OperatingKVTrans AS VoltageKV,
+	    B.StationLine AS STATIONLINE,
+	    B.PhasePosition AS Phase,
+	    C.Asset_Desc AS Asset_Desc,
+	    C.TVA_Model_No AS TVA_MODEL_NO,
+	    C.Serial_No AS Serial_No,
+	    C.ASSET_LONG_DESC AS Long_Desc,
+	    D.Company_Name AS MANUFACTURER
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	    EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	    EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+    WHERE
+        A.CLASSSTRUCTURE_ID  = ''1069''
+		AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+    )')
+GO
+
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_A'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_A'),'Function'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_A'),'Location_Name'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_A'),'Unit'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_A'),'STATIONLINE'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_A'),'Asset_Desc'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_A'),'TVA_MODEL_NO'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_A'),'Serial_No'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_A'),'MANUFACTURER'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_A'),'Long_Desc')
+GO
+
+INSERT INTO ExternalOpenXDAField (ParentTable, ExternalDBTableID, FieldName) VALUES
+('Transformer',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_A'),'Description'),
+('Transformer',(SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_A'),'VoltageKV')
+GO
+
+/* Maximo Tables For Transformer B */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+           ('Transformer_B',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+            (
+           SELECT 
+	            A.UNID AS Maximo_Asset_Number_(UID),
+	            A.Location_Name AS Location_Name,
+	            A.UNIT_CD AS Unit,
+	            A.Function_CD AS Function,
+	            B.Description AS Description,
+	            B.OperatingKVTrans AS OperatingKV,
+	            B.StationLine AS STATIONLINE,
+	            B.PhasePosition AS Phase,
+	            C.Asset_Desc AS Asset_Desc,
+	            C.TVA_Model_No AS TVA_Model_No,
+	            C.Serial_No AS Serial_No,
+	            C.ASSET_LONG_DESC AS Long_Desc,
+	            D.Company_Name AS MANUFACTURER
+            FROM 
+	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+            WHERE
+                A.CLASSSTRUCTURE_ID  = ''1069''
+				AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+            )')
+GO
+
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_B'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_B'),'Function'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_B'),'Location_Name'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_B'),'Unit'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_B'),'STATIONLINE'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_B'),'Asset_Desc'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_B'),'TVA_MODEL_NO'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_B'),'Serial_No'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_B'),'MANUFACTURER'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_B'),'Long_Desc')
+GO
+
+/* Maximo Tables For Transformer C */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+           ('Transformer_C',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+            (
+           SELECT 
+	            A.UNID AS Maximo_Asset_Number_(UID),
+	            A.Location_Name AS Location_Name,
+	            A.UNIT_CD AS Unit,
+	            A.Function_CD AS Function,
+	            B.Description AS Description,
+	            B.OperatingKVTrans AS OperatingKV,
+	            B.StationLine AS STATIONLINE,
+	            B.PhasePosition AS Phase,
+	            C.Asset_Desc AS Asset_Desc,
+	            C.TVA_Model_No AS TVA_MODEL_NO,
+	            C.Serial_No AS Serial_No,
+	            C.ASSET_LONG_DESC AS Long_Desc,
+	            D.Company_Name AS MANUFACTURER
+            FROM 
+	            EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	            EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	            EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key LEFT JOIN 
+	            EAMDM.EAM_OD_COMPANY_MV D ON C.MANUFACTURER_CD = D.COMPANY_CD 
+            WHERE
+                A.CLASSSTRUCTURE_ID  = ''1069''
+				AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+            )')
+GO
+
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_C'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_C'),'Function'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_C'),'Location_Name'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_C'),'Unit'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_C'),'STATIONLINE'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_C'),'Asset_Desc'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_C'),'TVA_MODEL_NO'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_C'),'Serial_No'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_C'),'MANUFACTURER'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'Transformer_C'),'Long_Desc')
+GO
+
+/* Maximo Tables For LTC A */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('LTC_A',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+    SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    A.Location_Name AS Location_Name,
+	    A.UNIT_CD AS Unit,
+	    A.Function_CD AS Function,
+	    B.Description AS Description,
+	    B.OperatingKVTrans AS OperatingKV,
+	    B.StationLine AS STATIONLINE,
+	    B.PhasePosition AS Phase,
+	    C.Asset_Desc AS Asset_Desc,
+	    C.Serial_No AS Serial_No
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	    EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
+    WHERE
+        A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
+		AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+    )')
+GO
+
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_A'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_A'),'Function'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_A'),'Location_Name'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_A'),'Unit'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_A'),'STATIONLINE'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_A'),'Asset_Desc'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_A'),'Serial_No'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_A'),'Description'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_A'),'OperatingKV')
+GO
+
+/* Maximo Tables For LTC B */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('LTC_B',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+    SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    A.Location_Name AS Location_Name,
+	    A.UNIT_CD AS Unit,
+	    A.Function_CD AS Function,
+	    B.Description AS DESCRIPTION,
+	    B.OperatingKVTrans AS OperatingKV,
+	    B.StationLine AS STATIONLINE,
+	    B.PhasePosition AS Phase,
+	    C.Asset_Desc AS Asset_Desc,
+	    C.Serial_No AS Serial_No
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	    EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
+    WHERE
+        A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
+		AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+    )')
+GO
+
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_B'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_B'),'Function'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_B'),'Location_Name'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_B'),'Unit'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_B'),'STATIONLINE'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_B'),'Asset_Desc'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_B'),'Serial_No'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_B'),'DESCRIPTION'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_B'),'OperatingKV')
+GO
+
+/* Maximo Tables For LTC C */
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES
+    ('LTC_C',(Select ID FROM dbo.[ExternalDatabases] WHERE Name = 'Maximo'),'
+    (
+    SELECT 
+	    A.UNID AS Maximo_Asset_Number_(UID),
+	    A.Location_Name AS Location_Name,
+	    A.UNIT_CD AS Unit,
+	    A.Function_CD AS Function,
+	    B.Description AS DESCRIPTION,
+	    B.OperatingKVTrans AS OperatingKV,
+	    B.StationLine AS STATIONLINE,
+	    B.PhasePosition AS Phase,
+	    C.Asset_Desc AS Asset_Desc,
+	    C.Serial_No AS Serial_No
+    FROM 
+	    EAMDM.EAM_OD_LOCATION_MV A LEFT JOIN
+	    EAMDM.EAM_OD_LOCATION_SPEC_COL_MV B ON A.Location_Key = B.Location_Key LEFT JOIN
+	    EAMDM.EAM_OD_ASSET_MV C ON A.Location_Key = C.Location_Key
+    WHERE
+        A.CLASSSTRUCTURE_ID  IN (''2304'',''2310'')
+		AND (Maximo_Asset_Number_(UID) LIKE {key} OR {key} IS NULL))
+    )')
+GO
+
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, IsKey, FieldName) VALUES 
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_C'), 1, 'Maximo_Asset_Number_(UID)')
+GO
+INSERT INTO AdditionalField (ParentTable, ExternalDBTableID, FieldName) VALUES 
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_C'),'Function'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_C'),'Location_Name'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_C'),'Unit'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_C'),'STATIONLINE'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_C'),'Asset_Desc'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_C'),'Serial_No'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_C'),'DESCRIPTION'),
+('Transformer', (SELECT ID FROM dbo.[extDBTables] WHERE TableName = 'LTC_C'),'OperatingKV')
+GO
+
 
 INSERT INTO ValueListGroup (Name, Description) VALUES ('TSC', 'List of TSCs - Value is TSC name, AltValue is department number') 
 GO
