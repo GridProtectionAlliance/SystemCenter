@@ -1554,17 +1554,11 @@ namespace SystemCenter.Controllers
         {
             if (!GetAuthCheck())
                 return Unauthorized();
-            try
+            
+            using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
             {
-                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
-                {
-                    extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
-                    return Ok(QueryExternal(table, xdaConnection));
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
+                extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
+                return Ok(QueryExternal(table, xdaConnection));
             }
         }
 
@@ -1573,18 +1567,12 @@ namespace SystemCenter.Controllers
         {
             if (!GetAuthCheck())
                 return Unauthorized();
-            try
+
+            using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
             {
-                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
-                {
-                    extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
-                    return Ok(QueryExternalCount(table, xdaConnection));
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
+                extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
+                return Ok(QueryExternalCount(table, xdaConnection));
+            }            
         }
 
         [HttpPost, Route("RetrieveTable")]
