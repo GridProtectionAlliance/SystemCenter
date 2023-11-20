@@ -396,9 +396,6 @@ export default function AssetPage(props: IProps) {
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
                                 <div className="form-group">
-                                    <button className="btn btn-primary" onClick={(e) => { e.preventDefault(); setNewEdit('New'); setShowAssetModal(true); setShowAssetSelect(false); }}>Create Asset</button>
-                                </div>
-                                <div className="form-group">
                                     <LocationDrawings LocationID={props.Location.ID} />
                                 </div>
                             </form>
