@@ -312,7 +312,19 @@ export default function ChannelPage(props: IProps) {
     function IsSpare(ch: OpenXDA.Types.Channel): boolean {
         const regex = new RegExp('\(A[0-9]+\)Analog Channel [0-9]+');
 
-        return ch.Description != null && (ch.Description.toLowerCase() == 'spare' || (regex.test(ch.Description) && ch.MeasurementType == 'Digital'));
+        const digital = regex.test(ch.Description) && ch.MeasurementType == 'Digital';
+        const sparePhrase = ch.Description != null && [
+            'spare',
+            'virtual spare',
+            'spare virtual',
+            'current spare',
+            'spare current',
+            'voltage spare',
+            'spare voltage',
+            'spare channel'].includes(ch.Description.toLowerCase());
+        
+        return sparePhrase || digital;
+
     }
 
     const NSpare = props.Channels.filter(c => IsSpare(c)).length;
@@ -354,7 +366,9 @@ export default function ChannelPage(props: IProps) {
                     BtnClass={'btn-primary' }
                     TooltipContent={<>
                         {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
-                        {NSpare > 0 ? <p>Channels are considered Spare if the Description is "spare" or they are digital with description "A00 analog channel 00". </p> : null}
+                        {NSpare > 0 ? <p>Channels are considered Spare if the Description is
+                            "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
+                            "spare channel", "spare voltage", "spare current" or they are digital with description "A00 analog channel 00". </p> : null}
                     </>}
                 />
                 </div>
