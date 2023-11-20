@@ -35,7 +35,6 @@ import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import TemplateWindow from './TemplateWindow';
-import { ascending } from 'd3';
 declare var homePath: string;
 
 interface IProps {
@@ -375,7 +374,13 @@ export default function ChannelPage(props: IProps) {
                             props.UpdateChannels(channels);
                         }}>Add</button>
                     </div>}
-                </div>
+            </div>
+            {props.TrendChannels && currentChannels.length == 0 ? <div className="row"> <div className="col-12">
+                <div className="alert alert-info">
+                    Depending on your system configuration openXDA may add trend channels automatically and you may not need to add them here.
+                    For more information please contact your administrator.
+                </div></div>
+            </div> : null}
             <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
                 <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
                     <ConfigTable.Table<OpenXDA.Types.Channel>
