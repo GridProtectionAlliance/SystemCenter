@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import CFGParser from '../../../TS/CFGParser';
 import { CheckBox, Input, Select, TextArea } from '@gpa-gemstone/react-forms';
-import { ConfigurableTable, Modal, ToolTip, Warning, ServerErrorIcon, LoadingIcon } from '@gpa-gemstone/react-interactive';
+import { Modal, ToolTip, Warning, ServerErrorIcon, LoadingIcon } from '@gpa-gemstone/react-interactive';
 import PARParser from '../../../TS/PARParser';
 import { TrashCan, CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';

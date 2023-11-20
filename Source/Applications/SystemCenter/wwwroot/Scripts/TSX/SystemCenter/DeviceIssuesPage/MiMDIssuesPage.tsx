@@ -28,7 +28,8 @@ import { SystemCenter as SC } from '../global';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { orderBy } from 'lodash';
 import * as React from 'react';
-import { ConfigurableTable }  from '@gpa-gemstone/react-interactive';
+import { ConfigTable } from '@gpa-gemstone/react-interactive';
+import { ReactTable } from '@gpa-gemstone/react-table'
 import Reason from './Reason';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -73,29 +74,18 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             </div>
         </div>
         <div className="card-body">
-            <ConfigurableTable<SC.MiMDDailyStatistic>
-                cols={[
-                    { key: 'Date', label: 'Date', field: 'Date', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'LastSuccessfulFileProcessed', label: 'Last Succ', field: 'LastSuccessfulFileProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulFileProcessed', label: 'Last Unsucc', field: 'LastUnsuccessfulFileProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulFileProcessedExplanation', label: 'Reason', field: 'LastUnsuccessfulFileProcessedExplanation', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} /> },
-                    { key: 'TotalFilesProcessed', label: 'Total', field: 'TotalFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'TotalSuccessfulFilesProcessed', label: 'Total Unsucc', field: 'TotalSuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'TotalUnsuccessfulFilesProcessed', label: 'Total Succ', field: 'TotalUnsuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'ConfigChanges', label: 'Config Changes', field: 'ConfigChanges', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'LastConfigFileChange', label: 'Last Change', field: 'LastConfigFileChange', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/Configuration/Meter/${props.Meter.ID}`}>{item.ConfigChanges}</a> },
-                    { key: 'DiagnosticAlarms', label: 'Diagnostic Alarms', field: 'DiagnosticAlarms', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/Diagnostic/Meter/${props.Meter.ID}`}>{item.DiagnosticAlarms}</a> },
-                    { key: 'ComplianceIssues', label: 'Compliance Issues', field: 'ComplianceIssues', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style, index) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/PRC002Overview/Meter/${props.Meter.ID}`}>{item.ComplianceIssues}</a> },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
-                defaultColumns={["Date", "LastSuccessfulFileProcessed", "LastUnsuccessfulFileProcessed", "LastUnsuccessfulFileProcessedExplanation", "TotalFilesProcessed", "TotalSuccessfulFilesProcessed", "TotalUnsuccessfulFilesProcessed", "ConfigChanges", "LastConfigFileChange", "DiagnosticAlarms", "ComplianceIssues", "Scroll"]}
-                requiredColumns={["Date", "Scroll"]}
-                localStorageKey="MiMDIssuesConfigTable"
-                tableClass="table table-hover"
-                data={data}
-                sortKey={sortField}
-                ascending={ascending}
-                onSort={(d) => {
+            <ConfigTable.Table<SC.MiMDDailyStatistic>
+                LocalStorageKey="MiMDIssuesConfigTable"
+                TableClass="table table-hover"
+                Data={data}
+                SortKey={sortField}
+                Ascending={ascending}
+                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                TbodyStyle={{ display: 'block', overflowY: 'scroll' }}
+                RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
+                Selected={() => false}
+                KeySelector={(item) => item.ID}
+                OnSort={(d) => {
                     if (d.colField == sortField) {
                         setAscending(!ascending);
                     }
@@ -104,13 +94,126 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         setSortField(d.colField);
                     }
                 }}
-                onClick={() => { }}
-                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 425, width: '100%' }}
-                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                selected={() => false}
-            />
-
+            >
+                <ReactTable.Column<SC.MiMDDailyStatistic>
+                    Key={'Date'}
+                    AllowSort={true}
+                    Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                    Field={'Date'}
+                    HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                    RowStyle={{ width: 'auto', textAlign: 'center' }}
+                >
+                    Date
+                </ReactTable.Column>
+                <ConfigTable.Configurable Key='LastSuccessfulFileProcessed' Label='Last Succ' Default={true}>
+                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                        Key={'LastSuccessfulFileProcessed'}
+                        AllowSort={true}
+                        Field={'LastSuccessfulFileProcessed'}
+                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Last Succ
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='LastUnsuccessfulFileProcessed' Label='Last Unsucc' Default={true}>
+                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                        Key={'LastUnsuccessfulFileProcessed'}
+                        AllowSort={true}
+                        Field={'LastUnsuccessfulFileProcessed'}
+                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Last Unsucc
+                    </ReactTable.Column>
+                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                        Key={'LastUnsuccessfulFileProcessedExplanation'}
+                        AllowSort={true}
+                        Field={'LastUnsuccessfulFileProcessedExplanation'}
+                        Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} />}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Reason
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='TotalFilesProcessed' Label='Total' Default={true}>
+                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                        Key={'TotalFilesProcessed'}
+                        AllowSort={true}
+                        Field={'TotalFilesProcessed'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Total
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='TotalSuccessfulFilesProcessed' Label='Total Succ' Default={true}>
+                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                        Key={'TotalSuccessfulFilesProcessed'}
+                        AllowSort={true}
+                        Field={'TotalSuccessfulFilesProcessed'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Total Succ
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='TotalUnsuccessfulFilesProcessed' Label='Total Unsucc' Default={true}>
+                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                        Key={'TotalUnsuccessfulFilesProcessed'}
+                        AllowSort={true}
+                        Field={'TotalUnsuccessfulFilesProcessed'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Total Unsucc
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='ConfigChanges' Label='Config Changes' Default={true}>
+                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                        Key={'ConfigChanges'}
+                        AllowSort={true}
+                        Field={'ConfigChanges'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Config Changes
+                    </ReactTable.Column>
+                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                        Key={'LastConfigFileChange'}
+                        AllowSort={true}
+                        Field={'LastConfigFileChange'}
+                        Content={({ item }) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/Configuration/Meter/${props.Meter.ID}`}>{item.ConfigChanges}</a>}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Last Change
+                    </ReactTable.Column>
+                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                        Key={'DiagnosticAlarms'}
+                        AllowSort={true}
+                        Field={'DiagnosticAlarms'}
+                        Content={({ item }) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/Diagnostic/Meter/${props.Meter.ID}`}>{item.DiagnosticAlarms}</a>}
+                                    HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                                    RowStyle={{ width: 'auto', textAlign: 'center' }}
+                                >
+                        Diagnostic Alarms
+                    </ReactTable.Column>     
+                    <ReactTable.Column<SC.MiMDDailyStatistic>
+                        Key={'ComplianceIssues'}
+                        AllowSort={true}
+                        Field={'ComplianceIssues'}
+                        Content={({ item }) => <a target='_blank' href={settings.find(s => s.Name == 'MiMD.Url')?.Value + `/PRC002Overview/Meter/${props.Meter.ID}`}>{item.ComplianceIssues}</a>}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Compliance Issues
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+            </ConfigTable.Table>
         </div>
         <div className="card-footer">
         </div>

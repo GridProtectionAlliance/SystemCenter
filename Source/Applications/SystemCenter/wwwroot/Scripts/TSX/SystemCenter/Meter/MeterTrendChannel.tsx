@@ -25,13 +25,15 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '../global';
 import { Application, OpenXDA as GemstoneOpenXDA } from '@gpa-gemstone/application-typings';
-import { ConfigurableTable, LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { Input, Select } from '@gpa-gemstone/react-forms';
 import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { TrendChannelSlice, PhaseSlice, MeasurmentTypeSlice, MeasurementCharacteristicSlice } from '../Store/Store';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { useAppSelector, useAppDispatch } from '../hooks';
+import { ConfigTable } from '@gpa-gemstone/react-interactive';
+import { ReactTable } from '@gpa-gemstone/react-table'
 
 declare var homePath: string;
 
@@ -246,87 +248,169 @@ const MeterTrendChannelWindow = (props: IProps) => {
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', height: window.innerHeight - 420 }}>
-                    <ConfigurableTable<OpenXDA.TrendChannel>
-                        cols={[
-                            {
-                                key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'Name'} Label={''} Setter={(r) => createChange(r, 'Name')} Valid={(f) => isValid(f, c)} />
-                            },
-                            {
-                                key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'Description'} Label={''} Setter={(r) => createChange(r, 'Description')} Valid={(f) => isValid(f, c)} />
-                            },
-                            {
-                                key: 'MeasurementType', field: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-                                content: (c) => <Select Record={c} Field={'MeasurementTypeID'} Label={''} Options={measurementTypes.map(d => ({ Label: d.Name, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'MeasurementTypeID')} />
-                            },
-                            {
-                                key: 'MeasurementCharacteristic', field: 'MeasurementCharacteristic', label: 'Characteristic', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-                                content: (c) => <Select Record={c} Field={'MeasurementCharacteristicID'} Label={''} Options={measurementCharacteristics.map(d => ({ Label: d.Name, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'MeasurementCharacteristicID')} />
-                            },
-                            {
-                                key: 'Phase', field: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-                                content: (c) => <Select Record={c} Field={'PhaseID'} Label={''} Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'PhaseID')} />
-                            },
-                            {
-                                key: 'HarmonicGroup', field: 'HarmonicGroup', label: 'Harmonic', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
-                                content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'HarmonicGroup'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'HarmonicGroup')} Valid={(f) => isValid(f, c)} />
-                            },
-                            {
-                                key: 'Adder', field: 'Adder', label: 'Adder', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
-                                content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'Adder'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'Adder')} Valid={(f) => isValid(f, c)} />
-                            },
-                            {
-                                key: 'Multiplier', field: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
-                                content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'Multiplier'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'Multiplier')} Valid={(f) => isValid(f, c)} />
-                            },
-                            {
-                                key: 'SamplesPerHour', field: 'SamplesPerHour', label: 'Samples', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
-                                content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'SamplesPerHour'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'SamplesPerHour')} Valid={(f) => isValid(f, c)} />
-                            },
-                            {
-                                key: 'PerUnitValue', field: 'PerUnitValue', label: 'Per Unit', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
-                                content: (c) => <Input<OpenXDA.TrendChannel> Record={c} Field={'PerUnitValue'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'PerUnitValue')} Valid={(f) => isValid(f, c)} />
-                            },
-                            {
-                                key: 'Asset', field: 'Asset', label: 'Asset', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (c) => <Select Record={c} Field={'AssetID'} Label={''} Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'AssetID')} />
-                            },
-                            {
-                                key: 'ConnectionPriority', field: 'ConnectionPriority', label: 'Priority', headerStyle: { width: '7%' }, rowStyle: { width: '8%' },
-                                content: (c) => <Select EmptyOption={true} Record={c} Field={'ConnectionPriority'} Label={''} Options={[{ Value: '0', Label: 'Primary' }, { Value: '1', Label: 'Secondary' }, { Value: '2', Label: 'Tertiary' }]} Setter={(r) => createChange(r, 'ConnectionPriority')} Disabled={assets.find(d => d.ID == c.AssetID)?.AssetType != 'Transformer'} />
-                            },
-                            {
-                                key: 'Remove', label: '', headerStyle: { width: '3%' }, rowStyle: { width: '3%' },
-                                content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveRecord(c)}><span>{TrashCan}</span></button>
-                            },
-                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
-                        ]}
-                        defaultColumns={["Name", "Description", "MeasurementType", "MeasurementCharacteristic", "Phase", "HarmonicGroup", "Adder", "Multiplier", "Asset", "ConnectionPriority", "Remove", "Scroll"]}
-                        requiredColumns={["Name", "Remove", "Scroll"]}
-                        localStorageKey="MeterTrendChannelConfigTable"
-                        tableClass="table table-hover"
-                        data={data.map(c => replicateChanges(c))}
-                        sortKey={sortKey}
-                        ascending={ascending}
-                        onSort={(d) => {
-
-                            if (d.colKey === "Scroll" || d.colKey == 'Remove')
-                                return;
+                    <ConfigTable.Table<OpenXDA.TrendChannel>
+                        LocalStorageKey="MeterTrendChannelConfigTable"
+                        TableClass="table table-hover"
+                        Data={data.map(c => replicateChanges(c))}
+                        TableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed' }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={() => false}
+                        KeySelector={(item) => item.ID}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
 
                             if (d.colKey === sortKey)
                                 dispatch(TrendChannelSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
                             else
                                 dispatch(TrendChannelSlice.Sort({ SortField: d.colField, Ascending: true }));
                         }}
-                        onClick={() => { }}
-                        tableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed' }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                    />
+                    >
+
+                        <ReactTable.Column<OpenXDA.TrendChannel>
+                            Key={'Name'} Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => <Input<OpenXDA.TrendChannel> Record={item} Field={'Name'}
+                                Label={''} Setter={(r) => createChange(r, 'Name')}
+                                Valid={(f) => isValid(f, item)} />}
+                        >
+                            Name </ReactTable.Column>
+
+                        <ConfigTable.Configurable Key='Description' Label='Description' Default={true}>
+                            <ReactTable.Column<OpenXDA.TrendChannel>
+                                Key={'Description'} Field={'Description'} HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => <Input<OpenXDA.TrendChannel> Record={item}
+                                    Field={'Description'} Label={''}
+                                    Setter={(r) => createChange(r, 'Description')}
+                                    Valid={(f) => isValid(f, item)} />}>
+                            </ReactTable.Column>
+                        </ConfigTable.Configurable>
+                        <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={true}>
+                            <ReactTable.Column<OpenXDA.TrendChannel>
+                                Key={'MeasurementType'}
+                                Field={'MeasurementType'}
+                                HeaderStyle={{ width: '10%' }}
+                                RowStyle={{ width: '10%' }}
+                                Content={({ item }) => <Select Record={item} Field={'MeasurementTypeID'}
+                                    Label={''}
+                                    Options={measurementTypes.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
+                                    Setter={(r) => createChange(r, 'MeasurementTypeID')} />}>
+                                Type
+                            </ReactTable.Column>
+                        </ConfigTable.Configurable >
+                        <ConfigTable.Configurable Key='Phase' Label='Phase' Default={true}>
+                            <ReactTable.Column<OpenXDA.TrendChannel>
+                                Key={'Phase'}
+                                Field={'Phase'}
+                                HeaderStyle={{ width: '10%' }}
+                                RowStyle={{ width: '10%' }}
+                                Content={({ item }) => <Select Record={item} Field={'PhaseID'}
+                                    Label={''} Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
+                                    Setter={(r) => createChange(r, 'PhaseID')} />}>
+                            </ReactTable.Column>
+                        </ConfigTable.Configurable >
+                        <ConfigTable.Configurable Key='HarmonicGroup' Label='Harmonic' Default={false}>
+                            <ReactTable.Column<OpenXDA.TrendChannel>
+                                Key={'HarmonicGroup'}
+                                HeaderStyle={{ width: '7%' }}
+                                RowStyle={{ width: '7%' }}
+                                Content={({ item }) => <Input<OpenXDA.TrendChannel>
+                                    Record={item} Field={'HarmonicGroup'} Type={'number'}
+                                    Label={''}
+                                    Setter={(r) => createChange(r, 'HarmonicGroup')}
+                                    Valid={(f) => isValid(f, item)} />}>
+                                Harmonic
+                            </ReactTable.Column>
+                        </ConfigTable.Configurable >
+                        <ConfigTable.Configurable Key='Adder' Label='Adder' Default={true}>
+                            <ReactTable.Column<OpenXDA.TrendChannel>
+                                Key={'Adder'}
+                                Field={'Adder'}
+                                HeaderStyle={{ width: '7%' }}
+                                RowStyle={{ width: '7%' }}
+                                Content={({ item }) => <Input<OpenXDA.TrendChannel>
+                                    Record={item} Field={'Adder'} Type={'number'}
+                                    Label={''} Setter={(r) => createChange(r, 'Adder')}
+                                    Valid={(f) => isValid(f, item)} />}>
+                            </ReactTable.Column>
+                        </ConfigTable.Configurable >
+                        <ConfigTable.Configurable Key='Multiplier' Label='Multiplier' Default={true}>
+                            <ReactTable.Column<OpenXDA.TrendChannel>
+                                Key={'Multiplier'}
+                                Field={'Multiplier'}
+                                HeaderStyle={{ width: '7%' }}
+                                RowStyle={{ width: '7%' }}
+                                Content={({ item }) => <Input<OpenXDA.TrendChannel>
+                                    Record={item} Field={'Multiplier'} Type={'number'}
+                                    Label={''} Setter={(r) => createChange(r, 'Multiplier')}
+                                    Valid={(f) => isValid(f, item)} />}>
+                            </ReactTable.Column>
+                        </ConfigTable.Configurable >
+                        <ConfigTable.Configurable Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
+                            <ReactTable.Column<OpenXDA.TrendChannel>
+                                Key={'SamplesPerHour'}
+                                HeaderStyle={{ width: '7%' }}
+                                RowStyle={{ width: '7%' }}
+                                Content={({ item }) => <Input<OpenXDA.TrendChannel>
+                                    Record={item} Field={'SamplesPerHour'} Type={'number'}
+                                    Label={''} Setter={(r) => createChange(r, 'SamplesPerHour')}
+                            Valid={(f) => isValid(f, item)} />}>
+                                Sampling Rate (sph)
+                            </ReactTable.Column>
+                        </ConfigTable.Configurable>
+                        <ConfigTable.Configurable Key='PerUnitValue' Label='Per Unit' Default={false}>
+                            <ReactTable.Column<OpenXDA.TrendChannel>
+                                Key={'PerUnitValue'}
+                                HeaderStyle={{ width: '7%' }}
+                                RowStyle={{ width: '7%' }}
+                                Content={({ item }) => <Input<OpenXDA.TrendChannel> Record={item}
+                                    Field={'PerUnitValue'} Type={'number'} Label={''}
+                                    Setter={(r) => createChange(r, 'PerUnitValue')}
+                                    Valid={(f) => isValid(f, item)} />}>
+                                Per Unit
+                            </ReactTable.Column>
+                        </ConfigTable.Configurable >
+                        <ConfigTable.Configurable Key='Asset' Label='Asset' Default={true}>
+                            <ReactTable.Column<OpenXDA.TrendChannel>
+                                Key={'Asset'} Field={'Asset'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => <Select Record={item}
+                                    Field={'AssetID'} Label={''}
+                                    Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))}
+                                    Setter={(r) => createChange(r, 'AssetID')} />}>
+
+                            </ReactTable.Column>
+                        </ConfigTable.Configurable >
+                        <ConfigTable.Configurable Key='ConnectionPriority' Label='Connection Type' Default={true}>
+                            <ReactTable.Column<OpenXDA.TrendChannel>
+                                Key={'ConnectionPriority'}
+                                Field={'ConnectionPriority'}
+                                HeaderStyle={{ width: '7%' }}
+                                RowStyle={{ width: '8%' }}
+                                Content={({ item }) => <Select EmptyOption={true} Record={item}
+                                    Field={'ConnectionPriority'} Label={''}
+                                    Options={[{ Value: '0', Label: 'Primary' }, { Value: '1', Label: 'Secondary' }, { Value: '2', Label: 'Tertiary' }]}
+                                    Setter={(r) => createChange(r, 'ConnectionPriority')}
+                                    Disabled={assets.find(d => d.ID == item.AssetID)?.AssetType != 'Transformer'} />}>
+                                Conn Type
+                            </ReactTable.Column>
+                        </ConfigTable.Configurable >
+                        <ReactTable.Column<OpenXDA.TrendChannel>
+                            Key={'Remove'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '62px' }}
+                            RowStyle={{ width: '62px' }}
+                            Content={({ item }) => <button className="btn btn-sm"
+                                onClick={(e) => setRemoveRecord(item)}><span>{TrashCan}</span></button>}>
+                            
+                        </ReactTable.Column>
+                    </ConfigTable.Table>                    
                 </div>
             </div>
             <div className="card-footer">
