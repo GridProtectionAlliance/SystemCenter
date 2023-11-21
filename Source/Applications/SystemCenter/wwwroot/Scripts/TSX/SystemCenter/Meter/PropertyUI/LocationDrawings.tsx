@@ -70,6 +70,8 @@ const LocationDrawings = (props: IProps) => {
                             cols={[
                                 { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'Number', field: 'Number', label: 'Number', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                                { key: 'Category', field: 'Category', label: 'Category', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                             ]}
                         tableClass="table table-hover"
                         data={drawingData}
