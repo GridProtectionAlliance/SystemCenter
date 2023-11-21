@@ -355,7 +355,8 @@ export default function ChannelPage(props: IProps) {
                     </div>
                 </div>
             <div className="col-4 col-lg-3 col-xl-2">
-                <BtnDropdown Label='Remove Spare' Callback={() => setShowSpareWarning(true)} Size={'sm'} Disabled={NSpare == 0}
+                    <BtnDropdown Label='Remove Spare' Callback={() => setShowSpareWarning(true)}
+                        Size={'sm'} Disabled={NSpare == 0}
                     Options={[{
                         Label: 'Remove All', Disabled: currentChannels.length === 0, Callback: () => {
                             props.UpdateChannels(getCurrentChannels(!props.TrendChannels));
