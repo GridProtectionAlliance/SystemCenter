@@ -469,6 +469,34 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
+
+        public override IHttpActionResult Delete(openXDA.Model.MeterAssetGroupView record)
+        {
+            try
+            {
+                if (DeleteAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        int id = record.ID;
+                        int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete MeterAssetGroup, 'ID = {id}'");
+                        return Ok(result);
+
+                    }
+    }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 
     [RoutePrefix("api/SystemCenter/AssetGroupAsset")]
@@ -509,6 +537,34 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
+
+        public override IHttpActionResult Delete(openXDA.Model.AssetAssetGroupView record)
+        {
+            try
+            {
+                if (DeleteAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        int id = record.ID;
+                        int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete AssetAssetGroup, 'ID = {id}'");
+                        return Ok(result);
+
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+    }
     }
 
 
