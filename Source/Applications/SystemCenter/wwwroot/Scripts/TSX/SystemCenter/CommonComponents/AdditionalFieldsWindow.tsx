@@ -297,16 +297,25 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             }}
             onClick={() => { }}
             theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-            tbodyStyle={{ display: 'block', overflow: 'fixed', maxHeight: window.innerHeight - 455, }}
+            tbodyStyle={(props.InnerOnly ?? false) ? { display: 'block', overflowY: 'scroll', flex: 1 } : { display: 'block', overflow: 'fixed', maxHeight: window.innerHeight - 455, }}
             rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
             selected={() => false}
+            tableStyle={(props.InnerOnly ?? false)? {
+                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+            } : undefined}
         />);
 
     if (props.InnerOnly ?? false) return (
         <>
-            <h4 style={{ width: '100%', padding: '10px' }}>Additional Fields: </h4>
-            {tableComponent}
-            <AdditionalFieldsKeyModal KeyField={keyField} SetKeyFieldValue={KeyModalCallback} Show={showExt} SetShow={setShowExt} />
+            <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
+                        {tableComponent}
+                        <AdditionalFieldsKeyModal KeyField={keyField} SetKeyFieldValue={KeyModalCallback} Show={showExt} SetShow={setShowExt} />
+                    </div>
+                </div>
+            </div>
         </>);
 
     return (
