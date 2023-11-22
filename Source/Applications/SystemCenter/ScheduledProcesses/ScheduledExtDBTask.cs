@@ -218,11 +218,11 @@ namespace SystemCenter.ScheduledProcesses
             return data;
         }
 
-        public static DataTable RetrieveDataTable(extDBTables extTable, AdoDataConnection externalConnection)
+        public static DataTable RetrieveDataTable(extDBTables extTable, AdoDataConnection externalConnection, string orderBy=null,bool ascending=true, int skip=0, int count=-1)
         {
             ExpressionContext context = new ExpressionContext();
             DefineAllowedVariables(context);
-            return ExecuteQueryWithContext(extTable, context, externalConnection);
+            return ExecuteQueryWithContext(extTable, context, externalConnection, orderBy, ascending, count, skip);
         }
 
         /// <summary>
@@ -260,11 +260,62 @@ namespace SystemCenter.ScheduledProcesses
 
         //Context should have all vars loaded in
         private static DataTable ExecuteQueryWithContext(extDBTables extTable,
-            ExpressionContext context, AdoDataConnection externalConnection)
+            ExpressionContext context, AdoDataConnection externalConnection,
+            string orderBy = null, bool ascending = true, int count = -1, int skip = 0)
         {
             List<string> parameters = new List<string>();
             MatchEvaluator evaluator = new MatchEvaluator((match) => RegexReplaceFunction(match, context, parameters));
             string fullQuery = Regex.Replace(extTable.Query, RegexPattern, evaluator, RegexOptions.None, TimeSpan.FromSeconds(2));
+            if (skip > 0 || count > 0 || !String.IsNullOrEmpty(orderBy))
+            {
+                if (externalConnection.IsSQLServer)
+                {
+                    string limit = "";
+                    if (count > 0 && skip <=0)
+                        limit = $"TOP {count}";
+                    string order = "";
+                    if (!String.IsNullOrEmpty(orderBy))
+                        order = $"ORDER BY {orderBy} {(ascending ? "ASC" : "DESC")}";
+                    string offset = "";
+                    if (skip > 0)
+                        offset = $"OFFSET {skip} ROWS";
+                    if (count > 0 && skip > 0)
+                        offset = offset + $" FETCH NEXT {count} ROWS ONLY";
+                    fullQuery = $"select {limit} * from ({fullQuery}) T {order} {offset}";
+                }
+                else if (externalConnection.IsOracle)
+                {
+                    string limit = "between 0 and 100 ";
+                    if (count > 0 && skip > 0)
+                        limit = $"where rn between {skip+1} and {skip+count+1}";
+                    else if (count > 0)
+                        limit = $"where rn < {count+1}";
+                    else if (skip > 0)
+                        limit = $"where rn > {skip}";
+                    string order = "";
+                    if (!String.IsNullOrEmpty(orderBy))
+                        order = $"{orderBy} {(ascending ? "ASC" : "DESC")}";
+
+                    fullQuery = $"select * from ( select T.*, row_number() over (order by {orderBy}) rn from ({fullQuery}) T) {limit}";
+                }
+                else if (externalConnection.IsMySQL || externalConnection.IsPostgreSQL)
+                {
+                    string limit = "";
+                    if (count > 0)
+                        limit = $"LIMIT {count}";
+                    string order = "";
+                    if (!String.IsNullOrEmpty(orderBy))
+                        order = $"ORDER BY {orderBy} {(ascending ? "ASC" : "DESC")}";
+                    string offset = "";
+                    if (skip > 0)
+                        offset = $"OFFSET {skip}";
+                    fullQuery = $"select * from ({fullQuery}) T {order} {limit} {offset}";
+                }
+                else
+                {
+                    throw new NotImplementedException("External Database Type not implemented");
+                }
+            }
             return externalConnection.RetrieveData(fullQuery, parameters.ToArray());
         }
 
