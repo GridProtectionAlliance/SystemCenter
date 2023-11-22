@@ -49,7 +49,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.Customer>>>([]);
     const [filterableList, setFilterableList] = React.useState<Array<Search.IField<OpenXDA.Types.Customer>>>(SearchFields.Customer as Search.IField<OpenXDA.Types.Customer>[]);
 
-    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.Customer>('CustomerKey');
+    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.Customer>('Name');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [newCustomer, setNewCustomer] = React.useState<OpenXDA.Types.Customer>(getNewCustomer());
 
@@ -153,8 +153,8 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<OpenXDA.Types.Customer>
                     cols={[
-                        { key: 'CustomerKey', field: 'CustomerKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
+                        { key: 'CustomerKey', field: 'CustomerKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
                         { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                         { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
