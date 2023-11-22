@@ -138,7 +138,7 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
     }, [status, externalData, setSelectedExternal, selectedExternal, sortExt, ascExt, searchTable]);
 
     return (
-        <Modal Title={status !== 'error' ? `Select External Record to Key to Local Record Using Field ${props.KeyField?.FieldName}` : "External Query Failure"} ShowCancel={status !== 'error'} ShowX={true} CallBack={(conf) => {
+        <Modal Title={status !== 'error' ? `Select Key Field Value for ${props.KeyField?.FieldName}` : "External Query Failure"} ShowCancel={status !== 'error'} ShowX={true} CallBack={(conf) => {
             props.SetShow(false);
             if (conf) props.SetKeyFieldValue(selectedExternal[props.KeyField.FieldName]);
         }} Show={props.Show} Size={'xlg'} ConfirmBtnClass={status !== 'error' ? undefined : 'btn btn-secondary'} ConfirmText={status !== 'error' ? 'Select' : 'Close'}>

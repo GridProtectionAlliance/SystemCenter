@@ -104,13 +104,13 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
             <LoadingScreen Show={requestStatus === 'loading'}/>
             <div className="row">
                 <div className="col">
-                    <h2>External Database</h2>
+                    <h2>{record?.Name ?? 'External Database'}</h2>
                 </div>
                 <div className="col">
                     <button className="btn btn-danger pull-right" hidden={record == null}
                         onClick={() => setShowRemove(true)}>Delete External DB</button>
                     <button className="btn btn-light pull-right" hidden={record == null}
-                        onClick={RequestUpdate}>Perform Update</button>
+                        onClick={RequestUpdate}>Update Fields</button>
                 </div>
             </div>
 

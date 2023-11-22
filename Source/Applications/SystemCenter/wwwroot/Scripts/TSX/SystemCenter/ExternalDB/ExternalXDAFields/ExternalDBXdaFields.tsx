@@ -112,12 +112,12 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                 <div className="btn-group mr-2">
                     <button className="btn btn-primary"
                         onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setShowEdit(true); }}
-                    >Add New Field</button>
+                    >Link New Field</button>
                 </div>
             </div>
             <Warning
-                Message={'This will permanently delete this External XDA Field and cannot be undone.'}
-                Show={showRemove} Title={`Delete ${record.ParentTable}: ${record.FieldName} External XDA Field`}
+                Message={'This will permanently delete this Linked Field and cannot be undone.'}
+                Show={showRemove} Title={`Delete ${record.ParentTable}: ${record.FieldName} Linked Field`}
                 CallBack={(conf) => {
                     if (conf) {
                         dispatch(ExternalXDAFieldsSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
@@ -126,7 +126,7 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                     setShowRemove(false);
                 }}
             />
-            <Modal Title={record.ID === -1 ? 'Add New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showEdit} ShowCancel={true} ConfirmText={record.ID === -1 ? 'Add' : 'Save'}
+            <Modal Title={record.ID === -1 ? 'Link New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showEdit} ShowCancel={true} ConfirmText={record.ID === -1 ? 'Link' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0} DisableConfirm={errors.length > 0} ShowX={true}
                 ConfirmToolTipContent={
                     <>

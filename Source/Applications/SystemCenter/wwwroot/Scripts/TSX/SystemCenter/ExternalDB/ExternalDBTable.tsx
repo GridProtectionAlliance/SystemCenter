@@ -45,8 +45,8 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     const Tabs = [
         { Id: "info", Label: "Info" },
-        { Id: "fields", Label: "Addl. Fields" },
-        { Id: "xda", Label: "XDA Fields" },
+        { Id: "fields", Label: "Additional Fields" },
+        { Id: "xda", Label: "Linked Fields" },
     ];
 
     React.useEffect(() => {
@@ -81,7 +81,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
                 <div className="col">
-                    <h2>External DB Table</h2>
+                    <h2>{record?.TableName ?? 'External Database Table'}</h2>
                 </div>
                 <div className="col">
                     <button className="btn btn-danger pull-right" hidden={record == null}

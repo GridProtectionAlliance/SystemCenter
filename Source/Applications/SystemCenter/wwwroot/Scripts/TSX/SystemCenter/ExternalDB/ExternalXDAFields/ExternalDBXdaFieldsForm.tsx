@@ -57,7 +57,7 @@ export default function ExternalDBXdaFieldsForm(props: IProps) {
     }, [status, parentID, props.Record.ExternalDBTableID]);
 
     const typeOptions = ['Meter', 'Location', 'Customer', 'Asset',
-        'Line', 'LineSegment', 'Breaker', 'Bus', 'Transformer', 'Capacitor Bank', 'Capacitor Bank Relay', 'DER'].map(str => ({
+        'Line', 'Line Segment', 'Breaker', 'Bus', 'Transformer', 'Capacitor Bank', 'Capacitor Bank Relay', 'DER'].map(str => ({
             Value: str.replace(/\s/, ""),
             Label: str
         }));
@@ -88,7 +88,7 @@ export default function ExternalDBXdaFieldsForm(props: IProps) {
     return (
         <form>
             <Select<SystemCenter.Types.ExternalOpenXDAField> Record={props.Record} Field={'ParentTable'} Label={'Parent Type'} Setter={props.Setter} Options={typeOptions} />
-            <Select<SystemCenter.Types.ExternalOpenXDAField> Record={props.Record} Field={'FieldName'} Label={'XDA Field'} Setter={props.Setter} Options={fieldOptions} />
+            <Select<SystemCenter.Types.ExternalOpenXDAField> Record={props.Record} Field={'FieldName'} Label={'Linked Field'} Setter={props.Setter} Options={fieldOptions} />
         </form>
 
     );
