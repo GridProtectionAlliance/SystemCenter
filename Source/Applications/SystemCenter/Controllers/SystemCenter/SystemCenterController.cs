@@ -1616,9 +1616,23 @@ namespace SystemCenter.Controllers
             using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
             {
                 extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
-                return Ok(QueryExternal(table, xdaConnection, orderBy, asc, start, end));
+                return Ok(QueryExternal(table, xdaConnection, new Search[0], orderBy, asc, start, end));
             }
         }
+
+        [HttpPost, Route("RetrieveTable/{extTableID:int}/{start:int}/{end:int}")]
+        public IHttpActionResult RetrieveFilteredTableByID(int extTableID, int start, int end, [FromBody] PostData postData)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+            {
+                extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
+                return Ok(QueryExternal(table, xdaConnection, postData.Searches, postData.OrderBy, postData.Ascending, start, end));
+            }
+        }
+
 
         [HttpGet, Route("RetrieveTableCount/{extTableID:int}")]
         public IHttpActionResult RetrieveTableCount(int extTableID)
@@ -1629,9 +1643,23 @@ namespace SystemCenter.Controllers
             using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
             {
                 extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
-                return Ok(QueryExternalCount(table, xdaConnection));
+                return Ok(QueryExternalCount(table, xdaConnection, new Search[0]));
             }            
         }
+
+        [HttpPost, Route("RetrieveTableCount/{extTableID:int}")]
+        public IHttpActionResult RetrieveFilteredTableCount(int extTableID, [FromBody] PostData postData)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+            {
+                extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
+                return Ok(QueryExternalCount(table, xdaConnection, postData.Searches.ToArray()));
+            }
+        }
+
 
         [HttpPost, Route("RetrieveTable")]
         public IHttpActionResult RetrieveTable([FromBody] JObject record)
@@ -1643,7 +1671,7 @@ namespace SystemCenter.Controllers
                 using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
                 {
                     extDBTables table = record.ToObject<extDBTables>();
-                    return Ok(QueryExternal(table, xdaConnection));
+                    return Ok(QueryExternal(table, xdaConnection, new Search[0]));
                 }
             }
             catch (Exception ex)
@@ -1651,7 +1679,7 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
-        private DataTable QueryExternal(extDBTables table, AdoDataConnection xdaConnection, string orderBy=null, bool asc=true, int? start=null, int? end=null)
+        private DataTable QueryExternal(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<Search> filters, string orderBy=null, bool asc=true, int? start=null, int? end=null)
         {
             int count = -1;
             if (!(start is null) && !(end is null) )
@@ -1660,18 +1688,33 @@ namespace SystemCenter.Controllers
             ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
             if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
             using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
-                return ScheduledExtDBTask.RetrieveDataTable(table, extConnection,orderBy,asc,(start ?? 1)-1, count );
+                return ScheduledExtDBTask.RetrieveDataTable(table, extConnection, filters.Select(f => ProcessExternalFilter(extConnection, f)).ToArray(), orderBy,asc,(start ?? 1)-1, count);
         }
 
-        private int QueryExternalCount(extDBTables table, AdoDataConnection xdaConnection)
+        private int QueryExternalCount(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<Search> filters)
         {
             ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
             if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
             using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
-                return ScheduledExtDBTask.RetrieveDataCount(table, extConnection);
+                return ScheduledExtDBTask.RetrieveDataCount(table, extConnection, filters.Select(f => ProcessExternalFilter(extConnection,f)).ToArray());
+        }
+
+        private Condition ProcessExternalFilter(AdoDataConnection connection, Search search)
+        {
+            string fieldName = search.FieldName;
+            if (connection.IsOracle)
+                fieldName = $"\"{fieldName}\"";
+            if (connection.IsSQLServer)
+                fieldName = $"[{fieldName}]";
+            return new Condition()
+            {
+                Parameter = search.SearchText.Replace("*","%"),
+                SQL = $"{fieldName} {search.Operator} {{0}}"
+            };
         }
 
     }
+
 
     [RoutePrefix("api/SEbrowser/Widget")]
     public class SEBrowserWidgetController : ModelController<SEBrowser.Model.Widget> {}

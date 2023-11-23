@@ -24,8 +24,8 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
-import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { Paging, SearchableTable } from '@gpa-gemstone/react-table';
+import { FilterableTable, LoadingIcon, Modal, ServerErrorIcon, Search } from '@gpa-gemstone/react-interactive';
+import { Paging } from '@gpa-gemstone/react-table';
 
 declare var homePath: string;
 
@@ -36,7 +36,7 @@ interface IProps {
     SetShow: (show: boolean) => void,
 }
 
-const RowsPerPage = 10;
+const RowsPerPage = 50;
 
 function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
     const [datastatus, setDataStatus] = React.useState<Application.Types.Status>('unintiated');
@@ -47,6 +47,8 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
     const [sortExt, setSortExt] = React.useState<string>("Hero");
     const [count, setCount] = React.useState<number>(0);
     const [page, setPage] = React.useState<number>(0);
+    const [filters, setFilters] = React.useState<Search.IFilter<any>[]>([]);
+    const [cols, setCols] = React.useState<any[]>([]);
 
 
     React.useEffect(() => {
@@ -59,7 +61,7 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
         return () => {
             if (countHandle != null && countHandle.abort != null) countHandle.abort()
         }
-    }, [props.KeyField]);
+    }, [props.KeyField, filters]);
 
     React.useEffect(() => {
         if (props.KeyField == null)
@@ -71,15 +73,26 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
         return () => {
             if (dataHandle != null && dataHandle.abort != null) dataHandle.abort()
         }
-    }, [page, ascExt, sortExt, props.KeyField]);
+    }, [page, ascExt, sortExt, props.KeyField, filters]);
+
+    React.useEffect(() => {
+        if (externalData.length == 0)
+            return;
+        const updatedCols = Object.keys(externalData[0]).map((field: string) => {
+            return { key: field, field: field, label: field, Type: 'string' }
+        })
+        if (!_.isEqual(updatedCols, cols))
+            setCols(updatedCols);
+    }, [externalData])
 
     const getData = () => {
         setDataStatus('loading');
         const handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/extDBTables/RetrieveTable/${props.KeyField?.ExternalDBTableID ?? null}/${sortExt}/${ascExt ? 1 : 0}/${page * RowsPerPage+1}/${(page + 1) * RowsPerPage}`,
+            type: "POST",
+            url: `${homePath}api/SystemCenter/extDBTables/RetrieveTable/${props.KeyField?.ExternalDBTableID ?? null}/${page * RowsPerPage+1}/${(page + 1) * RowsPerPage}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
+            data: JSON.stringify({ Ascending: ascExt, OrderBy: sortExt, Searches: filters }),
             cache: true,
             async: true
         });
@@ -93,10 +106,11 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
     const getCount = () => {
         setCountStatus('loading');
         const handle = $.ajax({
-            type: "GET",
+            type: "POST",
             url: `${homePath}api/SystemCenter/extDBTables/RetrieveTableCount/${props.KeyField.ExternalDBTableID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
+            data: JSON.stringify({ Ascending: false, OrderBy: '', Searches: filters }),
             cache: true,
             async: true
         })
@@ -133,41 +147,37 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
             <>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="col" style={{ flex: 1, overflow: 'hidden' }}>
-                    <LoadingIcon Show={countstatus === 'loading' || datastatus === 'loading'} Size={40} />
-                    {countstatus === 'idle' && datastatus === 'idle' ?
-                        <SearchableTable<any>
-                            cols={
-                                Object.keys(externalData[0]).map((field: string) => {
-                                    return { key: field, field: field, label: field }
-                                })}
-                            tableClass="table table-hover"
-                            data={externalData}
-                            sortKey={sortExt}
-                            ascending={ascExt}
-                            matchSearch={searchTable}
-                            onSort={(d) => {
-                                if (d.colKey === sortExt)
-                                    setAscExt(!ascExt);
-                                else {
-                                    setAscExt(true);
-                                    setSortExt(d.colKey);
-                                }
-                            }}
-                            onClick={(d) => { setSelectedExternal(d.row); }}
-                            tableStyle={{
-                                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                            }}
-                            theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
-                            selected={(item) => _.isEqual(item, selectedExternal)}
+                        {countstatus !== 'error' && datastatus !== 'error' ?
+                            <FilterableTable<any>
+                                cols={cols}
+                                SetFilter={setFilters}
+                                tableClass="table table-hover"
+                                data={externalData}
+                                sortKey={sortExt}
+                                ascending={ascExt}
+                                onSort={(d) => {
+                                    if (d.colKey === sortExt)
+                                        setAscExt(!ascExt);
+                                    else {
+                                        setAscExt(true);
+                                        setSortExt(d.colKey);
+                                    }
+                                }}
+                                onClick={(d) => { setSelectedExternal(d.row); }}
+                                tableStyle={{
+                                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                    tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                }}
+                                theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                                tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
+                                selected={(item) => _.isEqual(item, selectedExternal)}
                         /> : null}
                     </div>
                 </div>
                 <div className="row">
                     <div className="col">
-                        <Paging Current={page + 1} Total={Math.ceil(count / RowsPerPage)} SetPage={(p) => setPage(p - 1)} />
+                        {count > 0 ? <Paging Current={page + 1} Total={Math.ceil(count / RowsPerPage)} SetPage={(p) => setPage(p - 1)} /> : null}
                     </div>
                 </div>
             </>
