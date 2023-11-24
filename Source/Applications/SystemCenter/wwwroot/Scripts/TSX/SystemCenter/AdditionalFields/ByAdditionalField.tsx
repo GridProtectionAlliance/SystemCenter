@@ -25,7 +25,7 @@ import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, HeavyCheckMark, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols';
 import AdditionalFieldForm from './AdditionalFieldForm';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
@@ -33,7 +33,7 @@ import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
 const AdditionalFieldDefaultSearchField: Search.IField<SystemCenter.Types.AdditionalFieldView> = { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false };
 const emptyRecord: SystemCenter.Types.AdditionalFieldView = {
     ID: 0,
-    ParentTable: '',
+    ParentTable: 'Meter',
     FieldName: '',
     Type: 'string',
     ExternalDBTableID: null,
@@ -57,10 +57,8 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const valueListGroupData = useAppSelector(ValueListGroupSlice.Data);
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
 
-    const allAddlFields = useAppSelector(AdditionalFieldsSlice.Data);
-    const allAddlFieldsStatus = useAppSelector(AdditionalFieldsSlice.Status);
-
     const [errors, setErrors] = React.useState<string[]>([]);
+    const [warnings, setWarnings] = React.useState<string[]>([]);
     const [mode, setMode] = React.useState<'View' | 'Add' | 'Edit'>('View');
     const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalFieldView>(emptyRecord);
 
@@ -111,26 +109,6 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
         if (valueListGroupStatus == 'unintiated' || valueListGroupStatus == 'changed')
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
-
-    React.useEffect(() => {
-        if (allAddlFieldsStatus == 'unintiated' || allAddlFieldsStatus == 'changed')
-            dispatch(AdditionalFieldsSlice.Fetch());
-    }, [allAddlFieldsStatus]);
-
-    React.useEffect(() => {
-        let e = [];
-        if (record.FieldName == null || record.FieldName.length == 0)
-            e.push('A Field Name is required.');
-
-        if (record.ExternalDBTableID == 0)
-            e.push('An External DB Table is required.');
-
-        if (allAddlFields.findIndex((a) => a.ID != record.ID && a.FieldName.toLowerCase() == record.FieldName?.toLowerCase() && a.ParentTable == record.ParentTable) !== -1)
-            e.push('An Additional Field with this Parent Type already exists.');
-
-        setErrors(e);
-    }, [record]);
-
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
@@ -214,12 +192,17 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                 ConfirmBtnClass={'btn-primary'}
                 ConfirmText={mode === 'Add' ? 'Add Field' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                ConfirmToolTipContent={
+                    <>
+                        {warnings.map((w, i) => <p key={i}>{WarningIcon} {w}</p>)}
+                        {errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                    </>
+                }
                 DisableConfirm={errors.length > 0}
                 ShowCancel={mode === 'Edit'}
                 CancelText={'Delete'}
                 Show={mode === 'Add' || mode === 'Edit'} >
-                <AdditionalFieldForm Record={record} Setter={setRecord} />
+                <AdditionalFieldForm Record={record} Setter={setRecord} SetErrors={setErrors} SetWarnings={setWarnings} ShowDatabaseSelect={true} />
             </Modal>
         </div>
     )
