@@ -175,45 +175,45 @@ function Meter(props: IProps) {
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" style={{ maxHeight: window.innerHeight - 215 }}>
+                {tab === 'notes'? <div className={"tab-pane active"} style={{ maxHeight: window.innerHeight - 215 }}>
                     <NoteWindow ID={props.MeterID} Type='Meter' />
-                </div>
-                <div className={"tab-pane " + (tab == "meterInfo" ? " active" : "fade")} id="meterInfo" style={{ maxHeight: window.innerHeight - 215 }}>
+                </div> : null}
+                {tab === 'meterInfo' ? <div className={"tab-pane active"} id="meterInfo" style={{ maxHeight: window.innerHeight - 215 }}>
                     <MeterInfoWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} />
-                </div>
-                <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields" style={{ maxHeight: window.innerHeight - 215 }}>
+                </div> : null}
+                {tab === 'additionalFields' ?<div className={"tab-pane active" } id="additionalFields" style={{ maxHeight: window.innerHeight - 215 }}>
                     <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={tab} />
-                </div>
-                <div className={"tab-pane " + (tab == "substation" ? " active" : "fade")} id="substation" style={{ maxHeight: window.innerHeight - 215 }}>
+                </div> : null}
+                {tab === 'substation' ?<div className={"tab-pane active"} id="substation" style={{ maxHeight: window.innerHeight - 215 }}>
                     <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} />
-                </div>
-                <div className={"tab-pane " + (tab == "eventChannels" ? " active" : "fade")} id="eventChannels">
+                </div> : null}
+                {tab === 'eventChannels' ?<div className={"tab-pane active"} id="eventChannels">
                     <MeterEventChannelWindow Meter={meter} IsVisible={tab === "eventChannels"} />
-                </div>
-                <div className={"tab-pane " + (tab == "trendChannels" ? " active" : "fade")} id="trendChannels">
+                </div> : null}
+                {tab === 'trendChannels' ?<div className={"tab-pane active"} id="trendChannels">
                     <MeterTrendChannelWindow Meter={meter} IsVisible={tab === "trendChannels"} />
-                </div>
-                <div className={"tab-pane " + (tab == "channelScaling" ? " active" : "fade")} id="channelScaling">
+                </div> : null}
+                {tab === 'channelScaling' ?<div className={"tab-pane active"} id="channelScaling">
                     <ChannelScalingWindow Meter={meter} IsVisible={tab === "channelScaling"} />
-                </div>
-                <div className={"tab-pane " + (tab == "assets" ? " active" : "fade")} id="assets">
-                    <MeterAssetWindow Meter={meter} />
-                </div>
+                </div> : null}
+                {tab === 'assets'? <div className={"tab-pane active"} id="assets">
+                    <MeterAssetWindow Meter={meter} /> 
+                </div>: null}
                 {tab == "configurationHistory" ?<div className={"tab-pane active" }>
                     <MeterConfigurationHistoryWindow Meter={meter} />
                 </div> : null}
                 {tab == "dataRescue" ? <div className={"tab-pane active"}>
                     {dataRescueWindow}
                 </div> : null }
-                <div className={"tab-pane " + (tab == "dataMerge" ? " active" : "fade")} id="dataMerge">
+                {tab == "dataMerge" ?<div className={"tab-pane active"} id="dataMerge">
                     {dataMergeWindow}
-                </div>
-                <div className={"tab-pane " + (tab == "dataDelete" ? " active" : "fade")} id="dataDelete">
+                </div> : null}
+                {tab == "dataDelete" ?<div className={"tab-pane active"} id="dataDelete">
                     {dataDeleteWindow}
-                </div>
-                <div className={"tab-pane " + (tab == "maintenance" ? " active" : "fade")} id="maintenance">
+                </div> : null}
+                {tab == "maintenance" ?<div className={"tab-pane active"} id="maintenance">
                     <MeterMaintenanceWindow Meter={meter} />
-                </div>
+                </div> : null}
             </div>
 
             <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
