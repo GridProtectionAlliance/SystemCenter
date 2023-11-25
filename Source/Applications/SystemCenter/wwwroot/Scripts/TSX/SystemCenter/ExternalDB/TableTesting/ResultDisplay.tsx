@@ -63,7 +63,12 @@ export default function ResultDisplay(props: IProps) {
         setDataStatus('loading');
         const dataHandle = props.GetTable(page * RowsPerPage + 1, (page + 1) * RowsPerPage, filters, sortExt, ascExt);
 
-        dataHandle.then((d) => { setExternalData(d), setDataStatus('idle') }, () => setDataStatus('error'))
+        dataHandle.then((d) => {
+            setExternalData(d ?? []);
+            setDataStatus('idle');
+            if (d == null || d.length == 0)
+                setCount(0);
+        }, () => setDataStatus('error'))
         return () => {
             if (dataHandle != null && dataHandle.abort != null) dataHandle.abort()
         }
@@ -102,7 +107,9 @@ export default function ResultDisplay(props: IProps) {
                                 setSortExt(d.colKey);
                             }
                         }}
-                        onClick={(d) => { props.OnSelection!(d.row); }}
+                        onClick={(d) => {
+                            if (props.OnSelection !== undefined) props.OnSelection!(d.row);
+                        }}
                         tableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
@@ -110,12 +117,13 @@ export default function ResultDisplay(props: IProps) {
                         theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
                         tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
-                        selected={(item) => props.Selected!(item) ?? false}
+                        selected={(item) => props.Selected === undefined? false : props.Selected!(item) ?? false}
                     /> : null}
             </div>
         </div>
         <div className="row">
             <div className="col">
+                {count == 0 && countstatus === 'idle' ? <div className="alert alert-warning"> The query succeeded but no records where found. </div> : null}
                 {count > 0 ? <Paging Current={page + 1} Total={Math.ceil(count / RowsPerPage)} SetPage={(p) => setPage(p - 1)} /> : null}
             </div>
         </div>

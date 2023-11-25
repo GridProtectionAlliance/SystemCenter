@@ -37,6 +37,7 @@ using SEBrowser.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Linq;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -1661,8 +1662,12 @@ namespace SystemCenter.Controllers
         }
 
 
-        [HttpPost, Route("RetrieveTable")]
-        public IHttpActionResult RetrieveTable([FromBody] JObject record)
+        public class PostDataExtension: PostData
+        {
+            public extDBTables externalTable { get; set; }
+        }
+        [HttpPost, Route("RetrieveTempTable/{start:int}/{end:int}")]
+        public IHttpActionResult RetrieveTable([FromBody] PostDataExtension record, int start, int end)
         {
             if (!PostAuthCheck())
                 return Unauthorized();
@@ -1670,8 +1675,7 @@ namespace SystemCenter.Controllers
             {
                 using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
                 {
-                    extDBTables table = record.ToObject<extDBTables>();
-                    return Ok(QueryExternal(table, xdaConnection, new Search[0]));
+                    return Ok(QueryExternal(record.externalTable, xdaConnection, record.Searches, record.OrderBy, record.Ascending, start, end));
                 }
             }
             catch (Exception ex)
@@ -1679,6 +1683,24 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
+        [HttpPost, Route("RetrieveTableCount")]
+        public IHttpActionResult RetrieveTableCount([FromBody] PostDataExtension record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+                {
+                    return Ok(QueryExternalCount(record.externalTable, xdaConnection, record.Searches));
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
         private DataTable QueryExternal(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<Search> filters, string orderBy=null, bool asc=true, int? start=null, int? end=null)
         {
             int count = -1;

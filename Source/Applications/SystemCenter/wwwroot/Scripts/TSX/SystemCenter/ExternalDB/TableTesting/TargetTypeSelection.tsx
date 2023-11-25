@@ -38,8 +38,11 @@ export default function TargetTypesSelection(props: IProps) {
    
     const [parentTable, setParentTable] = React.useState<TableOptions>({ ShowTableSelect: true, TableName: parentTableOptions[0].Value });
 
+    React.useEffect(() => {
+        if (parentTable.ShowTableSelect) props.SetTable(parentTable.TableName)
+        else props.SetTable('');
+    }, [parentTable])
     // Needed to Select Record for Query
-    const dispatch = useAppDispatch();
    
     return (
         <>

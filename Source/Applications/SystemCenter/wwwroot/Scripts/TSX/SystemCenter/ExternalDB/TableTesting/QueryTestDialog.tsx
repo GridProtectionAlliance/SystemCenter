@@ -24,11 +24,8 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import * as $ from 'jquery';
-import { Application, SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import Table from '@gpa-gemstone/react-table';
-import { Warning } from '@gpa-gemstone/gpa-symbols';
-import { Select, CheckBox } from '@gpa-gemstone/react-forms';
+import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { ByMeterSlice, ByAssetSlice, ByLocationSlice, CustomerSlice } from '../../Store/Store';
 import TargetSelection, { RecordTypes } from './TargetSelection';
@@ -91,72 +88,57 @@ export default function QueryTestDialog(props: IProps) {
             dispatch(CustomerSlice.Fetch());
     }, [customerStatus]);
 
-    const requestCount = (filters) => { return null;  }
-
-    const requestTable = (filters, orderBy, ascending, start, end) => {
+    const requestCount = (filters) => {
+        let handle;
         if (record === undefined) {
-            return null;
+            handle = $.ajax({
+                type: "POST",
+                url: `api/SystemCenter/extDBTables/RetrieveTableCount`,
+                contentType: "application/json; charset=utf-8",
+                cache: false,
+                async: true,
+                data: JSON.stringify({ Ascending: false, OrderBy: '', Searches: filters, externalTable: props.ExtTable })
+            }).fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); });
         }
-
-        return null;
-        
+        else {
+            handle = Promise.resolve(1);
+        }
+        return handle
     }
-    const requestTest = React.useCallback(() => {
-        setTestStatus('loading');
-        let handle = $.ajax({
-            type: "POST",
-            url: `${slice.APIPath}/RetrieveExternalRecord`,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            async: true,
-            data: JSON.stringify({ xdaRecord: xdaRecord, table: props.ExtTable })
-        });
-        handle.done((extData: any) => {
-            setTestData(extData);
-            if (extData == null || extData.length !== 1) {
-                // This doesn't make that much sense on the face of it, 
-                // but its useful to differentiate between a successful connection with no data and one with data
-                setTestStatus('changed');
-            } else {
-                setTestStatus('idle');
-            }
-        });
-        handle.fail((msg) => {
-            setTestStatus("error");
-            if (msg.status == 500)
-                setErrorMsg(msg.responseJSON.ExceptionMessage);
-        });
-        return handle;
-    }, [setTestStatus, slice.APIPath, xdaRecord, props.ExtTable]);
 
-    const requestTestAll = React.useCallback(() => {
-        setTestStatus('loading');
-        let handle = $.ajax({
-            type: "POST",
-            url: `api/SystemCenter/extDBTables/RetrieveTable`,
-            contentType: "application/json; charset=utf-8",
-            cache: false,
-            async: true,
-            data: JSON.stringify(props.ExtTable)
-        });
-        handle.done((extData: any) => {
-            setTestData(extData);
-            if (extData == null || extData.length === 0) {
-                // This doesn't make that much sense on the face of it, 
-                // but its useful to differentiate between a successful connection with no data and one with data
-                setTestStatus('changed');
-            } else {
-                setTestStatus('idle');
+    const requestTable = (start: number, end: number, filters: Search.IFilter<any>[], orderBy: string, ascending: boolean) => {
+        const path = () => {
+            switch (parentTable) {
+                case 'Meter': return 'api/OpenXDA/ByMeter';
+                case 'Location': return'api/OpenXDA/ByLocation';
+                case 'Customer': return 'api/SystemCenter/Customer'
+                default: return 'api/OpenXDA/ByAsset'
             }
-        });
-        handle.fail((msg) => {
-            setTestStatus("error");
-            if (msg.status == 500)
-                setErrorMsg(msg.responseJSON.ExceptionMessage);
-        });
-        return handle;
-    }, [setTestStatus, props.ExtTable]);
-
+        };
+        let handle;
+        if (record === undefined) {
+            handle = $.ajax({
+                type: "POST",
+                url: `api/SystemCenter/extDBTables/RetrieveTempTable/${start}/${end}`,
+                contentType: "application/json; charset=utf-8",
+                cache: false,
+                async: true,
+                data: JSON.stringify({ Ascending: ascending, OrderBy: orderBy, Searches: filters, externalTable: props.ExtTable })
+            });
+        }
+        else
+            handle = $.ajax({
+                type: "POST",
+                url: `${path()}/RetrieveExternalRecord`,
+                contentType: "application/json; charset=utf-8",
+                cache: false,
+                async: true,
+                data: JSON.stringify({ xdaRecord: record, table: props.ExtTable })
+            });
+        return handle.fail((d) => { if (d.statusText === 'abort') return; setStep(steps.Error); setErrorMsg(d.statusText); });;
+        //
+    }
+   
     React.useEffect(() => {
         setStep(steps.PickType);
         setRecordID(undefined);
@@ -165,35 +147,33 @@ export default function QueryTestDialog(props: IProps) {
     return (
         <>
             <Modal Title={"Test External Table Query"} Show={props.Show && step !== steps.PickRecord}
-                ConfirmText={"Next"} ShowCancel={step !== steps.PickType && step !== steps.Error} ShowConfirm={step !== steps.Results && step !== steps.Error}
-                CancelText={'Back'} CallBack={(conf, btn) => {
+                ConfirmText={"Next"} ShowCancel={false}
+                ShowConfirm={step !== steps.Results && step !== steps.Error}
+                ShowX={true}
+                CallBack={(conf, btn) => {
                     if (!btn) {
                         props.SetShow(false);
                         return;
                     }
-                    if (conf) 
-                        setStep(step => step + 1);
-                    else
-                        setStep(step => step - 1);
-                }}>
+                    if (conf) {
+                        if (step === steps.PickType && parentTable === '')
+                            setStep(step => step + 2);
+                        else
+                            setStep(step => step + 1);
+                    }
+
+                }}
+                BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
+            >
                 {step == steps.PickType ? <TargetTypesSelection SetTable={setParentTable} /> : null}
                 {step == steps.Results ? <ResultDisplay GetCount={requestCount} GetTable={requestTable} ForceReload={step === steps.Results} /> : null}
                 {step == steps.Error ? <ServerErrorIcon Show={true} Size={40} Label={errorMsg} /> : null}
             </Modal>
-            {step == steps.PickRecord ? <TargetSelection OnBack={() => setStep(steps.PickType)} SetSelectedID={(id) => { setStep(steps.Results); setRecordID(id); }} Table={parentTable} /> : null}
+            <TargetSelection OnBack={() => setStep(steps.PickType)}
+                SetSelectedID={(id) => { setStep(steps.Results); setRecordID(id); }}
+                Table={(parentTable === ''? 'Meter' : parentTable)}
+                Show={step == steps.PickRecord && parentTable !== ''}
+            />
         </>
     );
 }
-
-
-const data: RecordTypes[] = useAppSelector((state) => {
-   
-});
-const status = useAppSelector((state) => {
-    switch (props.Table) {
-        case 'Meter': return ByMeterSlice.Status(state);
-        case 'Location': return ByLocationSlice.Status(state);
-        case 'Customer': return CustomerSlice.Status(state);
-        default: return ByAssetSlice.Status(state);
-    }
-});

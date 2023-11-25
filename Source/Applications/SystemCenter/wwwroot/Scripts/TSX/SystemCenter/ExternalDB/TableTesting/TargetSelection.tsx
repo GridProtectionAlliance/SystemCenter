@@ -23,9 +23,6 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Select, CheckBox } from '@gpa-gemstone/react-forms';
-import { useAppDispatch, useAppSelector } from '../../hooks';
-import { ByAssetSlice, ByLocationSlice, ByMeterSlice, CustomerSlice } from '../../Store/Store';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import FilterSelect from '../../CommonComponents/FilterSelect';
 
@@ -33,12 +30,14 @@ interface IProps {
     SetSelectedID: (id: number | undefined) => void;
     OnBack: () => void;
     Table: string;
+    Show: boolean
 }
 
 export type RecordTypes = SystemCenter.Types.DetailedMeter | SystemCenter.Types.DetailedAsset | OpenXDA.Types.Customer | SystemCenter.Types.DetailedLocation;
 
 export default function TargetSelection(props: IProps) {
     const storageID = "ExternalDB_QueryTestDialog";
+    const [selectedData, setSelected] = React.useState <Set<number>>(new Set<number>());
 
     const filterType = React.useMemo(() => {
         switch (props.Table) {
@@ -59,8 +58,8 @@ export default function TargetSelection(props: IProps) {
 
     return (
         <>
-            <FilterSelect OnCloseFunction={(set, confirmed) => { if (!confirmed) props.OnBack(); else props.SetSelectedID(set[0]) }} Selected={new Set<number>()}
-                ShowModal={true} Type={filterType} Single={true} StorageID={storageID} Title='Select Record' />
+            <FilterSelect OnCloseFunction={(set, confirmed) => { if (!confirmed) props.OnBack(); else props.SetSelectedID(Array.from(set.values())[0]); setSelected(new Set<number>());  }} Selected={selectedData}
+                ShowModal={props.Show} Type={filterType} Single={true} StorageID={storageID} Title='Select Record' />
         </>
     );
    

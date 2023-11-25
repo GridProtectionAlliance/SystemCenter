@@ -48,16 +48,16 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
         setDataStatus('loading');
         const handle = $.ajax({
             type: "POST",
-            url: `${homePath}api/SystemCenter/extDBTables/RetrieveTable/${props.KeyField?.ExternalDBTableID ?? null}/${orderBy}/${asc ? 1 : 0}/${start}/${end}`,
+            url: `${homePath}api/SystemCenter/extDBTables/RetrieveTable/${props.KeyField?.ExternalDBTableID ?? null}/${start}/${end}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             data: JSON.stringify({ Ascending: asc, OrderBy: orderBy, Searches: filters }),
             cache: true,
             async: true
         })
-            .done((d) => { setDataStatus('idle'); return d }, () => { setDataStatus('error') });
+            .done((d) => { setDataStatus('idle'); return d }).fail((d) => { setDataStatus('error') });
 
-        return handle;
+        return handle
     };
 
     const getCount = (filters: Search.IFilter<any>[]) => {
@@ -70,7 +70,7 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
             data: JSON.stringify({ Ascending: false, OrderBy: '', Searches: filters }),
             cache: true,
             async: true
-        }).done((d) => { setCountStatus('idle'); return d }, () => { setCountStatus('error') })
+        }).done((d) => { setCountStatus('idle'); return d }).fail((d) => { setCountStatus('error') })
         return handle;
     };
   
@@ -87,9 +87,12 @@ function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
             }}
             Show={props.Show}
             Size={'xlg'}
-            ConfirmBtnClass={countStatus === 'error' || dataStatus === 'error' ? 'btn btn-danger' : 'btn btn-secondary'}
-            ConfirmText={countStatus === 'error' || dataStatus === 'error' ? 'Close' : 'Select'}>
-            <ResultDisplay GetCount={getCount} GetTable={getData} Selected={(item) => _.isEqual(item, selectedExternal)} OnSelection={setSelectedExternal} ForceReload={props.Show} />
+            ConfirmBtnClass={countStatus === 'error' || dataStatus === 'error' ? 'btn btn-danger' : 'btn btn-primary'}
+            DisableConfirm={selectedExternal === undefined}
+            ConfirmText={countStatus === 'error' || dataStatus === 'error' ? 'Close' : 'Select'}
+            BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
+        >
+                <ResultDisplay GetCount={getCount} GetTable={getData} Selected={(item) => _.isEqual(item, selectedExternal)} OnSelection={setSelectedExternal} ForceReload={props.Show} />
         </Modal>
     );
 }
