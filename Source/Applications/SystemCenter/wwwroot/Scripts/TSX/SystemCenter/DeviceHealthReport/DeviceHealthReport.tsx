@@ -24,7 +24,6 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useNavigate } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
 
@@ -152,7 +151,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     const standardSearch: Search.IField<SCGlobal.DeviceHealthReport> = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
 
     return (
-        <div style={{ width: '100%', height: '100%' }}>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row">
             <SearchBar<SCGlobal.DeviceHealthReport> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Meter(s)'}
                 GetEnum={(setOptions, field) => {
@@ -175,8 +175,9 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
 
             >
             </SearchBar>
-
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
+            </div>
+            <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
+                <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
                 <Table<SCGlobal.DeviceHealthReport>
                     cols={[
                         { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[field]}</a> },
@@ -287,11 +288,16 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                         
                     }}
                     onClick={handleSelect}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%'  }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        tableStyle={{
+                            padding: 0, width: 'calc(100%)', height: '100%',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                        }}
                     selected={(item) => false}
-                />
+                    />
+                </div>
             </div>
         </div>
     )
