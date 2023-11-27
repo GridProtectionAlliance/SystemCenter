@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ResultDisplay.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -123,7 +123,7 @@ export default function ResultDisplay(props: IProps) {
         </div>
         <div className="row">
             <div className="col">
-                {count == 0 && countstatus === 'idle' ? <div className="alert alert-warning"> The query succeeded but no records where found. </div> : null}
+                {count == 0 && countstatus === 'idle' ? <div className="alert alert-warning"> The query succeeded, but no records were found. </div> : null}
                 {count > 0 ? <Paging Current={page + 1} Total={Math.ceil(count / RowsPerPage)} SetPage={(p) => setPage(p - 1)} /> : null}
             </div>
         </div>

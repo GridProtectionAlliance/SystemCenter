@@ -208,7 +208,7 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                             Avg Proc End Lat
                         </ReactTable.Column>
                     </ConfigTable.Configurable>
-                    <ConfigTable.Configurable Key='AverageEmailLatency' Label='Avg Email Latt' Default={true}>
+                    <ConfigTable.Configurable Key='AverageEmailLatency' Label='Avg Email Lat' Default={true}>
                         <ReactTable.Column<SC.OpenXDADailyStatistic>
                             Key={'AverageEmailLatency'}
                             AllowSort={true}
