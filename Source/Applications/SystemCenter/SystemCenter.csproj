@@ -291,7 +291,7 @@
     <Compile Include="Model\Security\ApplicationRole.cs" />
     <Compile Include="Model\Security\SecurityGroup.cs" />
     <Compile Include="ScheduledProcesses\ScheduledExtDBTask.cs" />
-    <Compile Include="ScheduledTasks\OpenMICMeterStatisticOperation.cs" />
+    <Compile Include="ScheduledProcesses\OpenMICMeterStatisticOperation.cs" />
     <Compile Include="ScheduledTasks\UserAccountMetaDataUpdater.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineSegmentController.cs" />
     <Compile Include="Controllers\OpenXDA\Assets\OpenXDALineController.cs" />
