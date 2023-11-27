@@ -38,8 +38,8 @@ export namespace SystemCenter {
     interface Role { ID: number, Name: string, Description: string }
 
     interface DeviceHealthReport {
-        ID: number, OpenMIC: string, Name: string, Model: string, LocationID: number, LocationKey: string, Substation: string, TSCID: number, TSC: string,
-        SectorID: number, Sector: string, IP: string, LastGood: string, BadDays: number, MiMDBadDays: number, XDABadDays: number, MICBadDays: number, XDAStatus: 'Error' | 'Warning' | '',
+        ID: number, OpenMIC: string, Name: string, Model: string, LocationID: number, LocationKey: string, Substation: string, TSC: string,
+        Sector: string, IP: string, LastGood: string, BadDays: number, MiMDBadDays: number, XDABadDays: number, MICBadDays: number, XDAStatus: 'Error' | 'Warning' | '',
         MICStatus: 'Error' | 'Warning' | '', MiMDStatus: 'Error' | 'Warning' | '', LastConfigChange: string, DQStatus: 'Error' | 'Warning' | ''
     }
 
