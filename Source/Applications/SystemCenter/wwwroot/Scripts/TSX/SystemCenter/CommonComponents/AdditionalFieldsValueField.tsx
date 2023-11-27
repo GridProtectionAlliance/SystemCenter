@@ -96,7 +96,7 @@ const AdditionalFieldsValueField = (props: IValueFieldProps) => {
     if (props.Field.Type == 'string' || props.Field.IsKey)
         return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
             Type={'text'} Disabled={props.Field.IsKey} Setter={Setter}
-            Help={(props.Field.IsKey && props.IncludeLabel) ? `Key value to external database ${props.Field.ExternalDB}. It is editable in the additional field tab.` : undefined} />
+            Help={(props.Field.IsKey && props.IncludeLabel) ? `Key Value for the ${props.Field.ExternalDB} External Database. Visit the Additional Fields tab to select a different Value.` : undefined} />
     if (props.Field.Type == 'number' || props.Field.Type == 'integer')
         return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
             Type={'number'} Disabled={false} Setter={Setter} Feedback={props.Field.FieldName + ' requires an integer value.'} />

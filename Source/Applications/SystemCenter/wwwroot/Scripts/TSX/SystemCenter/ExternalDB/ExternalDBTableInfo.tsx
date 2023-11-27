@@ -66,7 +66,7 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.extDB
             <div className="card-header">
                 <div className="row">
                     <div className="col">
-                        <h4>External DB Table Information:</h4>
+                        <h4>External Database Table Information:</h4>
                     </div>
                 </div>
             </div>

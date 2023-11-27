@@ -274,7 +274,7 @@ export default function QueryTestDialog(props: IProps) {
                 {getBody()}
             </Modal>
             <FilterSelect OnCloseFunction={onSelectCallback} Selected={selectedRecord}
-                ShowModal={step === pickRecordStep} Type={filterType} Single={true} StorageID={selectStorageID} Title='Select Xda Record' />
+                ShowModal={step === pickRecordStep} Type={filterType} Single={true} StorageID={selectStorageID} Title='Select Test Record' />
         </>
     );
 }

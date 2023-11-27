@@ -244,7 +244,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 </div>
             </div>
 
-            <Modal Title={'Remove External DB Table Field'} Show={showRemove} CallBack={() => setShowRemove(false)} ShowCancel={false} ConfirmText={'Close'} >
+            <Modal Title={'Remove ' + record?.FieldName ?? 'Field'} Show={showRemove} CallBack={() => setShowRemove(false)} ShowCancel={false} ConfirmText={'Close'} >
                 <button className="btn btn-danger btn-block" onClick={() => { setTableStatus('changed'); DisassociateField(record); setShowRemove(false); }}>Remove Field From Table</button>
                 <button className="btn btn-danger btn-block" onClick={() => { setTableStatus('changed'); Delete(); setShowRemove(false); }}>Delete Field Permanently</button>
             </Modal>
@@ -280,7 +280,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
 
             <SelectPopup<SystemCenter.Types.AdditionalFieldView>
                 Slice={AdditionalFieldsSlice}
-                Title={"Add Fields to " + (props.TableName ?? 'External DB Table')}
+                Title={"Add Fields to " + (props.TableName ?? 'Table')}
                 Selection={fieldsInTable}
                 OnClose={(selected, conf) => {
                     setShowExisting(false);
@@ -297,7 +297,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 Columns={[
                     { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'Type', field: 'Type', label: 'Field Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'ExternalDB', field: 'ExternalDB', label: 'External Database', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     {
                         key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
@@ -322,7 +322,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                         { label: 'Parent Type', key: 'ParentTable', type: 'string', isPivotField: false },
                         { label: 'External Database', key: 'ExternalDB', type: 'string', isPivotField: false },
                         {
-                            label: 'Type', key: 'Type', isPivotField: false, type: 'enum',
+                            label: 'Field Type', key: 'Type', isPivotField: false, type: 'enum',
                             enum: [
                                 { Value: 'string', Label: 'string' },
                                 { Value: 'integer', Label: 'integer' },
