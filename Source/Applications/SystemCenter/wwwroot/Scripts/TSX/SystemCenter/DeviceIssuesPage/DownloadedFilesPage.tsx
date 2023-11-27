@@ -48,7 +48,7 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
     if (props.Meter.ID == undefined) return null;
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ width: '100%', height: '100%' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -56,7 +56,7 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     </div>
                 </div>
             </div>
-            <div className="card-body">      
+            <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>      
                 <Table<OpenXDA.Types.DataFile>
                     cols={[
                         { key: 'FilePath', field: 'FilePath', label: 'File', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
@@ -76,9 +76,13 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         dispatch(DataFileSlice.Sort({ SortField: colField, Ascending: ascending }));
                     }}
                     onClick={() => { }}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 425, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                    rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    tableStyle={{
+                        padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                        tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                    }}
                     selected={(item) => false}
                 />
             </div>

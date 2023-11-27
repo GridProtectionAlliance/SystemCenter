@@ -61,7 +61,7 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
         }
     }, [props.Meter]);
 
-    return <div className="card" style={{ marginBottom: 10 }}>
+    return <div className="card" style={{ width: '100%', height: '100%' }}>
         <div className="card-header">
             <div className="row">
                 <div className="col">
@@ -69,7 +69,7 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 </div>
             </div>
         </div>
-        <div className="card-body">
+        <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
             <Table<SC.MeterDataQualitySummary>
                 cols={[
                     { key: 'Date', label: 'Date', field: 'Date', headerStyle: { width: 'auto', textAlign: 'left' }, rowStyle: { width: 'auto', textAlign: 'left' }, content: (item, key, style) => moment(item[key], "YYYY-MM-DDTHH:mm:ss").format("MM/DD/YYYY")},
@@ -95,12 +95,15 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     }
                 }}
                 onClick={() => { }}
-                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 425, width: '100%' }}
-                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                tableStyle={{
+                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                    tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                }}
+                theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                 selected={() => false}
             />
-
         </div>
         <div className="card-footer">
         </div>

@@ -69,7 +69,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
             dispatch(SystemCenterSettingSlice.Fetch());
     }, [settingStatus]);
 
-    return <div className="card" style={{ marginBottom: 10 }}>
+    return <div className="card" style={{ width: '100%', height: '100%' }}>
         <div className="card-header">
             <div className="row">
                 <div className="col">
@@ -80,18 +80,22 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                 </div>
             </div>
         </div>
-        <div className="card-body">
+        <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
             <ConfigTable.Table<SC.OpenMICDailyStatistic>
                 LocalStorageKey="MiMDIssuesConfigTable"
                 TableClass="table table-hover"
                 Data={data}
                 SortKey={sortField}
                 Ascending={ascending}
-                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                TbodyStyle={{ display: 'block', overflowY: 'scroll' }}
-                RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
                 Selected={() => false}
                 KeySelector={(item) => item.ID}
+                TableStyle={{
+                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                    tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                }}
+                TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                 OnSort={(d) => {
                     if (d.colField == sortField) {
                         setAscending(!ascending);
@@ -191,7 +195,6 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
 const Test = (props: { Meter: OpenXDA.Types.Meter }) => {
     const [flag, setFlag] = React.useState<boolean>(null);
     const [acronym, setAcronym] = React.useState<string>(undefined);
-    const [time, setTime] = React.useState<number>(0);
 
     React.useEffect(() => {
         let handle = $.ajax({
@@ -229,7 +232,7 @@ const Test = (props: { Meter: OpenXDA.Types.Meter }) => {
         
     return (
         <div style={{width: 100, position: 'absolute', right: 0}}>
-            <button className='btn btn-primary' onClick={RunTest}>Test</button>
+            <button className='btn btn-primary' onClick={RunTest}>Ping Device</button>
             <span style={{marginLeft: 20}}>{Flag()}</span>
         </div>
     );

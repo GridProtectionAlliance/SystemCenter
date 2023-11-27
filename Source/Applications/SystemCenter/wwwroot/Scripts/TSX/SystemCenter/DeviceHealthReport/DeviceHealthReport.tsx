@@ -31,7 +31,7 @@ import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SystemCenterSettingSlice } from '../Store/Store';
 import moment from 'moment';
-import { HeavyCheckMark, CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { HeavyCheckMark, CrossMark, Warning, Questionmark } from '@gpa-gemstone/gpa-symbols';
 
 const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
@@ -188,7 +188,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                         { key: 'Sector', label: 'Sector', field: 'Sector', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.Sector}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[field]}</a> },
                         { key: 'IP', label: 'IP', field: 'IP', headerStyle: { width: 150 }, rowStyle: { width: 150 }, content: (item, key, field, style) => (item.OpenMIC != undefined ? <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[field]}</a> : item[field]) },
                         {
-                            key: 'LastGood', label: 'Last Succ Conn', field: 'LastGood', headerStyle: { width: 150 }, rowStyle: { width: 150, textAlign: 'center' }, content: (item, key, field, style) => {
+                            key: 'LastGood', label: 'Last Succ Conn', field: 'LastGood', headerStyle: { width: 150 }, rowStyle: { width: 150, textAlign: 'center' }, content: (item, key, field) => {
                                 let className = 'light'
                                 if (moment().diff(moment(item[field]), 'hours') > 4) className = 'info';
                                 if (moment().diff(moment(item[field]), 'hours') > 24) className = 'warning';
@@ -222,6 +222,9 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                 else if (item[field] == 'Warning') {
                                     style.backgroundColor = 'antiquewhite';
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' >{Warning}</a>;
+                                }
+                                else if (item.LastGood == null && item.MICBadDays == null) {
+                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' >{Questionmark}</a>;
                                 }
                                 else
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank'>{HeavyCheckMark}</a>;

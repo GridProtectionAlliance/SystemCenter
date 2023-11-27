@@ -86,34 +86,33 @@ function DeviceIssuesPage(props: IProps) {
     ];
 
     return (
-        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15 }}>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
             <div className="row">
                 <div className="col">
                     <h2>{meter.Name}</h2>
                 </div>
             </div>
             <hr />
-
-            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" style={{ maxHeight: window.innerHeight - 215 }}>
+                <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
+            <div className="tab-content" style={{ flex: 1, overflow: 'hidden' }}>
+                {tab === 'notes' ? <div className={"tab-pane active"} style={{ height: '100%' }}>
                     <NoteWindow ID={props.MeterID} Type='Meter' />
-                </div>
-                <div className={"tab-pane " + (tab == "openmic" ? " active" : "fade")} id="openmic" style={{ maxHeight: window.innerHeight - 215 }}>
+                </div> : null}
+                {tab === 'openmic' ? <div className={"tab-pane active"} style={{ height: '100%' }}>
                     <OpenMICIssuesPage Meter={meter} OpenMICAcronym={props.OpenMICAcronym}/>
-                </div>
-                <div className={"tab-pane " + (tab == "mimd" ? " active" : "fade")} id="mimd" style={{ maxHeight: window.innerHeight - 215 }}>
+                </div> : null}
+                {tab === 'mimd' ? <div className={"tab-pane  active"} style={{ height: '100%' }}>
                     <MiMDIssuesPage Meter={meter} />
-                </div>
-                <div className={"tab-pane " + (tab == "xda" ? " active" : "fade")} id="xda" style={{ maxHeight: window.innerHeight - 215 }}>
+                </div> : null}
+                {tab === 'xda' ? <div className={"tab-pane active"} style={{ height: '100%' }}>
                     <OpenXDAIssuesPage Meter={meter} />
-                </div>
-                <div className={"tab-pane " + (tab == "dq" ? " active" : "dq")} id="xda" style={{ maxHeight: window.innerHeight - 215 }}>
+                </div> : null}
+                {tab === 'dq' ? <div className={"tab-pane active"} style={{ height: '100%' }}>
                     <DataQualityIssuesPage Meter={meter} />
-                </div>
-                <div className={"tab-pane " + (tab == "files" ? " active" : "fade")} id="files" style={{ maxHeight: window.innerHeight - 215 }}>
+                </div> : null}
+                {tab === 'files' ? <div className={"tab-pane active"} style={{ height: '100%' }}>
                     <DownloadedFilesPage Meter={meter} />
-                </div>
+                </div> : null}
             </div>
         </div>
     )
