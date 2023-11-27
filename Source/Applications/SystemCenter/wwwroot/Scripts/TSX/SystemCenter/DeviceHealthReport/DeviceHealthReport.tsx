@@ -189,11 +189,13 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                         { key: 'IP', label: 'IP', field: 'IP', headerStyle: { width: 150 }, rowStyle: { width: 150 }, content: (item, key, field, style) => (item.OpenMIC != undefined ? <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[field]}</a> : item[field]) },
                         {
                             key: 'LastGood', label: 'Last Succ Conn', field: 'LastGood', headerStyle: { width: 150 }, rowStyle: { width: 150, textAlign: 'center' }, content: (item, key, field, style) => {
-                                if (moment().diff(moment(item[field]), 'hours') > 4) style.backgroundColor = 'yellow';
-                                if (moment().diff(moment(item[field]), 'hours') > 24 ) style.backgroundColor = 'orange';
-                                else if (moment().diff(moment(item[field]), 'days') > 7) style.backgroundColor = 'red';
-
-                                return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic`} target='_blank'>{moment(item[field]).format('MM/DD/YYYY HH:mm')}</a>
+                                let className = 'light'
+                                if (moment().diff(moment(item[field]), 'hours') > 4) className = 'info';
+                                if (moment().diff(moment(item[field]), 'hours') > 24) className = 'warning';
+                                else if (moment().diff(moment(item[field]), 'days') > 7) className = 'danger';
+                                return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic`} target='_blank'>
+                                    <span className={`badge badge-pill badge-${className}`}>{moment(item[field]).format('MM/DD/YYYY HH:mm')}</span>
+                                    </a>
                             }
                         },
                         { key: 'BadDays', label: 'Bad Days', field: 'BadDays', headerStyle: { width: 100 }, rowStyle: { width: 100, textAlign: 'center'} },
