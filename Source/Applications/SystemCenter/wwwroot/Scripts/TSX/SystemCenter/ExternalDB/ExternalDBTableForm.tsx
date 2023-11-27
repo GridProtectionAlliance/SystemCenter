@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Input, Select, TextArea } from '@gpa-gemstone/react-forms';
-import QueryTestDialog from './QueryTestDialog';
+import QueryTestDialog from './TableTesting/QueryTestDialog';
 import { ExternalDatabasesSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 

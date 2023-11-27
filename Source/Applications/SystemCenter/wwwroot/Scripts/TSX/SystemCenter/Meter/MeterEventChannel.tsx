@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { Application, OpenXDA as GemstoneOpenXDA} from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { ConfigurableTable, LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { Input, Select } from '@gpa-gemstone/react-forms';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
@@ -35,6 +35,8 @@ import { SelectAscending, SelectSortKey, SelectEventChannels, SelectEventChannel
 import { FetchChannels } from '../Store/EventChannelSlice';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { cloneDeep } from 'lodash';
+import { ConfigTable } from '@gpa-gemstone/react-interactive';
+import { ReactTable } from '@gpa-gemstone/react-table'
 
 declare var homePath: string;
 
@@ -235,76 +237,142 @@ const MeterEventChannelWindow = (props: IProps) => {
             </div>
         </div>
         <div className="card-body">
-            <div style={{ width: '100%', height: window.innerHeight - 420 }}>
-                <ConfigurableTable<OpenXDA.EventChannel>
-                    cols={[
-                        {
-                            key: 'SourceIndices', field: 'SourceIndices', label: 'Channel', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
-                            content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'SourceIndices'} Label={''} Setter={(r) => createChange(r, 'SourceIndices')} Valid={(f) => isValid(f,c)} />
-                        },
-                        {
-                            key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Name'} Label={''} Setter={(r) => createChange(r, 'Name')} Valid={(f) => isValid(f, c)} />
-                        },
-                        {
-                            key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Description'} Label={''} Setter={(r) => createChange(r, 'Description')} Valid={(f) => isValid(f, c)} />
-                        },
-                        {
-                            key: 'MeasurementType', field: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-                            content: (c) => <Select Record={c} Field={'MeasurementTypeID'} Label={''} Options={measurementTypes.map(d => ({ Label: d.Name, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'MeasurementTypeID')} />
-                        },
-                        {
-                            key: 'Phase', field: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-                            content: (c) => <Select Record={c} Field={'PhaseID'} Label={''} Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'PhaseID')} />
-                        },
-                        {
-                            key: 'Adder', field: 'Adder', label: 'Adder', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
-                            content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Adder'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'Adder')} Valid={(f) => isValid(f, c)} />
-                        },
-                        {
-                            key: 'Multiplier', field: 'Multiplier', label: 'Multiplier', headerStyle: { width: '7%' }, rowStyle: { width: '7%' },
-                            content: (c) => <Input<OpenXDA.EventChannel> Record={c} Field={'Multiplier'} Type={'number'} Label={''} Setter={(r) => createChange(r, 'Multiplier')} Valid={(f) => isValid(f, c)} />
-                        },
-                        {
-                            key: 'Asset', field: 'Asset', label: 'Asset', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: (c) => <Select Record={c} Field={'AssetID'} Label={''} Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))} Setter={(r) => createChange(r, 'AssetID')} />
-                        },
-                        {
-                            key: 'ConnectionPriority', field: 'ConnectionPriority', label: 'Priority', headerStyle: { width: '7%' }, rowStyle: { width: '8%' },
-                            content: (c) => <Select EmptyOption={true} Record={c} Field={'ConnectionPriority'} Label={''} Options={[{ Value: '0', Label: 'Primary' }, { Value: '1', Label: 'Secondary' }, { Value: '2', Label: 'Tertiary' }]} Setter={(r) => createChange(r, 'ConnectionPriority')} Disabled={assets.find(d => d.ID == c.AssetID)?.AssetType != 'Transformer'} />
-                        },
-                        {
-                            key: 'Remove', label: '', headerStyle: { width: '3%' }, rowStyle: { width: '3%' },
-                            content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveRecord(c)}><span>{TrashCan}</span></button>
-                        },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-
-                    ]}
-                    defaultColumns={["SourceIndices", "Name", "Phase", "MeasurementType", "Adder", "Multiplier", "Description", "Asset", "ConnectionPriority", "Remove", "Scroll"]}
-                    requiredColumns={["Name", "Remove", "Scroll"]}
-                    localStorageKey="MeterEventChannelConfigTable"
-                    tableClass="table table-hover"
-                    data={data.map(c => replicateChanges(c))}
-                    sortKey={sortKey}
-                    ascending={ascending}
-                    onSort={(d) => {
-
-                            if (d.colKey === "Scroll" || d.colKey == 'Remove')
-                                return;
-
+                <div style={{ width: '100%', height: window.innerHeight - 420 }}>
+                    <ConfigTable.Table<OpenXDA.EventChannel>
+                        LocalStorageKey="MeterEventChannelConfigTable"
+                        TableClass="table table-hover"
+                        Data={data.map(c => replicateChanges(c))}
+                        TableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed' }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={() => false}
+                        KeySelector={(item) => item.ID}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
                             if (d.colKey === sortKey)
                                 dispatch(FetchChannels({ sortField: d.colField, ascending: !ascending, meterId: props.Meter.ID }));
-                            else 
+                            else
                                 dispatch(FetchChannels({ sortField: d.colField, ascending: true, meterId: props.Meter.ID }));
                         }}
-                    onClick={() => { }}
-                    tableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed'}}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                    >
+                        <ConfigTable.Configurable Key='SourceIndices' Label='Channel' Default={true}>
+                            <ReactTable.Column<OpenXDA.EventChannel>
+                                Key={'SourceIndices'} Field={'SourceIndices'}
+                                HeaderStyle={{ width: '7%' }} RowStyle={{ width: '7%' }}
+                                Content={({ item }) => <Input<OpenXDA.EventChannel>
+                                    Record={item} Field={'SourceIndices'}
+                                    Label={''}
+                                    Setter={(r) => createChange(r, 'SourceIndices')}
+                                    Valid={(f) => isValid(f, item)} />}>
+                            Channel</ReactTable.Column>
+                    </ConfigTable.Configurable >
+                        <ReactTable.Column<OpenXDA.EventChannel>
+                            Key={'Name'} Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => <Input<OpenXDA.EventChannel> Record={item} Field={'Name'}
+                                Label={''} Setter={(r) => createChange(r, 'Name')}
+                                Valid={(f) => isValid(f, item)} />}
+                            >
+                            Name </ReactTable.Column>
+                   
+                        <ConfigTable.Configurable Key='Description' Label='Description' Default={true}>
+                            <ReactTable.Column<OpenXDA.EventChannel>
+                                Key={'Description'} Field={'Description'} HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => <Input<OpenXDA.EventChannel> Record={item}
+                                    Field={'Description'} Label={''}
+                                    Setter={(r) => createChange(r, 'Description')}
+                                    Valid={(f) => isValid(f, item)} />}>
+                    </ReactTable.Column>
+                </ConfigTable.Configurable >
+                    <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={true}>
+                            <ReactTable.Column<OpenXDA.EventChannel>
+                                Key={'MeasurementType'}
+                                Field={'MeasurementType'}
+                                HeaderStyle={{ width: '10%' }}
+                                RowStyle={{ width: '10%' }}
+                                Content={({ item }) => <Select Record={item} Field={'MeasurementTypeID'}
+                                    Label={''}
+                                    Options={measurementTypes.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
+                                    Setter={(r) => createChange(r, 'MeasurementTypeID')} />}>
+                                Type
+                    </ReactTable.Column>
+                </ConfigTable.Configurable >
+                <ConfigTable.Configurable Key='Phase' Label='Phase' Default={true}>
+                            <ReactTable.Column<OpenXDA.EventChannel>
+                                Key={'Phase'}
+                                Field={'Phase'}
+                                HeaderStyle={{ width: '10%' }}
+                                RowStyle={{ width: '10%' }}
+                                Content={({ item }) => <Select Record={item} Field={'PhaseID'}
+                                    Label={''} Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
+                                    Setter={(r) => createChange(r, 'PhaseID')} />}>
+                    </ReactTable.Column>
+                </ConfigTable.Configurable >
+                <ConfigTable.Configurable Key='Adder' Label='Adder' Default={true}>
+                    <ReactTable.Column<OpenXDA.EventChannel>
+                                Key={'Adder'}
+                                Field={'Adder'}
+                                HeaderStyle={{ width: '7%' }}
+                                RowStyle={{ width: '7%' }}
+                                Content={({ item }) => <Input<OpenXDA.EventChannel>
+                                    Record={item} Field={'Adder'} Type={'number'}
+                                    Label={''} Setter={(r) => createChange(r, 'Adder')}
+                                    Valid={(f) => isValid(f, item)} />}>
+                    </ReactTable.Column>
+                </ConfigTable.Configurable >
+                <ConfigTable.Configurable Key='Multiplier' Label='Multiplier' Default={true}>
+                    <ReactTable.Column<OpenXDA.EventChannel>
+                                Key={'Multiplier'}
+                                Field={'Multiplier'}
+                                HeaderStyle={{ width: '7%' }}
+                                RowStyle={{ width: '7%' }}
+                                Content={({ item }) => <Input<OpenXDA.EventChannel>
+                                    Record={item} Field={'Multiplier'} Type={'number'}
+                                    Label={''} Setter={(r) => createChange(r, 'Multiplier')}
+                                    Valid={(f) => isValid(f, item)} />}>
+                    </ReactTable.Column>
+                </ConfigTable.Configurable >
+                    <ConfigTable.Configurable Key='Asset' Label='Asset' Default={true}>
+                            <ReactTable.Column<OpenXDA.EventChannel>
+                                Key={'Asset'} Field={'Asset'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => <Select Record={item}
+                                    Field={'AssetID'} Label={''}
+                                    Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))}
+                                    Setter={(r) => createChange(r, 'AssetID')} />}>
+                        
+                    </ReactTable.Column>
+                </ConfigTable.Configurable >
+                        <ConfigTable.Configurable Key='ConnectionPriority' Label='Connection Type' Default={true}>
+                            <ReactTable.Column<OpenXDA.EventChannel>
+                                Key={'ConnectionPriority'}
+                                Field={'ConnectionPriority'}
+                                HeaderStyle={{ width: '7%' }}
+                                RowStyle={{ width: '8%' }}
+                                Content={({ item }) => <Select EmptyOption={true} Record={item}
+                                    Field={'ConnectionPriority'} Label={''}
+                                    Options={[{ Value: '0', Label: 'Primary' }, { Value: '1', Label: 'Secondary' }, { Value: '2', Label: 'Tertiary' }]}
+                                    Setter={(r) => createChange(r, 'ConnectionPriority')}
+                                    Disabled={assets.find(d => d.ID == item.AssetID)?.AssetType != 'Transformer'} />}>
+                                Conn Type
+                            </ReactTable.Column>
+                    </ConfigTable.Configurable >
+                        <ReactTable.Column<OpenXDA.EventChannel>
+                            Key={'Remove'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '62px' }}
+                            RowStyle={{ width: '62px' }}
+                            Content={({ item }) => <button className="btn btn-sm"
+                                onClick={(e) => setRemoveRecord(item)}><span>{TrashCan}</span></button>}>
+                            <p></p>
+                        </ReactTable.Column>
+                 </ConfigTable.Table>
+                
             </div>
         </div>
         <div className="card-footer">

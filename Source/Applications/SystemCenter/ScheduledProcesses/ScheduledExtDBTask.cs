@@ -33,6 +33,8 @@ using Flee.PublicTypes;
 using openXDA.Model;
 using System.Reflection;
 using System.Data;
+using GSF.Collections;
+using System.Web.Http.Filters;
 
 namespace SystemCenter.ScheduledProcesses
 {
@@ -206,7 +208,7 @@ namespace SystemCenter.ScheduledProcesses
             DefineAllowedVariables(context);
             context.Variables["Key"] = keyValue?.Value;
             context.Variables[table.TableName] = record;
-            return ExecuteQueryWithContext(extTable, context, externalConnection);
+            return ExecuteQueryWithContext(extTable, context, externalConnection, new Condition[0]);
         }
 
         public static DataRowCollection RetrieveDataRecord<T>(T record, extDBTables extTable,
@@ -218,11 +220,24 @@ namespace SystemCenter.ScheduledProcesses
             return data;
         }
 
-        public static DataTable RetrieveDataTable(extDBTables extTable, AdoDataConnection externalConnection)
+        public static DataTable RetrieveDataTable(extDBTables extTable, AdoDataConnection externalConnection, Condition[] conditions, string orderBy=null,bool ascending=true, int skip=0, int count=-1)
         {
             ExpressionContext context = new ExpressionContext();
             DefineAllowedVariables(context);
-            return ExecuteQueryWithContext(extTable, context, externalConnection);
+            return ExecuteQueryWithContext(extTable, context, externalConnection, conditions, orderBy, ascending, count, skip);
+        }
+
+        /// <summary>
+        /// Returns the number of records in the external database
+        /// </summary>
+        /// <param name="extTable"> the <see cref="extDBTables"/></param>
+        /// <param name="externalConnection"> the <see cref="AdoDataConnection"/> to the external system </param>
+        /// <returns>the number of rows found in the Table</returns>
+        public static int RetrieveDataCount(extDBTables extTable, AdoDataConnection externalConnection, Condition[] conditions)
+        {
+            ExpressionContext context = new ExpressionContext();
+            DefineAllowedVariables(context);
+            return ExecuteCountQueryWithContext(extTable, context, externalConnection, conditions);
         }
 
         private static void DefineAllowedVariables(ExpressionContext context)
@@ -247,12 +262,98 @@ namespace SystemCenter.ScheduledProcesses
 
         //Context should have all vars loaded in
         private static DataTable ExecuteQueryWithContext(extDBTables extTable,
-            ExpressionContext context, AdoDataConnection externalConnection)
+            ExpressionContext context, AdoDataConnection externalConnection, Condition[] conditions,
+            string orderBy = null, bool ascending = true, int count = -1, int skip = 0)
         {
-            List<string> parameters = new List<string>();
+            List<object> parameters = new List<object>();
             MatchEvaluator evaluator = new MatchEvaluator((match) => RegexReplaceFunction(match, context, parameters));
             string fullQuery = Regex.Replace(extTable.Query, RegexPattern, evaluator, RegexOptions.None, TimeSpan.FromSeconds(2));
-             return externalConnection.RetrieveData(fullQuery, parameters.ToArray());
+            if (skip > 0 || count > 0 || !String.IsNullOrEmpty(orderBy))
+            {
+                if (externalConnection.IsSQLServer)
+                {
+                    string limit = "";
+                    string filters = "";
+                    
+                    if (conditions.Length > 0)
+                        filters = "WHERE " + String.Join(" AND ", conditions.Select((item, i) => item.SQL.Replace("{0}", $"{{{i + parameters.Count()}}}")));
+
+                    parameters.AddRange(conditions.Select(item => item.Parameter));
+
+                    if (count > 0 && skip <=0)
+                        limit = $"TOP {count}";
+                    string order = "";
+                    if (!String.IsNullOrEmpty(orderBy))
+                        order = $"ORDER BY {orderBy} {(ascending ? "ASC" : "DESC")}";
+                    string offset = "";
+                    if (skip > 0)
+                        offset = $"OFFSET {skip} ROWS";
+                    if (count > 0 && skip > 0)
+                        offset = offset + $" FETCH NEXT {count} ROWS ONLY";
+                    fullQuery = $"select {limit} * from ({fullQuery}) T {filters} {order} {offset}";
+                }
+                else if (externalConnection.IsOracle)
+                {
+                    string limit = "";
+                    string filters = "";
+
+                    if (conditions.Length > 0)
+                        filters = "WHERE " + String.Join(" AND ", conditions.Select((item, i) => item.SQL.Replace("{0}", $"{{{i + parameters.Count()}}}")));
+
+                    parameters.AddRange(conditions.Select(item => item.Parameter));
+
+                    if (count > 0 && skip > 0)
+                        limit = $"where rn between {skip+1} and {skip+count+1}";
+                    else if (count > 0)
+                        limit = $"where rn < {count+1}";
+                    else if (skip > 0)
+                        limit = $"where rn > {skip}";
+                    string order = "";
+                    if (!String.IsNullOrEmpty(orderBy))
+                        order = $"{orderBy} {(ascending ? "ASC" : "DESC")}";
+
+                    fullQuery = $"select * from ( select T.*, row_number() over (order by {orderBy}) rn from ({fullQuery}) T {filters}) {limit}";
+                }
+                else if (externalConnection.IsMySQL || externalConnection.IsPostgreSQL)
+                {
+                    string limit = "";
+                    string filters = "";
+
+                    if (conditions.Length > 0)
+                        filters = "WHERE " + String.Join(" AND ", conditions.Select((item, i) => item.SQL.Replace("{0}", $"{{{i + parameters.Count()}}}")));
+
+                    parameters.AddRange(conditions.Select(item => item.Parameter));
+
+                    if (count > 0)
+                        limit = $"LIMIT {count}";
+                    string order = "";
+                    if (!String.IsNullOrEmpty(orderBy))
+                        order = $"ORDER BY {orderBy} {(ascending ? "ASC" : "DESC")}";
+                    string offset = "";
+                    if (skip > 0)
+                        offset = $"OFFSET {skip}";
+                    fullQuery = $"select * from ({fullQuery}) T {filters}{order} {limit} {offset}";
+                }
+                else
+                {
+                    throw new NotImplementedException("External Database Type not implemented");
+                }
+               
+            }
+            return externalConnection.RetrieveData(fullQuery, parameters.ToArray());
+        }
+
+        private static int ExecuteCountQueryWithContext(extDBTables extTable,
+                       ExpressionContext context, AdoDataConnection externalConnection, Condition[] conditions)
+        {
+            List<object> parameters = new List<object>();
+            MatchEvaluator evaluator = new MatchEvaluator((match) => RegexReplaceFunction(match, context, parameters));
+            string fullQuery = Regex.Replace(extTable.Query, RegexPattern, evaluator, RegexOptions.None, TimeSpan.FromSeconds(2));
+            fullQuery = $"select count(*) from ({fullQuery}) T";
+            if (conditions.Length > 0) 
+                fullQuery = fullQuery + " WHERE " + String.Join(" AND ", conditions.Select((item, i) => item.SQL.Replace("{0}", $"{{{i + parameters.Count()}}}")));
+            parameters.AddRange(conditions.Select(item => item.Parameter));
+            return externalConnection.ExecuteScalar<int>(fullQuery, parameters.ToArray());
         }
 
         public static AdoDataConnection GetExternalConnection(ExternalDatabases extDB)
@@ -270,7 +371,7 @@ namespace SystemCenter.ScheduledProcesses
             return (int) idObj.GetValue(record);
         }
 
-        private static string RegexReplaceFunction(Match match, ExpressionContext context, List<string> parameters)
+        private static string RegexReplaceFunction(Match match, ExpressionContext context, List<object> parameters)
         {
             try
             {
@@ -282,7 +383,7 @@ namespace SystemCenter.ScheduledProcesses
 
                 // Quick explaination, we need to transform something like {object.property} into an index on a parameter so that
                 // GSF can handle the parameters. This is needed because we cannot use VARCHAR arguements directly, it is DB dependant
-                int parameterNumber = parameters.FindIndex(para => para == eval);
+                int parameterNumber = parameters.FindIndex(para => para.ToString() == eval);
                 if (parameterNumber > -1)
                     return "{" + parameterNumber + "}";
                 parameters.Add(eval);

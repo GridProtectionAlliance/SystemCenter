@@ -30,6 +30,7 @@ import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { CustomerSlice, AssetGroupSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
+import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -115,6 +116,46 @@ export default function CustomerAssetGroupPage(props: IProps) {
                 groupHandle.abort();
         };
     }, [props.ID, props.Type, groupKey, groupAsc, resetGroup]);
+
+    function deleteCustomer(cust: CommonCustomerAssetMeter) {
+        setState('loading');
+        let idList = [];
+
+        let handle = $.ajax({
+            type: 'DELETE',
+            url: `${homePath}api/SystemCenter/Customer${props.Type}/Delete`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(cust),
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+
+        handle.done(() => {
+            setResetCustomer(x => x + 1);
+            setState('idle');
+        }).fail(() => setState('error'));
+    }
+
+    function deleteGroup(cust: CommonAssetGroupAssetMeter) {
+        setState('loading');
+        let idList = [];
+
+        let handle = $.ajax({
+            type: 'DELETE',
+            url: `${homePath}api/SystemCenter/AssetGroup${props.Type}/Delete`,
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(cust),
+            dataType: 'json',
+            cache: false,
+            async: true
+        });
+
+        handle.done(() => {
+            setResetGroup(x => x + 1);
+            setState('idle');
+        }).fail(() => setState('error'));
+    }
 
     function getAssignedCustomerList(): JQuery.jqXHR<CommonCustomerAssetMeter[]>{
         setState('loading');
@@ -221,60 +262,129 @@ export default function CustomerAssetGroupPage(props: IProps) {
     else
         return (
             <>
-                <div className="row" style={{ height: '100%' }}>
-                    <div className="col" style={{width: '50%'}}>
-                        <button className="btn btn-primary pull-right" onClick={() => { setShowCustomer(true); }}>Assign to Customers</button>
-                        <h4 style={{ width: '100%', padding: '10px' }}>{"Customers Assigned:"}</h4>
-                        <Table<CommonCustomerAssetMeter>
-                            cols={[
-                                { key: 'CustomerName', field: 'CustomerName', label: 'Customer', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'CustomerKey', field: 'CustomerKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }
-                            ]}
-                            tableClass="table table-hover"
-                            data={customerList}
-                            sortKey={customerKey}
-                            ascending={customerAsc}
-                            onSort={(d) => {
-                                if (d.colKey === customerKey)
-                                    setCustomerAsc(!customerAsc);
-                                else {
-                                    setCustomerAsc(true);
-                                    setCustomerKey(d.colKey);
-                                }
-                            }}
-                            onClick={() => { }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
-                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={() => false}
-                        />
+                <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
+                        <div className="col-6" style={{
+                            height: '100%', overflow: 'hidden',
+                            display: 'flex', flexDirection: 'column'
+                        }}>
+                            <div className={'row'}>
+                                <div className='col-6'>
+                                    <h4>
+                                        Customers
+                                    </h4>
+                                </div>
+                                <div className='col-6'>
+                                    <button className="btn btn-primary pull-right"
+                                        onClick={() => { setShowCustomer(true); }}>
+                                        Assign
+                                    </button>
+
+                                </div>
+                            </div>
+                            <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
+                                    <Table<CommonCustomerAssetMeter>
+                                        cols={[
+                                            { key: 'CustomerName', field: 'CustomerName', label: 'Customer', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                            { key: 'CustomerKey', field: 'CustomerKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                            {
+                                                key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                                content: (item) => <button className="btn btn-sm"
+                                                        onClick={(e) => deleteCustomer(item)}>
+                                                        {TrashCan}
+                                                    </button>
+                                            },
+                                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
+                                        ]}
+                                        tableClass="table table-hover"
+                                        tableStyle={{
+                                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                        }}
+                                        data={customerList}
+                                        sortKey={customerKey}
+                                        ascending={customerAsc}
+                                        onSort={(d) => {
+                                            if (d.colKey == 'btns' || d.colKey == 'scroll')
+                                                return;
+                                            if (d.colKey === customerKey)
+                                                setCustomerAsc(!customerAsc);
+                                            else {
+                                                setCustomerAsc(true);
+                                                setCustomerKey(d.colKey);
+                                            }
+                                        }}
+                                        onClick={() => { }}
+                                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        selected={() => false}
+                                    />
+                                </div>
+                            </div>
                     </div>
-                    <div className="col" style={{ width: '50%' }}>
-                        <button className="btn btn-primary pull-right" onClick={() => { setShowGroup(true); }}>Assign to Asset Groups</button>
-                        <h4 style={{ width: '100%', padding: '10px' }}>{"Asset Groups Assigned:"}</h4>
-                        <Table<CommonAssetGroupAssetMeter>
-                            cols={[
-                                { key: 'Name', field: 'Name', label: 'Asset Group', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'DisplayDashboard', field: 'DisplayDashboard', label: 'Show in PQ Dashboard', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }
-                            ]}
-                            tableClass="table table-hover"
-                            data={groupList}
-                            sortKey={groupKey}
-                            ascending={groupAsc}
-                            onSort={(d) => {
-                                if (d.colKey === groupKey)
-                                    setGroupAsc(!groupAsc);
-                                else {
-                                    setGroupAsc(true);
-                                    setGroupKey(d.colKey);
-                                }
-                            }}
-                            onClick={() => { }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
-                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={() => false}
-                        />
+                        <div className="col-6" style={{
+                            height: '100%', overflow: 'hidden',
+                            display: 'flex', flexDirection: 'column'
+                        }}>
+                            <div className={'row'}>
+                                <div className='col-6'>
+                                    <h4>
+                                        Asset Groups
+                                    </h4>
+                                </div>
+                                <div className='col-6'>
+                                    <button className="btn btn-primary pull-right"
+                                        onClick={() => { setShowGroup(true); }}>
+                                        Assign
+                                    </button>
+
+                                </div>
+                            </div>
+                            <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
+
+                               <Table<CommonAssetGroupAssetMeter>
+                                    cols={[
+                                        { key: 'Name', field: 'Name', label: 'Asset Group', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                        { key: 'DisplayDashboard', field: 'DisplayDashboard', label: 'Show in PQ Dashboard', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                        {
+                                                key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                                content: (item) => <button className="btn btn-sm"
+                                                    onClick={(e) => deleteGroup(item)}>
+                                                    {TrashCan}
+                                                </button>
+                                            },
+                                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
+
+                                    ]}
+                                    tableClass="table table-hover"
+                                    data={groupList}
+                                    sortKey={groupKey}
+                                    ascending={groupAsc}
+                                        onSort={(d) => {
+                                            if (d.colKey == 'btns' || d.colKey == 'scroll')
+                                                return;
+                                        if (d.colKey === groupKey)
+                                            setGroupAsc(!groupAsc);
+                                        else {
+                                            setGroupAsc(true);
+                                            setGroupKey(d.colKey);
+                                        }
+                                        }}
+                                        tableStyle={{
+                                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                        }}
+                                    onClick={() => { }}
+                                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                    selected={() => false}
+                                    />
+                                </div>
+                            </div>
                     </div>
                 </div>
                 <DefaultSelects.Customer
@@ -327,7 +437,8 @@ export default function CustomerAssetGroupPage(props: IProps) {
                     ]}
                     Title={"Assign to Asset Groups"}
                     GetEnum={() => { return () => { } }}
-                    GetAddlFields={() => { return () => { } }} />
+                        GetAddlFields={() => { return () => { } }} />
+            </div>
             </>
         );
 }

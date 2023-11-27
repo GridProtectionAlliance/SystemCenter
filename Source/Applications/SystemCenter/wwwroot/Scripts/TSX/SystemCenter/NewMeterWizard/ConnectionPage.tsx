@@ -274,33 +274,7 @@ export default function ConnectionPage(props: IProps) {
         <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
             <div className="col d-none d-lg-block">
                 <Table<IConnection>
-                    cols={[
-                        {
-                            key: 'AssetName', field: 'Asset', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: item => item.Asset.AssetName
-                        },
-                        {
-                            key: 'AssetKey', field: 'Asset', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: item => item.Asset.AssetKey
-                        },
-                        {
-                            key: 'AssetType', field: 'Asset', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: item => item.Asset.AssetType
-                        },
-                        {
-                            key: 'VoltageKV', field: 'Asset', label: 'Voltage (kV)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: item => item.Asset.VoltageKV
-                        },
-                        {
-                            key: 'btns', field: 'Asset', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: (item) => item.Asset.ID > 0 ? null :
-                                <button className="btn btn-sm"
-                                    onClick={(e) => deleteAssetConnection(item.Connection)}>
-                                    {TrashCan}
-                                </button>
-                        },
-                        { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
+                    cols={standardCols}
                     tableClass="table table-hover"
                     data={currentConnections}
                     sortKey={sortKey}

@@ -28,7 +28,8 @@ import { SystemCenter as SC } from '../global';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { orderBy } from 'lodash';
 import * as React from 'react';
-import { ConfigurableTable } from '@gpa-gemstone/react-interactive';
+import { ConfigTable } from '@gpa-gemstone/react-interactive';
+import { ReactTable } from '@gpa-gemstone/react-table'
 import Reason from './Reason';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -80,25 +81,18 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
             </div>
         </div>
         <div className="card-body">
-            <ConfigurableTable<SC.OpenMICDailyStatistic>
-                cols={[
-                    { key: 'Date', label: 'Date', field: 'Date', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'LastSuccessfulConnection', label: 'Last Succ Conn', field: 'LastSuccessfulConnection', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulConnection', label: 'Last Unsucc Conn', field: 'LastUnsuccessfulConnection', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulConnectionExplanation', label: 'Reason', field: 'LastUnsuccessfulConnectionExplanation', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} /> },
-                    { key: 'TotalConnections', label: 'Total Conn', field: 'TotalConnections', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'TotalUnsuccessfulConnections', label: 'Total Unsucc Conn', field: 'TotalUnsuccessfulConnections', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'TotalSuccessfulConnections', label: 'Total Succ Conn', field: 'TotalSuccessfulConnections', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
-                defaultColumns={["Date", "LastSuccessfulConnection", "LastUnsuccessfulConnection", "LastUnsuccessfulConnectionExplanation", "TotalConnections", "TotalUnsuccessfulConnections", "TotalSuccessfulConnections", "Scroll"]}
-                requiredColumns={["Date", "Scroll"]}
-                localStorageKey="OpenMICIssuesConfigTable"
-                tableClass="table table-hover"
-                data={data}
-                sortKey={sortField}
-                ascending={ascending}
-                onSort={(d) => {
+            <ConfigTable.Table<SC.OpenMICDailyStatistic>
+                LocalStorageKey="MiMDIssuesConfigTable"
+                TableClass="table table-hover"
+                Data={data}
+                SortKey={sortField}
+                Ascending={ascending}
+                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                TbodyStyle={{ display: 'block', overflowY: 'scroll' }}
+                RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
+                Selected={() => false}
+                KeySelector={(item) => item.ID}
+                OnSort={(d) => {
                     if (d.colField == sortField) {
                         setAscending(!ascending);
                     }
@@ -107,12 +101,85 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         setSortField(d.colField);
                     }
                 }}
-                onClick={() => window.open(`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/status.cshtml?Acronym=${props.OpenMICAcronym}`, '_blanks')}
-                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 425, width: '100%' }}
-                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                selected={() => false}
-            />
+            >
+                <ReactTable.Column<SC.OpenMICDailyStatistic>
+                    Key={'Date'}
+                    AllowSort={true}
+                    Field={'Date'}
+                    HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                    Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                    RowStyle={{ width: 'auto', textAlign: 'center' }}
+                >
+                    Date
+                </ReactTable.Column>
+                <ConfigTable.Configurable Key='LastSuccessfulConnection' Label='Last Succ Conn' Default={true}>
+                    <ReactTable.Column<SC.OpenMICDailyStatistic>
+                        Key={'LastSuccessfulConnection'}
+                        AllowSort={true}
+                        Field={'LastSuccessfulConnection'}
+                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Last Succ Conn
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='LastUnsuccessfulConnection' Label='Last Unsucc Conn' Default={true}>
+                    <ReactTable.Column<SC.OpenMICDailyStatistic>
+                        Key={'LastUnsuccessfulConnection'}
+                        AllowSort={true}
+                        Field={'LastUnsuccessfulConnection'}
+                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Last Unsucc Conn
+                    </ReactTable.Column>
+                    <ReactTable.Column<SC.OpenMICDailyStatistic>
+                        Key={'LastUnsuccessfulConnectionExplanation'}
+                        AllowSort={true}
+                        Field={'LastUnsuccessfulConnectionExplanation'}
+                        Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} /> }
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Reason
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='TotalConnections' Label='Total Conn' Default={true}>
+                    <ReactTable.Column<SC.OpenMICDailyStatistic>
+                        Key={'TotalConnections'}
+                        AllowSort={true}
+                        Field={'TotalConnections'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Total Conn
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='TotalSuccessfulConnections' Label='Total Succ Conn' Default={true}>
+                    <ReactTable.Column<SC.OpenMICDailyStatistic>
+                        Key={'TotalSuccessfulConnections'}
+                        AllowSort={true}
+                        Field={'TotalSuccessfulConnections'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Total Succ Conn
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='TotalUnsuccessfulConnections' Label='Total Unsucc Conn' Default={true}>
+                    <ReactTable.Column<SC.OpenMICDailyStatistic>
+                        Key={'TotalUnsuccessfulConnections'}
+                        AllowSort={true}
+                        Field={'TotalUnsuccessfulConnections'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Total Unsucc Conn
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+            </ConfigTable.Table>
         </div>
         <div className="card-footer">
         </div>

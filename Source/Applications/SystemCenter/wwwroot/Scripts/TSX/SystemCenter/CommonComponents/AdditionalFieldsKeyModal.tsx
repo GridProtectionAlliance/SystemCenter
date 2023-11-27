@@ -24,8 +24,9 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
-import { FilterableTable, LoadingIcon, Modal, ServerErrorIcon, Search } from '@gpa-gemstone/react-interactive';
-import Table, { SearchableTable } from '@gpa-gemstone/react-table';
+import { LoadingIcon, Modal, ServerErrorIcon, Search } from '@gpa-gemstone/react-interactive';
+import { result } from 'lodash';
+import ResultDisplay from '../ExternalDB/TableTesting/ResultDisplay';
 
 declare var homePath: string;
 
@@ -36,113 +37,62 @@ interface IProps {
     SetShow: (show: boolean) => void,
 }
 
+
 function AdditionalFieldsKeyModal(props: IProps): JSX.Element {
-    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
-    const [externalData, setExternalData] = React.useState<any[]>(undefined);
     const [selectedExternal, setSelectedExternal] = React.useState<any>(undefined);
-    const [ascExt, setAscExt] = React.useState<boolean>(false);
-    const [sortExt, setSortExt] = React.useState<string>("");
 
-    React.useEffect(() => {
-        if (props.Show)
-            setStatus('unintiated');
-    }, [props.Show]);
-
-    React.useEffect(() => {
-        if (props.Show && status === 'unintiated' || status === 'changed') {
-            const handle = getExternalData();
-            // ToDo: Cleanup function running unexecptedly before component close
-            // return (() => { if (handle != null && handle.abort != null) handle.abort(); });
-        }
-    }, [props.Show, status]);
-
-    React.useEffect(() => {
-        setExternalData(_.orderBy(externalData, [sortExt], [ascExt ? 'asc' : 'desc']));
-    }, [ascExt, sortExt]);
-
-    const getExternalData = React.useCallback(() => {
-        if (props.KeyField?.ExternalDBTableID == null) {
-            setStatus('error');
-            return;
-        };
-        setStatus('loading');
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/extDBTables/RetrieveTable/${props.KeyField.ExternalDBTableID}`,
+    const [dataStatus, setDataStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [countStatus, setCountStatus] = React.useState<Application.Types.Status>('unintiated');
+    
+    const getData = (start: number, end: number, filters: Search.IFilter<any>[], orderBy: string, asc: boolean) => {
+        setDataStatus('loading');
+        const handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/SystemCenter/extDBTables/RetrieveTable/${props.KeyField?.ExternalDBTableID ?? null}/${start}/${end}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
+            data: JSON.stringify({ Ascending: asc, OrderBy: orderBy, Searches: filters }),
             cache: true,
             async: true
-        }).done((extData: any[]) => {
-            if (extData != null && extData.length !== 0) {
-                setStatus('idle');
-                setExternalData(extData);
-            } else
-                setStatus('error');
-        });
-        handle.fail(() => {
-            setStatus('error');
-        });
+        })
+            .done((d) => { setDataStatus('idle'); return d }).fail((d) => { setDataStatus('error') });
+
+        return handle
+    };
+
+    const getCount = (filters: Search.IFilter<any>[]) => {
+        setCountStatus('loading');
+        const handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/SystemCenter/extDBTables/RetrieveTableCount/${props.KeyField.ExternalDBTableID}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify({ Ascending: false, OrderBy: '', Searches: filters }),
+            cache: true,
+            async: true
+        }).done((d) => { setCountStatus('idle'); return d }).fail((d) => { setCountStatus('error') })
         return handle;
-    }, [homePath, setStatus, setExternalData, props.KeyField]);
-
-    const searchTable = React.useCallback((item, search) => {
-        if (props.KeyField?.FieldName == null) return true;
-        return item[props.KeyField.FieldName].match(search);
-    }, [props.KeyField]);
-
-    const getModalInner = React.useCallback(() => {
-        switch (status) {
-            case 'error':
-                return (
-                    <div style={{ width: '100%', height: '200px' }}>
-                        <div style={{ height: '40px', marginLeft: 'auto', marginRight: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                            <ServerErrorIcon Show={true} Size={40}
-                                Label={'Could not query external database table associated with this field. Please contact your administrator.'} />
-                        </div>
-                    </div>);
-            default: case 'loading':
-                return (
-                    <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
-                        <div style={{ height: '40px', width: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                            <LoadingIcon Show={true} Size={40} />
-                        </div>
-                    </div>);
-            case 'idle':
-                if (externalData == null || externalData.length === 0) return null;
-                return (
-                    <SearchableTable<any>
-                        cols={
-                            Object.keys(externalData[0]).map((field: string) => {
-                                return { key: field, field: field, label: field }
-                            })}
-                        tableClass="table table-hover"
-                        data={externalData}
-                        sortKey={sortExt}
-                        ascending={ascExt}
-                        matchSearch={searchTable}
-                        onSort={(d) => {
-                            if (d.colKey === sortExt)
-                                setAscExt(!ascExt);
-                            else {
-                                setAscExt(true);
-                                setSortExt(d.colKey);
-                            }
-                        }}
-                        onClick={(d) => { setSelectedExternal(d.row); }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
-                        tbodyStyle={{ display: 'block', width: '100%', overflowX: 'scroll' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
-                        selected={(item) => _.isEqual(item, selectedExternal) } />);
-        }
-    }, [status, externalData, setSelectedExternal, selectedExternal, sortExt, ascExt, searchTable]);
-
+    };
+  
+    let title = `Select Key Field Value for ${props.KeyField?.FieldName}`;
     return (
-        <Modal Title={status !== 'error' ? `Select Key Field Value for ${props.KeyField?.FieldName}` : "External Query Failure"} ShowCancel={status !== 'error'} ShowX={true} CallBack={(conf) => {
-            props.SetShow(false);
-            if (conf) props.SetKeyFieldValue(selectedExternal[props.KeyField.FieldName]);
-        }} Show={props.Show} Size={'xlg'} ConfirmBtnClass={status !== 'error' ? undefined : 'btn btn-secondary'} ConfirmText={status !== 'error' ? 'Select' : 'Close'}>
-            {getModalInner()}
+        <Modal
+            Title={title}
+            ShowCancel={false}
+            ShowX={true}
+            CallBack={(conf) => {
+                props.SetShow(false);
+                if (conf)
+                    props.SetKeyFieldValue(selectedExternal[props.KeyField.FieldName]);
+            }}
+            Show={props.Show}
+            Size={'xlg'}
+            ConfirmBtnClass={countStatus === 'error' || dataStatus === 'error' ? 'btn btn-danger' : 'btn btn-primary'}
+            DisableConfirm={selectedExternal === undefined}
+            ConfirmText={countStatus === 'error' || dataStatus === 'error' ? 'Close' : 'Select'}
+            BodyStyle={{ maxHeight: 'calc(100vh - 210px)', display: 'flex', flexDirection: 'column' }}
+        >
+                <ResultDisplay GetCount={getCount} GetTable={getData} Selected={(item) => _.isEqual(item, selectedExternal)} OnSelection={setSelectedExternal} ForceReload={props.Show} />
         </Modal>
     );
 }

@@ -28,7 +28,8 @@ import { SystemCenter as SC } from '../global';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { orderBy } from 'lodash';
 import * as React from 'react';
-import { ConfigurableTable } from '@gpa-gemstone/react-interactive';
+import { ConfigTable } from '@gpa-gemstone/react-interactive';
+import { ReactTable } from '@gpa-gemstone/react-table'
 import Reason from './Reason';
 import moment from 'moment';
 
@@ -62,33 +63,18 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             </div>
         </div>
         <div className="card-body">
-            <ConfigurableTable<SC.OpenXDADailyStatistic>
-                cols={[
-                    { key: 'Date', label: 'Date', field: 'Date', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'LastSuccessfulFileProcessed', label: 'Last Succ', field: 'LastSuccessfulFileProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulFileProcessed', label: 'Last Unsucc', field: 'LastUnsuccessfulFileProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : '' },
-                    { key: 'LastUnsuccessfulFileProcessedExplanation', label: 'Reason', field: 'LastUnsuccessfulFileProcessedExplanation', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''}/> },
-                    { key: 'TotalFilesProcessed', label: 'Total', field: 'TotalFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'TotalSuccessfulFilesProcessed', label: 'Tot Succ', field: 'TotalSuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'TotalUnsuccessfulFilesProcessed', label: 'Tot Unsucc', field: 'TotalUnsuccessfulFilesProcessed', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'TotalEmailsSent', label: 'Tot Emails Sent', field: 'TotalEmailsSent', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' } },
-                    { key: 'AverageDownloadLatency', label: 'Avg Dnld Lat', field: 'AverageDownloadLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
-                    { key: 'AverageProcessingStartLatency', label: 'Avg Proc Start Lat', field: 'AverageProcessingStartLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
-                    { key: 'AverageProcessingEndLatency', label: 'Avg Proc End Lat', field: 'AverageProcessingEndLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
-                    { key: 'AverageEmailLatency', label: 'Avg Email Lat', field: 'AverageEmailLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''  },
-                    { key: 'AverageTotalProcessingLatency', label: 'Avg Tot Proc Lat', field: 'AverageTotalProcessingLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''  },
-                    { key: 'AverageTotalEmailLatency', label: 'Avg Tot Email Lat', field: 'AverageTotalEmailLatency', headerStyle: { width: 'auto', textAlign: 'center' }, rowStyle: { width: 'auto', textAlign: 'center' }, content: (item, key, field, style) => item[field] != undefined ? (item[field] as number).toFixed(2) : '' },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-
-                ]}
-                defaultColumns={["Date", "LastSuccessfulFileProcessed", "LastUnsuccessfulFileProcessed", "LastUnsuccessfulFileProcessedExplanation", "TotalFilesProcessed", "TotalSuccessfulFilesProcessed", "TotalUnsuccessfulFilesProcessed", "TotalEmailsSent", "AverageDownloadLatency", "AverageProcessingStartLatency", "AverageProcessingEndLatency", "AverageEmailLatency", "AverageTotalProcessingLatency", "AverageTotalEmailLatency", "Scroll"]}
-                requiredColumns={["Date", "Scroll"]}
-                localStorageKey="XDAIssuesConfigTable"
-                tableClass="table table-hover"
-                data={data}
-                sortKey={sortField}
-                ascending={ascending}
-                onSort={(d) => {
+            <ConfigTable.Table<SC.OpenXDADailyStatistic>
+                LocalStorageKey="MiMDIssuesConfigTable"
+                TableClass="table table-hover"
+                Data={data}
+                SortKey={sortField}
+                Ascending={ascending}
+                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                TbodyStyle={{ display: 'block', overflowY: 'scroll' }}
+                RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
+                Selected={() => false}
+                KeySelector={(item) => item.ID}
+                OnSort={(d) => {
                     if (d.colField == sortField) {
                         setAscending(!ascending);
                     }
@@ -97,13 +83,170 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         setSortField(d.colField);
                     }
                 }}
-                onClick={() => { }}
-                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 425, width: '100%' }}
-                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                selected={() => false}
-            />
+            >
+                <ReactTable.Column<SC.OpenXDADailyStatistic>
+                    Key={'Date'}
+                    AllowSort={true}
+                    Field={'Date'}
+                    HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                    Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                    RowStyle={{ width: 'auto', textAlign: 'center' }}
+                >
+                    Date
+                </ReactTable.Column>
+                <ConfigTable.Configurable Key='LastSuccessfulFileProcessed' Label='Last Succ' Default={true}>
+                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                        Key={'LastSuccessfulFileProcessed'}
+                        AllowSort={true}
+                        Field={'LastSuccessfulFileProcessed'}
+                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Last Succ
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='LastUnsuccessfulFileProcessed' Label='Last Unsucc' Default={true}>
+                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                        Key={'LastUnsuccessfulFileProcessed'}
+                        AllowSort={true}
+                        Field={'LastUnsuccessfulFileProcessed'}
+                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Last Unsucc
+                    </ReactTable.Column>
+                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                        Key={'LastUnsuccessfulFileProcessedExplanation'}
+                        AllowSort={true}
+                        Field={'LastUnsuccessfulFileProcessedExplanation'}
+                        Content={({ item, field }) => <Reason ID={item.ID} Text={item[field]?.toString() ?? ''} />}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Reason
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='TotalFilesProcessed' Label='Total' Default={true}>
+                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                        Key={'TotalFilesProcessed'}
+                        AllowSort={true}
+                        Field={'TotalFilesProcessed'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Total
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='TotalSuccessfulFilesProcessed' Label='Total Succ' Default={true}>
+                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                        Key={'TotalSuccessfulFilesProcessed'}
+                        AllowSort={true}
+                        Field={'TotalSuccessfulFilesProcessed'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Total Succ
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='TotalUnsuccessfulFilesProcessed' Label='Total Unsucc' Default={true}>
+                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                        Key={'TotalUnsuccessfulFilesProcessed'}
+                        AllowSort={true}
+                        Field={'TotalUnsuccessfulFilesProcessed'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Total Unsucc
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='TotalEmailsSent' Label='Tot Emails Sent' Default={true}>
+                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                        Key={'TotalEmailsSent'}
+                        AllowSort={true}
+                        Field={'TotalEmailsSent'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                    >
+                        Tot Emails Sent
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
 
+                <ConfigTable.Configurable Key='AverageDownloadLatency' Label='Avg Dnld Lat' Default={true}>
+                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                        Key={'AverageDownloadLatency'}
+                        AllowSort={true}
+                        Field={'AverageDownloadLatency'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
+                    >
+                        Avg Dnld Lat
+                    </ReactTable.Column>
+                </ConfigTable.Configurable>
+                <ConfigTable.Configurable Key='AverageProcessingStartLatency' Label='Avg Proc Start Lat' Default={true}>
+                    <ReactTable.Column<SC.OpenXDADailyStatistic>
+                        Key={'AverageProcessingStartLatency'}
+                        AllowSort={true}
+                        Field={'AverageProcessingStartLatency'}
+                        HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                        RowStyle={{ width: 'auto', textAlign: 'center' }}
+                        Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
+                    >
+                        Avg Proc Start Lat
+                    </ReactTable.Column>
+                    <ConfigTable.Configurable Key='AverageProcessingEndLatency' Label='Avg Proc End Lat' Default={true}>
+                        <ReactTable.Column<SC.OpenXDADailyStatistic>
+                            Key={'AverageProcessingEndLatency'}
+                            AllowSort={true}
+                            Field={'AverageProcessingEndLatency'}
+                            HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                            RowStyle={{ width: 'auto', textAlign: 'center' }}
+                            Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
+                        >
+                            Avg Proc End Lat
+                        </ReactTable.Column>
+                    </ConfigTable.Configurable>
+                    <ConfigTable.Configurable Key='AverageEmailLatency' Label='Avg Email Lat' Default={true}>
+                        <ReactTable.Column<SC.OpenXDADailyStatistic>
+                            Key={'AverageEmailLatency'}
+                            AllowSort={true}
+                            Field={'AverageEmailLatency'}
+                            HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                            RowStyle={{ width: 'auto', textAlign: 'center' }}
+                            Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
+                        >
+                            Avg Email Lat
+                        </ReactTable.Column>
+                    </ConfigTable.Configurable>
+                    <ConfigTable.Configurable Key='AverageTotalProcessingLatency' Label='Avg Tot Proc Lat' Default={true}>
+                        <ReactTable.Column<SC.OpenXDADailyStatistic>
+                            Key={'AverageTotalProcessingLatency'}
+                            AllowSort={true}
+                            Field={'AverageTotalProcessingLatency'}
+                            HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                            RowStyle={{ width: 'auto', textAlign: 'center' }}
+                            Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
+                        >
+                            Avg Tot Proc Lat
+                        </ReactTable.Column>
+                        <ConfigTable.Configurable Key='AverageTotalEmailLatency' Label='Avg Tot Email Lat' Default={true}>
+                            <ReactTable.Column<SC.OpenXDADailyStatistic>
+                                Key={'AverageTotalEmailLatency'}
+                                AllowSort={true}
+                                Field={'AverageTotalEmailLatency'}
+                                HeaderStyle={{ width: 'auto', textAlign: 'center' }}
+                                RowStyle={{ width: 'auto', textAlign: 'center' }}
+                                Content={({ item, field }) => item[field] != undefined ? (item[field] as number).toFixed(2) : ''}
+                            >
+                                Avg Tot Email Lat
+                            </ReactTable.Column>
+                        </ConfigTable.Configurable>
+
+                    </ConfigTable.Configurable>
+                </ConfigTable.Configurable>
+            </ConfigTable.Table>
         </div>
         <div className="card-footer">
         </div>

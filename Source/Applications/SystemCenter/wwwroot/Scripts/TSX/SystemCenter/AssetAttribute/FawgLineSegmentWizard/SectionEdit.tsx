@@ -26,10 +26,12 @@ import * as _ from 'lodash';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Input } from '@gpa-gemstone/react-forms';
 import { ISection, ISegment } from './Types';
-import { ConfigurableTable } from '@gpa-gemstone/react-interactive';
+import { ConfigTable } from '@gpa-gemstone/react-interactive';
+import { ReactTable  } from '@gpa-gemstone/react-table'
 import { WarningWTooltip } from './Common';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { config } from 'process';
 
 declare var homePath: string;
 interface IProps {
@@ -198,99 +200,190 @@ function SectionEdit(props: IProps): JSX.Element {
             <div className="row">
                 <div className="col">
                     <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                        <ConfigurableTable<ISegment>
-                            cols={[{
-                                field: "AssetName", key: "AssetName", label: "Segment",
-                                content: (item, key, fld, style, index) => <Input<ISegment> Record={item} Field={'AssetName'} Label={''} Feedback={'A Name of less than 200 characters is required.'} Valid={(fld) => valid(item,fld)} Setter={(r) => updateSegment(r, index)} />
-                            },
-                                {
-                                    key: 'Warning',
-                                    label: ' ',
-                                    headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    content: (item) => DisplayWarning(item)
-                                },
-                                {
-                                    field: "FromBus", key: "FromBus", label: "From Bus",
-                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'FromBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={index == 0} />
-                                },
-                                {
-                                    field: "ToBus", key: "ToBus", label: "To Bus", content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'ToBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={true} />
-                                },
-                                {
-                                    field: "Length", key: "Length", label: "Length (mi)",
-                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'Length'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
-                                },
-                                {
-                                    field: "ID", key: "Z0", label: "Z0 (Ohm)",
-                                    content: (item) => computeImpedances(item).Z0.toFixed(2)
-                                },
-                                {
-                                    field: "ID", key: "A0", label: "<Z0 (deg)",
-                                    content: (item) => computeImpedances(item).A0.toFixed(2)
-                                },
-                                {
-                                    field: "ID", key: "R0", label: "R0 (Ohm)",
-                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'R0'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
-                                },
-                                {
-                                    field: "ID", key: "X0", label: "X0 (Ohm)",
-                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'X0'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
-                                },
-                                {
-                                    field: "ID", key: "Z1", label: "Z1 (Ohm)",
-                                    content: (item) => computeImpedances(item).Z1.toFixed(2)
-                                },
-                                {
-                                    field: "ID", key: "A1", label: "<Z1 (deg)",
-                                    content: (item) => computeImpedances(item).A1.toFixed(2)
-                                },
-                                {
-                                    field: "ID", key: "R1", label: "R1 (Ohm)",
-                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'R1'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
-                                },
-                                {
-                                    field: "ID", key: "X1", label: "X1 (Ohm)",
-                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'X1'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />
-                                },
-                                {
-                                    field: "ID", key: "Zs", label: "Zs (Ohm)",
-                                    content: (item) => computeImpedances(item).Zs.toFixed(2)
-                                },
-                                {
-                                    field: "ID", key: "As",
-                                    label: "<Zs (deg)", content: (item) => computeImpedances(item).As.toFixed(2)
-                                },
-                                {
-                                    field: "ID", key: "Rs", label: "Rs (Ohm)",
-                                    content: (item) => computeImpedances(item).Rs.toFixed(2)
-                                },
-                                {
-                                    field: "ID", key: "Xs", label: "Xs (Ohm)",
-                                    content: (item) => computeImpedances(item).Xs.toFixed(2)
-                                },
-                                {
-                                    field: "ThermalRating", key: "ThermalRating", label: "Thermal Rating (MVA)",
-                                    content: (item, key, fld, style, index) => <Input<ISegment> Label={''} Record={item} Field={'ThermalRating'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={() => true} />
-                                },
-                                {
-                                    field: "ID", key: "btns", label: " ",
-                                    content: (item, key, fld, style, index) => <button className="btn btn-sm" onClick={(e) => RemoveSegment(index)}><span>{TrashCan}</span></button>
-                                }
-                            ]}
-                            tableClass="table table-hover"
-                            data={props.Section.Segments}
-                            sortKey={''}
-                            ascending={false}
-                            onSort={(d) => {}}
-                            onClick={(item) => { } }
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll' }}
-                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
-                            selected={(item) => false}
-                            requiredColumns={["Warning","btns","AssetKey"]}
-                            defaultColumns={["R0","X0","R1","X1","Length"]}
-                        />
+                        <ConfigTable.Table<ISegment>
+                            TableClass="table table-hover"
+                            Data={props.Section.Segments}
+                            SortKey={''}
+                            Ascending={false}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll' }}
+                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: 'calc(100%)' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.AssetKey}
+                            OnSort={() => { }}
+                        >
+                            <ConfigTable.Configurable Key='AssetName' Label='Segment' Default={false}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'AssetName'}
+                                    AllowSort={false}
+                                    Field={'AssetName'}
+                                    Content={({ item, index }) => <Input<ISegment> Record={item} Field={'AssetName'} Label={''} Feedback={'A Name of less than 200 characters is required.'} Valid={(fld) => valid(item, fld)} Setter={(r) => updateSegment(r, index)} /> }
+                                    HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                                    RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                                >
+                                    Segment
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+                            <ReactTable.Column<ISegment>
+                                Key={'Warning'}
+                                AllowSort={false}
+                                Content={({ item }) => DisplayWarning(item)}
+                                HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                                RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                            >
+                                <p></p>
+                            </ReactTable.Column>
+                            <ConfigTable.Configurable Key='FromBus' Label='From Bus' Default={false}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'FromBus'}
+                                    AllowSort={false}
+                                    Field={'FromBus'}
+                                    Content={({ item, index }) => <Input<ISegment> Label={''} Record={item} Field={'FromBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={true} />}
+                                >
+                                    From Bus
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+                            <ConfigTable.Configurable Key='ToBus' Label='To Bus' Default={false}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'ToBus'}
+                                    AllowSort={false}
+                                    Field={'ToBus'}
+                                    Content={({ item, index }) => <Input<ISegment> Label={''} Record={item} Field={'ToBus'} Type={'text'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} Disabled={true} />}
+                                >
+                                    To Bus
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+                            <ConfigTable.Configurable Key='Length' Label='Length' Default={true}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'Length'}
+                                    AllowSort={false}
+                                    Field={'Length'}
+                                    Content={({ item, index }) => <Input<ISegment> Label={''} Record={item} Field={'Length'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />}
+                                >
+                                    Length (mi)
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+                            <ConfigTable.Configurable Key='Z0' Label='Z0' Default={false}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'Z0'}
+                                    AllowSort={false}
+                                    Content={({ item }) => computeImpedances(item).Z0.toFixed(2)}
+                                >
+                                    Z0 (Ohm)
+                                </ReactTable.Column>
+                                <ReactTable.Column<ISegment>
+                                    Key={'A0'}
+                                    AllowSort={false}
+                                    Content={({ item }) => computeImpedances(item).A0.toFixed(2)}
+                                >
+                                    {"<Z0 (deg)"}
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+                            <ConfigTable.Configurable Key='R0' Label='R0' Default={true}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'R0'}
+                                    AllowSort={false}
+                                    Content={({ item, index }) => <Input<ISegment> Label={''} Record={item} Field={'R0'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />}
+                                >
+                                    R0 (Ohm)
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+                            <ConfigTable.Configurable Key='X0' Label='X0' Default={true}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'X0'}
+                                    AllowSort={false}
+                                    Content={({ item, index }) => <Input<ISegment> Label={''} Record={item} Field={'X0'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />}
+                                >
+                                    X0 (Ohm)
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+
+                            <ConfigTable.Configurable Key='Z1' Label='Z1' Default={false}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'Z1'}
+                                    AllowSort={false}
+                                    Content={({ item }) => computeImpedances(item).Z1.toFixed(2)}
+                                >
+                                    Z1 (Ohm)
+                                </ReactTable.Column>
+                                <ReactTable.Column<ISegment>
+                                    Key={'A1'}
+                                    AllowSort={false}
+                                    Content={({ item }) => computeImpedances(item).A1.toFixed(2)}
+                                >
+                                    {"<Z1 (deg)"}
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+                            <ConfigTable.Configurable Key='R1' Label='R1' Default={true}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'R1'}
+                                    AllowSort={false}
+                                    Content={({ item, index }) => <Input<ISegment> Label={''} Record={item} Field={'R1'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />}
+                                >
+                                    R1 (Ohm)
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+                            <ConfigTable.Configurable Key='X1' Label='X1' Default={true}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'X1'}
+                                    AllowSort={false}
+                                    Content={({ item, index }) => <Input<ISegment> Label={''} Record={item} Field={'X1'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={(fld) => valid(item, fld)} />}
+                                >
+                                    X1 (Ohm)
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+
+                            <ConfigTable.Configurable Key='Zs' Label='Zs' Default={false}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'Zs'}
+                                    AllowSort={false}
+                                    Content={({ item }) => computeImpedances(item).Zs.toFixed(2)}
+                                >
+                                    Zs (Ohm)
+                                </ReactTable.Column>
+                                <ReactTable.Column<ISegment>
+                                    Key={'As'}
+                                    AllowSort={false}
+                                    Content={({ item }) => computeImpedances(item).As.toFixed(2)}
+                                >
+                                    {"<Zs (deg)"}
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+                            <ConfigTable.Configurable Key='Rs' Label='Rs' Default={false}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'Rs'}
+                                    AllowSort={false}
+                                    Content={({ item }) => computeImpedances(item).Rs.toFixed(2)}
+                                >
+                                    Rs (Ohm)
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+                            <ConfigTable.Configurable Key='Xs' Label='Xs' Default={false}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'Xs'}
+                                    AllowSort={false}
+                                    Content={({ item }) => computeImpedances(item).Xs.toFixed(2)}
+                                >
+                                    Xs (Ohm)
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+                            <ConfigTable.Configurable Key='ThermalRating' Label='Thermal Rating' Default={false}>
+                                <ReactTable.Column<ISegment>
+                                    Key={'ThermalRating'}
+                                    AllowSort={false}
+                                    Content={({ item, index }) => <Input<ISegment> Label={''} Record={item} Field={'ThermalRating'} Type={'number'} Setter={(r) => updateSegment(r, index)} Valid={() => true} />}
+                                >
+                                    ThermalRating (MVA)
+                                </ReactTable.Column>
+                            </ConfigTable.Configurable>
+                            <ReactTable.Column<ISegment>
+                                Key={'btns'}
+                                AllowSort={false}
+                                Content={({ index }) => <button className="btn btn-sm" onClick={(e) => RemoveSegment(index)}><span>{TrashCan}</span></button>}
+                            >
+                                <p></p>
+                            </ReactTable.Column>
+                        </ConfigTable.Table>
                     </div>
                 </div>
             </div>

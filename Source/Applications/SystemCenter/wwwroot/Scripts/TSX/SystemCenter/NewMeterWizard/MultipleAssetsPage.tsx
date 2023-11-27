@@ -145,7 +145,7 @@ const MultipleAssetsPage: React.FC<IProps> = (props) => {
                                 theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                                 tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
                                 rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                selected={(item) => (item.ID === currentAsset?.ID)}
+                                selected={(item) => (item.ID === currentAsset?.ID && item.AssetKey === currentAsset?.AssetKey)}
                             />
                         </div>
                     </div>

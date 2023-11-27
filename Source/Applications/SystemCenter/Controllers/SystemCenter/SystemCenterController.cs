@@ -37,6 +37,7 @@ using SEBrowser.Model;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Linq;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -469,6 +470,34 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
+
+        public override IHttpActionResult Delete(openXDA.Model.MeterAssetGroupView record)
+        {
+            try
+            {
+                if (DeleteAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        int id = record.ID;
+                        int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete MeterAssetGroup, 'ID = {id}'");
+                        return Ok(result);
+
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 
     [RoutePrefix("api/SystemCenter/AssetGroupAsset")]
@@ -496,6 +525,34 @@ namespace SystemCenter.Controllers
                         }
 
                         return Ok(result);
+                    }
+                }
+                else
+                {
+                    return Unauthorized();
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Delete(openXDA.Model.AssetAssetGroupView record)
+        {
+            try
+            {
+                if (DeleteAuthCheck())
+                {
+
+                    using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                    {
+
+                        int id = record.ID;
+                        int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete AssetAssetGroup, 'ID = {id}'");
+                        return Ok(result);
+
                     }
                 }
                 else
@@ -1549,26 +1606,68 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/extDBTables")]
     public class ExternalTableController : ModelController<extDBTables>
     {
-        [HttpGet, Route("RetrieveTable/{extTableID:int}")]
-        public IHttpActionResult RetrieveTableByID(int extTableID)
+        [HttpGet, Route("RetrieveTable/{extTableID:int}/{orderBy}/{ascending:int?}/{start:int?}/{end:int?}")]
+        public IHttpActionResult RetrieveTableByID(int extTableID, string orderBy=null, int? ascending=null, int? start=null, int? end=null)
         {
             if (!GetAuthCheck())
                 return Unauthorized();
-            try
+            
+            bool asc = ascending > 0;
+
+            using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
             {
-                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
-                {
-                    extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
-                    return Ok(QueryExternal(table, xdaConnection));
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
+                extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
+                return Ok(QueryExternal(table, xdaConnection, new Search[0], orderBy, asc, start, end));
             }
         }
-        [HttpPost, Route("RetrieveTable")]
-        public IHttpActionResult RetrieveTable([FromBody] JObject record)
+
+        [HttpPost, Route("RetrieveTable/{extTableID:int}/{start:int}/{end:int}")]
+        public IHttpActionResult RetrieveFilteredTableByID(int extTableID, int start, int end, [FromBody] PostData postData)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+            {
+                extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
+                return Ok(QueryExternal(table, xdaConnection, postData.Searches, postData.OrderBy, postData.Ascending, start, end));
+            }
+        }
+
+
+        [HttpGet, Route("RetrieveTableCount/{extTableID:int}")]
+        public IHttpActionResult RetrieveTableCount(int extTableID)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+            {
+                extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
+                return Ok(QueryExternalCount(table, xdaConnection, new Search[0]));
+            }            
+        }
+
+        [HttpPost, Route("RetrieveTableCount/{extTableID:int}")]
+        public IHttpActionResult RetrieveFilteredTableCount(int extTableID, [FromBody] PostData postData)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+
+            using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+            {
+                extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
+                return Ok(QueryExternalCount(table, xdaConnection, postData.Searches.ToArray()));
+            }
+        }
+
+
+        public class PostDataExtension: PostData
+        {
+            public extDBTables externalTable { get; set; }
+        }
+        [HttpPost, Route("RetrieveTempTable/{start:int}/{end:int}")]
+        public IHttpActionResult RetrieveTable([FromBody] PostDataExtension record, int start, int end)
         {
             if (!PostAuthCheck())
                 return Unauthorized();
@@ -1576,8 +1675,7 @@ namespace SystemCenter.Controllers
             {
                 using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
                 {
-                    extDBTables table = record.ToObject<extDBTables>();
-                    return Ok(QueryExternal(table, xdaConnection));
+                    return Ok(QueryExternal(record.externalTable, xdaConnection, record.Searches, record.OrderBy, record.Ascending, start, end));
                 }
             }
             catch (Exception ex)
@@ -1585,14 +1683,60 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
-        private DataTable QueryExternal(extDBTables table, AdoDataConnection xdaConnection)
+        [HttpPost, Route("RetrieveTableCount")]
+        public IHttpActionResult RetrieveTableCount([FromBody] PostDataExtension record)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
+                {
+                    return Ok(QueryExternalCount(record.externalTable, xdaConnection, record.Searches));
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        private DataTable QueryExternal(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<Search> filters, string orderBy=null, bool asc=true, int? start=null, int? end=null)
+        {
+            int count = -1;
+            if (!(start is null) && !(end is null) )
+                count = (end ?? 0) - (start ?? 0);
+
+            ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
+            if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
+            using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
+                return ScheduledExtDBTask.RetrieveDataTable(table, extConnection, filters.Select(f => ProcessExternalFilter(extConnection, f)).ToArray(), orderBy,asc,(start ?? 1)-1, count);
+        }
+
+        private int QueryExternalCount(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<Search> filters)
         {
             ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
             if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
             using (AdoDataConnection extConnection = ScheduledExtDBTask.GetExternalConnection(extDB))
-                return ScheduledExtDBTask.RetrieveDataTable(table, extConnection);
+                return ScheduledExtDBTask.RetrieveDataCount(table, extConnection, filters.Select(f => ProcessExternalFilter(extConnection,f)).ToArray());
         }
+
+        private Condition ProcessExternalFilter(AdoDataConnection connection, Search search)
+        {
+            string fieldName = search.FieldName;
+            if (connection.IsOracle)
+                fieldName = $"\"{fieldName}\"";
+            if (connection.IsSQLServer)
+                fieldName = $"[{fieldName}]";
+            return new Condition()
+            {
+                Parameter = search.SearchText.Replace("*","%"),
+                SQL = $"{fieldName} {search.Operator} {{0}}"
+            };
+        }
+
     }
+
 
     [RoutePrefix("api/SEbrowser/Widget")]
     public class SEBrowserWidgetController : ModelController<SEBrowser.Model.Widget> {}
