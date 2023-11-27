@@ -1601,11 +1601,92 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
+
+        [HttpGet, Route("GetExternalDatabases/{parentTable}")]
+        public IHttpActionResult GetExternalDatabases(string parentTable)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using(AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    IEnumerable<ExternalDatabases> extDBs = new TableOperations<ExternalDatabases>(connection).QueryRecordsWhere(@"
+                        ID in (
+                            SELECT DISTINCT ExternalDatabases.ID
+                            FROM AdditionalField INNER JOIN 
+                            extDBTables ON AdditionalField.ExternalDBTableID = extDBTables.ID INNER JOIN 
+                            ExternalDatabases ON extDBTables.ExtDBID = ExternalDatabases.ID 
+                            WHERE AdditionalField.ParentTable = {0})", parentTable);
+                    return Ok(extDBs);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 
     [RoutePrefix("api/SystemCenter/extDBTables")]
     public class ExternalTableController : ModelController<extDBTables>
     {
+
+        public override IHttpActionResult Post([FromBody] JObject record)
+        {
+            if (!PostAuthCheck() || ViewOnly)
+                return Unauthorized();
+
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    extDBTables newRecord = record.ToObject<extDBTables>();
+                    int result = new TableOperations<extDBTables>(connection).AddNewRecord(newRecord);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Patch([FromBody] extDBTables record)
+        {
+            if (!PatchAuthCheck() || ViewOnly)
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    int result = new TableOperations<extDBTables>(connection).UpdateRecord(record);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        public override IHttpActionResult Delete([FromBody] extDBTables record)
+        {
+            if (!DeleteAuthCheck() || ViewOnly)
+                return Unauthorized();
+            try
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    int result = new TableOperations<extDBTables>(connection).DeleteRecord(record);
+                    return Ok(result);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
         [HttpGet, Route("RetrieveTable/{extTableID:int}/{orderBy}/{ascending:int?}/{start:int?}/{end:int?}")]
         public IHttpActionResult RetrieveTableByID(int extTableID, string orderBy=null, int? ascending=null, int? start=null, int? end=null)
         {
