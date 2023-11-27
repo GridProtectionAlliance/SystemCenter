@@ -766,39 +766,6 @@ namespace SystemCenter.Controllers.OpenXDA
             }
         }
 
-        [HttpGet, Route("extDataBases")]
-        public IHttpActionResult GetExternalDB()
-        {
-            try
-            {
-                if (GetRoles == string.Empty || User.IsInRole(GetRoles))
-
-                    using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-                    {
-                        string query = @"SELECT MIN(UpdatedOn) AS lastUpdate, AdditionalField.ExternalDB AS name  
-                                                    FROM 
-                                                    AdditionalField LEFT JOIN AdditionalFieldValue ON AdditionalField.ID = AdditionalFieldValue.AdditionalFieldID
-                                                    WHERE 
-                                                        (AdditionalField.ParentTable = 'LineSegment' OR  AdditionalField.ParentTable = 'Line' OR
-                                                        AdditionalField.ParentTable = 'Bus' OR  AdditionalField.ParentTable = 'Transformer' OR
-                                                        AdditionalField.ParentTable = 'Breaker' OR  AdditionalField.ParentTable = 'CapBank')
-                                                        AND AdditionalField.ExternalDB IS NOT NULL AND AdditionalField.ExternalDB <> ''
-                                                    GROUP BY AdditionalField.ExternalDB";
-
-                        DataTable table = connection.RetrieveData(query);
-
-                        return Ok(table);
-                    }
-                else
-                    return Unauthorized();
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-
-        }
-
         #region [ Model Creation Helper Functions ]
         private void CreateAssetFromJToken(Asset asset, JToken record)
         {
