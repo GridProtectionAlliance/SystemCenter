@@ -147,6 +147,7 @@ export default function QueryTestDialog(props: IProps) {
     return (
         <>
             <Modal Title={"Test External Table Query"} Show={props.Show && step !== steps.PickRecord}
+                Size={step === steps.Results ? 'xlg' : 'lg'}
                 ConfirmText={"Next"} ShowCancel={false}
                 ShowConfirm={step !== steps.Results && step !== steps.Error}
                 ShowX={true}
