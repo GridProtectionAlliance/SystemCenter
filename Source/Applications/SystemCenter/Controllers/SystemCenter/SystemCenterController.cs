@@ -663,10 +663,6 @@ namespace SystemCenter.Controllers
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                //Fix added Fro Capacitor Bank due to naming Missmatch
-                if (openXDAParentTable == "CapacitorBank")
-                    openXDAParentTable = "CapBank";
-
                 string orderByExpression = DefaultSort;
 
                 if (sort != null && sort != string.Empty)
@@ -684,25 +680,6 @@ namespace SystemCenter.Controllers
                     DataTable dataTable = connection.RetrieveData(sqlFormat, openXDAParentTable);
 
                     return Ok(dataTable);
-                }
-            }
-            else
-            {
-                return Unauthorized();
-            }
-        }
-
-        [HttpGet, Route("ExternalDataBase")]
-        public IHttpActionResult GetExternalDB()
-        {
-            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
-            {
-
-                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-                {
-                    string tableName = TableOperations<ExternalDatabases>.GetTableName();
-                    DataTable dataTbl = connection.RetrieveData($"SELECT DISTINCT [Name] from {tableName}");
-                    return Ok(dataTbl);
                 }
             }
             else
@@ -1588,12 +1565,29 @@ namespace SystemCenter.Controllers
         [HttpPost, Route("UnscheduledUpdate")]
         public IHttpActionResult UnscheduledUpdate([FromBody] JObject record)
         {
-            if (!PostAuthCheck() || ViewOnly)
+            if (!PostAuthCheck())
                 return Unauthorized();
             try
             {
                 ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
                 ScheduledExtDBTask.Run(extDB);
+                return Ok(0);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpPost, Route("UnscheduledUpdate/{parentTable}")]
+        public IHttpActionResult UnscheduledUpdate([FromBody] JObject record, string parentTable)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+                ScheduledExtDBTask.Run(extDB, parentTable);
                 return Ok(0);
             }
             catch (Exception ex)
