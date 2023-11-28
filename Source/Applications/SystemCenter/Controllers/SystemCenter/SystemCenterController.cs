@@ -1596,6 +1596,23 @@ namespace SystemCenter.Controllers
             }
         }
 
+        [HttpPost, Route("UnscheduledUpdate/{parentTable}/{parentID:int}")]
+        public IHttpActionResult UnscheduledUpdate([FromBody] JObject record, string parentTable, int parentID)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+                ScheduledExtDBTask.Run(extDB, parentTable, parentID);
+                return Ok(0);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
         [HttpGet, Route("GetExternalDatabases/{parentTable}")]
         public IHttpActionResult GetExternalDatabases(string parentTable)
         {
