@@ -601,7 +601,7 @@ namespace SystemCenter.Controllers
     public class AdditionalFieldController : ModelController<AdditionalField> { }
 
     [RoutePrefix("api/SystemCenter/AdditionalFieldView")]
-    public class AdditionalFieldViewController : ModelController<AdditionalFieldView>
+    public class AdditionalFieldViewController : ModelController<AdditionalFieldView, AdditionalField>
     {
         [HttpGet, Route("ParentTable/{openXDAParentTable}/{sort}/{ascending:int}")]
         public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable, string sort, int ascending)
@@ -1425,7 +1425,7 @@ namespace SystemCenter.Controllers
     }
 
     [RoutePrefix("api/SystemCenter/ExternalDatabases")]
-    public class ExternalDatabasesController : ModelController<DetailedExternalDatabases>
+    public class ExternalDatabasesController : ModelController<DetailedExternalDatabases, ExternalDatabases>
     {
         private static ServiceHost Host = Program.Host;
         public override IHttpActionResult Post([FromBody] JObject record)
@@ -1437,7 +1437,7 @@ namespace SystemCenter.Controllers
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    ExternalDatabases newRecord = record.ToObject<DetailedExternalDatabases>();
+                    ExternalDatabases newRecord = record.ToObject<ExternalDatabases>();
                     int result = new TableOperations<ExternalDatabases>(connection).AddNewRecord(newRecord);
                     Host.ExtDBAddDB(newRecord);
                     return Ok(result);
@@ -1449,7 +1449,7 @@ namespace SystemCenter.Controllers
             }
         }
         
-        public override IHttpActionResult Patch([FromBody] DetailedExternalDatabases record)
+        public override IHttpActionResult Patch([FromBody] ExternalDatabases record)
         {
             if (!PatchAuthCheck() || ViewOnly)
                 return Unauthorized();
@@ -1469,7 +1469,7 @@ namespace SystemCenter.Controllers
             }
         }
 
-        public override IHttpActionResult Delete([FromBody] DetailedExternalDatabases record)
+        public override IHttpActionResult Delete([FromBody] ExternalDatabases record)
         {
             if (!DeleteAuthCheck() || ViewOnly)
                 return Unauthorized();
@@ -1585,7 +1585,7 @@ namespace SystemCenter.Controllers
     }
 
     [RoutePrefix("api/SystemCenter/extDBTables")]
-    public class ExternalTableController : ModelController<DetailedExtDBTables>
+    public class ExternalTableController : ModelController<DetailedExtDBTables, extDBTables>
     {
         [HttpGet, Route("RetrieveTable/{extTableID:int}/{orderBy}/{ascending:int?}/{start:int?}/{end:int?}")]
         public IHttpActionResult RetrieveTableByID(int extTableID, string orderBy=null, int? ascending=null, int? start=null, int? end=null)
