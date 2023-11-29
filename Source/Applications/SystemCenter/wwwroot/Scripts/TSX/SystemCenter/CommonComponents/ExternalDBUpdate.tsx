@@ -18,261 +18,151 @@
 //  ----------------------------------------------------------------------------------------------------
 //  04/07/2020 - C. Lackner
 //       Generated original version of source code.
+//  11/27/2023 - G. Santos
+//      Updated to work with addl field rework.
 //
 //******************************************************************************************************
 
-import * as React from 'react';
-import * as _ from 'lodash';
-import { SystemCenter, OpenXDA } from '@gpa-gemstone/application-typings';
-import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import { TrashCan, Warning } from '@gpa-gemstone/gpa-symbols';
+import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { LoadingIcon, LoadingScreen, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import Table from '@gpa-gemstone/react-table';
 import moment from 'moment';
+import * as React from 'react';
+import _ from 'lodash';
 
-
-
-function ExternalDataBaseWindow(props: {
-    ID: number,
+const ExternalDBUpdate = React.memo((props: {
     Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | OpenXDA.Types.AssetTypeName,
-    Tab?: string,
-    InnerOnly?: boolean
-}): JSX.Element {
-    const [externalDB, setexternalDB] = React.useState<Array<SystemCenter.Types.ExternalDB>>([]);
-    const [externalDBFields, setFields] = React.useState<Array<SystemCenter.Types.ExternalDBField>>([]);
-    const [changed, setChanged] = React.useState<boolean>(false);
-    const [currentDB, setCurrentDB] = React.useState<string>("");
+    ID?: number,
+    UpdateAll?: React.MutableRefObject<() => (() => void)>
+}) => {
+    // All externals and associated statuses
+    const [statusMap, setStatusMap] = React.useState<Map<number, Application.Types.Status>>(new Map<number, Application.Types.Status>());
+    const [externalDB, setExternalDB] = React.useState<Array<SystemCenter.Types.ExternalDatabases>>([]);
+    // Status/reload for whole page
+    const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
+    const [reload, reloadExternals] = React.useState<number>(0);
+    // Table Controls
+    const [asc, setAsc] = React.useState<boolean>(false);
+    const [sort, setSort] = React.useState<keyof SystemCenter.Types.ExternalDatabases>('Name');
 
-    const [status, setStatus] = React.useState<('error' | 'idle' | 'loading')>('idle');
+    const updateMap = React.useCallback((id: number, status: Application.Types.Status) => {
+        setStatusMap((oldMap) => {
+            const newMap = new Map(oldMap);
+            newMap.set(id, status);
+            return newMap;
+        });
+    }, []);
 
-    React.useEffect(() => {
-        setChanged(false);
-        setFields([]);
-        return getExternalDBs();
-    }, [props.ID, props.Type, props.Tab]);
-
-    React.useEffect(() => {
-        if (changed && (props.InnerOnly ?? false))
-            submitUpdate();
-    }, [changed]);
-
-    function getExternalDBs() {
-       setStatus('loading')
-       let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/${props.Type}/extDataBases`, 
+    const updateExternalDB = React.useCallback((record: SystemCenter.Types.ExternalDatabases) => {
+        updateMap(record.ID, 'loading');
+        const handle = $.ajax({
+            type: "POST",
+            url: `${homePath}api/SystemCenter/ExternalDatabases/UnscheduledUpdate/${props.Type}${props.ID === undefined ? '' : "/" + props.ID}`,
             contentType: "application/json; charset=utf-8",
-            dataType: 'json',
             cache: false,
-            async: true
-       })
+            async: true,
+            data: JSON.stringify(record),
+        }).done(() => {
+            updateMap(record.ID, 'idle');
+        }).fail(() => { updateMap(record.ID, 'error'); });
 
-        handle
-            .done((data: Array<SystemCenter.Types.ExternalDB>) => {
-            setStatus('idle')
-            setexternalDB(data);
-        })
-            .fail(() => { setStatus('error') });
+        return handle;
+    }, [updateMap, props.Type]);
 
+    const updateAllExternalDB = React.useCallback(() => {
+        // Promise that all db's will be updated
+        const allPromises = externalDB.map(db => updateExternalDB(db));
+
+        // Cancel all promises if we need to
         return () => {
-            if (handle.abort != undefined) handle.abort();
+            allPromises.forEach(handle => {
+                if (handle?.abort != null) handle.abort();
+            });
         }
-    }
+    }, [externalDB, updateExternalDB]);
 
-    function updateExternalDB(type: string) {
-        setStatus('loading')
+    React.useEffect(() => {
+        setStatus('loading');
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/ExternalDB/${type}/${props.Type}/Update/${props.ID}`,
+            url: `${homePath}api/SystemCenter/ExternalDatabases/GetExternalDatabases/${props.Type}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-        })
-
-        handle.done((data: Array<SystemCenter.Types.ExternalDBField>) => {
-            setFields(data)
-            setStatus('idle')
-            setChanged(true)
-            setCurrentDB(type)
-            if (data.length < 1)
-                cancelUpdate()
+        }).done((data: Array<SystemCenter.Types.ExternalDatabases>) => {
+            const newMap = new Map<number, Application.Types.Status>();
+            data.forEach(db => newMap.set(db.ID, 'idle'));
+            setStatusMap(newMap);
+            setStatus('idle');
+            const ordered = _.orderBy(data, [sort], [(!asc ? "asc" : "desc")]);
+            setExternalDB(ordered);
         }).fail(() => { setStatus('error') });
 
         return () => {
-            if (handle.abort != undefined) handle.abort();
+            if (handle?.abort != undefined) handle.abort();
         }
-    }
-    
-    function cancelUpdate(): void {
-        setFields([])
-        setChanged(false)
-    }
+    }, [props.Type, reload]);
 
-    function checkUpdate(data: Array<SystemCenter.Types.ExternalDBField>): void {
-        if (data.length < 1) {
-                cancelUpdate();
-        }
-        else {
-            setFields(data);
-        }
-    }
+    React.useEffect(() => {
+        const ordered = _.orderBy(externalDB, [sort], [(!asc ? "asc" : "desc")]);
+        setExternalDB(ordered);
+    }, [asc, sort]);
 
-    function submitUpdate() {
-        setStatus('loading')
-        let handle = $.ajax({
-            type: "POST",
-            url: `${homePath}api/ExternalDB/${currentDB}/${props.Type}/ConfirmUpdate`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            data: JSON.stringify({ "data": externalDBFields }),
-            cache: false,
-            async: true
-        }).done(() => {
-            setFields([])
-            setChanged(false)
-
-            getExternalDBs();
-        }).fail(() => setStatus('error'))
-
-        return () => {
-            if (handle.abort != undefined) handle.abort();
-        } 
-    }
-
-    if (status == 'loading')
-        return <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4> External Database Connections:</h4>
-                    </div>
-                </div>
-            </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-                <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
-                    <div style={{ height: '100%', width: '100%', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <LoadingIcon Show={true} Size={40} />
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-    if (status == 'error')
-        return <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4> External Database Connections:</h4>
-                    </div>
-                </div>
-            </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-                <div style={{ width: '100%', height: '200px' }}>
-                    <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                        <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    let baseTableBody = (
-        <table id="overview" className='table'>
-            <thead>
-                <tr><th>External DB</th><th style={{ width: 250 }}>Last Updated</th><th style={{ width: 300 }}></th></tr>
-            </thead>
-            <tbody>
-                {externalDB.map((a, i) => <TableRowInput key={i} ParentTableID={props.ID} ExternalDB={a.name} updated={a.lastupdate} Update={(dbType) => {
-                    updateExternalDB(dbType);
-                }} />)}
-            </tbody>
-        </table>);
-
-    if (props.InnerOnly ?? false) return baseTableBody;
+    React.useEffect(() => {
+        if (props.UpdateAll !== undefined) props.UpdateAll.current = updateAllExternalDB;
+    }, [updateAllExternalDB, props.UpdateAll]);
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <h4> External Database Connections:</h4>
-            </div>
-            <div className="card-body">
-                <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                    {changed ? (
-                        <table id="fields" className='table'>
-                            <thead>
-                                <tr>
-                                    {props.ID == -1 ?
-                                        <th> {props.Type} </th> :
-                                        null}
-                                    <th>Field</th>
-                                    <th style={{ width: 300 }}>Previous Value</th>
-                                    <th style={{ width: 300 }}>Updated Value</th>
-                                    <th style={{ width: 30 }}></th>
-                                    <th style={{ width: 30 }}></th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {externalDBFields.map((a, i) => <TableRowField key={i} ParentTableID={props.ID} Field={a} Values={externalDBFields} Setter={checkUpdate} />)}
-                            </tbody>
-                        </table>) : baseTableBody}
-                </div>
-            </div>
-            {(changed ?
-                <div className="card-footer">
+        <>
+            {status === 'error' ?
+                <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} /> :
+                <Table<SystemCenter.Types.ExternalDatabases>
+                    cols={[
+                        { key: 'Name', field: 'Name', label: 'Database Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'LastDataPull', field: 'LastDataPull', label: 'Last Date Retrieved', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        {
+                            key: 'ID', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (db) => {
+                                if (statusMap.get(db.ID) === 'loading') return <LoadingIcon Show={true} Label={`Performing update for ${props.Type}s on connected to ${db.Name}...`} />
+                                if (statusMap.get(db.ID) === 'error') return <ServerErrorIcon Show={true} Label="Could not complete update. Please contact an administartor..." />
+                                return (
+                                    <button className="btn btn-primary pull-right" data-tooltip={db.ID} onClick={() => {
+                                            const handle = updateExternalDB(db);
+                                            handle.then(() => { reloadExternals(n => n + 1); });
+                                            return () => {
+                                                if (handle?.abort != undefined) handle.abort();
+                                            }
+                                        }}>{`Update ${db.Name}`}</button>
+                                );
+                            }
+                        },
+                        { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
+                    ]}
+                    tableClass="table table-hover"
+                    data={externalDB}
+                    sortKey={sort}
+                    ascending={asc}
+                    onSort={(d) => {
+                        if (d.colKey === "scroll" || d.colKey === "ID")
+                            return;
 
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-primary" onClick={submitUpdate}>Save Changes</button>
-                    </div>
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-default" onClick={cancelUpdate}>Cancel</button>
-                    </div> 
-            </div> : null)}
-        </div>
+                        if (d.colKey === sort) {
+                            setAsc(a => !a);
+                        }
+                        else {
+                            setAsc(false);
+                            setSort(d.colField);
+                        }
+                    }}
+                    theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                    tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
+                    selected={(item) => false}
+                />
+            }
+            <LoadingScreen Show={status === 'loading'} />
+        </>
     );
-}
+});
 
-export default ExternalDataBaseWindow;
-
-function TableRowInput(props: { ParentTableID: number, ExternalDB: string, updated: Date, Update: (externalDB: string) => void }) {
-   
-    return(
-        <tr>
-            <td>{props.ExternalDB}</td>
-            <td>{(props.updated == null ? "N/A" : moment(props.updated).format("MM/DD/YYYY"))}</td>
-            <td><button className="btn btn-primary" onClick={(e) => props.Update(props.ExternalDB)}>Update {props.ExternalDB}</button></td>
-        </tr>
-    );
-}
-
-function TableRowField(props: { ParentTableID: number, Field: SystemCenter.Types.ExternalDBField, Values: Array<SystemCenter.Types.ExternalDBField>, Setter: (values: Array<SystemCenter.Types.ExternalDBField>) => void}) {
-    var values: Array<SystemCenter.Types.ExternalDBField> = _.clone(props.Values);
-    var value: SystemCenter.Types.ExternalDBField = values.find(value => value.AdditionalFieldID == props.Field.AdditionalFieldID && value.OpenXDAParentTableID == props.Field.OpenXDAParentTableID && value.isXDAField == props.Field.isXDAField);
-
-    function removeField() {
-        values = values.filter(fld => !(fld.AdditionalFieldID == props.Field.AdditionalFieldID && fld.OpenXDAParentTableID == props.Field.OpenXDAParentTableID && fld.isXDAField == props.Field.isXDAField))
-        props.Setter(values);
-    }
-    return (
-        <tr>
-            {props.ParentTableID == -1 ?
-                <td>{props.Field.DisplayName}</td>
-                : null}
-            <td>{props.Field.FieldName}</td>
-            <td>{props.Field.PreviousValue == null ? "" : props.Field.PreviousValue}</td>
-            {(props.Field.Error ? <td>{props.Field.Message}</td> :
-                <td>
-                    <input className={(props.Field.Changed ? "form-control is-invalid" : "form-control")} onChange={(evt) => {
-                        if (evt.target.value != "")
-                            value.Value = evt.target.value as any;
-                        else
-                            value.Value = null;
-
-                        value.Changed = true;
-                        props.Setter(values);
-                    }} value={value.Value == null ? '' : value.Value.toString()} />
-                </td>
-                )}
-            <td>{props.Field.Error ? <span>{Warning}</span> : null}</td>
-            <td><button className="btn btn-sm" onClick={(e) => removeField()}><span>{TrashCan}</span></button></td>
-        </tr>
-    );
-}
+export default ExternalDBUpdate;
