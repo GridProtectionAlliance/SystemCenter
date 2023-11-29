@@ -26,15 +26,13 @@ import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-
 import { DefaultSearchField, SearchFields } from '../CommonComponents/SearchFields';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { CustomerSlice } from '../Store/Store';
 import CustomerForm from './CustomerForm';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
-import { number } from 'prop-types';
-import Customer from './Customer';
+import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 
 
 declare var homePath: string;
@@ -55,6 +53,9 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
+
+    const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
+    const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
     React.useEffect(() => {
         dispatch(CustomerSlice.DBSearch({ sortField: sortKey, ascending, filter: search }))
@@ -144,9 +145,13 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                        <form>
+                        <div className="form-group">
                             <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setNewCustomer(getNewCustomer()); setShowModal(true); }}>Add Customer</button>
-                        </form>
+                        </div>
+                        <div className="form-group">
+                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
+                                onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
+                        </div>
                     </fieldset>
                 </li>
             </SearchBar>
@@ -199,8 +204,13 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
                     <CustomerForm Customer={newCustomer} stateSetter={setNewCustomer} setErrors={setErrors} />
                 </div>
             </Modal>
-            
-
+            <Modal Show={showEXTModal} Size={'xlg'} Title={'Customer External Database Fields'}
+                ShowCancel={true} ConfirmText={'Update All'} CancelText={'Close'} CallBack={(c) => {
+                    if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
+                    if (!c) setShowExtModal(false);
+                }}>
+                <ExternalDBUpdate Type='Customer' UpdateAll={extDbUpdateAll} />
+            </Modal>
         </div>
     )
 }
