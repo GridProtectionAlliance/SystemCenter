@@ -603,61 +603,6 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/SystemCenter/AdditionalFieldView")]
     public class AdditionalFieldViewController : ModelController<AdditionalFieldView>
     {
-        public override IHttpActionResult Post([FromBody] JObject record)
-        {
-            if (!PostAuthCheck())
-                return Unauthorized();
-
-            try
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    AdditionalField newRecord = record.ToObject<AdditionalFieldView>();
-                    int result = new TableOperations<AdditionalField>(connection).AddNewRecord(newRecord);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
-        public override IHttpActionResult Patch([FromBody] AdditionalFieldView record)
-        {
-            if (!PatchAuthCheck())
-                return Unauthorized();
-            try
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    int result = new TableOperations<AdditionalField>(connection).UpdateRecord(record);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
-        public override IHttpActionResult Delete([FromBody] AdditionalFieldView record)
-        {
-            if (!DeleteAuthCheck())
-                return Unauthorized();
-            try
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    int result = new TableOperations<AdditionalField>(connection).DeleteRecord(record);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
         [HttpGet, Route("ParentTable/{openXDAParentTable}/{sort}/{ascending:int}")]
         public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable, string sort, int ascending)
         {
@@ -1480,7 +1425,7 @@ namespace SystemCenter.Controllers
     }
 
     [RoutePrefix("api/SystemCenter/ExternalDatabases")]
-    public class ExternalDatabasesController : ModelController<ExternalDatabases>
+    public class ExternalDatabasesController : ModelController<DetailedExternalDatabases>
     {
         private static ServiceHost Host = Program.Host;
         public override IHttpActionResult Post([FromBody] JObject record)
@@ -1492,7 +1437,7 @@ namespace SystemCenter.Controllers
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    ExternalDatabases newRecord = record.ToObject<ExternalDatabases>();
+                    ExternalDatabases newRecord = record.ToObject<DetailedExternalDatabases>();
                     int result = new TableOperations<ExternalDatabases>(connection).AddNewRecord(newRecord);
                     Host.ExtDBAddDB(newRecord);
                     return Ok(result);
@@ -1504,7 +1449,7 @@ namespace SystemCenter.Controllers
             }
         }
         
-        public override IHttpActionResult Patch([FromBody] ExternalDatabases record)
+        public override IHttpActionResult Patch([FromBody] DetailedExternalDatabases record)
         {
             if (!PatchAuthCheck() || ViewOnly)
                 return Unauthorized();
@@ -1524,7 +1469,7 @@ namespace SystemCenter.Controllers
             }
         }
 
-        public override IHttpActionResult Delete([FromBody] ExternalDatabases record)
+        public override IHttpActionResult Delete([FromBody] DetailedExternalDatabases record)
         {
             if (!DeleteAuthCheck() || ViewOnly)
                 return Unauthorized();
@@ -1640,64 +1585,8 @@ namespace SystemCenter.Controllers
     }
 
     [RoutePrefix("api/SystemCenter/extDBTables")]
-    public class ExternalTableController : ModelController<extDBTables>
+    public class ExternalTableController : ModelController<DetailedExtDBTables>
     {
-
-        public override IHttpActionResult Post([FromBody] JObject record)
-        {
-            if (!PostAuthCheck() || ViewOnly)
-                return Unauthorized();
-
-            try
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    extDBTables newRecord = record.ToObject<extDBTables>();
-                    int result = new TableOperations<extDBTables>(connection).AddNewRecord(newRecord);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
-        public override IHttpActionResult Patch([FromBody] extDBTables record)
-        {
-            if (!PatchAuthCheck() || ViewOnly)
-                return Unauthorized();
-            try
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    int result = new TableOperations<extDBTables>(connection).UpdateRecord(record);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
-        public override IHttpActionResult Delete([FromBody] extDBTables record)
-        {
-            if (!DeleteAuthCheck() || ViewOnly)
-                return Unauthorized();
-            try
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    int result = new TableOperations<extDBTables>(connection).DeleteRecord(record);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
         [HttpGet, Route("RetrieveTable/{extTableID:int}/{orderBy}/{ascending:int?}/{start:int?}/{end:int?}")]
         public IHttpActionResult RetrieveTableByID(int extTableID, string orderBy=null, int? ascending=null, int? start=null, int? end=null)
         {
@@ -1756,7 +1645,7 @@ namespace SystemCenter.Controllers
 
         public class PostDataExtension: PostData
         {
-            public extDBTables externalTable { get; set; }
+            public DetailedExtDBTables externalTable { get; set; }
         }
         [HttpPost, Route("RetrieveTempTable/{start:int}/{end:int}")]
         public IHttpActionResult RetrieveTable([FromBody] PostDataExtension record, int start, int end)
