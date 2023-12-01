@@ -225,7 +225,7 @@ export default function TemplateWindow(props: IProps) {
 
                                 r.readAsArrayBuffer(evt.target.files[0]);
                             }} />
-                            <label className={"custom-file-label" + (template.FileName.length > 0 ? " selected" : "")} >
+                            <label className={"custom-file-label" + (template.FileName.length > 0 ? " selected" : "")} style={{top: '2rem'}}>
                                 {template.FileName.length > 0 ? template.FileName : `Choose file to use as template.`}
                             </label>
                         </div>
