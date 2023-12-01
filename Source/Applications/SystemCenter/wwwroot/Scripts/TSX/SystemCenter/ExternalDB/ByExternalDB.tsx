@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ByExternalDB.tsx - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2019, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -81,58 +81,69 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     }
 
     return (
-        <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<SystemCenter.Types.DetailedExternalDatabases>
-                CollumnList={ExternalDBSearchField}
-                SetFilter={(flds) => dispatch(ExternalDatabasesSlice.DBSearch({ filter: flds }))}
-                Direction={'left'}
-                defaultCollumn={ExternalDBDefaultSearchField}
-                Width={'50%'}
-                Label={'Search'}
-                ShowLoading={status == 'loading'}
-                ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' External Database(s)'}
-            >
-                <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                        <form>
-                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => {
-                                event.preventDefault()
-                                setRecord({ ...emptyRecord });
-                                setShowNew(true);
-                            }}>Add External Database</button>
-                        </form>
-                    </fieldset>
-                </li>
-            </SearchBar>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
+            <div className="row">
+                <div className="col">
+                    <SearchBar<SystemCenter.Types.DetailedExternalDatabases>
+                        CollumnList={ExternalDBSearchField}
+                        SetFilter={(flds) => dispatch(ExternalDatabasesSlice.DBSearch({ filter: flds }))}
+                        Direction={'left'}
+                        defaultCollumn={ExternalDBDefaultSearchField}
+                        Width={'50%'}
+                        Label={'Search'}
+                        ShowLoading={status == 'loading'}
+                        ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' External Database(s)'}
+                    >
+                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                                <form>
+                                    <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => {
+                                        event.preventDefault()
+                                        setRecord({ ...emptyRecord });
+                                        setShowNew(true);
+                                    }}>Add External Database</button>
+                                </form>
+                            </fieldset>
+                        </li>
+                    </SearchBar>
+                </div>
+            </div>
 
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<SystemCenter.Types.DetailedExternalDatabases>
-                    cols={[
-                        { key: 'Name', field: 'Name', label: 'Database Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'MappedTables', field: 'MappedTables', label: 'Mapped Tables', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'MappedFields', field: 'MappedFields', label: 'Mapped Fields', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        {
-                            key: 'LastDataUpdate', field: 'LastDataUpdate', label: 'Last Data Update', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: f => {
-                                if (f.LastDataUpdate == null || f.LastDataUpdate == '') return ''
-                                else return moment(f.LastDataUpdate).format('MM/DD/YYYY HH:mm.ss.ssss')
-                            }
-                        },                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortField}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colKey === null) return;
-                        dispatch(ExternalDatabasesSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                    }}
-                    onClick={handleSelect}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+            <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
+                <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
+                    <Table<SystemCenter.Types.DetailedExternalDatabases>
+                        cols={[
+                            { key: 'Name', field: 'Name', label: 'Database Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'MappedTables', field: 'MappedTables', label: 'Mapped Tables', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            { key: 'MappedFields', field: 'MappedFields', label: 'Mapped Fields', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                            {
+                                key: 'LastDataUpdate', field: 'LastDataUpdate', label: 'Last Data Update', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: f => {
+                                    if (f.LastDataUpdate == null || f.LastDataUpdate == '') return ''
+                                    else return moment(f.LastDataUpdate).format('MM/DD/YYYY HH:mm.ss.ssss')
+                                }
+                            },
+                            { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
+                        ]}
+                        tableClass="table table-hover"
+                        data={data}
+                        sortKey={sortField}
+                        ascending={ascending}
+                        onSort={(d) => {
+                            if (d.colKey === null) return;
+                            dispatch(ExternalDatabasesSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                        }}
+                        onClick={handleSelect}
+                        tableStyle={{
+                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                        }}
+                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        selected={(item) => false}
+                    />
+                </div>
             </div>
 
             <Modal Title={'Add New External Database'}

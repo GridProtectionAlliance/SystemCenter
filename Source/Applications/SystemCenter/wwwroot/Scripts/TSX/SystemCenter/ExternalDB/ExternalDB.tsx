@@ -100,13 +100,13 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     if (record == null) return null;
     return (
-        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
-            <LoadingScreen Show={requestStatus === 'loading'}/>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <LoadingScreen Show={requestStatus === 'loading'} />
             <div className="row">
-                <div className="col">
+                <div className="col-6 align-self-center">
                     <h2>{record?.Name ?? 'External Database'}</h2>
                 </div>
-                <div className="col">
+                <div className="col-6 align-self-center">
                     <button className="btn btn-danger pull-right" hidden={record == null}
                         onClick={() => setShowRemove(true)}>Delete External DB</button>
                     <button className="btn btn-light pull-right" hidden={record == null}
@@ -114,18 +114,21 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 </div>
             </div>
 
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="col-12" style={{ padding: 0 }}>
+                    <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
 
-            <hr />
-            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235 }}>
-                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
-                    <ExternalDBInfo Record={record} />
-                </div>
-                <div className={"tab-pane " + (tab == "tables" ? " active" : "fade")} id="tables">
-                    <ExternalDBTables ID={record.ID} />
+                    <div className="tab-content" style={{ height: 'calc(100% - 16px)' }}>
+                        <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info" style={{ height: 'inherit' }}>
+                            <ExternalDBInfo Record={record} />
+                        </div>
+                        <div className={"tab-pane " + (tab == "tables" ? " active" : "fade")} id="tables" style={{ height: 'inherit' }}>
+                            <ExternalDBTables ID={record.ID} />
+                        </div>
+                    </div>
                 </div>
             </div>
+
             <Warning
                 Message={'This will permanently delete this External Database and cannot be undone.'}
                 Show={showRemove} Title={'Delete ' + (record?.Name ?? 'External Database')}

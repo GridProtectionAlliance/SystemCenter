@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ExternalDBTables.tsx - Gbtc
 //
-//  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2019, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -77,75 +77,85 @@ export default function ExternalDBTables(props: { ID: number }) {
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Tables:</h4>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col">
+                                <h4>Tables:</h4>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div className="card-body">
-                <div className="row">
-                    <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0, overflowY: 'auto' }}>
-                        <Table<SystemCenter.Types.DetailedExtDBTables>
-                            cols={[
-                                { key: 'TableName', field: 'TableName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'MappedFields', field: 'MappedFields', label: 'Mapped Fields', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                {
-                                    key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                    content: (item) => <>
-                                        <button className="btn btn-sm" onClick={(e) => {
-                                            e.preventDefault();
-                                            setRecord(item);
-                                            setShowWarning(true)
-                                        }}>{TrashCan}</button>
-                                    </>
-                                },
-                                { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                            ]}
-                            tableClass="table table-hover"
-                            data={data}
-                            sortKey={sortKey.toString()}
-                            ascending={asc}
-                            onSort={(d) => {
-                                if (d.colKey == 'btns' || d.colKey == 'scroll' || d.colField == null) return;
-                                dispatch(ExternalDBTablesSlice.Sort({ SortField: d.colField, Ascending: !asc }));
-                            }}
-                            onClick={handleSelect}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', maxHeight: window.innerHeight - 455, }}
-                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={() => false}
-                        />
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
+                                    <Table<SystemCenter.Types.DetailedExtDBTables>
+                                        cols={[
+                                            { key: 'TableName', field: 'TableName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                            { key: 'MappedFields', field: 'MappedFields', label: 'Mapped Fields', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                                {
+                                                key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                                content: (item) => <>
+                                                    <button className="btn btn-sm" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setRecord(item);
+                                                        setShowWarning(true)
+                                                    }}>{TrashCan}</button>
+                                                </>
+                                            },
+                                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                                        ]}
+                                        tableClass="table table-hover"
+                                        data={data}
+                                        sortKey={sortKey.toString()}
+                                        ascending={asc}
+                                        onSort={(d) => {
+                                            if (d.colKey == 'btns' || d.colKey == 'scroll' || d.colField == null) return;
+                                            dispatch(ExternalDBTablesSlice.Sort({ SortField: d.colField, Ascending: !asc }));
+                                        }}
+                                        onClick={handleSelect}
+                                        tableStyle={{
+                                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                        }}
+                                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        selected={() => false}
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                    <div className="card-footer">
+                        <div className="btn-group mr-2">
+                            <button className="btn btn-primary pull-right"
+                                onClick={() => { setRecord({ ...emptyRecord, ExtDBID: props.ID }); setShowModal(true); }}
+                            >Add Table</button>
+                        </div>
+                    </div>
+                    <Warning
+                        Message={'This will permanently delete this External Database Table and ALL associated Fields. This cannot be undone.'}
+                        Show={showWarning} Title={'Delete ' + (record?.TableName ?? 'External DB Table')}
+                        CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }} />
+                    <Modal Title={record.ID == 0 ? 'Add New Table' : 'Edit ' + (record?.TableName ?? 'Table')} Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
+                        ConfirmShowToolTip={errors.length > 0}
+                        ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
+                        DisableConfirm={errors.length > 0}
+                        ShowX={true} CallBack={(conf) => {
+                            setShowModal(false);
+                            if (conf && record.ID > 0)
+                                dispatch(ExternalDBTablesSlice.DBAction({ verb: 'PATCH', record }));
+                            else if (conf && record.ID == 0)
+                                dispatch(ExternalDBTablesSlice.DBAction({ verb: 'POST', record }));
+                        }}
+                    >
+                        <ExternalDBTableForm Record={record} Setter={setRecord} SetErrors={setErrors} />
+                    </Modal>
                 </div>
             </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right"
-                        onClick={() => { setRecord({ ...emptyRecord, ExtDBID: props.ID }); setShowModal(true); }}
-                    >Add Table</button>
-                </div>
-            </div>
-            <Warning
-                Message={'This will permanently delete this External Database Table and ALL associated Fields. This cannot be undone.'}
-                Show={showWarning} Title={'Delete ' + (record?.TableName ?? 'External DB Table')}
-                CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }} />
-            <Modal Title={record.ID == 0 ? 'Add New Table' : 'Edit ' + (record?.TableName ?? 'Table')} Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
-                ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
-                DisableConfirm={errors.length > 0}
-                ShowX={true} CallBack={(conf) => {
-                    setShowModal(false);
-                    if (conf && record.ID > 0)
-                        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'PATCH', record }));
-                    else if (conf && record.ID == 0)
-                        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'POST', record }));
-                }}
-            >
-                <ExternalDBTableForm Record={record} Setter={setRecord} SetErrors={setErrors} />
-            </Modal>
         </div>
 
 
