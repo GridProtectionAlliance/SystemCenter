@@ -1515,8 +1515,7 @@ namespace SystemCenter.Controllers
             try
             {
                 ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-                ScheduledExtDBTask.Run(extDB);
-                return Ok(0);
+                return Ok(ScheduledExtDBTask.Run(extDB));
             }
             catch (Exception ex)
             {
@@ -1532,8 +1531,7 @@ namespace SystemCenter.Controllers
             try
             {
                 ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-                ScheduledExtDBTask.Run(extDB, parentTable);
-                return Ok(0);
+                return Ok(ScheduledExtDBTask.Run(extDB, parentTable));
             }
             catch (Exception ex)
             {
@@ -1549,33 +1547,7 @@ namespace SystemCenter.Controllers
             try
             {
                 ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-                ScheduledExtDBTask.Run(extDB, parentTable, parentID);
-                return Ok(0);
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
-        [HttpGet, Route("GetExternalDatabases/{parentTable}")]
-        public IHttpActionResult GetExternalDatabases(string parentTable)
-        {
-            if (!GetAuthCheck())
-                return Unauthorized();
-            try
-            {
-                using(AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    IEnumerable<ExternalDatabases> extDBs = new TableOperations<ExternalDatabases>(connection).QueryRecordsWhere(@"
-                        ID in (
-                            SELECT DISTINCT ExternalDatabases.ID
-                            FROM AdditionalField INNER JOIN 
-                            extDBTables ON AdditionalField.ExternalDBTableID = extDBTables.ID INNER JOIN 
-                            ExternalDatabases ON extDBTables.ExtDBID = ExternalDatabases.ID 
-                            WHERE AdditionalField.ParentTable = {0})", parentTable);
-                    return Ok(extDBs);
-                }
+                return Ok(ScheduledExtDBTask.Run(extDB, parentTable, parentID));
             }
             catch (Exception ex)
             {
