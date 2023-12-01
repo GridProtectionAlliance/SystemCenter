@@ -31,13 +31,17 @@ import { IsCron } from '@gpa-gemstone/helper-functions';
 import ExternalDBForm from './ExternalDBForm';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { ExternalDatabasesSlice } from '../Store/Store';
+import moment from 'moment';
 
 declare var homePath: string;
 
-const ExternalDBSearchField: Array<Search.IField<SystemCenter.Types.ExternalDatabases>> = [
+const ExternalDBSearchField: Array<Search.IField<SystemCenter.Types.DetailedExternalDatabases>> = [
     { label: 'Database Name', key: 'Name', type: 'string', isPivotField: false },
+    { label: 'Date of Last Data Update', key: 'LastDataUpdate', type: 'datetime', isPivotField: false },
+    { label: 'Number of Mapped Tables', key: 'MappedTables', type: 'number', isPivotField: false },
+    { label: 'Number of Mapped Fields', key: 'MappedFields', type: 'number', isPivotField: false },
 ];
-const ExternalDBDefaultSearchField: Search.IField<SystemCenter.Types.ExternalDatabases> = { label: 'Database Name', key: 'Name', type: 'string', isPivotField: false };
+const ExternalDBDefaultSearchField: Search.IField<SystemCenter.Types.DetailedExternalDatabases> = { label: 'Database Name', key: 'Name', type: 'string', isPivotField: false };
 const emptyRecord = { ID: 0, Name: '', Schedule: '', ConnectionString: '', DataProviderString: '', Encrypt: false };
 
 const ByExternalDB: Application.Types.iByComponent = (props) => {
@@ -78,7 +82,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<SystemCenter.Types.ExternalDatabases>
+            <SearchBar<SystemCenter.Types.DetailedExternalDatabases>
                 CollumnList={ExternalDBSearchField}
                 SetFilter={(flds) => dispatch(ExternalDatabasesSlice.DBSearch({ filter: flds }))}
                 Direction={'left'}
@@ -103,10 +107,17 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table
+                <Table<SystemCenter.Types.DetailedExternalDatabases>
                     cols={[
                         { key: 'Name', field: 'Name', label: 'Database Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
+                        { key: 'MappedTables', field: 'MappedTables', label: 'Mapped Tables', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'MappedFields', field: 'MappedFields', label: 'Mapped Fields', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        {
+                            key: 'LastDataUpdate', field: 'LastDataUpdate', label: 'Last Data Update', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: f => {
+                                if (f.LastDataUpdate == null || f.LastDataUpdate == '') return ''
+                                else return moment(f.LastDataUpdate).format('MM/DD/YYYY HH:mm.ss.ssss')
+                            }
+                        },                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
                     ]}
                     tableClass="table table-hover"
                     data={data}

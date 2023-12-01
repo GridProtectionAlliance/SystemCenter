@@ -24,11 +24,11 @@
 //******************************************************************************************************
 
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { LoadingIcon, LoadingScreen, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table';
-import moment from 'moment';
 import * as React from 'react';
 import _ from 'lodash';
+import moment from 'moment';
 
 const ExternalDBUpdate = React.memo((props: {
     Type: 'Asset' | 'Meter' | 'Location' | 'Customer' | OpenXDA.Types.AssetTypeName,
@@ -37,13 +37,13 @@ const ExternalDBUpdate = React.memo((props: {
 }) => {
     // All externals and associated statuses
     const [statusMap, setStatusMap] = React.useState<Map<number, Application.Types.Status>>(new Map<number, Application.Types.Status>());
-    const [externalDB, setExternalDB] = React.useState<Array<SystemCenter.Types.ExternalDatabases>>([]);
+    const [externalDB, setExternalDB] = React.useState<Array<SystemCenter.Types.DetailedExternalDatabases>>([]);
     // Status/reload for whole page
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
     const [reload, reloadExternals] = React.useState<number>(0);
     // Table Controls
     const [asc, setAsc] = React.useState<boolean>(false);
-    const [sort, setSort] = React.useState<keyof SystemCenter.Types.ExternalDatabases>('Name');
+    const [sort, setSort] = React.useState<keyof SystemCenter.Types.DetailedExternalDatabases>('Name');
 
     const updateMap = React.useCallback((id: number, status: Application.Types.Status) => {
         setStatusMap((oldMap) => {
@@ -84,18 +84,31 @@ const ExternalDBUpdate = React.memo((props: {
     React.useEffect(() => {
         setStatus('loading');
         let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/ExternalDatabases/GetExternalDatabases/${props.Type}`,
+            type: "POST",
+            url: `${homePath}api/SystemCenter/ExternalDatabases/SearchableList`,
             contentType: "application/json; charset=utf-8",
+            data: JSON.stringify({
+                Searches: [{
+                    Type: 'number',
+                    FieldName: 'ID',
+                    SearchText: `(SELECT DISTINCT ExternalDatabases.ID
+                        FROM AdditionalField INNER JOIN 
+                        extDBTables ON AdditionalField.ExternalDBTableID = extDBTables.ID INNER JOIN 
+                        ExternalDatabases ON extDBTables.ExtDBID = ExternalDatabases.ID 
+                        WHERE AdditionalField.ParentTable = '${props.Type}')`,
+                    Operator: 'IN',
+                    isPivotColumn: false
+                }], OrderBy: sort, Ascending: asc }),
             dataType: 'json',
             cache: false,
             async: true
-        }).done((data: Array<SystemCenter.Types.ExternalDatabases>) => {
+        }).done((data: string) => {
             const newMap = new Map<number, Application.Types.Status>();
-            data.forEach(db => newMap.set(db.ID, 'idle'));
+            const extDbs: Array<SystemCenter.Types.DetailedExternalDatabases> = JSON.parse(data);
+            extDbs.forEach(db => newMap.set(db.ID, 'idle'));
             setStatusMap(newMap);
             setStatus('idle');
-            const ordered = _.orderBy(data, [sort], [(!asc ? "asc" : "desc")]);
+            const ordered = _.orderBy(extDbs, [sort], [(!asc ? "asc" : "desc")]);
             setExternalDB(ordered);
         }).fail(() => { setStatus('error') });
 
@@ -117,9 +130,15 @@ const ExternalDBUpdate = React.memo((props: {
         <>
             {status === 'error' ?
                 <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} /> :
-                <Table<SystemCenter.Types.ExternalDatabases>
+                <Table<SystemCenter.Types.DetailedExternalDatabases>
                     cols={[
                         { key: 'Name', field: 'Name', label: 'Database Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        {
+                            key: 'LastDataUpdate', field: 'LastDataUpdate', label: 'Last Data Update', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: f => {
+                                if (f.LastDataUpdate == null || f.LastDataUpdate == '') return ''
+                                else return moment(f.LastDataUpdate).format('MM/DD/YYYY HH:mm.ss.ssss')
+                            }
+                        },
                         {
                             key: 'ID', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (db) => {
                                 if (statusMap.get(db.ID) === 'loading') return <LoadingIcon Show={true} Label={`Performing update for ${props.Type}s on connected to ${db.Name}...`} />
