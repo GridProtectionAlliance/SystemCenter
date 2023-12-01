@@ -32,8 +32,8 @@ import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBTableForm from './ExternalDBTableForm';
 
 
-export default function ExternalDBInfo(props: { Record: SystemCenter.Types.extDBTables }) {
-    const [record, setRecord] = React.useState<SystemCenter.Types.extDBTables>(props.Record);
+export default function ExternalDBInfo(props: { Record: SystemCenter.Types.DetailedExtDBTables }) {
+    const [record, setRecord] = React.useState<SystemCenter.Types.DetailedExtDBTables>(props.Record);
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [hover, setHover] = React.useState<('update' | 'none')>('none');

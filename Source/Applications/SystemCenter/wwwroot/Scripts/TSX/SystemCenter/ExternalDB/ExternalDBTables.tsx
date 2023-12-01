@@ -88,9 +88,10 @@ export default function ExternalDBTables(props: { ID: number }) {
             <div className="card-body">
                 <div className="row">
                     <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0, overflowY: 'auto' }}>
-                        <Table<SystemCenter.Types.extDBTables>
+                        <Table<SystemCenter.Types.DetailedExtDBTables>
                             cols={[
                                 { key: 'TableName', field: 'TableName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'MappedFields', field: 'MappedFields', label: 'Mapped Fields', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 {
                                     key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                                     content: (item) => <>
