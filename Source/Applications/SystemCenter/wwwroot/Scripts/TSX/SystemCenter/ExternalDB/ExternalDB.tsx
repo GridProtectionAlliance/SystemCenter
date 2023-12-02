@@ -119,12 +119,15 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                     <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
 
                     <div className="tab-content" style={{ height: 'calc(100% - 16px)' }}>
-                        <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info" style={{ height: 'inherit' }}>
-                            <ExternalDBInfo Record={record} />
-                        </div>
-                        <div className={"tab-pane " + (tab == "tables" ? " active" : "fade")} id="tables" style={{ height: 'inherit' }}>
-                            <ExternalDBTables ID={record.ID} />
-                        </div>
+                        {tab == "info" ? 
+                            <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                <ExternalDBInfo Record={record} />
+                            </div>
+                        : tab == "tables" ? 
+                            <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                <ExternalDBTables ID={record.ID} />
+                            </div>
+                        : null}
                     </div>
                 </div>
             </div>
