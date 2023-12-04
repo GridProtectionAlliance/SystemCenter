@@ -73,7 +73,7 @@ export default function ExternalDBTables(props: { ID: number }) {
 
     function handleSelect(item) {
         if (item.colKey == 'btns') return;
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDBTable&ID=' + item.row.ID })
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalTable&ID=' + item.row.ID })
     }
 
     return (
