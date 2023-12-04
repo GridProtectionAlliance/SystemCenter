@@ -75,8 +75,8 @@ export default function ExternalDBXdaFieldsForm(props: IProps) {
             case 'Bus': break;
             case 'Transformer': fields.push("R0", "X0", "R1", "X1", "Thermal Rating", "Primary Voltage KV", "Secondary Voltage KV", "Tertiary Voltage KV",
                 "Primary Winding", "Secondary Winding", "Tertiary Winding", "Tap"); break;
-            case 'CapacitorBank': fields.push("Number Of Banks", "Capacitance Per Bank", "Max KV", "Unit KV", "Unit KVAr", "Neg Reactance Tol", "Pos Reactance Tol"); break;
-            case 'CapacitorBankRelay': fields.push("On Voltage Threshhold", "Cap Bank Number"); break;
+            case 'CapBank': fields.push("Number Of Banks", "Capacitance Per Bank", "Max KV", "Unit KV", "Unit KVAr", "Neg Reactance Tol", "Pos Reactance Tol"); break;
+            case 'CapBankRelay': fields.push("On Voltage Threshhold", "Cap Bank Number"); break;
             case 'DER': fields.push("Full Rated Output Current", "Voltage Level"); break;
         }
         return fields.map(str => ({
