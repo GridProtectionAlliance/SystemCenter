@@ -31,7 +31,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
 
 const AdditionalFieldDefaultSearchField: Search.IField<SystemCenter.Types.AdditionalFieldView> = { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false };
-const emptyRecord: SystemCenter.Types.AdditionalFieldView = {
+const emptyRecord: SystemCenter.Types.AdditionalField = {
     ID: 0,
     ParentTable: 'Meter',
     FieldName: '',
@@ -40,8 +40,7 @@ const emptyRecord: SystemCenter.Types.AdditionalFieldView = {
     IsSecure: false,
     Searchable: false,
     IsInfo: false,
-    IsKey: false,
-    ExternalDB: null,
+    IsKey: false
 };
 
 const ByAdditionalField: Application.Types.iByComponent = (props) => {
@@ -60,11 +59,12 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
     const [errors, setErrors] = React.useState<string[]>([]);
     const [warnings, setWarnings] = React.useState<string[]>([]);
     const [mode, setMode] = React.useState<'View' | 'Add' | 'Edit'>('View');
-    const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalFieldView>(emptyRecord);
+    const [record, setRecord] = React.useState<SystemCenter.Types.AdditionalField>(emptyRecord);
 
     const AdditionalFieldSearchField: Array<Search.IField<SystemCenter.Types.AdditionalFieldView>> = [
         { label: 'Name', key: 'FieldName', type: 'string', isPivotField: false },
         { label: 'External Database', key: 'ExternalDB', type: 'string', isPivotField: false },
+        { label: 'External Table', key: 'ExternalTable', type: 'string', isPivotField: false },
         {
             label: 'Parent Type', key: 'ParentTable', type: 'enum', isPivotField: false,
             enum: [
@@ -145,6 +145,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                             content: (item) => item.ParentTable != '' ? item.ParentTable : 'No Associated Table'
                         },
                         { key: 'ExternalDB', field: 'ExternalDB', label: 'External DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'ExternalTable', field: 'ExternalTable', label: 'External Table', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: 'Type', field: 'Type', label: 'Field Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },

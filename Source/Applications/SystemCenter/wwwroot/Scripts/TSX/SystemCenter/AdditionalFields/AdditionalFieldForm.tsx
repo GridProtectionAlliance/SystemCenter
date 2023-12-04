@@ -28,8 +28,8 @@ import { AdditionalFieldsSlice, ExternalDatabasesSlice, ExternalDBTablesSlice, V
 import { Input, Select, CheckBox } from '@gpa-gemstone/react-forms';
 
 interface IProps {
-    Record: SystemCenter.Types.AdditionalFieldView,
-    Setter: (record: SystemCenter.Types.AdditionalFieldView) => void,
+    Record: SystemCenter.Types.AdditionalField,
+    Setter: (record: SystemCenter.Types.AdditionalField) => void,
     SetErrors?: (e: string[]) => void,
     SetWarnings?: (w: string[]) => void,
     ShowDatabaseSelect?: boolean
@@ -134,7 +134,7 @@ export default function AdditionalFieldForm(props: IProps) {
         props.SetWarnings(w);
     }, [props.Record]);
 
-    const Valid = React.useCallback((field: keyof (SystemCenter.Types.AdditionalFieldView)) => {
+    const Valid = React.useCallback((field: keyof (SystemCenter.Types.AdditionalField)) => {
         if (field === 'FieldName')
             return props.Record.FieldName != null && props.Record.FieldName.length > 0 && props.Record.FieldName.length <= 200;
         if (field === 'ExternalDBTableID')
@@ -144,26 +144,26 @@ export default function AdditionalFieldForm(props: IProps) {
 
     return (
         <form>
-            <Input<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'FieldName'} Label={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} Help={'The Field Name must match the alias in the table query.'} />
-            <Select<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'ParentTable'} Label={'Parent Type'} Setter={props.Setter}
+            <Input<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'FieldName'} Label={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} Help={'The Field Name must match the alias in the table query.'} />
+            <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'ParentTable'} Label={'Parent Type'} Setter={props.Setter}
                 Options={[{ Value: 'Meter', Label: 'Meter' }, { Value: 'Location', Label: 'Substation' }, { Value: 'Customer', Label: 'Customer' }, { Value: 'Asset', Label: 'Asset' },
                     { Value: 'Line', Label: 'Line' }, { Value: 'LineSegment', Label: 'Line Segment' }, { Value: 'Breaker', Label: 'Breaker' }, { Value: 'CapacitorBank', Label: 'Capacitor Bank' }, { Value: 'Transformer', Label: 'Transformer' }, { Value: 'CapacitorBankRelay', Label: 'Capacitor Bank Relay' }, { Value: 'DER', Label: 'DER' }]} />
-            <Select<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'Type'} Label={'Field Type'} Setter={props.Setter}
+            <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'Type'} Label={'Field Type'} Setter={props.Setter}
                 Options={[{ Value: 'string', Label: 'string' }, { Value: 'integer', Label: 'integer' }, { Value: 'number', Label: 'number' }].concat(valueListGroupData.map(x => { return { Value: x.Name, Label: x.Name } }))} />
             {showExt ?
                 <>
                     <Select<{ID: number}> Record={extDBId} Field={'ID'} Label={'External DB'} Setter={setExtDbId}
                             Options={[{ Label: '', Value: '-1' }].concat(externalDBData.map((e) => { return { Label: e.Name, Value: e.ID.toString() } }))} />
                     {extDBId.ID > -1 ?
-                        <Select<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'ExternalDBTableID'} Label={'External DB Table'} Setter={props.Setter} EmptyOption={true}
+                        <Select<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'ExternalDBTableID'} Label={'External DB Table'} Setter={props.Setter} EmptyOption={true}
                             Options={externalDBTablesData.map((e) => { return { Label: e.TableName, Value: e.ID.toString() } })} />
                         : null}
                 </>
                 : null}
-            <CheckBox<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'Searchable'} Label={'Searchable'} Setter={props.Setter} Help={'Enable to use this field as a Search Filter.'} />
-            <CheckBox<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'IsSecure'} Label={'Secure'} Setter={props.Setter} Help={'Enable to make this field only visible to admins.'} />
-            <CheckBox<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'IsInfo'} Label={'Info'} Setter={props.Setter} Help={'Enable to display this field and its Value in the Info tab.'} />
-            <CheckBox<SystemCenter.Types.AdditionalFieldView> Record={props.Record} Field={'IsKey'} Label={'Key'} Setter={props.Setter} Help={'Enable if this is an External Database Key.'} />
+            <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'Searchable'} Label={'Searchable'} Setter={props.Setter} Help={'Enable to use this field as a Search Filter.'} />
+            <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'IsSecure'} Label={'Secure'} Setter={props.Setter} Help={'Enable to make this field only visible to admins.'} />
+            <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'IsInfo'} Label={'Info'} Setter={props.Setter} Help={'Enable to display this field and its Value in the Info tab.'} />
+            <CheckBox<SystemCenter.Types.AdditionalField> Record={props.Record} Field={'IsKey'} Label={'Key'} Setter={props.Setter} Help={'Enable if this is an External Database Key.'} />
         </form>
 
     );

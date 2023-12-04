@@ -241,6 +241,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
             cols={[
                 { key: 'FieldName', field: 'FieldName', label: 'Field Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                 { key: 'ExternalDB', field: 'ExternalDB', label: 'Ext DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                { key: 'ExternalTable', field: 'ExternalTable', label: 'Ext Tbl', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                 { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => `${item.Type}${item.IsKey ? " (external key)" : ""}`},
                 {
                     key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
