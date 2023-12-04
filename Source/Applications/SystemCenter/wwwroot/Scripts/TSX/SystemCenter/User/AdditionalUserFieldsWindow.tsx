@@ -334,6 +334,6 @@ function ValueDisplay<V extends Application.Types.iAdditionalUserFieldValue>(pro
 		return <CheckBox<V> Record={props.Value} Field={'Value'} Label={''} Setter={props.Setter} />
 	else
 		return <Select<V> EmptyOption={true} Record={props.Value} Field={'Value'} Label={''} Setter={props.Setter}
-			Options={props.ValueListItems.map(x => ({ Value: x.ID.toString(), Label: x.Value }))} />
+			Options={props.ValueListItems.map(x => ({ Value: x.Value, Label: x?.AltValue ?? x.Value }))} />
 
 }
