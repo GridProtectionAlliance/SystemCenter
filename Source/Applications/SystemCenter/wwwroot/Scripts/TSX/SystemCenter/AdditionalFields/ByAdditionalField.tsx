@@ -72,7 +72,6 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                 { Value: 'Location', Label: 'Substation' },
                 { Value: 'Customer', Label: 'Customer' },
                 { Value: 'Company', Label: 'Company' },
-                { Value: 'Asset', Label: 'Asset' },
                 { Value: 'Line', Label: 'Line' },
                 { Value: 'LineSegment', Label: 'Line Segment' },
                 { Value: 'Breaker', Label: 'Breaker' },
