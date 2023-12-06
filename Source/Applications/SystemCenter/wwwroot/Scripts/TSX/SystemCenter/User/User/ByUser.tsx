@@ -156,7 +156,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                     if (grpIndex < 0)
                         return () => { }
 
-                    setOptions(valueListItems.filter(v => v.GroupID === valueListGroups[grpIndex].ID).map(item => ({ Value: item.Value, Label: item?.AltValue ?? item.Value })));
+                    setOptions(valueListItems.filter(v => v.GroupID === valueListGroups[grpIndex].ID).map(item => ({ Value: item.Value, Label: item.AltValue ?? item.Value })));
                     return () => { }
                 }}
 
