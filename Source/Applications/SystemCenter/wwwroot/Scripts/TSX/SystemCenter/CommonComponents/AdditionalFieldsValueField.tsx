@@ -28,7 +28,6 @@ import * as _ from 'lodash';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
-import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 
 declare var homePath: string;
 
@@ -104,7 +103,7 @@ const AdditionalFieldsValueField = (props: IValueFieldProps) => {
         return <CheckBox<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
             Disabled={false} Setter={Setter} />
     return <Select<SystemCenter.Types.AdditionalFieldValue> EmptyOption={true} Record={props.Values[valueIndex]} Field={'Value'} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
-        Disabled={false} Setter={Setter} Options={valueListItems.map(x => ({ Value: x.ID.toString(), Label: x.Value }))} />
+        Disabled={false} Setter={Setter} Options={valueListItems.map(x => ({ Value: x.Value, Label: x.AltValue ?? x.Value }))} />
 }
 
 

@@ -42,7 +42,7 @@ export default function ValueListGroupItems(props: IProps) {
     const status = useAppSelector(ValueListSlice.Status);
     const parentID= useAppSelector(ValueListSlice.ParentID);
 
-    const emptyRecord: SystemCenter.Types.ValueListItem = { ID: 0, GroupID: parentID as number, Value: '', AltValue: '', SortOrder: 0 };
+    const emptyRecord: SystemCenter.Types.ValueListItem = { ID: 0, GroupID: parentID as number, Value: '', AltValue: null, SortOrder: 0 };
     const [record, setRecord] = React.useState<SystemCenter.Types.ValueListItem>(emptyRecord);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
@@ -74,7 +74,7 @@ export default function ValueListGroupItems(props: IProps) {
                         <Table<SystemCenter.Types.ValueListItem>
                             cols={[
                                 { key: 'Value', field: 'Value', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'AltValue', field: 'AltValue', label: 'Alternate Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                { key: 'AltValue', field: 'AltValue', label: 'Label', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 { key: 'SortOrder', field: 'SortOrder', label: 'Sort Order', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                                 {
                                     key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
@@ -123,9 +123,9 @@ export default function ValueListGroupItems(props: IProps) {
             </div>
             <Warning
                 Message={'This will permanently delete this Value List Item and cannot be undone.'}
-                Show={showWarning} Title={'Delete ' + (record?.Value ?? 'Value List Item')}
+                Show={showWarning} Title={'Delete ' + (record.AltValue ?? record.Value)}
                 CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }} />
-            <Modal Title={record.ID == 0 ? 'Add New Value List Item' : 'Edit ' + (record?.Value ?? 'Value List Item')} Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
+            <Modal Title={record.ID == 0 ? 'Add New Value List Item' : 'Edit ' + (record.AltValue ?? record.Value)} Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 CancelToolTipContent={<> {errors.map(e => <p>{CrossMark} {e}</p>)}</>}
                 DisableConfirm={errors.length > 0}

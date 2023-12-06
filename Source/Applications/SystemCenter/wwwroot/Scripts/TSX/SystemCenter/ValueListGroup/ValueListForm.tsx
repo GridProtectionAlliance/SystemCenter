@@ -42,7 +42,7 @@ export default function ValueListForm(props: IProps) {
         if (props.Record.Value != null && props.Record.Value.length > 200)
             e.push('Value must be less than 200 characters.');
         if (props.Record.AltValue != null && props.Record.AltValue.length > 200)
-            e.push('Alternate Value must be less than 200 characters.');
+            e.push('Label must be less than 200 characters.');
         
     }, [props.Record])
 
@@ -57,7 +57,7 @@ export default function ValueListForm(props: IProps) {
     return (
         <>
             <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Field={'Value'} Feedback={'A Value of less than 200 characters is required.'} Valid={Valid} Setter={props.Setter} />
-            <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Label={'Alternate Value'}  Field={'AltValue'} Feedback={'AltValue must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
+            <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Label={'Label'} Help={"Value used as label if not set."} Field={'AltValue'} Feedback={'Label must be less than 200 characters.'} Valid={Valid} Setter={props.Setter} />
             <Input<SystemCenter.Types.ValueListItem> Record={props.Record} Label={'Sort Order'} Field={'SortOrder'} Type='number' Valid={Valid} Setter={props.Setter} />
         </>
     );
