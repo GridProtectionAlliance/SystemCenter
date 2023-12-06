@@ -42,7 +42,7 @@ export default function ResultDisplay(props: IProps) {
     const [countstatus, setCountStatus] = React.useState<Application.Types.Status>('unintiated');
     const [externalData, setExternalData] = React.useState<any[]>([]);
     const [ascExt, setAscExt] = React.useState<boolean>(false);
-    const [sortExt, setSortExt] = React.useState<string>("Hero");
+    const [sortExt, setSortExt] = React.useState<string>("");
     const [count, setCount] = React.useState<number>(0);
     const [page, setPage] = React.useState<number>(0);
     const [filters, setFilters] = React.useState<Search.IFilter<any>[]>([]);
@@ -58,6 +58,7 @@ export default function ResultDisplay(props: IProps) {
         }
     }, [filters, props.ForceReload]);
 
+    React.useEffect(() => { setExternalData([]); setSortExt(''); }, [props.ForceReload])
     React.useEffect(() => {
 
         setDataStatus('loading');

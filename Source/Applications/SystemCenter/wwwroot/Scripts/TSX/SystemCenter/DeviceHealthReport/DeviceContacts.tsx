@@ -32,7 +32,7 @@ interface UserAccount extends Application.Types.iUserAccount {
     Selected: boolean
 }
 
-function DeviceContacts(props: {ID: number, Name: string, Field: 'TSC' | 'Sector' }) {
+function DeviceContacts(props: {ID: string, Name: string, Field: 'TSC' | 'Sector' }) {
     const [data, setData] = React.useState<UserAccount[]>([]);
     const [sortKey, setSortKey] = React.useState<string>('LastName');
     const [ascending, setAscending] = React.useState<boolean>(true);

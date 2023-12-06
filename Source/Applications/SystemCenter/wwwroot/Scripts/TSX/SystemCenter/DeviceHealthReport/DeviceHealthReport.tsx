@@ -24,7 +24,6 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useNavigate } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
 
@@ -32,7 +31,7 @@ import { Search, SearchBar, ToolTip } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SystemCenterSettingSlice } from '../Store/Store';
 import moment from 'moment';
-import { HeavyCheckMark, CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
+import { HeavyCheckMark, CrossMark, Warning, Questionmark } from '@gpa-gemstone/gpa-symbols';
 
 const defaultSearchcols: Search.IField<SCGlobal.DeviceHealthReport>[] = [
     { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
@@ -152,7 +151,8 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     const standardSearch: Search.IField<SCGlobal.DeviceHealthReport> = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };
 
     return (
-        <div style={{ width: '100%', height: '100%' }}>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row">
             <SearchBar<SCGlobal.DeviceHealthReport> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Meter(s)'}
                 GetEnum={(setOptions, field) => {
@@ -175,24 +175,27 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
 
             >
             </SearchBar>
-
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
+            </div>
+            <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
+                <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
                 <Table<SCGlobal.DeviceHealthReport>
                     cols={[
                         { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[field]}</a> },
                         { key: 'OpenMIC', label: 'openMIC ID', field: 'OpenMIC', headerStyle: { width: 120 }, rowStyle: { width: 120 }, content: (item, key, field, style) => <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{trimString(item.OpenMIC,10)}</a> },
                         { key: 'LocationKey', label: 'Substn', field: 'LocationKey', headerStyle: { width: 100 }, rowStyle: { width: 100 }, content: (item, key, field, style) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink')?.Value.replace('<AssetKey>', item.LocationID.toString())} target='_blank'>{item.LocationKey}</a> },
                         { key: 'Model', label: 'Model', field: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, field, style) => <a href={`${settings.find(s => s.Name == 'MiMD.Url')?.Value}/Diagnostic/Meter/${item.ID}`} target='_blank'>{item[field]}</a> },
-                        { key: 'TSC', label: 'TSC', field: 'TSC', headerStyle: { width: 50 }, rowStyle: { width: 50 }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSCID}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[field]}</a> },
-                        { key: 'Sector', label: 'Sector', field: 'Sector', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.SectorID}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[field]}</a> },
+                        { key: 'TSC', label: 'TSC', field: 'TSC', headerStyle: { width: 50 }, rowStyle: { width: 50 }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSC}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[field]}</a> },
+                        { key: 'Sector', label: 'Sector', field: 'Sector', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.Sector}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[field]}</a> },
                         { key: 'IP', label: 'IP', field: 'IP', headerStyle: { width: 150 }, rowStyle: { width: 150 }, content: (item, key, field, style) => (item.OpenMIC != undefined ? <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[field]}</a> : item[field]) },
                         {
-                            key: 'LastGood', label: 'Last Succ Conn', field: 'LastGood', headerStyle: { width: 150 }, rowStyle: { width: 150, textAlign: 'center' }, content: (item, key, field, style) => {
-                                if (moment().diff(moment(item[field]), 'hours') > 4) style.backgroundColor = 'yellow';
-                                if (moment().diff(moment(item[field]), 'hours') > 24 ) style.backgroundColor = 'orange';
-                                else if (moment().diff(moment(item[field]), 'days') > 7) style.backgroundColor = 'red';
-
-                                return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic`} target='_blank'>{moment(item[field]).format('MM/DD/YYYY HH:mm')}</a>
+                            key: 'LastGood', label: 'Last Succ Conn', field: 'LastGood', headerStyle: { width: 150 }, rowStyle: { width: 150, textAlign: 'center' }, content: (item, key, field) => {
+                                let className = 'light'
+                                if (moment().diff(moment(item[field]), 'hours') > 4) className = 'info';
+                                if (moment().diff(moment(item[field]), 'hours') > 24) className = 'warning';
+                                else if (moment().diff(moment(item[field]), 'days') > 7) className = 'danger';
+                                return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic`} target='_blank'>
+                                    <span className={`badge badge-pill badge-${className}`}>{moment(item[field]).format('MM/DD/YYYY HH:mm')}</span>
+                                    </a>
                             }
                         },
                         { key: 'BadDays', label: 'Bad Days', field: 'BadDays', headerStyle: { width: 100 }, rowStyle: { width: 100, textAlign: 'center'} },
@@ -219,6 +222,9 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                 else if (item[field] == 'Warning') {
                                     style.backgroundColor = 'antiquewhite';
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' >{Warning}</a>;
+                                }
+                                else if (item.LastGood == null && item.MICBadDays == null) {
+                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' >{Questionmark}</a>;
                                 }
                                 else
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank'>{HeavyCheckMark}</a>;
@@ -287,11 +293,16 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                         
                     }}
                     onClick={handleSelect}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%'  }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        tableStyle={{
+                            padding: 0, width: 'calc(100%)', height: '100%',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                        }}
                     selected={(item) => false}
-                />
+                    />
+                </div>
             </div>
         </div>
     )
