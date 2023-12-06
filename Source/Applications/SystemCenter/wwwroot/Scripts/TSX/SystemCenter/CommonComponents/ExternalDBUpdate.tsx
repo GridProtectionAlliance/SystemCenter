@@ -120,7 +120,6 @@ const ExternalDBUpdate = React.memo((props: {
                 <Table<SystemCenter.Types.ExternalDatabases>
                     cols={[
                         { key: 'Name', field: 'Name', label: 'Database Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'LastDataPull', field: 'LastDataPull', label: 'Last Date Retrieved', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         {
                             key: 'ID', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (db) => {
                                 if (statusMap.get(db.ID) === 'loading') return <LoadingIcon Show={true} Label={`Performing update for ${props.Type}s on connected to ${db.Name}...`} />
