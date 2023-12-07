@@ -57,7 +57,7 @@ export default function ExternalDBXdaFieldsForm(props: IProps) {
     }, [status, parentID, props.Record.ExternalDBTableID]);
 
     const typeOptions = ['Meter', 'Location', 'Customer',
-        'Line', 'Line Segment', 'Breaker', 'Bus', 'Transformer', 'Capacitor Bank', 'Capacitor Bank Relay', 'DER'].map(str => ({
+        'Line', 'Line Segment', 'Breaker', 'Bus', 'Transformer', 'Cap Bank', 'Cap Bank Relay', 'DER'].map(str => ({
             Value: str.replace(/\s/, ""),
             Label: str
         }));
