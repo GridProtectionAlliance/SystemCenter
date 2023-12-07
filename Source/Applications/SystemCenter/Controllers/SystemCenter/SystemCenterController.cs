@@ -601,72 +601,13 @@ namespace SystemCenter.Controllers
     public class AdditionalFieldController : ModelController<AdditionalField> { }
 
     [RoutePrefix("api/SystemCenter/AdditionalFieldView")]
-    public class AdditionalFieldViewController : ModelController<AdditionalFieldView>
+    public class AdditionalFieldViewController : ModelController<AdditionalFieldView, AdditionalField>
     {
-        public override IHttpActionResult Post([FromBody] JObject record)
-        {
-            if (!PostAuthCheck())
-                return Unauthorized();
-
-            try
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    AdditionalField newRecord = record.ToObject<AdditionalFieldView>();
-                    int result = new TableOperations<AdditionalField>(connection).AddNewRecord(newRecord);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
-        public override IHttpActionResult Patch([FromBody] AdditionalFieldView record)
-        {
-            if (!PatchAuthCheck())
-                return Unauthorized();
-            try
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    int result = new TableOperations<AdditionalField>(connection).UpdateRecord(record);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
-
-        public override IHttpActionResult Delete([FromBody] AdditionalFieldView record)
-        {
-            if (!DeleteAuthCheck())
-                return Unauthorized();
-            try
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    int result = new TableOperations<AdditionalField>(connection).DeleteRecord(record);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
         [HttpGet, Route("ParentTable/{openXDAParentTable}/{sort}/{ascending:int}")]
         public IHttpActionResult GetAdditionalFieldsForTable(string openXDAParentTable, string sort, int ascending)
         {
             if (GetRoles == string.Empty || User.IsInRole(GetRoles))
             {
-                //Fix added Fro Capacitor Bank due to naming Missmatch
-                if (openXDAParentTable == "CapacitorBank")
-                    openXDAParentTable = "CapBank";
-
                 string orderByExpression = DefaultSort;
 
                 if (sort != null && sort != string.Empty)
@@ -684,25 +625,6 @@ namespace SystemCenter.Controllers
                     DataTable dataTable = connection.RetrieveData(sqlFormat, openXDAParentTable);
 
                     return Ok(dataTable);
-                }
-            }
-            else
-            {
-                return Unauthorized();
-            }
-        }
-
-        [HttpGet, Route("ExternalDataBase")]
-        public IHttpActionResult GetExternalDB()
-        {
-            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
-            {
-
-                using (AdoDataConnection connection = new AdoDataConnection("systemSettings"))
-                {
-                    string tableName = TableOperations<ExternalDatabases>.GetTableName();
-                    DataTable dataTbl = connection.RetrieveData($"SELECT DISTINCT [Name] from {tableName}");
-                    return Ok(dataTbl);
                 }
             }
             else
@@ -1503,7 +1425,7 @@ namespace SystemCenter.Controllers
     }
 
     [RoutePrefix("api/SystemCenter/ExternalDatabases")]
-    public class ExternalDatabasesController : ModelController<ExternalDatabases>
+    public class ExternalDatabasesController : ModelController<DetailedExternalDatabases, ExternalDatabases>
     {
         private static ServiceHost Host = Program.Host;
         public override IHttpActionResult Post([FromBody] JObject record)
@@ -1588,7 +1510,7 @@ namespace SystemCenter.Controllers
         [HttpPost, Route("UnscheduledUpdate")]
         public IHttpActionResult UnscheduledUpdate([FromBody] JObject record)
         {
-            if (!PostAuthCheck() || ViewOnly)
+            if (!PostAuthCheck())
                 return Unauthorized();
             try
             {
@@ -1601,10 +1523,69 @@ namespace SystemCenter.Controllers
                 return InternalServerError(ex);
             }
         }
+
+        [HttpPost, Route("UnscheduledUpdate/{parentTable}")]
+        public IHttpActionResult UnscheduledUpdate([FromBody] JObject record, string parentTable)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+                ScheduledExtDBTask.Run(extDB, parentTable);
+                return Ok(0);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpPost, Route("UnscheduledUpdate/{parentTable}/{parentID:int}")]
+        public IHttpActionResult UnscheduledUpdate([FromBody] JObject record, string parentTable, int parentID)
+        {
+            if (!PostAuthCheck())
+                return Unauthorized();
+            try
+            {
+                ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+                ScheduledExtDBTask.Run(extDB, parentTable, parentID);
+                return Ok(0);
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
+
+        [HttpGet, Route("GetExternalDatabases/{parentTable}")]
+        public IHttpActionResult GetExternalDatabases(string parentTable)
+        {
+            if (!GetAuthCheck())
+                return Unauthorized();
+            try
+            {
+                using(AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    IEnumerable<ExternalDatabases> extDBs = new TableOperations<ExternalDatabases>(connection).QueryRecordsWhere(@"
+                        ID in (
+                            SELECT DISTINCT ExternalDatabases.ID
+                            FROM AdditionalField INNER JOIN 
+                            extDBTables ON AdditionalField.ExternalDBTableID = extDBTables.ID INNER JOIN 
+                            ExternalDatabases ON extDBTables.ExtDBID = ExternalDatabases.ID 
+                            WHERE AdditionalField.ParentTable = {0})", parentTable);
+                    return Ok(extDBs);
+                }
+            }
+            catch (Exception ex)
+            {
+                return InternalServerError(ex);
+            }
+        }
     }
 
     [RoutePrefix("api/SystemCenter/extDBTables")]
-    public class ExternalTableController : ModelController<extDBTables>
+    public class ExternalTableController : ModelController<DetailedExtDBTables, extDBTables>
     {
         [HttpGet, Route("RetrieveTable/{extTableID:int}/{orderBy}/{ascending:int?}/{start:int?}/{end:int?}")]
         public IHttpActionResult RetrieveTableByID(int extTableID, string orderBy=null, int? ascending=null, int? start=null, int? end=null)
@@ -1664,7 +1645,7 @@ namespace SystemCenter.Controllers
 
         public class PostDataExtension: PostData
         {
-            public extDBTables externalTable { get; set; }
+            public DetailedExtDBTables externalTable { get; set; }
         }
         [HttpPost, Route("RetrieveTempTable/{start:int}/{end:int}")]
         public IHttpActionResult RetrieveTable([FromBody] PostDataExtension record, int start, int end)

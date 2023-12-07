@@ -514,40 +514,6 @@ namespace SystemCenter.Controllers.OpenXDA
             }               
 
         }
-
-        [HttpGet, Route("extDataBases")]
-        public IHttpActionResult GetExternalDB()
-        {
-            try
-            {
-                if (GetRoles != string.Empty && !User.IsInRole(GetRoles))
-                    return Unauthorized();
-
-                string afTbl = TableOperations<AdditionalField>.GetTableName();
-                string afvTbl = TableOperations<AdditionalFieldValue>.GetTableName();
-
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    string query = $@"SELECT MIN(UpdatedOn) AS lastUpdate, {afTbl}.ExternalDBTableID AS name  
-                                                FROM 
-                                                {afTbl} LEFT JOIN {afvTbl} ON {afTbl}.ID = {afvTbl}.AdditionalFieldID
-                                                WHERE 
-                                                    {afTbl}.ParentTable = 'Meter'
-                                                    AND {afTbl}.ExternalDBTableID IS NOT NULL AND {afTbl}.ExternalDBTableID <> ''
-                                                GROUP BY {afTbl}.ExternalDBTableID";
-
-                    DataTable table = connection.RetrieveData(query);
-
-                    return Ok(table);
-                }
-               
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-
-        }
     }
 
     [CustomView("SELECT " +

@@ -26,7 +26,7 @@ import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
-import { Search } from '@gpa-gemstone/react-interactive';
+import { Search, Modal } from '@gpa-gemstone/react-interactive';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -41,6 +41,8 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     const data = useAppSelector(ByMeterSlice.SearchResults);
     const ascending = useAppSelector(ByMeterSlice.Ascending);
     const sortKey = useAppSelector(ByMeterSlice.SortField);
+    const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
+    const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
     function handleSelect(item) {
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID })
@@ -108,6 +110,17 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                         <button className="btn btn-primary" data-tooltip onClick={goNewMeterWizard} hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}>New Meter</button>
                     </fieldset>
                 </li>
+                <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
+                    <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                        <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                        <form>
+                            <div className="form-group">
+                                <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
+                                    onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
+                            </div>
+                        </form>
+                    </fieldset>
+                </li>
             </DefaultSearch.Meter>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
                 <Table<SystemCenter.Types.DetailedMeter>
@@ -142,25 +155,13 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                     selected={(item) => false}
                 />
             </div>
-
-            <div className="modal" id="extDBModal">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Meter External Database Fields</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <ExternalDBUpdate ID={-1} Type='Meter' Tab = ""/>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
+            <Modal Show={showEXTModal} Size={'xlg'} Title={'Meter External Database Fields'}
+                ShowCancel={true} ConfirmText={'Update All'} CancelText={'Close'} CallBack={(c) => {
+                    if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
+                    if (!c) setShowExtModal(false);
+                }}>
+                <ExternalDBUpdate Type='Meter' UpdateAll={extDbUpdateAll} />
+            </Modal>
         </div>
     )
 }

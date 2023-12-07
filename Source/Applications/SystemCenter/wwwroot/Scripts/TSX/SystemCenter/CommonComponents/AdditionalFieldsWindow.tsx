@@ -110,7 +110,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
 
         handle.done((data: Array<SystemCenter.Types.AdditionalFieldView>) => {
             if (props.HideExternal ?? false)
-                setAdditionalFields(data.filter(item => item.ExternalDB == null || item.ExternalDB == ''));
+                setAdditionalFields(data.filter(item => item.ExternalDB == null || item.ExternalDB == '' || item.IsKey));
             else
                 setAdditionalFields(data);
         });
@@ -240,11 +240,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         <Table<SystemCenter.Types.AdditionalFieldView>
             cols={[
                 { key: 'FieldName', field: 'FieldName', label: 'Field Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                {
-                    key: 'ExternalDB', field: 'ExternalDB', label: (props.HideExternal ?? false) ? '' : 'Ext DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
-                        return (props.HideExternal ?? false) ? '' : item.ExternalDB
-                    }
-                },
+                { key: 'ExternalDB', field: 'ExternalDB', label: 'Ext DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                 { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => `${item.Type}${item.IsKey ? " (external key)" : ""}`},
                 {
                     key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {

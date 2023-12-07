@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { AdditionalFieldsSlice, ValueListGroupSlice } from '../Store/Store';
-import ExternalDBTableFieldForm from './ExternalDBTableFieldForm';
+import AdditionalFieldForm from '../AdditionalFields/AdditionalFieldForm';
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan, HeavyCheckMark, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols';
 import { LoadingScreen, Modal, SearchBar, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
@@ -109,27 +109,6 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
         if (valueListGroupStatus === 'unintiated' || valueListGroupStatus === 'changed')
             dispatch(ValueListGroupSlice.Fetch());
     }, [valueListGroupStatus]);
-
-
-    React.useEffect(() => {
-        let e = [];
-        if (record.FieldName == null || record.FieldName.length == 0) {
-            e.push('A Field Name is required.');
-        }
-
-        if (data.findIndex((a) => a.ID != record.ID && a.FieldName.toLowerCase() == record.FieldName?.toLowerCase() && a.ParentTable == record.ParentTable) !== -1)
-            e.push('An Additional Field with this Parent Type already exists.');
-
-        setErrors(e);
-    }, [record]);
-
-    React.useEffect(() => {
-        let w = [];
-        if (record.IsKey && data.findIndex((d) => d.ID != record.ID && d.IsKey) !== -1)
-            w.push('A key field already exists.');
-
-        setWarnings(w);
-    }, [record, data]);
 
     /* TODO: we don't have any way to filter for null values here... this might need a gsf update
     React.useEffect(() => {
@@ -275,7 +254,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     }
                 }}
             >
-                <ExternalDBTableFieldForm Record={record} Setter={setRecord} SetErrors={setErrors} />
+                <AdditionalFieldForm Record={record} Setter={setRecord} SetErrors={setErrors} SetWarnings={setWarnings} ShowDatabaseSelect={false} />
             </Modal>
 
             <SelectPopup<SystemCenter.Types.AdditionalFieldView>

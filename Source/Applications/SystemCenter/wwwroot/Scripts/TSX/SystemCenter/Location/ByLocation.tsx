@@ -50,6 +50,8 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     const status = useAppSelector(ByLocationSlice.Status);
     const [newLocation, setNewLocation] = React.useState<SystemCenter.Types.DetailedLocation>(getNewLocation());
     const [newLocationErrors, setNewLocationErrors] = React.useState<string[]>([]);
+    const [showEXTModal, setShowExtModal] = React.useState<boolean>(false);
+    const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
 
@@ -183,15 +185,18 @@ const ByLocation: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-
             <DefaultSearch.Location Slice={ByLocationSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields}>
-   
             <li className="nav-item" style={{ width: '20%', paddingRight: 10 }}>
                 <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                     <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                     <form>
                         <div className="form-group">
-                            <div className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0} onClick={(event) => { event.preventDefault(); setShowNew(true); }}>Add Substation</div>
+                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
+                                onClick={(event) => { event.preventDefault(); setShowNew(true); }}>Add Substation</button>
+                        </div>
+                        <div className="form-group">
+                            <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
+                                onClick={(event) => { event.preventDefault(); setShowExtModal(true); }}>External Database</button>
                         </div>
                     </form>
                 </fieldset>
@@ -259,26 +264,13 @@ const ByLocation: Application.Types.iByComponent = (props) => {
                     </div>
                 </div>
             </Modal>
-
-            <div className="modal" id="extDBModal">
-                <div className="modal-dialog" style={{ maxWidth: '100%', width: '75%' }}>
-                    <div className="modal-content">
-                        <div className="modal-header">
-                            <h4 className="modal-title">Substation External Database Fields</h4>
-                            <button type="button" className="close" data-dismiss="modal">&times;</button>
-                        </div>
-                        <div className="modal-body">
-                            <ExternalDBUpdate ID={-1} Type='Location' Tab = ""/>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-danger" data-dismiss="modal">Close</button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-
-
+            <Modal Show={showEXTModal} Size={'xlg'} Title={'Substation External Database Fields'}
+                ShowCancel={true} ConfirmText={'Update All'} CancelText={'Close'} CallBack={(c) => {
+                    if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
+                    if (!c) setShowExtModal(false);
+                }}>
+                <ExternalDBUpdate Type={'Location'} UpdateAll={extDbUpdateAll} />
+            </Modal>
         </div>
     )
    
