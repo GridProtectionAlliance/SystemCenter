@@ -79,6 +79,9 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                 { Value: 'Transformer', Label: 'Transformer' },
                 { Value: 'CapBankRelay', Label: 'Capacitor Bank Relay' },
                 { Value: 'DER', Label: 'DER' }
+                { Value: 'Generation', Label: 'Generation' },
+                { Value: 'StationAux', Label: 'Station Auxiliary' },
+                { Value: 'StationBattery', Label: 'Station Battery'}
             ]
         },
         // Todo: maybe override query results to allow for ExternalDBTableID to be used as a boolean?
