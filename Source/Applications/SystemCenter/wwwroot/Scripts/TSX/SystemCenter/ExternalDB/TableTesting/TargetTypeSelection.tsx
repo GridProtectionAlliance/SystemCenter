@@ -31,7 +31,7 @@ interface IProps {
 }
 
 const parentTableOptions = ['Meter', 'Location', 'Customer', 'Asset',
-    "Line", "Line Segment", "Breaker", "Bus", "Capacitor Bank", "Capacitor Bank Relay", "Transformer", "DER"].map(name => { return { Value: name, Label: name } });
+    "Line", "Line Segment", "Breaker", "Bus", "Capacitor Bank", "Capacitor Bank Relay", "Transformer", "DER", "Generation", "Station Auxilary", "Station Battery"].map(name => { return { Value: name, Label: name } });
 interface TableOptions { ShowTableSelect: boolean, TableName: string };
 
 export default function TargetTypesSelection(props: IProps) {

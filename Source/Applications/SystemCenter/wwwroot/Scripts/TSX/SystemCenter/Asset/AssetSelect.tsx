@@ -25,7 +25,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { ByAssetSlice, AssetTypeSlice } from '../Store/Store';
-import { SystemCenter } from '@gpa-gemstone/application-typings';
+import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Search } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -47,6 +47,15 @@ export default function AssetSelect(props: IProps) {
     const assetType = useAppSelector(AssetTypeSlice.Data);
     const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
     const dispatch = useAppDispatch();
+
+    const lineSegmentFilter: Search.IFilter<OpenXDA.Types.RemoteXDAMeter> =
+    {
+        FieldName: 'AssetType',
+        SearchText: 'LineSegment',
+        Operator: '<>',
+        Type: 'string',
+        isPivotColumn: false
+    };
 
     React.useEffect(() => {
         if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
@@ -114,6 +123,7 @@ export default function AssetSelect(props: IProps) {
             Show={props.ShowModal}
             Type={props.Type === undefined ? 'multiple' : props.Type}
             StorageID={props.StorageID}
+            AddlFilters={[lineSegmentFilter]}
             Columns={[
                 { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                 { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },

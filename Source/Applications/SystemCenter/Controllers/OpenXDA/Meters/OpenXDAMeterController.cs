@@ -124,6 +124,12 @@ namespace SystemCenter.Controllers.OpenXDA
                                 }
                                 else if (assetType == "Bus")
                                     (new TableOperations<Bus>(connection)).AddNewRecord(asset.ToObject<Bus>());
+                                else if (assetType == "Generation")
+                                    (new TableOperations<Generation>(connection)).AddNewRecord(asset.ToObject<Generation>());
+                                else if (assetType == "StationAux")
+                                    (new TableOperations<StationAux>(connection)).AddNewRecord(asset.ToObject<StationAux>());
+                                else if (assetType == "StationBattery")
+                                    (new TableOperations<StationBattery>(connection)).AddNewRecord(asset.ToObject<StationBattery>());
                                 else if (assetType == "CapacitorBank")
                                     (new TableOperations<CapBank>(connection)).AddNewRecord(asset.ToObject<CapBank>());
                                 else if (assetType == "Transformer")

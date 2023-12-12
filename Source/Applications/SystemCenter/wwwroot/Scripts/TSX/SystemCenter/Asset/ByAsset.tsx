@@ -42,10 +42,13 @@ import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice
 import { AssetTypeSlice, ByAssetSlice } from '../Store/Store';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import DERAttributes from '../AssetAttribute/DER';
+import GenerationAttributes from '../AssetAttribute/Generation';
+import StationAuxAttributes from '../AssetAttribute/StationAux';
+import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 
 
 
-declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Breaker'
+declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Breaker' | 'Generation' | 'StationAux' | 'StationBattery'
 
 declare var homePath: string;
 
@@ -188,6 +191,12 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             return <TransformerAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.Transformer} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'DER')
             return <DERAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.DER} UpdateState={setNewAsset} />;
+        else if (newAsset.AssetType == 'Generation')
+            return <GenerationAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.Generation} UpdateState={setNewAsset} />;
+        else if (newAsset.AssetType == 'StationAux')
+            return <StationAuxAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.StationAux} UpdateState={setNewAsset} />;
+        else if (newAsset.AssetType == 'StationBattery')
+            return <StationBatteryAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.StationBattery} UpdateState={setNewAsset} />;
     }
 
 
@@ -270,7 +279,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortKey={sortKey}
+                    sortKey={sortKey.toString()}
                     ascending={ascending}
                     onSort={(d) => {
                         if (d.colKey === "Scroll")
@@ -339,6 +348,15 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                     </li>
                     <li className="nav-item">
                         <a className={"nav-link" + (extDBTab === "CapacitorBank" ? " active" : "")} onClick={() => setExtDBTab('CapacitorBank')} data-toggle="tab">CapBanks</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (extDBTab == "Generation" ? " active" : "")} onClick={() => setExtDBTab('Generation')} data-toggle="tab" href="#extDBGeneration">Generation</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (extDBTab == "StationAux" ? " active" : "")} onClick={() => setExtDBTab('StationAux')} data-toggle="tab" href="#extDBStationAux">StationAux</a>
+                    </li>
+                    <li className="nav-item">
+                        <a className={"nav-link" + (extDBTab == "StationBattery" ? " active" : "")} onClick={() => setExtDBTab('StationBattery')} data-toggle="tab" href="#extDBStationBattery">StationBattery</a>
                     </li>
                 </ul>
 

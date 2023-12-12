@@ -166,7 +166,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortKey={sortField}
+                    sortKey={sortField.toString()}
                     ascending={ascending}
                     onSort={(d) => {
                         if (d.colKey === null) return;

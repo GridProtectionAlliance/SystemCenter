@@ -195,6 +195,15 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/Bus")]
     public class OpenXDABusController : ModelController<Bus> { }
 
+    [RoutePrefix("api/OpenXDA/Generation")]
+    public class OpenXDAGenController : ModelController<Generation> { }
+
+    [RoutePrefix("api/OpenXDA/StationAux")]
+    public class OpenXDAAuxController : ModelController<StationAux> { }
+
+    [RoutePrefix("api/OpenXDA/StationBattery")]
+    public class OpenXDABatteryController : ModelController<StationBattery> { }
+
     [RoutePrefix("api/OpenXDA/CapacitorBank")]
     public class OpenXDACapBankController : ModelController<CapBank> { }
 

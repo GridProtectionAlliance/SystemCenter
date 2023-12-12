@@ -39,6 +39,9 @@ import { Warning, Modal, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
+import GenerationAttributes from '../AssetAttribute/Generation';
+import StationAuxAttributes from '../AssetAttribute/StationAux';
+import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 
 declare var homePath: string;
 
@@ -248,7 +251,12 @@ const MeterAssetWindow = (props: IProps) => {
             return <TransformerAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.Transformer} UpdateState={changeActiveAsset} />;
         else if (activeAsset.AssetType == 'DER')
             return <DERAttributes NewEdit={newEdit} Asset={activeAsset as OpenXDA.Types.DER} UpdateState={changeActiveAsset} />;
-
+        else if (activeAsset.AssetType == 'Generation')
+            return <GenerationAttributes NewEdit={newEdit} Asset={activeAsset} UpdateState={changeActiveAsset} />;
+        else if (activeAsset.AssetType == 'StationAux')
+            return <StationAuxAttributes NewEdit={newEdit} Asset={activeAsset} UpdateState={changeActiveAsset} />;
+        else if (activeAsset.AssetType == 'StationBattery')
+            return <StationBatteryAttributes NewEdit={newEdit} Asset={activeAsset} UpdateState={changeActiveAsset} />;
     }
 }
 
