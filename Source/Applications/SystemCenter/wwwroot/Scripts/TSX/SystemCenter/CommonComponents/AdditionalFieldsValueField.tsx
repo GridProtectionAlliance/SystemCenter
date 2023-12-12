@@ -41,13 +41,22 @@ interface IValueFieldProps {
 
 const AdditionalFieldsValueField = (props: IValueFieldProps) => {
     const [valueListItems, setValueListItems] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
-    const [valueIndex, setValueIndex] = React.useState<number>(-1)
+    const [valueIndex, setValueIndex] = React.useState<number>(-1);
+
+    const valueListValue: SystemCenter.Types.AdditionalFieldValue = React.useMemo(() => {
+        if (valueIndex >= 0) return props.Values[valueIndex];
+        else return { ID: 0, AdditionalFieldID: props.Field.ID, ParentTableID: props.ParentTableID, Value: null };
+    }, [valueIndex, props.Values, props.Field.ID, props.ParentTableID])
+
+    const setter = React.useCallback((record: SystemCenter.Types.AdditionalFieldValue) => {
+        let updated = _.cloneDeep(props.Values);
+        if (valueIndex >= 0) updated[valueIndex] = record;
+        else updated.push(record);
+        props.Setter(updated);
+    }, [props.Values, props.Setter]);
 
     React.useEffect(() => {
-        let index = props.Values.findIndex(value => value.AdditionalFieldID == props.Field.ID);
-        setValueIndex(index);
-        if (index == -1)
-            props.Setter([...props.Values, { ID: 0, AdditionalFieldID: props.Field.ID, ParentTableID: props.ParentTableID, Value: null }]);
+        setValueIndex(props.Values.findIndex(value => value.AdditionalFieldID == props.Field.ID));
     }, [props.Values, props.Field]);
 
 
@@ -72,38 +81,31 @@ const AdditionalFieldsValueField = (props: IValueFieldProps) => {
         }
     }, [props.Field.Type]);
 
-    function Setter(record: SystemCenter.Types.AdditionalFieldValue): void {
-        let updated = _.cloneDeep(props.Values);
-        updated[valueIndex] = record;
-        props.Setter(updated)
-    }
-
     function Valid(type: SystemCenter.Types.AdditionalFieldType): boolean {
         if (props.Field.Type == "integer")
-            return props.Values[valueIndex].Value == null || AssetAttributes.isInteger(props.Values[valueIndex].Value);
+            return valueListValue.Value == null || AssetAttributes.isInteger(valueListValue.Value);
         else if (props.Field.Type == "number")
-            return props.Values[valueIndex].Value == null || AssetAttributes.isRealNumber(props.Values[valueIndex].Value);
+            return valueListValue.Value == null || AssetAttributes.isRealNumber(valueListValue.Value);
         else if (props.Field.Type == "boolean")
             return true;
         else
             return true;
     }
 
-    if (valueIndex == -1 || props.Values[valueIndex] == undefined) {
+    if (valueListValue == null)
         return null;
-    }
     if (props.Field.Type == 'string' || props.Field.IsKey)
-        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
-            Type={'text'} Disabled={props.Field.IsKey} Setter={Setter}
+        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={valueListValue} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
+            Type={'text'} Disabled={props.Field.IsKey} Setter={setter}
             Help={(props.Field.IsKey && props.IncludeLabel) ? `Key Value for the ${props.Field.ExternalDB} External Database. Visit the Additional Fields tab to select a different Value.` : undefined} />
     if (props.Field.Type == 'number' || props.Field.Type == 'integer')
-        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
-            Type={'number'} Disabled={false} Setter={Setter} Feedback={props.Field.FieldName + ' requires an integer value.'} />
+        return <Input<SystemCenter.Types.AdditionalFieldValue> Record={valueListValue} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
+            Type={'number'} Disabled={false} Setter={setter} Feedback={props.Field.FieldName + ' requires an integer value.'} />
     if (props.Field.Type == 'boolean')
-        return <CheckBox<SystemCenter.Types.AdditionalFieldValue> Record={props.Values[valueIndex]} Field={'Value'} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
-            Disabled={false} Setter={Setter} />
-    return <Select<SystemCenter.Types.AdditionalFieldValue> EmptyOption={true} Record={props.Values[valueIndex]} Field={'Value'} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
-        Disabled={false} Setter={Setter} Options={valueListItems.map(x => ({ Value: x.Value, Label: x.AltValue ?? x.Value }))} />
+        return <CheckBox<SystemCenter.Types.AdditionalFieldValue> Record={valueListValue} Field={'Value'} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
+            Disabled={false} Setter={setter} />
+    return <Select<SystemCenter.Types.AdditionalFieldValue> EmptyOption={true} Record={valueListValue} Field={'Value'} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
+        Disabled={false} Setter={setter} Options={valueListItems.map(x => ({ Value: x.Value, Label: x.AltValue ?? x.Value }))} />
 }
 
 
