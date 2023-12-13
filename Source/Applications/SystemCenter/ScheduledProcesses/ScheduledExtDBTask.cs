@@ -68,8 +68,8 @@ namespace SystemCenter.ScheduledProcesses
             foreach (Type type in CheckedTypes)
             {
                 Type tableOp = typeof(TableOperations<>).MakeGenericType(type);
-                var getTableName = tableOp.GetMethod("GetTableName", BindingFlags.Static | BindingFlags.Public);
-                TypeTableNameDict.Add(type, (string) getTableName.Invoke(null, new object[] { }));
+                MethodInfo getTableName = tableOp.GetMethod("GetTableName", BindingFlags.Static | BindingFlags.Public);
+                TypeTableNameDict.Add(type, (string)getTableName.Invoke(null, new object[] { }));
             }
         }
         #endregion
@@ -241,19 +241,31 @@ namespace SystemCenter.ScheduledProcesses
             TableOperations<T> table, TableOperations<AdditionalField> addlTable, TableOperations<AdditionalFieldValue> addlValuesTable,
             ExpressionContext context, AdoDataConnection externalConnection) where T: class, new()
         {
+            DefineAllowedVariables(context);
+            context.Variables[table.TableName] = record;
+            // Defining additional fields
             int idKey = GetID(record);
             if (idKey == -1) return null; // Should be impossible to trigger without huge overhauling of openXDA
-            AdditionalField keyField = addlTable.QueryRecordWhere("ParentTable = {0} AND ExternalDBTableID = {1} AND IsKey = 1", table.TableName, extTable.ID);
-            AdditionalFieldValue keyValue = null;
-            if (keyField is not null)
+            IEnumerable<AdditionalField> addlFields = addlTable.QueryRecordsWhere("ParentTable = {0} AND ExternalDBTableID = {1}", table.TableName, extTable.ID);
+            foreach (AdditionalField field in addlFields)
             {
-                keyValue = addlValuesTable.QueryRecordWhere( "ParentTableID = {0} AND AdditionalFieldValue.AdditionalFieldID = {1}", idKey, keyField.ID);
-                // Assumption, if key field exists, then key field is required to query a singular record
-                if (keyValue is null) return null;
+                AdditionalFieldValue value = addlValuesTable.QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", idKey, field.ID);
+                if (field.IsKey)
+                {
+                    // Means we've already defined a key
+                    if (context.Variables["Key"] is not null)
+                    {
+                        Log.Warn($"External Table {extTable.TableName} has multiple key values defined. Using first value found as key \"{context.Variables["Key"]}\"");
+                        continue;
+                    }
+                    // Assumption, if key field exists, then key field is required to query a singular record
+                    if (value?.Value is null) return null;
+                    // Key is defined with a special keyword
+                    context.Variables["Key"] = value.Value;
+                }
+                else if (value?.Value is null) continue;
+                context.Variables[table.TableName + "." + field.FieldName] = value.Value;
             }
-            DefineAllowedVariables(context);
-            context.Variables["Key"] = keyValue?.Value;
-            context.Variables[table.TableName] = record;
             return ExecuteQueryWithContext(extTable, context, externalConnection, new Condition[0]);
         }
 
