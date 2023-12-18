@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols';
@@ -144,52 +144,104 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
 
             <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
                 <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
-                    <Table<SystemCenter.Types.AdditionalFieldView>
-                        cols={[
-                            { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            {
-                                key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item) => item.ParentTable != '' ? item.ParentTable : 'No Associated Table'
-                            },
-                            { key: 'ExternalDB', field: 'ExternalDB', label: 'External DB', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'ExternalTable', field: 'ExternalTable', label: 'External Table', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Type', field: 'Type', label: 'Field Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            {
-                                key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item) => item.Searchable ? HeavyCheckMark : CrossMark
-                            },
-                            {
-                                key: 'IsSecure', label: 'Secure', field: 'IsSecure', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item) => item.IsSecure ? HeavyCheckMark : CrossMark
-                            },
-                            {
-                                key: 'IsInfo', label: 'Info', field: 'IsInfo', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item) => item.IsInfo ? HeavyCheckMark : CrossMark
-                            },
-                            {
-                                key: 'IsKey', label: 'Key', field: 'IsKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item) => item.IsKey ? HeavyCheckMark : CrossMark
-                            },
-                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortField as string}
-                        ascending={ascending}
-                        onSort={(d) => {
+                    <ReactTable.Table<SystemCenter.Types.AdditionalFieldView>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField as string}
+                        Ascending={ascending}
+                        OnSort={(d) => {
                             if (d.colKey === null) return;
                             dispatch(AdditionalFieldsSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        onClick={(item) => { setRecord(item.row); setMode('Edit'); }}
-                        tableStyle={{
+                        OnClick={(item) => { setRecord(item.row); setMode('Edit'); }}
+                        TableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                         }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                    />
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'FieldName'}
+                            AllowSort={true}
+                            Field={'FieldName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'ParentTable'}
+                            AllowSort={true}
+                            Field={'ParentTable'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.ParentTable != '' ? item.ParentTable : 'No Associated Table' }
+                        > Parent Type
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'ExternalDB'}
+                            AllowSort={true}
+                            Field={'ExternalDB'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > External DB
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'ExternalTable'}
+                            AllowSort={true}
+                            Field={'ExternalTable'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > External Table
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'Type'}
+                            AllowSort={true}
+                            Field={'Type'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Field Type
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'Searchable'}
+                            AllowSort={true}
+                            Field={'Searchable'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.Searchable ? HeavyCheckMark : CrossMark }
+                        > Searchable
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'IsSecure'}
+                            AllowSort={true}
+                            Field={'IsSecure'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.IsSecure ? HeavyCheckMark : CrossMark }
+                        > Secure
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'IsInfo'}
+                            AllowSort={true}
+                            Field={'IsInfo'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.IsInfo ? HeavyCheckMark : CrossMark }
+                        > Info
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                            Key={'IsKey'}
+                            AllowSort={true}
+                            Field={'IsKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.IsKey ? HeavyCheckMark : CrossMark }
+                        > Key
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
 
