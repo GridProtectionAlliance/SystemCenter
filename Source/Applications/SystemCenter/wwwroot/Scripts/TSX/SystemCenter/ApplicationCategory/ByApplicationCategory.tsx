@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table'
+import { ReactTable } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal} from '@gpa-gemstone/react-interactive';
@@ -124,32 +124,45 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<ApplicationCategory>
-                    cols={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '50%' }, rowStyle: { width: '15%' } },
-                        { key: 'SortOrder', field: 'SortOrder', label: 'Sort Order', headerStyle: { width: '50%' }, rowStyle: { width: '15%' } },
-                        { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortField}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colKey === 'scroll' || d.colField === undefined)
+                <ReactTable.Table<ApplicationCategory>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortField}
+                    Ascending={ascending}
+                    OnSort={(d) => {
+                        if (d.colField === undefined)
                             return;
                         if (d.colField === sortField)
                             setAscending(!ascending);
                         else {
                             setAscending(true);
                             setSortField(d.colField);
-                        }   
+                        } 
                     }}
-                    onClick={handleSelect}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                    OnClick={handleSelect}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<ApplicationCategory>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: '50%' }}
+                        RowStyle={{ width: '15%' }}
+                    > Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<ApplicationCategory>
+                        Key={'SortOrder'}
+                        AllowSort={true}
+                        Field={'SortOrder'}
+                        HeaderStyle={{ width: '50%' }}
+                        RowStyle={{ width: '15%' }}
+                    > Sort Order
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
 
             <Modal Title={'Add New Category'}
