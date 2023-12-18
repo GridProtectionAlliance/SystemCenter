@@ -147,8 +147,8 @@ function AssetInfoWindow(props: IProps) {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     function changedFields(): string[] {
