@@ -98,8 +98,8 @@ function Location(props: IProps) {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
      
     if (location == null) return null;
@@ -121,7 +121,7 @@ function Location(props: IProps) {
                     <h2>{location != null ? location.Name + ' (' + location.LocationKey + ')' : ''}</h2>
                 </div>
                 <div className="col">
-                    <button className={"btn btn-danger pull-right" } hidden={(location == null) || hasPermissions()} onClick={() => { if (!hasPermissions()) setShowDelete(true) }}>Delete Substation</button>
+                    <button className={"btn btn-danger pull-right" } hidden={(location == null) || !hasPermissions()} onClick={() => { if (hasPermissions()) setShowDelete(true) }}>Delete Substation</button>
                 </div>
             </div>
             <hr />

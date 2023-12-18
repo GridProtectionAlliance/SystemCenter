@@ -81,8 +81,8 @@ function MDMKeys(props: IProps) {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     return (
@@ -125,10 +125,10 @@ function MDMKeys(props: IProps) {
                     </div>
                 </div>
                 <div className="card-footer">
-                    <button className={"btn btn-primary" + (hasPermissions() ? ' disabled' : '')} data-tooltip='AddID'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) setShowAdd(true) }}>Add Account ID</button>
+                    <button className={"btn btn-primary" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddID'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true) }}>Add Account ID</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddID"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddID"}>
                     <p>You do not have permission.</p>
                 </ToolTip>
                 <Modal Title={'Add Account ID'}

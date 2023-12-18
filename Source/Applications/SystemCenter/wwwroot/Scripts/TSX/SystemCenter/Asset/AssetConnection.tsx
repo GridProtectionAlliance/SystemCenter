@@ -182,8 +182,8 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     if (status == 'error' || actStatus == 'error')
@@ -240,10 +240,10 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                             { key: 'Name', field: 'Name', label: 'Relationship', headerStyle: { width: '47%' }, rowStyle: { width: '47%' } },
                             {
                                 key: 'DeleteButton', label: '', headerStyle: { width: '6%' }, rowStyle: { width: '6%' }, content: (asset, key, style) => <>
-                                    <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => {
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        if (!hasPermissions()) deleteAssetConnection(asset);
+                                        if (hasPermissions()) deleteAssetConnection(asset);
                                     }}><span>{TrashCan}</span></button>
                                 </>
                             },
@@ -277,10 +277,10 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + (hasPermissions() ? ' disabled' : '')} data-tooltip='Connect'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { evt.preventDefault(); if (!hasPermissions()) setShowModal(true); }}>Add Connection</button>
+                    <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Connect'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { evt.preventDefault(); if (hasPermissions()) setShowModal(true); }}>Add Connection</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"Connect"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Connect"}>
                     <p>You do not have permission.</p>
                 </ToolTip>
             </div>

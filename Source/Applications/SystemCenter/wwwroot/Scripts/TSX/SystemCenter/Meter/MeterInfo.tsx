@@ -146,10 +146,10 @@ const MeterInforWindow = (props: IProps) => {
         return addlFieldError.length === 0 || (valid('AssetKey') && valid('Name') && valid('ShortName') && valid('Alias') && valid('Make') && valid('Model'));
     }
     
-   function hasPermissions(): boolean {
+    function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     function hasChanged(): boolean {
@@ -187,7 +187,7 @@ const MeterInforWindow = (props: IProps) => {
                     <button className={"btn btn-primary" + (validMeter() && hasChanged() ? '' : ' disabled')} type="submit" onClick={() => { if (validMeter() && hasChanged()) return updateMeter(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                 </div>
                 <ToolTip Show={(!validMeter() || !hasChanged()) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                    {hasPermissions() ? <p>You do not have permission.</p> : !hasChanged() ? <p> No changes made.</p> : null}
+                    {!hasPermissions() ? <p>You do not have permission.</p> : !hasChanged() ? <p> No changes made.</p> : null}
                     {!valid('AssetKey') ? <p> {CrossMark} A unique Key of less than 50 characters is required.</p> : null}
                     {!valid('Name') ? <p> {CrossMark} A Name of less than 200 characters is required.</p> : null}
                     {!valid('ShortName') ? <p> {CrossMark} Short Name must be less than 50 characters.</p> : null}

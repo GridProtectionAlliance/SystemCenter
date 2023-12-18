@@ -87,8 +87,8 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     function valid(field: keyof (SystemCenter.Types.LocationDrawing)): boolean {
@@ -126,8 +126,8 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                                 rowStyle: { width: '10%' },
                                 content: (item, key, style) =>
                                     <span>
-                                        <button title='Edit Link' className={"btn" + (hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" onClick={(e) => {setRecord(item) }}>{Pencil}</button>
-                                        <button title='Delete Link' className={"btn" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (!hasPermissions()) dispatch(LocationDrawingSlice.DBAction({ verb: 'DELETE', record: item })); }}>{TrashCan}</button>
+                                        <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" onClick={(e) => {setRecord(item) }}>{Pencil}</button>
+                                        <button title='Delete Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) dispatch(LocationDrawingSlice.DBAction({ verb: 'DELETE', record: item })); }}>{TrashCan}</button>
                                     </span>
                             }
 
@@ -148,10 +148,10 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 </div>
             </div>
             <div className="card-footer">
-                <button className={"btn btn-primary pull-right" + (hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" data-tooltip='AddDrawing' onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}
+                <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" data-tooltip='AddDrawing' onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}
                     onClick={() => { setRecord({ ...emptyRecord, LocationID: props.Location.ID }) }}>Add Drawing</button>
             </div>
-            <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddDrawing"}>
+            <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddDrawing"}>
                 <p>You do not have permission.</p>
             </ToolTip>
             <div className="modal" id="exampleModal" role="dialog">

@@ -141,8 +141,8 @@ function AssetInfoWindow(props: IProps) {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     function changedFields(): string[] {
@@ -397,7 +397,7 @@ function AssetInfoWindow(props: IProps) {
                 <button className={"btn btn-primary" + (errors.length == 0 && addlFieldErrorAsset.length === 0 && addlFieldErrorType.length === 0 && hasChanged ? '' : ' disabled')} type="submit" onClick={() => { if (errors.length == 0 && addlFieldErrorAsset.length === 0 && addlFieldErrorType.length === 0 && hasChanged) return SaveChanges(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
             </div>
             <ToolTip Show={(errors.length > 0 || addlFieldErrorAsset.length > 0 || addlFieldErrorType.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                {hasPermissions() ? <p>You do not have permission.</p>: !hasChanged ? <p> No changes made.</p> : null}
+                {!hasPermissions() ? <p>You do not have permission.</p>: !hasChanged ? <p> No changes made.</p> : null}
                 {errors.map((t, i) => <p key={i}>
                     {CrossMark} {t}
                 </p>)}

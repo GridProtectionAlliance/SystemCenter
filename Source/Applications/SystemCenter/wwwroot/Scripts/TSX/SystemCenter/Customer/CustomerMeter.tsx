@@ -138,8 +138,8 @@ const CustomerMeterWindow = (props: IProps) => {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     if (status == 'error')
@@ -202,7 +202,7 @@ const CustomerMeterWindow = (props: IProps) => {
                             },
                             {
                                 key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (c) => <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (!hasPermissions()) setRemoveRecord(c) }}><span>{TrashCan}</span></button>
+                                content: (c) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveRecord(c) }}><span>{TrashCan}</span></button>
                             },
                             { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
@@ -231,12 +231,12 @@ const CustomerMeterWindow = (props: IProps) => {
         </div>
         <div className="card-footer">
             <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + (hasPermissions() ? ' disabled' : '')} data-tooltip='Meters'
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions())
+                    <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Meters'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions())
                         setShowAdd(true);
                 }}>Add Meters</button>
             </div>
-                <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"Meters"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Meters"}>
                     <p>You do not have permission.</p>
                 </ToolTip>
         </div>

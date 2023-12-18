@@ -154,8 +154,8 @@ const LocationWindow = (props: IProps) => {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     return (
@@ -182,7 +182,7 @@ const LocationWindow = (props: IProps) => {
                     <button className={"btn btn-primary" + (!(isValidLocation && hasChanged) ? ' disabled' : '')} onClick={postLocation}
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'NewLocation'}>{location.ID > 0 ? "Update" : "Add New"}</button>
                     <ToolTip Show={hover == 'Update' && (!hasChanged || !isValidLocation)} Position={'top'} Theme={'dark'} Target={"NewLocation"}>
-                        {hasPermissions() ? <p> You do not have permission.</p> : !hasChanged || location.ID < 1 && hasPermissions() ? <p> No changes have been made. </p> : null}
+                        {!hasPermissions() ? <p> You do not have permission.</p> : !hasChanged || location.ID < 1 && !hasPermissions() ? <p> No changes have been made. </p> : null}
                         {!validKey ? <p> {CrossMark} Key must be unique.  </p> : null}
                         {!valid('LocationKey') && validKey ? <p> {CrossMark} A Key of less than 50 characters is required. </p> : null}
                         {!valid('Name') ? <p> {CrossMark} A Name of less than 200 characters is required. </p> : null}

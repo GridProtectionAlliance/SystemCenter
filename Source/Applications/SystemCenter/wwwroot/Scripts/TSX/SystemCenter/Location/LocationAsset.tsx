@@ -233,8 +233,8 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     if (atStatus == 'error' || aStatus == 'error' || lStatus == 'error')
@@ -293,8 +293,8 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                             { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                             {
                                 key: 'EditDelete', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (asset, key, style) => <>
-                                    <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => {
-                                        if (!hasPermissions()) {
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
+                                        if (hasPermissions()) {
                                             e.preventDefault();
                                             let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID']);
                                             setLStatus('loading')
@@ -303,8 +303,8 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                                             setShowModal(true)
                                         }
                                     }}><span>{Pencil}</span></button>
-                                    <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => {
-                                        if (!hasPermissions()) {
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
+                                        if (hasPermissions()) {
                                             e.preventDefault();
                                             deleteAsset(asset);
                                          }
@@ -341,10 +341,10 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + (hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset' onMouseEnter={() => setHover('Update')}
-                    onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) addNewButton() }}>Add Asset</button>
+                    <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset' onMouseEnter={() => setHover('Update')}
+                    onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) addNewButton() }}>Add Asset</button>
                 </div>
-                <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddAsset"}>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddAsset"}>
                     <p>You do not have permission.</p>
                 </ToolTip>
             </div>

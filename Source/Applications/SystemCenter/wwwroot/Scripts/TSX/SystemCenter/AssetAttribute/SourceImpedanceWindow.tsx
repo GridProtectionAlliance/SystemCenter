@@ -164,8 +164,8 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     return (
@@ -187,17 +187,17 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                                 { key: 'XSrc', field: 'XSrc', label: 'X (pu)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             {
                                 key: 'EditDelete', label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
-                                content: (item) => <> <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')}
+                                content: (item) => <> <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
                                     onClick={(e) => {
-                                        if (!hasPermissions()) {
+                                        if (hasPermissions()) {
                                             setShowAdd(true);
                                             setNewEditImpedance(item);
                                             setNewEdit('Edit');
                                         }
                                     }}><span>{Pencil}</span></button>
-                                    <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')}
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
                                         onClick={(e) => {
-                                            if (!hasPermissions()) {
+                                            if (hasPermissions()) {
                                                 setNewEditImpedance(item);
                                                 setshowWarning(true);
                                             }
@@ -221,10 +221,10 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
             </div>
             <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className={"btn btn-primary" + (hasPermissions() ? ' disabled' : '')} data-tooltip='Source'
-                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) setShowAdd(true); setNewEditImpedance(newImpedance); }}>Add Source Impedance</button>
+                        <button className={"btn btn-primary" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Source'
+                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true); setNewEditImpedance(newImpedance); }}>Add Source Impedance</button>
                     </div>
-                    <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"Source"}>
+                    <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Source"}>
                         <p>You do not have permission.</p>
                     </ToolTip>
             </div>

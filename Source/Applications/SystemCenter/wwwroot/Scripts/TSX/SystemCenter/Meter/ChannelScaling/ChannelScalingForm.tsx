@@ -163,8 +163,8 @@ const ChannelScalingForm = (props: IProps) => {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     let cardBody;
@@ -187,7 +187,7 @@ const ChannelScalingForm = (props: IProps) => {
             <>
             <div className="row">
                 <div className="col-3">
-                    <Input<IMultiplier> Record={multiplier} AllowNull={true} Type={'number'} Label={'Voltage Multiplier'} Field={'Voltage'} Size={'small'} Disabled={hasPermissions()} Setter={(r) => {
+                    <Input<IMultiplier> Record={multiplier} AllowNull={true} Type={'number'} Label={'Voltage Multiplier'} Field={'Voltage'} Size={'small'} Disabled={!hasPermissions()} Setter={(r) => {
                         setMultiplier({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
                     }} Valid={(f) => true} />
                 </div>
@@ -196,7 +196,7 @@ const ChannelScalingForm = (props: IProps) => {
                     Type={'number'}
                         Label={'Current Multiplier'}
                         AllowNull={true}
-                        Field={'Current'} Disabled={hasPermissions()} Setter={(r) => {
+                        Field={'Current'} Disabled={!hasPermissions()} Setter={(r) => {
                             setMultiplier({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
                         }} Valid={(f) => true} />   
                 </div>
@@ -207,7 +207,7 @@ const ChannelScalingForm = (props: IProps) => {
                             { key: 'Descriptor', field: 'Descriptor', label: 'Description', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
                             { key: 'Identity', field: 'Identity', label: 'Type', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
                             {
-                                key: 'ScalingType', label: 'Scaling Type', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (item, key, fld, style, index) => <select className='form-control' value={item.ScalingTypeName} disabled={hasPermissions()} onChange={(event) => {
+                                key: 'ScalingType', label: 'Scaling Type', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (item, key, fld, style, index) => <select className='form-control' value={item.ScalingTypeName} disabled={!hasPermissions()} onChange={(event) => {
                                     const scalingTypeName = event.target.value;
                                     const wrapper = _.cloneDeep(Wrappers);
                                     wrapper[index].ScalingType = ChannelScalingType[scalingTypeName];
@@ -244,7 +244,7 @@ const ChannelScalingForm = (props: IProps) => {
                         onMouseEnter={() => setHover('Replace')} onMouseLeave={() => setHover('None')} data-tooltip={"rep"}
                     >Replace Multipliers</button>
                     <ToolTip Show={hover == 'Replace' && (multiplier.Voltage == 1 && multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"rep"}>
-                        {hasPermissions() ? <p>You do not have permission.</p> : multiplier.Voltage == 1 && multiplier.Current == 1 ? <p> There are no changes to be applied. </p> : null}
+                        {!hasPermissions() ? <p>You do not have permission.</p> : multiplier.Voltage == 1 && multiplier.Current == 1 ? <p> There are no changes to be applied. </p> : null}
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
@@ -252,7 +252,7 @@ const ChannelScalingForm = (props: IProps) => {
                         onMouseEnter={() => setHover('Adjust')} onMouseLeave={() => setHover('None')} data-tooltip={"adj"}
                     >Adjust Multipliers</button>
                     <ToolTip Show={hover == 'Adjust' && (multiplier.Voltage == 1 && multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"adj"}>
-                        {hasPermissions() ? <p>You do not have permission.</p> : multiplier.Voltage == 1 && multiplier.Current == 1 ? <p> There are no changes to be applied. </p> : null}
+                        {!hasPermissions() ? <p>You do not have permission.</p> : multiplier.Voltage == 1 && multiplier.Current == 1 ? <p> There are no changes to be applied. </p> : null}
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">

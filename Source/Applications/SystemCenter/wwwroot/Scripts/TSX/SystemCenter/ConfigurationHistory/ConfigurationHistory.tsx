@@ -105,8 +105,8 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
     
     if (meterConfiguration == null) return null;
@@ -136,10 +136,10 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                 <div className={"tab-pane " + (tab == "configuration" ? " active" : "fade")} id="configuration">
                     <div id="template" style={{ height: window.innerHeight - 275 }} ></div>
                     <div className="btn-group mr-2">
-                        <button className={"btn btn-primary pull-right" + (hasPermissions() ? ' disabled' : '')} onClick={saveEdit} disabled={!changed} data-tooltip='SaveEdits'
+                        <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} onClick={saveEdit} disabled={!changed} data-tooltip='SaveEdits'
                             onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}>Save Edit</button>
                     </div>
-                    <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"SaveEdits"}>
+                    <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"SaveEdits"}>
                         <p>You do not have permission.</p>
                     </ToolTip>
                     <div className="btn-group mr-2">

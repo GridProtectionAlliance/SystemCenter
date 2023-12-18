@@ -121,8 +121,8 @@ const MeterMaintenanceWindow = (props: IProps) => {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     let cardBody;
@@ -202,7 +202,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-primary pull-left" + (hasPermissions() ? ' disabled' : '')} style={{ marginRight: 5 }} data-tooltip='NewWindow' onMouseEnter={() => setHover('Add')} onMouseLeave={() => setHover('None')} onClick={(e) => {
+                            <button className={"btn btn-primary pull-left" + (!hasPermissions() ? ' disabled' : '')} style={{ marginRight: 5 }} data-tooltip='NewWindow' onMouseEnter={() => setHover('Add')} onMouseLeave={() => setHover('None')} onClick={(e) => {
                                 e.preventDefault();
                                 setActiveWindow({
                                     ID: -1,
@@ -210,10 +210,10 @@ const MeterMaintenanceWindow = (props: IProps) => {
                                     StartTime: moment().format('YYYY-MM-DD'),
                                     EndTime: null
                                 });
-                                if (!hasPermissions()) setShowEditNew(true);
+                                if (hasPermissions()) setShowEditNew(true);
                             }}>Add New Window</button>
                         </div>
-                        <ToolTip Show={hover == 'Add' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"NewWindow"}>
+                        <ToolTip Show={hover == 'Add' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"NewWindow"}>
                             <p>You do not have permission.</p>
                         </ToolTip>
                     </div>

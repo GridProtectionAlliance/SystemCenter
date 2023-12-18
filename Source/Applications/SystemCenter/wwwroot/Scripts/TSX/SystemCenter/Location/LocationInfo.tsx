@@ -172,8 +172,8 @@ const LocationInfo = (props: IProps) => {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     if (state == 'loading')
@@ -224,15 +224,15 @@ const LocationInfo = (props: IProps) => {
             <div className="card-body">
                 <div className="row">
                     <div className="col">
-                        <Input<OpenXDA.Types.Location> Record={location} Field={'LocationKey'} Label={'Key'} Feedback={'A unique Key of less than 50 characters is required.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={hasPermissions()} />
-                        <Input<OpenXDA.Types.Location> Record={location} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={hasPermissions()} />
-                        <Input<OpenXDA.Types.Location> Record={location} Field={'ShortName'} Label={'Short Name'} Feedback={'Short Name must be less than 50 characters.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={hasPermissions()} />
-                        <Input<OpenXDA.Types.Location> Record={location} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={hasPermissions()} />
+                        <Input<OpenXDA.Types.Location> Record={location} Field={'LocationKey'} Label={'Key'} Feedback={'A unique Key of less than 50 characters is required.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={!hasPermissions()} />
+                        <Input<OpenXDA.Types.Location> Record={location} Field={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={!hasPermissions()} />
+                        <Input<OpenXDA.Types.Location> Record={location} Field={'ShortName'} Label={'Short Name'} Feedback={'Short Name must be less than 50 characters.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={!hasPermissions()} />
+                        <Input<OpenXDA.Types.Location> Record={location} Field={'Alias'} Feedback={'Alias must be less than 200 characters.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={!hasPermissions()} />
                     </div>
                     <div className="col">
-                        <Input<OpenXDA.Types.Location> Record={location} Field={'Latitude'} Feedback={'A numeric Latitude value between -180 and 180 is required.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={hasPermissions()} />
-                        <Input<OpenXDA.Types.Location> Record={location} Field={'Longitude'} Feedback={'A numeric Longitude value between -180 and 180 is required.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={hasPermissions()} />
-                        <TextArea<OpenXDA.Types.Location> Rows={3} Record={location} Field={'Description'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={hasPermissions()} />
+                        <Input<OpenXDA.Types.Location> Record={location} Field={'Latitude'} Feedback={'A numeric Latitude value between -180 and 180 is required.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={!hasPermissions()} />
+                        <Input<OpenXDA.Types.Location> Record={location} Field={'Longitude'} Feedback={'A numeric Longitude value between -180 and 180 is required.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={!hasPermissions()} />
+                        <TextArea<OpenXDA.Types.Location> Rows={3} Record={location} Field={'Description'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={!hasPermissions()} />
                     </div>
                 </div>
                 <AdditionalFieldsProperties ID={location.ID} ParentTable={'Location'} AddlFieldSaveRef={saveAddl} SetChangedList={setAddlFieldChanged} SetErrorList={setAddlFieldError} ResetAddlFieldRef={resetAddl} />
@@ -245,7 +245,7 @@ const LocationInfo = (props: IProps) => {
                         }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                 </div>
                 <ToolTip Show={(locationErrors.length > 0 || addlFieldError.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                    {hasPermissions() ? <p>You do not have permission.</p> : !hasChanged ? <p> No changes made.</p> : null}
+                    {!hasPermissions() ? <p>You do not have permission.</p> : !hasChanged ? <p> No changes made.</p> : null}
                     {locationErrors.map((t, i) => <p key={i}>
                         {CrossMark} {t}
                     </p>)}

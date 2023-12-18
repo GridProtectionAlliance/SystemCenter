@@ -68,8 +68,8 @@ export default function CustomerInfo(props: IProps) {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     return (
@@ -105,7 +105,7 @@ export default function CustomerInfo(props: IProps) {
                     {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
                     {addlFieldError.map((t, i) => <p key={`a_${i}`}>{CrossMark} {t}</p>)}
                 </ToolTip>
-                <ToolTip Show={hover == 'Submit' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"Update"}>
+                <ToolTip Show={hover == 'Submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Update"}>
                     <p>You do not have permission.</p>
                 </ToolTip>
                 <div className="btn-group mr-2">

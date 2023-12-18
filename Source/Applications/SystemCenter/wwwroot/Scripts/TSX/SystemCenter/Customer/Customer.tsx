@@ -94,8 +94,8 @@ export default function Customer(props: IProps) {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     return (
@@ -105,7 +105,7 @@ export default function Customer(props: IProps) {
                     <h2>{customer != null ? customer.Name : ''}</h2>
                 </div>
                 <div className="col">
-                    <button className={"btn btn-danger pull-right"} hidden={(customer == null) || hasPermissions()} onClick={() => { if (!hasPermissions()) setShowWarning(true) }}>Delete Customer</button>
+                    <button className={"btn btn-danger pull-right"} hidden={(customer == null) || !hasPermissions()} onClick={() => { if (hasPermissions()) setShowWarning(true) }}>Delete Customer</button>
                 </div>
             </div>
             <hr />

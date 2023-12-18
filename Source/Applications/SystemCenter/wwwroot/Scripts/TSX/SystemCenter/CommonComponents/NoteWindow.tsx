@@ -113,8 +113,8 @@ const NoteWindow = (props: IProps) => {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
 
     let slice;
@@ -132,8 +132,8 @@ const NoteWindow = (props: IProps) => {
         slice = UserNoteSlice;
 
     return (
-        <Note MaxHeight={window.innerHeight - 215} ReferenceTableID={props.ID} NoteApplications={[noteApp]} NoteTags={[noteTag]} NoteTypes={[noteType]} NoteSlice={slice} AllowAdd={!hasPermissions()}
-            AllowEdit={!hasPermissions()} AllowRemove={!hasPermissions()}
+        <Note MaxHeight={window.innerHeight - 215} ReferenceTableID={props.ID} NoteApplications={[noteApp]} NoteTags={[noteTag]} NoteTypes={[noteType]} NoteSlice={slice} AllowAdd={hasPermissions()}
+            AllowEdit={hasPermissions()} AllowRemove={hasPermissions()}
         />
     );
 }

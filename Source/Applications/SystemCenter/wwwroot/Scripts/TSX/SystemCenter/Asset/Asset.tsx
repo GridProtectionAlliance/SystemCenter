@@ -149,8 +149,8 @@ function Asset(props: IProps) {
 
     function hasPermissions(): boolean {
         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return true;
-        return false;
+            return false;
+        return true;
     }
     
     return (
@@ -160,7 +160,7 @@ function Asset(props: IProps) {
                     <h2>{asset != null ? asset.AssetName + ' (' + asset.AssetKey + ')': ''}</h2>
                 </div>
                 <div className="col">
-                    <button className={"btn btn-danger pull-right"} hidden={(asset == null) || hasPermissions()} onClick={() => { if (!hasPermissions()) setShowDelete(true) }}>Delete Asset</button>
+                    <button className={"btn btn-danger pull-right"} hidden={(asset == null) || !hasPermissions()} onClick={() => { if (hasPermissions()) setShowDelete(true) }}>Delete Asset</button>
                 </div>
             </div>
             <hr />
