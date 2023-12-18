@@ -1433,19 +1433,12 @@ namespace SystemCenter.Controllers
             if (!PostAuthCheck() || ViewOnly)
                 return Unauthorized();
 
-            try
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    ExternalDatabases newRecord = record.ToObject<ExternalDatabases>();
-                    int result = new TableOperations<ExternalDatabases>(connection).AddNewRecord(newRecord);
-                    Host.ExtDBAddDB(newRecord);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
+                ExternalDatabases newRecord = record.ToObject<ExternalDatabases>();
+                int result = new TableOperations<ExternalDatabases>(connection).AddNewRecord(newRecord);
+                Host.ExtDBAddDB(newRecord);
+                return Ok(result);
             }
         }
         
@@ -1453,19 +1446,13 @@ namespace SystemCenter.Controllers
         {
             if (!PatchAuthCheck() || ViewOnly)
                 return Unauthorized();
-            try
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    int result = new TableOperations<ExternalDatabases>(connection).UpdateRecord(record);
-                    Host.ExtDBRemoveDB(record);
-                    Host.ExtDBAddDB(record);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
+                int result = new TableOperations<ExternalDatabases>(connection).UpdateRecord(record);
+                Host.ExtDBRemoveDB(record);
+                Host.ExtDBAddDB(record);
+                return Ok(result);
             }
         }
 
@@ -1473,18 +1460,12 @@ namespace SystemCenter.Controllers
         {
             if (!DeleteAuthCheck() || ViewOnly)
                 return Unauthorized();
-            try
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    int result = new TableOperations<ExternalDatabases>(connection).DeleteRecord(record);
-                    Host.ExtDBRemoveDB(record);
-                    return Ok(result);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
+                int result = new TableOperations<ExternalDatabases>(connection).DeleteRecord(record);
+                Host.ExtDBRemoveDB(record);
+                return Ok(result);
             }
         }
 
@@ -1493,17 +1474,11 @@ namespace SystemCenter.Controllers
         {
             if (!PostAuthCheck())
                 return Unauthorized();
-            try
+
+            ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+            using (AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(extDB))
             {
-                ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-                using (AdoDataConnection extConn = ScheduledExtDBTask.GetExternalConnection(extDB))
-                {
-                    return Ok(0);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
+                return Ok(0);
             }
         }
 
@@ -1512,16 +1487,9 @@ namespace SystemCenter.Controllers
         {
             if (!PostAuthCheck())
                 return Unauthorized();
-            try
-            {
-                ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-                ScheduledExtDBTask.Run(extDB);
-                return Ok(0);
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
+
+            ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+            return Ok(ScheduledExtDBTask.Run(extDB));
         }
 
         [HttpPost, Route("UnscheduledUpdate/{parentTable}")]
@@ -1529,16 +1497,9 @@ namespace SystemCenter.Controllers
         {
             if (!PostAuthCheck())
                 return Unauthorized();
-            try
-            {
-                ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-                ScheduledExtDBTask.Run(extDB, parentTable);
-                return Ok(0);
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
+
+            ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+            return Ok(ScheduledExtDBTask.Run(extDB, parentTable));
         }
 
         [HttpPost, Route("UnscheduledUpdate/{parentTable}/{parentID:int}")]
@@ -1546,41 +1507,9 @@ namespace SystemCenter.Controllers
         {
             if (!PostAuthCheck())
                 return Unauthorized();
-            try
-            {
-                ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
-                ScheduledExtDBTask.Run(extDB, parentTable, parentID);
-                return Ok(0);
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
-        }
 
-        [HttpGet, Route("GetExternalDatabases/{parentTable}")]
-        public IHttpActionResult GetExternalDatabases(string parentTable)
-        {
-            if (!GetAuthCheck())
-                return Unauthorized();
-            try
-            {
-                using(AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    IEnumerable<ExternalDatabases> extDBs = new TableOperations<ExternalDatabases>(connection).QueryRecordsWhere(@"
-                        ID in (
-                            SELECT DISTINCT ExternalDatabases.ID
-                            FROM AdditionalField INNER JOIN 
-                            extDBTables ON AdditionalField.ExternalDBTableID = extDBTables.ID INNER JOIN 
-                            ExternalDatabases ON extDBTables.ExtDBID = ExternalDatabases.ID 
-                            WHERE AdditionalField.ParentTable = {0})", parentTable);
-                    return Ok(extDBs);
-                }
-            }
-            catch (Exception ex)
-            {
-                return InternalServerError(ex);
-            }
+            ExternalDatabases extDB = record.ToObject<ExternalDatabases>();
+            return Ok(ScheduledExtDBTask.Run(extDB, parentTable, parentID));
         }
     }
 

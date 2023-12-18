@@ -31,7 +31,7 @@ import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ExternalDBForm from './ExternalDBForm';
 
 
-export default function ExternalDBInfo(props: { Record: SystemCenter.Types.ExternalDatabases }) { 
+export default function ExternalDBInfo(props: { Record: SystemCenter.Types.DetailedExternalDatabases }) { 
     const [record, setRecord] = React.useState<SystemCenter.Types.ExternalDatabases>(props.Record);
     const [origRecord, setOrigRecord] = React.useState<SystemCenter.Types.ExternalDatabases>(props.Record);
 

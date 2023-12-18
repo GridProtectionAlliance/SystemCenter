@@ -56,8 +56,8 @@ export default function ExternalDBXdaFieldsForm(props: IProps) {
             dispatch(ExternalXDAFieldsSlice.Fetch(props.Record.ExternalDBTableID));
     }, [status, parentID, props.Record.ExternalDBTableID]);
 
-    const typeOptions = ['Meter', 'Location', 'Customer', 'Asset',
-        'Line', 'Line Segment', 'Breaker', 'Bus', 'Transformer', 'Capacitor Bank', 'Capacitor Bank Relay', 'DER'].map(str => ({
+    const typeOptions = ['Meter', 'Location', 'Customer',
+        'Line', 'Line Segment', 'Breaker', 'Bus', 'Transformer', 'Cap Bank', 'Cap Bank Relay', 'DER'].map(str => ({
             Value: str.replace(/\s/, ""),
             Label: str
         }));
@@ -75,8 +75,8 @@ export default function ExternalDBXdaFieldsForm(props: IProps) {
             case 'Bus': break;
             case 'Transformer': fields.push("R0", "X0", "R1", "X1", "Thermal Rating", "Primary Voltage KV", "Secondary Voltage KV", "Tertiary Voltage KV",
                 "Primary Winding", "Secondary Winding", "Tertiary Winding", "Tap"); break;
-            case 'CapacitorBank': fields.push("Number Of Banks", "Capacitance Per Bank", "Max KV", "Unit KV", "Unit KVAr", "Neg Reactance Tol", "Pos Reactance Tol"); break;
-            case 'CapacitorBankRelay': fields.push("On Voltage Threshhold", "Cap Bank Number"); break;
+            case 'CapBank': fields.push("Number Of Banks", "Capacitance Per Bank", "Max KV", "Unit KV", "Unit KVAr", "Neg Reactance Tol", "Pos Reactance Tol"); break;
+            case 'CapBankRelay': fields.push("On Voltage Threshhold", "Cap Bank Number"); break;
             case 'DER': fields.push("Full Rated Output Current", "Voltage Level"); break;
         }
         return fields.map(str => ({

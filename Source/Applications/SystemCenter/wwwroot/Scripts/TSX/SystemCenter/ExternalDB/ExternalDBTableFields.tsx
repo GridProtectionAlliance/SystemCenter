@@ -278,6 +278,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     { key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'Type', field: 'Type', label: 'Field Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     { key: 'ExternalDB', field: 'ExternalDB', label: 'External Database', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                    { key: 'ExternalTable', field: 'ExternalTable', label: 'External Table', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                     {
                         key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
                         content: (item) => item.Searchable ? HeavyCheckMark : CrossMark

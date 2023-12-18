@@ -33,10 +33,12 @@ import { ExternalDBTablesSlice } from '../Store/Store';
 
 declare var homePath: string;
 
-const ExternalDBSearchField: Array<Search.IField<SystemCenter.Types.extDBTables>> = [
+const ExternalDBSearchField: Array<Search.IField<SystemCenter.Types.DetailedExtDBTables>> = [
     { label: 'Table Name', key: 'TableName', type: 'string', isPivotField: false },
+    { label: 'External Database', key: 'ExternalDB', type: 'string', isPivotField: false },
+    { label: 'Number of Mapped Fields', key: 'MappedFields', type: 'number', isPivotField: false },
 ];
-const ExternalDBDefaultSearchField: Search.IField<SystemCenter.Types.extDBTables> = { label: 'Table Name', key: 'TableName', type: 'string', isPivotField: false };
+const ExternalDBDefaultSearchField: Search.IField<SystemCenter.Types.DetailedExtDBTables> = { label: 'Table Name', key: 'TableName', type: 'string', isPivotField: false };
 const emptyRecord = { ID: -1, TableName: '', ExtDBID: -1, Query: ''};
 
 const ByExternalTable: Application.Types.iByComponent = (props) => {
@@ -53,7 +55,7 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
     const [showNew, setShowNew] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
-    const [record, setRecord] = React.useState<SystemCenter.Types.extDBTables>(emptyRecord);
+    const [record, setRecord] = React.useState<SystemCenter.Types.DetailedExtDBTables>(emptyRecord);
 
     React.useEffect(() => {
         if (parentID != null)
@@ -66,12 +68,12 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
     }, [status, parentID]);
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDBTable&ID=' + item.row.ID })
+        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalTable&ID=' + item.row.ID })
     }
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<SystemCenter.Types.extDBTables>
+            <SearchBar<SystemCenter.Types.DetailedExtDBTables>
                 CollumnList={ExternalDBSearchField}
                 SetFilter={(flds) => dispatch(ExternalDBTablesSlice.DBSearch({ filter: flds }))}
                 Direction={'left'}
@@ -96,12 +98,11 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table
+                <Table<SystemCenter.Types.DetailedExtDBTables>
                     cols={[
                         { key: 'TableName', field: 'TableName', label: 'Table Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        /* ToDo: Add this, requires custom view on backend to make sorting not wierd
-                        { key: 'ExtDBID', field: 'ExtDBID', label: 'External Database', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => extDbData.find(db => db.ID === item.ExtDBID).Name },
-                        */
+                        { key: 'ExternalDB', field: 'ExternalDB', label: 'External Database', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                        { key: 'MappedFields', field: 'MappedFields', label: 'Mapped Fields', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                         { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
                     ]}
                     tableClass="table table-hover"

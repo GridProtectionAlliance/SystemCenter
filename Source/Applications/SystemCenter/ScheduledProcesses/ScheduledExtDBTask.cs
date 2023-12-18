@@ -82,15 +82,15 @@ namespace SystemCenter.ScheduledProcesses
             try
             {
                 // Calling static method
-                Run(ExternalDB);
-                Log.Info($"Ran External Database Fetch Task: {ExternalDB.ID}");
+                int rows = Run(ExternalDB);
+                Log.Info($"Ran External Database Fetch Task: {ExternalDB.ID}, {rows} affected");
             }
             catch (Exception ex)
             {
                 Log.Error(ex.Message, ex);
             }
         }
-        public static void Run(ExternalDatabases extDB)
+        public static int Run(ExternalDatabases extDB)
         {
             using(AdoDataConnection xdaConnection = ConnectionFactory())
             {
@@ -99,21 +99,25 @@ namespace SystemCenter.ScheduledProcesses
                 if (extTables.Count() == 0)
                 {
                     Log.Warn($"No tables found connected to external database ${extDB.Name}.");
-                    return;
+                    return 0;
                 }
                 TableOperations<AdditionalField> addlFieldsTable = new TableOperations<AdditionalField>(xdaConnection);
                 TableOperations<AdditionalFieldValue> addlValueTable = new TableOperations<AdditionalFieldValue>(xdaConnection);
                 TableOperations<ExternalOpenXDAField> xdaFieldTable = new TableOperations<ExternalOpenXDAField>(xdaConnection);
                 ExpressionContext context = new ExpressionContext();
+                int rowsAffected = 0;
                 using (AdoDataConnection externalConnection = GetExternalConnection(extDB))
                     foreach (extDBTables extTable in extTables)
                     {
                         foreach (Type t in CheckedTypes)
-                            RunOnType(t, extTable, addlFieldsTable, addlValueTable, xdaFieldTable, context, xdaConnection, externalConnection);
+                            rowsAffected += RunOnType(t, extTable, addlFieldsTable, addlValueTable, xdaFieldTable, context, xdaConnection, externalConnection);
                     }
+                extDB.LastDataUpdate = DateTime.UtcNow;
+                new TableOperations<ExternalDatabases>(xdaConnection).UpdateRecord(extDB);
+                return rowsAffected;
             }
         }
-        public static void Run(ExternalDatabases extDB, string parentTable, int? parentID = null)
+        public static int Run(ExternalDatabases extDB, string parentTable, int? parentID = null)
         {
             using (AdoDataConnection xdaConnection = ConnectionFactory())
             {
@@ -125,26 +129,30 @@ namespace SystemCenter.ScheduledProcesses
                 catch (InvalidOperationException ex)
                 {
                     Log.Error($"Type {parentTable} is not a recognized xda parent table.");
-                    return;
+                    return 0;
                 }
                 TableOperations<extDBTables> tblTable = new TableOperations<extDBTables>(xdaConnection);
                 IEnumerable<extDBTables> extTables = tblTable.QueryRecordsWhere("ExtDBID = {0}", extDB.ID);
                 if (extTables.Count() == 0)
                 {
                     Log.Warn($"No tables found connected to external database ${extDB.Name}.");
-                    return;
+                    return 0;
                 }
                 TableOperations<AdditionalField> addlFieldsTable = new TableOperations<AdditionalField>(xdaConnection);
                 TableOperations<AdditionalFieldValue> addlValueTable = new TableOperations<AdditionalFieldValue>(xdaConnection);
                 TableOperations<ExternalOpenXDAField> xdaFieldTable = new TableOperations<ExternalOpenXDAField>(xdaConnection);
                 ExpressionContext context = new ExpressionContext();
+                int rowsAffected = 0;
                 using (AdoDataConnection externalConnection = GetExternalConnection(extDB))
                     foreach (extDBTables extTable in extTables)
-                        RunOnType(tableType, extTable, addlFieldsTable, addlValueTable, xdaFieldTable, context, xdaConnection, externalConnection, parentID);
+                        rowsAffected += RunOnType(tableType, extTable, addlFieldsTable, addlValueTable, xdaFieldTable, context, xdaConnection, externalConnection, parentID);
+                extDB.LastDataUpdate = DateTime.UtcNow;
+                new TableOperations<ExternalDatabases>(xdaConnection).UpdateRecord(extDB);
+                return rowsAffected;
             }
         }
 
-        private static void RunOnType(Type type, extDBTables extTable,
+        private static int RunOnType(Type type, extDBTables extTable,
             TableOperations<AdditionalField> addlFieldsTable, TableOperations<AdditionalFieldValue> addlValuesTable,
             TableOperations<ExternalOpenXDAField> xdaFieldTable,
             ExpressionContext context,
@@ -153,10 +161,10 @@ namespace SystemCenter.ScheduledProcesses
         {
             var updateMethods = typeof(ScheduledExtDBTask).GetMethod("UpdateData", BindingFlags.Static | BindingFlags.Public);
             var typedUpdateMethod = updateMethods.MakeGenericMethod(new[] { type });
-            typedUpdateMethod.Invoke(null, new object[] { extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, parentID });
+            return (int) typedUpdateMethod.Invoke(null, new object[] { extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, parentID });
         }
 
-        public static void UpdateData<T>(extDBTables extTable,
+        public static int UpdateData<T>(extDBTables extTable,
             TableOperations<AdditionalField> addlFieldsTable, TableOperations<AdditionalFieldValue> addlValuesTable, 
             TableOperations<ExternalOpenXDAField> xdaFieldTable,
             ExpressionContext context,
@@ -168,10 +176,11 @@ namespace SystemCenter.ScheduledProcesses
             IEnumerable<AdditionalField> addlFields = addlFieldsTable.QueryRecordsWhere("ParentTable = {0} AND ExternalDBTableID = {1} AND IsKey = 0", table.TableName, extTable.ID);
             IEnumerable<ExternalOpenXDAField> xdaFields = xdaFieldTable.QueryRecordsWhere("ParentTable = {0} AND ExternalDBTableID = {1}", table.TableName, extTable.ID);
             // Todo: add external xda table to this, is put off for now
-            if (!addlFields.Any() && !xdaFields.Any()) return;
+            if (!addlFields.Any() && !xdaFields.Any()) return 0;
             IEnumerable<T> allRecords;
             if (parentID is not null) allRecords = table.QueryRecordsWhere("ID = {0}", parentID);
             else allRecords = table.QueryRecords();
+            int rows = 0;
             foreach (T record in allRecords)
             {
                 int recordID = GetID(record);
@@ -200,13 +209,13 @@ namespace SystemCenter.ScheduledProcesses
                             AdditionalFieldID = field.ID,
                             Value = fieldValue
                         };
-                        addlValuesTable.AddNewRecord(addlValue);
+                        rows += addlValuesTable.AddNewRecord(addlValue);
                     }
                     else
                     {
                         if (fieldValue == addlValue.Value) continue;
                         addlValue.Value = fieldValue;
-                        addlValuesTable.UpdateRecord(addlValue);
+                        rows += addlValuesTable.UpdateRecord(addlValue);
                     }
                 }
                 bool hasXdaChanges = false;
@@ -233,8 +242,9 @@ namespace SystemCenter.ScheduledProcesses
                     fieldPropInfo.SetValue(record, fieldValue);
                     hasXdaChanges = true;
                 }
-                if (hasXdaChanges) table.UpdateRecord(record);
+                if (hasXdaChanges) rows += table.UpdateRecord(record);
             }
+            return rows;
         }
 
         public static DataTable RetrieveDataRecordTable<T>(T record, extDBTables extTable,
