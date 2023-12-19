@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import _ from 'lodash';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols'
@@ -234,26 +234,12 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    <Table<AssetConnection>
-                        cols={[
-                            { key: 'AssetKey', field: 'AssetKey', label: 'Asset', headerStyle: { width: '47%' }, rowStyle: { width: '47%' } },
-                            { key: 'Name', field: 'Name', label: 'Relationship', headerStyle: { width: '47%' }, rowStyle: { width: '47%' } },
-                            {
-                                key: 'DeleteButton', label: '', headerStyle: { width: '6%' }, rowStyle: { width: '6%' }, content: (asset, key, style) => <>
-                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        if (hasPermissions()) deleteAssetConnection(asset);
-                                    }}><span>{TrashCan}</span></button>
-                                </>
-                            },
-
-                        ]}
-                        tableClass="table table-hover"
-                        data={assetConnections}
-                        sortKey={sortKey}
-                        ascending={ascending}
-                        onSort={(d) => {
+                    <ReactTable.Table<AssetConnection>
+                        TableClass="table table-hover"
+                        Data={assetConnections}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
                             if (d.colKey === "DeleteButton")
                                 return;
 
@@ -269,10 +255,44 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                                 setSortKey(d.colKey);
                             }
                         }}
-                        onClick={handleSelect}
-                        selected={() => false}
-                    />
-
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        OnClick={handleSelect}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.AssetKey}
+                    >
+                        <ReactTable.Column<AssetConnection>
+                            Key={'AssetKey'}
+                            AllowSort={true}
+                            Field={'AssetKey'}
+                            HeaderStyle={{ width: '47%' }}
+                            RowStyle={{ width: '47%' }}
+                        > Asset
+                        </ReactTable.Column>
+                        <ReactTable.Column<AssetConnection>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: '47%' }}
+                            RowStyle={{ width: '47%' }}
+                        > Relationship
+                        </ReactTable.Column>
+                        <ReactTable.Column<AssetConnection>
+                            Key={'DeleteButton'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '6%' }}
+                            RowStyle={{ width: '6%' }}
+                            Content={({ item }) => <>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (hasPermissions()) deleteAssetConnection(asset);
+                                }}><span>{TrashCan}</span></button>
+                            </> }
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <div className="card-footer">

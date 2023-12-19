@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { useAppSelector } from '../hooks';
@@ -133,29 +133,12 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    <Table<OpenXDA.Types.Location>
-                        cols={[
-                            { key: 'LocationKey', field: 'LocationKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'Latitude', field: 'Latitude', label: 'Latitude', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Longitude', field: 'Longitude', label: 'Longitude', headerStyle: { width: 'calc(10%)' }, rowStyle: { width: '10%' } },
-                            {
-                                key: 'Delete', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (asset, key, style) => <>
-                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
-                                        if (hasPermissions()) {
-                                            e.preventDefault();
-                                            deleteLocation(asset);
-                                        }
-                                    }}><span>{TrashCan}</span></button>
-                                </>
-                            },
-
-                        ]}
-                        tableClass="table table-hover"
-                        data={locations}
-                        sortKey={sortField}
-                        ascending={ascending}
-                        onSort={(d) => {
+                    <ReactTable.Table<OpenXDA.Types.Location>
+                        TableClass="table table-hover"
+                        Data={locations}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
                             if (d.colKey == sortField) {
                                 var ordered = _.orderBy(locations, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
@@ -168,10 +151,61 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                                 setSortField(d.colField);
                             }
                         }}
-                        onClick={handleSelect}
-                        selected={() => false}
-                    />
-
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        OnClick={handleSelect}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<OpenXDA.Types.Location>
+                            Key={'LocationKey'}
+                            AllowSort={true}
+                            Field={'LocationKey'}
+                            HeaderStyle={{ width: '30%' }}
+                            RowStyle={{ width: '30%' }}
+                        > Key
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.Location>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: '30%' }}
+                            RowStyle={{ width: '30%' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.Location>
+                            Key={'Latitude'}
+                            AllowSort={true}
+                            Field={'Latitude'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Latitude
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.Location>
+                            Key={'Longitude'}
+                            AllowSort={true}
+                            Field={'Longitude'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Longitude
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.Location>
+                            Key={'Delete'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => <>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
+                                    if (hasPermissions()) {
+                                        e.preventDefault();
+                                        deleteLocation(asset);
+                                    }
+                                }}><span>{TrashCan}</span></button>
+                            </> }
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <div className="card-footer">

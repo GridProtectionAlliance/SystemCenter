@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
@@ -171,19 +171,12 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    <Table<OpenXDA.Types.Meter>
-                        cols={[
-                            { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            //{ key: 'Type', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: 'calc(10%)' }, rowStyle: { width: '10%' } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={meters}
-                        sortKey={sortField}
-                        ascending={ascending}
-                        onSort={(d) => {
+                    <ReactTable.Table<OpenXDA.Types.Meter>
+                        TableClass="table table-hover"
+                        Data={meters}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
                             if (d.colKey == sortField) {
                                 var ordered = _.orderBy(meters, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
@@ -196,13 +189,46 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
                                 setSortField(d.colField);
                             }
                         }}
-                        onClick={handleSelect}
-                        //theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        //tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%' }}
-                        //rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={() => false}
-                    />
-
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        OnClick={handleSelect}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<OpenXDA.Types.Meter>
+                            Key={'AssetKey'}
+                            AllowSort={true}
+                            Field={'AssetKey'}
+                            HeaderStyle={{ width: '30%' }}
+                            RowStyle={{ width: '30%' }}
+                        > Key
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.Meter>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: '30%' }}
+                            RowStyle={{ width: '30%' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.Meter>
+                            Key={'Make'}
+                            AllowSort={true}
+                            Field={'Make'}
+                            HeaderStyle={{ width: '20%' }}
+                            RowStyle={{ width: '20%' }}
+                        > Make
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.Meter>
+                            Key={'Model'}
+                            AllowSort={true}
+                            Field={'Model'}
+                            HeaderStyle={{ width: '20%' }}
+                            RowStyle={{ width: '20%' }}
+                        > Model
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <div className="card-footer">

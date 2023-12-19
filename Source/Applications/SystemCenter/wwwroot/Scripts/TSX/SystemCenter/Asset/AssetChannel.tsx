@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { PhaseSlice, MeasurmentTypeSlice } from '../Store/Store'
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { useAppSelector } from '../hooks';
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 
@@ -150,22 +150,12 @@ const AssetChannelWindow = (props: IProps) => {
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    <Table<ChannelDetail>
-                        cols={[
-                            { key: 'Name', field: 'Name', label: 'Channel Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            // TODO: These might need to change to meterkey and assetkey
-                            { key: 'MeterName', field: 'MeterName', label: 'Meter Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            { key: 'AssetName', field: 'AssetName', label: 'Asset Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            { key: 'MeasurementType', field: 'MeasurementType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Phase', field: 'Phase', label: 'Phase', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            // TODO: ADD NUMBER OF CONNECTIONS AWAY
-                            { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: '35%' }, rowStyle: { width: '35%' } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={assetChannels}
-                        sortKey={sortField}
-                        ascending={ascending}
-                        onSort={(d) => {
+                    <ReactTable.Table<ChannelDetail>
+                        TableClass="table table-hover"
+                        Data={assetChannels}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
                             if (d.colKey == sortField) {
                                 var ordered = _.orderBy(assetChannels, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                 setAscending(!ascending);
@@ -178,10 +168,61 @@ const AssetChannelWindow = (props: IProps) => {
                                 setSortField(d.colField);
                             }
                         }}
-                        onClick={() => { }}
-                        selected={() => false}
-                    />
-
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<ChannelDetail>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Channel Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<ChannelDetail>
+                            Key={'MeterName'}
+                            AllowSort={true}
+                            Field={'MeterName'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Meter Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<ChannelDetail>
+                            Key={'AssetName'}
+                            AllowSort={true}
+                            Field={'AssetName'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Asset Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<ChannelDetail>
+                            Key={'MeasurementType'}
+                            AllowSort={true}
+                            Field={'MeasurementType'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Type
+                        </ReactTable.Column>
+                        <ReactTable.Column<ChannelDetail>
+                            Key={'Phase'}
+                            AllowSort={true}
+                            Field={'Phase'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Phase
+                        </ReactTable.Column>
+                        <ReactTable.Column<ChannelDetail>
+                            Key={'Description'}
+                            AllowSort={true}
+                            Field={'Description'}
+                            HeaderStyle={{ width: '35%' }}
+                            RowStyle={{ width: '35%' }}
+                        > Description
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <div className="card-footer">
