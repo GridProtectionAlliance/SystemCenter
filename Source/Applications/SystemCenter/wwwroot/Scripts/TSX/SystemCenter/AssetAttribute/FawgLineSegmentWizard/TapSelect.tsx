@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan, Warning } from '@gpa-gemstone/gpa-symbols';
 import { Select, Input } from '@gpa-gemstone/react-forms';
 import { ITap } from './Types';
@@ -63,52 +63,64 @@ function TapSelect(props: IProps): JSX.Element {
             <div className="row">
                 <div className="col">
                     <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540 }}>
-                        <Table<ITap>
-                            cols={[
-                                {
-                                    key: 'Bus',
-                                    label: 'Bus',
-                                    headerStyle: { width: 'auto' },
-                                    rowStyle: { width: 'auto' },
-                                    field: 'Bus',
-                                    content: (item, key, fld, style, i) => <Input<ITap> Label={''}  Record={item} Field={'Bus'} Setter={(r) => props.SaveTap(r, i)} Valid={() => item.Bus != null && item.Bus.length > 0} />
-                                },
-                                {
-                                    key: 'location', label: 'Substation',
-                                    headerStyle: { width: 'auto' },
-                                    rowStyle: { width: 'auto' },
-                                    content: (item, key, fld, style, i) => <Select<ITap> Label={''} Field={'StationID'} Record={item} EmptyLabel={'N/A'} Setter={(r) => props.SaveTap(r, i)}
+                        <ReactTable.Table<ITap>
+                            TableClass="table table-hover"
+                            Data={props.Taps}
+                            SortKey={'IsXDA'}
+                            Ascending={true}
+                            OnSort={(d) => { }}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => item.StationID != null}
+                            KeySelector={(item) => `${item.Bus}-${item.StationID}`}
+                        >
+                            <ReactTable.Column<ITap>
+                                Key={'Bus'}
+                                AllowSort={true}
+                                Field={'Bus'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item, key, field, index }) => <>
+                                    <Input<ITap>
+                                        Label={''} Record={item} Field={'Bus'}
+                                        Setter={(r) => props.SaveTap(r, index)}
+                                        Valid={() => item.Bus != null && item.Bus.length > 0} />
+                                </> }
+                            > Bus
+                            </ReactTable.Column>
+                            <ReactTable.Column<ITap>
+                                Key={'Location'}
+                                AllowSort={true}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item, key, field, index }) => <>
+                                    <Select<ITap>
+                                        Label={''} Field={'StationID'} Record={item} EmptyLabel={'N/A'} Setter={(r) => props.SaveTap(r, index)}
                                         Options={props.Locations.map(l => ({ Value: l.ID.toString(), Label: l.Name + '(' + l.LocationKey + ')' }))} EmptyOption={true} />
-                                },
-                                {
-                                    key: 'warning',
-                                    label: '',
-                                    headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    content: (item) => DisplayWarning(item)
-                                },
-                                {
-                                    key: 'DeleteButton',
-                                    label: '',
-                                    headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    content: (item, key, fld, style, i) => <>
-                                        <button className="btn btn-sm" disabled={props.Taps.length < 2} onClick={(e) => props.RemoveTap(i)}><span>{TrashCan}</span></button>
-                                    </>
-                                }                                
-
-                            ]}
-                            tableClass="table table-hover"
-                            data={props.Taps}
-                            sortKey={'IsXDA'}
-                            ascending={true}
-                            onSort={(d) => { }}
-                            onClick={() => { }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={(item) => item.StationID != null}
-                        />
+                                </> }
+                            > Substation
+                            </ReactTable.Column>
+                            <ReactTable.Column<ITap>
+                                Key={'Warning'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                                RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                                Content={({ item }) => DisplayWarning(item)}
+                            > <p></p>
+                            </ReactTable.Column>
+                            <ReactTable.Column<ITap>
+                                Key={'DeleteButton'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                                RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                                Content={({ item, key, field, index }) => <>
+                                    <button className="btn btn-sm" disabled={props.Taps.length < 2}
+                                        onClick={(e) => props.RemoveTap(index)}><span>{TrashCan}</span></button>
+                                </> }
+                            > <p></p>
+                            </ReactTable.Column>
+                        </ReactTable.Table>
                     </div>
                 </div>
             </div>

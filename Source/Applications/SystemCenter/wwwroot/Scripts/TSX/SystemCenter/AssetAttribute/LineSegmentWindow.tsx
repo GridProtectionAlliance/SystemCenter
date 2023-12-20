@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
 import moment from 'moment';
@@ -67,33 +67,100 @@ function LineSegmentWindow(props: IProps): JSX.Element {
     let header = (<h4 style={(props.InnerOnly ?? false) ? { width: '100%', padding: '10px' } : null}>{"Line Segments: "}</h4>);
     const tableContent = (
         <>
-            <Table<OpenXDA.Types.LineSegment>
-                cols={[
-                    { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Length', field: 'Length', label: 'Length (miles)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'R1', field: 'R1', label: 'R1', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'X1', field: 'X1', label: 'X1', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'R0', field: 'R0', label: 'R0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'X0', field: 'X0', label: 'X0', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'ThermalRating', field: 'ThermalRating', label: 'Thermal Rating', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'FromBus', field: 'FromBus', label: 'From Bus', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'ToBus', field: 'ToBus', label: 'To Bus', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    {
-                        key: 'IsEnd', field: 'IsEnd', label: 'End?', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                        content: (item) => item.IsEnd ? HeavyCheckMark : null
-                    }
-                ]}
-                tableClass="table table-hover"
-                data={segments}
-                sortKey={'AssetName'}
-                ascending={true}
-                onSort={(d) => { }}
-                onClick={() => { }}
-                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                selected={(item) => false}
-            />
+            <ReactTable.Table<OpenXDA.Types.LineSegment>
+                TableClass="table table-hover"
+                Data={segments}
+                SortKey={'AssetName'}
+                Ascending={true}
+                OnSort={(d) => { }}
+                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                Selected={(item) => false}
+                KeySelector={(item) => item.ID}
+            >
+                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                    Key={'AssetName'}
+                    AllowSort={true}
+                    Field={'AssetName'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                > Name
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                    Key={'Length'}
+                    AllowSort={true}
+                    Field={'Length'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                > Length (miles)
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                    Key={'R1'}
+                    AllowSort={true}
+                    Field={'R1'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                > R1
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                    Key={'X1'}
+                    AllowSort={true}
+                    Field={'X1'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                > X1
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                    Key={'R0'}
+                    AllowSort={true}
+                    Field={'R0'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                > R0
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                    Key={'X0'}
+                    AllowSort={true}
+                    Field={'X0'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                > X0
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                    Key={'ThermalRating'}
+                    AllowSort={true}
+                    Field={'ThermalRating'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                > Thermal Rating
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                    Key={'FromBus'}
+                    AllowSort={true}
+                    Field={'FromBus'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                > From Bus
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                    Key={'ToBus'}
+                    AllowSort={true}
+                    Field={'ToBus'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                > To Bus
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.LineSegment>
+                    Key={'IsEnd'}
+                    AllowSort={true}
+                    Field={'IsEnd'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                    Content={({ item }) => item.IsEnd ? HeavyCheckMark : null }
+                > End?
+                </ReactTable.Column>
+            </ReactTable.Table>
             {showFawg ? <LineSegmentWizard LineID={props.ID} closeWizard={() => { setShowFawg(false); getSegments(); }} LineKey={''} LineName={''} /> : null}
         </>);
     const wizardButton = (<button className={"btn btn-primary" + ((props.InnerOnly ?? false) ? " pull-right" : "") + (!hasPermissions() ? ' disabled' : '')} data-tooltip='LineSegWiz'

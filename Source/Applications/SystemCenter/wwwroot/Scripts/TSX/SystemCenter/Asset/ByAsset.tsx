@@ -280,7 +280,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                         }
                     }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 350, width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                     RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     OnClick={(item) => handleSelect(item.row.ID)}
                     Selected={(item) => false}
