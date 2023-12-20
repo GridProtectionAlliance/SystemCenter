@@ -178,18 +178,18 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                         SortKey={sortField}
                         Ascending={ascending}
                         OnSort={(d) => {
-                            if (d.colKey == 'Remove' || d.colKey == 'Scroll')
-                                if (d.colKey == sortField) {
-                                    let ordered = _.orderBy(meterList, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                    setAscending(!ascending);
-                                    setMeterList(ordered);
-                                }
-                                else {
-                                    let ordered = _.orderBy(meterList, [d.colKey], ["asc"]);
-                                    setAscending(!ascending);
-                                    setMeterList(ordered);
-                                    setSortField(d.colKey);
-                                }
+                            if (d.colKey == 'Remove') return;
+                            if (d.colKey == sortField) {
+                                let ordered = _.orderBy(meterList, [d.colKey], [(!ascending ? "asc" : "desc")]);
+                                setAscending(!ascending);
+                                setMeterList(ordered);
+                            }
+                            else {
+                                let ordered = _.orderBy(meterList, [d.colKey], ["asc"]);
+                                setAscending(!ascending);
+                                setMeterList(ordered);
+                                setSortField(d.colKey);
+                            }
                         }}
                         OnClick={(data) => { 
                             if (data.colKey != 'Remove')
