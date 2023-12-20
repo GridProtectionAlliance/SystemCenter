@@ -25,7 +25,7 @@
 
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { LoadingIcon, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import * as React from 'react';
 import _ from 'lodash';
 import moment from 'moment';
@@ -129,39 +129,14 @@ const ExternalDBUpdate = React.memo((props: {
     return (
         <>
             {status === 'error' ?
-                <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} /> :
-                <Table<SystemCenter.Types.DetailedExternalDatabases>
-                    cols={[
-                        { key: 'Name', field: 'Name', label: 'Database Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        {
-                            key: 'LastDataUpdate', field: 'LastDataUpdate', label: 'Last Data Update', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: f => {
-                                if (f.LastDataUpdate == null || f.LastDataUpdate == '') return ''
-                                else return moment(f.LastDataUpdate).format('MM/DD/YYYY HH:mm.ss.ssss')
-                            }
-                        },
-                        {
-                            key: 'ID', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (db) => {
-                                if (statusMap.get(db.ID) === 'loading') return <LoadingIcon Show={true} Label={`Performing update for ${props.Type}s on connected to ${db.Name}...`} />
-                                if (statusMap.get(db.ID) === 'error') return <ServerErrorIcon Show={true} Label="Could not complete update. Please contact an administartor..." />
-                                return (
-                                    <button className="btn btn-primary pull-right" data-tooltip={db.ID} onClick={() => {
-                                            const handle = updateExternalDB(db);
-                                            handle.then(() => { reloadExternals(n => n + 1); });
-                                            return () => {
-                                                if (handle?.abort != undefined) handle.abort();
-                                            }
-                                        }}>{`Update ${db.Name}`}</button>
-                                );
-                            }
-                        },
-                        { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
-                    ]}
-                    tableClass="table table-hover"
-                    data={externalDB}
-                    sortKey={sort}
-                    ascending={asc}
-                    onSort={(d) => {
-                        if (d.colKey === "scroll" || d.colKey === "ID")
+                <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} /> : 
+                <ReactTable.Table<SystemCenter.Types.DetailedExternalDatabases>
+                    TableClass="table table-hover"
+                    Data={externalDB}
+                    SortKey={sort}
+                    Ascending={asc}
+                    OnSort={(d) => {
+                        if (d.colKey === "ID")
                             return;
 
                         if (d.colKey === sort) {
@@ -172,11 +147,54 @@ const ExternalDBUpdate = React.memo((props: {
                             setSort(d.colField);
                         }
                     }}
-                    theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
-                    selected={(item) => false}
-                />
+                    TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%', overflowX: 'scroll' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Database Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                        Key={'LastDataUpdate'}
+                        AllowSort={true}
+                        Field={'LastDataUpdate'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={({ item }) => {
+                            if (item.LastDataUpdate == null || item.LastDataUpdate == '') return ''
+                            else return moment(item.LastDataUpdate).format('MM/DD/YYYY HH:mm.ss.ssss')
+                        }}
+                    > Last Data Update
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                        Key={'ID'}
+                        AllowSort={false}
+                        Field={'ID'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={({ item }) => {
+                            if (statusMap.get(item.ID) === 'loading') return <LoadingIcon Show={true} Label={`Performing update for ${props.Type}s on connected to ${item.Name}...`} />
+                            if (statusMap.get(item.ID) === 'error') return <ServerErrorIcon Show={true} Label="Could not complete update. Please contact an administartor..." />
+                            return (
+                                <button className="btn btn-primary pull-right" data-tooltip={item.ID} onClick={() => {
+                                    const handle = updateExternalDB(item);
+                                    handle.then(() => { reloadExternals(n => n + 1); });
+                                    return () => {
+                                        if (handle?.abort != undefined) handle.abort();
+                                    }
+                                }}>{`Update ${item.Name}`}</button>
+                            );
+                        }}
+                    > <p></p>
+                    </ReactTable.Column>
+                </ReactTable.Table>
             }
             <LoadingScreen Show={status === 'loading'} />
         </>
