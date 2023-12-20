@@ -106,7 +106,7 @@ export default function CustomerInfo(props: IProps) {
                     {addlFieldError.map((t, i) => <p key={`a_${i}`}>{CrossMark} {t}</p>)}
                 </ToolTip>
                 <ToolTip Show={hover == 'Submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Update"}>
-                    <p>You do not have permission.</p>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className="btn btn-default" onClick={() => {

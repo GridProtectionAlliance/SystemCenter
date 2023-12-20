@@ -345,7 +345,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                     onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) addNewButton() }}>Add Asset</button>
                 </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddAsset"}>
-                    <p>You do not have permission.</p>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>
 

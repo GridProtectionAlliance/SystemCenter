@@ -237,7 +237,7 @@ const RemoteMeterTab = (props: IProps) => {
                     </button>
                 </div>
                 <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddMeters"}>
-                    <p>You do not have permission.</p>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>
             <Warning Title={"Delete " + (selectedMeter?.RemoteXDAName ?? "Remote Meter")} Show={showDelete} Message={"Are you sure you want to delete the Remote Meter for " + (selectedMeter?.LocalMeterName ?? "No Local Name") + "?"}

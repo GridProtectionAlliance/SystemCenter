@@ -139,10 +139,10 @@ const MeterLocationProperties = (props: IProps) => {
                             onClick={() => { if (hasPermissions()) props.UpdateMeter({ ...props.Meter, LocationID: null }) }}>Clear</button>
                     </div>
                     <ToolTip Show={hover == 'clear' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"ClearLocation"}>
-                        <p>You do not have permission.</p>
+                        <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                     </ToolTip>
                     <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"SelectLocation"}>
-                        <p>You do not have permission.</p>
+                        <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                     </ToolTip>
                     <Input<OpenXDA.Types.Location> Record={props.Location} Field={'LocationKey'} Label={'Key'} Feedback={'A unique key of less than 50 characters is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={!hasPermissions()} />
                     <Input<OpenXDA.Types.Location> Record={props.Location} Field={'Name'} Label={'Name'} Feedback={'A Name of less than 200 characters is required.'} Valid={valid} Setter={(loc) => props.SetLocation(loc)} Disabled={!hasPermissions()} />

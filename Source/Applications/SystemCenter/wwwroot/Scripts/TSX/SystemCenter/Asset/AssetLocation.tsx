@@ -180,7 +180,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}>Add Substation</button>
                 </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddSubst"}>
-                    <p>You do not have permission.</p>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>
 

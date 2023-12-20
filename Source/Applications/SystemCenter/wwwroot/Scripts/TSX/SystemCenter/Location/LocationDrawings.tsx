@@ -152,7 +152,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                     onClick={() => { setRecord({ ...emptyRecord, LocationID: props.Location.ID }) }}>Add Drawing</button>
             </div>
             <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddDrawing"}>
-                <p>You do not have permission.</p>
+                <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
             </ToolTip>
             <div className="modal" id="exampleModal" role="dialog">
                 <div className="modal-dialog" role="document">

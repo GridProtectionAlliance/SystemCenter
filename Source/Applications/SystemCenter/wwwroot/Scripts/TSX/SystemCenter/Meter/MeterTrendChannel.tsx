@@ -208,7 +208,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
             return false;
         return true;
     }
-
+    console.log(assetStatus);
     if (assetStatus == 'error' || phaseStatus == 'error' || mcStatus == 'error' || status == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -423,8 +423,8 @@ const MeterTrendChannelWindow = (props: IProps) => {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddTrend' onMouseEnter={() => setHover('Add')} onMouseLeave={() => setHover('None')} onClick={() => {
-                        if (hasPermissions()) {
+                    <button className={"btn btn-primary pull-right" + (!hasPermissions() || assets.length == 0 ? ' disabled' : '')} data-tooltip='AddChannel' onMouseEnter={() => setHover('Add')} onMouseLeave={() => setHover('None')} onClick={() => {
+                        if (hasPermissions() && assets.length > 0) {
                             let i = 1;
                             while (data.findIndex(item => item.Name.toLowerCase() == `channel ${i}`) > -1)
                                 i = i + 1;
@@ -459,14 +459,16 @@ const MeterTrendChannelWindow = (props: IProps) => {
                         }
                     }}>Add Channel</button>
                 </div>
-                <ToolTip Show={hover == 'Add' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddTrend"}>
-                    <p>You do not have permission.</p>
+                <ToolTip Show={hover == 'Add' && (!hasPermissions() || assets.length == 0)} Position={'top'} Theme={'dark'} Target={"AddChannel"}>
+                    {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
+                    {assets.length == 0 ? <p>Must connect assets to meter.</p> : null}
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (errors.length > 0 || recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (errors.length === 0 && recordChanges.size > 0 && hasPermissions()) applyUpdates() }}
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'Save'}>Save Changes</button>
                     <ToolTip Show={hover == 'Update' && (errors.length > 0 || recordChanges.size == 0)} Position={'top'} Theme={'dark'} Target={"Save"}>
-                        {!hasPermissions() ? <p>You do not have permission.</p> : recordChanges.size == 0 ? <p> No changes have been made. </p> : null}
+                        {recordChanges.size == 0 && hasPermissions() ? <p> No changes have been made. </p> : null}
+                        {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                         {errors.length > 0 ? errors.map((e, i) => <> {CrossMark} <p key={i}> {e} </p> </>) : null}
                     </ToolTip>
                 </div>

@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  MeterInfo.tsx - Gbtc
+//  AssetInfo.tsx - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -403,7 +403,8 @@ function AssetInfoWindow(props: IProps) {
                 <button className={"btn btn-primary" + (errors.length == 0 && addlFieldErrorAsset.length === 0 && addlFieldErrorType.length === 0 && hasChanged ? '' : ' disabled')} type="submit" onClick={() => { if (errors.length == 0 && addlFieldErrorAsset.length === 0 && addlFieldErrorType.length === 0 && hasChanged) return SaveChanges(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
             </div>
             <ToolTip Show={(errors.length > 0 || addlFieldErrorAsset.length > 0 || addlFieldErrorType.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                {!hasPermissions() ? <p>You do not have permission.</p>: !hasChanged ? <p> No changes made.</p> : null}
+                {!hasChanged && hasPermissions()? <p> No changes made.</p> : null}
+                {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                 {errors.map((t, i) => <p key={i}>
                     {CrossMark} {t}
                 </p>)}

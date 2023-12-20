@@ -245,7 +245,8 @@ const LocationInfo = (props: IProps) => {
                         }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                 </div>
                 <ToolTip Show={(locationErrors.length > 0 || addlFieldError.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                    {!hasPermissions() ? <p>You do not have permission.</p> : !hasChanged ? <p> No changes made.</p> : null}
+                    {!hasChanged && hasPermissions()? <p> No changes made.</p> : null}
+                    {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                     {locationErrors.map((t, i) => <p key={i}>
                         {CrossMark} {t}
                     </p>)}

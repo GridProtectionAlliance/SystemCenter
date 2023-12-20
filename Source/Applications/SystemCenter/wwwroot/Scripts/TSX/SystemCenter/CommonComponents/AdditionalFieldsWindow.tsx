@@ -31,6 +31,8 @@ import Table from '@gpa-gemstone/react-table';
 import { CrossMark, HeavyCheckMark, Pencil, Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols'
 import AdditionalFieldsKeyModal from './AdditionalFieldsKeyModal';
 import AdditionalFieldsValueField from './AdditionalFieldsValueField';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 
@@ -61,6 +63,9 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
     // Note: There only ever should be one key field, but this is so we do not have to rely on that
     const [keyField, setKeyField] = React.useState<SystemCenter.Types.AdditionalFieldView>(undefined);
     const [showExt, setShowExt] = React.useState<boolean>(false);
+
+    const roles = useAppSelector(SelectRoles);
+
 
     React.useEffect(() => {
         // This line autosaves data on navigation away via props.ID so that anything unsaved is saved before it goes away
@@ -211,6 +216,12 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         return result;
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     const KeyModalCallback = React.useCallback((newValue: string) => {
         const newFields = _.cloneDeep(additionalFieldValuesWorking);
         const alteredID = newFields.findIndex(field => field.AdditionalFieldID === keyField.ID);
@@ -333,9 +344,10 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 <div className="btn-group mr-2">
                     <button className={"btn btn-primary" + (!HasValueChanged() || HasInvalidChanges() ? ' disabled' : '')} onClick={() => { if (HasValueChanged() && !HasInvalidChanges()) addOrUpdateValues(); }}
                         onMouseEnter={() => setHover('Save')} onMouseLeave={() => setHover('None')} data-tooltip={'SaveValues'}>Update</button>
-                    <ToolTip Show={hover == 'Save' && (HasValueChanged())} Position={'top'} Theme={'dark'} Target={"SaveValues"}>
+                    <ToolTip Show={hover == 'Save' && (HasValueChanged() || !hasPermissions())} Position={'top'} Theme={'dark'} Target={"SaveValues"}>
                         {HasValueChanged() && !HasInvalidChanges() ? ChangedValues(false) : null}
                         {HasValueChanged() && HasInvalidChanges() ? InvalidChanges() : null}
+                        {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">

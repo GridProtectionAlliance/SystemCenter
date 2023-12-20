@@ -59,7 +59,7 @@ function Meter(props: IProps) {
     const [dataMergeWindow, setDataMergeWindow] = React.useState<React.ReactElement>();
     const [dataDeleteWindow, setDataDeleteWindow] = React.useState<React.ReactElement>();
     const roles = useAppSelector(SelectRoles);
-
+    
     React.useEffect(() => {
         let handle = getMeter();
         handle.then((data: OpenXDA.Types.Meter) => setMeter(data));

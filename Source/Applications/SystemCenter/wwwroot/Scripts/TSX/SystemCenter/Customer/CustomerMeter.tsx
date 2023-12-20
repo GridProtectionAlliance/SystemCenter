@@ -237,7 +237,7 @@ const CustomerMeterWindow = (props: IProps) => {
                 }}>Add Meters</button>
             </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Meters"}>
-                    <p>You do not have permission.</p>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
         </div>
         </div>

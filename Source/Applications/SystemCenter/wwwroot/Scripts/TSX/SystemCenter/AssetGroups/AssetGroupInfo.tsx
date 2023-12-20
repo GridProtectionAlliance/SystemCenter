@@ -111,7 +111,7 @@ function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, Sta
                         }}>Save Changes</button>
                 </div>
                 <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"SaveInfo"}>
-                    <p>You do not have permission.</p> 
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> 
                 </ToolTip>
                 <div className="btn-group mr-2">
                     <button className="btn btn-default" onClick={() => setAssetGroup(props.AssetGroup)} disabled={isEqual(assetGroup, props.AssetGroup)}>Clear Changes</button>

@@ -187,7 +187,8 @@ const MeterInforWindow = (props: IProps) => {
                     <button className={"btn btn-primary" + (validMeter() && hasChanged() ? '' : ' disabled')} type="submit" onClick={() => { if (validMeter() && hasChanged()) return updateMeter(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                 </div>
                 <ToolTip Show={(!validMeter() || !hasChanged()) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                    {!hasPermissions() ? <p>You do not have permission.</p> : !hasChanged() ? <p> No changes made.</p> : null}
+                    {!hasChanged() && hasPermissions()? <p> No changes made.</p> : null}
+                    {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                     {!valid('AssetKey') ? <p> {CrossMark} A unique Key of less than 50 characters is required.</p> : null}
                     {!valid('Name') ? <p> {CrossMark} A Name of less than 200 characters is required.</p> : null}
                     {!valid('ShortName') ? <p> {CrossMark} Short Name must be less than 50 characters.</p> : null}

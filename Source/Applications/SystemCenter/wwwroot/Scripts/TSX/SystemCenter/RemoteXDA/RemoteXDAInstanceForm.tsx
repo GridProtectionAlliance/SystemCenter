@@ -124,7 +124,7 @@ export default function RemoteXDAInstanceForm(props: IProps) {
 
     React.useEffect(() => {
         let e = [];
-        if (!RemoteXDAInstanceComparator(props.BaseInstance, formInstance) && !hasPermissions()) { e.push("You do not have permission."); }
+        if (!RemoteXDAInstanceComparator(props.BaseInstance, formInstance) && !hasPermissions()) { e.push("Your role does not have permission. Please contact your Administrator if you believe this to be in error."); }
         else { e.push("No changes made."); }
 
         if (!valid('Name'))
@@ -234,13 +234,13 @@ export default function RemoteXDAInstanceForm(props: IProps) {
                         </> : null}
                     </div>
                     <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"TestConnection"}>
-                        {<p>You do not have permission.</p>}
+                        {<p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>}
                     </ToolTip>
                     <ToolTip Show={hover == 'clear' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"EditUser"}>
-                        {<p>You do not have permission.</p>}
+                        {<p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>}
                     </ToolTip>
                     <ToolTip Show={hover == 'reset' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"PushRemote"}>
-                        {<p>You do not have permission.</p>}
+                        {<p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>}
                     </ToolTip>
                 </form>
             }

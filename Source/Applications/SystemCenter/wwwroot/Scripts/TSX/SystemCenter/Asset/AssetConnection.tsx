@@ -281,7 +281,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { evt.preventDefault(); if (hasPermissions()) setShowModal(true); }}>Add Connection</button>
                 </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Connect"}>
-                    <p>You do not have permission.</p>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>
 

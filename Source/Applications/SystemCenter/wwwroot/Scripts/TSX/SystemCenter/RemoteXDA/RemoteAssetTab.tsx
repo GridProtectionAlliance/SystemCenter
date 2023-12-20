@@ -211,7 +211,7 @@ const RemoteAssetTab = (props: IProps) => {
                     </button>
                 </div>
                 <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddAssets"}>
-                    <p>You do not have permission.</p>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
             </div>
             <Warning Title={"Delete " + (selectedAsset?.RemoteXDAAssetKey ?? "Remote Asset")} Show={showDelete} Message={"Are you sure you want to delete the Remote Asset for " + (selectedAsset?.LocalAssetName ?? "No Local Name") + "?"}

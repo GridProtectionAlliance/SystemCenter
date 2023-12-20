@@ -244,7 +244,8 @@ const ChannelScalingForm = (props: IProps) => {
                         onMouseEnter={() => setHover('Replace')} onMouseLeave={() => setHover('None')} data-tooltip={"rep"}
                     >Replace Multipliers</button>
                     <ToolTip Show={hover == 'Replace' && (multiplier.Voltage == 1 && multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"rep"}>
-                        {!hasPermissions() ? <p>You do not have permission.</p> : multiplier.Voltage == 1 && multiplier.Current == 1 ? <p> There are no changes to be applied. </p> : null}
+                        {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
+                        {hasPermissions() ? <p> There are no changes to be applied. </p> : null}
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
@@ -252,7 +253,8 @@ const ChannelScalingForm = (props: IProps) => {
                         onMouseEnter={() => setHover('Adjust')} onMouseLeave={() => setHover('None')} data-tooltip={"adj"}
                     >Adjust Multipliers</button>
                     <ToolTip Show={hover == 'Adjust' && (multiplier.Voltage == 1 && multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"adj"}>
-                        {!hasPermissions() ? <p>You do not have permission.</p> : multiplier.Voltage == 1 && multiplier.Current == 1 ? <p> There are no changes to be applied. </p> : null}
+                        {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
+                        {hasPermissions() ? <p> There are no changes to be applied. </p> : null}
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">

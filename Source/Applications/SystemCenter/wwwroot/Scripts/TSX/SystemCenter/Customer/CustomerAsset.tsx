@@ -173,7 +173,7 @@ const CustomerAssetWindow = (props: IProps) => {
                 }}>Add Asset</button>
             </div>
                 <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AssignedAssets"}>
-                    <p>You do not have permission.</p>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                 </ToolTip>
         </div>
         </div>
