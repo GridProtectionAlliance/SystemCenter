@@ -25,7 +25,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from 'react-router-dom';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { AssetGroupSlice, AssetTypeSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { ToolTip, Warning } from '@gpa-gemstone/react-interactive';
@@ -132,23 +132,13 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                    <Table
-                        cols={[
-                            { key: 'AssetName', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'LongAssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            {
-                                key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (c) => <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (!hasPermissions()) setRemoveAsset(c.ID) }}><span>{TrashCan}</span></button>
-                            },
-                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
-                        ]}
-                        tableClass="table table-hover"
-                        data={assetList}
-                        sortKey={sortKey}
-                        ascending={ascending}
-                        onSort={(d) => {
-                            if (d.colKey === "Scroll" || d.colKey === "Remove")
+                    <ReactTable.Table<SystemCenter.Types.DetailedAsset>
+                        TableClass="table table-hover"
+                        Data={assetList}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey === "Remove")
                                 return;
 
                             if (d.colKey === sortKey) {
@@ -163,13 +153,52 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setSortKey(d.colKey);
                             }
                         }}
-                        onClick={(data) => { if (data.colKey != 'Remove') history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.ID, state: {} }) }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', maxHeight: window.innerHeight - 590, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                        />
-                    </div>
+                        OnClick={(data) => {
+                            if (data.colKey != 'Remove')
+                                history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.ID, state: {} });
+                        }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 590, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                            Key={'AssetKey'}
+                            AllowSort={true}
+                            Field={'AssetKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Key
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                            Key={'AssetName'}
+                            AllowSort={true}
+                            Field={'AssetName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                            Key={'AssetType'}
+                            AllowSort={true}
+                            Field={'AssetType'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Type
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                            Key={'Remove'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => <>
+                                <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (!hasPermissions()) setRemoveAsset(c.ID) }}><span>{TrashCan}</span></button>
+                            </> }
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
+                </div>
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">

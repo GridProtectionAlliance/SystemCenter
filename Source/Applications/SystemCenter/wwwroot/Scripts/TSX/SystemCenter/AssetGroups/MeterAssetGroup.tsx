@@ -25,7 +25,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { useHistory } from 'react-router-dom';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { ByMeterSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { Search, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
@@ -172,40 +172,60 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                    <Table
-                        cols={[
-                            { key: 'MeterName', field: 'Name', label: 'Meter', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            {
-                                key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (c) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveMeter(c.ID) }}><span>{TrashCan}</span></button>
-                            },
-                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={meterList}
-                        sortKey={sortField}
-                        ascending={ascending}
-                            onSort={(d) => {
+                    <ReactTable.Table<SystemCenter.Types.DetailedMeter>
+                        TableClass="table table-hover"
+                        Data={meterList}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
                             if (d.colKey == 'Remove' || d.colKey == 'Scroll')
-                            if (d.colKey == sortField) {
-                                let ordered = _.orderBy(meterList, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                setAscending(!ascending);
-                                setMeterList(ordered);
-                            }
-                            else {
-                                let ordered = _.orderBy(meterList, [d.colKey], ["asc"]);
-                                setAscending(!ascending);
-                                setMeterList(ordered);
-                                setSortField(d.colKey);
-                            }
-                            }}
-                            onClick={(data) => { if (data.colKey != 'Remove') history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + data.row.ID, state: {} }) }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                        />
+                                if (d.colKey == sortField) {
+                                    let ordered = _.orderBy(meterList, [d.colKey], [(!ascending ? "asc" : "desc")]);
+                                    setAscending(!ascending);
+                                    setMeterList(ordered);
+                                }
+                                else {
+                                    let ordered = _.orderBy(meterList, [d.colKey], ["asc"]);
+                                    setAscending(!ascending);
+                                    setMeterList(ordered);
+                                    setSortField(d.colKey);
+                                }
+                        }}
+                        OnClick={(data) => { 
+                            if (data.colKey != 'Remove')
+                                history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + data.row.ID, state: {} })
+                        }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 590, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Meter
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                            Key={'Location'}
+                            AllowSort={true}
+                            Field={'Location'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Substation
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                            Key={'Remove'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveMeter(c.ID) }}><span>{TrashCan}</span></button> }
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
                 
             </div>
