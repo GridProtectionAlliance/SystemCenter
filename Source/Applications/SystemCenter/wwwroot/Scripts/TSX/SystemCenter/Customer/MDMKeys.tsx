@@ -25,7 +25,7 @@ import { Application, OpenXDA, SystemCenter } from "@gpa-gemstone/application-ty
 import { CrossMark } from "@gpa-gemstone/gpa-symbols";
 import { Input } from "@gpa-gemstone/react-forms";
 import { Modal, Search, ToolTip } from "@gpa-gemstone/react-interactive";
-import Table from "@gpa-gemstone/react-table";
+import { ReactTable } from "@gpa-gemstone/react-table";
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { LSCVSAccountSlice } from "../Store/Store";
@@ -96,19 +96,13 @@ function MDMKeys(props: IProps) {
                     </div>
                 </div>
                 <div className="card-body">
-                    <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                        <Table<SystemCenter.Types.LSCVSAccount>
-                            cols={[
-                                { key: 'AccountID', field: 'AccountID', label: 'Account ID', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                            ]}
-                            tableClass="table table-hover"
-                            data={data}
-                            sortKey={sortField}
-                            ascending={ascending}
-                            onSort={(d) => {
-                                if (d.colKey === 'scroll' || d.colField === undefined)
-                                    return;
+                    <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540 }}>
+                        <ReactTable.Table<SystemCenter.Types.LSCVSAccount>
+                            TableClass="table table-hover"
+                            Data={data}
+                            SortKey={sortField}
+                            Ascending={ascending}
+                            OnSort={(d) => {
                                 if (d.colField === sortField)
                                     setAscending(!ascending);
                                 else {
@@ -116,12 +110,21 @@ function MDMKeys(props: IProps) {
                                     setSortField(d.colField);
                                 }
                             }}
-                            onClick={() => true}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={(item) => false}
-                        />
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <ReactTable.Column<SystemCenter.Types.LSCVSAccount>
+                                Key={'AccountID'}
+                                AllowSort={true}
+                                Field={'AccountID'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Account ID
+                            </ReactTable.Column>
+                        </ReactTable.Table>
                     </div>
                 </div>
                 <div className="card-footer">

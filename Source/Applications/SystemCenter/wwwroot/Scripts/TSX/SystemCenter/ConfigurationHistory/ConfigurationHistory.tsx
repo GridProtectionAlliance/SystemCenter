@@ -24,6 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { useHistory } from 'react-router-dom';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
@@ -148,15 +149,32 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                 </div>
                 <div className={"tab-pane " + (tab == "filesProcessed" ? " active" : "fade")} id="filesProcessed">
                     <div style={{ width: '100%', maxHeight: window.innerHeight - 275, padding: 30, overflowY: 'auto' }}>
-                        <table className='table'>
-                            <thead>
-                                <tr><td>File Path</td><td>Creation Time</td></tr>
-                            </thead>
-                            <tbody>
-                                {filesProcessed.map((a, i) => <tr key={i}><td>{a.FilePath}</td><td>{a.CreationTime}</td></tr>)}
-                            </tbody>
-                        </table>
-
+                        <ReactTable.Table<OpenXDA.Types.DataFile>
+                            TableClass="table table-hover"
+                            Data={filesProcessed}
+                            SortKey={'FilePath'}
+                            Ascending={false}
+                            OnSort={(d) => { }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <ReactTable.Column
+                                Key={'FilePath'}
+                                AllowSort={false}
+                                Field={'FilePath'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > File Path
+                            </ReactTable.Column>
+                            <ReactTable.Column
+                                Key={'CreationTime'}
+                                AllowSort={false}
+                                Field={'CreationTime'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Creation Time
+                            </ReactTable.Column>
+                        </ReactTable.Table>
                     </div>
                 </div>
             </div>

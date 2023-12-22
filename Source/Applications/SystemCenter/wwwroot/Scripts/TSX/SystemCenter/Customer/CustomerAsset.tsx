@@ -27,7 +27,7 @@ import { OpenXDA as LocalXDA } from '../global';
 import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { CustomerAssetSlice } from '../Store/Store'
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import AssetSelect from '../Asset/AssetSelect';
@@ -124,45 +124,60 @@ const CustomerAssetWindow = (props: IProps) => {
             </div>
         </div>
         <div className="card-body">
-                <div style={{ width: '100%', height: window.innerHeight - 420 }}>
-                    <Table<LocalXDA.CustomerAsset>
-                        cols={[
-                            {
-                                key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
-                            },
-                            {
-                                key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
-                            },
-                            {
-                                key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
-                            },
-                            {
-                                key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (c) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveRecord(c) }}><span>{TrashCan}</span></button>
-                            },
-                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+            <div style={{ width: '100%', height: window.innerHeight - 420 }}>
+                <ReactTable.Table<LocalXDA.CustomerAsset>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortField}
+                    Ascending={ascending}
+                    OnSort={(d) => {
+                        if (d.colKey == 'Remove')
+                            return;
 
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortField}
-                    ascending={ascending}
-                        onSort={(d) => {
-
-                            if (d.colKey === "Scroll" || d.colKey == 'Remove')
-                                return;
-
-                            if (d.colKey === sortField)
-                                dispatch(CustomerAssetSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                            else 
-                                dispatch(CustomerAssetSlice.Sort({ SortField: d.colField, Ascending: true }));
-                        }}
-                    onClick={() => { }}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                        if (d.colKey === sortField)
+                            dispatch(CustomerAssetSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
+                        else
+                            dispatch(CustomerAssetSlice.Sort({ SortField: d.colField, Ascending: true }));
+                    }}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<LocalXDA.CustomerAsset>
+                        Key={'AssetKey'}
+                        AllowSort={true}
+                        Field={'AssetKey'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Key
+                    </ReactTable.Column>
+                    <ReactTable.Column<LocalXDA.CustomerAsset>
+                        Key={'AssetName'}
+                        AllowSort={true}
+                        Field={'AssetName'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<LocalXDA.CustomerAsset>
+                        Key={'AssetType'}
+                        AllowSort={true}
+                        Field={'AssetType'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Type
+                    </ReactTable.Column>
+                    <ReactTable.Column<LocalXDA.CustomerAsset>
+                        Key={'Remove'}
+                        AllowSort={false}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveRecord(c) }}><span>{TrashCan}</span></button> }
+                    > <p></p>
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
         </div>
         <div className="card-footer">
