@@ -28,7 +28,7 @@ import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { DataFileSlice } from '../Store/Store';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 
 function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
@@ -57,34 +57,59 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 </div>
             </div>
             <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>      
-                <Table<OpenXDA.Types.DataFile>
-                    cols={[
-                        { key: 'FilePath', field: 'FilePath', label: 'File', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                        { key: 'DataStartTime', field: 'DataStartTime', label: 'Date', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") },
-                        { key: 'ProcessingEndTime', field: 'ProcessingEndTime', label: 'Processed', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") },
-                        { key: 'FileSize', field: 'FileSize', label: 'Size (kB)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-
-                    ]}
-                    tableClass="table table-hover"
-                    data={files}
-                    sortKey={sortKey}
-                    ascending={ascending}
-                    onSort={({ colField, colKey, ascending }) => {
-                        if (colKey === "Scroll")
-                            return;
-                        dispatch(DataFileSlice.Sort({ SortField: colField, Ascending: ascending }));
+                <ReactTable.Table<OpenXDA.Types.DataFile>
+                    TableClass="table table-hover"
+                    Data={files}
+                    SortKey={sortKey}
+                    Ascending={ascending}
+                    OnSort={(d) => {
+                        dispatch(DataFileSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
-                    onClick={() => { }}
-                    theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                    rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tableStyle={{
+                    TableStyle={{
                         padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                         tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                     }}
-                    selected={(item) => false}
-                />
+                    TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                    RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<OpenXDA.Types.DataFile>
+                        Key={'FilePath'}
+                        AllowSort={true}
+                        Field={'FilePath'}
+                        HeaderStyle={{ width: '30%' }}
+                        RowStyle={{ width: '30%' }}
+                    > File
+                    </ReactTable.Column>
+                    <ReactTable.Column<OpenXDA.Types.DataFile>
+                        Key={'DataStartTime'}
+                        AllowSort={true}
+                        Field={'DataStartTime'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                        Content={({ item, key }) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") }
+                    > Date
+                    </ReactTable.Column>
+                    <ReactTable.Column<OpenXDA.Types.DataFile>
+                        Key={'ProcessingEndTime'}
+                        AllowSort={true}
+                        Field={'ProcessingEndTime'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                        Content={({ item, key }) => moment(item[key], "YYYY-MM-DDTHH:mm:ss.fffffff").format("MM/DD/YYYY HH:mm:ss") }
+                    > Processed
+                    </ReactTable.Column>
+                    <ReactTable.Column<OpenXDA.Types.DataFile>
+                        Key={'FileSize'}
+                        AllowSort={true}
+                        Field={'FileSize'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Size (kB)
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
             <div className="card-footer">
             </div>
