@@ -28,7 +28,7 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDBTablesSlice } from '../Store/Store';
 import ExternalDBTableForm from './ExternalDBTableForm';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
@@ -91,40 +91,57 @@ export default function ExternalDBTables(props: { ID: number }) {
                         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
-                                    <Table<SystemCenter.Types.DetailedExtDBTables>
-                                        cols={[
-                                            { key: 'TableName', field: 'TableName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                            { key: 'MappedFields', field: 'MappedFields', label: 'Mapped Fields', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                                {
-                                                key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                                content: (item) => <>
-                                                    <button className="btn btn-sm" onClick={(e) => {
-                                                        e.preventDefault();
-                                                        setRecord(item);
-                                                        setShowWarning(true)
-                                                    }}>{TrashCan}</button>
-                                                </>
-                                            },
-                                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                                        ]}
-                                        tableClass="table table-hover"
-                                        data={data}
-                                        sortKey={sortKey.toString()}
-                                        ascending={asc}
-                                        onSort={(d) => {
-                                            if (d.colKey == 'btns' || d.colKey == 'scroll' || d.colField == null) return;
+                                    <ReactTable.Table<SystemCenter.Types.DetailedExtDBTables>
+                                        TableClass="table table-hover"
+                                        Data={data}
+                                        SortKey={sortKey.toString()}
+                                        Ascending={asc}
+                                        OnSort={(d) => {
+                                            if (d.colKey == 'btns') return;
                                             dispatch(ExternalDBTablesSlice.Sort({ SortField: d.colField, Ascending: !asc }));
                                         }}
-                                        onClick={handleSelect}
-                                        tableStyle={{
+                                        OnClick={handleSelect}
+                                        TableStyle={{
                                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                                         }}
-                                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        selected={() => false}
-                                    />
+                                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        Selected={(item) => false}
+                                        KeySelector={(item) => item.ID}
+                                    >
+                                        <ReactTable.Column<SystemCenter.Types.DetailedExtDBTables>
+                                            Key={'TableName'}
+                                            AllowSort={true}
+                                            Field={'TableName'}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                        > Name
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<SystemCenter.Types.DetailedExtDBTables>
+                                            Key={'MappedFields'}
+                                            AllowSort={true}
+                                            Field={'MappedFields'}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                        > Mapped Fields
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<SystemCenter.Types.DetailedExtDBTables>
+                                            Key={'btns'}
+                                            AllowSort={false}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                            Content={({ item }) => <>
+                                                <button className="btn btn-sm" onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setRecord(item);
+                                                    setShowWarning(true);
+                                                }}>{TrashCan}</button>
+                                            </>}
+                                        > <p></p>
+                                        </ReactTable.Column>
+                                    </ReactTable.Table>
                                 </div>
                             </div>
                         </div>

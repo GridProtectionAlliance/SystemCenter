@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table'
+import { ReactTable } from '@gpa-gemstone/react-table'
 import { useHistory } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
@@ -112,37 +112,62 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
 
             <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
                 <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
-                    <Table<SystemCenter.Types.DetailedExternalDatabases>
-                        cols={[
-                            { key: 'Name', field: 'Name', label: 'Database Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'MappedTables', field: 'MappedTables', label: 'Mapped Tables', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'MappedFields', field: 'MappedFields', label: 'Mapped Fields', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            {
-                                key: 'LastDataUpdate', field: 'LastDataUpdate', label: 'Last Data Update', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: f => {
-                                    if (f.LastDataUpdate == null || f.LastDataUpdate == '') return ''
-                                    else return moment(f.LastDataUpdate).format('MM/DD/YYYY HH:mm.ss.ssss')
-                                }
-                            },
-                            { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortField}
-                        ascending={ascending}
-                        onSort={(d) => {
-                            if (d.colKey === null) return;
+                    <ReactTable.Table<SystemCenter.Types.DetailedExternalDatabases>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
                             dispatch(ExternalDatabasesSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        onClick={handleSelect}
-                        tableStyle={{
+                        OnClick={handleSelect}
+                        TableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                         }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                    />
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Database Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                            Key={'MappedTables'}
+                            AllowSort={true}
+                            Field={'MappedTables'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Mapped Tables
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                            Key={'MappedFields'}
+                            AllowSort={true}
+                            Field={'MappedFields'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Mapped Fields
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.DetailedExternalDatabases>
+                            Key={'LastDataUpdate'}
+                            AllowSort={true}
+                            Field={'LastDataUpdate'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => {
+                                if (item.LastDataUpdate == null || item.LastDataUpdate == '') return ''
+                                else return moment(item.LastDataUpdate).format('MM/DD/YYYY HH:mm.ss.ssss')
+                            }}
+                        > Last Data Update
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
 
