@@ -149,7 +149,7 @@ const AssetChannelWindow = (props: IProps) => {
                 </div>
             </div>
             <div className="card-body">
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
+                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30 }}>
                     <ReactTable.Table<ChannelDetail>
                         TableClass="table table-hover"
                         Data={assetChannels}

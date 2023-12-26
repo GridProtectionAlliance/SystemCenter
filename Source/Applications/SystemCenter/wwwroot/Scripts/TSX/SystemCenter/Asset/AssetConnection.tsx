@@ -233,7 +233,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                 </div>
             </div>
             <div className="card-body">
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
+                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30 }}>
                     <ReactTable.Table<AssetConnection>
                         TableClass="table table-hover"
                         Data={assetConnections}

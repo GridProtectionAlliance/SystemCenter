@@ -132,7 +132,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                 </div>
             </div>
             <div className="card-body">
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
+                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30 }}>
                     <ReactTable.Table<OpenXDA.Types.Location>
                         TableClass="table table-hover"
                         Data={locations}
