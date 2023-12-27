@@ -41,7 +41,7 @@ import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
 import { GetNodeSize } from '@gpa-gemstone/helper-functions';
-import Table, { Column } from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
 import StationBatteryAttributes from '../AssetAttribute/StationBattery';
@@ -274,39 +274,6 @@ export default function AssetPage(props: IProps) {
             return <StationBatteryAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
     }
 
-    const assetRows = [
-        {
-            key: 'Status', label: 'Status', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-            content: (item) => (item.ID == 0 ? 'New' : 'Existing')
-        },
-        {
-            key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }
-        },
-        {
-            key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' }
-        },
-        {
-            key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }
-        },
-        {
-            key: 'VoltageKV', field: 'VoltageKV', label: 'kV', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }
-        },
-        {
-            key: 'Channels', label: 'Channels', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-            content: (item) => item.Channels.length
-        },
-        {
-            key: 'Buttons', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-            content: (item, key, field, style, index) => <>
-                <button className="btn btn-sm" onClick={(e) => editAsset(index)}><span>{Pencil}</span></button>
-                <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span>{TrashCan}</span></button>
-            </>
-        },
-        {
-            key: 'Scroll', label: '', headerStyle: { width: '5px', padding: 0 }, rowStyle: { width: '0px', padding: 0 },
-            content: () => null 
-        }] as Column<AssetType>[];
-
         return (
             <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
@@ -329,13 +296,13 @@ export default function AssetPage(props: IProps) {
                             </div>
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className="col" style={{height: '100%'}}>
-                                    <Table <AssetType> cols={assetRows}
-                                        tableClass="table table-hover"
-                                        data={assetData}
-                                        sortKey={sortKey}
-                                        ascending={asc}
-                                        onSort={(d) => {
-                                            if (d.colKey === "Scroll" || d.colKey == 'Buttons')
+                                    <ReactTable.Table<AssetType>
+                                        TableClass="table table-hover"
+                                        Data={assetData}
+                                        SortKey={sortKey}
+                                        Ascending={asc}
+                                        OnSort={(d) => {
+                                            if (d.colKey == 'Buttons')
                                                 return;
                                             if (d.colKey === sortKey)
                                                 setAsc((x) => !x);
@@ -343,13 +310,74 @@ export default function AssetPage(props: IProps) {
                                                 setAsc(false);
                                             setSortKey(d.colKey);
                                         }}
-                                        onClick={(fld) => { }}
-                                        tableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed', height: 'calc(100% - 16px)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
-                                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        selected={(item) => false}
-                                    />
+                                        TableStyle={{ padding: 0, width: 'calc(100%)', tableLayout: 'fixed', height: 'calc(100% - 16px)', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}
+                                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        Selected={(item) => false}
+                                        KeySelector={(item) => item.ID}
+                                    >
+                                        <ReactTable.Column<AssetType>
+                                            Key={'Status'}
+                                            AllowSort={true}
+                                            HeaderStyle={{ width: '10%' }}
+                                            RowStyle={{ width: '10%' }}
+                                            Content={({ item }) => item.ID == 0 ? 'New' : 'Existing' }
+                                        > Status
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<AssetType>
+                                            Key={'AssetKey'}
+                                            AllowSort={true}
+                                            Field={'AssetKey'}
+                                            HeaderStyle={{ width: '20%' }}
+                                            RowStyle={{ width: '20%' }}
+                                        > Key
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<AssetType>
+                                            Key={'AssetName'}
+                                            AllowSort={true}
+                                            Field={'AssetName'}
+                                            HeaderStyle={{ width: '30%' }}
+                                            RowStyle={{ width: '30%' }}
+                                        > Name
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<AssetType>
+                                            Key={'AssetType'}
+                                            AllowSort={true}
+                                            Field={'AssetType'}
+                                            HeaderStyle={{ width: '10%' }}
+                                            RowStyle={{ width: '10%' }}
+                                        > Type
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<AssetType>
+                                            Key={'VoltageKV'}
+                                            AllowSort={true}
+                                            Field={'VoltageKV'}
+                                            HeaderStyle={{ width: '10%' }}
+                                            RowStyle={{ width: '10%' }}
+                                        > kV
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<AssetType>
+                                            Key={'Channels'}
+                                            AllowSort={true}
+                                            Field={'Channels'}
+                                            HeaderStyle={{ width: '10%' }}
+                                            RowStyle={{ width: '10%' }}
+                                            Content={({ item }) => item.Channels.length }
+                                        > Channels
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<AssetType>
+                                            Key={'Buttons'}
+                                            AllowSort={false}
+                                            HeaderStyle={{ width: '10%' }}
+                                            RowStyle={{ width: '10%' }}
+                                            Content={({ index }) => <>
+                                                <button className="btn btn-sm" onClick={(e) => editAsset(index)}><span>{Pencil}</span></button>
+                                                <button className="btn btn-sm" onClick={(e) => { e.stopPropagation(); deleteAsset(index); }}><span>{TrashCan}</span></button>
+                                            </> }
+                                        > <p></p>
+                                        </ReactTable.Column>
+                                    </ReactTable.Table>
                                 </div>
                             </div>
                         </div>                        

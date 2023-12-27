@@ -32,7 +32,7 @@ import { TrashCan, CrossMark } from '@gpa-gemstone/gpa-symbols';
 import ChannelScalingForm from '../Meter/ChannelScaling/ChannelScalingForm';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice, ChannelTemplateSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { SystemCenter } from '../global';
 
 declare var homePath: string;
@@ -142,46 +142,13 @@ export default function TemplateWindow(props: IProps) {
         >
             <div className="row">
                 <div className="col">
-                    <Table<SystemCenter.ChannelTemplateFile>
-                        cols={[
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: {}, rowStyle: {} },
-                                {
-                                    key: 'FileName', field: 'FileName', label: 'File', headerStyle: {}, rowStyle: {}
-                                },
-                                {
-                                    key: 'ShowEvents', field: 'ShowEvents', label: 'Event',
-                                    headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    content: (item) => <CheckBox<SystemCenter.ChannelTemplateFile> Field='ShowEvents' Record={item}
-                                        Setter={(r) => dispatch(ChannelTemplateSlice.DBAction({ verb: 'PATCH', record: r }))} Label='' />
-                                },
-                                {
-                                    key: 'ShowTrend', field: 'ShowTrend', label: 'Trend', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    content: (item) => <CheckBox<SystemCenter.ChannelTemplateFile> Field='ShowTrend' Record={item}
-                                        Setter={(r) => dispatch(ChannelTemplateSlice.DBAction({ verb: 'PATCH', record: r }))} Label='' />
-                                },
-                            {
-                                key: 'SortOrder', field: 'SortOrder', label: 'Sort Order', headerStyle: {}, rowStyle: {},
-                                content: (item) => <Input<SystemCenter.ChannelTemplateFile> Field='SortOrder' Type={'integer'} Valid={() => true} Record={item}
-                                    Setter={(r) => dispatch(ChannelTemplateSlice.DBAction({ verb: 'PATCH', record: r }))} Label='' />
-                            },
-                            {
-                                key: 'btn', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                content: (item) => <>
-                                    <button className="btn btn-sm"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            dispatch(ChannelTemplateSlice.DBAction({ verb: 'DELETE', record: item }))
-                                        }}><span>{TrashCan}</span></button>
-                                </>
-                            },
-                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 17, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={templates}
-                        sortKey={sortField}
-                        ascending={asc}
-                        onSort={(d) => {
-                            if (d.colKey === "scroll" || d.colKey == 'btn')
+                    <ReactTable.Table<SystemCenter.ChannelTemplateFile>
+                        TableClass="table table-hover"
+                        Data={templates}
+                        SortKey={sortField}
+                        Ascending={asc}
+                        OnSort={(d) => {
+                            if (d.colKey == 'btn')
                                 return;
 
                             if (d.colKey === sortField)
@@ -190,12 +157,67 @@ export default function TemplateWindow(props: IProps) {
                                 dispatch(ChannelTemplateSlice.Sort({ SortField: d.colField as keyof SystemCenter.ChannelTemplateFile, Ascending: true }));
                             }
                         }}
-                        onClick={() => {}}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 450, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={() => false}
-                    />
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 450, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<SystemCenter.ChannelTemplateFile>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.ChannelTemplateFile>
+                            Key={'FileName'}
+                            AllowSort={true}
+                            Field={'FileName'}
+                        > File
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.ChannelTemplateFile>
+                            Key={'ShowEvents'}
+                            AllowSort={true}
+                            Field={'ShowEvents'}
+                            HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                            RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                            Content={({ item }) => <CheckBox<SystemCenter.ChannelTemplateFile> Field='ShowEvents' Record={item}
+                                Setter={(r) => dispatch(ChannelTemplateSlice.DBAction({ verb: 'PATCH', record: r }))} Label='' /> }
+                        > Events
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.ChannelTemplateFile>
+                            Key={'ShowTrend'}
+                            AllowSort={true}
+                            Field={'ShowTrend'}
+                            HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                            RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                            Content={({ item }) => <CheckBox<SystemCenter.ChannelTemplateFile> Field='ShowTrend' Record={item}
+                                Setter={(r) => dispatch(ChannelTemplateSlice.DBAction({ verb: 'PATCH', record: r }))} Label='' /> }
+                        > Trend
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.ChannelTemplateFile>
+                            Key={'SortOrder'}
+                            AllowSort={true}
+                            Field={'SortOrder'}
+                            Content={({ item }) => <Input<SystemCenter.ChannelTemplateFile> Field='SortOrder' Type={'integer'} Valid={() => true} Record={item}
+                                Setter={(r) => dispatch(ChannelTemplateSlice.DBAction({ verb: 'PATCH', record: r }))} Label='' /> }
+                        > Sort Order
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.ChannelTemplateFile>
+                            Key={'btn'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                            RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                            Content={({ item }) => <>
+                                <button className="btn btn-sm"
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        dispatch(ChannelTemplateSlice.DBAction({ verb: 'DELETE', record: item }))
+                                    }}><span>{TrashCan}</span></button>
+                            </> }
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <div className="row">
