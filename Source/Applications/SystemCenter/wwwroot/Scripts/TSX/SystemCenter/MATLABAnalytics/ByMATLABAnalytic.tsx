@@ -26,7 +26,7 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { MATLABAnalyticSlice } from '../Store/Store';
 
 import { useHistory } from "react-router-dom";
-import Table from '@gpa-gemstone/react-table'
+import { ReactTable } from '@gpa-gemstone/react-table'
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -140,27 +140,44 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                 </SearchBar>
 
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <Table<OpenXDA.Types.MATLABAnalytic>
-                        cols={[
-                            { key: 'MethodName', label: 'Method Name', field: 'MethodName', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssemblyName', label: 'Assembly Name', field: 'AssemblyName', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'LoadOrder', label: 'Load Order', field: 'LoadOrder', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortField}
-                        ascending={ascending}
-                        onSort={(d) => {
-                            if (d.colField === null) return;
-                            dispatch(MATLABAnalyticSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                        }}
-                        onClick={handleSelect}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    />
+                    <ReactTable.Table<OpenXDA.Types.MATLABAnalytic>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => dispatch(MATLABAnalyticSlice.Sort({ SortField: d.colField, Ascending: d.ascending }))}
+                        OnClick={handleSelect}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<OpenXDA.Types.MATLABAnalytic>
+                            Key={'MethodName'}
+                            AllowSort={true}
+                            Field={'MethodName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Method Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.MATLABAnalytic>
+                            Key={'AssemblyName'}
+                            AllowSort={true}
+                            Field={'AssemblyName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Assembly Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.MATLABAnalytic>
+                            Key={'LoadOrder'}
+                            AllowSort={true}
+                            Field={'LoadOrder'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Load Order
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
 
                 <Modal Title={'Add New MATLAB Analytic'}
