@@ -67,7 +67,7 @@ const ByEventType: Application.Types.iByComponent = (props) => {
     }, []);
 
     function saveChange() {
-        dispatch(EventTypeSlice.DBAction({ verb: 'PATCH', record: selected }));
+        dispatch(EventTypeSlice.DBAction({ verb: 'PATCH', record: selected })). then(() => dispatch(EventTypeSlice.Fetch()));
 
         eventTypeAssetTypeData.filter(item => assetTypeET.findIndex(a => a.AssetTypeID == item.AssetTypeID) < 0)
             .forEach(item => dispatch(EventTypeAssetTypeSlice.DBAction({ verb: 'DELETE', record: item })))
