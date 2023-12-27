@@ -24,6 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 
 declare var homePath: string;
@@ -70,16 +71,45 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                     </div>
                 </div>
                 <div className="card-body">
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
-                        <table className='table'>
-                            <thead>
-                                <tr><td>Revision</td><td>Files Processed</td><td>Last Processed Time</td></tr>
-                            </thead>
-                            <tbody>
-                            {meterConfigurations.map((a, i) => <tr key={i} style={{cursor: 'pointer' }} onClick={(e) => handleSelect(a)}><td>{a.Revision}</td><td>{a.FilesProcessed}</td><td>{a.LastProcessedTime}</td></tr>)}
-                            </tbody>
-                        </table>
-
+                    <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30 }}>
+                        <ReactTable.Table<MeterConfiguration>
+                            TableClass="table table-hover"
+                            Data={meterConfigurations}
+                            SortKey={''}
+                            Ascending={false}
+                            OnSort={(d) => { }}
+                            OnClick={(d) => handleSelect(d.row)}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 420, width: '100%' }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <ReactTable.Column<MeterConfiguration>
+                                Key={'Revision'}
+                                AllowSort={true}
+                                Field={'Revision'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Revision
+                            </ReactTable.Column>
+                            <ReactTable.Column<MeterConfiguration>
+                                Key={'FilesProcessed'}
+                                AllowSort={true}
+                                Field={'FilesProcessed'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Files Processed
+                            </ReactTable.Column>
+                            <ReactTable.Column<MeterConfiguration>
+                                Key={'LastProcessedTime'}
+                                AllowSort={true}
+                                Field={'LastProcessedTime'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Last Processed Time
+                            </ReactTable.Column>
+                        </ReactTable.Table>
                     </div>
                 </div>
             </div>
