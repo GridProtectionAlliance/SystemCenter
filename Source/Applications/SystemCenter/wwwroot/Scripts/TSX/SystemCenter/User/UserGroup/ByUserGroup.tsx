@@ -21,7 +21,7 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
@@ -106,33 +106,66 @@ const ByUser: Application.Types.iByComponent = (props) => {
 
             <div className="row" style={{flex: 1, overflow: 'hidden'}}>
                 <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
-                    <Table<ISecurityGroup>
-                        cols={[
-                            { key: 'DisplayName', field: 'DisplayName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'CreatedOn', field: 'CreatedOn', label: 'Added On', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'CreatedBy', field: 'CreatedBy', label: 'Created By', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortField}
-                        ascending={ascending}
-                        onSort={(d) => {
-                            if (d.colKey === 'scroll' || d.colField === undefined) return;
+                    <ReactTable.Table<ISecurityGroup>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
                             dispatch(SecurityGroupSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        onClick={(d) => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Group&GroupID=' + d.row.ID })}
-                        tableStyle={{
+                        OnClick={(d) => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Group&GroupID=' + d.row.ID })}
+                        TableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                         }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                    />
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<ISecurityGroup>
+                            Key={'DisplayName'}
+                            AllowSort={true}
+                            Field={'DisplayName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<ISecurityGroup>
+                            Key={'Description'}
+                            AllowSort={true}
+                            Field={'Description'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Description
+                        </ReactTable.Column>
+                        <ReactTable.Column<ISecurityGroup>
+                            Key={'CreatedOn'}
+                            AllowSort={true}
+                            Field={'CreatedOn'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Added On
+                        </ReactTable.Column>
+                        <ReactTable.Column<ISecurityGroup>
+                            Key={'CreatedBy'}
+                            AllowSort={true}
+                            Field={'CreatedBy'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Created By
+                        </ReactTable.Column>
+                        <ReactTable.Column<ISecurityGroup>
+                            Key={'Type'}
+                            AllowSort={true}
+                            Field={'Type'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Type
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}

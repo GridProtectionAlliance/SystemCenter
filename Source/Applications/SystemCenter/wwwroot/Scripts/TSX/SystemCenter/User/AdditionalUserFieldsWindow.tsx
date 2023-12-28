@@ -21,7 +21,7 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark, HeavyCheckMark, Pencil, Warning, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, ToolTip, ServerErrorIcon, Warning as WarningModal } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
@@ -191,45 +191,73 @@ function AdditionalField(props: IProps) {
 				</div>
 
 			</div>
-			<div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-				<Table<Application.Types.iAdditionalUserField>
-					cols={[
-						{ key: 'FieldName', field: 'FieldName', label: 'Field', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-						{ key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-						{
-							key: 'Value', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => {
-								let valueListgrpId = valueListGroups.findIndex(g => g.Name === item.Type);
-								valueListgrpId = (valueListgrpId > -1 ? valueListGroups[valueListgrpId].ID : -1);
-								const vList = valueListItems.filter(i => i.GroupID === valueListgrpId);
-								const valIdx = props.GetFieldValueIndex(item, editValues);
-								if (valIdx > -1)
-									return <ValueDisplay Mode={mode} Type={item.Type} ValueListItems={vList} Value={editValues[valIdx]} Setter={(val: Application.Types.iAdditionalUserFieldValue) => setEditValues((d) => { const u = [...d]; u[valIdx] = val; return u; })} />
-								return <ValueDisplay Mode={mode} Type={item.Type} ValueListItems={vList} Value={props.CreateValue(item)} Setter={(val: Application.Types.iAdditionalUserFieldValue) => setEditValues((d) => { const u = [...d]; u.push(val); return u; })} />
-							}
-						},
-						{ key: 'EditButton', label: '', headerStyle: { width: 40, paddingRight: 0, paddingLeft: 10 }, rowStyle: { width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }, content: (item) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); setEditNew('Edit'); }}><span>{Pencil}</span></button> : '') },
-						{ key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 10 }, rowStyle: { width: 40, paddingLeft: 0, paddingTop: 36, paddingRight: 10 }, content: (item) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '') },
-
-					]}
-					tableClass="table table-hover"
-					data={fields}
-					sortKey={sortField as string}
-					ascending={ascending}
-					onSort={(d) => {
-						if (d.colField === undefined)
-							return;
+			<div className="card-body" style={{ maxHeight: window.innerHeight - 315 }}>
+				<ReactTable.Table<Application.Types.iAdditionalUserField>
+					TableClass="table table-hover"
+					Data={fields}
+					SortKey={sortField}
+					Ascending={ascending}
+					OnSort={(d) => {
 						if (d.colKey === sortField)
 							dispatch(UserAdditionalFieldSlice.Sort({ SortField: d.colField, Ascending: !ascending }))
 						else
 							dispatch(UserAdditionalFieldSlice.Sort({ SortField: d.colField, Ascending: true }))
 					}}
-					onClick={() => { }}
-					theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-					tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
-					rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-					selected={() => false}
-					keySelector={props.FieldKeySelector}
-				/>
+					TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+					TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, width: '100%' }}
+					RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+					Selected={(item) => false}
+					KeySelector={props.FieldKeySelector}
+				>
+					<ReactTable.Column<Application.Types.iAdditionalUserField>
+						Key={'FieldName'}
+						AllowSort={true}
+						Field={'FieldName'}
+						HeaderStyle={{ width: 'auto' }}
+						RowStyle={{ width: 'auto' }}
+					> Field
+					</ReactTable.Column>
+					<ReactTable.Column<Application.Types.iAdditionalUserField>
+						Key={'Type'}
+						AllowSort={true}
+						Field={'Type'}
+						HeaderStyle={{ width: 'auto' }}
+						RowStyle={{ width: 'auto' }}
+					> Type
+					</ReactTable.Column>
+					<ReactTable.Column<Application.Types.iAdditionalUserField>
+						Key={'Value'}
+						AllowSort={true}
+						HeaderStyle={{ width: 'auto' }}
+						RowStyle={{ width: 'auto' }}
+						Content={({ item }) => {
+							let valueListgrpId = valueListGroups.findIndex(g => g.Name === item.Type);
+							valueListgrpId = (valueListgrpId > -1 ? valueListGroups[valueListgrpId].ID : -1);
+							const vList = valueListItems.filter(i => i.GroupID === valueListgrpId);
+							const valIdx = props.GetFieldValueIndex(item, editValues);
+							if (valIdx > -1)
+								return <ValueDisplay Mode={mode} Type={item.Type} ValueListItems={vList} Value={editValues[valIdx]} Setter={(val: Application.Types.iAdditionalUserFieldValue) => setEditValues((d) => { const u = [...d]; u[valIdx] = val; return u; })} />
+							return <ValueDisplay Mode={mode} Type={item.Type} ValueListItems={vList} Value={props.CreateValue(item)} Setter={(val: Application.Types.iAdditionalUserFieldValue) => setEditValues((d) => { const u = [...d]; u.push(val); return u; })} />
+						}}
+					> Value
+					</ReactTable.Column>
+					<ReactTable.Column<Application.Types.iAdditionalUserField>
+						Key={'EditButton'}
+						AllowSort={false}
+						HeaderStyle={{ width: 40, paddingRight: 0, paddingLeft: 10 }}
+						RowStyle={{ width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }}
+						Content={({ item }) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowEdit(true); setEditNew('Edit'); }}><span>{Pencil}</span></button> : '')}
+					> <p></p>
+					</ReactTable.Column>
+					<ReactTable.Column<Application.Types.iAdditionalUserField>
+						Key={'DeleteButton'}
+						AllowSort={false}
+						HeaderStyle={{ width: 40, paddingRight: 0, paddingLeft: 10 }}
+						RowStyle={{ width: 40, paddingRight: 0, paddingLeft: 10, paddingTop: 36 }}
+						Content={({ item }) => (mode === 'Edit' ? <button className="btn btn-sm" onClick={() => { setNewField(item); setShowWarning(true); }}><span>{TrashCan}</span></button> : '')}
+					> <p></p>
+					</ReactTable.Column>
+				</ReactTable.Table>
 			</div>
 			<div className="card-footer">
 				<div className="btn-group mr-2">

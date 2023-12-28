@@ -158,7 +158,7 @@ function Setting(props: IProps) {
                             Field={'DefaultValue'}
                             HeaderStyle={{ width: '38%' }}
                             RowStyle={{ width: '38%' }}
-                        > DefaultValue
+                        > Default Value
                         </ReactTable.Column>
                     </ReactTable.Table>
                 </div>

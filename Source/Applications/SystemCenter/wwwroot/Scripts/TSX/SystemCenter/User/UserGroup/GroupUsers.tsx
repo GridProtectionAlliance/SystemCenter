@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { UserAccountSliceRemote } from '../../Store/Store';
 import { ISecurityGroup } from '../Types';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 
 const GroupUser = (props: {Group: ISecurityGroup}) => {
@@ -101,23 +101,13 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                 {props.Group.Type == 'AD'? <div className="alert alert-info">
                     Users in an Active Directory Group cannot be edited in System Center. To add or remove Users, please contact your AD Administrator.
                 </div> : null}
-                {props.Group.Type == 'Database' ? 
-                    <Table<Application.Types.iUserAccount>
-                        cols={[
-                            { key: 'AccountName', field: 'AccountName', label: 'Username', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Email', field: 'Email', label: 'Email', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={users}
-                        sortKey={sortField}
-                        ascending={asc}
-                        onSort={(d) => {
-                            if (d.colKey === 'scroll' || d.colField == undefined)
-                                return;
+                {props.Group.Type == 'Database' ?
+                    <ReactTable.Table<Application.Types.iUserAccount>
+                        TableClass="table table-hover"
+                        Data={users}
+                        SortKey={sortField}
+                        Ascending={asc}
+                        OnSort={(d) => {
                             if (d.colField === sortField)
                                 setAsc(!asc);
                             else {
@@ -125,12 +115,53 @@ const GroupUser = (props: {Group: ISecurityGroup}) => {
                                 setSortField(d.colField);
                             }
                         }}
-                        onClick={(d) => { } }
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                    />
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<Application.Types.iUserAccount>
+                            Key={'AccountName'}
+                            AllowSort={true}
+                            Field={'AccountName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Username
+                        </ReactTable.Column>
+                        <ReactTable.Column<Application.Types.iUserAccount>
+                            Key={'FirstName'}
+                            AllowSort={true}
+                            Field={'FirstName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > First Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<Application.Types.iUserAccount>
+                            Key={'LastName'}
+                            AllowSort={true}
+                            Field={'LastName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Last Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<Application.Types.iUserAccount>
+                            Key={'Phone'}
+                            AllowSort={true}
+                            Field={'Phone'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Phone
+                        </ReactTable.Column>
+                        <ReactTable.Column<Application.Types.iUserAccount>
+                            Key={'Email'}
+                            AllowSort={true}
+                            Field={'Email'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Email
+                        </ReactTable.Column>
+                    </ReactTable.Table>
 
                     : null}
             </div>

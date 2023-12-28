@@ -21,7 +21,7 @@
 // ******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, ServerErrorIcon, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
@@ -172,30 +172,70 @@ const ByUser: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<IUserAccount>
-                    cols={[
-                        { key: 'DisplayName', field: 'DisplayName', label: 'Username', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Email', field: 'Email', label: 'Email', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                         { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortField}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colKey === 'scroll' || d.colField === undefined) return;
-                        dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
-                    }}
-                    onClick={(d) => history.push({pathname: homePath + 'index.cshtml', search: '?name=User&UserAccountID=' + d.row.ID })}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={() => false}
-                />
+                 <ReactTable.Table<IUserAccount>
+                     TableClass="table table-hover"
+                     Data={data}
+                     SortKey={sortField}
+                     Ascending={ascending}
+                     OnSort={(d) => {
+                         dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                     }}
+                     OnClick={(d) => history.push({ pathname: homePath + 'index.cshtml', search: '?name=User&UserAccountID=' + d.row.ID })}
+                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                     TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                     RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                     Selected={(item) => false}
+                     KeySelector={(item) => item.ID}
+                 >
+                     <ReactTable.Column<IUserAccount>
+                         Key={'DisplayName'}
+                         AllowSort={true}
+                         Field={'DisplayName'}
+                         HeaderStyle={{ width: 'auto' }}
+                         RowStyle={{ width: 'auto' }}
+                     > Username
+                     </ReactTable.Column>
+                     <ReactTable.Column<IUserAccount>
+                         Key={'FirstName'}
+                         AllowSort={true}
+                         Field={'FirstName'}
+                         HeaderStyle={{ width: 'auto' }}
+                         RowStyle={{ width: 'auto' }}
+                     > First Name
+                     </ReactTable.Column>
+                     <ReactTable.Column<IUserAccount>
+                         Key={'LastName'}
+                         AllowSort={true}
+                         Field={'LastName'}
+                         HeaderStyle={{ width: 'auto' }}
+                         RowStyle={{ width: 'auto' }}
+                     > Last Name
+                     </ReactTable.Column>
+                     <ReactTable.Column<IUserAccount>
+                         Key={'Phone'}
+                         AllowSort={true}
+                         Field={'Phone'}
+                         HeaderStyle={{ width: 'auto' }}
+                         RowStyle={{ width: 'auto' }}
+                     > Phone
+                     </ReactTable.Column>
+                     <ReactTable.Column<IUserAccount>
+                         Key={'Email'}
+                         AllowSort={true}
+                         Field={'Email'}
+                         HeaderStyle={{ width: 'auto' }}
+                         RowStyle={{ width: 'auto' }}
+                     > Email
+                     </ReactTable.Column>
+                     <ReactTable.Column<IUserAccount>
+                         Key={'Type'}
+                         AllowSort={true}
+                         Field={'Type'}
+                         HeaderStyle={{ width: 'auto' }}
+                         RowStyle={{ width: 'auto' }}
+                     > Type
+                     </ReactTable.Column>
+                 </ReactTable.Table>
             </div>
             <Modal Show={showModal} Size={'lg'} ShowCancel={false} ShowX={true} ConfirmText={'Save'}
                 Title={'Add New User'} CallBack={(confirm) => {
