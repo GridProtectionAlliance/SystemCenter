@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SEBrowserWidgetSlice, SEBrowserWidgetViewSlice } from '../Store/Store'
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { LoadingIcon, Modal, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
 import { EventWidget } from '../../../../../EventWidgets/TSX/global';
@@ -112,50 +112,60 @@ const WidgetByCategory = (props: IProps) => {
             </div>
         </div>
         <div className="card-body">
-                <div style={{ width: '100%', height: window.innerHeight - 420 }}>
-                    <Table<EventWidget.IWidgetView>
-                    cols={[
-                            {
-                                key: 'Name', field: 'Name', label: 'Widget Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
-                            },
-                            {
-                                key: 'Type', field: 'Type', label: 'Widget Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }
-                            },
-                            {
-                                key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (c) => <>
-                                    <button className="btn btn-sm"
-                                        onClick={(e) => {
-                                            setRecord(c);
-                                            setShowRemove(true);
-                                        }}>
-                                        <span>{TrashCan}</span>
-                                    </button>
-                                </>
-                            },
-                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+            <div style={{ width: '100%', height: window.innerHeight - 420 }}>
+                <ReactTable.Table<EventWidget.IWidgetView>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortField}
+                    Ascending={ascending}
+                    OnSort={(d) => {
+                        if (d.colKey == 'Remove')
+                            return;
 
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortField}
-                    ascending={ascending}
-                        onSort={(d) => {
-
-                            if (d.colKey === "Scroll" || d.colKey == 'Remove')
-                                return;
-
-                            if (d.colKey === sortField)
-                                dispatch(SEBrowserWidgetViewSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                            else 
-                                dispatch(SEBrowserWidgetViewSlice.Sort({ SortField: d.colField, Ascending: true }));
-                        }}
-                    onClick={() => { }}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                        if (d.colKey === sortField)
+                            dispatch(SEBrowserWidgetViewSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
+                        else
+                            dispatch(SEBrowserWidgetViewSlice.Sort({ SortField: d.colField, Ascending: true }));
+                    }}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<EventWidget.IWidgetView>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Widget Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<EventWidget.IWidgetView>
+                        Key={'Type'}
+                        AllowSort={true}
+                        Field={'Type'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Widget Type
+                    </ReactTable.Column>
+                    <ReactTable.Column<EventWidget.IWidgetView>
+                        Key={'Remove'}
+                        AllowSort={false}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={({ item }) => <>
+                            <button className="btn btn-sm"
+                                onClick={(e) => {
+                                    setRecord(item);
+                                    setShowRemove(true);
+                                }}>
+                                <span>{TrashCan}</span>
+                            </button>
+                        </>}
+                    > <p></p>
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
         </div>
         <div className="card-footer">

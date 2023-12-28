@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application } from '@gpa-gemstone/application-typings';
@@ -87,31 +87,41 @@ const ByWidgetCategory: Application.Types.iByComponent = (props) => {
                 </li>
             </SearchBar>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<LocalXDA.IWidgetCategory>
-                    cols={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'OrderBy', field: 'OrderBy', label: 'Order By', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortKey}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colKey === "Scroll")
-                            return;
-
+                <ReactTable.Table<LocalXDA.IWidgetCategory>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortKey}
+                    Ascending={ascending}
+                    OnSort={(d) => {
                         if (d.colKey === sortKey)
                             dispatch(WidgetCategorySlice.Sort({ SortField: d.colField, Ascending: !ascending }));
                         else
                             dispatch(WidgetCategorySlice.Sort({ SortField: d.colField, Ascending: true }));
                     }}
-                    onClick={handleSelect}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%'  }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                    OnClick={handleSelect}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<LocalXDA.IWidgetCategory>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<LocalXDA.IWidgetCategory>
+                        Key={'OrderBy'}
+                        AllowSort={true}
+                        Field={'OrderBy'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Order By
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
 
             <Modal Show={showModal} Title={'Add New SE Browser Tab'} CallBack={(c) => {

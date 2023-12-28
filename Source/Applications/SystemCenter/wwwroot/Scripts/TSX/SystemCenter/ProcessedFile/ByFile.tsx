@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 
@@ -150,21 +150,12 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 
             </SearchBar>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<OpenXDA.Types.DataFile>
-                    cols={[
-                        { key: 'FilePath', field: 'FilePath', label: 'File Path', headerStyle: { width: '70%' }, rowStyle: { width: '70%' }, content: (f) => f.FilePath.length > 100 ? f.FilePath.substr(f.FilePath.length - 100, 100) : f.FilePath },
-                        { key: 'CreationTime', field: 'CreationTime', label: 'File Created', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: f => moment(f.CreationTime).format('MM/DD/YYYY HH:mm.ss.ssss') },
-                        { key: 'DataStartTime', field: 'DataStartTime', label: 'Data Start', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: f => moment(f.DataStartTime).format('MM/DD/YYYY HH:mm.ss.ssss') },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortKey}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colKey === "Scroll")
-                            return;
-
+                <ReactTable.Table<OpenXDA.Types.DataFile>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortKey}
+                    Ascending={ascending}
+                    OnSort={(d) => {
                         if (d.colKey === sortKey)
                             setAscending(!ascending);
                         else {
@@ -172,12 +163,41 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             setSortKey(d.colField);
                         }
                     }}
-                    onClick={(item) => setSelectetID(item.row)}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 320, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                    OnClick={(item) => setSelectetID(item.row)}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 320, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<OpenXDA.Types.DataFile>
+                        Key={'FilePath'}
+                        AllowSort={true}
+                        Field={'FilePath'}
+                        HeaderStyle={{ width: '70%' }}
+                        RowStyle={{ width: '70%' }}
+                        Content={({ item }) => item.FilePath.length > 100 ? item.FilePath.substr(item.FilePath.length - 100, 100) : item.FilePath}
+                    > File Path
+                    </ReactTable.Column>
+                    <ReactTable.Column<OpenXDA.Types.DataFile>
+                        Key={'CreationTime'}
+                        AllowSort={true}
+                        Field={'CreationTime'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                        Content={({ item }) => moment(item.CreationTime).format('MM/DD/YYYY HH:mm.ss.ssss')}
+                    > File Created
+                    </ReactTable.Column>
+                    <ReactTable.Column<OpenXDA.Types.DataFile>
+                        Key={'DataStartTime'}
+                        AllowSort={true}
+                        Field={'DataStartTime'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                        Content={({ item }) => moment(item.DataStartTime).format('MM/DD/YYYY HH:mm.ss.ssss')}
+                    > Data Start
+                    </ReactTable.Column>
+                </ReactTable.Table>
                 <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p-1)} />
             </div>
 
@@ -210,24 +230,45 @@ const ByFile: Application.Types.iByComponent = (props) => {
                 </div>
                 <div className="row">
                     <div className="col">
-                        {eState == 'loading' ? <LoadingIcon Show={true} /> : <Table<GlobalXDA.Event>
-                            cols={[
-                                { key: 'ID', field: 'ID', label: 'Event ID', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (f) => f.ID },
-                                { key: 'StartTime', field: 'StartTime', label: 'Event Start', headerStyle: { width: '40%' }, rowStyle: { width: '40%' }, content: (f) => moment(f.StartTime).format('MM/DD/YYYY hh:mm.ss.ssss') },
-                                { key: 'EndTime', field: 'EndTime', label: 'Event End', headerStyle: { width: '40%' }, rowStyle: { width: '40%' }, content: f => moment(f.EndTime).format('hh:mm.ss.ssss') },
-                                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                            ]}
-                            tableClass="table table-hover"
-                            data={evts}
-                            sortKey={'StartTime'}
-                            ascending={true}
-                            onSort={(d) => { }}
-                            onClick={(item) => { }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={(item) => false}
-                        />}
+                        {eState == 'loading' ? <LoadingIcon Show={true} /> : <ReactTable.Table<GlobalXDA.Event>
+                            TableClass="table table-hover"
+                            Data={evts}
+                            SortKey={'StartTime'}
+                            Ascending={true}
+                            OnSort={(d) => { }}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <ReactTable.Column<GlobalXDA.Event>
+                                Key={'ID'}
+                                AllowSort={false}
+                                Field={'ID'}
+                                HeaderStyle={{ width: '20%' }}
+                                RowStyle={{ width: '20%' }}
+                            > Event ID
+                            </ReactTable.Column>
+                            <ReactTable.Column<GlobalXDA.Event>
+                                Key={'StartTime'}
+                                AllowSort={false}
+                                Field={'StartTime'}
+                                HeaderStyle={{ width: '40%' }}
+                                RowStyle={{ width: '40%' }}
+                                Content={({ item }) => moment(item.StartTime).format('MM/DD/YYYY hh:mm.ss.ssss')}
+                            > Event Start
+                            </ReactTable.Column>
+                            <ReactTable.Column<GlobalXDA.Event>
+                                Key={'EndTime'}
+                                AllowSort={false}
+                                Field={'EndTime'}
+                                HeaderStyle={{ width: '40%' }}
+                                RowStyle={{ width: '40%' }}
+                                Content={({ item }) => moment(item.EndTime).format('hh:mm.ss.ssss')}
+                            > Event End
+                            </ReactTable.Column>
+                        </ReactTable.Table>}
                     </div>
                 </div>
                 
