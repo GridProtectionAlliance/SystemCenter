@@ -141,166 +141,59 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
             UserRoles={roles}
             OnSignOut={() => window.location.href = './@GSF/Web/Security/Views/Login.cshtml?logout=yes' }
         >
-            <div style={{ width: '100%', marginTop: 5, textAlign: 'center' }}><h3>System Center</h3></div>
+            <Section Label='System Center' />
             <Section Label={'Monitors and Assets'}>
-                <Page Name={'Meters'} Label={'Meters'}><ByMeter Roles={roles}/></Page>
+                <Page Name={'Meters'} Label={'Meters'}><ByMeter Roles={roles} /></Page>
+                <Page Name={'Locations'} Label={'Substations'}><ByLocation Roles={roles} /></Page>
+                <Page Name={'Assets'} Label={'Assets'}><ByAsset Roles={roles} /></Page>
+                <Page Name={'AssetGroups'} Label={'Asset Groups'}><ByAssetGroup Roles={roles} /></Page>
+                <Page Name={'PQViewCustomers'} Label={'Customers'}><ByCustomer Roles={roles} /></Page>
+                {settings.find(s => s.Name == 'SystemCenter.ShowDeviceHealthReport')?.Value == "1" ?
+                    <Page Name={'DeviceHealthReport'} Label={'Device Health Report'}><DeviceHealthReport Roles={roles} /></Page>
+                : null}
+            </Section>
+            <Section Label={'File Processing'}>
+                <Page Name={'DataFiles'} Label={'Data Files'} RequiredRoles={['Administrator', 'Transmission SME']}><DataFile Roles={roles} /></Page>
+                <Page Name={'DataOperations'} Label={'Data Operations'} RequiredRoles={['Administrator', 'Transmission SME']}><DataOperations Roles={roles} /></Page>
+                <Page Name={'DataReaders'} Label={'Data Readers'} RequiredRoles={['Administrator', 'Transmission SME']}><DataReaders Roles={roles} /></Page>
+                <Page Name={'MATLABAnalytics'} Label={'MATLAB Analytics'} RequiredRoles={['Administrator', 'Transmission SME']}><ByMATLABAnalytic Roles={roles} /></Page>
+                <Page Name={'DBCleanup'} Label={'Database Cleanup'} RequiredRoles={['Administrator', 'Transmission SME']}><DBCleanup Roles={roles} /></Page>
+            </Section>
+            <Section Label={'External Links'}>
+                <Page Name={'RemoteXDAInstanceMain'} Label={'Remote openXDA Instances'}><RemoteXDAInstanceMain Roles={roles} /></Page>
+                <Page Name={'ByExternalDB'} Label={'External Databases'} RequiredRoles={['Administrator']}><ByExternalDB Roles={roles} /></Page>
+                <Page Name={'ByExternalTable'} Label={'External Tables'} RequiredRoles={['Administrator']}><ByExternalTable Roles={roles} /></Page>
+            </Section>
+            <Section Label={'UI Configuration'}>
+                <Page Name={'EventType'} Label={'Event Types'} RequiredRoles={['Administrator']}><ByEventType Roles={roles} /></Page>
+                <Page Name={'ValueLists'} Label={'Value Lists'} RequiredRoles={['Administrator']}><ByValueListGroup Roles={roles} /></Page>
+                <Page Name={'ChannelGroups'} Label={'Channel Groups'} RequiredRoles={['Administrator']}><ByChannelGroup Roles={roles} /></Page>
+                <Page Name={'SEBrowserTabs'} Label={'PQ Browser Tabs'} RequiredRoles={['Administrator']}><BySEBrowserCategory Roles={roles} /></Page>
+                <Page Name={'SEBrowserWidget'} Label={'PQ Browser Widgets'} RequiredRoles={['Administrator']}><BySEBrowserWidget Roles={roles} /></Page>
+                <Page Name={'MagDurCurves'} Label={'MagDur Curves'} RequiredRoles={['Administrator']}><ByMagDurCurve Roles={roles} /></Page>
+                <Page Name={'EventTags'} Label={'Event Tags'} RequiredRoles={['Administrator']}><ByEventTag Roles={roles} /></Page>
+                <Page Name={'ByApplicationCategory'} Label={'Application Categories'} RequiredRoles={['Administrator']}><ByApplicationCategory Roles={roles} /></Page>
+            </Section>
+            <Section Label={'System Settings'}>
+                <Page Name={'AppHost'} Label={'Nodes'} RequiredRoles={['Administrator']}><AppHost Roles={roles} /></Page>
+                <Page Name={'Settings'} Label={'System Center'} RequiredRoles={['Administrator']}><BySettings Roles={roles} System={'SystemCenter'} /></Page>
+                <Page Name={'Settings'} Label={'openXDA'} RequiredRoles={['Administrator']}><BySettings Roles={roles} System={'OpenXDA'} /></Page>
+                <Page Name={'ByAdditionalField'} Label={'Additional Fields'} RequiredRoles={['Administrator']}><ByAdditionalField Roles={roles} /></Page>
+                <Page Name={'Settings'} Label={'miMD'} RequiredRoles={['Administrator']}><BySettings Roles={roles} System={'MiMD'} /></Page>
+                <Page Name={'ApplicationNodes'} Label={'SSO Applications'} RequiredRoles={['Administrator']}><ByApplicationNode Roles={roles} /></Page>
+            </Section>
+            <Section Label={'User Settings'}>
+                <Page Name={'UserStatistics'} Label={'User Statistics'} RequiredRoles={['Administrator']}><UserStatistics Roles={roles} /></Page>
+                <Page Name={'Users'} Label={'Users'} RequiredRoles={['Administrator']}><ByUser Roles={roles} /></Page>
+                <Page Name={'Groups'} Label={'User Groups'} RequiredRoles={['Administrator']}><BySecuritytGroup Roles={roles} /></Page>
             </Section>
         </Application>
     )
 
 /*    return (
         <Router>
-            <nav className="navbar navbar-dark fixed-top bg-dark flex-md-nowrap p-0 shadow" style={{ height: 75 }}>
-                <a className="col-sm-3 col-md-2 mr-0" style={{ textAlign: 'center' }} href="https://www.gridprotectionalliance.org"><img style={{ width: '100%', margin: -5 }} src={"../Images/SystemCenter-TopLeft.png"} /></a>
-                {*//*<input className="form-control form-control-dark w-100" type="text" placeholder="Search" aria-label="Search"/>*//*}
-                <ul className="navbar-nav px-3">
-                    <li className="nav-item text-nowrap">
-                        <a className="nav-link" href="./@GSF/Web/Security/Views/Login.cshtml?logout=yes" >Sign out</a>
-                    </li>
-                </ul>
-            </nav>
             <div className="container-fluid" style={{ top: 75, position: 'absolute', width: '100%', height: 'calc(100% - 75px)', overflow: 'hidden' }}>
                 <div className="row" style={{ height: '100%' }}>
-                    <nav className="col bg-light sidebar" style={{ maxWidth: 250, height: '100%' }}>
-                        <div className="sidebar-sticky" style={{ height: 'calc(100% - 35px)' }}>
-                            <div style={{ width: '100%', marginTop: 5, textAlign: 'center' }}><h3>System Center</h3></div>
-                            <hr />
-
-                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading">Monitors and Assets</h6>
-                            <ul style={{ marginLeft: 10 }} className="nav flex-column">
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=Meter") || (location.pathname + location.search).includes(controllerViewPath + "?name=ConfigurationHistory")} to={controllerViewPath + "?name=Meters"}>Meters</NavLink>
-                                </li>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=Location")} to={controllerViewPath + "?name=Locations"}>Substations</NavLink>
-                                </li>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => {
-                                        const loc = (location.pathname + location.search);
-                                        return loc.includes(controllerViewPath + "?name=Asset") && !loc.includes(controllerViewPath + "?name=AssetGroup");
-                                    }} to={controllerViewPath + "?name=Assets"}>Assets</NavLink>
-                                </li>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=AssetGroup")} to={controllerViewPath + "?name=AssetGroups"}>Asset Groups</NavLink>
-                                </li>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search == controllerViewPath + "?name=PQViewCustomers") || (location.pathname + location.search).includes(controllerViewPath + "?name=Customer")} to={controllerViewPath + "?name=PQViewCustomers"}>Customers</NavLink>
-                                </li>
-                                <li className="nav-item" hidden={settings.find(s => s.Name == 'SystemCenter.ShowDeviceHealthReport')?.Value != "1"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=DeviceHealthReport") || (location.pathname + location.search).includes(controllerViewPath + "?name=DeviceIssuesPage")} to={controllerViewPath + "?name=DeviceHealthReport"}>Device Health Report</NavLink>
-                                </li>
-                            </ul>
-
-                            <hr />
-                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>File Processing</h6>
-                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataFiles"} to={controllerViewPath + "?name=DataFiles"}>Data Files</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataOperations&System=OpenXDA"} to={controllerViewPath + "?name=DataOperations&System=OpenXDA"}>Data Operations</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DataReaders&System=OpenXDA"} to={controllerViewPath + "?name=DataReaders&System=OpenXDA"}>Data Readers</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=MATLABAnalytics")} to={controllerViewPath + "?name=MATLABAnalytics"}>MATLAB Analytics</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=DBCleanup"} to={controllerViewPath + "?name=DBCleanup"}>Database Cleanup</NavLink>
-                                </li>
-                            </ul>
-
-                            <hr />
-                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading">External Links</h6>
-                            <ul style={{ marginLeft: 10 }} className="nav flex-column">
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=RemoteXDAInstance")} to={controllerViewPath + "?name=RemoteXDAInstanceMain"}>Remote openXDA Instances</NavLink>
-                                </li>
-                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByExternalDB") || (location.pathname + location.search).includes(controllerViewPath + "?name=ExternalDB")} to={controllerViewPath + "?name=ByExternalDB"}>External Databases</NavLink>
-                                </li>
-                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByExternalTable") || (location.pathname + location.search).includes(controllerViewPath + "?name=ExternalTable")} to={controllerViewPath + "?name=ByExternalTable"}>External Tables</NavLink>
-                                </li>
-                            </ul>
-
-                            <hr />
-                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>UI Configuration</h6>
-                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=EventType")} to={controllerViewPath + "?name=EventType"}>Event Types</NavLink>
-                                </li>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ValueList")} to={controllerViewPath + "?name=ValueLists"}>Value Lists</NavLink>
-                                </li>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ChannelGroup")} to={controllerViewPath + "?name=ChannelGroups"}>Channel Groups</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=SEBrowserTab")} to={controllerViewPath + "?name=SEBrowserTabs"}>PQ Browser Tabs</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=SEBrowserWidget")} to={controllerViewPath + "?name=SEBrowserWidget"}>PQ Browser Widgets</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=MagDurCurves")} to={controllerViewPath + "?name=MagDurCurves"}>MagDur Curves</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=EventTags")} to={controllerViewPath + "?name=EventTags"}>Event Tags</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByApplicationCategory") || (location.pathname + location.search).includes(controllerViewPath + "?name=ApplicationCategory")} to={controllerViewPath + "?name=ByApplicationCategory"}>Application Categories</NavLink>
-                                </li>
-                            </ul>
-
-                            <hr />
-                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>System Settings</h6>
-                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=AppHost")} to={controllerViewPath + "?name=AppHost"}>Nodes</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=SystemCenter"} to={controllerViewPath + "?name=Settings&System=SystemCenter"}>System Center</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=OpenXDA"} to={controllerViewPath + "?name=Settings&System=OpenXDA"}>openXDA</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' hidden={roles.indexOf('Administrator') < 0} className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=ByAdditionalField")} to={controllerViewPath + "?name=ByAdditionalField"}>Additional Fields</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=Settings&System=MiMD"} to={controllerViewPath + "?name=Settings&System=MiMD"}>miMD</NavLink>
-                                </li>
-                                <li className={"nav-item"}>
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=ApplicationNodes"} to={controllerViewPath + "?name=ApplicationNodes"}>SSO Applications</NavLink>
-                                </li>
-                            </ul>
-
-                            <hr />
-                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0}>User Settings</h6>
-                            <ul style={{ marginLeft: 10 }} className="nav flex-column" hidden={roles.indexOf('Administrator') < 0}>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => location.pathname + location.search == controllerViewPath + "?name=UserStatistics"} to={controllerViewPath + "?name=UserStatistics"}>User Statistics</NavLink>
-                                </li>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=User")
-                                        && !(location.pathname + location.search).includes(controllerViewPath + "?name=UserStatistics")} to={controllerViewPath + "?name=Users"}>Users</NavLink>
-                                </li>
-                                <li className="nav-item">
-                                    <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=Groups") || (location.pathname + location.search).includes(controllerViewPath + "?name=Group")} to={controllerViewPath + "?name=Groups"}>User Groups</NavLink>
-                                </li>
-                            </ul>
-                        </div>
-                        <div className="sidebar-sticky" style={{ height: '35px' }}>
-                            <div style={{ width: '100%', textAlign: 'center' }}>
-                                <span>Version {version}</span>
-                                <br />
-                                <span></span>
-                            </div>
-
-                        </div>
-                    </nav>
                     <div className="col" style={{ width: '100%', height: 'inherit', padding: '0 0 0 0', overflow: 'hidden' }}>
                         <React.Suspense fallback={<div>Loading...</div>}>
                             <Switch>
