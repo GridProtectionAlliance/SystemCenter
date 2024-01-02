@@ -41,13 +41,13 @@ import DataRescueWindow from './Advanced/MeterDataRescue';
 import DataMergeWindow from './Advanced/MeterDataMerge';
 import DataDeleteWindow from './Advanced/MeterDataDelete';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
+import { useParams } from 'react-router-dom';
  
 declare var homePath: string;
 declare type Tab = 'notes' | 'meterInfo' | 'additionalFields' | 'substation' | 'assets' | 'eventChannels' | 'trendChannels' | 'channelScaling' | 'configurationHistory' | 'extDB' | 'maintenance' | 'dataRescue' | 'dataMerge' | 'dataDelete'
 
-interface IProps { MeterID: number, Tab: Tab }
-
-function Meter(props: IProps) {
+function Meter() {
+    const { MeterID } = useParams();
     const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(null);
     const [tab, setTab] = React.useState(getTab());
     const [showAdvanced, setShowAdvanced] = React.useState<boolean>(false);
@@ -61,11 +61,10 @@ function Meter(props: IProps) {
         let handle = getMeter();
         handle.then((data: OpenXDA.Types.Meter) => setMeter(data));
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
-    }, [props.MeterID]);
+    }, [MeterID]);
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('Meter.Tab'))
+        if (sessionStorage.hasOwnProperty('Meter.Tab'))
             return JSON.parse(sessionStorage.getItem('Meter.Tab'));
         else
             return 'notes';
@@ -78,10 +77,10 @@ function Meter(props: IProps) {
     }, [tab]);
 
     function getMeter(): JQuery.jqXHR<OpenXDA.Types.Meter> {
-        if (props.MeterID == undefined) return null;
+        if (MeterID == undefined) return null;
         return $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Meter/One/${props.MeterID}`,
+            url: `${homePath}api/OpenXDA/Meter/One/${MeterID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -176,13 +175,13 @@ function Meter(props: IProps) {
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
                 {tab === 'notes'? <div className={"tab-pane active"} style={{ maxHeight: window.innerHeight - 215 }}>
-                    <NoteWindow ID={props.MeterID} Type='Meter' />
+                    <NoteWindow ID={parseInt(MeterID)} Type='Meter' />
                 </div> : null}
                 {tab === 'meterInfo' ? <div className={"tab-pane active"} id="meterInfo" style={{ maxHeight: window.innerHeight - 215 }}>
                     <MeterInfoWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} />
                 </div> : null}
                 {tab === 'additionalFields' ?<div className={"tab-pane active" } id="additionalFields" style={{ maxHeight: window.innerHeight - 215 }}>
-                    <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={tab} />
+                    <AdditionalFieldsWindow ID={parseInt(MeterID)} Type='Meter' Tab={tab} />
                 </div> : null}
                 {tab === 'substation' ?<div className={"tab-pane active"} id="substation" style={{ maxHeight: window.innerHeight - 215 }}>
                     <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} />

@@ -25,14 +25,12 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useHistory } from 'react-router-dom';
 import { isEqual } from 'lodash';
 import { Input, CheckBox } from '@gpa-gemstone/react-forms';
 
 declare var homePath: string;
 
 function AssetgroupInfoWindow(props: { AssetGroup: OpenXDA.Types.AssetGroup, StateSetter: (asset: OpenXDA.Types.AssetGroup) => void, AllAssetGroups: Array<OpenXDA.Types.AssetGroup> }) {
-    let history = useHistory();
     const [assetGroup, setAssetGroup] = React.useState<OpenXDA.Types.AssetGroup>(null);
 
     React.useEffect(() => {

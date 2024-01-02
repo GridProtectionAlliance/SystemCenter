@@ -24,7 +24,7 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application } from '@gpa-gemstone/application-typings';
 import { OpenXDA as LocalXDA } from '../global';
 import { SearchBar, Search, Modal, Warning } from '@gpa-gemstone/react-interactive';

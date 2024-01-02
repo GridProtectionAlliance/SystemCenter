@@ -30,7 +30,7 @@ import { CrossMark } from '@gpa-gemstone/gpa-symbols'
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ApplicationCategorySlice } from '../Store/Store';
 import { Input } from '@gpa-gemstone/react-forms';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 //TODO: remove this interface and use interface from gemstone when new gemstone application-typing is published (check for it being used anywhere else too)
 export interface ApplicationCategory {
@@ -41,7 +41,7 @@ export interface ApplicationCategory {
 
 const ByApplicationCategory: Application.Types.iByComponent = (props) => {
     const dispatch = useAppDispatch();
-    let history = useHistory();
+    let navigate = useNavigate();
 
     const emptyApplicationCategory = { ID: 0, Name: '', SortOrder: 0 };
     const [editNewApplicationCategory, setEditNewApplicationCategory] = React.useState<ApplicationCategory>(emptyApplicationCategory);
@@ -97,7 +97,7 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ApplicationCategory&ID=' + item.row.ID, state: {} })
+        navigate(`${homePath}/ApplicationCategory/${item.row.ID}`, { state: {} });
     }
 
     return (

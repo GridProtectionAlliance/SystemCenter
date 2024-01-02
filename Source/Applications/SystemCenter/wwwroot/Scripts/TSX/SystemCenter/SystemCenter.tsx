@@ -23,7 +23,6 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { BrowserRouter as Router, Route, NavLink, Switch } from 'react-router-dom';
 import queryString from "querystring";
 import { createBrowserHistory } from "history"
 import { Application as AppTypes, SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
@@ -31,7 +30,7 @@ import { Application, Page, Section } from '@gpa-gemstone/react-interactive';
 import { Provider } from 'react-redux';
 import store, { SystemCenterSettingSlice } from './Store/Store';
 import { useAppDispatch, useAppSelector } from './hooks';
-import ApplicationCategory from './ApplicationCategory/ApplicationCategory';
+import Meter from './Meter/Meter';
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -61,7 +60,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const Asset = React.lazy(() => import(/* webpackChunkName: "Asset" */ './Asset/Asset'));
     const NewMeterWizard = React.lazy(() => import( /* webpackChunkName: "NewMeterWizard" */ './NewMeterWizard/NewMeterWizard'));
     const ConfigurationHistory = React.lazy(() => import(/* webpackChunkName: "ConfigurationHistory" */ './ConfigurationHistory/ConfigurationHistory'));
-    const Meter = React.lazy(() => import(/* webpackChunkName: "Meter" */ './Meter/Meter'));
+    /*const Meter = React.lazy(() => import(*//* webpackChunkName: "Meter" *//* './Meter/Meter'));*/
     const Location = React.lazy(() => import(/* webpackChunkName: "Location" */ './Location/Location'));
     const ByAssetGroup = React.lazy(() => import(/* webpackChunkName: "ByAssetGroup" */ './AssetGroups/ByAssetGroup'));
     const AssetGroup = React.lazy(() => import(/* webpackChunkName: "AssetGroup" */ './AssetGroups/AssetGroup'));
@@ -134,7 +133,8 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
     return (
         <Application
-            HomePath={homePath} DefaultPath={'Meters'}
+            HomePath={homePath}
+            DefaultPath={'Meters'}
             Logo={'../Images/SystemCenter-TopLeft.png'}
             Version={version}
             AllowCollapsed={true}
@@ -144,6 +144,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
             <Section Label='System Center' />
             <Section Label={'Monitors and Assets'}>
                 <Page Name={'Meters'} Label={'Meters'}><ByMeter Roles={roles} /></Page>
+                <Page Name={'Meter'} Paths={['/:MeterID']} >
+                    <Meter />
+                </Page>
                 <Page Name={'Locations'} Label={'Substations'}><ByLocation Roles={roles} /></Page>
                 <Page Name={'Assets'} Label={'Assets'}><ByAsset Roles={roles} /></Page>
                 <Page Name={'AssetGroups'} Label={'Asset Groups'}><ByAssetGroup Roles={roles} /></Page>
@@ -199,42 +202,18 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Switch>
                                 <Route children={({ match, ...rest }) => {
                                     let qs = queryString.parse(rest.location.search);
-                                    if (qs['?name'] == "Locations")
-                                        return <ByLocation Roles={roles} />
-                                    else if (qs['?name'] == "Assets")
-                                        return <ByAsset Roles={roles} />
-                                    else if (qs['?name'] == "AssetGroups")
-                                        return <ByAssetGroup Roles={roles} />
-                                    else if (qs['?name'] == "Users")
-                                        return <ByUser Roles={roles} />
-                                    else if (qs['?name'] == "EventType")
-                                        return <ByEventType Roles={roles} />
-                                    else if (qs['?name'] == "RemoteXDAInstanceMain")
-                                        return <RemoteXDAInstanceMain Roles={roles} />
                                     else if (qs['?name'] == "RemoteXDAInstance")
                                         return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "ByExternalDB")
-                                        return <ByExternalDB Roles={roles} />
-                                    else if (qs['?name'] == "ByExternalTable")
-                                        return <ByExternalTable Roles={roles} />
                                     else if (qs['?name'] == "ExternalDB")
                                         return <ExternalDB ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
                                     else if (qs['?name'] == "ExternalTable")
                                         return <ExternalDBTable ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "ByAdditionalField")
-                                        return <ByAdditionalField Roles={roles} />
                                     else if (qs['?name'] == "User")
                                         return <User UserID={qs.UserAccountID as string} Tab={qs.Tab as any} />
                                     else if (qs['?name'] == "Group")
                                         return <UserGroup GroupID={qs.GroupID as string} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "ByApplicationCategory")
-                                        return <ByApplicationCategory Roles={roles} />
-                                    else if (qs['?name'] == "DBCleanup")
-                                        return <DBCleanup Roles={roles} />
                                     else if (qs['?name'] == "ApplicationCategory")
                                         return <ApplicationCategory ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "UserStatistics")
-                                        return <UserStatistics Roles={roles} />
                                     else if (qs['?name'] == "Meter")
                                         return <Meter MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} />
                                     else if (qs['?name'] == "Location")
@@ -247,39 +226,14 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                         return <Customer CustomerID={parseInt(qs.CustomerID as string)} Tab={qs.Tab as any} />
                                     else if (qs['?name'] == "PQViewSites")
                                         return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'PQViewDataLoader.cshtml'}></iframe>
-                                    else if (qs['?name'] == "PQViewCustomers")
-                                        return <ByCustomer Roles={roles} />
                                     else if (qs['?name'] == "NewMeterWizard")
                                         return <NewMeterWizard IsEngineer={roles.indexOf('Administrator') >= 0 || roles.indexOf('Transmission SME') >= 0} />
                                     else if (qs['?name'] == "ValueListGroup")
                                         return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
                                     else if (qs['?name'] == "ChannelGroup")
                                         return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "Settings")
-                                        return <BySettings Roles={roles} System={qs.System as 'SystemCenter' | 'OpenXDA' | 'MiMD'} />
-                                    else if (qs['?name'] == "DataOperations")
-                                        return <DataOperations Roles={roles} />
-                                    else if (qs['?name'] == "DataReaders")
-                                        return <DataReaders Roles={roles} />
-                                    else if (qs['?name'] == "ApplicationNodes")
-                                        return <ByApplicationNode Roles={roles} />
-                                    else if (qs['?name'] == "Groups")
-                                        return <BySecuritytGroup Roles={roles} />
-                                    else if (qs['?name'] == "AppHost")
-                                        return <AppHost Roles={roles} />
-                                    else if (qs['?name'] == "DeviceHealthReport") {
-                                        return <DeviceHealthReport Roles={roles} />
-                                    }
-                                    else if (qs['?name'] == "SEBrowserTabs")
-                                        return <BySEBrowserCategory Roles={roles} />
                                     else if (qs['?name'] == "SEBrowserTab")
                                         return <SEBrowserCategory TabID={parseInt(qs.TabID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "SEBrowserWidget")
-                                        return <BySEBrowserWidget Roles={roles} />
-                                    else if (qs['?name'] == "MagDurCurves")
-                                        return <ByMagDurCurve Roles={roles} />
-                                    else if (qs['?name'] == "Groups")
-                                        return <BySecuritytGroup Roles={roles} />
                                     else if (qs['?name'] == "MATLABAnalytic")
                                         return <MATLABAnalytic AnalyticID={parseInt(qs.AnalyticID as string)} Tab={qs.Tab as any} />
                                     else if (qs['?name'] == "DownloadedFiles")
@@ -288,29 +242,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                         return <DeviceContacts ID={qs.ID as string} Name={qs.Name as string} Field={qs.Field as 'TSC' | 'Sector'} />
                                     else if (qs['?name'] == "DeviceIssuesPage")
                                         return <DeviceIssuesPage MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} OpenMICAcronym={qs.OpenMICAcronym as string} />
-                                    else if (qs['?name'] == "ValueLists") {
-                                        if (roles.indexOf('Administrator') < 0) return null;
-                                        return <ByValueListGroup Roles={roles} />
-                                    }
-                                    else if (qs['?name'] == "ChannelGroups")
-                                        return <ByChannelGroup Roles={roles} />
                                     else if (qs['?name'] == "ConfigurationHistory") {
                                         if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
                                         return <ConfigurationHistory MeterConfigurationID={parseInt(qs.MeterConfigurationID as string)} MeterKey={qs.MeterKey as string} />
                                     }
-                                    else if (qs['?name'] == "DataFiles") {
-                                        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
-                                        return <DataFile Roles={roles} />
-                                    }
-                                    else if (queryString.parse(rest.location.search)['?name'] == "EventTags") {
-                                        return <ByEventTag Roles={roles} />
-                                    }
-                                    else if (queryString.parse(rest.location.search)['?name'] == "MATLABAnalytics") {
-                                        if (roles.indexOf('Administrator') < 0) return null;
-                                        return <ByMATLABAnalytic Roles={roles} />
-                                    }
-                                    else
-                                        return <ByMeter Roles={roles} />;
                                 }} />
                             </Switch>
 

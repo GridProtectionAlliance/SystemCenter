@@ -109,7 +109,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        //history({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID})
+        //navigate( pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID})
     }
 
     function getAdditionalFields(): JQuery.jqXHR<Array<SystemCenter.Types.AdditionalField>> {

@@ -25,7 +25,7 @@ import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { MATLABAnalyticSlice } from '../Store/Store';
 
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Table from '@gpa-gemstone/react-table'
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
@@ -47,7 +47,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
     const [errors, setErrors] = React.useState<string[]>([]);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
 
-    let history = useHistory();
+    let navigate = useNavigate();
 
     const MATLABAnalyticSearchFields = [
         { label: 'Method Name', key: 'MethodName', type: 'string', isPivotField: false },
@@ -80,7 +80,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
 
     function handleSelect(item) {
         if (props.Roles.indexOf('Administrator') != -1) {
-            history.push({ pathname: homePath + 'index.cshtml', search: '?name=MATLABAnalytic&AnalyticID=' + item.row.ID });
+            navigate(`${homePath}/MATLABAnalytic/${item.row.ID}`, { state: {} });
         } 
     }
 

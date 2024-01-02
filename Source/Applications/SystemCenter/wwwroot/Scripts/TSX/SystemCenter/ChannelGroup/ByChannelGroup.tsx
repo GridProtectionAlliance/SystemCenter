@@ -27,7 +27,7 @@ import { ChannelGroupSlice, ChannelGroupDetailsSlice } from '../Store/Store';
 
 import Table from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 
@@ -51,7 +51,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
     const [errors, setErrors] = React.useState<string[]>([]);
 
     const emptyRecord = { ID: 0, Name: '', Description: '' };
-    let history = useHistory();
+    let navigate = useNavigate();
 
     const ChannelGroupSearchFields = [
         { label: 'Name', key: 'Name', type: 'string', isPivotField: false },
@@ -89,7 +89,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
     }, [record]);
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ChannelGroup&GroupID=' + item.row.ID })
+        navigate(`${homePath}/ChannelGroup/${item.row.ID}`, { state: {} });
     }
 
     return (

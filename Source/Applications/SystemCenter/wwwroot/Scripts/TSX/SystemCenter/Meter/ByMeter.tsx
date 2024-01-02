@@ -30,12 +30,12 @@ import { Search, Modal } from '@gpa-gemstone/react-interactive';
 import { DefaultSearch } from '@gpa-gemstone/common-pages';
 import { ByMeterSlice } from '../Store/Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 declare var homePath: string;
 
 const ByMeter: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const data = useAppSelector(ByMeterSlice.SearchResults);
@@ -45,10 +45,10 @@ const ByMeter: Application.Types.iByComponent = (props) => {
     const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + item.row.ID })
+        navigate(`/Meter/${item.row.ID}`, { state: {} });
     }
     function goNewMeterWizard() {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard' })
+        /*navigate( pathname: homePath + 'index.cshtml', search: '?name=NewMeterWizard' })*/
     }
 
     function getAdditionalFields(setFields) {

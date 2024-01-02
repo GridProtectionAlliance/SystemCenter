@@ -24,7 +24,7 @@
 import * as React from 'react';
 import Table from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
 import { Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CheckBox, Input } from '@gpa-gemstone/react-forms';
@@ -45,7 +45,7 @@ declare var homePath: string;
 
 const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
-    let history = useHistory();
+    let navigate = useNavigate();
     const dispatch = useAppDispatch();
     const data = useAppSelector(AssetGroupSlice.SearchResults);
     const sortKey = useAppSelector(AssetGroupSlice.SortField);
@@ -188,7 +188,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
             Promise.all([handle1,handle2, handle3]).then((x) => {
                 sessionStorage.clear();
-                history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + d.ID })
+                navigate(`${homePath}/AssetGroup/${d.ID}`, { state: {} });
             }, (msg) => {
                 if (msg.status == 500)
                     alert(msg.responseJSON.ExceptionMessage)
@@ -201,7 +201,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + item.row.ID})
+        navigate(`${homePath}/AssetGroup/${item.row.ID}`, { state: {} });
     }
 
     function valid(field: keyof (extendedAssetGroup)): boolean {

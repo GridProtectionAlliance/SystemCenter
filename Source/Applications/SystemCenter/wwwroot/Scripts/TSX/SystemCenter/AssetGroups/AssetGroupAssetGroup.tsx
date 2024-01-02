@@ -25,7 +25,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import { AssetGroupSlice } from '../Store/Store';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
@@ -37,7 +37,7 @@ declare var homePath: string;
 
 
 function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
-    let history = useHistory();
+    let navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [groupList, setGroupList] = React.useState<Array<OpenXDA.Types.AssetGroup>>([]);
     const [sortField, setSortField] = React.useState<string>('Name');
@@ -172,7 +172,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setSortField(d.colKey);
                             }
                         }}
-                        onClick={(data) => { history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + data.row.ID})}}
+                        onClick={(data) => { navigate(`${homePath}/AssetGroup/${data.row.ID}`, { state: {} }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', maxHeight: window.innerHeight - 300, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

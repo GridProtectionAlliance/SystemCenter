@@ -24,12 +24,12 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 declare var homePath: string;
 declare var ace: any;
 
 function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: string }) {
-    const history = useHistory();
+    const navigate = useNavigate();
     const [meterConfiguration, setMeterConfiguration] = React.useState<OpenXDA.Types.MeterConfiguration>(null);
     const [tab, setTab] = React.useState<'configuration' | 'filesProcessed'>('configuration');
     const [filesProcessed, setFilesProcessed] = React.useState<Array<OpenXDA.Types.DataFile>>([]);
@@ -80,7 +80,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
             data: JSON.stringify(newRecord),
             cache: false,
             async: true
-        }).done((data: OpenXDA.Types.MeterConfiguration) => history.push({ pathname: `${homePath}index.cshtml`, search: `?name=ConfigurationHistory&MeterKey=${props.MeterKey}&MeterConfigurationID=${data.ID}` }));
+        }).done((data: OpenXDA.Types.MeterConfiguration) => navigate(`${homePath}/ConfigurationHistory/`, { state: {} })); // TODO FIX
     }
 
 
@@ -108,7 +108,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                     <h2>{props.MeterKey} - Configuration Revision: {meterConfiguration.RevisionMajor + '.' + meterConfiguration.RevisionMinor}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-primary pull-right" onClick={() => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + meterConfiguration.MeterID, state: {} })}>Meter Details</button>
+                    <button className="btn btn-primary pull-right" onClick={() => navigate(`${homePath}/Meter/${meterConfiguration.MeterID}`, { state: {} })}>Meter Details</button>
                 </div>
             </div>
 
