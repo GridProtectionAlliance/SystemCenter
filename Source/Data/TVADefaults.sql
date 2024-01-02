@@ -1,9 +1,4 @@
-﻿INSERT INTO AdditionalField (ParentTable, FieldName) VALUES
-('Transformer', 'FAWG High Side Bus'),
-('Transformer', 'FAWG Low Side Bus')
-GO
-
-/* Alias will hold the Name Field Matching PQView*/
+﻿/* Alias will hold the Name Field Matching PQView*/
 INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
 ('Meter', 'Serial Number','PQView','SerialNumber','Value'),
 ('Meter', 'Connection Type','PQView','ConnectionType','connectiontype'),
@@ -22,31 +17,6 @@ GO
 INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
 ('Meter','Make','PQView','Vendor','Value'),
 ('Meter','Model','PQView','Equipment','Value')
-GO
-
-/* Transformer Fawg Fields */
-INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES
-('Transformer','R1','Fawg','Transformer','PosSeqResistance'),
-('Transformer','X1','Fawg','Transformer','PosSeqReactance'),
-('Transformer','R0','Fawg','Transformer','ZeroSeqResistance'),
-('Transformer','X0','Fawg','Transformer','ZeroSeqReactance'),
-('Transformer','PrimaryVoltageKV','Fawg','Transformer','Vhigh'),
-('Transformer','SecondaryVoltageKV','Fawg','Transformer','Vlow')
-GO
-
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('Transformer', 'XFR Type','Fawg','Transformer','Type')
-GO
-
-/* LineSegment Fawg Fields */
-INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDB, ExternalDBTable, ExternalDBTableKey) VALUES 
-('LineSegment', 'FromBusNumber','Fawg','LineSegment','FromBusName'),
-('LineSegment', 'ToBusNumber','Fawg','LineSegment','ToBusName')
-GO
-
-/* Connections to external databases */
-/* TODO: the rest of these are wrong that aren't fawg now */
-INSERT INTO ExternalDatabases (Name, ConnectionString, Encrypt) VALUES ('FAWG', 'dbFawg', 'true')
 GO
 
 --/* PQView Query for Meter */
@@ -157,14 +127,14 @@ GO
 
 --            ) T1')
 --GO
-/* FAWG Query for LineSegments */
+
 
 Update dbo.[SystemCenter.Setting]
 Set Value = 'True'
 Where Name = 'FAWG.Enabled'
 GO
 
-/* FAWG Query for Line Segments */
+/* FAWG Query for LineSegments */
 INSERT INTO [SystemCenter.Setting](Name, Value, DefaultValue) VALUES('FAWG.LineSegmentQuery', '
 			 (
              SELECT
@@ -194,9 +164,18 @@ INSERT INTO [SystemCenter.Setting](Name, Value, DefaultValue) VALUES('FAWG.LineS
             ) T1', '')
 GO
 
+/* LineSegment Fawg Fields */
+INSERT INTO AdditionalField (ParentTable, FieldName) VALUES 
+('LineSegment', 'FromBusNumber'),
+('LineSegment', 'ToBusNumber')
+GO
+
+/* Connections to external databases */
+INSERT INTO ExternalDatabases (Name, ConnectionString, Encrypt) VALUES ('FAWG', 'dbFawg', 'true')
+GO
+
 /* FAWG Query for Transformers */
-INSERT INTO [SystemCenter.Setting](Name, Value, DefaultValue) VALUES('FAWG.TransformerQuery', '
-            (
+INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES('Transformer', (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'), '
             SELECT
 				XFR.PosSeqResistanceHigh,
 				XFR.PosSeqReactanceHigh,
@@ -206,23 +185,42 @@ INSERT INTO [SystemCenter.Setting](Name, Value, DefaultValue) VALUES('FAWG.Trans
 				XFR.PosSeqReactanceLow,
 				XFR.ZeroSeqResistanceLow,
 				XFR.ZeroSeqReactanceLow,
-				Bh.ShortName AS BusHigh,
-				Bl.SHortName AS BusLow,
-				((XFR.PosSeqResistanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.PosSeqResistanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS PosSeqResistance,
-                ((XFR.PosSeqReactanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.PosSeqReactanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS PosSeqReactance,
-				((XFR.ZeroSeqResistanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.ZeroSeqResistanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS ZeroSeqResistance,
-				((XFR.ZeroSeqReactanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.ZeroSeqReactanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS ZeroSeqReactance,
-				Bh.VoltageValue AS Vhigh,
-				Bl.VoltageValue AS Vlow,
-				TransformerGroupTypeName AS Type
+				Bh.ShortName AS "FAWG High Side Bus",
+				Bl.SHortName AS "FAWG Low Side Bus",
+				((XFR.PosSeqResistanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.PosSeqResistanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS R1,
+                ((XFR.PosSeqReactanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.PosSeqReactanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS X1,
+				((XFR.ZeroSeqResistanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.ZeroSeqResistanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS R0,
+				((XFR.ZeroSeqReactanceHigh * Bh.VoltageValue * Bh.VoltageValue / 100.0) + (XFR.ZeroSeqReactanceLow * Bl.VoltageValue * Bl.VoltageValue / 100.0))  AS X0,
+				Bh.VoltageValue AS PrimaryVoltageKV,
+				Bl.VoltageValue AS SecondaryVoltageKV,
+				TransformerGroupTypeName AS "XFR Type"
 			FROM
 				Transformers XFR JOIN
 				Buses Bh ON XFR.HighSideBus = Bh.Buses_Id JOIN
 				Buses Bl ON XFR.LowSideBus = Bl.Buses_Id JOIN
 				Branches ON XFR.Branches_Id = Branches.Branches_Id
 			WHERE
-				Branches.Description = ''Fawg One'' AND XFR.isInService = 1
-            ) T1', '')
+				(Branches.Description = ''Fawg One'' AND XFR.isInService = 1) AND
+				(
+					("FAWG High Side Bus" = {0} AND "FAWG Low Side Bus" = {1}) OR
+					({0} is NULL AND {1} is NULL)
+				)')
+GO
+
+/* Transformer Fawg Fields */
+INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDBTableID) VALUES
+('Transformer', 'FAWG High Side Bus', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'))),
+('Transformer', 'FAWG Low Side Bus', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'))),
+('Transformer', 'XFR Type', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'))y)
+GO
+
+INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDBTableID) VALUES
+('Transformer','R1', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'))),
+('Transformer','X1', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'))),
+('Transformer','R0', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'))),
+('Transformer','X0', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'))),
+('Transformer','PrimaryVoltageKV', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'))),
+('Transformer','SecondaryVoltageKV', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG')))
 GO
 
 INSERT INTO dbo.[ExternalDatabases] (Name, ConnectionString,Encrypt) VALUES
