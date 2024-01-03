@@ -29,16 +29,16 @@ import MATLABAnalyticSQLSettings from './MATLABAnalyticSQLSetting';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { MATLABAnalyticSlice, MATLABAnalyticEventTypeSlice, MATLABAnalyticAssetTypeSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { useParams } from 'react-router-dom';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'settings'
 
-interface IProps { AnalyticID: number, Tab: Tab }
-
-export default function MATLABAnalytic(props: IProps) {
+export default function MATLABAnalytic() {
+    const { AnalyticID } = useParams();
     const dispatch = useAppDispatch();
 
-    const record = useAppSelector((state) => MATLABAnalyticSlice.Datum(state, props.AnalyticID));
+    const record = useAppSelector((state) => MATLABAnalyticSlice.Datum(state, AnalyticID));
     const eventTypeRecords = useAppSelector(MATLABAnalyticEventTypeSlice.Data);
     const assetTypeRecords = useAppSelector(MATLABAnalyticAssetTypeSlice.Data);
 
@@ -56,17 +56,16 @@ export default function MATLABAnalytic(props: IProps) {
 
     React.useEffect(() => {
         if (eventTypeStatus == 'unintiated' || eventTypeStatus == 'changed')
-            dispatch(MATLABAnalyticEventTypeSlice.Fetch(props.AnalyticID));
+            dispatch(MATLABAnalyticEventTypeSlice.Fetch(AnalyticID));
     }, [eventTypeStatus]);
 
     React.useEffect(() => {
         if (assetTypeStatus == 'unintiated' || assetTypeStatus == 'changed')
-            dispatch(MATLABAnalyticAssetTypeSlice.Fetch(props.AnalyticID));
+            dispatch(MATLABAnalyticAssetTypeSlice.Fetch(AnalyticID));
     }, [assetTypeStatus]);
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('MATLABAnalytic.Tab'))
+        if (sessionStorage.hasOwnProperty('MATLABAnalytic.Tab'))
             return JSON.parse(sessionStorage.getItem('MATLABAnalytic.Tab'));
         else return 'info';
     }

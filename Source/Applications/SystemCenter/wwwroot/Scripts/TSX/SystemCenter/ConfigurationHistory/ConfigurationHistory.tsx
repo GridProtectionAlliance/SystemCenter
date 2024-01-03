@@ -24,17 +24,18 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 declare var homePath: string;
 declare var ace: any;
 
-function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: string }) {
+function ConfigurationHistory() {
+    const { MeterConfigurationID, MeterKey } = useParams();
     const navigate = useNavigate();
     const [meterConfiguration, setMeterConfiguration] = React.useState<OpenXDA.Types.MeterConfiguration>(null);
     const [tab, setTab] = React.useState<'configuration' | 'filesProcessed'>('configuration');
     const [filesProcessed, setFilesProcessed] = React.useState<Array<OpenXDA.Types.DataFile>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
-    React.useLayoutEffect(() => getData(), [props.MeterConfigurationID]);
+    React.useLayoutEffect(() => getData(), [MeterConfigurationID]);
 
     function getData() {
         getFilesProcessed();
@@ -44,7 +45,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
     function getMeterConfiguration(): void {
        $.ajax({
             type: "GET",
-           url: `${homePath}api/OpenXDA/MeterConfiguration/One/${props.MeterConfigurationID}`,
+           url: `${homePath}api/OpenXDA/MeterConfiguration/One/${MeterConfigurationID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -59,7 +60,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
     function getFilesProcessed(): void {
         $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/MeterConfiguration/${props.MeterConfigurationID}/FilesProcessed`,
+            url: `${homePath}api/OpenXDA/MeterConfiguration/${MeterConfigurationID}/FilesProcessed`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -105,7 +106,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
                 <div className="col">
-                    <h2>{props.MeterKey} - Configuration Revision: {meterConfiguration.RevisionMajor + '.' + meterConfiguration.RevisionMinor}</h2>
+                    <h2>{MeterKey} - Configuration Revision: {meterConfiguration.RevisionMajor + '.' + meterConfiguration.RevisionMinor}</h2>
                 </div>
                 <div className="col">
                     <button className="btn btn-primary pull-right" onClick={() => navigate(`/Meter/${meterConfiguration.MeterID}`, { state: {} })}>Meter Details</button>

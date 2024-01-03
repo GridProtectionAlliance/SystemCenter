@@ -30,8 +30,10 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { DataFileSlice } from '../Store/Store';
 import Table from '@gpa-gemstone/react-table';
 import moment from 'moment';
+import { useParams } from 'react-router-dom';
 
-function DownloadedFiles(props: { MeterID: number, MeterName: string }) {
+function DownloadedFiles() {
+    const { MeterID, MeterName } = useParams();
     const dispatch = useAppDispatch();
     const files = useAppSelector(DataFileSlice.Data);
     const status = useAppSelector(DataFileSlice.Status);
@@ -40,16 +42,16 @@ function DownloadedFiles(props: { MeterID: number, MeterName: string }) {
     const meterID = useAppSelector(DataFileSlice.ParentID);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || meterID != props.MeterID)
-            dispatch(DataFileSlice.Fetch(props.MeterID));
+        if (status == 'unintiated' || status == 'changed' || meterID != MeterID)
+            dispatch(DataFileSlice.Fetch(MeterID));
         return () => { }
-    }, [dispatch, status, props.MeterID]);
+    }, [dispatch, status, MeterID]);
 
-    if (props.MeterID == undefined) return null;
+    if (MeterID == undefined) return null;
 
     return (
         <div style={{ width: '100%', height: 'calc( 100% - 90px)' }}>
-            <h3>Last 50 Downloaded Files for {props.MeterName}</h3>
+            <h3>Last 50 Downloaded Files for {MeterName}</h3>
             <Table<OpenXDA.Types.DataFile>
                 cols={[
                     { key: 'FilePath', field: 'FilePath', label: 'File', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },

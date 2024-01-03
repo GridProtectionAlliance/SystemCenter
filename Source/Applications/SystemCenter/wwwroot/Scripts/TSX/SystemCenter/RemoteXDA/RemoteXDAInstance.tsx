@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { RemoteXDAInstanceSlice } from '../Store/Store';
@@ -35,16 +35,17 @@ import RemoteMeterTab from './RemoteMeterTab';
 declare var homePath: string;
 declare type Tab = 'systemSettings' | 'remoteMeter' | 'remoteAsset'
 
-interface IProps { Roles: Array<Application.Types.SecurityRoleName>, ID: number, Tab: Tab }
+interface IProps { Roles: Array<Application.Types.SecurityRoleName> }
 
 function RemoteXDAInstance(props: IProps) {
+    const { ID } = useParams();
     let navigate = useNavigate();
     const [tab, setTab] = React.useState(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loading, setLoading] = React.useState<boolean>(false);
     const dispatch = useAppDispatch();
     const instStatus = useAppSelector(RemoteXDAInstanceSlice.Status) as Application.Types.Status;
-    const connection = useAppSelector((state) => RemoteXDAInstanceSlice.Datum(state, props.ID));
+    const connection = useAppSelector((state) => RemoteXDAInstanceSlice.Datum(state, ID));
 
     React.useEffect(() => {
         if (instStatus === 'unintiated' || instStatus === 'changed')
@@ -54,8 +55,7 @@ function RemoteXDAInstance(props: IProps) {
     if (connection == null) return null;
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('RemoteXDAInstance.Tab'))
+        if (sessionStorage.hasOwnProperty('RemoteXDAInstance.Tab'))
             return JSON.parse(sessionStorage.getItem('RemoteXDAInstance.Tab'));
         else
             return 'systemSettings';
@@ -105,13 +105,13 @@ function RemoteXDAInstance(props: IProps) {
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "systemSettings" ? " active" : "fade")} id="systemSettings">
-                    <SystemSettingsTab ID={props.ID} />
+                    <SystemSettingsTab ID={parseInt(ID)} />
                 </div>
                 <div className={"tab-pane " + (tab == "remoteMeter" ? " active" : "fade")} id="blank">
-                    <RemoteMeterTab ID={props.ID} />
+                    <RemoteMeterTab ID={parseInt(ID)} />
                 </div>
                 <div className={"tab-pane " + (tab == "remoteAsset" ? " active" : "fade")} id="blank">
-                    <RemoteAssetTab ID={props.ID} />
+                    <RemoteAssetTab ID={parseInt(ID)} />
                 </div>
             </div>
 

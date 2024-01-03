@@ -29,21 +29,21 @@ import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings'
 import CategoryInfo from './CategoryInfo';
 import WidgetByCategory from './WidgetByCategory';
+import { useParams } from 'react-router-dom';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'widgets'
-
-interface IProps { TabID: number, Tab: Tab }
 
 const Tabs = [
     { Id: "info", Label: "Tab Info" },
     { Id: "widgets", Label: "Widgets" },
 ]
 
-export default function WidgetCategory(props: IProps) {
+export default function WidgetCategory() {
+    const { TabID } = useParams();
     const dispatch = useAppDispatch();
     const [tab, setTab] = React.useState(getTab());
-    const category = useAppSelector((state) => WidgetCategorySlice.Datum(state, props.TabID));
+    const category = useAppSelector((state) => WidgetCategorySlice.Datum(state, TabID));
     const cStatus = useAppSelector(WidgetCategorySlice.Status) as Application.Types.Status;
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
@@ -59,8 +59,7 @@ export default function WidgetCategory(props: IProps) {
     }, [cStatus])
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('WidgetCategory.Tab'))
+        if (sessionStorage.hasOwnProperty('WidgetCategory.Tab'))
             return JSON.parse(sessionStorage.getItem('WidgetCategory.Tab'));
         else
             return 'info';

@@ -24,7 +24,7 @@ import * as React from 'react';
 import { LoadingScreen, ServerErrorIcon, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import * as _ from 'lodash';
 import { useAppDispatch, useAppSelector } from '../../hooks';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { SecurityGroupSlice } from '../../Store/Store';
 import { ISecurityGroup } from '../Types';
 import GroupInfo from './Info';
@@ -33,19 +33,17 @@ import GroupPermission from './Permissions';
 
 declare type Tab = 'info' | 'users' | 'roles'
 
-interface IProps { GroupID: string,	Tab: Tab }
-
-function UserGroup(props: IProps) {
+function UserGroup() {
+	const { GroupID } = useParams();
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
-	const group: ISecurityGroup = useAppSelector((state) => SecurityGroupSlice.Datum(state, props.GroupID) as ISecurityGroup);
+	const group: ISecurityGroup = useAppSelector((state) => SecurityGroupSlice.Datum(state, GroupID) as ISecurityGroup);
 	const status = useAppSelector(SecurityGroupSlice.Status);
 	const [tab, setTab] = React.useState(getTab());
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
 	function getTab(): Tab {
-		if (props.Tab != undefined) return props.Tab;
-		else if (sessionStorage.hasOwnProperty('UserGroup.Tab'))
+		if (sessionStorage.hasOwnProperty('UserGroup.Tab'))
 			return JSON.parse(sessionStorage.getItem('UserGroup.Tab'));
 		else
 			return 'info';

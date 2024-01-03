@@ -29,18 +29,18 @@ import { ApplicationCategorySlice } from '../Store/Store';
 import { Application } from '@gpa-gemstone/application-typings';
 import ApplicationCategoryInfo from './ApplicationCategoryInfo';
 import Applications from './Applications';
+import { useParams } from 'react-router-dom';
 
 declare var homePath: string;
 type Tab = 'appCatInfo' | 'applications'
 
-interface IProps { ID: number, Tab: Tab }
-
-function ApplicationCategory(props: IProps) {
+function ApplicationCategory() {
+    const { ID } = useParams();
     const [tab, setTab] = React.useState(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const acStatus = useAppSelector(ApplicationCategorySlice.Status) as Application.Types.Status;
-    const applicationCategory = useAppSelector((state) => ApplicationCategorySlice.Datum(state, props.ID)) as ApplicationCategory;
+    const applicationCategory = useAppSelector((state) => ApplicationCategorySlice.Datum(state, ID)) as ApplicationCategory;
     const dispatch = useAppDispatch();
 
     React.useEffect(() => {
@@ -49,8 +49,7 @@ function ApplicationCategory(props: IProps) {
     }, [acStatus]);
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('ApplicationCategory.Tab'))
+        if (sessionStorage.hasOwnProperty('ApplicationCategory.Tab'))
             return JSON.parse(sessionStorage.getItem('ApplicationCategory.Tab'));
         else
             return 'appCatInfo';
@@ -87,7 +86,7 @@ function ApplicationCategory(props: IProps) {
                     <ApplicationCategoryInfo ApplicationCat={applicationCategory} stateSetter={(record) => dispatch(ApplicationCategorySlice.DBAction({verb: 'PATCH', record: record}))} />
                 </div>
                 <div className={"tab-pane " + (tab == "applications" ? " active" : "fade")} id="applications">
-                    <Applications ID={props.ID} Tab={tab}/>
+                    <Applications ID={parseInt(ID)} Tab={tab}/>
                 </div>
             </div>
 

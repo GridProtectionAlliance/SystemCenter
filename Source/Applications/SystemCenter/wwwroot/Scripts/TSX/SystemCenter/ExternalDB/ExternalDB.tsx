@@ -29,14 +29,16 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { ExternalDatabasesSlice } from '../Store/Store';
 import { LoadingScreen, Modal, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
+import { useParams } from 'react-router-dom';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'tables';
 
-export default function ExternalDB(props: { ID: number, Tab: Tab }) {
+export default function ExternalDB() {
+    const { ID } = useParams();
     const dispatch = useAppDispatch();
 
-    const record = useAppSelector((state) => ExternalDatabasesSlice.Datum(state, props.ID));
+    const record = useAppSelector((state) => ExternalDatabasesSlice.Datum(state, ID));
     const status = useAppSelector(ExternalDatabasesSlice.Status);
 
     const [tab, setTab] = React.useState(getTab());
@@ -55,8 +57,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     }, [status]);
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('ExternalDB.Tab'))
+        if (sessionStorage.hasOwnProperty('ExternalDB.Tab'))
             return JSON.parse(sessionStorage.getItem('ExternalDB.Tab'));
         else return 'info';
     }

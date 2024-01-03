@@ -28,22 +28,21 @@ import ValueListGroupItems from './ValueListGroupItem';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListGroupSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { useParams } from 'react-router-dom';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'items'
 
-interface IProps { GroupID: number, Tab: Tab }
-
-export default function ValueListGroup(props: IProps) {
+export default function ValueListGroup() {
+    const { GroupID } = useParams();
     const dispatch = useAppDispatch();
-    const record = useAppSelector((state) => ValueListGroupSlice.Datum(state, props.GroupID));
+    const record = useAppSelector((state) => ValueListGroupSlice.Datum(state, GroupID));
     const valueListGroupStatus = useAppSelector(ValueListGroupSlice.Status);
     const [tab, setTab] = React.useState(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('ValueListGroup.Tab'))
+        if (sessionStorage.hasOwnProperty('ValueListGroup.Tab'))
             return JSON.parse(sessionStorage.getItem('ValueListGroup.Tab'));
         else
             return 'info';

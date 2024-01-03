@@ -27,19 +27,21 @@ import { SystemCenter } from '../global';
 import Table from '@gpa-gemstone/react-table';
 import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings'
+import { useParams } from 'react-router-dom';
 
 interface UserAccount extends Application.Types.iUserAccount {
     Selected: boolean
 }
 
-function DeviceContacts(props: {ID: string, Name: string, Field: 'TSC' | 'Sector' }) {
+function DeviceContacts() {
+    const { ID, Name, Field } = useParams();
     const [data, setData] = React.useState<UserAccount[]>([]);
     const [sortKey, setSortKey] = React.useState<string>('LastName');
     const [ascending, setAscending] = React.useState<boolean>(true);
     React.useEffect(() => {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/UserAccount/${props.Field}/${props.ID}`,
+            url: `${homePath}api/SystemCenter/UserAccount/${Field}/${ID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: true,
@@ -51,18 +53,18 @@ function DeviceContacts(props: {ID: string, Name: string, Field: 'TSC' | 'Sector
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [props.ID, props.Field]);
+    }, [ID, Field]);
 
     React.useEffect(() => {
         setData(_.orderBy(data, [sortKey], [ascending]))
     }, [sortKey, ascending]);
 
-    if (props.ID == undefined) return null;
+    if (ID == undefined) return null;
     return (
         <div style={{ width: '100%', height: 'calc( 100% - 90px)' }}>
             <div className='row'>
                 <div className='col'>
-                    <h3>Contacts for {props.Field} {props.Name}</h3>
+                    <h3>Contacts for {Field} {Name}</h3>
                 </div>
                 <div className='col'>
                     <a className='btn btn-primary pull-right' style={{ color: 'white' }} href={`mailto:${data.filter(d => d.Selected).map(d => d.Email).join(';')}` } >Email Selected</a>

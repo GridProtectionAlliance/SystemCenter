@@ -30,23 +30,21 @@ import AdditionalField from '../AdditionalUserFieldsWindow'
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { CheckBox } from '@gpa-gemstone/react-forms';
 import { UserAccountSlice } from '../../Store/Store';
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 declare type Tab = 'userInfo' | 'permissions' | 'additionalFields'
 
-interface IProps { UserID: string, Tab: Tab }
-
-function User(props: IProps) {
+function User() {
+	const { UserID } = useParams();
 	const navigate = useNavigate();
 	const dispatch = useAppDispatch();
-	const user = useAppSelector((state) => UserAccountSlice.Datum(state, props.UserID));
+	const user = useAppSelector((state) => UserAccountSlice.Datum(state, UserID));
 	const status: Application.Types.Status = useAppSelector(UserAccountSlice.Status);
 	const [tab, setTab] = React.useState(getTab());
 	const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
 	function getTab(): Tab {
-		if (props.Tab != undefined) return props.Tab;
-		else if (sessionStorage.hasOwnProperty('User.Tab'))
+		if (sessionStorage.hasOwnProperty('User.Tab'))
 			return JSON.parse(sessionStorage.getItem('User.Tab'));
 		else
 			return 'userInfo';
@@ -90,21 +88,21 @@ function User(props: IProps) {
 			<TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
 			<div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
 				<div className={"tab-pane " + (tab === "userInfo" ? " active" : "fade")}>
-					<UserInfo AccountId={props.UserID} />
+					<UserInfo AccountId={UserID} />
 				</div>
 				<div className={"tab-pane " + (tab === "permissions" ? " active" : "fade")}>
 					{user == null ? null : <UserPermissions UserID={user.ID} />}
 				</div>
 				<div className={"tab-pane " + (tab === "additionalFields" ? " active" : "fade")} style={{ maxHeight: window.innerHeight - 215 }}>
 					<AdditionalField
-						Id={props.UserID}
+						Id={UserID}
 						EmptyField={{ ID: -1, IsSecure: false, FieldName: '', Type: 'string' }}
 						GetFieldValueIndex={(field, values) => values.findIndex(v => v.AdditionalUserFieldID === field.ID)}
 						GetFieldIndex={(value, fields) => fields.findIndex(f => f.ID === value.AdditionalUserFieldID)}
 						FieldKeySelector={(field) => (field.ID === -1 ? 'new' : field.ID.toString())}
 						ValidateField={() => []}
 						FieldUI={(fld, setter) => <CheckBox<Application.Types.iAdditionalUserField> Record={fld} Field='IsSecure' Label="Secure Data" Setter={setter} />}
-						CreateValue={(fld) => ({ Value: '', ID: 0, UserAccountID: props.UserID, AdditionalUserFieldID: fld.ID })}
+						CreateValue={(fld) => ({ Value: '', ID: 0, UserAccountID: UserID, AdditionalUserFieldID: fld.ID })}
 					/>
 				</div>
 			</div>

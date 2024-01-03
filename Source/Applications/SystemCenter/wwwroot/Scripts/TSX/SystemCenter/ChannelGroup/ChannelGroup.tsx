@@ -30,15 +30,15 @@ import ChannelGroupItems from './ChannelGroupItem';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ChannelGroupSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { useParams } from 'react-router-dom';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'items'
 
-interface IProps { GroupID: number, Tab: Tab }
-
-export default function ChannelGroup(props: IProps) {
+export default function ChannelGroup() {
+    const { GroupID } = useParams();
     const dispatch = useAppDispatch();
-    const record = useAppSelector((state) => ChannelGroupSlice.Datum(state, props.GroupID));
+    const record = useAppSelector((state) => ChannelGroupSlice.Datum(state, GroupID));
     const channelGroupStatus = useAppSelector(ChannelGroupSlice.Status);
     const [tab, setTab] = React.useState(getTab());
     const [showRemove, setShowRemove] = React.useState<boolean>(false);
@@ -49,8 +49,7 @@ export default function ChannelGroup(props: IProps) {
     }, [channelGroupStatus]);
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('ChannelGroup.Tab'))
+        if (sessionStorage.hasOwnProperty('ChannelGroup.Tab'))
             return JSON.parse(sessionStorage.getItem('ChannelGroup.Tab'));
         else
             return 'info';

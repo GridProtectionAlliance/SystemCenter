@@ -30,12 +30,12 @@ import MiMDIssuesPage from './MiMDIssuesPage';
 import OpenXDAIssuesPage from './OpenXDAIssuesPage';
 import DownloadedFilesPage from './DownloadedFilesPage';
 import DataQualityIssuesPage from './DataQualityIssuesPage';
+import { useParams } from 'react-router-dom';
 
 declare type Tab = 'notes' | 'openmic' | 'mimd' | 'xda' | 'files' | 'dq'
 
-interface IProps { MeterID: number, OpenMICAcronym: string, Tab: Tab }
-
-function DeviceIssuesPage(props: IProps) {
+function DeviceIssuesPage() {
+    const { MeterID, OpenMICAcronym } = useParams();
     const [meter, setMeter] = React.useState<OpenXDA.Types.Meter>(null);
     const [tab, setTab] = React.useState(getTab());
 
@@ -44,15 +44,15 @@ function DeviceIssuesPage(props: IProps) {
         handle.then((data: OpenXDA.Types.Meter) => setMeter(data));
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
 
-    }, [props.MeterID]);
+    }, [MeterID]);
 
     React.useEffect(() => { }, [])
 
     function getMeter(): JQuery.jqXHR<OpenXDA.Types.Meter> {
-        if (props.MeterID == undefined) return null;
+        if (MeterID == undefined) return null;
         return $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Meter/One/${props.MeterID}`,
+            url: `${homePath}api/OpenXDA/Meter/One/${MeterID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -61,8 +61,7 @@ function DeviceIssuesPage(props: IProps) {
     }
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('DeviceIssuesPage.Tab'))
+        if (sessionStorage.hasOwnProperty('DeviceIssuesPage.Tab'))
             return JSON.parse(sessionStorage.getItem('DeviceIssuesPage.Tab'));
         else
             return 'notes';
@@ -96,10 +95,10 @@ function DeviceIssuesPage(props: IProps) {
                 <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ flex: 1, overflow: 'hidden' }}>
                 {tab === 'notes' ? <div className={"tab-pane active"} style={{ height: '100%' }}>
-                    <NoteWindow ID={props.MeterID} Type='Meter' />
+                    <NoteWindow ID={parseInt(MeterID)} Type='Meter' />
                 </div> : null}
                 {tab === 'openmic' ? <div className={"tab-pane active"} style={{ height: '100%' }}>
-                    <OpenMICIssuesPage Meter={meter} OpenMICAcronym={props.OpenMICAcronym}/>
+                    <OpenMICIssuesPage Meter={meter} OpenMICAcronym={OpenMICAcronym}/>
                 </div> : null}
                 {tab === 'mimd' ? <div className={"tab-pane  active"} style={{ height: '100%' }}>
                     <MiMDIssuesPage Meter={meter} />

@@ -23,17 +23,14 @@
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import queryString from "querystring";
 import { createBrowserHistory } from "history"
 import { Application as AppTypes, SystemCenter as SCTypes } from '@gpa-gemstone/application-typings';
 import { Application, Page, Section } from '@gpa-gemstone/react-interactive';
 import { Provider } from 'react-redux';
 import store, { SystemCenterSettingSlice } from './Store/Store';
 import { useAppDispatch, useAppSelector } from './hooks';
-/*import Meter from './Meter/Meter';*/
 
 declare var homePath: string;
-declare var controllerViewPath: string;
 declare var version: string;
 
 const SystemCenter: React.FunctionComponent = (props: {}) => {
@@ -78,6 +75,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const DataReaders = React.lazy(() => import(/* webpackChunkName: "DataReaders" */ './Settings/DataReaders'));
     const ByApplicationNode = React.lazy(() => import(/* webpackChunkName: "DataReaders" */ './ApplicationManagment/ApplicationNode'));
     const ByApplicationCategory = React.lazy(() => import(/* webpackChunkName: "ByApplicationCategory" */ './ApplicationCategory/ByApplicationCategory'));
+    const ApplicationCategory = React.lazy(() => import(/* webpackChunkName: "ApplicationCategory" */ './ApplicationCategory/ApplicationCategory'));
     const DBCleanup = React.lazy(() => import(/* webpackChunkName: "DBCleanup" */ './DB/DBCleanup'));
     const DataFile = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './ProcessedFile/ByFile'));
     const AppHost = React.lazy(() => import(/* webpackChunkName: "AppHost" */ './AppHost/AppHost'));
@@ -146,24 +144,36 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                 <Page Name={'Meter'} Paths={['/:MeterID']}>
                     <Meter />
                 </Page>
+                <Page Name={'NewMeterWizard'}>
+                    <NewMeterWizard IsEngineer={roles.indexOf('Administrator') >= 0 || roles.indexOf('Transmission SME') >= 0} />
+                </Page>
+                <Page Name={'ConfigurationHistory'} RequiredRoles={['Administrator', 'Transmission SME']} Paths={['/:MeterConfigurationID/:MeterKey']}>
+                    <ConfigurationHistory />
+                </Page>
                 <Page Name={'ByLocation'} Label={'Substations'}><ByLocation Roles={roles} /></Page>
                 <Page Name={'Location'} Paths={['/:LocationID']}>
                     <Location />
                 </Page>
                 <Page Name={'ByAsset'} Label={'Assets'}><ByAsset Roles={roles} /></Page>
-                <Page Name={'Asset'} Paths={[':/AssetID']}>
+                <Page Name={'Asset'} Paths={['/:AssetID']}>
                     <Asset />
                 </Page>
                 <Page Name={'ByAssetGroup'} Label={'Asset Groups'}><ByAssetGroup Roles={roles} /></Page>
-                <Page Name={'AssetGroup'} Paths={[':/AssetGroupID']}>
+                <Page Name={'AssetGroup'} Paths={['/:AssetGroupID']}>
                     <AssetGroup />
                 </Page>
                 <Page Name={'ByCustomer'} Label={'Customers'}><ByCustomer Roles={roles} /></Page>
-                <Page Name={'Customer'} Paths={[':/CustomerID']}>
+                <Page Name={'Customer'} Paths={['/:CustomerID']}>
                     <Customer />
                 </Page>
                 <Page Name={'PQViewSites'}>
                     <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'PQViewDataLoader.cshtml'}></iframe>
+                </Page>
+                <Page Name={'DeviceContacts'} Paths={['/:ID/:Name/:Field']}>
+                    <DeviceContacts />
+                </Page>
+                <Page Name={'DeviceIssuesPage'} Paths={['/:MeterID/:OpenMICAcronym']}>
+                    <DeviceIssuesPage />
                 </Page>
                 {settings.find(s => s.Name == 'SystemCenter.ShowDeviceHealthReport')?.Value == "1" ?
                     <Page Name={'DeviceHealthReport'} Label={'Device Health Report'}><DeviceHealthReport Roles={roles} /></Page>
@@ -174,22 +184,49 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                 <Page Name={'DataOperations'} Label={'Data Operations'} RequiredRoles={['Administrator', 'Transmission SME']}><DataOperations Roles={roles} /></Page>
                 <Page Name={'DataReaders'} Label={'Data Readers'} RequiredRoles={['Administrator', 'Transmission SME']}><DataReaders Roles={roles} /></Page>
                 <Page Name={'ByMATLABAnalytic'} Label={'MATLAB Analytics'} RequiredRoles={['Administrator', 'Transmission SME']}><ByMATLABAnalytic Roles={roles} /></Page>
+                <Page Name={'MATLABAnalytic'} Paths={['/:AnalyticID']}>
+                    <MATLABAnalytic />
+                </Page>
                 <Page Name={'DBCleanup'} Label={'Database Cleanup'} RequiredRoles={['Administrator', 'Transmission SME']}><DBCleanup Roles={roles} /></Page>
+                <Page Name={'DownloadedFiles'} Paths={['/:MeterID/:MeterName']}>
+                    <DownloadedFiles />
+                </Page>
             </Section>
             <Section Label={'External Links'}>
                 <Page Name={'RemoteXDAInstanceMain'} Label={'Remote openXDA Instances'}><RemoteXDAInstanceMain Roles={roles} /></Page>
+                <Page Name={'RemoteXDAInstance'} Paths={['/:ID']}>
+                    <RemoteXDAInstance Roles={roles} />
+                </Page>
                 <Page Name={'ByExternalDB'} Label={'External Databases'} RequiredRoles={['Administrator']}><ByExternalDB Roles={roles} /></Page>
+                <Page Name={'ExternalDB'} Paths={['/:ID']}>
+                    <ExternalDB />
+                </Page>
                 <Page Name={'ByExternalTable'} Label={'External Tables'} RequiredRoles={['Administrator']}><ByExternalTable Roles={roles} /></Page>
+                <Page Name={'ExternalDBTable'} Paths={['/:ID']}>
+                    <ExternalDBTable />
+                </Page>
             </Section>
             <Section Label={'UI Configuration'}>
                 <Page Name={'ByEventType'} Label={'Event Types'} RequiredRoles={['Administrator']}><ByEventType Roles={roles} /></Page>
-                <Page Name={'byValueListGroup'} Label={'Value Lists'} RequiredRoles={['Administrator']}><ByValueListGroup Roles={roles} /></Page>
+                <Page Name={'ByValueListGroup'} Label={'Value Lists'} RequiredRoles={['Administrator']}><ByValueListGroup Roles={roles} /></Page>
+                <Page Name={'ValueListGroup'} Paths={['/:GroupID']}>
+                    <ValueListGroup />
+                </Page>
                 <Page Name={'ByChannelGroup'} Label={'Channel Groups'} RequiredRoles={['Administrator']}><ByChannelGroup Roles={roles} /></Page>
+                <Page Name={'ChannelGroup'} Paths={['/:GroupID']}>
+                    <ChannelGroup />
+                </Page>
                 <Page Name={'BySEBrowserCategory'} Label={'PQ Browser Tabs'} RequiredRoles={['Administrator']}><BySEBrowserCategory Roles={roles} /></Page>
+                <Page Name={'SEBrowserCategory'} Paths={['/:TabID']}>
+                    <SEBrowserCategory />
+                </Page>
                 <Page Name={'BySEBrowserWidget'} Label={'PQ Browser Widgets'} RequiredRoles={['Administrator']}><BySEBrowserWidget Roles={roles} /></Page>
                 <Page Name={'ByMagDurCurve'} Label={'MagDur Curves'} RequiredRoles={['Administrator']}><ByMagDurCurve Roles={roles} /></Page>
                 <Page Name={'ByEventTag'} Label={'Event Tags'} RequiredRoles={['Administrator']}><ByEventTag Roles={roles} /></Page>
                 <Page Name={'ByApplicationCategory'} Label={'Application Categories'} RequiredRoles={['Administrator']}><ByApplicationCategory Roles={roles} /></Page>
+                <Page Name={'ApplicationCategory'} Paths={['/:ID']}>
+                    <ApplicationCategory />
+                </Page>
             </Section>
             <Section Label={'System Settings'}>
                 <Page Name={'AppHost'} Label={'Nodes'} RequiredRoles={['Administrator']}><AppHost Roles={roles} /></Page>
@@ -202,62 +239,16 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
             <Section Label={'User Settings'}>
                 <Page Name={'UserStatistics'} Label={'User Statistics'} RequiredRoles={['Administrator']}><UserStatistics Roles={roles} /></Page>
                 <Page Name={'ByUser'} Label={'Users'} RequiredRoles={['Administrator']}><ByUser Roles={roles} /></Page>
+                <Page Name={'User'} Paths={['/:UserID']}>
+                    <User />
+                </Page>
                 <Page Name={'BySecurityGroup'} Label={'User Groups'} RequiredRoles={['Administrator']}><BySecurityGroup Roles={roles} /></Page>
+                <Page Name={'UserGroup'} Paths={['/:GroupID']}>
+                    <UserGroup />
+                </Page>
             </Section>
         </Application>
     )
-
-/*    return (
-        <Router>
-            <div className="container-fluid" style={{ top: 75, position: 'absolute', width: '100%', height: 'calc(100% - 75px)', overflow: 'hidden' }}>
-                <div className="row" style={{ height: '100%' }}>
-                    <div className="col" style={{ width: '100%', height: 'inherit', padding: '0 0 0 0', overflow: 'hidden' }}>
-                        <React.Suspense fallback={<div>Loading...</div>}>
-                            <Switch>
-                                <Route children={({ match, ...rest }) => {
-                                    let qs = queryString.parse(rest.location.search);
-                                    else if (qs['?name'] == "RemoteXDAInstance")
-                                        return <RemoteXDAInstance ID={parseInt(qs.ID as string)} Roles={roles} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "ExternalDB")
-                                        return <ExternalDB ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "ExternalTable")
-                                        return <ExternalDBTable ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "User")
-                                        return <User UserID={qs.UserAccountID as string} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "Group")
-                                        return <UserGroup GroupID={qs.GroupID as string} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "ApplicationCategory")
-                                        return <ApplicationCategory ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "NewMeterWizard")
-                                        return <NewMeterWizard IsEngineer={roles.indexOf('Administrator') >= 0 || roles.indexOf('Transmission SME') >= 0} />
-                                    else if (qs['?name'] == "ValueListGroup")
-                                        return <ValueListGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "ChannelGroup")
-                                        return <ChannelGroup GroupID={parseInt(qs.GroupID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "SEBrowserTab")
-                                        return <SEBrowserCategory TabID={parseInt(qs.TabID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "MATLABAnalytic")
-                                        return <MATLABAnalytic AnalyticID={parseInt(qs.AnalyticID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "DownloadedFiles")
-                                        return <DownloadedFiles MeterID={parseInt(qs.MeterID as string)} MeterName={qs.MeterName as string} />
-                                    else if (qs['?name'] == "DeviceContacts")
-                                        return <DeviceContacts ID={qs.ID as string} Name={qs.Name as string} Field={qs.Field as 'TSC' | 'Sector'} />
-                                    else if (qs['?name'] == "DeviceIssuesPage")
-                                        return <DeviceIssuesPage MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} OpenMICAcronym={qs.OpenMICAcronym as string} />
-                                    else if (qs['?name'] == "ConfigurationHistory") {
-                                        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
-                                        return <ConfigurationHistory MeterConfigurationID={parseInt(qs.MeterConfigurationID as string)} MeterKey={qs.MeterKey as string} />
-                                    }
-                                }} />
-                            </Switch>
-
-                        </React.Suspense>
-                    </div>
-
-                </div>
-            </div>
-        </Router>
-    )*/
 }
 
 ReactDOM.render(<Provider store={store}><SystemCenter /></Provider>, document.getElementById('window'));

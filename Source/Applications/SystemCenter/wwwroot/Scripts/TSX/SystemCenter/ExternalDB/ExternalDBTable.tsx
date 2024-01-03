@@ -30,14 +30,16 @@ import { ExternalDBTablesSlice } from '../Store/Store';
 import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { SystemCenter as gemstoneSC } from '@gpa-gemstone/application-typings';
 import ExternalDBXdaFields from './ExternalXDAFields/ExternalDBXdaFields';
+import { useParams } from 'react-router-dom';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'fields' | 'xda';
 
-export default function ExternalDB(props: { ID: number, Tab: Tab }) {
+export default function ExternalDB() {
+    const { ID } = useParams();
     const dispatch = useAppDispatch();
 
-    const record = useAppSelector((state) => ExternalDBTablesSlice.Datum(state, props.ID));
+    const record = useAppSelector((state) => ExternalDBTablesSlice.Datum(state, ID));
     const status = useAppSelector(ExternalDBTablesSlice.Status);
 
     const [tab, setTab] = React.useState(getTab());
@@ -61,8 +63,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
     }, [tab]);
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('ExternalDBTable.Tab'))
+        if (sessionStorage.hasOwnProperty('ExternalDBTable.Tab'))
             return JSON.parse(sessionStorage.getItem('ExternalDBTable.Tab'));
         else return 'info';
     }
