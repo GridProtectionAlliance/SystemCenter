@@ -60,7 +60,7 @@ const ByWidgetCategory: Application.Types.iByComponent = (props) => {
     }, [cState]);
 
     function handleSelect(item) {
-        navigate(`${homePath}/SEBrowserTab/${item.row.ID}`, { state: {} });
+        navigate(`/SEBrowserTab/${item.row.ID}`, { state: {} });
     }
 
     const searchFields: Search.IField<LocalXDA.IWidgetCategory>[] = [

@@ -103,7 +103,7 @@ function UserGroup(props: IProps) {
 				setShowWarning(false);
 				if (c) {
 					dispatch(SecurityGroupSlice.DBAction({ verb: 'DELETE', record: group }));
-					navigate(`${homePath}/Groups/`, { state: {} });
+					navigate(`/Groups/`, { state: {} });
 				}
 			}} />
 		</div>

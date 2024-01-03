@@ -148,6 +148,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                     <Meter />
                 </Page>
                 <Page Name={'Locations'} Label={'Substations'}><ByLocation Roles={roles} /></Page>
+                <Page Name={'Location'} Paths={['/:LocationID']}>
+                    <Location />
+                </Page>
                 <Page Name={'Assets'} Label={'Assets'}><ByAsset Roles={roles} /></Page>
                 <Page Name={'AssetGroups'} Label={'Asset Groups'}><ByAssetGroup Roles={roles} /></Page>
                 <Page Name={'PQViewCustomers'} Label={'Customers'}><ByCustomer Roles={roles} /></Page>

@@ -77,7 +77,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     }, [record]);
 
     function handleSelect(item) {
-        navigate(`${homePath}/ExternalDB/${item.row.ID}`, { state: {} });
+        navigate(`/ExternalDB/${item.row.ID}`, { state: {} });
     }
 
     return (

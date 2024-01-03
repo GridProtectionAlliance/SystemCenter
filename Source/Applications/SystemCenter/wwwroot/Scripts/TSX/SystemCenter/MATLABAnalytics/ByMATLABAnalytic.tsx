@@ -80,7 +80,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
 
     function handleSelect(item) {
         if (props.Roles.indexOf('Administrator') != -1) {
-            navigate(`${homePath}/MATLABAnalytic/${item.row.ID}`, { state: {} });
+            navigate(`/MATLABAnalytic/${item.row.ID}`, { state: {} });
         } 
     }
 

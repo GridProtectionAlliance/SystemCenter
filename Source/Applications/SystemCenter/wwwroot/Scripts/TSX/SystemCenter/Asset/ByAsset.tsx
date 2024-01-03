@@ -192,7 +192,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
 
 
     function handleSelect(ID: number) {
-        navigate(`${homePath}/Asset/${ID}`, { state: {} });
+        navigate(`/Asset/${ID}`, { state: {} });
     }
 
     function getEnum(setOptions, field) {

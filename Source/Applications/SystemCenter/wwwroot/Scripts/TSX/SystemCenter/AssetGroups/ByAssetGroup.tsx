@@ -188,7 +188,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
             Promise.all([handle1,handle2, handle3]).then((x) => {
                 sessionStorage.clear();
-                navigate(`${homePath}/AssetGroup/${d.ID}`, { state: {} });
+                navigate(`/AssetGroup/${d.ID}`, { state: {} });
             }, (msg) => {
                 if (msg.status == 500)
                     alert(msg.responseJSON.ExceptionMessage)
@@ -201,7 +201,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}/AssetGroup/${item.row.ID}`, { state: {} });
+        navigate(`/AssetGroup/${item.row.ID}`, { state: {} });
     }
 
     function valid(field: keyof (extendedAssetGroup)): boolean {

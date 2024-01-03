@@ -190,7 +190,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                         if (d.colKey === 'scroll' || d.colField === undefined) return;
                         dispatch(UserAccountSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
-                    onClick={(d) => navigate(`${homePath}/User/${d.row.ID}`, { state: {} })}
+                    onClick={(d) => navigate(`/User/${d.row.ID}`, { state: {} })}
                     theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
                     rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

@@ -173,7 +173,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
 
     function handleSelect(item) {
-        navigate(`${homePath}/Asset/${item.row.ID}`, { state: {} });
+        navigate(`/Asset/${item.row.ID}`, { state: {} });
     }
 
     if (status == 'error' || actStatus == 'error')

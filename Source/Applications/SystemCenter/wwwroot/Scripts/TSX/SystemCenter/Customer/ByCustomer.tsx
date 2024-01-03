@@ -115,7 +115,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}/Customer/${item.row.ID}`, { state: {} });
+        navigate(`/Customer/${item.row.ID}`, { state: {} });
     }
 
     return (

@@ -71,7 +71,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
     }, [ascending, sortKey]);
 
     function handleSelect(item) {
-        navigate(`${homePath}/RemoteXDAInstance/${item.row.ID}`, { state: {} });
+        navigate(`/RemoteXDAInstance/${item.row.ID}`, { state: {} });
     }
 
     const standardSearch: Search.IField<OpenXDA.Types.RemoteXDAInstance> = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };

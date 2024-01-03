@@ -68,7 +68,7 @@ function RemoteXDAInstance(props: IProps) {
     }, [tab]);
 
     function returnMain() {
-        navigate(`${homePath}/RemoteXDAInstanceMain/`, { state: {} });
+        navigate(`/RemoteXDAInstanceMain/`, { state: {} });
     }
 
     function deleteConnection(): void {

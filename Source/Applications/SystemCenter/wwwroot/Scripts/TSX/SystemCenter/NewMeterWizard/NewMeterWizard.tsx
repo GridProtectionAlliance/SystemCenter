@@ -151,7 +151,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     }, [assetConnections]);
 
     function returnToMeters() {
-        navigate(`${homePath}/Meters/`, { state: {} });
+        navigate(`/Meters/`, { state: {} });
     }
 
     function getCurrentStep(): number {

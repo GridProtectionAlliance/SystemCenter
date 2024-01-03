@@ -194,7 +194,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
 
     function handleSelect(item, event) {
         if (event.target.localName == 'td')
-            navigate(`${homePath}/Asset/${item.row.ID}`, { state: {} });
+            navigate(`/Asset/${item.row.ID}`, { state: {} });
     }
 
     function GetDifferentAsset(assetID: number) {

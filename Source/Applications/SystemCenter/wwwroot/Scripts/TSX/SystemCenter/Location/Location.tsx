@@ -32,13 +32,13 @@ import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import { TabSelector, Warning, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import LocationImagesWindow from './LocationImages';
 import LocationDrawingsWindow from './LocationDrawings';
+import { useParams } from 'react-router-dom';
 
 declare var homePath: string;
 type Tab = 'notes' | 'locationInfo' | 'additionalFields' | 'meters' | 'assets' | 'extDB' | 'images' | 'drawings'
 
-interface IProps { LocationID: number, Tab: Tab }
-
-function Location(props: IProps) {
+function Location() {
+    const { LocationID } = useParams();
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const [location, setLocation] = React.useState<OpenXDA.Types.Location>(null);
@@ -48,11 +48,10 @@ function Location(props: IProps) {
         let handle = getLocation();
         handle.then((data: OpenXDA.Types.Location) => setLocation(data));
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
-    }, [props.LocationID]);
+    }, [LocationID]);
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('Location.Tab'))
+        if (sessionStorage.hasOwnProperty('Location.Tab'))
             return JSON.parse(sessionStorage.getItem('Location.Tab'));
         else
             return 'notes';
@@ -65,10 +64,10 @@ function Location(props: IProps) {
     }, [tab]);
 
     function getLocation(): JQuery.jqXHR<OpenXDA.Types.Location> {
-        if(props.LocationID == undefined) return null;
+        if(LocationID == undefined) return null;
         return $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Location/One/${props.LocationID}`,
+            url: `${homePath}api/OpenXDA/Location/One/${LocationID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -120,13 +119,13 @@ function Location(props: IProps) {
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes">
-                    <NoteWindow ID={props.LocationID} Type='Location' />
+                    <NoteWindow ID={parseInt(LocationID)} Type='Location' />
                 </div>
                 <div className={"tab-pane " + (tab == "locationInfo" ? " active" : "fade")} id="locationInfo">
                     <LocationInfoWindow Location={location} stateSetter={(l: OpenXDA.Types.Location) => setLocation(l)} />
                 </div>
                 <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
-                    <AdditionalFieldsWindow ID={props.LocationID} Type='Location' Tab={tab} />
+                    <AdditionalFieldsWindow ID={parseInt(LocationID)} Type='Location' Tab={tab} />
                 </div>
                 <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
                     <LocationMeterWindow Location={location} />

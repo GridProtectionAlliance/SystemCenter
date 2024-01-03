@@ -83,7 +83,7 @@ function AssetMeterWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element{
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}/Meter/${item.row.ID}`, { state: {} });
+        navigate(`/Meter/${item.row.ID}`, { state: {} });
     }
 
     function getEnum(setOptions, field) {

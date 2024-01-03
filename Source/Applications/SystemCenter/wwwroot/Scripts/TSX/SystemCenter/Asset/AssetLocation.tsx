@@ -107,7 +107,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
 
     function handleSelect(item, event) {
         if (event.target.localName == 'td')
-            navigate(`${homePath}/Location/${item.row.ID}`, { state: {} });
+            navigate(`/Location/${item.row.ID}`, { state: {} });
     }
 
     return (

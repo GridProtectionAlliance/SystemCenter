@@ -162,7 +162,7 @@ const ByLocation: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}/Location/${item.row.ID}`, { state: {} });
+        navigate(`/Location/${item.row.ID}`, { state: {} });
     }
 
     function valid(field: keyof (SystemCenter.Types.DetailedLocation)): boolean {

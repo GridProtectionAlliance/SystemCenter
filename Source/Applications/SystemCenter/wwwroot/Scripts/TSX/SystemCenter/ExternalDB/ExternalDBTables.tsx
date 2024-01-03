@@ -73,7 +73,7 @@ export default function ExternalDBTables(props: { ID: number }) {
 
     function handleSelect(item) {
         if (item.colKey == 'btns') return;
-        navigate(`${homePath}/ExternalTable/${item.row.ID}`, { state: {} });
+        navigate(`/ExternalTable/${item.row.ID}`, { state: {} });
     }
 
     return (

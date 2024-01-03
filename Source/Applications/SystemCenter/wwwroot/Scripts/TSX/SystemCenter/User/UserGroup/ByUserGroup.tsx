@@ -123,7 +123,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                             if (d.colKey === 'scroll' || d.colField === undefined) return;
                             dispatch(SecurityGroupSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        onClick={(d) => navigate(`${homePath}/Group/${d.row.ID}`, { state: {} })}
+                        onClick={(d) => navigate(`/Group/${d.row.ID}`, { state: {} })}
                         tableStyle={{
                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'

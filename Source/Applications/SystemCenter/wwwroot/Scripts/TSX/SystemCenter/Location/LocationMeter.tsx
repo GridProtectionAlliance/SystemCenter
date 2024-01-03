@@ -51,7 +51,7 @@ function LocationMeterWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}/Meter/${item.row.ID}`, { state: {} });
+        navigate(`/Meter/${item.row.ID}`, { state: {} });
     }
 
     return (

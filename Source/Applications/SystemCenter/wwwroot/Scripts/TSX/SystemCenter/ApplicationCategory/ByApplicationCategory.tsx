@@ -97,7 +97,7 @@ const ByApplicationCategory: Application.Types.iByComponent = (props) => {
     }
 
     function handleSelect(item) {
-        navigate(`${homePath}/ApplicationCategory/${item.row.ID}`, { state: {} });
+        navigate(`/ApplicationCategory/${item.row.ID}`, { state: {} });
     }
 
     return (

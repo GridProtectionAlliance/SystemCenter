@@ -72,7 +72,7 @@ function AssetGroup(props: IProps) {
         dispatch(AssetGroupSlice.DBAction({
             verb: 'DELETE', record: group
         }));
-        navigate(`${homePath}/AssetGroups/`, { state: {} });
+        navigate(`/AssetGroups/`, { state: {} });
     }
 
     if (gStatus == 'unintiated')

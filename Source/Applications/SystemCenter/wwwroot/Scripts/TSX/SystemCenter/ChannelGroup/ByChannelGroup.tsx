@@ -89,7 +89,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
     }, [record]);
 
     function handleSelect(item) {
-        navigate(`${homePath}/ChannelGroup/${item.row.ID}`, { state: {} });
+        navigate(`/ChannelGroup/${item.row.ID}`, { state: {} });
     }
 
     return (

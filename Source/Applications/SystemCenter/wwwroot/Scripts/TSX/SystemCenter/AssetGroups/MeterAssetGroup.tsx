@@ -191,7 +191,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                                 setSortField(d.colKey);
                             }
                             }}
-                        onClick={(data) => { if (data.colKey != 'Remove') navigate(`${homePath}/Meter/${data.row.ID}`, { state: {} }) }}
+                        onClick={(data) => { if (data.colKey != 'Remove') navigate(`/Meter/${data.row.ID}`, { state: {} }) }}
                         theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         tbodyStyle={{ display: 'block', maxHeight: window.innerHeight - 300, width: '100%' }}
                         rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

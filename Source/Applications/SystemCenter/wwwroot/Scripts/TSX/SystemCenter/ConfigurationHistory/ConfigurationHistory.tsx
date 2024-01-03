@@ -80,7 +80,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
             data: JSON.stringify(newRecord),
             cache: false,
             async: true
-        }).done((data: OpenXDA.Types.MeterConfiguration) => navigate(`${homePath}/ConfigurationHistory/`, { state: {} })); // TODO FIX
+        }).done((data: OpenXDA.Types.MeterConfiguration) => navigate(`/ConfigurationHistory/`, { state: {} })); // TODO FIX
     }
 
 
@@ -108,7 +108,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                     <h2>{props.MeterKey} - Configuration Revision: {meterConfiguration.RevisionMajor + '.' + meterConfiguration.RevisionMinor}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-primary pull-right" onClick={() => navigate(`${homePath}/Meter/${meterConfiguration.MeterID}`, { state: {} })}>Meter Details</button>
+                    <button className="btn btn-primary pull-right" onClick={() => navigate(`/Meter/${meterConfiguration.MeterID}`, { state: {} })}>Meter Details</button>
                 </div>
             </div>
 

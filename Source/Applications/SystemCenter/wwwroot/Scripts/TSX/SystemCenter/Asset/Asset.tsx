@@ -107,7 +107,7 @@ function Asset(props: IProps) {
         });
         handle.done((msg) => {
             sessionStorage.clear();
-            navigate(`${homePath}/Assets/`, { state: {} });
+            navigate(`/Assets/`, { state: {} });
         });
         handle.then((d) => setLoadDelete(false))
         return handle;

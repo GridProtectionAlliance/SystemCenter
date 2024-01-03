@@ -68,7 +68,7 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
     }, [status, parentID]);
 
     function handleSelect(item) {
-        navigate(`${homePath}/ExternalTable/${item.row.ID}`, { state: {} });
+        navigate(`/ExternalTable/${item.row.ID}`, { state: {} });
     }
 
     return (

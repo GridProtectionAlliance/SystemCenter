@@ -79,7 +79,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
 
 
     function handleSelect(item) {
-        navigate(`${homePath}/ValueListGroup/${item.row.ID}`, { state: {} });
+        navigate(`/ValueListGroup/${item.row.ID}`, { state: {} });
     }
 
 

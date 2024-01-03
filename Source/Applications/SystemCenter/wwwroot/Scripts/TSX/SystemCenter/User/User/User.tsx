@@ -116,7 +116,7 @@ function User(props: IProps) {
 				setShowWarning(false);
 				if (c) {
 					dispatch(UserAccountSlice.DBAction({ verb: 'DELETE', record: user }));
-					navigate(`${homePath}/Users/`, { state: {} });
+					navigate(`/Users/`, { state: {} });
 				}
 			}} />
 		</div>
