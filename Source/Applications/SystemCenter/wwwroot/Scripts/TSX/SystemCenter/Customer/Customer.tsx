@@ -33,11 +33,10 @@ import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import MDMKeys from './MDMKeys';
 import CustomerAssetWindow from './CustomerAsset';
+import { useParams } from 'react-router-dom';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'notes' | 'additionalFields' | 'meters' | 'assets' | 'mdm'
-
-interface IProps { CustomerID: number, Tab: Tab }
 
 const Tabs = [
     { Id: "info", Label: "Customer Info" },
@@ -48,10 +47,11 @@ const Tabs = [
     { Id: "mdm", Label: "MDM Keys" },
 ]
 
-export default function Customer(props: IProps) {
+export default function Customer() {
+    const { CustomerID } = useParams();
     const dispatch = useAppDispatch();
     const [tab, setTab] = React.useState(getTab());
-    const customer = useAppSelector((state) => CustomerSlice.Datum(state, props.CustomerID)) as OpenXDA.Types.Customer;
+    const customer = useAppSelector((state) => CustomerSlice.Datum(state, CustomerID)) as OpenXDA.Types.Customer;
     const cStatus = useAppSelector(CustomerSlice.Status) as Application.Types.Status;
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
 
@@ -67,8 +67,7 @@ export default function Customer(props: IProps) {
     }, [cStatus])
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('Customer.Tab'))
+        if (sessionStorage.hasOwnProperty('Customer.Tab'))
             return JSON.parse(sessionStorage.getItem('Customer.Tab'));
         else
             return 'info';
@@ -117,7 +116,7 @@ export default function Customer(props: IProps) {
                     <CustomerAssetWindow Customer={customer} />
                 </div>
                 <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes" >
-                    <NoteWindow ID={props.CustomerID} Type='Customer' />
+                    <NoteWindow ID={parseInt(CustomerID)} Type='Customer' />
                 </div>
                 <div className={"tab-pane " + (tab == "mdm" ? " active" : "fade")} id="mdm" >
                     <MDMKeys CustomerID={customer.ID} />

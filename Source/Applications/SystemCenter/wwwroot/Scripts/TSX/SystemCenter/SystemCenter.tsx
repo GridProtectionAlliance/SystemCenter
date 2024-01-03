@@ -144,7 +144,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
             <Section Label='System Center' />
             <Section Label={'Monitors and Assets'}>
                 <Page Name={'Meters'} Label={'Meters'}><ByMeter Roles={roles} /></Page>
-                <Page Name={'Meter'} Paths={['/:MeterID']} >
+                <Page Name={'Meter'} Paths={['/:MeterID']}>
                     <Meter />
                 </Page>
                 <Page Name={'Locations'} Label={'Substations'}><ByLocation Roles={roles} /></Page>
@@ -152,8 +152,20 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                     <Location />
                 </Page>
                 <Page Name={'Assets'} Label={'Assets'}><ByAsset Roles={roles} /></Page>
+                <Page Name={'Asset'} Paths={[':/AssetID']}>
+                    <Asset />
+                </Page>
                 <Page Name={'AssetGroups'} Label={'Asset Groups'}><ByAssetGroup Roles={roles} /></Page>
+                <Page Name={'AssetGroup'} Paths={[':/AssetGroupID']}>
+                    <AssetGroup />
+                </Page>
                 <Page Name={'PQViewCustomers'} Label={'Customers'}><ByCustomer Roles={roles} /></Page>
+                <Page Name={'Customer'} Paths={[':/CustomerID']}>
+                    <Customer />
+                </Page>
+                <Page Name={'PQViewSites'}>
+                    <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'PQViewDataLoader.cshtml'}></iframe>
+                </Page>
                 {settings.find(s => s.Name == 'SystemCenter.ShowDeviceHealthReport')?.Value == "1" ?
                     <Page Name={'DeviceHealthReport'} Label={'Device Health Report'}><DeviceHealthReport Roles={roles} /></Page>
                 : null}
@@ -217,18 +229,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                         return <UserGroup GroupID={qs.GroupID as string} Tab={qs.Tab as any} />
                                     else if (qs['?name'] == "ApplicationCategory")
                                         return <ApplicationCategory ID={parseInt(qs.ID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "Meter")
-                                        return <Meter MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "Location")
-                                        return <Location LocationID={parseInt(qs.LocationID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "Asset")
-                                        return <Asset AssetID={parseInt(qs.AssetID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "AssetGroup")
-                                        return <AssetGroup AssetGroupID={parseInt(qs.AssetGroupID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "Customer")
-                                        return <Customer CustomerID={parseInt(qs.CustomerID as string)} Tab={qs.Tab as any} />
-                                    else if (qs['?name'] == "PQViewSites")
-                                        return <iframe style={{ width: '100%', height: '100%' }} src={homePath + 'PQViewDataLoader.cshtml'}></iframe>
                                     else if (qs['?name'] == "NewMeterWizard")
                                         return <NewMeterWizard IsEngineer={roles.indexOf('Administrator') >= 0 || roles.indexOf('Transmission SME') >= 0} />
                                     else if (qs['?name'] == "ValueListGroup")

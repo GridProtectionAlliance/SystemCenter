@@ -25,7 +25,7 @@
 import * as React from 'react';
 import _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import AssetgroupInfoWindow from './AssetGroupInfo';
 import AssetAssetGroupWindow from './AssetAssetGroup';
 import MeterAssetGroupWindow from './MeterAssetGroup';
@@ -38,20 +38,18 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 declare var homePath: string;
 declare type Tab = 'info' | 'meter' | 'asset' | 'assetgroup'
 
-interface IProps { AssetGroupID: number, Tab: Tab }
-
-function AssetGroup(props: IProps) {
+function AssetGroup() {
+    const { AssetGroupID } = useParams();
     let navigate = useNavigate();
     const dispatch = useAppDispatch();
     const [tab, setTab] = React.useState(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
-    const group = useAppSelector((state) => AssetGroupSlice.Datum(state, props.AssetGroupID)) as OpenXDA.Types.AssetGroup;
+    const group = useAppSelector((state) => AssetGroupSlice.Datum(state, AssetGroupID)) as OpenXDA.Types.AssetGroup;
     const gStatus = useAppSelector(AssetGroupSlice.Status) as Application.Types.Status;
     const allAssetGroup = useAppSelector(AssetGroupSlice.Data);
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-        else if (sessionStorage.hasOwnProperty('AssetGroup.Tab'))
+        if (sessionStorage.hasOwnProperty('AssetGroup.Tab'))
             return JSON.parse(sessionStorage.getItem('AssetGroup.Tab'));
         else
             return 'info';
@@ -107,13 +105,13 @@ function AssetGroup(props: IProps) {
                     <AssetgroupInfoWindow AssetGroup={group} StateSetter={(data) => dispatch(AssetGroupSlice.DBAction({ verb: 'PATCH', record: data }))} AllAssetGroups={allAssetGroup} />
                 </div>
                 <div className={"tab-pane " + (tab == "asset" ? " active" : "fade")} id="asset">
-                    <AssetAssetGroupWindow AssetGroupID={props.AssetGroupID} />
+                    <AssetAssetGroupWindow AssetGroupID={parseInt(AssetGroupID)} />
                 </div>
                 <div className={"tab-pane " + (tab == "meter" ? " active" : "fade")} id="meter">
-                    <MeterAssetGroupWindow AssetGroupID={props.AssetGroupID} />
+                    <MeterAssetGroupWindow AssetGroupID={parseInt(AssetGroupID)} />
                 </div>
                 <div className={"tab-pane " + (tab == "assetgroup" ? " active" : "fade")} id="assetgroup">
-                    <AssetGroupAssetGroupWindow AssetGroupID={props.AssetGroupID} />
+                    <AssetGroupAssetGroupWindow AssetGroupID={parseInt(AssetGroupID)} />
                 </div>
             </div>
 

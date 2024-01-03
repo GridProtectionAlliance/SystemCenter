@@ -30,7 +30,7 @@ import AssetInfoWindow from './AssetInfo';
 import AssetLocationWindow from './AssetLocation';
 import AssetMeterWindow from './AssetMeter';
 import AssetChannelWindow from './AssetChannel';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import NoteWindow from '../CommonComponents/NoteWindow';
 import AssetConnectionWindow from './AssetConnection';
 import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
@@ -42,9 +42,8 @@ import SourceImpedanceWindow from '../AssetAttribute/SourceImpedanceWindow';
 declare var homePath: string;
 declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels'
 
-interface IProps { AssetID: number, Tab: Tab }
-
-function Asset(props: IProps) {
+function Asset() {
+    const { AssetID } = useParams();
     let navigate = useNavigate();
     const [asset, setAsset] = React.useState<OpenXDA.Types.Asset>(null);
     const [tab, setTab] = React.useState(getTab());
@@ -54,8 +53,6 @@ function Asset(props: IProps) {
     const [forceReload, setForceReload] = React.useState<boolean>(false);
 
     function getTab(): Tab {
-        if (props.Tab != undefined) return props.Tab;
-
         let key = 'Asset.Tab';
         if (assetType == 'Line')
             key = 'Line.Tab';
@@ -79,7 +76,7 @@ function Asset(props: IProps) {
     function getAsset() {
         return    $.ajax({
             type: "GET",
-            url: `${homePath}api/OpenXDA/Asset/One/${props.AssetID}`,
+            url: `${homePath}api/OpenXDA/Asset/One/${AssetID}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
@@ -114,7 +111,7 @@ function Asset(props: IProps) {
     }
 
     React.useEffect(() => {
-        if (props.AssetID == undefined) return () => { };
+        if (AssetID == undefined) return () => { };
         let handle = getAsset();
         handle.done((data: OpenXDA.Types.Asset) => {
             setAsset(data)
@@ -123,7 +120,7 @@ function Asset(props: IProps) {
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [props.AssetID, forceReload]);
+    }, [AssetID, forceReload]);
 
     if (asset == null) return null;
 
