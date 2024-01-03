@@ -30,7 +30,7 @@ import { Application, Page, Section } from '@gpa-gemstone/react-interactive';
 import { Provider } from 'react-redux';
 import store, { SystemCenterSettingSlice } from './Store/Store';
 import { useAppDispatch, useAppSelector } from './hooks';
-import Meter from './Meter/Meter';
+/*import Meter from './Meter/Meter';*/
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -52,7 +52,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ExternalDBTable = React.lazy(() => import(/* webpackChunkname: "ExternalDB" */ './ExternalDB/ExternalDBTable'));
     const ByAdditionalField = React.lazy(() => import(/* webpackChunkname: "ByAdditionalField" */ './AdditionalFields/ByAdditionalField'));
     const ByUser = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/User/ByUser'));
-    const BySecuritytGroup = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/UserGroup/ByUserGroup'));
+    const BySecurityGroup = React.lazy(() => import(/* webpackChunkName: "ByUser" */ './User/UserGroup/ByUserGroup'));
     const UserStatistics = React.lazy(() => import(/* webpackChunkName: "UserStatistics" */ './UserStatistics/UserStatistics'));
     const Customer = React.lazy(() => import(/* webpackChunkName: "Customer" */ './Customer/Customer'));
     const User = React.lazy(() => import(/* webpackChunkName: "User" */ './User/User/User'));
@@ -60,7 +60,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const Asset = React.lazy(() => import(/* webpackChunkName: "Asset" */ './Asset/Asset'));
     const NewMeterWizard = React.lazy(() => import( /* webpackChunkName: "NewMeterWizard" */ './NewMeterWizard/NewMeterWizard'));
     const ConfigurationHistory = React.lazy(() => import(/* webpackChunkName: "ConfigurationHistory" */ './ConfigurationHistory/ConfigurationHistory'));
-    /*const Meter = React.lazy(() => import(*//* webpackChunkName: "Meter" *//* './Meter/Meter'));*/
+    const Meter = React.lazy(() => import(/* webpackChunkName: "Meter" */'./Meter/Meter'));
     const Location = React.lazy(() => import(/* webpackChunkName: "Location" */ './Location/Location'));
     const ByAssetGroup = React.lazy(() => import(/* webpackChunkName: "ByAssetGroup" */ './AssetGroups/ByAssetGroup'));
     const AssetGroup = React.lazy(() => import(/* webpackChunkName: "AssetGroup" */ './AssetGroups/AssetGroup'));
@@ -81,7 +81,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const DBCleanup = React.lazy(() => import(/* webpackChunkName: "DBCleanup" */ './DB/DBCleanup'));
     const DataFile = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './ProcessedFile/ByFile'));
     const AppHost = React.lazy(() => import(/* webpackChunkName: "AppHost" */ './AppHost/AppHost'));
-
     const SEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/WidgetCategory'));
     const BySEBrowserCategory = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/ByWidgetCategory'));
     const BySEBrowserWidget = React.lazy(() => import(/* webpackChunkName: "DataFile" */ './SEBrowser/ByWidget'));
@@ -134,7 +133,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     return (
         <Application
             HomePath={homePath}
-            DefaultPath={'Meters'}
+            DefaultPath={'ByMeter'}
             Logo={'../Images/SystemCenter-TopLeft.png'}
             Version={version}
             AllowCollapsed={true}
@@ -143,23 +142,23 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
         >
             <Section Label='System Center' />
             <Section Label={'Monitors and Assets'}>
-                <Page Name={'Meters'} Label={'Meters'}><ByMeter Roles={roles} /></Page>
+                <Page Name={'ByMeter'} Label={'Meters'}><ByMeter Roles={roles} /></Page>
                 <Page Name={'Meter'} Paths={['/:MeterID']}>
                     <Meter />
                 </Page>
-                <Page Name={'Locations'} Label={'Substations'}><ByLocation Roles={roles} /></Page>
+                <Page Name={'ByLocation'} Label={'Substations'}><ByLocation Roles={roles} /></Page>
                 <Page Name={'Location'} Paths={['/:LocationID']}>
                     <Location />
                 </Page>
-                <Page Name={'Assets'} Label={'Assets'}><ByAsset Roles={roles} /></Page>
+                <Page Name={'ByAsset'} Label={'Assets'}><ByAsset Roles={roles} /></Page>
                 <Page Name={'Asset'} Paths={[':/AssetID']}>
                     <Asset />
                 </Page>
-                <Page Name={'AssetGroups'} Label={'Asset Groups'}><ByAssetGroup Roles={roles} /></Page>
+                <Page Name={'ByAssetGroup'} Label={'Asset Groups'}><ByAssetGroup Roles={roles} /></Page>
                 <Page Name={'AssetGroup'} Paths={[':/AssetGroupID']}>
                     <AssetGroup />
                 </Page>
-                <Page Name={'PQViewCustomers'} Label={'Customers'}><ByCustomer Roles={roles} /></Page>
+                <Page Name={'ByCustomer'} Label={'Customers'}><ByCustomer Roles={roles} /></Page>
                 <Page Name={'Customer'} Paths={[':/CustomerID']}>
                     <Customer />
                 </Page>
@@ -171,10 +170,10 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                 : null}
             </Section>
             <Section Label={'File Processing'}>
-                <Page Name={'DataFiles'} Label={'Data Files'} RequiredRoles={['Administrator', 'Transmission SME']}><DataFile Roles={roles} /></Page>
+                <Page Name={'DataFile'} Label={'Data Files'} RequiredRoles={['Administrator', 'Transmission SME']}><DataFile Roles={roles} /></Page>
                 <Page Name={'DataOperations'} Label={'Data Operations'} RequiredRoles={['Administrator', 'Transmission SME']}><DataOperations Roles={roles} /></Page>
                 <Page Name={'DataReaders'} Label={'Data Readers'} RequiredRoles={['Administrator', 'Transmission SME']}><DataReaders Roles={roles} /></Page>
-                <Page Name={'MATLABAnalytics'} Label={'MATLAB Analytics'} RequiredRoles={['Administrator', 'Transmission SME']}><ByMATLABAnalytic Roles={roles} /></Page>
+                <Page Name={'ByMATLABAnalytic'} Label={'MATLAB Analytics'} RequiredRoles={['Administrator', 'Transmission SME']}><ByMATLABAnalytic Roles={roles} /></Page>
                 <Page Name={'DBCleanup'} Label={'Database Cleanup'} RequiredRoles={['Administrator', 'Transmission SME']}><DBCleanup Roles={roles} /></Page>
             </Section>
             <Section Label={'External Links'}>
@@ -183,27 +182,27 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                 <Page Name={'ByExternalTable'} Label={'External Tables'} RequiredRoles={['Administrator']}><ByExternalTable Roles={roles} /></Page>
             </Section>
             <Section Label={'UI Configuration'}>
-                <Page Name={'EventType'} Label={'Event Types'} RequiredRoles={['Administrator']}><ByEventType Roles={roles} /></Page>
-                <Page Name={'ValueLists'} Label={'Value Lists'} RequiredRoles={['Administrator']}><ByValueListGroup Roles={roles} /></Page>
-                <Page Name={'ChannelGroups'} Label={'Channel Groups'} RequiredRoles={['Administrator']}><ByChannelGroup Roles={roles} /></Page>
-                <Page Name={'SEBrowserTabs'} Label={'PQ Browser Tabs'} RequiredRoles={['Administrator']}><BySEBrowserCategory Roles={roles} /></Page>
-                <Page Name={'SEBrowserWidget'} Label={'PQ Browser Widgets'} RequiredRoles={['Administrator']}><BySEBrowserWidget Roles={roles} /></Page>
-                <Page Name={'MagDurCurves'} Label={'MagDur Curves'} RequiredRoles={['Administrator']}><ByMagDurCurve Roles={roles} /></Page>
-                <Page Name={'EventTags'} Label={'Event Tags'} RequiredRoles={['Administrator']}><ByEventTag Roles={roles} /></Page>
+                <Page Name={'ByEventType'} Label={'Event Types'} RequiredRoles={['Administrator']}><ByEventType Roles={roles} /></Page>
+                <Page Name={'byValueListGroup'} Label={'Value Lists'} RequiredRoles={['Administrator']}><ByValueListGroup Roles={roles} /></Page>
+                <Page Name={'ByChannelGroup'} Label={'Channel Groups'} RequiredRoles={['Administrator']}><ByChannelGroup Roles={roles} /></Page>
+                <Page Name={'BySEBrowserCategory'} Label={'PQ Browser Tabs'} RequiredRoles={['Administrator']}><BySEBrowserCategory Roles={roles} /></Page>
+                <Page Name={'BySEBrowserWidget'} Label={'PQ Browser Widgets'} RequiredRoles={['Administrator']}><BySEBrowserWidget Roles={roles} /></Page>
+                <Page Name={'ByMagDurCurve'} Label={'MagDur Curves'} RequiredRoles={['Administrator']}><ByMagDurCurve Roles={roles} /></Page>
+                <Page Name={'ByEventTag'} Label={'Event Tags'} RequiredRoles={['Administrator']}><ByEventTag Roles={roles} /></Page>
                 <Page Name={'ByApplicationCategory'} Label={'Application Categories'} RequiredRoles={['Administrator']}><ByApplicationCategory Roles={roles} /></Page>
             </Section>
             <Section Label={'System Settings'}>
                 <Page Name={'AppHost'} Label={'Nodes'} RequiredRoles={['Administrator']}><AppHost Roles={roles} /></Page>
-                <Page Name={'Settings'} Label={'System Center'} RequiredRoles={['Administrator']}><BySettings Roles={roles} System={'SystemCenter'} /></Page>
-                <Page Name={'Settings'} Label={'openXDA'} RequiredRoles={['Administrator']}><BySettings Roles={roles} System={'OpenXDA'} /></Page>
+                <Page Name={'BySettings'} Label={'System Center'} RequiredRoles={['Administrator']}><BySettings Roles={roles} System={'SystemCenter'} /></Page>
+                <Page Name={'BySettings'} Label={'openXDA'} RequiredRoles={['Administrator']}><BySettings Roles={roles} System={'OpenXDA'} /></Page>
                 <Page Name={'ByAdditionalField'} Label={'Additional Fields'} RequiredRoles={['Administrator']}><ByAdditionalField Roles={roles} /></Page>
-                <Page Name={'Settings'} Label={'miMD'} RequiredRoles={['Administrator']}><BySettings Roles={roles} System={'MiMD'} /></Page>
-                <Page Name={'ApplicationNodes'} Label={'SSO Applications'} RequiredRoles={['Administrator']}><ByApplicationNode Roles={roles} /></Page>
+                <Page Name={'BySettings'} Label={'miMD'} RequiredRoles={['Administrator']}><BySettings Roles={roles} System={'MiMD'} /></Page>
+                <Page Name={'ByApplicationNode'} Label={'SSO Applications'} RequiredRoles={['Administrator']}><ByApplicationNode Roles={roles} /></Page>
             </Section>
             <Section Label={'User Settings'}>
                 <Page Name={'UserStatistics'} Label={'User Statistics'} RequiredRoles={['Administrator']}><UserStatistics Roles={roles} /></Page>
-                <Page Name={'Users'} Label={'Users'} RequiredRoles={['Administrator']}><ByUser Roles={roles} /></Page>
-                <Page Name={'Groups'} Label={'User Groups'} RequiredRoles={['Administrator']}><BySecuritytGroup Roles={roles} /></Page>
+                <Page Name={'ByUser'} Label={'Users'} RequiredRoles={['Administrator']}><ByUser Roles={roles} /></Page>
+                <Page Name={'BySecurityGroup'} Label={'User Groups'} RequiredRoles={['Administrator']}><BySecurityGroup Roles={roles} /></Page>
             </Section>
         </Application>
     )
