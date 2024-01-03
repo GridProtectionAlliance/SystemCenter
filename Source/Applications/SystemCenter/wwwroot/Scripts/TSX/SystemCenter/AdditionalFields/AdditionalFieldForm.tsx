@@ -138,7 +138,7 @@ export default function AdditionalFieldForm(props: IProps) {
         if (field === 'FieldName')
             return props.Record.FieldName != null && props.Record.FieldName.length > 0 && props.Record.FieldName.length <= 200;
         if (field === 'ExternalDBTableID')
-            return (props.Record.ExternalDBTableID === null && extDBId.ID < 0) || (props.Record.ExternalDBTableID !== null && extDBId.ID > -1);
+            return !props.ShowDatabaseSelect || (props.Record.ExternalDBTableID === null && extDBId.ID < 0) || (props.Record.ExternalDBTableID !== null && extDBId.ID > -1);
         return true;
     }, [props.Record]);
 
