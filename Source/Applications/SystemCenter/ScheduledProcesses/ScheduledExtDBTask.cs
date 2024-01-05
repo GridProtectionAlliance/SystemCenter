@@ -274,7 +274,8 @@ namespace SystemCenter.ScheduledProcesses
                     context.Variables["Key"] = value.Value;
                 }
                 else if (value?.Value is null) continue;
-                context.Variables[table.TableName + "." + field.FieldName] = value.Value;
+                context.Variables.DefineVariable(field.FieldName, typeof(string));
+                context.Variables[field.FieldName] = value.Value;
             }
             return ExecuteQueryWithContext(extTable, context, externalConnection, new Condition[0]);
         }
@@ -444,7 +445,11 @@ namespace SystemCenter.ScheduledProcesses
             try
             {
                 string variable = match.Value.Substring(1, match.Value.Length - 2).Trim();
-                string stringExpression = $"if({variable.Split('.')[0]} <> null, {variable}.toString(), null)";
+                string[] variableComponents = variable.Split('.');
+                if (context.Variables[variableComponents[0]] is null) return "null";
+                string stringExpression = $"{
+                    ((variableComponents.Length > 2 && string.Equals(variableComponents[1], "Field", StringComparison.OrdinalIgnoreCase)) ? 
+                    variableComponents[2] : variable)}.toString()";
                 IGenericExpression<string> expression = context.CompileGeneric<string>(stringExpression);
                 string eval = expression.Evaluate();
                 if (eval is null) return "null";
