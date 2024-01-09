@@ -78,7 +78,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                 { Value: 'CapBank', Label: 'Capacitor Bank' },
                 { Value: 'Transformer', Label: 'Transformer' },
                 { Value: 'CapBankRelay', Label: 'Capacitor Bank Relay' },
-                { Value: 'DER', Label: 'DER' }
+                { Value: 'DER', Label: 'DER' },
                 { Value: 'Generation', Label: 'Generation' },
                 { Value: 'StationAux', Label: 'Station Auxiliary' },
                 { Value: 'StationBattery', Label: 'Station Battery'}
