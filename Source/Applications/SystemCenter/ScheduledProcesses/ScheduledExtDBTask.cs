@@ -263,16 +263,20 @@ namespace SystemCenter.ScheduledProcesses
                 AdditionalFieldValue value = addlValuesTable.QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", idKey, field.ID);
                 if (keyFields.Any(keyField => keyField.ID == field.ID))
                 {
+                    // Assumption, if key field exists, then key field is required to query a singular record
+                    // (even if multiple keys, maybe a user tries to mark multiple and the bring them up individually with table.Field.fieldName
+                    if (value?.Value is null) return null;
+
                     // Means we've already defined a key
                     if (context.Variables["Key"] is not null)
                     {
                         Log.Warn($"External Table {extTable.TableName} has multiple key values defined. Using first value found as key \"{context.Variables["Key"]}\"");
-                        continue;
                     }
-                    // Assumption, if key field exists, then key field is required to query a singular record
-                    if (value?.Value is null) return null;
-                    // Key is defined with a special keyword
-                    context.Variables["Key"] = value.Value;
+                    else
+                    {
+                        // Key is defined with a special keyword
+                        context.Variables["Key"] = value.Value;
+                    }
                 }
                 context.Variables.DefineVariable(field.FieldName, typeof(string));
                 context.Variables[field.FieldName] = value?.Value;
