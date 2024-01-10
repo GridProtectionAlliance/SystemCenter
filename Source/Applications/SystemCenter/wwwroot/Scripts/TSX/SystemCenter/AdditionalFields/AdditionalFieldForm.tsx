@@ -123,14 +123,13 @@ export default function AdditionalFieldForm(props: IProps) {
             e.push('An Additional Field with this Parent Type and Field Name already exists.');
 
         props.SetErrors(e);
-    }, [props.Record]);
+    }, [props.Record, extDBId]);
 
     React.useEffect(() => {
         if (props.SetWarnings === undefined) return;
         let w = [];
-        if (props.Record.IsKey && allAddlFields.findIndex((d) => d.ID != props.Record.ID && d.IsKey) !== -1)
+        if (props.Record.IsKey && allAddlFields.findIndex((d) => (d.ID != props.Record.ID) && (d.ExternalDBTableID == props.Record.ExternalDBTableID) && d.IsKey) > -1)
             w.push(`A key field already exists for this External Database.`);
-
         props.SetWarnings(w);
     }, [props.Record]);
 
@@ -140,7 +139,7 @@ export default function AdditionalFieldForm(props: IProps) {
         if (field === 'ExternalDBTableID')
             return !props.ShowDatabaseSelect || (props.Record.ExternalDBTableID === null && extDBId.ID < 0) || (props.Record.ExternalDBTableID !== null && extDBId.ID > -1);
         return true;
-    }, [props.Record]);
+    }, [props.Record, props.ShowDatabaseSelect, extDBId]);
 
     return (
         <form>
