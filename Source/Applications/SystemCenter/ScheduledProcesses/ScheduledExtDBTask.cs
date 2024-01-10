@@ -256,11 +256,12 @@ namespace SystemCenter.ScheduledProcesses
             // Defining additional fields
             int idKey = GetID(record);
             if (idKey == -1) return null; // Should be impossible to trigger without huge overhauling of openXDA
-            IEnumerable<AdditionalField> addlFields = addlTable.QueryRecordsWhere("ParentTable = {0} AND ExternalDBTableID = {1}", table.TableName, extTable.ID);
-            foreach (AdditionalField field in addlFields)
+            IEnumerable<AdditionalField> infoFields = addlTable.QueryRecordsWhere("ParentTable = {0}", table.TableName, extTable.ID);
+            IEnumerable<AdditionalField> keyFields = addlTable.QueryRecordsWhere("ParentTable = {0} AND ExternalDBTableID = {1} AND IsKey=1", table.TableName, extTable.ID);
+            foreach (AdditionalField field in infoFields)
             {
                 AdditionalFieldValue value = addlValuesTable.QueryRecordWhere("ParentTableID = {0} AND AdditionalFieldID = {1}", idKey, field.ID);
-                if (field.IsKey)
+                if (keyFields.Any(keyField => keyField.ID == field.ID))
                 {
                     // Means we've already defined a key
                     if (context.Variables["Key"] is not null)
@@ -273,9 +274,8 @@ namespace SystemCenter.ScheduledProcesses
                     // Key is defined with a special keyword
                     context.Variables["Key"] = value.Value;
                 }
-                else if (value?.Value is null) continue;
                 context.Variables.DefineVariable(field.FieldName, typeof(string));
-                context.Variables[field.FieldName] = value.Value;
+                context.Variables[field.FieldName] = value?.Value;
             }
             return ExecuteQueryWithContext(extTable, context, externalConnection, new Condition[0]);
         }
@@ -447,9 +447,9 @@ namespace SystemCenter.ScheduledProcesses
                 string variable = match.Value.Substring(1, match.Value.Length - 2).Trim();
                 string[] variableComponents = variable.Split('.');
                 if (context.Variables[variableComponents[0]] is null) return "null";
-                string stringExpression = $"{
-                    ((variableComponents.Length > 2 && string.Equals(variableComponents[1], "Field", StringComparison.OrdinalIgnoreCase)) ? 
-                    variableComponents[2] : variable)}.toString()";
+                variable = (variableComponents.Length > 2 && string.Equals(variableComponents[1], "Field", StringComparison.OrdinalIgnoreCase)) ?
+                    variableComponents[2] : variable;
+                string stringExpression = $"if({variable} <> null, {variable}.toString(), null)";
                 IGenericExpression<string> expression = context.CompileGeneric<string>(stringExpression);
                 string eval = expression.Evaluate();
                 if (eval is null) return "null";
