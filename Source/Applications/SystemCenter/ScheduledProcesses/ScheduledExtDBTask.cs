@@ -52,7 +52,7 @@ namespace SystemCenter.ScheduledProcesses
         public static readonly Type[] CheckedTypes = new Type[] { typeof(Meter), typeof(Location), typeof(Model.Customer),
             typeof(Line), typeof(Breaker), typeof(Bus), typeof(CapBank), typeof(Transformer), typeof(CapBankRelay), typeof(DER), typeof(Asset), typeof(Generation), typeof(StationAux), typeof(StationBattery) };
         public const string RegexPattern = "[{][^{}]*[}]";
-
+        public const string RegexIllegal = @"[\s]";
         private static IDictionary<Type, string> TypeTableNameDict;
         #endregion
 
@@ -92,7 +92,7 @@ namespace SystemCenter.ScheduledProcesses
         }
         public static int Run(ExternalDatabases extDB)
         {
-            using(AdoDataConnection xdaConnection = ConnectionFactory())
+            using (AdoDataConnection xdaConnection = ConnectionFactory())
             {
                 TableOperations<extDBTables> tblTable = new TableOperations<extDBTables>(xdaConnection);
                 IEnumerable<extDBTables> extTables = tblTable.QueryRecordsWhere("ExtDBID = {0}", extDB.ID);
@@ -161,15 +161,15 @@ namespace SystemCenter.ScheduledProcesses
         {
             var updateMethods = typeof(ScheduledExtDBTask).GetMethod("UpdateData", BindingFlags.Static | BindingFlags.Public);
             var typedUpdateMethod = updateMethods.MakeGenericMethod(new[] { type });
-            return (int) typedUpdateMethod.Invoke(null, new object[] { extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, parentID });
+            return (int)typedUpdateMethod.Invoke(null, new object[] { extTable, addlFieldsTable, addlValuesTable, xdaFieldTable, context, xdaConnection, extConnection, parentID });
         }
 
         public static int UpdateData<T>(extDBTables extTable,
-            TableOperations<AdditionalField> addlFieldsTable, TableOperations<AdditionalFieldValue> addlValuesTable, 
+            TableOperations<AdditionalField> addlFieldsTable, TableOperations<AdditionalFieldValue> addlValuesTable,
             TableOperations<ExternalOpenXDAField> xdaFieldTable,
             ExpressionContext context,
-            AdoDataConnection xdaConnection, AdoDataConnection extConnection, 
-            int? parentID = null) where T: class, new()
+            AdoDataConnection xdaConnection, AdoDataConnection extConnection,
+            int? parentID = null) where T : class, new()
         {
             TableOperations<T> table = new TableOperations<T>(xdaConnection);
             // Ignore key fields, since those don't make sense to not be auto updated
@@ -188,7 +188,7 @@ namespace SystemCenter.ScheduledProcesses
                 DataRowCollection data = RetrieveDataRecord(record, extTable, table, addlFieldsTable, addlValuesTable, context, extConnection);
                 // null means no specifc record was found
                 if (data is null) continue;
-                foreach(AdditionalField field in addlFields)
+                foreach (AdditionalField field in addlFields)
                 {
                     string fieldValue;
                     try
@@ -205,7 +205,7 @@ namespace SystemCenter.ScheduledProcesses
                     {
                         addlValue = new AdditionalFieldValue()
                         {
-                            ParentTableID = (int) recordID,
+                            ParentTableID = (int)recordID,
                             AdditionalFieldID = field.ID,
                             Value = fieldValue
                         };
@@ -232,7 +232,7 @@ namespace SystemCenter.ScheduledProcesses
                         continue;
                     }
                     PropertyInfo fieldPropInfo = record.GetType().GetProperty(field.FieldName, BindingFlags.IgnoreCase | BindingFlags.Public | BindingFlags.Instance);
-                    if (fieldPropInfo is null) 
+                    if (fieldPropInfo is null)
                     {
                         Log.Error($"External OpenXDA field defined that does not exist on the xda model {field.FieldName} on table {field.ParentTable}");
                         continue;
@@ -249,7 +249,7 @@ namespace SystemCenter.ScheduledProcesses
 
         public static DataTable RetrieveDataRecordTable<T>(T record, extDBTables extTable,
             TableOperations<T> table, TableOperations<AdditionalField> addlTable, TableOperations<AdditionalFieldValue> addlValuesTable,
-            ExpressionContext context, AdoDataConnection externalConnection) where T: class, new()
+            ExpressionContext context, AdoDataConnection externalConnection) where T : class, new()
         {
             DefineAllowedVariables(context);
             context.Variables[table.TableName] = record;
@@ -278,8 +278,9 @@ namespace SystemCenter.ScheduledProcesses
                         context.Variables["Key"] = value.Value;
                     }
                 }
-                context.Variables.DefineVariable(field.FieldName, typeof(string));
-                context.Variables[field.FieldName] = value?.Value;
+                string fieldName = RemoveIllegalCharacters(field.FieldName);
+                context.Variables.DefineVariable(fieldName, typeof(string));
+                context.Variables[fieldName] = value?.Value;
             }
             return ExecuteQueryWithContext(extTable, context, externalConnection, new Condition[0]);
         }
@@ -293,7 +294,7 @@ namespace SystemCenter.ScheduledProcesses
             return data;
         }
 
-        public static DataTable RetrieveDataTable(extDBTables extTable, AdoDataConnection externalConnection, Condition[] conditions, string orderBy=null,bool ascending=true, int skip=0, int count=-1)
+        public static DataTable RetrieveDataTable(extDBTables extTable, AdoDataConnection externalConnection, Condition[] conditions, string orderBy = null, bool ascending = true, int skip = 0, int count = -1)
         {
             ExpressionContext context = new ExpressionContext();
             DefineAllowedVariables(context);
@@ -311,6 +312,12 @@ namespace SystemCenter.ScheduledProcesses
             ExpressionContext context = new ExpressionContext();
             DefineAllowedVariables(context);
             return ExecuteCountQueryWithContext(extTable, context, externalConnection, conditions);
+        }
+
+        private static string RemoveIllegalCharacters(string fieldName)
+        {
+            // This will causes issues if there are two fields, one as "field name" and one as "field_name"
+            return Regex.Replace(fieldName, RegexIllegal, "_");
         }
 
         private static void DefineAllowedVariables(ExpressionContext context)
@@ -451,8 +458,8 @@ namespace SystemCenter.ScheduledProcesses
                 string variable = match.Value.Substring(1, match.Value.Length - 2).Trim();
                 string[] variableComponents = variable.Split('.');
                 if (context.Variables[variableComponents[0]] is null) return "null";
-                variable = (variableComponents.Length > 2 && string.Equals(variableComponents[1], "Field", StringComparison.OrdinalIgnoreCase)) ?
-                    variableComponents[2] : variable;
+                if (variableComponents.Length > 2 && string.Equals(variableComponents[1], "Field", StringComparison.OrdinalIgnoreCase))
+                    variable = RemoveIllegalCharacters(variableComponents[2]);
                 string stringExpression = $"if({variable} <> null, {variable}.toString(), null)";
                 IGenericExpression<string> expression = context.CompileGeneric<string>(stringExpression);
                 string eval = expression.Evaluate();
