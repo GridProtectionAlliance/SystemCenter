@@ -54,8 +54,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [trigger, setTrigger] = React.useState<number>(0);
 
-    const [newEditAsset, setNewEditAsset] = React.useState<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.Generation
-        | OpenXDA.Types.StationAux | OpenXDA.Types.StationBattery>(AssetAttributes.getNewAsset('Line'));
+    const [newEditAsset, setNewEditAsset] = React.useState<OpenXDA.Types.DetailedAsset>(AssetAttributes.getNewAsset('Line'));
     const [editAsset, setEditasset] = React.useState<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.Generation
         | OpenXDA.Types.StationAux | OpenXDA.Types.StationBattery>(AssetAttributes.getNewAsset('Line'));
 
