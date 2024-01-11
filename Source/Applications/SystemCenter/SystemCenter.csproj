@@ -369,9 +369,6 @@
     </Content>
     <Content Include="Resources\DocComments.xml" />
     <Content Include="tsconfig.webpack.json" />
-    <Content Include="Configuration\Web.config">
-      <SubType>Designer</SubType>
-    </Content>
     <None Include="wwwroot\Content\Site.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
@@ -713,8 +710,6 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataOperations.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\DataReaders.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Settings\Setting.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ExternalDB\QueryWindow.tsx" />
-    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\UserSettings.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\AssetSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\EventChannelSlice.ts" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\Store\PQISlice.ts" />

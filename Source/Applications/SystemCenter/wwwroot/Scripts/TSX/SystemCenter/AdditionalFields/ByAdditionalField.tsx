@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ByAdditionalField.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -169,7 +169,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortKey={sortField.toString()}
+                    sortKey={sortField as string}
                     ascending={ascending}
                     onSort={(d) => {
                         if (d.colKey === null) return;
