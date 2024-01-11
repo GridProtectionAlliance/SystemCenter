@@ -48,7 +48,7 @@ export default function AssetSelect(props: IProps) {
     const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
     const dispatch = useAppDispatch();
 
-    const lineSegmentFilter: Search.IFilter<OpenXDA.Types.RemoteXDAMeter> =
+    const lineSegmentFilter: Search.IFilter<SystemCenter.Types.DetailedAsset> =
     {
         FieldName: 'AssetType',
         SearchText: 'LineSegment',

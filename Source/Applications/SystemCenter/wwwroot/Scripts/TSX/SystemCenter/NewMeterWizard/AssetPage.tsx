@@ -60,9 +60,7 @@ interface IProps {
     PageID?: string
 }
 
-type AssetType = OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay | OpenXDA.Types.Generation
-    | OpenXDA.Types.StationAux | OpenXDA.Types.StationBattery;
-
+type AssetType = OpenXDA.Types.DetailedAsset
 export default function AssetPage(props: IProps) {
     const dispatch = useAppDispatch();
 
