@@ -131,7 +131,7 @@ export default function AdditionalFieldForm(props: IProps) {
         if (props.SetWarnings === undefined) return;
         let w = [];
         if (props.Record.IsKey && allAddlFields.findIndex((d) => (d.ID != props.Record.ID) && (d.ExternalDBTableID == props.Record.ExternalDBTableID) && d.IsKey) > -1)
-            w.push(`A key field already exists for this External Database.`);
+            w.push(`A key field already exists for this External Table.`);
         props.SetWarnings(w);
     }, [props.Record]);
 
