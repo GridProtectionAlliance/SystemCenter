@@ -209,8 +209,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             return [];
     }
 
-    function getAssets(): Array<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.Generation
-        | OpenXDA.Types.StationAux | OpenXDA.Types.StationBattery>
+    function getAssets(): Array<OpenXDA.Types.DetailedAsset >
     {
         if (localStorage.hasOwnProperty('NewMeterWizard.Assets'))
             return JSON.parse(localStorage.getItem('NewMeterWizard.Assets'));
