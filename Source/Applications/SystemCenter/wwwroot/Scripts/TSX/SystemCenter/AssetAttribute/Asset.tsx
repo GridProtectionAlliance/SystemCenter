@@ -186,6 +186,18 @@ export namespace AssetAttributes {
             let record = asset as OpenXDA.Types.Bus;
             return record
         }
+        else if (type == 'Generation') {
+            let record = asset as OpenXDA.Types.Generation;
+            return record
+        }
+        else if (type == 'StationAux') {
+            let record = asset as OpenXDA.Types.StationAux;
+            return record
+        }
+        else if (type == 'StationBattery') {
+            let record = asset as OpenXDA.Types.StationBattery;
+            return record
+        }
         else if (type == 'CapacitorBankRelay') {
             let record = asset as OpenXDA.Types.CapBankRelay;
             return record

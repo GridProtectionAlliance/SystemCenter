@@ -42,6 +42,9 @@ import { getAssetWithAdditionalFields } from '../../../TS/Services/Asset';
 import LocationDrawings from '../Meter/PropertyUI/LocationDrawings';
 import { GetNodeSize } from '@gpa-gemstone/helper-functions';
 import Table, { Column } from '@gpa-gemstone/react-table';
+import GenerationAttributes from '../AssetAttribute/Generation';
+import StationAuxAttributes from '../AssetAttribute/StationAux';
+import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 
 declare var homePath: string;
 
@@ -57,8 +60,7 @@ interface IProps {
     PageID?: string
 }
 
-type AssetType = OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer | OpenXDA.Types.CapBankRelay;
-
+type AssetType = OpenXDA.Types.DetailedAsset
 export default function AssetPage(props: IProps) {
     const dispatch = useAppDispatch();
 
@@ -203,7 +205,7 @@ export default function AssetPage(props: IProps) {
             assetConnections.splice(index, 1);
             index = assetConnections.findIndex(assetConnection => assetConnection.Parent == record[0].AssetKey || assetConnection.Child == record[0].AssetKey);
         }
-
+        
         props.UpdateAssets(list);
         props.UpdateChannels(channels);
         props.UpdateAssetConnections(assetConnections);
@@ -264,6 +266,12 @@ export default function AssetPage(props: IProps) {
             return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'DER')
             return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'Generation')
+            return <GenerationAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'StationAux')
+            return <StationAuxAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'StationBattery')
+            return <StationBatteryAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
     }
 
     const assetRows = [

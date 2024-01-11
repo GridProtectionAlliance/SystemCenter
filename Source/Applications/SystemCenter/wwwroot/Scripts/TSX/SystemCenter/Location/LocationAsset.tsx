@@ -38,6 +38,9 @@ import { AssetTypeSlice } from '../Store/Store';
 import { getAssetWithAdditionalFields, editExistingAsset } from '../../../TS/Services/Asset';
 import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import GenerationAttributes from '../AssetAttribute/Generation';
+import StationAuxAttributes from '../AssetAttribute/StationAux';
+import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 
 declare var homePath: string;
 
@@ -51,8 +54,8 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [trigger, setTrigger] = React.useState<number>(0);
 
-    const [newEditAsset, setNewEditAsset] = React.useState<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer>(AssetAttributes.getNewAsset('Line'));
-    const [editAsset, setEditasset] = React.useState<OpenXDA.Types.Breaker | OpenXDA.Types.Bus | OpenXDA.Types.CapBank | OpenXDA.Types.Line | OpenXDA.Types.Transformer>(AssetAttributes.getNewAsset('Line'));
+    const [newEditAsset, setNewEditAsset] = React.useState<OpenXDA.Types.DetailedAsset>(AssetAttributes.getNewAsset('Line'));
+    const [editAsset, setEditasset] = React.useState<OpenXDA.Types.DetailedAsset>(AssetAttributes.getNewAsset('Line'));
 
     const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('New');
 
@@ -190,6 +193,12 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
             return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'Transformer')
             return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'Generation')
+            return <GenerationAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'StationAux')
+            return <StationAuxAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
+        else if (newEditAsset.AssetType == 'StationBattery')
+            return <StationBatteryAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
     }
 
     function handleSelect(item, event) {

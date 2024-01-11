@@ -39,6 +39,9 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import DERAttributes from '../AssetAttribute/DER';
 import AdditionalFieldsProperties from '../CommonComponents/AdditionalFieldsProperties';
+import GenerationAttributes from '../AssetAttribute/Generation';
+import StationAuxAttributes from '../AssetAttribute/StationAux';
+import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 
 declare var homePath: string;
 
@@ -125,6 +128,12 @@ function AssetInfoWindow(props: IProps) {
             return <LineSegmentAttributes NewEdit={'Edit'} Asset={editAsset as OpenXDA.Types.LineSegment} UpdateState={setEditAsset} />;
         else if (asset.AssetType == 'DER')
             return <DERAttributes NewEdit={'Edit'} Asset={editAsset as OpenXDA.Types.DER} UpdateState={setEditAsset} />;
+        else if (asset.AssetType == 'Generation')
+            return <GenerationAttributes NewEdit={'New'} Asset={editAsset as OpenXDA.Types.Generation} UpdateState={setEditAsset} />;
+        else if (asset.AssetType == 'StationAux')
+            return <StationAuxAttributes NewEdit={'New'} Asset={editAsset as OpenXDA.Types.StationAux} UpdateState={setEditAsset} />;
+        else if (asset.AssetType == 'StationBattery')
+            return <StationBatteryAttributes NewEdit={'New'} Asset={editAsset as OpenXDA.Types.StationBattery} UpdateState={setEditAsset} />;
     }
 
     function changedFields(): string[] {

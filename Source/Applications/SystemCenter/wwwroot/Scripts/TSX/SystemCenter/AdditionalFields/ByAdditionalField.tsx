@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ByAdditionalField.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright Â© 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -78,7 +78,10 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                 { Value: 'CapBank', Label: 'Capacitor Bank' },
                 { Value: 'Transformer', Label: 'Transformer' },
                 { Value: 'CapBankRelay', Label: 'Capacitor Bank Relay' },
-                { Value: 'DER', Label: 'DER' }
+                { Value: 'DER', Label: 'DER' },
+                { Value: 'Generation', Label: 'Generation' },
+                { Value: 'StationAux', Label: 'Station Auxiliary' },
+                { Value: 'StationBattery', Label: 'Station Battery'}
             ]
         },
         // Todo: maybe override query results to allow for ExternalDBTableID to be used as a boolean?
@@ -166,7 +169,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                     ]}
                     tableClass="table table-hover"
                     data={data}
-                    sortKey={sortField}
+                    sortKey={sortField as string}
                     ascending={ascending}
                     onSort={(d) => {
                         if (d.colKey === null) return;

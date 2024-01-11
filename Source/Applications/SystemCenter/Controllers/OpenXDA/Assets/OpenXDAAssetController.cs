@@ -255,7 +255,7 @@ namespace SystemCenter.Controllers.OpenXDA
                         DECLARE @PivotColumns NVARCHAR(MAX) = N''
                         SELECT @PivotColumns = @PivotColumns + '[AFV_' + t.FieldName + '],'
                             FROM (Select DISTINCT FieldName FROM {addtionalFieldTableName} WHERE 
-                                ParentTable = 'Line' OR  ParentTable = 'Transformer' OR  ParentTable = 'Breaker'  OR  ParentTable = 'CapBank'  OR  ParentTable = 'Bus'
+                                ParentTable = 'Line' OR  ParentTable = 'Transformer' OR  ParentTable = 'Breaker'  OR  ParentTable = 'CapBank'  OR  ParentTable = 'Bus' OR ParentTable = 'Generation' OR ParentTable = 'StationAux' OR ParentTable = 'StationBattery'
                                 AND FieldName IN {pivotCollums}
                             ) AS t
 
@@ -270,7 +270,7 @@ namespace SystemCenter.Controllers.OpenXDA
                                 (CONCAT(''AFV_'',af.FieldName)) AS FieldName,
 	                            afv.Value
                             FROM ({view.Replace("'", "''")}) M LEFT JOIN 
-                                {addtionalFieldTableName} af on af.ParentTable IN (''Line'',''Transformer'',''Breaker'',''CapBank'',''Bus'') AND af.FieldName IN {pivotCollums.Replace("'", "''")} LEFT JOIN
+                                {addtionalFieldTableName} af on af.ParentTable IN (''Line'',''Transformer'',''Breaker'',''CapBank'',''Bus'',''Generation'',''StationAux'',''StationBattery'') AND af.FieldName IN {pivotCollums.Replace("'", "''")} LEFT JOIN
 	                            {addtionalFieldValueTableName} afv ON m.ID = afv.ParentTableID AND af.ID = afv.AdditionalFieldID
                             ) as T PIVOT (
                                 Max(T.Value) FOR T.FieldName IN ('+ SUBSTRING(@PivotColumns,0, LEN(@PivotColumns)) + ')) AS PVT
@@ -432,6 +432,24 @@ namespace SystemCenter.Controllers.OpenXDA
                     Bus bus = new Bus();
                     CreateBusFromJToken(bus, asset);
                     new TableOperations<Bus>(connection).AddNewRecord(bus);
+                }
+                else if (assetType == "Generation")
+                {
+                    Generation gen = new Generation();
+                    CreateGenFromJToken(gen, asset);
+                    new TableOperations<Generation>(connection).AddNewRecord(gen);
+                }
+                else if (assetType == "StationAux")
+                {
+                    StationAux aux = new StationAux();
+                    CreateAuxFromJToken(aux, asset);
+                    new TableOperations<StationAux>(connection).AddNewRecord(aux);
+                }
+                else if (assetType == "StationBattery")
+                {
+                    StationBattery battery = new StationBattery();
+                    CreateBatteryFromJToken(battery, asset);
+                    new TableOperations<StationBattery>(connection).AddNewRecord(battery);
                 }
                 else if (assetType == "CapacitorBank")
                 {
@@ -675,6 +693,24 @@ namespace SystemCenter.Controllers.OpenXDA
                         CreateBusFromJToken(bus, asset);
                         new TableOperations<Bus>(connection).UpdateRecord(bus);
                     }
+                    else if (assetType == "Generation")
+                    {
+                        Generation gen = new TableOperations<Generation>(connection).QueryRecordWhere("ID = {0}", asset["ID"].ToObject<int>());
+                        CreateGenFromJToken(gen, asset);
+                        new TableOperations<Generation>(connection).UpdateRecord(gen);
+                    }
+                    else if (assetType == "StationAux")
+                    {
+                        StationAux aux = new TableOperations<StationAux>(connection).QueryRecordWhere("ID = {0}", asset["ID"].ToObject<int>());
+                        CreateAuxFromJToken(aux, asset);
+                        new TableOperations<StationAux>(connection).UpdateRecord(aux);
+                    }
+                    else if (assetType == "StationBattery")
+                    {
+                        StationBattery battery = new TableOperations<StationBattery>(connection).QueryRecordWhere("ID = {0}", asset["ID"].ToObject<int>());
+                        CreateBatteryFromJToken(battery, asset);
+                        new TableOperations<StationBattery>(connection).UpdateRecord(battery);
+                    }
                     else if (assetType == "CapacitorBank")
                     {
                         CapBank capBank = new TableOperations<CapBank>(connection).QueryRecordWhere("ID = {0}", asset["ID"].ToObject<int>());
@@ -820,7 +856,30 @@ namespace SystemCenter.Controllers.OpenXDA
             bus.Description = record["Description"].ToString();
             bus.AssetName = record["AssetName"].ToString();
         }
-        
+
+        private void CreateGenFromJToken(Generation gen, JToken record)
+        {
+            gen.VoltageKV = record["VoltageKV"].ToObject<double>();
+            gen.AssetKey = record["AssetKey"].ToString();
+            gen.Description = record["Description"].ToString();
+            gen.AssetName = record["AssetName"].ToString();
+        }
+
+        private void CreateAuxFromJToken(StationAux aux, JToken record)
+        {
+            aux.VoltageKV = record["VoltageKV"].ToObject<double>();
+            aux.AssetKey = record["AssetKey"].ToString();
+            aux.Description = record["Description"].ToString();
+            aux.AssetName = record["AssetName"].ToString();
+        }
+
+        private void CreateBatteryFromJToken(StationBattery battery, JToken record)
+        {
+            battery.VoltageKV = record["VoltageKV"].ToObject<double>();
+            battery.AssetKey = record["AssetKey"].ToString();
+            battery.Description = record["Description"].ToString();
+            battery.AssetName = record["AssetName"].ToString();
+        }
 
         private void CreateCapBankFromJToken(CapBank capBank, JToken record)
         {

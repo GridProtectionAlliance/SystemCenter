@@ -25,13 +25,14 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Select, CheckBox } from '@gpa-gemstone/react-forms';
 import { useAppDispatch } from '../../hooks';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 
 interface IProps {
     SetTable: (table: string | undefined) => void;
 }
 
-const parentTableOptions = ['Meter', 'Location', 'Customer', 'Asset',
-    "Line", "Line Segment", "Breaker", "Bus", "Capacitor Bank", "Capacitor Bank Relay", "Transformer", "DER"].map(name => { return { Value: name, Label: name } });
+const parentTableOptions = (OpenXDA.Lists.AssetTypes as string[]).concat(['Meter', 'Location', 'Customer', 'Asset']).map(name => { return { Value: name, Label: name } });
+
 interface TableOptions { ShowTableSelect: boolean, TableName: string };
 
 export default function TargetTypesSelection(props: IProps) {
