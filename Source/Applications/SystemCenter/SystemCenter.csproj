@@ -369,9 +369,6 @@
     </Content>
     <Content Include="Resources\DocComments.xml" />
     <Content Include="tsconfig.webpack.json" />
-    <Content Include="Configuration\Web.config">
-      <SubType>Designer</SubType>
-    </Content>
     <None Include="wwwroot\Content\Site.css">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
