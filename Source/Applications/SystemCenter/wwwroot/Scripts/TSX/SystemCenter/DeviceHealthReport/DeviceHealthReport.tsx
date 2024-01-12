@@ -209,7 +209,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                     else if (moment().diff(moment(item[field]), 'days') < 7) style.backgroundColor = 'orange';
                                     else if (moment().diff(moment(item[field]), 'days') < 30) style.backgroundColor = 'yellow';
 
-                                    return <a href={`${settings.find(s => s.Name == 'MiMD.Url')?.Value}/index.cshtml?name=Configuration&MeterID=${item.ID}`} target='_blank'>{moment(item[field]).format('MM/DD/YYYY')}</a>
+                                    return <a href={`${settings.find(s => s.Name == 'MiMD.Url')?.Value}/Configuration/Meter/${item.ID}`} target='_blank'>{moment(item[field]).format('MM/DD/YYYY')}</a>
                                 }
                             }
                         },
