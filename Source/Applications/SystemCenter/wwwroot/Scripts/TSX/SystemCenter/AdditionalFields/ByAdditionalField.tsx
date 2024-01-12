@@ -194,7 +194,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
                 ConfirmText={mode === 'Add' ? 'Add Field' : 'Save'}
-                ConfirmShowToolTip={errors.length > 0}
+                ConfirmShowToolTip={errors.length + warnings.length > 0}
                 ConfirmToolTipContent={
                     <>
                         {warnings.map((w, i) => <p key={i}>{WarningIcon} {w}</p>)}

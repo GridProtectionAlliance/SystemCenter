@@ -115,22 +115,23 @@ export default function AdditionalFieldForm(props: IProps) {
             e.push('A Field Name under 200 characters is required.');
         if (!Valid('ExternalDBTableID'))
             e.push('If an External Database is selected, then an External Database Table is required.');
+        if (props.Record.FieldName.match(/[$&+,:;=?@#|'<>.^*()%!{}`~]/) !== null)
+            e.push('Special Characters are not Allowed in Field Names');
         if (allAddlFields.findIndex((a) =>
-                a.ID !== props.Record.ID &&
-                a.FieldName.toLowerCase() === props.Record.FieldName?.toLowerCase()
-                && a.ParentTable === props.Record.ParentTable)
-            !== -1)
+            a.ID !== props.Record.ID &&
+            a.FieldName.toLowerCase().replace(/\s/, "_") === props.Record.FieldName?.toLowerCase().replace(/\s/, "_")
+            && a.ParentTable === props.Record.ParentTable)
+        !== -1)
             e.push('An Additional Field with this Parent Type and Field Name already exists.');
 
         props.SetErrors(e);
-    }, [props.Record]);
+    }, [props.Record, extDBId]);
 
     React.useEffect(() => {
         if (props.SetWarnings === undefined) return;
         let w = [];
-        if (props.Record.IsKey && allAddlFields.findIndex((d) => d.ID != props.Record.ID && d.IsKey) !== -1)
-            w.push(`A key field already exists for this External Database.`);
-
+        if (props.Record.IsKey && allAddlFields.findIndex((d) => (d.ID != props.Record.ID) && (d.ExternalDBTableID == props.Record.ExternalDBTableID) && d.IsKey) > -1)
+            w.push(`A key field already exists for this External Table.`);
         props.SetWarnings(w);
     }, [props.Record]);
 
@@ -140,7 +141,7 @@ export default function AdditionalFieldForm(props: IProps) {
         if (field === 'ExternalDBTableID')
             return !props.ShowDatabaseSelect || (props.Record.ExternalDBTableID === null && extDBId.ID < 0) || (props.Record.ExternalDBTableID !== null && extDBId.ID > -1);
         return true;
-    }, [props.Record]);
+    }, [props.Record, props.ShowDatabaseSelect, extDBId]);
 
     return (
         <form>
