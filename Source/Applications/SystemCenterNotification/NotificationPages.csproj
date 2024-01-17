@@ -205,6 +205,7 @@
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\OpenXDAControllers.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\TripRestorationController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
