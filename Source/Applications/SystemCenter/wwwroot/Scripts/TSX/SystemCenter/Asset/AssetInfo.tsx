@@ -145,12 +145,6 @@ function AssetInfoWindow(props: IProps) {
         return true;
     }
 
-    function hasPermissions(): boolean {
-        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
-            return false;
-        return true;
-    }
-
     function changedFields(): string[] {
         const result = [];
         if (asset.AssetKey != editAsset.AssetKey)
