@@ -480,10 +480,9 @@ namespace SystemCenter.Controllers.OpenXDA
             {
                 try
                 {
-                    new TableOperations<MeterAsset>(connection).DeleteRecordWhere("MeterID = {0} AND AssetID = {1}", meterID, assetID);
-                    new TableOperations<AssetLocation>(connection).DeleteRecordWhere("LocationID = {0} AND AssetID = {1}", locationID, assetID);
-
-                    return Ok("Completed without errors.");
+                    int result = connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete '{TableOperations<MeterAsset>.GetTableName()}', 'MeterID = {meterID} AND AssetID = {assetID}'");
+                    result += connection.ExecuteNonQuery($"EXEC UniversalCascadeDelete '{TableOperations<AssetLocation>.GetTableName()}', 'LocationID = {locationID} AND AssetID = {assetID}'");
+                    return Ok(result);
                 }
                 catch (Exception ex)
                 {
