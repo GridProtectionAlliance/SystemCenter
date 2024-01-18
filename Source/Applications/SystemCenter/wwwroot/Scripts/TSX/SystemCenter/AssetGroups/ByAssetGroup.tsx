@@ -132,7 +132,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
             return {
                 type: 'enum', enum: [{ Label: type, Value: type }]
             }
-        }
+    }
 
         handle.done((d: Array<SystemCenter.Types.AdditionalFieldView>) => {
 
@@ -188,6 +188,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
 
             Promise.all([handle1,handle2, handle3]).then((x) => {
                 sessionStorage.clear();
+                dispatch(AssetGroupSlice.SetChanged())
                 history.push({ pathname: homePath + 'index.cshtml', search: '?name=AssetGroup&AssetGroupID=' + d.ID })
             }, (msg) => {
                 if (msg.status == 500)

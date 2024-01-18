@@ -27,7 +27,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from './Asset';
 import {   } from '../../../TS/Services/Asset';
 import LineSegmentAttributes from './LineSegment';
-import { LoadingScreen, Modal, Warning, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, Warning, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark, HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import moment from 'moment';
@@ -35,6 +35,7 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { LocationSlice, SourceImpedanceSlice } from '../Store/Store';
 import { IsInteger, IsNumber } from '@gpa-gemstone/helper-functions';
 import { Input, Select } from '@gpa-gemstone/react-forms';
+import { SelectRoles } from '../Store/UserSettings';
 
 const newImpedance: OpenXDA.Types.SourceImpedance = { RSrc: 0, XSrc: 0, AssetLocationID: null, ID: 0 }
 
@@ -60,6 +61,8 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     const [newEditImpedance, setNewEditImpedance] = React.useState<OpenXDA.Types.SourceImpedance>(newImpedance);
     const [newEdit, setNewEdit] = React.useState<Application.Types.NewEdit>('New');
 
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     //#ToDo Swap Type to query
     React.useEffect(() => {
@@ -158,6 +161,13 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
         return true;
 
     }
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     return (
         <>
         <div className="card" style={{ marginBottom: 10 }}>
@@ -177,16 +187,20 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                                 { key: 'XSrc', field: 'XSrc', label: 'X (pu)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             {
                                 key: 'EditDelete', label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
-                                content: (item) => <> <button className="btn btn-sm"
+                                content: (item) => <> <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
                                     onClick={(e) => {
-                                        setShowAdd(true);
-                                        setNewEditImpedance(item);
-                                        setNewEdit('Edit');
-                                    }}><span>{Pencil}</span></button>
-                                    <button className="btn btn-sm"
-                                        onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            setShowAdd(true);
                                             setNewEditImpedance(item);
-                                            setshowWarning(true);
+                                            setNewEdit('Edit');
+                                        }
+                                    }}><span>{Pencil}</span></button>
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                        onClick={(e) => {
+                                            if (hasPermissions()) {
+                                                setNewEditImpedance(item);
+                                                setshowWarning(true);
+                                            }
                                         }}><span>{TrashCan}</span></button>
                                 </>
                             }
@@ -207,8 +221,12 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
             </div>
             <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className="btn btn-primary" onClick={() => { setShowAdd(true); setNewEditImpedance(newImpedance); }}>Add Source Impedance</button>
-                </div>
+                        <button className={"btn btn-primary" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Source'
+                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true); setNewEditImpedance(newImpedance); }}>Add Source Impedance</button>
+                    </div>
+                    <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Source"}>
+                        <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                    </ToolTip>
             </div>
         </div>
 

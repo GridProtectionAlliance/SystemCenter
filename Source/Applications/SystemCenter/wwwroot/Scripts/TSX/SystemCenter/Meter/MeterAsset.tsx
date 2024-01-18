@@ -35,10 +35,11 @@ import { getAssetTypes, getAssetWithAdditionalFields } from '../../../TS/Service
 import { DBActionAsset, DBMeterAction, SelectAssetStatus } from '../Store/AssetSlice'
 import Table from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { Warning, Modal, LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { Warning, Modal, LoadingScreen, ToolTip } from '@gpa-gemstone/react-interactive';
 import DERAttributes from '../AssetAttribute/DER';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
+import { SelectRoles } from '../Store/UserSettings';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
 import StationBatteryAttributes from '../AssetAttribute/StationBattery';
@@ -65,6 +66,9 @@ const MeterAssetWindow = (props: IProps) => {
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [allAssets, setAllAssets] = React.useState<OpenXDA.Types.MeterAsset[]>([]);
 
+    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
+    const roles = useAppSelector(SelectRoles);
+
     React.useEffect(() => {
         let h = getAssetTypes()
         h.done((data: Array<OpenXDA.Types.AssetType>) => {
@@ -75,8 +79,6 @@ const MeterAssetWindow = (props: IProps) => {
     }, []);
 
     React.useEffect(() => {
-        if (status !== "unintiated" && status !== "changed")
-            return;
 
         setShowLoading(true);
 
@@ -113,6 +115,12 @@ const MeterAssetWindow = (props: IProps) => {
         h.then(record => { changeActiveAsset(record); setNewEdit('Edit') });
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     return (
         <>
         <div className="card" style={{ marginBottom: 10 }}>
@@ -137,17 +145,21 @@ const MeterAssetWindow = (props: IProps) => {
                                     {
                                         key: 'EditDelete', label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
                                         content: (item) => <>
-                                            <button className="btn btn-sm"
+                                            <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
                                                 onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setActiveAsset(item.ID, item.AssetType);
-                                                    setShoweditNew(true);
+                                                    if (hasPermissions()) {
+                                                        e.preventDefault();
+                                                        setActiveAsset(item.ID, item.AssetType);
+                                                        setShoweditNew(true);
+                                                    }
                                                 }}><span>{Pencil}</span></button>
-                                            <button className="btn btn-sm"
+                                            <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
                                                 onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setActiveAsset(item.ID, item.AssetType);
-                                                    setShowDeleteWarning(true)
+                                                    if (hasPermissions()) {
+                                                        e.preventDefault();
+                                                        setActiveAsset(item.ID, item.AssetType);
+                                                        setShowDeleteWarning(true)
+                                                    }
                                                 }}><span>{TrashCan}</span></button>
                                         </>
                                     }
@@ -212,14 +224,18 @@ const MeterAssetWindow = (props: IProps) => {
             </div>
             <div className="card-footer">
                     <div className="btn-group mr-2">
-                        <button className="btn btn-primary pull-left" style={{ marginRight: 5 }} onClick={() => {
-                        setShowSelect(true);
-                    }}>Add Existing Asset</button>
-                    <button className="btn btn-primary pull-right" onClick={() => {
-                        setActiveAsset(0, 'Line');
-                        setShoweditNew(true);
-                    }}>Add New Asset</button>
-                </div>
+                        <button className={"btn btn-primary pull-left" + (hasPermissions() ? '' : ' disabled')} style={{ marginRight: 5 }} data-tooltip='ExistingAsset' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
+                            onClick={() => { if (hasPermissions()) setShowSelect(true)}}>Add Existing Asset</button>
+                        <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"ExistingAsset"}>
+                            <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                        </ToolTip>
+
+                        <button className={"btn btn-primary pull-right" + (hasPermissions() ? '' : ' disabled')} data-tooltip='NewAsset' onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')}
+                            onClick={() => {setActiveAsset(0, 'Line'); if (hasPermissions()) setShoweditNew(true); }}>Add New Asset</button>
+                        <ToolTip Show={hover == 'clear' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"NewAsset"}>
+                            <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                        </ToolTip>
+                    </div>
             </div>
             </div>
             <AssetSelect

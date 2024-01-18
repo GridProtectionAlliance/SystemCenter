@@ -32,6 +32,8 @@ import AdditionalFieldsWindow from '../CommonComponents/AdditionalFieldsWindow';
 import { TabSelector, Warning, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import LocationImagesWindow from './LocationImages';
 import LocationDrawingsWindow from './LocationDrawings';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 type Tab = 'notes' | 'locationInfo' | 'additionalFields' | 'meters' | 'assets' | 'extDB' | 'images' | 'drawings'
@@ -43,6 +45,7 @@ function Location(props: IProps) {
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const [location, setLocation] = React.useState<OpenXDA.Types.Location>(null);
     const [tab, setTab] = React.useState(getTab());
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         let handle = getLocation();
@@ -92,6 +95,12 @@ function Location(props: IProps) {
         handle.then((d) => setLoadDelete(false))
         return handle;
     }
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
      
     if (location == null) return null;
 
@@ -112,7 +121,7 @@ function Location(props: IProps) {
                     <h2>{location != null ? location.Name + ' (' + location.LocationKey + ')' : ''}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" hidden={location == null} onClick={() => setShowDelete(true)}>Delete Substation</button>
+                    <button className={"btn btn-danger pull-right" } hidden={(location == null) || !hasPermissions()} onClick={() => { if (hasPermissions()) setShowDelete(true) }}>Delete Substation</button>
                 </div>
             </div>
             <hr />

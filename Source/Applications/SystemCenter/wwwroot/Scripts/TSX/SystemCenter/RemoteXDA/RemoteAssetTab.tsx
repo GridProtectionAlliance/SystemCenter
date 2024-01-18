@@ -27,10 +27,11 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import Table from '@gpa-gemstone/react-table';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { RemoteXDAAssetSlice, ByAssetSlice } from '../Store/Store';
-import { LoadingScreen, Modal, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { BlankRemoteXDAAsset, RemoteAssetForm } from './RemoteAssetForm';
 import AssetSelect from '../Asset/AssetSelect';
+import { SelectRoles } from '../Store/UserSettings';
 
 interface IProps { ID: number }
 
@@ -65,6 +66,9 @@ const RemoteAssetTab = (props: IProps) => {
     const [assetList, setAssetList] = React.useState<Array<SystemCenter.Types.DetailedAsset>>([]);
     const [showAddAssets, setShowAddAssets] = React.useState<(boolean)>(false);
 
+    const roles = useAppSelector(SelectRoles);
+    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
+
     React.useEffect(() => {
         if (remoteAssetStatus === 'unintiated' || remoteAssetStatus === 'changed')
             dispatch(RemoteXDAAssetSlice.Fetch());
@@ -86,6 +90,12 @@ const RemoteAssetTab = (props: IProps) => {
 
     function isEditable(item: OpenXDA.Types.RemoteXDAAsset): boolean {
         return item.RemoteXDAAssetID <= 0;
+    }
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0)
+            return false;
+        return true;
     }
 
     let cardBody;
@@ -120,12 +130,14 @@ const RemoteAssetTab = (props: IProps) => {
                     key: 'Edit', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
                     content: (item) => (isEditable(item) ? 
                         <button
-                            className={"btn btn-edit" + (isEditable(item) ? '' : ' disabled')}
+                            className={"btn btn-edit" + (isEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
                             onClick={(e) => {
-                                e.preventDefault();
-                                if (isEditable(item)) {
-                                    setSelectedAsset(item);
-                                    setShowEdit(true);
+                                if (hasPermissions()) {
+                                    e.preventDefault();
+                                    if (isEditable(item)) {
+                                        setSelectedAsset(item);
+                                        setShowEdit(true);
+                                    }
                                 }
                             }}>
                             <span>{Pencil}</span>
@@ -135,12 +147,14 @@ const RemoteAssetTab = (props: IProps) => {
                     key: 'Delete', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
                     content: (item) => (isEditable(item) ? 
                         <button
-                            className={"btn btn-delete" + (isEditable(item) ? '' : ' disabled')}
+                            className={"btn btn-delete" + (isEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
                             onClick={(e) => {
-                                e.preventDefault();
-                                if (isEditable(item)) {
-                                    setSelectedAsset(item);
-                                    setShowDelete(true);
+                                if (hasPermissions()) {
+                                    e.preventDefault();
+                                    if (isEditable(item)) {
+                                        setSelectedAsset(item);
+                                        setShowDelete(true);
+                                    }
                                 }
                             }}>
                             <span>{TrashCan}</span>
@@ -185,15 +199,20 @@ const RemoteAssetTab = (props: IProps) => {
             <div className="card-footer">
                 <div className="add-new-asset">
                     <button
-                        className={"btn btn-primary"}
-                        type="submit"
+                        className={"btn btn-primary" + (hasPermissions() ? '' : ' disabled')}
+                        type="submit" data-tooltip='AddAssets' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
                         onClick={(e) => {
-                            e.preventDefault();
-                            setShowAddAssets(true);
+                            if (hasPermissions()) {
+                                e.preventDefault();
+                                setShowAddAssets(true);
+                            }
                         }}>
                         Add Assets
                     </button>
                 </div>
+                <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddAssets"}>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                </ToolTip>
             </div>
             <Warning Title={"Delete " + (selectedAsset?.RemoteXDAAssetKey ?? "Remote Asset")} Show={showDelete} Message={"Are you sure you want to delete the Remote Asset for " + (selectedAsset?.LocalAssetName ?? "No Local Name") + "?"}
                 CallBack={(conf) => {

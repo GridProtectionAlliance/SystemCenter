@@ -28,19 +28,21 @@ import Table from '@gpa-gemstone/react-table';
 import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import LineSegmentWizard from './FawgLineSegmentWizard/LineSegmentWizard';
 import moment from 'moment';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
+import { ToolTip } from '@gpa-gemstone/react-interactive';
 
 interface IProps { ID: number, InnerOnly?: boolean, OnChange?: () => void; }
 function LineSegmentWindow(props: IProps): JSX.Element {
     const [segments, setSegments] = React.useState<Array<OpenXDA.Types.LineSegment>>([]);
     const [showFawg, setShowFawg] = React.useState<boolean>(false);
-
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         const h = getSegments();
         return () => { if (h != null && h.abort != null) h.abort(); }
     }, [props.ID]);
-
-
 
     function getSegments() {
        return $.ajax({
@@ -54,6 +56,12 @@ function LineSegmentWindow(props: IProps): JSX.Element {
            setSegments(data);
            props.OnChange();
        });
+    }
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
     }
 
     let header = (<h4 style={(props.InnerOnly ?? false) ? { width: '100%', padding: '10px' } : null}>{"Line Segments: "}</h4>);
@@ -88,7 +96,8 @@ function LineSegmentWindow(props: IProps): JSX.Element {
             />
             {showFawg ? <LineSegmentWizard LineID={props.ID} closeWizard={() => { setShowFawg(false); getSegments(); }} LineKey={''} LineName={''} /> : null}
         </>);
-    const wizardButton = (<button className={"btn btn-primary" + ((props.InnerOnly ?? false) ? " pull-right" : "")} onClick={(evt) => setShowFawg(true)}>Line Segment Wizard</button>);
+    const wizardButton = (<button className={"btn btn-primary" + ((props.InnerOnly ?? false) ? " pull-right" : "") + (!hasPermissions() ? ' disabled' : '')} data-tooltip='LineSegWiz'
+        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { if (hasPermissions()) setShowFawg(true)}}>Line Segment Wizard</button>);
 
     if (props.InnerOnly ?? false) return (
         <>
@@ -112,6 +121,9 @@ function LineSegmentWindow(props: IProps): JSX.Element {
                 <div className="btn-group mr-2">
                     {wizardButton}
                 </div>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"LineSegWiz"}>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                </ToolTip>
             </div>
         </div>
     );

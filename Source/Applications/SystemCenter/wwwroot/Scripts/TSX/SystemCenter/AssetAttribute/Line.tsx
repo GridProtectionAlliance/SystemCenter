@@ -26,8 +26,13 @@ import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { AssetAttributes } from './Asset';
 import { Input } from '@gpa-gemstone/react-forms';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 
 function LineAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Line, UpdateState: (newEditAsset: OpenXDA.Types.Line) => void }): JSX.Element {
+
+    const roles = useAppSelector(SelectRoles);
+
     function valid(field: keyof (OpenXDA.Types.Line) | keyof(OpenXDA.Types.LineDetail)): boolean {
         if (field == 'MaxFaultDistance')
             return props.Asset.MaxFaultDistance == null || AssetAttributes.isRealNumber(props.Asset.MaxFaultDistance);
@@ -56,14 +61,20 @@ function LineAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: Open
 
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     React.useEffect(() => {
     }, [props.Asset]);
 
     if (props.Asset == null || props.Asset.Detail == null) return null;
     return (
         <>
-            <Input<OpenXDA.Types.Line> Record={props.Asset} Help={'If this field is left blank the system will use Length as the maximum fault distance.'} Field={'MaxFaultDistance'} Label={'Max Fault Distance'} Feedback={'Max Fault Distance must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
-            <Input<OpenXDA.Types.Line> Record={props.Asset} Help={'If this field is left blank the system will use 0 as the minimum fault distance.'} Field={'MinFaultDistance'} Label={'Min Fault Distance'} Feedback={'Min Fault Distance must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0} />
+            <Input<OpenXDA.Types.Line> Record={props.Asset} Help={'If this field is left blank the system will use Length as the maximum fault distance.'} Field={'MaxFaultDistance'} Label={'Max Fault Distance'} Feedback={'Max Fault Distance must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+            <Input<OpenXDA.Types.Line> Record={props.Asset} Help={'If this field is left blank the system will use 0 as the minimum fault distance.'} Field={'MinFaultDistance'} Label={'Min Fault Distance'} Feedback={'Min Fault Distance must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
             <div className="alert alert-info" role="alert">
                 <p>Reactance, Length, and Thermal Rating are based on the Line Segments associated with this Line.</p>
                 <p>To change these values, edit the properties of the Line Segements.</p>

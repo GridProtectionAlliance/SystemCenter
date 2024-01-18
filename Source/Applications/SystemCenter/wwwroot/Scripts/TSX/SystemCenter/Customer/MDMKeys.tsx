@@ -24,11 +24,12 @@
 import { Application, OpenXDA, SystemCenter } from "@gpa-gemstone/application-typings";
 import { CrossMark } from "@gpa-gemstone/gpa-symbols";
 import { Input } from "@gpa-gemstone/react-forms";
-import { Modal, Search } from "@gpa-gemstone/react-interactive";
+import { Modal, Search, ToolTip } from "@gpa-gemstone/react-interactive";
 import Table from "@gpa-gemstone/react-table";
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { LSCVSAccountSlice } from "../Store/Store";
+import { SelectRoles } from "../Store/UserSettings";
 
 interface IProps {CustomerID: number}
 
@@ -48,6 +49,9 @@ function MDMKeys(props: IProps) {
     const [showAdd, setShowAdd] = React.useState<boolean>(false);
     const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.LSCVSAccount>('AccountID');
     const [errors, setErrors] = React.useState<string[]>([]);
+
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         if (status === 'unintiated' || status === 'changed' || parentID != props.CustomerID)
@@ -73,6 +77,12 @@ function MDMKeys(props: IProps) {
     function Valid(field: keyof (SystemCenter.Types.LSCVSAccount)) {
         if (field == 'AccountID')
             return newLSCVSAccount.AccountID != null && newLSCVSAccount.AccountID.length > 0 && newLSCVSAccount.AccountID.length < 50;
+    }
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
     }
 
     return (
@@ -115,8 +125,12 @@ function MDMKeys(props: IProps) {
                     </div>
                 </div>
                 <div className="card-footer">
-                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Account ID</button>
+                    <button className={"btn btn-primary" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddID'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) setShowAdd(true) }}>Add Account ID</button>
                 </div>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddID"}>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                </ToolTip>
                 <Modal Title={'Add Account ID'}
                     Show={showAdd} Size={'lg'}
                     ShowX={true}

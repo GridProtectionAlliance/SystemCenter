@@ -33,6 +33,7 @@ import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import MDMKeys from './MDMKeys';
 import CustomerAssetWindow from './CustomerAsset';
+import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'notes' | 'additionalFields' | 'meters' | 'assets' | 'mdm'
@@ -54,6 +55,7 @@ export default function Customer(props: IProps) {
     const customer = useAppSelector((state) => CustomerSlice.Datum(state, props.CustomerID)) as OpenXDA.Types.Customer;
     const cStatus = useAppSelector(CustomerSlice.Status) as Application.Types.Status;
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         const saved = getTab();
@@ -90,6 +92,12 @@ export default function Customer(props: IProps) {
     if (customer == null)
         return null;
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
             <div className="row">
@@ -97,7 +105,7 @@ export default function Customer(props: IProps) {
                     <h2>{customer != null ? customer.Name : ''}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" hidden={customer == null} onClick={() => setShowWarning(true)}>Delete Customer</button>
+                    <button className={"btn btn-danger pull-right"} hidden={(customer == null) || !hasPermissions()} onClick={() => { if (hasPermissions()) setShowWarning(true) }}>Delete Customer</button>
                 </div>
             </div>
             <hr />

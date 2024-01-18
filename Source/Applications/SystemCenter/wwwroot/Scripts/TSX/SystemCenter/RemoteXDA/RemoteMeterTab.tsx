@@ -27,10 +27,11 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import Table from '@gpa-gemstone/react-table';
 import { SystemCenter, Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { RemoteXDAMeterSlice, ByMeterSlice, RemoteXDAAssetSlice } from '../Store/Store';
-import { LoadingScreen, Modal, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingScreen, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { BlankRemoteXDAMeter, RemoteMeterForm } from './RemoteMeterForm';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import { SelectRoles } from '../Store/UserSettings';
 
 interface IProps { ID: number }
 
@@ -71,6 +72,8 @@ const RemoteMeterTab = (props: IProps) => {
     const [showLoading, setShowLoading] = React.useState<(boolean)>(false);
     const [assetCount, setAssetCount] = React.useState<number>(0);
 
+    const roles = useAppSelector(SelectRoles);
+    const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
     React.useEffect(() => {
         if (remoteMeterStatus === 'unintiated' || remoteMeterStatus === 'changed')
@@ -117,6 +120,12 @@ const RemoteMeterTab = (props: IProps) => {
         });
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0)
+            return false;
+        return true;
+    }
+
     let cardBody;
     if (remoteMeterStatus === 'error') {
         cardBody = <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
@@ -147,12 +156,14 @@ const RemoteMeterTab = (props: IProps) => {
                     key: 'Edit', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
                     content: (item) => (isEditable(item) ?
                         <button
-                            className={"btn btn-edit" + (isEditable(item) ? '' : ' disabled')}
+                            className={"btn btn-edit" + (isEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
                             onClick={(e) => {
-                                e.preventDefault();
-                                if (isEditable(item)) {
-                                    setSelectedMeter(item);
-                                    setShowEdit(true);
+                                if (hasPermissions()) {
+                                    e.preventDefault();
+                                    if (isEditable(item)) {
+                                        setSelectedMeter(item);
+                                        setShowEdit(true);
+                                    }
                                 }
                             }}>
                             <span>{Pencil}</span>
@@ -162,12 +173,14 @@ const RemoteMeterTab = (props: IProps) => {
                     key: 'Delete', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
                     content: (item) => (isEditable(item) ?
                         <button
-                            className={"btn btn-delete" + (isEditable(item) ? '' : ' disabled')}
+                            className={"btn btn-delete" + (isEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
                             onClick={(e) => {
-                                e.preventDefault();
-                                if (isEditable(item)) {
-                                    setSelectedMeter(item);
-                                    setShowDelete(true);
+                                if (hasPermissions()) {
+                                    e.preventDefault();
+                                    if (isEditable(item)) {
+                                        setSelectedMeter(item);
+                                        setShowDelete(true);
+                                    }
                                 }
                             }}>
                             <span>{TrashCan}</span>
@@ -212,15 +225,20 @@ const RemoteMeterTab = (props: IProps) => {
             <div className="card-footer">
                 <div className="add-new-meter">
                     <button
-                        className={"btn btn-primary"}
-                        type="submit"
+                        className={"btn btn-primary" + (hasPermissions() ? '' : ' disabled')}
+                        type="submit" data-tooltip='AddMeters' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
                         onClick={(e) => {
-                            e.preventDefault();
-                            setShowAddMeters(true);
+                            if (hasPermissions()) {
+                                e.preventDefault();
+                                setShowAddMeters(true);
+                            }
                         }}>
                         Add Meter
                     </button>
                 </div>
+                <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddMeters"}>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                </ToolTip>
             </div>
             <Warning Title={"Delete " + (selectedMeter?.RemoteXDAName ?? "Remote Meter")} Show={showDelete} Message={"Are you sure you want to delete the Remote Meter for " + (selectedMeter?.LocalMeterName ?? "No Local Name") + "?"}
                 CallBack={(conf) => {

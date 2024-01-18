@@ -31,6 +31,7 @@ import { Provider } from 'react-redux';
 import store, { SystemCenterSettingSlice } from './Store/Store';
 import { useAppDispatch, useAppSelector } from './hooks';
 import ApplicationCategory from './ApplicationCategory/ApplicationCategory';
+import { Fetch as UserSettingsFetch, SelectRoles} from './Store/UserSettings'
 
 declare var homePath: string;
 declare var controllerViewPath: string;
@@ -90,18 +91,13 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ByMATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "ByMATLABAnalytic" */ './MATLABAnalytics/ByMATLABAnalytic'));
     const MATLABAnalytic = React.lazy(() => import(/* webpackChunkName: "MATLABAnalytic" */ './MATLABAnalytics/MATLABAnalytic'));
 
-    const [roles, setRoles] = React.useState<Array<Application.Types.SecurityRoleName>>([]);
     const [ignored, forceUpdate] = React.useReducer((x: number) => x + 1, 0); // integer state for resize renders
 
     React.useEffect(() => {
-        let handle = getRoles();
-        handle.done(rs => setRoles(rs));
+    
         window.addEventListener('resize', (evt) => forceUpdate());
 
         return function cleanup() {
-            if (handle.abort != null)
-                handle.abort();
-
             window.removeEventListener('resize', (evt) => { });
         }
 
@@ -109,6 +105,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
 
     const settings: SCTypes.Types.Setting[] = useAppSelector(SystemCenterSettingSlice.Data);
     const settingsStatus: Application.Types.Status = useAppSelector(SystemCenterSettingSlice.Status);
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         if (settingsStatus == 'unintiated' || settingsStatus == 'changed')
@@ -120,16 +117,11 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     }, [dispatch, settingsStatus]);
 
 
-    function getRoles(): JQuery.jqXHR<Array<Application.Types.SecurityRoleName>> {
-       return $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/SecurityRoles`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-    }
+
+    React.useEffect(() => {
+        dispatch(UserSettingsFetch())
+
+    }, []);
 
 
     if (Object.keys(queryString.parse(history.location.search)).length == 0)
@@ -199,9 +191,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             </ul>
 
                             <hr />
-                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading">External Links</h6>
+                            <h6 style={{ fontWeight: 'bold', marginLeft: 10 }} className="sidebar-heading" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Transmission SME") < 0}>External Links</h6>
                             <ul style={{ marginLeft: 10 }} className="nav flex-column">
-                                <li className="nav-item">
+                                <li className="nav-item" hidden={roles.indexOf('Administrator') < 0 && roles.indexOf("Transmission SME") < 0}>
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=RemoteXDAInstance")} to={controllerViewPath + "?name=RemoteXDAInstanceMain"}>Remote openXDA Instances</NavLink>
                                 </li>
                                 <li className="nav-item" hidden={roles.indexOf('Administrator') < 0}>
@@ -389,7 +381,6 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 else if (qs['?name'] == "ChannelGroups")
                                     return <ByChannelGroup Roles={roles} />
                                 else if (qs['?name'] == "ConfigurationHistory") {
-                                    if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0) return null;
                                     return <ConfigurationHistory MeterConfigurationID={parseInt(qs.MeterConfigurationID as string)} MeterKey={qs.MeterKey as string} />
                                 }
                                 else if (qs['?name'] == "DataFiles") {

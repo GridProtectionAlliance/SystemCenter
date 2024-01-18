@@ -29,8 +29,9 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { ByMeterSlice, CustomerMeterSlice } from '../Store/Store'
 import Table from '@gpa-gemstone/react-table';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { LoadingIcon, Search, ServerErrorIcon, Warning } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
+import { SelectRoles } from '../Store/UserSettings';
 declare var homePath: string;
 
 interface IProps { Customer: OpenXDA.Types.Customer }
@@ -44,6 +45,9 @@ const CustomerMeterWindow = (props: IProps) => {
     const ascending = useAppSelector(CustomerMeterSlice.Ascending);
 
     const [removeRecord, setRemoveRecord] = React.useState<LocalXDA.CustomerMeter | null>(null);
+
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
@@ -132,6 +136,12 @@ const CustomerMeterWindow = (props: IProps) => {
         })
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     if (status == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -192,7 +202,7 @@ const CustomerMeterWindow = (props: IProps) => {
                             },
                             {
                                 key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveRecord(c)}><span>{TrashCan}</span></button>
+                                content: (c) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveRecord(c) }}><span>{TrashCan}</span></button>
                             },
                             { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
 
@@ -221,10 +231,14 @@ const CustomerMeterWindow = (props: IProps) => {
         </div>
         <div className="card-footer">
             <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right" onClick={() => {
+                    <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Meters'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions())
                         setShowAdd(true);
                 }}>Add Meters</button>
             </div>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Meters"}>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                </ToolTip>
         </div>
         </div>
         <Warning Message={'This will permanently remove the Meter from this Customer and can affect PQ Digest, PQI results and LSCVS logic.'} Show={removeRecord != null} Title={'Remove ' + (removeRecord?.MeterName ?? 'Meter') + ' from ' + (props.Customer?.Name ?? 'Customer')} CallBack={(c) => { if (c) dispatch(CustomerMeterSlice.DBAction({ record: removeRecord, verb: 'DELETE' })); setRemoveRecord(null); }} />
