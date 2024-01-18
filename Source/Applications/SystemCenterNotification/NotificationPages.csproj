@@ -351,6 +351,9 @@
   <ItemGroup>
     <Folder Include="Scripts\TSX\ReportEmailShared\DatasourceUI\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Scripts\TSX\TrippedNodes\ByTrippedNode.tsx" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
@@ -392,13 +395,13 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\..\Dependencies\NuGet\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\Dependencies\NuGet\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.2.0.1\build\net46\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.props'))" />
   </Target>
-	<PropertyGroup>
-		<PreBuildEvent>
+  <PropertyGroup>
+    <PreBuildEvent>
 			CALL cd "$(ProjectDir)"
 			if $(ConfigurationName) == Debug npm run builddebug
 			if $(ConfigurationName) == Release npm run buildrelease
 		</PreBuildEvent>
-	</PropertyGroup>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
