@@ -28,6 +28,8 @@ import * as _ from 'lodash';
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { CheckBox, Input, Select } from '@gpa-gemstone/react-forms';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 
@@ -42,6 +44,7 @@ interface IValueFieldProps {
 const AdditionalFieldsValueField = (props: IValueFieldProps) => {
     const [valueListItems, setValueListItems] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
     const [valueIndex, setValueIndex] = React.useState<number>(-1);
+    const roles = useAppSelector(SelectRoles);
 
     const valueListValue: SystemCenter.Types.AdditionalFieldValue = React.useMemo(() => {
         if (valueIndex >= 0) return props.Values[valueIndex];
@@ -92,20 +95,26 @@ const AdditionalFieldsValueField = (props: IValueFieldProps) => {
             return true;
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     if (valueListValue == null)
         return null;
     if (props.Field.Type == 'string' || props.Field.IsKey)
         return <Input<SystemCenter.Types.AdditionalFieldValue> Record={valueListValue} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
-            Type={'text'} Disabled={props.Field.IsKey} Setter={setter}
-            Help={(props.Field.IsKey && props.IncludeLabel) ? `Key Value for the ${props.Field.ExternalTable} ${props.Field?.ExternalDB == null ? '' : '(' + props.Field.ExternalDB + ')'} External Database. Visit the Additional Fields tab to select a different Value.` : undefined} />
+            Type={'text'} Disabled={props.Field.IsKey || !hasPermissions()} Setter={setter}
+            Help={(props.Field.IsKey && props.IncludeLabel) ? `Key Value for the ${props.Field.ExternalDB} External Database. Visit the Additional Fields tab to select a different Value.` : undefined} />
     if (props.Field.Type == 'number' || props.Field.Type == 'integer')
         return <Input<SystemCenter.Types.AdditionalFieldValue> Record={valueListValue} Field={'Value'} Valid={Valid} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
-            Type={'number'} Disabled={false} Setter={setter} Feedback={props.Field.FieldName + ' requires an integer value.'} />
+            Type={'number'} Disabled={!hasPermissions()} Setter={setter} Feedback={props.Field.FieldName + ' requires an integer value.'} />
     if (props.Field.Type == 'boolean')
         return <CheckBox<SystemCenter.Types.AdditionalFieldValue> Record={valueListValue} Field={'Value'} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
-            Disabled={false} Setter={setter} />
+            Disabled={!hasPermissions()} Setter={setter} />
     return <Select<SystemCenter.Types.AdditionalFieldValue> EmptyOption={true} Record={valueListValue} Field={'Value'} Label={(props.IncludeLabel ?? false) ? props.Field.FieldName : ''}
-        Disabled={false} Setter={setter} Options={valueListItems.map(x => ({ Value: x.Value, Label: x.AltValue ?? x.Value }))} />
+        Disabled={!hasPermissions()} Setter={setter} Options={valueListItems.map(x => ({ Value: x.Value, Label: x.AltValue ?? x.Value }))} />
 }
 
 

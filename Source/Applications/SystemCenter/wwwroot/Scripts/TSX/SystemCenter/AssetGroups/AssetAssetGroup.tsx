@@ -28,10 +28,11 @@ import { useHistory } from 'react-router-dom';
 import Table from '@gpa-gemstone/react-table';
 import { AssetGroupSlice, AssetTypeSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import { Warning } from '@gpa-gemstone/react-interactive';
+import { ToolTip, Warning } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import AssetSelect from '../Asset/AssetSelect';
+import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 
@@ -47,6 +48,9 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
     const assetType = useAppSelector(AssetTypeSlice.Data);
     const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
     const dispatch = useAppDispatch();
+
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         dispatch(AssetGroupSlice.SetChanged());
@@ -109,6 +113,12 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
         handle.done(d => setCounter(x => x + 1))
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return true;
+        return false;
+    }
+
     return (
         <>
         <div className="card" style={{ marginBottom: 10 }}>
@@ -129,7 +139,7 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                             { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
                             {
                                 key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (c) => <button className="btn btn-sm" onClick={(e) => setRemoveAsset(c.ID)}><span>{TrashCan}</span></button>
+                                content: (c) => <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (!hasPermissions()) setRemoveAsset(c.ID) }}><span>{TrashCan}</span></button>
                             },
                             { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
                         ]}
@@ -163,8 +173,12 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary" onClick={() => setShowAdd(true)}>Add Transmission Assets</button>
+                        <button className={"btn btn-primary" + (hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset'
+                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={() => { if (!hasPermissions()) setShowAdd(true) }}>Add Transmission Assets</button>
                 </div>
+                    <ToolTip Show={hover == 'Update' && hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddAsset"}>
+                        <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                    </ToolTip>
             </div>
             </div>
             <AssetSelect Type='multiple' StorageID='AssetAssetGroup' Title={'Add Transmission Assets to Asset Group'} ShowModal={showAdd} SelectedAssets={assetList}

@@ -33,6 +33,7 @@ import {
     Address, Facility
 } from '../Store/PQISlice';
 import { cache } from 'webpack';
+import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 
@@ -57,6 +58,8 @@ export default function CustomerForm(props: IProps) {
     const pqiAddresses = useAppSelector(SelectAddresses);
 
     const [pqiSetup, setPQISetup] = React.useState<IPQISetup>({ Company: -1, Address: -1 });
+
+    const roles = useAppSelector(SelectRoles);
 
     const pqiAvailableAddress = React.useMemo(() => {
         if (pqiSetup.Company == -1)
@@ -154,12 +157,18 @@ export default function CustomerForm(props: IProps) {
         return true;
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     const hasPQI = (pqiFacilityStatus == 'idle' && pqiAddressStatus == 'idle' && pqiCompanyStatus == 'idle');
     return (
         <div className="col">
-            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Label='Key' Feedback={'A unique Key of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
-            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Name'} Label='Name' Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
-            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Phone'} Label='Phone' Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
+            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'CustomerKey'} Label='Key' Feedback={'A unique Key of less than 25 characters is required.'} Valid={valid} Setter={(record) => props.stateSetter(record)} Disabled={!hasPermissions()} />
+            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Name'} Label='Name' Feedback={'Name must be less than 100 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} Disabled={!hasPermissions()} />
+            <Input<OpenXDA.Types.Customer> Record={props.Customer} Field={'Phone'} Label='Phone' Feedback={'Phone must be less than 20 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} Disabled={!hasPermissions()} />
             {hasPQI ?
                 <>
                     <Select<IPQISetup>
@@ -168,6 +177,7 @@ export default function CustomerForm(props: IProps) {
                         Field={'Company'}
                         Setter={(record) => setPQISetup(record)}
                         Options={[...pqiCompanies.map((f) => ({ Label: f.Name, Value: pathToID(f.Path) })), { Label: 'None', Value: '-1' }]}
+                        Disabled={!hasPermissions()}
                     />
                     <Select<IPQISetup>
                         Record={pqiSetup}
@@ -177,21 +187,22 @@ export default function CustomerForm(props: IProps) {
                         Options={[...pqiAvailableAddress.map((f) => ({
                             Label: `${f.AddressLine1 ?? ''} ${f.AdressLine2 ?? ''} ${f.City ?? ''}, ${f.Country ?? ''}`, Value: pathToID(f.Path)
                         })),
-                            { Label: 'None', Value: '-1' }]} />
+                            { Label: 'None', Value: '-1' }]} Disabled={!hasPermissions()}/>
                     <Select<OpenXDA.Types.Customer>
                         Record={props.Customer}
                         Label={'PQI Facility'}
                         Field={'PQIFacilityID'}
                         Setter={(record) => props.stateSetter(record)}
                         Options={[...pqiAvailableFacilities.map((f) => ({ Label: f.Name, Value: pathToID(f.Path) })), { Label: 'None', Value: '-1' }]}
+                        Disabled={!hasPermissions()}
                     />
                 </> :
                 <div className="alert alert-warning" role="alert">
                     System is unable to connect to PQI.
                 </div>
                 }
-            <TextArea<OpenXDA.Types.Customer> Rows={3} Record={props.Customer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} />
-            <CheckBox Record={props.Customer} Field={'LSCVS'} Setter={(record) => props.stateSetter(record)} Label={'LSCVS Customer'} />
+            <TextArea<OpenXDA.Types.Customer> Rows={3} Record={props.Customer} Field={'Description'} Feedback={'Description must be less than 200 characters.'} Valid={valid} Setter={(record) => props.stateSetter(record)} Disabled={!hasPermissions()} />
+            <CheckBox Record={props.Customer} Field={'LSCVS'} Setter={(record) => props.stateSetter(record)} Label={'LSCVS Customer'} Disabled={!hasPermissions()} />
         </div>
     )
 

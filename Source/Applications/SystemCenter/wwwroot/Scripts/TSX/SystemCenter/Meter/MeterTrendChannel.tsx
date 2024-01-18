@@ -34,6 +34,7 @@ import { AssetAttributes } from '../AssetAttribute/Asset';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ConfigTable } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table'
+import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 
@@ -64,7 +65,8 @@ const MeterTrendChannelWindow = (props: IProps) => {
     const [removeRecord, setRemoveRecord] = React.useState<OpenXDA.TrendChannel | null>(null);
 
     const [errors, setErrors] = React.useState<string[]>([]);
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' |'Add')>('None');
+    const roles = useAppSelector(SelectRoles);
 
 
     React.useEffect(() => {
@@ -201,6 +203,12 @@ const MeterTrendChannelWindow = (props: IProps) => {
         return true;
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+    console.log(assetStatus);
     if (assetStatus == 'error' || phaseStatus == 'error' || mcStatus == 'error' || status == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -276,7 +284,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => <Input<OpenXDA.TrendChannel> Record={item} Field={'Name'}
                                 Label={''} Setter={(r) => createChange(r, 'Name')}
-                                Valid={(f) => isValid(f, item)} />}
+                                Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}
                         >
                             Name </ReactTable.Column>
 
@@ -287,7 +295,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Input<OpenXDA.TrendChannel> Record={item}
                                     Field={'Description'} Label={''}
                                     Setter={(r) => createChange(r, 'Description')}
-                                    Valid={(f) => isValid(f, item)} />}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
                             </ReactTable.Column>
                         </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={true}>
@@ -299,7 +307,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Select Record={item} Field={'MeasurementTypeID'}
                                     Label={''}
                                     Options={measurementTypes.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
-                                    Setter={(r) => createChange(r, 'MeasurementTypeID')} />}>
+                                    Setter={(r) => createChange(r, 'MeasurementTypeID')} Disabled={!hasPermissions()}/>}>
                                 Type
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
@@ -311,7 +319,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 RowStyle={{ width: '10%' }}
                                 Content={({ item }) => <Select Record={item} Field={'PhaseID'}
                                     Label={''} Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
-                                    Setter={(r) => createChange(r, 'PhaseID')} />}>
+                                    Setter={(r) => createChange(r, 'PhaseID')} Disabled={!hasPermissions()}/>}>
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
                         <ConfigTable.Configurable Key='HarmonicGroup' Label='Harmonic' Default={false}>
@@ -323,7 +331,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                     Record={item} Field={'HarmonicGroup'} Type={'number'}
                                     Label={''}
                                     Setter={(r) => createChange(r, 'HarmonicGroup')}
-                                    Valid={(f) => isValid(f, item)} />}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
                                 Harmonic
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
@@ -336,7 +344,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Input<OpenXDA.TrendChannel>
                                     Record={item} Field={'Adder'} Type={'number'}
                                     Label={''} Setter={(r) => createChange(r, 'Adder')}
-                                    Valid={(f) => isValid(f, item)} />}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
                         <ConfigTable.Configurable Key='Multiplier' Label='Multiplier' Default={true}>
@@ -348,7 +356,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Input<OpenXDA.TrendChannel>
                                     Record={item} Field={'Multiplier'} Type={'number'}
                                     Label={''} Setter={(r) => createChange(r, 'Multiplier')}
-                                    Valid={(f) => isValid(f, item)} />}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
                         <ConfigTable.Configurable Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
@@ -359,7 +367,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Input<OpenXDA.TrendChannel>
                                     Record={item} Field={'SamplesPerHour'} Type={'number'}
                                     Label={''} Setter={(r) => createChange(r, 'SamplesPerHour')}
-                            Valid={(f) => isValid(f, item)} />}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
                                 Sampling Rate (sph)
                             </ReactTable.Column>
                         </ConfigTable.Configurable>
@@ -371,7 +379,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Input<OpenXDA.TrendChannel> Record={item}
                                     Field={'PerUnitValue'} Type={'number'} Label={''}
                                     Setter={(r) => createChange(r, 'PerUnitValue')}
-                                    Valid={(f) => isValid(f, item)} />}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
                                 Per Unit
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
@@ -383,7 +391,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Select Record={item}
                                     Field={'AssetID'} Label={''}
                                     Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))}
-                                    Setter={(r) => createChange(r, 'AssetID')} />}>
+                                    Setter={(r) => createChange(r, 'AssetID')} Disabled={!hasPermissions()}/>}>
 
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
@@ -397,7 +405,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                     Field={'ConnectionPriority'} Label={''}
                                     Options={[{ Value: '0', Label: 'Primary' }, { Value: '1', Label: 'Secondary' }, { Value: '2', Label: 'Tertiary' }]}
                                     Setter={(r) => createChange(r, 'ConnectionPriority')}
-                                    Disabled={assets.find(d => d.ID == item.AssetID)?.AssetType != 'Transformer'} />}>
+                                    Disabled={(assets.find(d => d.ID == item.AssetID)?.AssetType != 'Transformer') || !hasPermissions()} />}>
                                 Conn Type
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
@@ -406,8 +414,8 @@ const MeterTrendChannelWindow = (props: IProps) => {
                             AllowSort={false}
                             HeaderStyle={{ width: '62px' }}
                             RowStyle={{ width: '62px' }}
-                            Content={({ item }) => <button className="btn btn-sm"
-                                onClick={(e) => setRemoveRecord(item)}><span>{TrashCan}</span></button>}>
+                            Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}><span>{TrashCan}</span></button>}>
                             
                         </ReactTable.Column>
                     </ConfigTable.Table>                    
@@ -415,52 +423,59 @@ const MeterTrendChannelWindow = (props: IProps) => {
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right" onClick={() => {
-                        let i = 1;
-                        while (data.findIndex(item => item.Name.toLowerCase() == `channel ${i}`) > -1)
-                            i = i + 1;
+                    <button className={"btn btn-primary pull-right" + (!hasPermissions() || assets.length == 0 ? ' disabled' : '')} data-tooltip='AddChannel' onMouseEnter={() => setHover('Add')} onMouseLeave={() => setHover('None')} onClick={() => {
+                        if (hasPermissions() && assets.length > 0) {
+                            let i = 1;
+                            while (data.findIndex(item => item.Name.toLowerCase() == `channel ${i}`) > -1)
+                                i = i + 1;
 
-                        let newChannel: OpenXDA.TrendChannel = {
-                            Series: [],
-                            ID: 0,
-                            Meter: props.Meter.AssetKey,
-                            ConnectionPriority: 0,
-                            Asset: '',
-                            MeasurementType: 'Voltage',
-                            MeasurementCharacteristic: 'Instantaneous',
-                            Phase: 'AN',
-                            Name: 'Channel ' + i,
-                            Adder: 0,
-                            Multiplier: 1,
-                            SamplesPerHour: 0,
-                            PerUnitValue: null,
-                            HarmonicGroup: 0,
-                            Description: '',
-                            Enabled: true,
-                            SourceIndices: '',
-                            MeterID: props.Meter.ID,
-                            AssetID: assets.length > 0 ? assets[0].ID : -1,
-                            MeasurementTypeID: measurementTypes.length > 0 ? measurementTypes[0].ID : -1,
-                            MeasurementCharacteristicID: measurementCharacteristics.length > 0 ? measurementCharacteristics[0].ID : -1,
-                            PhaseID: phases.length > 0 ? phases[0].ID : -1,
-                            Trend: true
+                            let newChannel: OpenXDA.TrendChannel = {
+                                Series: [],
+                                ID: 0,
+                                Meter: props.Meter.AssetKey,
+                                ConnectionPriority: 0,
+                                Asset: '',
+                                MeasurementType: 'Voltage',
+                                MeasurementCharacteristic: 'Instantaneous',
+                                Phase: 'AN',
+                                Name: 'Channel ' + i,
+                                Adder: 0,
+                                Multiplier: 1,
+                                SamplesPerHour: 0,
+                                PerUnitValue: null,
+                                HarmonicGroup: 0,
+                                Description: '',
+                                Enabled: true,
+                                SourceIndices: '',
+                                MeterID: props.Meter.ID,
+                                AssetID: assets.length > 0 ? assets[0].ID : -1,
+                                MeasurementTypeID: measurementTypes.length > 0 ? measurementTypes[0].ID : -1,
+                                MeasurementCharacteristicID: measurementCharacteristics.length > 0 ? measurementCharacteristics[0].ID : -1,
+                                PhaseID: phases.length > 0 ? phases[0].ID : -1,
+                                Trend: true
+                            }
+
+                            dispatch(TrendChannelSlice.DBAction({ verb: 'POST', record: newChannel }));
                         }
-
-                        dispatch(TrendChannelSlice.DBAction({ verb: 'POST', record: newChannel }));
                     }}>Add Channel</button>
                 </div>
+                <ToolTip Show={hover == 'Add' && (!hasPermissions() || assets.length == 0)} Position={'top'} Theme={'dark'} Target={"AddChannel"}>
+                    {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
+                    {assets.length == 0 ? <p>Must connect assets to meter.</p> : null}
+                </ToolTip>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (errors.length > 0 || recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (errors.length === 0 && recordChanges.size > 0) applyUpdates() }}
-                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'save'}>Save Changes</button>
-                    <ToolTip Show={hover == 'Update' && (errors.length > 0 || recordChanges.size == 0)} Position={'top'} Theme={'dark'} Target={"save"}>
-                        {recordChanges.size == 0 ? <p> No changes have been made. </p> : null}
+                    <button className={"btn btn-primary" + (errors.length > 0 || recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (errors.length === 0 && recordChanges.size > 0 && hasPermissions()) applyUpdates() }}
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'Save'}>Save Changes</button>
+                    <ToolTip Show={hover == 'Update' && (errors.length > 0 || recordChanges.size == 0)} Position={'top'} Theme={'dark'} Target={"Save"}>
+                        {recordChanges.size == 0 && hasPermissions() ? <p> No changes have been made. </p> : null}
+                        {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                         {errors.length > 0 ? errors.map((e, i) => <> {CrossMark} <p key={i}> {e} </p> </>) : null}
                     </ToolTip>
                 </div>
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (recordChanges.size > 0) setRecordChanges(new Map<number, Map<keyof OpenXDA.TrendChannel, number | string>>()); }}
-                        onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"clr"}>Clear Changes</button>
-                    <ToolTip Show={hover == 'Reset' && (recordChanges.size > 0)} Position={'top'} Theme={'dark'} Target={"clr"}>
+                    <button className={"btn btn-primary" + (recordChanges.size == 0 ? ' disabled' : '')} onClick={() => { if (recordChanges.size > 0 && hasPermissions()) setRecordChanges(new Map<number, Map<keyof OpenXDA.TrendChannel, number | string>>()); }}
+                        onMouseEnter={() => setHover('Reset')} onMouseLeave={() => setHover('None')} data-tooltip={"Clear"}>Clear Changes</button>
+                    <ToolTip Show={hover == 'Reset' && (recordChanges.size > 0)} Position={'top'} Theme={'dark'} Target={"Clear"}>
                         <p> There are {recordChanges.size} channels with changes that will be lost. </p>
                     </ToolTip>
                 </div>

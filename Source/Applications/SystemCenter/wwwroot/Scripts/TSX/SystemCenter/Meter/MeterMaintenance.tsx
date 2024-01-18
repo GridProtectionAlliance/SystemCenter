@@ -26,10 +26,12 @@ import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import Table from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
-import { Warning, Modal, LoadingScreen, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Warning, Modal, LoadingScreen, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols';
 import { DatePicker, Select } from '@gpa-gemstone/react-forms';
 import moment from 'moment';
+import { SelectRoles } from '../Store/UserSettings';
+import { useAppSelector } from '../hooks';
 
 declare var homePath: string;
 
@@ -55,6 +57,9 @@ const MeterMaintenanceWindow = (props: IProps) => {
     const [showDeleteWarning, setShowDeleteWarning] = React.useState<boolean>(false);
     const [activeWindow, setActiveWindow] = React.useState<MaintenanceWindow>(null);
     const [reset, setReset] = React.useState<number>(0);
+
+    const roles = useAppSelector(SelectRoles);
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'Add')>('None');
 
     const defaultFormat = 'YYYY-MM-DD[T]hh:mm:ss';
 
@@ -112,6 +117,12 @@ const MeterMaintenanceWindow = (props: IProps) => {
             activeWindow.EndTime !== null &&
             moment(activeWindow.StartTime, defaultFormat).valueOf() > moment(activeWindow.EndTime, defaultFormat).valueOf()
         );
+    }
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
     }
 
     let cardBody;
@@ -191,7 +202,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className="btn btn-primary pull-left" style={{ marginRight: 5 }} onClick={(e) => {
+                            <button className={"btn btn-primary pull-left" + (!hasPermissions() ? ' disabled' : '')} style={{ marginRight: 5 }} data-tooltip='NewWindow' onMouseEnter={() => setHover('Add')} onMouseLeave={() => setHover('None')} onClick={(e) => {
                                 e.preventDefault();
                                 setActiveWindow({
                                     ID: -1,
@@ -199,9 +210,12 @@ const MeterMaintenanceWindow = (props: IProps) => {
                                     StartTime: moment().format('YYYY-MM-DD'),
                                     EndTime: null
                                 });
-                                setShowEditNew(true);
+                                if (hasPermissions()) setShowEditNew(true);
                             }}>Add New Window</button>
                         </div>
+                        <ToolTip Show={hover == 'Add' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"NewWindow"}>
+                            <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                        </ToolTip>
                     </div>
                 </div>
                 {activeWindow === null ? null : <>

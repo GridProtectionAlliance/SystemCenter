@@ -33,6 +33,7 @@ import AssetGroupAssetGroupWindow from './AssetGroupAssetGroup';
 import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { AssetGroupSlice } from '../Store/Store';
 import { useAppSelector, useAppDispatch } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 
 
 declare var homePath: string;
@@ -49,6 +50,8 @@ function AssetGroup(props: IProps) {
     const gStatus = useAppSelector(AssetGroupSlice.Status) as Application.Types.Status;
     const allAssetGroup = useAppSelector(AssetGroupSlice.Data);
 
+    const roles = useAppSelector(SelectRoles);
+    
     function getTab(): Tab {
         if (props.Tab != undefined) return props.Tab;
         else if (sessionStorage.hasOwnProperty('AssetGroup.Tab'))
@@ -81,6 +84,12 @@ function AssetGroup(props: IProps) {
     if (gStatus == 'error')
         return null;
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return true;
+        return false;
+    }
+
     if (group == null) return null;
 
     const Tabs = [
@@ -96,7 +105,7 @@ function AssetGroup(props: IProps) {
                     <h2>{group.Name}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" onClick={() => setShowDelete(true)}>Delete Asset Group</button>
+                    <button className={"btn btn-danger pull-right"} hidden={hasPermissions()} onClick={() => { if (!hasPermissions()) setShowDelete(true); }}>Delete Asset Group</button>
                 </div>
             </div>
             <hr />

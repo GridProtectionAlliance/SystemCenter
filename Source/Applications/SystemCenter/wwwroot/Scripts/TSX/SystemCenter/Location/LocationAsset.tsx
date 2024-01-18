@@ -36,11 +36,12 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { FetchAsset, SelectAssets, SelectAssetStatus } from '../Store/AssetSlice';
 import { AssetTypeSlice } from '../Store/Store';
 import { getAssetWithAdditionalFields, editExistingAsset } from '../../../TS/Services/Asset';
-import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, Modal, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
 import StationBatteryAttributes from '../AssetAttribute/StationBattery';
+import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 
@@ -69,6 +70,9 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
 
     const assetTypes = useAppSelector(AssetTypeSlice.Data);
     const allAssets = useAppSelector(SelectAssets);
+
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         if (atStatus == 'unintiated' || atStatus == 'changed')
@@ -227,6 +231,12 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
         
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     if (atStatus == 'error' || aStatus == 'error' || lStatus == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -283,18 +293,22 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                             { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
                             {
                                 key: 'EditDelete', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (asset, key, style) => <>
-                                    <button className="btn btn-sm" onClick={(e) => {
-                                        e.preventDefault();
-                                        let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID']);
-                                        setLStatus('loading')
-                                        getAssetWithAdditionalFields(asset.ID, assetType.Name).then(asset => { setEditasset(asset); setLStatus('idle'); }, () => setLStatus('error'));
-                                        setNewEdit('Edit');
-                                        setShowModal(true);
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            e.preventDefault();
+                                            let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID']);
+                                            setLStatus('loading')
+                                            getAssetWithAdditionalFields(asset.ID, assetType.Name).then(asset => { setEditasset(asset); setLStatus('idle'); }, () => setLStatus('error'));
+                                            setNewEdit('Edit');
+                                            setShowModal(true)
+                                        }
                                     }}><span>{Pencil}</span></button>
-                                    <button className="btn btn-sm" onClick={(e) => {
-                                        e.preventDefault();
-                                        deleteAsset(asset);
-                                    }}><span>{TrashCan}</span></button>
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            e.preventDefault();
+                                            deleteAsset(asset);
+                                         }
+                                     }}><span>{TrashCan}</span></button>
                                     </>
                             },
 
@@ -327,8 +341,12 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right"  onClick={addNewButton}>Add Asset</button>
+                    <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='AddAsset' onMouseEnter={() => setHover('Update')}
+                    onMouseLeave={() => setHover('None')} onClick={() => { if (hasPermissions()) addNewButton() }}>Add Asset</button>
                 </div>
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddAsset"}>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                </ToolTip>
             </div>
 
 

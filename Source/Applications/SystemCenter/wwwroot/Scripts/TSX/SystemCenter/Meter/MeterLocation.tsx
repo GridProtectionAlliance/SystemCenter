@@ -30,6 +30,7 @@ import { ToolTip } from '@gpa-gemstone/react-interactive';
 import MeterLocationProperties from './PropertyUI/MeterLocationProperties';
 import { LocationSlice, ByMeterSlice } from '../Store/Store';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 
@@ -58,6 +59,7 @@ const LocationWindow = (props: IProps) => {
     const [validKey, setValidKey] = React.useState<boolean>(true);
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         if (locationStatus === 'unintiated' || locationStatus === 'changed')
@@ -150,6 +152,12 @@ const LocationWindow = (props: IProps) => {
         }
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     return (
         <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
             <div className="card-header">
@@ -171,10 +179,11 @@ const LocationWindow = (props: IProps) => {
              </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (!hasChanged || !isValidLocation ? ' disabled' : '')} onClick={() => { postLocation() }} disabled={!(isValidLocation && hasChanged) }
+                    <button className={"btn btn-primary" + (!(isValidLocation && hasChanged) ? ' disabled' : '')} onClick={postLocation}
                         onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} data-tooltip={'NewLocation'}>{location.ID > 0 ? "Update" : "Add New"}</button>
                     <ToolTip Show={hover == 'Update' && (!hasChanged || !isValidLocation)} Position={'top'} Theme={'dark'} Target={"NewLocation"}>
-                        {!hasChanged || location.ID < 1 ? <p> No Changes have been made. </p> : null}
+                        {(!hasChanged || location.ID < 1) && hasPermissions() ? <p> No changes have been made. </p> : null}
+                        {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                         {!validKey ? <p> {CrossMark} Key must be unique.  </p> : null}
                         {!valid('LocationKey') && validKey ? <p> {CrossMark} A Key of less than 50 characters is required. </p> : null}
                         {!valid('Name') ? <p> {CrossMark} A Name of less than 200 characters is required. </p> : null}

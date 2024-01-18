@@ -25,6 +25,8 @@ import * as React from 'react';
 import { OpenXDA } from '@gpa-gemstone/application-typings'
 import { Note } from '@gpa-gemstone/common-pages'
 import { AssetNoteSlice, CompanyNoteSlice, CustomerNoteSlice, LocationNoteSlice, MeterNoteSlice, UserNoteSlice } from '../Store/Store';
+import { SelectRoles } from '../Store/UserSettings';
+import { useAppSelector } from '../hooks';
 
 declare var homePath: string;
 
@@ -35,6 +37,7 @@ const NoteWindow = (props: IProps) => {
     const [noteType, setNoteType] = React.useState<OpenXDA.Types.NoteType>({ ID: -1, Name: 'Meter', ReferenceTableName: 'Meter' });
     const [noteTag, setNoteTag] = React.useState<OpenXDA.Types.NoteTag>({ ID: -1, Name: 'Configuration' });
     const [noteApp, setNoteApp] = React.useState<OpenXDA.Types.NoteApplication>({ ID: -1, Name: 'SystemCenter' });
+    const roles = useAppSelector(SelectRoles);
 
     
     React.useEffect(() => {
@@ -108,6 +111,12 @@ const NoteWindow = (props: IProps) => {
         return handle;
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     let slice;
     if (props.Type == 'Asset')
         slice = AssetNoteSlice;
@@ -123,7 +132,8 @@ const NoteWindow = (props: IProps) => {
         slice = UserNoteSlice;
 
     return (
-        <Note MaxHeight={window.innerHeight - 215} ReferenceTableID={props.ID} NoteApplications={[noteApp]} NoteTags={[noteTag]} NoteTypes={[noteType]} NoteSlice={slice}
+        <Note MaxHeight={window.innerHeight - 215} ReferenceTableID={props.ID} NoteApplications={[noteApp]} NoteTags={[noteTag]} NoteTypes={[noteType]} NoteSlice={slice} AllowAdd={hasPermissions()}
+            AllowEdit={hasPermissions()} AllowRemove={hasPermissions()}
         />
     );
 }

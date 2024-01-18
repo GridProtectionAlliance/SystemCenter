@@ -35,6 +35,8 @@ import { useAppSelector, useAppDispatch } from '../hooks';
 import { LocationDrawingSlice } from '../Store/Store';
 import { Input, Select } from '@gpa-gemstone/react-forms';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
+import { SelectRoles } from '../Store/UserSettings';
+import { ToolTip } from '@gpa-gemstone/react-interactive';
 
 
 const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => {
@@ -48,6 +50,8 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
     const emptyRecord: SystemCenter.Types.LocationDrawing = { ID: 0, LocationID: 0, Name: '', Link: '', Description: '', Number: '', Category: '' };
     const [record, setRecord] = React.useState<SystemCenter.Types.LocationDrawing>(emptyRecord);
     const [category, setCategory] = React.useState<Array<SystemCenter.Types.ValueListItem>>([]);
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || parentID !== props.Location.ID)
@@ -79,6 +83,12 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
 
         });
         return h;
+    }
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
     }
 
     function valid(field: keyof (SystemCenter.Types.LocationDrawing)): boolean {
@@ -116,8 +126,8 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                                 rowStyle: { width: '10%' },
                                 content: (item, key, style) =>
                                     <span>
-                                        <button title='Edit Link' className="btn" data-toggle="modal" data-target="#exampleModal" onClick={(e) => { setRecord(item) }}>{Pencil}</button>
-                                        <button title='Delete Link' className="btn" onClick={(e) => { dispatch(LocationDrawingSlice.DBAction({ verb: 'DELETE', record: item })); }}>{TrashCan}</button>
+                                        <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" onClick={(e) => {setRecord(item) }}>{Pencil}</button>
+                                        <button title='Delete Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) dispatch(LocationDrawingSlice.DBAction({ verb: 'DELETE', record: item })); }}>{TrashCan}</button>
                                     </span>
                             }
 
@@ -138,9 +148,12 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 </div>
             </div>
             <div className="card-footer">
-                <button className="btn btn-primary pull-right" data-toggle="modal" data-target="#exampleModal" onClick={() => setRecord({ ...emptyRecord, LocationID: props.Location.ID })}>Add Drawing</button>
+                <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" data-tooltip='AddDrawing' onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}
+                    onClick={() => { setRecord({ ...emptyRecord, LocationID: props.Location.ID }) }}>Add Drawing</button>
             </div>
-
+            <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"AddDrawing"}>
+                <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+            </ToolTip>
             <div className="modal" id="exampleModal" role="dialog">
                 <div className="modal-dialog" role="document">
                     <div className="modal-content">
@@ -157,14 +170,14 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                             <Select<SystemCenter.Types.LocationDrawing> Record={record} Field={'Category'} Options={category.map(item => { return { Value: item.Value, Label: item.AltValue ?? item.Value } })} Label={'Category'} Setter={(r) => setRecord(r)} />
                             <Input<SystemCenter.Types.LocationDrawing> Record={record} Field={'Number'} Feedback={'Number must be less than 50 characters.'} Valid={valid} AllowNull={true} Setter={(r) => setRecord(r)} />
 
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => dispatch(LocationDrawingSlice.DBAction({ verb: 'PATCH', record }))}>Save changes</button>
-                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
+                            <div className="modal-footer">
+                                <button type="button" className="btn btn-primary" data-dismiss="modal" onClick={() => dispatch(LocationDrawingSlice.DBAction({ verb: 'PATCH', record }))}>Save changes</button>
+                                <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
         </div>
 

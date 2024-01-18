@@ -1,5 +1,5 @@
 ﻿//******************************************************************************************************
-//  MeterInfo.tsx - Gbtc
+//  AssetInfo.tsx - Gbtc
 //
 //  Copyright © 2019, Grid Protection Alliance.  All Rights Reserved.
 //
@@ -38,6 +38,8 @@ import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import TransformerAttributes from '../AssetAttribute/Transformer';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import DERAttributes from '../AssetAttribute/DER';
+import { SelectRoles } from '../Store/UserSettings';
+import { useAppSelector } from '../hooks';
 import AdditionalFieldsProperties from '../CommonComponents/AdditionalFieldsProperties';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
@@ -70,6 +72,7 @@ function AssetInfoWindow(props: IProps) {
 
     const [state, setState] = React.useState<'error' | 'idle' | 'loading'>('idle');
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         setState('loading')
@@ -134,6 +137,12 @@ function AssetInfoWindow(props: IProps) {
             return <StationAuxAttributes NewEdit={'New'} Asset={editAsset as OpenXDA.Types.StationAux} UpdateState={setEditAsset} />;
         else if (asset.AssetType == 'StationBattery')
             return <StationBatteryAttributes NewEdit={'New'} Asset={editAsset as OpenXDA.Types.StationBattery} UpdateState={setEditAsset} />;
+    }
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
     }
 
     function changedFields(): string[] {
@@ -388,7 +397,8 @@ function AssetInfoWindow(props: IProps) {
                 <button className={"btn btn-primary" + (errors.length == 0 && addlFieldErrorAsset.length === 0 && addlFieldErrorType.length === 0 && hasChanged ? '' : ' disabled')} type="submit" onClick={() => { if (errors.length == 0 && addlFieldErrorAsset.length === 0 && addlFieldErrorType.length === 0 && hasChanged) return SaveChanges(); }} data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
             </div>
             <ToolTip Show={(errors.length > 0 || addlFieldErrorAsset.length > 0 || addlFieldErrorType.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                {!hasChanged ? <p> No changes made.</p> : null}
+                {!hasChanged && hasPermissions()? <p> No changes made.</p> : null}
+                {!hasPermissions() ? <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p> : null}
                 {errors.map((t, i) => <p key={i}>
                     {CrossMark} {t}
                 </p>)}

@@ -25,11 +25,12 @@ import * as React from 'react';
 import _ from 'lodash';
 import Table from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
-import { LoadingIcon, Modal, Search, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { LoadingIcon, Modal, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { TrashCan } from '@gpa-gemstone/gpa-symbols'
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { AssetConnectionTypeSlice } from '../Store/Store';
+import { SelectRoles } from '../Store/UserSettings';
 
 interface AssetConnection {
     AssetRelationShipTypeID: number,
@@ -57,6 +58,9 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
     const [status, setStatus] = React.useState<'idle' | 'loading' | 'error'>('idle');
     const actStatus = useAppSelector(AssetConnectionTypeSlice.SearchStatus);
     const [trigger, setTrigger] = React.useState<number>(0);
+
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
+    const roles = useAppSelector(SelectRoles);
 
     React.useEffect(() => {
         let handle = getAssetConnections();
@@ -176,6 +180,12 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
         history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + item.row.AssetID})
     }
 
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
+
     if (status == 'error' || actStatus == 'error')
         return <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
@@ -230,10 +240,10 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                             { key: 'Name', field: 'Name', label: 'Relationship', headerStyle: { width: '47%' }, rowStyle: { width: '47%' } },
                             {
                                 key: 'DeleteButton', label: '', headerStyle: { width: '6%' }, rowStyle: { width: '6%' }, content: (asset, key, style) => <>
-                                    <button className="btn btn-sm" onClick={(e) => {
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        deleteAssetConnection(asset);
+                                        if (hasPermissions()) deleteAssetConnection(asset);
                                     }}><span>{TrashCan}</span></button>
                                 </>
                             },
@@ -267,9 +277,12 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className="btn btn-primary pull-right" onClick={(evt) => { evt.preventDefault(); setShowModal(true); }}>Add Connection</button>
+                    <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} data-tooltip='Connect'
+                        onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')} onClick={(evt) => { evt.preventDefault(); if (hasPermissions()) setShowModal(true); }}>Add Connection</button>
                 </div>
-
+                <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"Connect"}>
+                    <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                </ToolTip>
             </div>
 
             <Modal Show={showModal} Title={'Add Connection to ' + (props.Name ?? 'Asset')} ShowCancel={false} ShowX={true}

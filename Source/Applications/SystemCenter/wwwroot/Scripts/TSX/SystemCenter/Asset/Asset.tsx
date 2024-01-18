@@ -38,6 +38,8 @@ import { getAssetTypes } from '../../../TS/Services/Asset';
 import LineSegmentWindow from '../AssetAttribute/LineSegmentWindow';
 import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import SourceImpedanceWindow from '../AssetAttribute/SourceImpedanceWindow';
+import { useAppSelector } from '../hooks';
+import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
 declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels'
@@ -52,6 +54,7 @@ function Asset(props: IProps) {
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loadDelete, setLoadDelete] = React.useState<boolean>(false);
     const [forceReload, setForceReload] = React.useState<boolean>(false);
+    const roles = useAppSelector(SelectRoles);
 
     function getTab(): Tab {
         if (props.Tab != undefined) return props.Tab;
@@ -143,6 +146,12 @@ function Asset(props: IProps) {
     }
     //if (assetType == 'Breaker' || assetType == 'CapacitorBank' || assetType == 'Line' || assetType == 'Transformer' || assetType == 'Bus')
     //    Tabs.push({ Id: "extDB", Label: "External DB" });
+
+    function hasPermissions(): boolean {
+        if (roles.indexOf('Administrator') < 0 && roles.indexOf('Transmission SME') < 0)
+            return false;
+        return true;
+    }
     
     return (
         <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
@@ -151,7 +160,7 @@ function Asset(props: IProps) {
                     <h2>{asset != null ? asset.AssetName + ' (' + asset.AssetKey + ')': ''}</h2>
                 </div>
                 <div className="col">
-                    <button className="btn btn-danger pull-right" hidden={asset == null} onClick={() => setShowDelete(true)}>Delete Asset</button>
+                    <button className={"btn btn-danger pull-right"} hidden={(asset == null) || !hasPermissions()} onClick={() => { if (hasPermissions()) setShowDelete(true) }}>Delete Asset</button>
                 </div>
             </div>
             <hr />
