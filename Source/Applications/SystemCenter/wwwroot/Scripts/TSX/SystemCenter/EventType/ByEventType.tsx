@@ -64,10 +64,10 @@ const ByEventType: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (status != 'unintiated' && status != 'changed') return;
         dispatch(EventTypeSlice.Fetch());
-    }, []);
+    }, [status]);
 
     function saveChange() {
-        dispatch(EventTypeSlice.DBAction({ verb: 'PATCH', record: selected }));
+        dispatch(EventTypeSlice.DBAction({ verb: 'PATCH', record: selected }))
 
         eventTypeAssetTypeData.filter(item => assetTypeET.findIndex(a => a.AssetTypeID == item.AssetTypeID) < 0)
             .forEach(item => dispatch(EventTypeAssetTypeSlice.DBAction({ verb: 'DELETE', record: item })))
