@@ -57,6 +57,15 @@ const additionalFieldAssetStep: number = customerAssetGroupMeterStep + 1;
 const customerAssetGroupAssetStep: number = additionalFieldAssetStep + 1;
 const lineSegmentStep: number = customerAssetGroupAssetStep + 1;
 
+// Page ID
+const assetPageID: string = "NewMeterWizard.AssetPage";
+
+// Define Special Steps
+const saveStepNoAsset: number = assetStep;
+const saveStep: number = connectionStep;
+const finalStepNoLine: number = customerAssetGroupAssetStep;
+const finalStep: number = lineSegmentStep;
+
 export interface AssetLists {
     Breakers: Array<OpenXDA.Types.Breaker>,
     Buses: Array<OpenXDA.Types.Breaker>,
@@ -88,15 +97,6 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     const [hover, setHover] = React.useState<'None' | 'Next' | 'Prev'>('None');
     const [showSubmit, setShowSubmit] = React.useState<boolean>(false);
     const [status, setStatus] = React.useState<Application.Types.Status>('unintiated');
-
-    const portalID: string = "NewMeterWizardPortalID";
-    const assetPageID: string = "NewMeterWizard.AssetPage";
-
-    // Define Special Steps
-    const saveStepNoAsset: number = assetStep;
-    const saveStep: number = connectionStep;
-    const finalStepNoLine: number = customerAssetGroupAssetStep;
-    const finalStep: number = lineSegmentStep;
 
     React.useEffect(() => {
         if (mStatus === 'unintiated' || mStatus === 'changed')
