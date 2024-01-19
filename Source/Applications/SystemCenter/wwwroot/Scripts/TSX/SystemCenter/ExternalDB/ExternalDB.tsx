@@ -100,7 +100,7 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     if (record == null) return null;
     return (
-        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+        <div className="container-fluid d-flex h-100 flex-column">
             <LoadingScreen Show={requestStatus === 'loading'} />
             <div className="row">
                 <div className="col-6 align-self-center">

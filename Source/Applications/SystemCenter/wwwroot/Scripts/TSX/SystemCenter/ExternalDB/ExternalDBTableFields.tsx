@@ -141,7 +141,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     }
 
     return (
-        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+        <div className="container-fluid d-flex h-100 flex-column">
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 <div className="card" style={{ width: '100%', height: '100%' }}>
                     <div className="card-header">
