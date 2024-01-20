@@ -22,8 +22,9 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import { LoadingScreen} from '@gpa-gemstone/react-interactive'
+import { LoadingIcon, LoadingScreen } from '@gpa-gemstone/react-interactive'
 import { INode } from '../global';
+import * as $ from 'jquery';
 import Table from '@gpa-gemstone/react-table';
 
 declare var homePath;
@@ -47,7 +48,6 @@ const ByTrippedNode = (props: IProps) => {
 
         return () => { if (handle != null && handle.abort != null) handle.abort();  }
     }, [])
-
 
     return (
         <>
@@ -74,7 +74,6 @@ const ByTrippedNode = (props: IProps) => {
                     />
                 </div>
             </div>
-           
         </>)
 }
 
@@ -89,11 +88,10 @@ const ReActivateBtn = (props: { NodeID: number }) => {
             contentType: "application/json; charset=utf-8",
             cache: false,
             async: true
-        }).then((d: boolean) => { setLoading(false); setActive(d); }, () => setLoading(false));
+        }).then((d: boolean) => { setLoading(false); setActive(!d); }, () => setLoading(false));
 
         return () => { if (handle != null && handle.abort != null) handle.abort(); }
     }, [])
-
 
     function Activate() {
         $.ajax({
@@ -103,20 +101,15 @@ const ReActivateBtn = (props: { NodeID: number }) => {
             cache: false,
             async: true
         }).then(() => { setLoading(false); setActive(true) }, () => setLoading(false));
-
     }
 
-    if (active)
-        return null;
-   
-
     if (loading)
-        return <LoadingIcon />
+        return <LoadingIcon Show={true} />
 
     return <button className="btn btn-sm" onClick={(e) => {
         e.preventDefault();
         Activate();
-    }}>Activate</button>
+    }} disabled={active}>{active ? "Already active" : "Activate"}</button>
 }
 
 export default ByTrippedNode;
