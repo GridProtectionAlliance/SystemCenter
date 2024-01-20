@@ -38,6 +38,7 @@ using ConfigurationLoader = SystemCenter.Notifications.Model.ConfigurationLoader
 
 namespace SystemCenter.Notifications.Controllers
 {
+    [RoutePrefix("api/OpenXDA/EmailNode")]
     public class TripRestorationController : ApiController
     {
         const string Connection = "systemSettings";
