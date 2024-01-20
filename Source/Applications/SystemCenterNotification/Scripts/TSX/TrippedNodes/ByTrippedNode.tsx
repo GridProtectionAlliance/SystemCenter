@@ -37,9 +37,15 @@ const ByTrippedNode = (props: IProps) => {
 
     React.useEffect(() => {
         setLoading(true);
-        const handle = null;
+        const handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/EmailNode/EventEmailNodes`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        }).then((d: INode[]) => { setLoading(false); setNodes(d); }, () => setLoading(false));
 
-        return () => { }
+        return () => { if (handle != null && handle.abort != null) handle.abort();  }
     }, [])
 
 
@@ -74,17 +80,43 @@ const ByTrippedNode = (props: IProps) => {
 
 const ReActivateBtn = (props: { NodeID: number }) => {
     const [active, setActive] = React.useState<boolean>(true);
+    const [loading, setLoading] = React.useState<boolean>(false);
 
-    React.useEffect(() => { }, [])
+    React.useEffect(() => {
+        const handle = $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/EmailNode/IsTripped/${props.NodeID}`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        }).then((d: boolean) => { setLoading(false); setActive(d); }, () => setLoading(false));
+
+        return () => { if (handle != null && handle.abort != null) handle.abort(); }
+    }, [])
+
 
     function Activate() {
+        $.ajax({
+            type: "GET",
+            url: `${homePath}api/OpenXDA/EmailNode/RestoreEventEmails/${props.NodeID}`,
+            contentType: "application/json; charset=utf-8",
+            cache: false,
+            async: true
+        }).then(() => { setLoading(false); setActive(true) }, () => setLoading(false));
 
     }
 
     if (active)
         return null;
+   
 
-    return <button></button>
+    if (loading)
+        return <LoadingIcon />
+
+    return <button className="btn btn-sm" onClick={(e) => {
+        e.preventDefault();
+        Activate();
+    }}>Activate</button>
 }
 
 export default ByTrippedNode;
