@@ -51,7 +51,8 @@ const MultipleAssetsPage: React.FC<IProps> = (props) => {
         } else {
             const u = _.cloneDeep(props.Assets);
             _.orderBy(u, [sortKey], [(!asc ? "asc" : "desc")]);
-            setCurrentAsset(u[0]);
+            const index = u.findIndex(item => item.ID === currentAsset?.ID && item.AssetKey === currentAsset?.AssetKey);
+            setCurrentAsset(index >= 0 ? u[index] : u[0]);
             setTableState('idle');
         }
     }, [props.Assets]);

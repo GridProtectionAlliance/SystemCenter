@@ -99,7 +99,7 @@ export default function ConnectionPage(props: IProps) {
             return;
         setSelectedAssetKey(selectedAsset.AssetKey);
         const connFilter: Search.IFilter<OpenXDA.Types.AssetConnection>[] = [
-            { FieldName: 'ID', SearchText: `ParentID OR ChildID = ${props.CurrentAsset.ID}`, Operator: '=', Type: 'number', isPivotColumn: false },
+            { FieldName: 'ParentID', SearchText: `${props.CurrentAsset.ID} OR ChildID = ${props.CurrentAsset.ID}`, Operator: '=', Type: 'number', isPivotColumn: false },
         ];
         let handle = getAssetConnections(connFilter);
         return () => {
@@ -131,8 +131,8 @@ export default function ConnectionPage(props: IProps) {
                 u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetType > b.Asset.AssetType ? 1 : -1));
             return u;
         })
-       
-    }, [asc, sortKey])
+    }, [asc, sortKey]);
+
     function getAssetConnections(filter: Search.IFilter<AssetConnectionByID>[]): JQuery.jqXHR<AssetConnectionByID> {
         setStatus('loading');
         return $.ajax({
@@ -171,8 +171,8 @@ export default function ConnectionPage(props: IProps) {
 
     function getRelevantConnections(connections: AssetConnectionByID[]): OpenXDA.Types.AssetConnection[] {
         return connections.map((conn) => {
-            let parentAsset = props.AllAssets.find((asset) => (conn.ParentID === asset.ID));
-            let childAsset = props.AllAssets.find((asset) => (conn.ChildID === asset.ID));
+            const parentAsset = props.AllAssets.find((asset) => (conn.ParentID === asset.ID));
+            const childAsset = props.AllAssets.find((asset) => (conn.ChildID === asset.ID));
             //This means that this is irrelevant, since one asset exists outside of what we care about
             if (parentAsset === undefined || childAsset === undefined) return null;
             return {
@@ -184,7 +184,7 @@ export default function ConnectionPage(props: IProps) {
         }).filter((newConn) => newConn !== null);
     }
 
-    function deleteAssetConnection(ac: OpenXDA.Types.AssetConnection): void {
+    const deleteAssetConnection = React.useCallback((ac: OpenXDA.Types.AssetConnection) => {
         let list: Array<OpenXDA.Types.AssetConnection> = _.clone(props.AssetConnections);
         let index = list.findIndex(conn => conn == ac);
         list.splice(index, 1);
@@ -194,7 +194,7 @@ export default function ConnectionPage(props: IProps) {
         let currentIndex = currentList.findIndex(conn => conn.Connection == ac);
         currentList.splice(currentIndex, 1);
         setCurrentConnections(currentList);
-    }
+    }, [props.AssetConnections, props.UpdateAssetConnections, currentConnections, setCurrentConnections]);
 
     const standardCols: Column<IConnection>[] = React.useMemo(() => [{
         key: 'AssetName', field: 'Asset', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
@@ -214,13 +214,13 @@ export default function ConnectionPage(props: IProps) {
         },
         {
             key: 'btns', field: 'Asset', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-            content: (item) => item.Asset.ID > 0 ? null :
+            content: (item) => item.Connection.ID > 0 ? null :
                 <button className="btn btn-sm"
                     onClick={(e) => deleteAssetConnection(item.Connection)}>
                     {TrashCan}
                 </button>
         },
-        { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },], []);
+        { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },], [deleteAssetConnection]);
 
     const reducedCols: Column<IConnection>[] = React.useMemo(() => [{
         key: 'AssetName', field: 'Asset', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
@@ -341,8 +341,6 @@ export default function ConnectionPage(props: IProps) {
                         return { Asset: props.AllAssets.find(asset => asset.AssetKey == ac.Child), Connection: ac };
                     return { Asset: props.AllAssets.find(asset => asset.AssetKey == ac.Parent), Connection: ac };
                 }
-                const a = createConn(newConnection);
-                const b = currentConnections.map(createConn)
                 setCurrentConnections([...currentConnections, createConn(newConnection)]);
                 assetConnections.push(newConnection);
                 props.UpdateAssetConnections(assetConnections);
