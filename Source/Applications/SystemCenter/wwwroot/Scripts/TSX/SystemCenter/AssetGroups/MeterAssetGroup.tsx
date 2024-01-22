@@ -222,7 +222,7 @@ function MeterAssetGroupWindow(props: { AssetGroupID: number}) {
                             AllowSort={false}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveMeter(c.ID) }}><span>{TrashCan}</span></button> }
+                            Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveMeter(item.ID) }}><span>{TrashCan}</span></button> }
                         > <p></p>
                         </ReactTable.Column>
                     </ReactTable.Table>

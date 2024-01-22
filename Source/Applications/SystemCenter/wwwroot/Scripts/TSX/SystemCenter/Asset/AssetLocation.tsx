@@ -199,7 +199,7 @@ function AssetLocationWindow(props: { Asset: OpenXDA.Types.Asset }): JSX.Element
                                 <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
                                     if (hasPermissions()) {
                                         e.preventDefault();
-                                        deleteLocation(asset);
+                                        deleteLocation(item);
                                     }
                                 }}><span>{TrashCan}</span></button>
                             </> }

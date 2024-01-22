@@ -217,7 +217,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => <>
                                 <button className={"btn btn-sm" + (hasPermissions() ? ' disabled' : '')}
-                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!hasPermissions()) setRemoveGroup(c.ID); }}><span>{TrashCan}</span></button>
+                                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (!hasPermissions()) setRemoveGroup(item.ID); }}><span>{TrashCan}</span></button>
                             </> }
                         > <p></p>
                         </ReactTable.Column>

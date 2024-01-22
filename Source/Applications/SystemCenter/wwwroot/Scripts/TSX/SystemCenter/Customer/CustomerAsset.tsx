@@ -174,7 +174,7 @@ const CustomerAssetWindow = (props: IProps) => {
                         AllowSort={false}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveRecord(c) }}><span>{TrashCan}</span></button> }
+                        Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}><span>{TrashCan}</span></button> }
                     > <p></p>
                     </ReactTable.Column>
                 </ReactTable.Table>

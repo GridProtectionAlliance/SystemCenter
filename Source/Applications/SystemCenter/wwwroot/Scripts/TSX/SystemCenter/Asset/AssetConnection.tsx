@@ -287,7 +287,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                                 <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
                                     e.preventDefault();
                                     e.stopPropagation();
-                                    if (hasPermissions()) deleteAssetConnection(asset);
+                                    if (hasPermissions()) deleteAssetConnection(item);
                                 }}><span>{TrashCan}</span></button>
                             </> }
                         > <p></p>
