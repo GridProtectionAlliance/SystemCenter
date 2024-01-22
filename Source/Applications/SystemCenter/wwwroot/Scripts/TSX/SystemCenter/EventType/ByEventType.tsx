@@ -40,10 +40,10 @@ const ByEventType: Application.Types.iByComponent = (props) => {
     const dispatch = useAppDispatch();
     const eventTypes = useAppSelector(EventTypeSlice.Data) as OpenXDA.Types.EventType[];
     const status = useAppSelector(EventTypeSlice.Status) as Application.Types.Status;
+    const sortKey = useAppSelector(EventTypeSlice.SortField);
+    const ascending = useAppSelector(EventTypeSlice.Ascending);
+
     const [selected, setSelected] = React.useState<OpenXDA.Types.EventType>(null);
-  
-    const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.EventType>('Name');
-    const [ascending, setAscending] = React.useState<boolean>(true);
     const [errors, setErrors] = React.useState<string[]>([]);
 
     const [assetTypeET, setAssettypeET] = React.useState<OpenXDA.Types.EventTypeAssetType[]>([])
@@ -55,11 +55,6 @@ const ByEventType: Application.Types.iByComponent = (props) => {
         if (atetStatus == 'unintiated' || atetStatus == 'changed' || eventTypeAssettypeParentID != selected?.ID)
             dispatch(EventTypeAssetTypeSlice.Fetch(selected?.ID));
     }, [atetStatus, selected]);
-
-    React.useEffect(() => {
-        dispatch(EventTypeSlice.Sort({ SortField: sortKey, Ascending: ascending }))
-    }, [ascending, sortKey]);
-
   
     React.useEffect(() => {
         if (status != 'unintiated' && status != 'changed') return;
@@ -93,12 +88,7 @@ const ByEventType: Application.Types.iByComponent = (props) => {
                     SortKey={sortKey}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        if (d.colKey === sortKey)
-                            setAscending(!ascending);
-                        else {
-                            setAscending(true);
-                            setSortKey(d.colField);
-                        }
+                        dispatch(EventTypeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     OnClick={(item) => setSelected(item.row) }
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

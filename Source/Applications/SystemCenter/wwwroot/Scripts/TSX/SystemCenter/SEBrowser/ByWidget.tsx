@@ -90,10 +90,7 @@ const ByWidget: Application.Types.iByComponent = (props) => {
                     SortKey={sortKey}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        if (d.colKey === sortKey)
-                            dispatch(SEBrowserWidgetSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                        else
-                            dispatch(SEBrowserWidgetSlice.Sort({ SortField: d.colField, Ascending: true }));
+                        dispatch(SEBrowserWidgetSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     OnClick={(item) => { setShowModal(true); setRecord(item.row) }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

@@ -41,9 +41,8 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
     const data: Application.Types.iApplicationNode[] = useAppSelector(ApplicationNodeSlice.SearchResults);
     const allApplications: Application.Types.iApplicationNode[] = useAppSelector(ApplicationNodeSlice.Data);
     const status: Application.Types.Status = useAppSelector(ApplicationNodeSlice.Status);
-
-    const [sortField, setSortField] = React.useState<keyof Application.Types.iApplicationNode>('Name');
-    const [ascending, setAscending] = React.useState<boolean>(true);
+    const sortField = useAppSelector(ApplicationNodeSlice.SortField);
+    const ascending = useAppSelector(ApplicationNodeSlice.Ascending);
 
     const [editnewNode, setEditNewNode] = React.useState<Application.Types.iApplicationNode>({ ID: CreateGuid(), Name: '' });
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
@@ -111,18 +110,7 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
                         SortKey={sortField}
                         Ascending={ascending}
                         OnSort={(d) => {
-                            if (d.colField === undefined)
-                                return;
-                            if (d.colField === sortField)
-                                setAscending(!ascending);
-                            else {
-                                setAscending(true);
-                                setSortField(d.colField);
-                            }
-                            if (d.colField === sortField)
-                                dispatch(ApplicationNodeSlice.DBSearch({ filter: search, sortField, ascending: true }));
-                            else
-                                dispatch(ApplicationNodeSlice.DBSearch({ filter: search, sortField: d.colField, ascending }));
+                            dispatch(ApplicationNodeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
                         OnClick={(item) => { setEditNewNode(item.row); setShowModal(true); setEditNew('Edit'); }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

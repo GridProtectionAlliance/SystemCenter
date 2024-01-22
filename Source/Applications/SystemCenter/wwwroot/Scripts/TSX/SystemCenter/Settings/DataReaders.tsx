@@ -38,9 +38,8 @@ const DataReaders: Application.Types.iByComponent = (props) => {
 
     const data = useAppSelector(DataReaderSlice.SearchResults);
     const status = useAppSelector(DataReaderSlice.Status);
-
-    const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.DataReader>('LoadOrder');
-    const [ascending, setAscending] = React.useState<boolean>(true);
+    const sortField = useAppSelector(DataReaderSlice.SortField);
+    const ascending = useAppSelector(DataReaderSlice.Ascending);
 
     const emptySetting: OpenXDA.Types.DataReader = { ID: 0, FilePattern: '',  AssemblyName: '', TypeName: '', LoadOrder: 0 };
     const [editnewSetting, setEditNewSetting] = React.useState<OpenXDA.Types.DataReader>(emptySetting);
@@ -113,16 +112,7 @@ const DataReaders: Application.Types.iByComponent = (props) => {
                         SortKey={sortField}
                         Ascending={ascending}
                         OnSort={(d) => {
-                            if (d.colField === sortField)
-                                setAscending(!ascending);
-                            else {
-                                setAscending(true);
-                                setSortField(d.colField);
-                            }
-                            if (d.colField === sortField)
-                                dispatch(DataReaderSlice.DBSearch({ filter: search, sortField, ascending: true }));
-                            else
-                                dispatch(DataReaderSlice.DBSearch({ filter: search, sortField: d.colField, ascending }));
+                            dispatch(DataReaderSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
                         OnClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

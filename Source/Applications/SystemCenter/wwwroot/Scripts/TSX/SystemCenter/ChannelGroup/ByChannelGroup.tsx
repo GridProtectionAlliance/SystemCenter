@@ -44,10 +44,10 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
     const items = useAppSelector(ChannelGroupDetailsSlice.Data);
     const itemStatus = useAppSelector(ChannelGroupDetailsSlice.Status);
     const parentID = useAppSelector(ChannelGroupDetailsSlice.ParentID);
+    const sortField = useAppSelector(ChannelGroupSlice.SortField);
+    const ascending = useAppSelector(ChannelGroupSlice.Ascending);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
-    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ChannelGroup>('Name');
-    const [ascending, setAscending] = React.useState<boolean>(true);
     const [errors, setErrors] = React.useState<string[]>([]);
 
     const emptyRecord = { ID: 0, Name: '', Description: '' };
@@ -66,10 +66,6 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
         if (status == 'unintiated' || status == 'changed')
             dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField, ascending }));
     }, [dispatch, status]);
-
-    React.useEffect(() => {
-        dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [search, sortField, ascending]);
 
     React.useEffect(() => {
         if (itemStatus == 'unintiated' || itemStatus == 'changed' || parentID != null)
@@ -123,10 +119,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                     SortKey={sortField}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        if (d.colKey != sortField)
-                            dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField: (d.colField as any), ascending: true }));
-                        else
-                            dispatch(ChannelGroupSlice.DBSearch({ filter: search, ascending: !ascending }));
+                        dispatch(ChannelGroupSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     OnClick={handleSelect}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

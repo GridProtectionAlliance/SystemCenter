@@ -40,9 +40,8 @@ const DataOperations: Application.Types.iByComponent = (props) => {
 
     const data = useAppSelector(DataOperationSlice.SearchResults);
     const status = useAppSelector(DataOperationSlice.Status);
-
-    const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.DataOperation>('LoadOrder');
-    const [ascending, setAscending] = React.useState<boolean>(true);
+    const sortField = useAppSelector(DataOperationSlice.SortField);
+    const ascending = useAppSelector(DataOperationSlice.Ascending);
 
     const emptySetting: OpenXDA.Types.DataOperation = { ID: 0, AssemblyName: '', TypeName: '', LoadOrder: 0 };
     const [editnewSetting, setEditNewSetting] = React.useState<OpenXDA.Types.DataOperation>(emptySetting);
@@ -114,16 +113,7 @@ const DataOperations: Application.Types.iByComponent = (props) => {
                         SortKey={sortField}
                         Ascending={ascending}
                         OnSort={(d) => {
-                            if (d.colField === sortField)
-                                setAscending(!ascending);
-                            else {
-                                setAscending(true);
-                                setSortField(d.colField);
-                            }
-                            if (d.colField === sortField)
-                                dispatch(DataOperationSlice.DBSearch({ filter: search, sortField, ascending: true }));
-                            else
-                                dispatch(DataOperationSlice.DBSearch({ filter: search, sortField: d.colField, ascending }));
+                            dispatch(DataOperationSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
                         OnClick={(item) => { setEditNewSetting(item.row); setShowModal(true); setEditNew('Edit'); }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

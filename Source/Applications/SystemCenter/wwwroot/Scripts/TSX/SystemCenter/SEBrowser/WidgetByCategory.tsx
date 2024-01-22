@@ -122,10 +122,7 @@ const WidgetByCategory = (props: IProps) => {
                         if (d.colKey == 'Remove')
                             return;
 
-                        if (d.colKey === sortField)
-                            dispatch(SEBrowserWidgetViewSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                        else
-                            dispatch(SEBrowserWidgetViewSlice.Sort({ SortField: d.colField, Ascending: true }));
+                        dispatch(SEBrowserWidgetViewSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}

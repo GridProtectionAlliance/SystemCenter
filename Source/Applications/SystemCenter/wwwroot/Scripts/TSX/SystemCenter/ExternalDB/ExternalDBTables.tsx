@@ -98,7 +98,7 @@ export default function ExternalDBTables(props: { ID: number }) {
                                         Ascending={asc}
                                         OnSort={(d) => {
                                             if (d.colKey == 'btns') return;
-                                            dispatch(ExternalDBTablesSlice.Sort({ SortField: d.colField, Ascending: !asc }));
+                                            dispatch(ExternalDBTablesSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                                         }}
                                         OnClick={handleSelect}
                                         TableStyle={{

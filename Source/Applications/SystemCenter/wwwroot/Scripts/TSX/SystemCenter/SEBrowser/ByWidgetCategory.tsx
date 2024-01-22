@@ -93,10 +93,7 @@ const ByWidgetCategory: Application.Types.iByComponent = (props) => {
                     SortKey={sortKey}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        if (d.colKey === sortKey)
-                            dispatch(WidgetCategorySlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                        else
-                            dispatch(WidgetCategorySlice.Sort({ SortField: d.colField, Ascending: true }));
+                        dispatch(WidgetCategorySlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
                     OnClick={handleSelect}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}

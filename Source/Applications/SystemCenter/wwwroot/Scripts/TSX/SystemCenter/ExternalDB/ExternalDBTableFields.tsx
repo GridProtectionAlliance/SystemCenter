@@ -178,94 +178,86 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                                             Selected={(item) => false}
                                             KeySelector={(item) => item.ID}
                                         >
-                                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
-                                            Key={'FieldName'}
-                                            AllowSort={true}
-                                            Field={'FieldName'}
-                                            HeaderStyle={{ width: 'auto' }}
-                                            RowStyle={{ width: 'auto' }}
-                                        > Name
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
-                                            Key={'ParentTable'}
-                                            AllowSort={true}
-                                            Field={'ParentTable'}
-                                            HeaderStyle={{ width: 'auto' }}
-                                            RowStyle={{ width: 'auto' }}
-                                        > ParentType
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
-                                            Key={'Type'}
-                                            AllowSort={true}
-                                            Field={'Type'}
-                                            HeaderStyle={{ width: 'auto' }}
-                                            RowStyle={{ width: 'auto' }}
-                                        > Field type
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
-                                            Key={'Type'}
-                                            AllowSort={true}
-                                            Field={'Type'}
-                                            HeaderStyle={{ width: 'auto' }}
-                                            RowStyle={{ width: 'auto' }}
-                                        > Field Type
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
-                                            Key={'Searchable'}
-                                            AllowSort={true}
-                                            Field={'Searchable'}
-                                            HeaderStyle={{ width: 'auto' }}
-                                            RowStyle={{ width: 'auto' }}
-                                            Content={({ item }) => item.Searchable ? HeavyCheckMark : CrossMark }
-                                        > Searchable
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
-                                            Key={'IsSecure'}
-                                            AllowSort={true}
-                                            Field={'IsSecure'}
-                                            HeaderStyle={{ width: 'auto' }}
-                                            RowStyle={{ width: 'auto' }}
-                                            Content={({ item }) => item.IsSecure ? HeavyCheckMark : CrossMark }
-                                        > Secure
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
-                                            Key={'IsInfo'}
-                                            AllowSort={true}
-                                            Field={'IsInfo'}
-                                            HeaderStyle={{ width: 'auto' }}
-                                            RowStyle={{ width: 'auto' }}
-                                            Content={({ item }) => item.IsInfo ? HeavyCheckMark : CrossMark }
-                                        > Info
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
-                                            Key={'IsKey'}
-                                            AllowSort={true}
-                                            Field={'IsKey'}
-                                            HeaderStyle={{ width: 'auto' }}
-                                            RowStyle={{ width: 'auto' }}
-                                            Content={({ item }) => item.IsKey ? HeavyCheckMark : CrossMark }
-                                        > Key
-                                        </ReactTable.Column>
-                                        <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
-                                            Key={'btns'}
-                                            AllowSort={false}
-                                            HeaderStyle={{ width: 'auto' }}
-                                            RowStyle={{ width: 'auto' }}
-                                            Content={({ item }) => <>
-                                                <button className="btn btn-sm" onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setRecord(item);
-                                                    setShowNew(true);
-                                                }}>{Pencil}</button>
-                                                <button className="btn btn-sm" onClick={(e) => {
-                                                    e.preventDefault();
-                                                    setRecord(item);
-                                                    setShowRemove(true);
-                                                }}>{TrashCan}</button>
-                                            </>}
-                                        > <p></p>
-                                        </ReactTable.Column>
-                                    </ReactTable.Table>}
+                                            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                                                Key={'FieldName'}
+                                                AllowSort={true}
+                                                Field={'FieldName'}
+                                                HeaderStyle={{ width: 'auto' }}
+                                                RowStyle={{ width: 'auto' }}
+                                            > Name
+                                            </ReactTable.Column>
+                                            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                                                Key={'ParentTable'}
+                                                AllowSort={true}
+                                                Field={'ParentTable'}
+                                                HeaderStyle={{ width: 'auto' }}
+                                                RowStyle={{ width: 'auto' }}
+                                            > ParentType
+                                            </ReactTable.Column>
+                                            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                                                Key={'Type'}
+                                                AllowSort={true}
+                                                Field={'Type'}
+                                                HeaderStyle={{ width: 'auto' }}
+                                                RowStyle={{ width: 'auto' }}
+                                            > Field type
+                                            </ReactTable.Column>
+                                            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                                                Key={'Searchable'}
+                                                AllowSort={true}
+                                                Field={'Searchable'}
+                                                HeaderStyle={{ width: 'auto' }}
+                                                RowStyle={{ width: 'auto' }}
+                                                Content={({ item }) => item.Searchable ? HeavyCheckMark : CrossMark }
+                                            > Searchable
+                                            </ReactTable.Column>
+                                            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                                                Key={'IsSecure'}
+                                                AllowSort={true}
+                                                Field={'IsSecure'}
+                                                HeaderStyle={{ width: 'auto' }}
+                                                RowStyle={{ width: 'auto' }}
+                                                Content={({ item }) => item.IsSecure ? HeavyCheckMark : CrossMark }
+                                            > Secure
+                                            </ReactTable.Column>
+                                            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                                                Key={'IsInfo'}
+                                                AllowSort={true}
+                                                Field={'IsInfo'}
+                                                HeaderStyle={{ width: 'auto' }}
+                                                RowStyle={{ width: 'auto' }}
+                                                Content={({ item }) => item.IsInfo ? HeavyCheckMark : CrossMark }
+                                            > Info
+                                            </ReactTable.Column>
+                                            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                                                Key={'IsKey'}
+                                                AllowSort={true}
+                                                Field={'IsKey'}
+                                                HeaderStyle={{ width: 'auto' }}
+                                                RowStyle={{ width: 'auto' }}
+                                                Content={({ item }) => item.IsKey ? HeavyCheckMark : CrossMark }
+                                            > Key
+                                            </ReactTable.Column>
+                                            <ReactTable.Column<SystemCenter.Types.AdditionalFieldView>
+                                                Key={'btns'}
+                                                AllowSort={false}
+                                                HeaderStyle={{ width: 'auto' }}
+                                                RowStyle={{ width: 'auto' }}
+                                                Content={({ item }) => <>
+                                                    <button className="btn btn-sm" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setRecord(item);
+                                                        setShowNew(true);
+                                                    }}>{Pencil}</button>
+                                                    <button className="btn btn-sm" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setRecord(item);
+                                                        setShowRemove(true);
+                                                    }}>{TrashCan}</button>
+                                                </>}
+                                            > <p></p>
+                                            </ReactTable.Column>
+                                        </ReactTable.Table>}
                                 </div>
                             </div>
                         </div>

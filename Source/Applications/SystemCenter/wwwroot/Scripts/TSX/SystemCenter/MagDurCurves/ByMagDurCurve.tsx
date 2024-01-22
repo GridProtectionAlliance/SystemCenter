@@ -67,7 +67,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (cState == 'unintiated' || cState == 'changed')
-            dispatch(MagDurCurveSlice.DBSearch({filter: filters}))
+            dispatch(MagDurCurveSlice.DBSearch({ filter: filters, sortField: sortKey, ascending: ascending }));
     }, [cState]);
 
     function handleSelect(item) {
@@ -104,7 +104,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
                     Data={data}
                     SortKey={sortKey}
                     Ascending={ascending}
-                    OnSort={(d) => dispatch(MagDurCurveSlice.Sort({ SortField: 'Name', Ascending: !ascending })) }
+                    OnSort={(d) => dispatch(MagDurCurveSlice.Sort({ SortField: 'Name', Ascending: d.ascending }))}
                     OnClick={handleSelect}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
