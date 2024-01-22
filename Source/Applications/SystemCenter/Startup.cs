@@ -33,7 +33,6 @@ using Microsoft.AspNet.SignalR.Json;
 using Microsoft.Owin.Cors;
 using Microsoft.Owin.Extensions;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using Owin;
 using SystemCenter.Model;
 
@@ -66,11 +65,7 @@ namespace SystemCenter
 
             HubConfiguration hubConfig = new HubConfiguration();
             HttpConfiguration httpConfig = new HttpConfiguration();
-
-            // Fix serialize issues when fetching serializable models from API
-            httpConfig.Formatters.JsonFormatter.SerializerSettings.ContractResolver =
-            new DefaultContractResolver { IgnoreSerializableAttribute = true };
-
+            
             // Enabled detailed client errors
             hubConfig.EnableDetailedErrors = true;
 
