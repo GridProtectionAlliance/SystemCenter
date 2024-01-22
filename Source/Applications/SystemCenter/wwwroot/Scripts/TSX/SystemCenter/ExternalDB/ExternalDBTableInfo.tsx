@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ExternalDBTableInfo.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -62,41 +62,45 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Detai
 
     if (record == null) return;
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>External Database Table Information:</h4>
+        <div className="container-fluid d-flex h-100 flex-column">
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col">
+                                <h4>External Database Table Information:</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <ExternalDBTableForm Record={record} Setter={setRecord} ShowTestButton={true} />
+                    </div>
+                    <div className="card-footer">
+                        <div className="btn-group mr-2">
+                            <button className={"btn btn-primary" + ((isChanged || errors.length > 0) ? ' disabled' : '')}
+                                onClick={() => {
+                                    if (errors.length == 0) {
+                                        dispatch(ExternalDBTablesSlice.DBAction({ verb: 'PATCH', record }));
+                                    }
+                                }}
+                                hidden={record.ID == 0} data-tooltip={'Update-Info-Table'}
+                                onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
+                        </div>
+                        <div className="btn-group mr-2">
+                            <button className="btn btn-default"
+                                onClick={() => {
+                                    setRecord(props.Record);
+                                }}
+                                disabled={isChanged}>Reset</button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ height: window.innerHeight - 350, maxHeight: window.innerHeight - 350 }}>
-                <ExternalDBTableForm Record={record} Setter={setRecord} ShowTestButton={true} />
-            </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + ((isChanged || errors.length > 0) ? ' disabled' : '')}
-                        onClick={() => {
-                            if (errors.length == 0) {
-                                dispatch(ExternalDBTablesSlice.DBAction({ verb: 'PATCH', record }));
-                            }
-                        }}
-                        hidden={record.ID == 0} data-tooltip={'Update-Info-Table'}
-                        onMouseEnter={() => setHover('update')} onMouseLeave={() => setHover('none')}>Update</button>
-                </div>
-                <div className="btn-group mr-2">
-                    <button className="btn btn-default"
-                        onClick={() => {
-                            setRecord(props.Record);
-                        }}
-                        disabled={isChanged}>Reset</button>
-                </div>
-                <ToolTip Position={'top'} Target={"Update-Info-Table"}
-                    Show={hover == 'update' && (errors.length > 0 || isChanged)}>
-                    {isChanged ? <p>No changes made.</p> : null}
-                    {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
-                </ToolTip>
-            </div>
+            <ToolTip Position={'top'} Target={"Update-Info-Table"}
+                Show={hover == 'update' && (errors.length > 0 || isChanged)}>
+                {isChanged ? <p>No changes made.</p> : null}
+                {errors.map((t, i) => <p key={i}>{CrossMark} {t}</p>)}
+            </ToolTip>
         </div>
     );
 }

@@ -78,12 +78,12 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
     if (record == null) return null;
     return (
-        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div className="container-fluid d-flex h-100 flex-column">
             <div className="row">
-                <div className="col">
+                <div className="col-6 align-self-center">
                     <h2>{record?.TableName ?? 'External Database Table'}</h2>
                 </div>
-                <div className="col">
+                <div className="col-6 align-self-center">
                     <button className="btn btn-danger pull-right" hidden={record == null}
                         onClick={() => setShowRemove(true)}>Delete Table</button>
                     <button className="btn btn-light pull-right" hidden={record?.ExtDBID == null}
@@ -91,19 +91,30 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
                 </div>
             </div>
 
+            <div className="row">
+                <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
+            </div>
 
-            <hr />
-            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
 
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235 }}>
-                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
-                    <ExternalDBTableInfo Record={record} />
-                </div>
-                <div className={"tab-pane " + (tab == "fields" ? " active" : "fade")} id="fields">
-                    <ExternalDBTableFields TableName={record.TableName} ID={record.ID} />
-                </div>
-                <div className={"tab-pane " + (tab == "xda" ? " active" : "fade")} id="xda">
-                    <ExternalDBXdaFields ID={record.ID} />
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="col-12" style={{ padding: 0 }}>
+                    <div className="tab-content" style={{ height: '100%' }}>
+                        {tab == "info" ?
+                            <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                <ExternalDBTableInfo Record={record} />
+                            </div>
+                        : null}
+                        {tab == "fields" ?
+                            <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                <ExternalDBTableFields TableName={record.TableName} ID={record.ID} />
+                            </div>
+                        : null}
+                        {tab == "xda" ?
+                            <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                <ExternalDBXdaFields ID={record.ID} />
+                            </div>
+                        : null}
+                    </div>
                 </div>
             </div>
             <Warning

@@ -141,85 +141,95 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Fields:</h4>
+        <div className="container-fluid d-flex h-100 flex-column">
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col">
+                                <h4>Fields:</h4>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div className="card-body">
-                <div className="row">
-                    <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0, overflowY: 'auto' }}>
-                        <LoadingScreen Show={tableStatus === 'loading'} />
-                        {tableStatus === 'error' ?
-                            <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} /> :
-                            <Table<SystemCenter.Types.AdditionalFieldView>
-                                cols={[
-                                    { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                    { key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                    { key: 'Type', field: 'Type', label: 'Field Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                    {
-                                        key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                        content: (item) => item.Searchable ? HeavyCheckMark : CrossMark
-                                    },
-                                    {
-                                        key: 'IsSecure', label: 'Secure', field: 'IsSecure', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                        content: (item) => item.IsSecure ? HeavyCheckMark : CrossMark
-                                    },
-                                    {
-                                        key: 'IsInfo', label: 'Info', field: 'IsInfo', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                        content: (item) => item.IsInfo ? HeavyCheckMark : CrossMark
-                                    },
-                                    {
-                                        key: 'IsKey', label: 'Key', field: 'IsKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                        content: (item) => item.IsKey ? HeavyCheckMark : CrossMark
-                                    },
-                                    {
-                                        key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                        content: (item) => <>
-                                            <button className="btn btn-sm" onClick={(e) => {
-                                                e.preventDefault();
-                                                setRecord(item);
-                                                setShowNew(true);
-                                            }}>{Pencil}</button>
-                                            <button className="btn btn-sm" onClick={(e) => {
-                                                e.preventDefault();
-                                                setRecord(item);
-                                                setShowRemove(true);
-                                            }}>{TrashCan}</button>
-                                        </>
-                                    },
-                                    { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                                ]}
-                                tableClass="table table-hover"
-                                data={fieldsInTable}
-                                sortKey={sortKey}
-                                ascending={asc}
-                                onSort={(d) => {
-                                    if (d.colKey == 'btns' || d.colKey == 'scroll' || d.colField == null) return;
-                                    if (d.colKey === sortKey) setAsc(prev => !prev);
-                                    else setSortKey(d.colKey);
-                                }}
-                                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                tbodyStyle={{ display: 'block', maxHeight: window.innerHeight - 455, }}
-                                rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                selected={() => false}
-                            />}
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
+                                    <LoadingScreen Show={tableStatus === 'loading'} />
+                                    {tableStatus === 'error' ?
+                                        <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} /> :
+                                        <Table<SystemCenter.Types.AdditionalFieldView>
+                                            cols={[
+                                                { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                                { key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                                { key: 'Type', field: 'Type', label: 'Field Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                                {
+                                                    key: 'Searchable', label: 'Searchable', field: 'Searchable', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                                    content: (item) => item.Searchable ? HeavyCheckMark : CrossMark
+                                                },
+                                                {
+                                                    key: 'IsSecure', label: 'Secure', field: 'IsSecure', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                                    content: (item) => item.IsSecure ? HeavyCheckMark : CrossMark
+                                                },
+                                                {
+                                                    key: 'IsInfo', label: 'Info', field: 'IsInfo', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                                    content: (item) => item.IsInfo ? HeavyCheckMark : CrossMark
+                                                },
+                                                {
+                                                    key: 'IsKey', label: 'Key', field: 'IsKey', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                                    content: (item) => item.IsKey ? HeavyCheckMark : CrossMark
+                                                },
+                                                {
+                                                    key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                                    content: (item) => <>
+                                                        <button className="btn btn-sm" onClick={(e) => {
+                                                            e.preventDefault();
+                                                            setRecord(item);
+                                                            setShowNew(true);
+                                                        }}>{Pencil}</button>
+                                                        <button className="btn btn-sm" onClick={(e) => {
+                                                            e.preventDefault();
+                                                            setRecord(item);
+                                                            setShowRemove(true);
+                                                        }}>{TrashCan}</button>
+                                                    </>
+                                                },
+                                                { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
+                                            ]}
+                                            tableClass="table table-hover"
+                                            data={fieldsInTable}
+                                            sortKey={sortKey}
+                                            ascending={asc}
+                                            onSort={(d) => {
+                                                if (d.colKey == 'btns' || d.colKey == 'scroll' || d.colField == null) return;
+                                                if (d.colKey === sortKey) setAsc(prev => !prev);
+                                                else setSortKey(d.colKey);
+                                            }}
+                                            tableStyle={{
+                                                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                            }}
+                                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                            tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                            selected={() => false}
+                                        />}
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button className="btn btn-primary"
-                        onClick={() => { setShowExisting(true); }}
-                    >Add Existing Field</button>
-                </div>
-                <div className="btn-group mr-2">
-                    <button className="btn btn-primary"
-                        onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setShowNew(true); }}
-                    >Add New Field</button>
+                    <div className="card-footer">
+                        <div className="btn-group mr-2">
+                            <button className="btn btn-primary"
+                                onClick={() => { setShowExisting(true); }}
+                            >Add Existing Field</button>
+                        </div>
+                        <div className="btn-group mr-2">
+                            <button className="btn btn-primary"
+                                onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setShowNew(true); }}
+                            >Add New Field</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -240,8 +250,8 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                 ConfirmShowToolTip={errors.length > 0 || warnings.length > 0}
                 ConfirmToolTipContent={
                     <>
-                        { warnings.map((w, i) => <p key={i}>{WarningIcon} {w}</p>) }
-                        { errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>) }
+                        {warnings.map((w, i) => <p key={i}>{WarningIcon} {w}</p>)}
+                        {errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>)}
                     </>
                 }
                 DisableConfirm={errors.length > 0}
@@ -318,13 +328,11 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                     ShowLoading={searchStatus == 'loading'}
                     StorageID={filterStorage}
                     ResultNote={searchStatus == 'error' ? 'Could not complete Search' : 'Found ' + searchData.length + ' Additional Field(s)'}
-                    >
-                        {children}
-                    </SearchBar>
+                >
+                    {children}
+                </SearchBar>
                 }
-            />
-
-            
+            />            
         </div>
 
 

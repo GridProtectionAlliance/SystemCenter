@@ -1,7 +1,7 @@
 //******************************************************************************************************
 //  ExternalDBXdaFields.tsx - Gbtc
 //
-//  Copyright © 2023, Grid Protection Alliance.  All Rights Reserved.
+//  Copyright ï¿½ 2023, Grid Protection Alliance.  All Rights Reserved.
 //
 //  Licensed to the Grid Protection Alliance (GPA) under one or more contributor license agreements. See
 //  the NOTICE file distributed with this work for additional information regarding copyright ownership.
@@ -57,64 +57,75 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
     }, [status, parentID, props.ID]);
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>External XDA Fields:</h4>
+        <div className="container-fluid d-flex h-100 flex-column">
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col">
+                                <h4>External XDA Fields:</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
+                                    <Table<SystemCenter.Types.ExternalOpenXDAField>
+                                        cols={[
+                                            { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                            { key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
+                                            {
+                                                key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
+                                                content: (item) => <>
+                                                    <button className="btn btn-sm" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setRecord(item);
+                                                        setShowEdit(true);
+                                                    }}>{Pencil}</button>
+                                                    <button className="btn btn-sm" onClick={(e) => {
+                                                        e.preventDefault();
+                                                        setRecord(item);
+                                                        setShowRemove(true);
+                                                    }}>{TrashCan}</button>
+                                                </>
+                                            },
+                                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
+                                        ]}
+                                        tableClass="table table-hover"
+                                        data={data}
+                                        sortKey={sortKey}
+                                        ascending={asc}
+                                        onSort={(d) => {
+                                            if (d.colKey == 'btns' || d.colKey == 'scroll' || d.colField == null) return;
+                                            if (d.colField != sortKey)
+                                                dispatch(ExternalXDAFieldsSlice.Sort({ SortField: d.colField, Ascending: asc }));
+                                            else
+                                                dispatch(ExternalXDAFieldsSlice.Sort({ SortField: sortKey, Ascending: !asc }));
+                                        }}
+                                        tableStyle={{
+                                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                        }}
+                                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        selected={() => false}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card-footer">
+                        <div className="btn-group mr-2">
+                            <button className="btn btn-primary"
+                                onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setShowEdit(true); }}
+                            >Link New Field</button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div className="row">
-                    <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0, overflowY: 'auto' }}>
-                        <Table<SystemCenter.Types.ExternalOpenXDAField>
-                            cols={[
-                                { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                {
-                                    key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                    content: (item) => <>
-                                        <button className="btn btn-sm" onClick={(e) => {
-                                            e.preventDefault();
-                                            setRecord(item);
-                                            setShowEdit(true);
-                                        }}>{Pencil}</button>
-                                        <button className="btn btn-sm" onClick={(e) => {
-                                            e.preventDefault();
-                                            setRecord(item);
-                                            setShowRemove(true);
-                                        }}>{TrashCan}</button>
-                                    </>
-                                },
-                                { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
-                            ]}
-                            tableClass="table table-hover"
-                            data={data}
-                            sortKey={sortKey}
-                            ascending={asc}
-                            onSort={(d) => {
-                                if (d.colKey == 'btns' || d.colKey == 'scroll' || d.colField == null) return;
-                                if (d.colField != sortKey)
-                                    dispatch(ExternalXDAFieldsSlice.Sort({ SortField: d.colField, Ascending: asc }));
-                                else
-                                    dispatch(ExternalXDAFieldsSlice.Sort({ SortField: sortKey, Ascending: !asc }));
-                            }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', maxHeight: window.innerHeight - 455, }}
-                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={() => false}
-                        />
-                    </div>
-                </div>
-            </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button className="btn btn-primary"
-                        onClick={() => { setRecord({ ...emptyRecord, ExternalDBTableID: props.ID }); setShowEdit(true); }}
-                    >Link New Field</button>
-                </div>
-            </div>
+
             <Warning
                 Message={'This will permanently delete this Linked Field and cannot be undone.'}
                 Show={showRemove} Title={`Delete ${record.ParentTable}: ${record.FieldName} Linked Field`}
