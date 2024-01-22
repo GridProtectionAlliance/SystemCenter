@@ -119,7 +119,18 @@ export default function ConnectionPage(props: IProps) {
     }, [assetConnectionTypes, selectedTypeID]);
 
     React.useEffect(() => {
-        setCurrentConnections(c => _.orderBy(c, [sortKey], [asc]));
+        setCurrentConnections((c) => {
+            const u = _.cloneDeep(c);
+            if (sortKey == 'AssetName')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetName > b.Asset.AssetName ? 1 : -1));
+            if (sortKey == 'AssetKey')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetKey > b.Asset.AssetKey ? 1 : -1));
+            if (sortKey == 'VoltageKV')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.VoltageKV > b.Asset.VoltageKV ? 1 : -1));
+            if (sortKey == 'AssetType')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetType > b.Asset.AssetType ? 1 : -1));
+            return u;
+        })
     }, [asc, sortKey]);
 
     function getAssetConnections(filter: Search.IFilter<AssetConnectionByID>[]): JQuery.jqXHR<AssetConnectionByID> {
@@ -146,7 +157,15 @@ export default function ConnectionPage(props: IProps) {
                 return { Asset: props.AllAssets.find(asset => asset.AssetKey == ac.Parent), Connection: ac };
             }
             const u = [...oldConnections.map(createConn), ...newConnections.map(createConn)];
-            setCurrentConnections(_.orderBy(u, [sortKey], [asc]));
+            if (sortKey == 'AssetName')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetName > b.Asset.AssetName ? 1 : -1));
+            if (sortKey == 'AssetKey')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetKey > b.Asset.AssetKey ? 1 : -1));
+            if (sortKey == 'VoltageKV')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.VoltageKV > b.Asset.VoltageKV ? 1 : -1));
+            if (sortKey == 'AssetType')
+                u.sort((a, b) => (asc ? 1 : -1) * (a.Asset.AssetType > b.Asset.AssetType ? 1 : -1));
+            setCurrentConnections(u);
         }).fail(() => setStatus('error'));
     }
 
