@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { TrashCan, Warning } from '@gpa-gemstone/gpa-symbols';
 import { Select } from '@gpa-gemstone/react-forms';
 import { ISection, ITap } from './Types';
@@ -91,57 +91,93 @@ function SectionSelect(props: IProps): JSX.Element {
             <div className="row">
                 <div className="col">
                     <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540}}>
-                        <Table<ISection>
-                            cols={[
-                                {
-                                    key: 'StartBus', label: 'Start', field: 'StartBus', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                    content: (item, key, field, style, index) => <Select<ISection> Label={""} Field={'StartBus'} Record={item}
-                                        Setter={(r) => props.SaveSection(r, index)}
-                                        Options={props.Taps.map(l => ({ Value: l.Bus, Label: generateBusLabel(l) }))} EmptyOption={false} />
-                                },
-                                {
-                                    key: 'EndBus', label: 'End', field: 'EndBus', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                    content: (item, key, field, style, index) => <Select<ISection> Label={""} Field={'EndBus'} Record={item}
-                                        Setter={(r) => props.SaveSection(r, index)}
-                                        Options={props.Taps.map(l => ({ Value: l.Bus, Label: generateBusLabel(l) }))} EmptyOption={false} />
-                                },
-                                { key: 'Segments', label: '# of Segments', field: 'Segments', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.Segments.length },
-                                { key: 'Length', label: 'Length (miles)', field: 'Segments', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => item.Segments.reduce((acc, seg) => acc + seg.Length, 0).toFixed(3) },
-                                {
-                                    key: 'warning',
-                                    label: '',
-                                    headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    content: (item) => DisplayWarning(item)
-                                },
-                                {
-                                    key: 'DeleteButton', label: '', headerStyle: { width: 40, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 40, paddingLeft: 0, paddingRight: 5 },
-                                    content: (item, key, field, style, index) => <> 
-                                        <button className="btn btn-sm"
-                                            onClick={(e) => props.RemoveSections(index)}><span>{TrashCan}</span></button>
-                                    </>
-                                }
-                            ]}
-                            tableClass="table table-hover"
-                            data={data}
-                            sortKey={sortKey}
-                            ascending={asc}
-                            onSort={(d) => {
-                                if (d.colKey == 'DeleteButton' || d.colKey == 'warning')
+                        <ReactTable.Table<ISection>
+                            TableClass="table table-hover"
+                            Data={data}
+                            SortKey={sortKey}
+                            Ascending={asc}
+                            OnSort={(d) => {
+                                if (d.colKey == 'DeleteButton' || d.colKey == 'Warning')
                                     return;
                                 if (d.colKey == sortKey)
                                     setAsc((a) => !a);
                                 else {
                                     setAsc(true);
                                     setSortKey(d.colKey);
-                                } 
+                                }
                             }}
-                            onClick={() => { }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={() => false}
-                        />
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => `${item.StartStationID}-${item.EndStationID}-${item.Segments.length}`}
+                        >
+                            <ReactTable.Column<ISection>
+                                Key={'StartBus'}
+                                AllowSort={true}
+                                Field={'StartBus'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item, key, field, index }) => <>
+                                    <Select<ISection>
+                                        Label={""} Field={'StartBus'} Record={item}
+                                        Setter={(r) => props.SaveSection(r, index)}
+                                        Options={props.Taps.map(l => ({ Value: l.Bus, Label: generateBusLabel(l) }))} EmptyOption={false} />
+                                </> }
+                            > Start
+                            </ReactTable.Column>
+                            <ReactTable.Column<ISection>
+                                Key={'EndBus'}
+                                AllowSort={true}
+                                Field={'EndBus'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item, key, field, index }) => <>
+                                    <Select<ISection>
+                                        Label={""} Field={'EndBus'} Record={item}
+                                        Setter={(r) => props.SaveSection(r, index)}
+                                        Options={props.Taps.map(l => ({ Value: l.Bus, Label: generateBusLabel(l) }))} EmptyOption={false} />
+                                </> }
+                            > End
+                            </ReactTable.Column>
+                            <ReactTable.Column<ISection>
+                                Key={'Segments'}
+                                AllowSort={true}
+                                Field={'Segments'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => item.Segments.length }
+                            > # of Segments
+                            </ReactTable.Column>
+                            <ReactTable.Column<ISection>
+                                Key={'Length'}
+                                AllowSort={true}
+                                Field={'Segments'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => item.Segments.reduce((acc, seg) => acc + seg.Length, 0).toFixed(3) }
+                            > Length (miles)
+                            </ReactTable.Column>
+                            <ReactTable.Column<ISection>
+                                Key={'Warning'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                                RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                                Content={({ item }) => DisplayWarning(item) }
+                            > <p></p>
+                            </ReactTable.Column>
+                            <ReactTable.Column<ISection>
+                                Key={'DeleteButton'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                                RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
+                                Content={({ item, key, field, index }) => <>
+                                    <button className="btn btn-sm"
+                                        onClick={(e) => props.RemoveSections(index)}><span>{TrashCan}</span></button>
+                                </> }
+                            > <p></p>
+                            </ReactTable.Column>
+                        </ReactTable.Table>
                     </div>
                 </div>
             </div>

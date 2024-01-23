@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table'
+import { ReactTable } from '@gpa-gemstone/react-table'
 import { useHistory } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
@@ -98,27 +98,46 @@ const ByExternalTable: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<SystemCenter.Types.DetailedExtDBTables>
-                    cols={[
-                        { key: 'TableName', field: 'TableName', label: 'Table Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'ExternalDB', field: 'ExternalDB', label: 'External Database', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'MappedFields', field: 'MappedFields', label: 'Mapped Fields', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }                      
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortField}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colKey === null) return;
+                <ReactTable.Table<SystemCenter.Types.DetailedExtDBTables>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortField}
+                    Ascending={ascending}
+                    OnSort={(d) => {
                         dispatch(ExternalDBTablesSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
-                    onClick={handleSelect}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                    OnClick={handleSelect}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<SystemCenter.Types.DetailedExtDBTables>
+                        Key={'TableName'}
+                        AllowSort={true}
+                        Field={'TableName'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Table Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedExtDBTables>
+                        Key={'ExternalDB'}
+                        AllowSort={true}
+                        Field={'ExternalDB'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > External Database
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedExtDBTables>
+                        Key={'MappedFields'}
+                        AllowSort={true}
+                        Field={'MappedFields'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Mapped Fields
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
 
             <Modal Title={'Add New External Table'}

@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application } from '@gpa-gemstone/application-typings';
@@ -67,7 +67,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
 
     React.useEffect(() => {
         if (cState == 'unintiated' || cState == 'changed')
-            dispatch(MagDurCurveSlice.DBSearch({filter: filters}))
+            dispatch(MagDurCurveSlice.DBSearch({ filter: filters, sortField: sortKey, ascending: ascending }));
     }, [cState]);
 
     function handleSelect(item) {
@@ -99,22 +99,28 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
                 </li>
             </SearchBar>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<LocalXDA.IMagDurCurve>
-                    cols={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortKey}
-                    ascending={ascending}
-                    onSort={(d) => dispatch(MagDurCurveSlice.Sort({ SortField: 'Name', Ascending: !ascending })) }
-                    onClick={handleSelect}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%'  }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                <ReactTable.Table<LocalXDA.IMagDurCurve>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortKey}
+                    Ascending={ascending}
+                    OnSort={(d) => dispatch(MagDurCurveSlice.Sort({ SortField: 'Name', Ascending: d.ascending }))}
+                    OnClick={handleSelect}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<LocalXDA.IMagDurCurve>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Name
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
 
             <Modal Show={showModal} Title={newEdit == 'Edit' ? 'Edit ' + (curve?.Name ?? 'MagDur Curve') : 'Add New MagDur Curve'} Size={'xlg'} CallBack={(c,b) => {

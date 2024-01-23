@@ -30,7 +30,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { LocationDrawingSlice } from '../Store/Store';
 import { Input, Select } from '@gpa-gemstone/react-forms';
@@ -111,40 +111,77 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 </div>
             </div>
             <div className="card-body">
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    <Table<SystemCenter.Types.LocationDrawing>
-                        cols={[
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            { key: 'Link', field: 'Link', label: 'Link', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => <a href={item[key] as string} target='_blank'>{item[key]}</a> },
-                            { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            { key: 'Number', field: 'Number', label: 'Number', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            { key: 'Category', field: 'Category', label: 'Category', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            {
-                                key: 'EditDelete',
-                                label: '',
-                                headerStyle: { width: '10%' },
-                                rowStyle: { width: '10%' },
-                                content: (item, key, style) =>
-                                    <span>
-                                        <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" onClick={(e) => {setRecord(item) }}>{Pencil}</button>
-                                        <button title='Delete Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) dispatch(LocationDrawingSlice.DBAction({ verb: 'DELETE', record: item })); }}>{TrashCan}</button>
-                                    </span>
-                            }
-
-                        ]}
-                        tableClass="table table-hover"
-                        data={links}
-                        sortKey={sortKey}
-                        ascending={ascending}
-                        onSort={(d) => {
-                            if (d.colKey === "EditDelete")
-                                return;
+                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30 }}>
+                    <ReactTable.Table<SystemCenter.Types.LocationDrawing>
+                        TableClass="table table-hover"
+                        Data={links}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey === "EditDelete") return;
                             dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        onClick={data => { }}
-                        selected={() => false}
-                    />
-
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                            Key={'Link'}
+                            AllowSort={true}
+                            Field={'Link'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                            Content={({ item, key }) => <a href={item[key] as string} target='_blank'>{item[key]}</a> }
+                        > Link
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                            Key={'Description'}
+                            AllowSort={true}
+                            Field={'Description'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Description
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                            Key={'Number'}
+                            AllowSort={true}
+                            Field={'Number'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Number
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                            Key={'Category'}
+                            AllowSort={true}
+                            Field={'Category'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Category
+                        </ReactTable.Column>
+                        <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                            Key={'EditDelete'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) =>
+                                <span>
+                                    <button title='Edit Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} data-toggle={"modal" + (!hasPermissions() ? ' disabled' : '')} data-target="#exampleModal" onClick={(e) => {setRecord(item) }}>{Pencil}</button>
+                                    <button title='Delete Link' className={"btn" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => { if (hasPermissions()) dispatch(LocationDrawingSlice.DBAction({ verb: 'DELETE', record: item })); }}>{TrashCan}</button>
+                                </span>
+                            }
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <div className="card-footer">

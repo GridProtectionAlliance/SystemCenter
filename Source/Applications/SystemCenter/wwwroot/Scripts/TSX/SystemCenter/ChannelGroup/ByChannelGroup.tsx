@@ -25,7 +25,7 @@ import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ChannelGroupSlice, ChannelGroupDetailsSlice } from '../Store/Store';
 
-import Table from '@gpa-gemstone/react-table'
+import { ReactTable } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { SystemCenter, Application } from '@gpa-gemstone/application-typings';
@@ -44,10 +44,10 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
     const items = useAppSelector(ChannelGroupDetailsSlice.Data);
     const itemStatus = useAppSelector(ChannelGroupDetailsSlice.Status);
     const parentID = useAppSelector(ChannelGroupDetailsSlice.ParentID);
+    const sortField = useAppSelector(ChannelGroupSlice.SortField);
+    const ascending = useAppSelector(ChannelGroupSlice.Ascending);
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
-    const [sortField, setSortField] = React.useState<keyof SystemCenter.Types.ChannelGroup>('Name');
-    const [ascending, setAscending] = React.useState<boolean>(true);
     const [errors, setErrors] = React.useState<string[]>([]);
 
     const emptyRecord = { ID: 0, Name: '', Description: '' };
@@ -66,10 +66,6 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
         if (status == 'unintiated' || status == 'changed')
             dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField, ascending }));
     }, [dispatch, status]);
-
-    React.useEffect(() => {
-        dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField, ascending }));
-    }, [search, sortField, ascending]);
 
     React.useEffect(() => {
         if (itemStatus == 'unintiated' || itemStatus == 'changed' || parentID != null)
@@ -117,34 +113,47 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table< SystemCenter.Types.ChannelGroup>
-                    cols={[
-                        { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'Description', field: 'Description',label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        {
-                            key: 'Items', label: 'Items', field: 'Items', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-                            content: (item, key, style) => items.filter(i => i.ChannelGroupID == item.ID).length
-                        },
-                        { key: null, label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortField}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colKey != sortField)
-                            dispatch(ChannelGroupSlice.DBSearch({ filter: search, sortField: (d.colField as any), ascending: true }));
-                        else
-                            dispatch(ChannelGroupSlice.DBSearch({ filter: search, ascending: !ascending }))
-                            
+                <ReactTable.Table<SystemCenter.Types.ChannelGroup>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortField}
+                    Ascending={ascending}
+                    OnSort={(d) => {
+                        dispatch(ChannelGroupSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
-                    onClick={handleSelect}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                    OnClick={handleSelect}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<SystemCenter.Types.ChannelGroup>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                    > Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.ChannelGroup>
+                        Key={'Description'}
+                        AllowSort={true}
+                        Field={'Description'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Description
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.ChannelGroup>
+                        Key={'Items'}
+                        AllowSort={true}
+                        Field={'Items'}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                        Content={({ item }) => items.filter(i => i.ChannelGroupID == item.ID).length }
+                    > Items
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
 
             <Modal Title={'Add New Channel Group'}

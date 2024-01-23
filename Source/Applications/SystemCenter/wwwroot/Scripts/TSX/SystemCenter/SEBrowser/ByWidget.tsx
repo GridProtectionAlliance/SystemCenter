@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application } from '@gpa-gemstone/application-typings';
@@ -84,31 +84,38 @@ const ByWidget: Application.Types.iByComponent = (props) => {
                 </li>
             </SearchBar>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<LocalXDA.IWidget>
-                    cols={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Type', field: 'Type', label: 'Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortKey}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colKey === "Scroll")
-                            return;
-
-                        if (d.colKey === sortKey)
-                            dispatch(SEBrowserWidgetSlice.Sort({ SortField: d.colField, Ascending: !ascending }));
-                        else
-                            dispatch(SEBrowserWidgetSlice.Sort({ SortField: d.colField, Ascending: true }));
+                <ReactTable.Table<LocalXDA.IWidget>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortKey}
+                    Ascending={ascending}
+                    OnSort={(d) => {
+                        dispatch(SEBrowserWidgetSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
-                    onClick={(row) => { setShowModal(true); setRecord(row.row) }}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%'  }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                    OnClick={(item) => { setShowModal(true); setRecord(item.row) }}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<LocalXDA.IWidget>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<LocalXDA.IWidget>
+                        Key={'Type'}
+                        AllowSort={true}
+                        Field={'Type'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Type
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
 
             <Modal Show={showModal} Title={'Add New PQ Browser Widget'} CallBack={(c) => {

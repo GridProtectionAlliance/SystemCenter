@@ -23,8 +23,8 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { OpenXDA, Application } from '@gpa-gemstone/application-typings' 
-import Table from '@gpa-gemstone/react-table';
+import { OpenXDA, Application } from '@gpa-gemstone/application-typings'
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { useHistory } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import BreakerAttributes from '../AssetAttribute/Breaker';
@@ -286,38 +286,12 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
             </div>
             <div className="card-body">
                 <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    <Table<OpenXDA.Types.Asset>
-                        cols={[
-                            { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            {
-                                key: 'EditDelete', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (asset, key, style) => <>
-                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
-                                        if (hasPermissions()) {
-                                            e.preventDefault();
-                                            let assetType = assetTypes.find(at => at.ID == asset['AssetTypeID']);
-                                            setLStatus('loading')
-                                            getAssetWithAdditionalFields(asset.ID, assetType.Name).then(asset => { setEditasset(asset); setLStatus('idle'); }, () => setLStatus('error'));
-                                            setNewEdit('Edit');
-                                            setShowModal(true)
-                                        }
-                                    }}><span>{Pencil}</span></button>
-                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
-                                        if (hasPermissions()) {
-                                            e.preventDefault();
-                                            deleteAsset(asset);
-                                         }
-                                     }}><span>{TrashCan}</span></button>
-                                    </>
-                            },
-
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortKey}
-                        ascending={ascending}
-                        onSort={(d) => {
+                    <ReactTable.Table<OpenXDA.Types.Asset>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
                             if (d.colKey === "EditDelete")
                                 return;
 
@@ -333,10 +307,63 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                                 setSortKey(d.colKey);
                             }
                         }}
-                        onClick={handleSelect}
-                        selected={(item) => false}
-                    />
-
+                        OnClick={handleSelect}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<OpenXDA.Types.Asset>
+                            Key={'AssetKey'}
+                            AllowSort={true}
+                            Field={'AssetKey'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Key
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.Asset>
+                            Key={'AssetName'}
+                            AllowSort={true}
+                            Field={'AssetName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.Asset>
+                            Key={'AssetType'}
+                            AllowSort={true}
+                            Field={'AssetType'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Type
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.Asset>
+                            Key={'EditDelete'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => <>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            e.preventDefault();
+                                            let assetType = assetTypes.find(at => at.ID == item['AssetTypeID']);
+                                            setLStatus('loading')
+                                            getAssetWithAdditionalFields(item.ID, assetType.Name).then(asset => { setEditasset(asset); setLStatus('idle'); }, () => setLStatus('error'));
+                                            setNewEdit('Edit');
+                                            setShowModal(true)
+                                        }
+                                }}><span>{Pencil}</span></button>
+                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')} onClick={(e) => {
+                                        if (hasPermissions()) {
+                                            e.preventDefault();
+                                            deleteAsset(item);
+                                         }
+                                }}><span>{TrashCan}</span></button></>
+                            }
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <div className="card-footer">

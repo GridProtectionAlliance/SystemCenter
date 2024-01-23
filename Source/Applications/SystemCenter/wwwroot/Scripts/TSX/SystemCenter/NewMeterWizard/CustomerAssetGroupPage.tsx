@@ -25,7 +25,7 @@ import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { OpenXDA as LocalXDA } from '../global';
-import Table from '@gpa-gemstone/react-table'
+import { ReactTable } from '@gpa-gemstone/react-table'
 import { LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
 import { DefaultSelects } from '@gpa-gemstone/common-pages';
 import { CustomerSlice, AssetGroupSlice } from '../Store/Store';
@@ -284,29 +284,13 @@ export default function CustomerAssetGroupPage(props: IProps) {
                             </div>
                             <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
-                                    <Table<CommonCustomerAssetMeter>
-                                        cols={[
-                                            { key: 'CustomerName', field: 'CustomerName', label: 'Customer', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                            { key: 'CustomerKey', field: 'CustomerKey', label: 'Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                            {
-                                                key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                                content: (item) => <button className="btn btn-sm"
-                                                        onClick={(e) => deleteCustomer(item)}>
-                                                        {TrashCan}
-                                                    </button>
-                                            },
-                                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
-                                        ]}
-                                        tableClass="table table-hover"
-                                        tableStyle={{
-                                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                                        }}
-                                        data={customerList}
-                                        sortKey={customerKey}
-                                        ascending={customerAsc}
-                                        onSort={(d) => {
-                                            if (d.colKey == 'btns' || d.colKey == 'scroll')
+                                    <ReactTable.Table<CommonCustomerAssetMeter>
+                                        TableClass="table table-hover"
+                                        Data={customerList}
+                                        SortKey={customerKey}
+                                        Ascending={customerAsc}
+                                        OnSort={(d) => {
+                                            if (d.colKey == 'btns')
                                                 return;
                                             if (d.colKey === customerKey)
                                                 setCustomerAsc(!customerAsc);
@@ -315,12 +299,41 @@ export default function CustomerAssetGroupPage(props: IProps) {
                                                 setCustomerKey(d.colKey);
                                             }
                                         }}
-                                        onClick={() => { }}
-                                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        selected={() => false}
-                                    />
+                                        TableStyle={{
+                                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                        }}
+                                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        Selected={(item) => false}
+                                        KeySelector={(item) => item.ID}
+                                    >
+                                        <ReactTable.Column<CommonCustomerAssetMeter>
+                                            Key={'CustomerName'}
+                                            AllowSort={true}
+                                            Field={'CustomerName'}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                        > Customer
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<CommonCustomerAssetMeter>
+                                            Key={'CustomerKey'}
+                                            AllowSort={true}
+                                            Field={'CustomerKey'}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                        > Key
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<CommonCustomerAssetMeter>
+                                            Key={'btns'}
+                                            AllowSort={false}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                            Content={({ item }) => <button className="btn btn-sm" onClick={(e) => deleteCustomer(item)}>{TrashCan}</button> }
+                                        > <p></p>
+                                        </ReactTable.Column>
+                                    </ReactTable.Table>
                                 </div>
                             </div>
                     </div>
@@ -344,45 +357,56 @@ export default function CustomerAssetGroupPage(props: IProps) {
                             </div>
                             <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
-
-                               <Table<CommonAssetGroupAssetMeter>
-                                    cols={[
-                                        { key: 'Name', field: 'Name', label: 'Asset Group', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                        { key: 'DisplayDashboard', field: 'DisplayDashboard', label: 'Show in PQ Dashboard', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                        {
-                                                key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                                content: (item) => <button className="btn btn-sm"
-                                                    onClick={(e) => deleteGroup(item)}>
-                                                    {TrashCan}
-                                                </button>
-                                            },
-                                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
-
-                                    ]}
-                                    tableClass="table table-hover"
-                                    data={groupList}
-                                    sortKey={groupKey}
-                                    ascending={groupAsc}
-                                        onSort={(d) => {
-                                            if (d.colKey == 'btns' || d.colKey == 'scroll')
+                                    <ReactTable.Table<CommonAssetGroupAssetMeter>
+                                        TableClass="table table-hover"
+                                        Data={groupList}
+                                        SortKey={groupKey}
+                                        Ascending={groupAsc}
+                                        OnSort={(d) => {
+                                            if (d.colKey == 'btns')
                                                 return;
-                                        if (d.colKey === groupKey)
-                                            setGroupAsc(!groupAsc);
-                                        else {
-                                            setGroupAsc(true);
-                                            setGroupKey(d.colKey);
-                                        }
+                                            if (d.colKey === groupKey)
+                                                setGroupAsc(!groupAsc);
+                                            else {
+                                                setGroupAsc(true);
+                                                setGroupKey(d.colKey);
+                                            }
                                         }}
-                                        tableStyle={{
+                                        TableStyle={{
                                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                                         }}
-                                    onClick={() => { }}
-                                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                    selected={() => false}
-                                    />
+                                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        Selected={(item) => false}
+                                        KeySelector={(item) => item.ID}
+                                    >
+                                        <ReactTable.Column<CommonAssetGroupAssetMeter>
+                                            Key={'Name'}
+                                            AllowSort={true}
+                                            Field={'Name'}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                        > Asset Group
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<CommonAssetGroupAssetMeter>
+                                            Key={'DisplayDashboard'}
+                                            AllowSort={true}
+                                            Field={'DisplayDashboard'}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                        > Show in PQ Dashboard
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<CommonAssetGroupAssetMeter>
+                                            Key={'btns'}
+                                            AllowSort={false}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                            Content={({ item }) => <button className="btn btn-sm" onClick={(e) => deleteGroup(item)}>{TrashCan}</button> }
+                                        > <p></p>
+                                        </ReactTable.Column>
+                                    </ReactTable.Table>
                                 </div>
                             </div>
                     </div>

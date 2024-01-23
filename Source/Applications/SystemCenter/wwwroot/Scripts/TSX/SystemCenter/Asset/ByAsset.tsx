@@ -36,7 +36,7 @@ import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { Search, Modal, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
-import Table from '@gpa-gemstone/react-table'
+import { ReactTable } from '@gpa-gemstone/react-table'
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
 import { AssetTypeSlice, ByAssetSlice } from '../Store/Store';
@@ -267,36 +267,74 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                 </li>
             </DefaultSearch.Asset>
             <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
-                <Table
-                    cols={[
-                        { key: 'AssetName', field: 'AssetName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'AssetType', field: 'AssetType', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'VoltageKV', field: 'VoltageKV', label: 'Nominal Voltage (L-L kV)', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Meters', field: 'Meters', label: 'Meters', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Locations', field: 'Locations', label: 'Substations', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortKey.toString()}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colKey === "Scroll")
-                            return;
-
+                <ReactTable.Table<SystemCenter.Types.DetailedAsset>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortKey.toString()}
+                    Ascending={ascending}
+                    OnSort={(d) => {
                         if (d.colKey === sortKey)
                             dispatch(ByAssetSlice.Sort({ SortField: sortKey, Ascending: ascending }));
                         else {
                             dispatch(ByAssetSlice.Sort({ SortField: d.colField as keyof SystemCenter.Types.DetailedAsset, Ascending: true }));
                         }
                     }}
-                    onClick={item => handleSelect(item.row.ID)}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    OnClick={(item) => handleSelect(item.row.ID)}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                        Key={'AssetName'}
+                        AllowSort={true}
+                        Field={'AssetName'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                        Key={'AssetKey'}
+                        AllowSort={true}
+                        Field={'AssetKey'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                    > Key
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                        Key={'AssetType'}
+                        AllowSort={true}
+                        Field={'AssetType'}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                    > Type
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                        Key={'VoltageKV'}
+                        AllowSort={true}
+                        Field={'VoltageKV'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '10%' }}
+                    > Nominal Voltage (L-L kV)
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                        Key={'Meters'}
+                        AllowSort={true}
+                        Field={'Meters'}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                    > Meters
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                        Key={'Locations'}
+                        AllowSort={true}
+                        Field={'Locations'}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                    > Substations
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
 
             <Modal Show={showNewModal} Size={'lg'} Title={'Add New Asset'}

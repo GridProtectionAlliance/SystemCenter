@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Application } from '@gpa-gemstone/application-typings'
 import * as _ from 'lodash';
 import * as d3 from 'd3';
@@ -152,17 +152,12 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
 
                     <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                         <div className="tab-pane  active">
-                            <Table<AccesLogTable>
-                                cols={[
-                                    { key: 'UserName', field: 'UserName', label: 'User', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                                    { key: 'Logins', field: 'Logins', label: 'Logins for Period', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                                    { key: 'LastAccess', field: 'LastAccess', label: 'Last Access Time ', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                ]}
-                                tableClass="table table-hover"
-                                data={tableData}
-                                sortKey={sortField}
-                                ascending={ascending}
-                                onSort={(d) => {
+                            <ReactTable.Table<AccesLogTable>
+                                TableClass="table table-hover"
+                                Data={tableData}
+                                SortKey={sortField}
+                                Ascending={ascending}
+                                OnSort={(d) => {
                                     if (d.colKey == sortField) {
                                         var ordered = _.orderBy(tableData, [d.colKey], [(!ascending ? "asc" : "desc")]);
                                         setTableData(ordered);
@@ -173,15 +168,38 @@ const UserStatistics: Application.Types.iByComponent = (props) => {
                                         setSortField(d.colKey);
                                     }
                                     setAscending(!ascending);
-
                                 }}
-                                onClick={() => { }}
-                                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                selected={(item) => false}
-                            />
-
+                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                Selected={(item) => false}
+                                KeySelector={(item) => item.UserName}
+                            >
+                                <ReactTable.Column<AccesLogTable>
+                                    Key={'UserName'}
+                                    AllowSort={true}
+                                    Field={'UserName'}
+                                    HeaderStyle={{ width: '10%' }}
+                                    RowStyle={{ width: '10%' }}
+                                > User
+                                </ReactTable.Column>
+                                <ReactTable.Column<AccesLogTable>
+                                    Key={'Logins'}
+                                    AllowSort={true}
+                                    Field={'Logins'}
+                                    HeaderStyle={{ width: '10%' }}
+                                    RowStyle={{ width: '10%' }}
+                                > Logins for Period
+                                </ReactTable.Column>
+                                <ReactTable.Column<AccesLogTable>
+                                    Key={'LastAccess'}
+                                    AllowSort={true}
+                                    Field={'LastAccess'}
+                                    HeaderStyle={{ width: 'auto' }}
+                                    RowStyle={{ width: 'auto' }}
+                                > Last Access Time
+                                </ReactTable.Column>
+                            </ReactTable.Table>
                         </div>
                     </div>                
 

@@ -26,7 +26,7 @@ import { ValueList } from "@gpa-gemstone/common-pages";
 import { Pencil, TrashCan } from "@gpa-gemstone/gpa-symbols";
 import { Input, Select } from "@gpa-gemstone/react-forms";
 import { Modal, Search, ToolTip, Warning } from "@gpa-gemstone/react-interactive";
-import Table from "@gpa-gemstone/react-table";
+import { ReactTable } from "@gpa-gemstone/react-table";
 import React from "react";
 import { useAppDispatch, useAppSelector } from "../hooks";
 import { PQApplicationsSlice } from "../Store/Store";
@@ -118,18 +118,12 @@ function Applications(props: IProps) {
                 </div>
             </div>
             <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
-                <Table<PQApplications>
-                    cols={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Url', field: 'Url', label: 'URL', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'SortOrder', field: 'SortOrder', label: 'Sort Order', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Image', field: 'Image', label: 'Image', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } }
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortField}
-                    ascending={ascending}
-                    onSort={(d) => {
+                <ReactTable.Table<PQApplications>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortField}
+                    Ascending={ascending}
+                    OnSort={(d) => {
                         if (d.colField === undefined)
                             return;
 
@@ -140,12 +134,46 @@ function Applications(props: IProps) {
                             setSortField(d.colField);
                         }
                     }}
-                    onClick={(item) => { setEditApplication(item.row); setShowModal(true); setHasChanged(false); }}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                    OnClick={(item) => { setEditApplication(item.row); setShowModal(true); setHasChanged(false); }}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<PQApplications>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<PQApplications>
+                        Key={'Url'}
+                        AllowSort={true}
+                        Field={'Url'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > URL
+                    </ReactTable.Column>
+                    <ReactTable.Column<PQApplications>
+                        Key={'SortOrder'}
+                        AllowSort={true}
+                        Field={'SortOrder'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Sort Order
+                    </ReactTable.Column>
+                    <ReactTable.Column<PQApplications>
+                        Key={'Image'}
+                        AllowSort={true}
+                        Field={'Image'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Image
+                    </ReactTable.Column>
+                </ReactTable.Table>
                 <div className="card-footer">
                     <div className="btn-group mr-2">
                         <button className={"btn btn-primary"} onClick={() => {

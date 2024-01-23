@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings'
@@ -254,38 +254,68 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                     </li>
                 </DefaultSearch.AssetGroup>
                 <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
-                    <Table<OpenXDA.Types.AssetGroup>
-                    cols={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Assets', field: 'Assets', label: 'Num. of Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Meters', field: 'Meters', label: 'Num. of Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetGroups', field: 'AssetGroups', label: 'Num. of Asset Groups', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            {
-                                key: 'DisplayDashboard', field: 'DisplayDashboard', label: 'Show in PQ Dashboard', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item) => (item.DisplayDashboard ? HeavyCheckMark : null)
-                            },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortKey}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colKey === "Scroll")
-                            return;
-                        if (d.colKey === sortKey)
-                            dispatch(AssetGroupSlice.Sort({ SortField: sortKey, Ascending: ascending }));
-                        else {
-                            dispatch(AssetGroupSlice.Sort({ SortField: d.colField as keyof OpenXDA.Types.AssetGroup, Ascending: true }));
-                        }
-                    }}
-                    onClick={handleSelect}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
-            </div>
+                    <ReactTable.Table<OpenXDA.Types.AssetGroup>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey === sortKey)
+                                dispatch(AssetGroupSlice.Sort({ SortField: sortKey, Ascending: ascending }));
+                            else {
+                                dispatch(AssetGroupSlice.Sort({ SortField: d.colField as keyof OpenXDA.Types.AssetGroup, Ascending: true }));
+                            }
+                        }}
+                        OnClick={handleSelect}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                            Key={'Assets'}
+                            AllowSort={true}
+                            Field={'Assets'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Num. of Assets
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                            Key={'Meters'}
+                            AllowSort={true}
+                            Field={'Meters'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Num. of Meters
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                            Key={'AssetGroups'}
+                            AllowSort={true}
+                            Field={'AssetGroups'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Num. of Asset Groups
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                            Key={'DisplayDashboard'}
+                            AllowSort={false}
+                            Field={'DisplayDashboard'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.DisplayDashboard ? HeavyCheckMark : null }
+                        > Show in PQ Dashboard
+                        </ReactTable.Column>
+                    </ReactTable.Table>
+                </div>
             </div>
             <Modal Size='xlg' Show={showNewGroup} Title={'Add New Asset Group'} ShowX={true}
                 ShowCancel={false} ConfirmBtnClass={'btn-success'} ConfirmText={'Add'}

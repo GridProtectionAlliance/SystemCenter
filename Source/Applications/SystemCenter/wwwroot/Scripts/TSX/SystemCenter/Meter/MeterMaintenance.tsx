@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Warning, Modal, LoadingScreen, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
 import { Warning as WarningIcon } from '@gpa-gemstone/gpa-symbols';
@@ -135,39 +135,12 @@ const MeterMaintenanceWindow = (props: IProps) => {
             <div className="row" style={{ margin: -20 }}>
                 <div className="col" style={{ padding: 20 }}>
                     <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
-                        <Table<MaintenanceWindow>
-                            cols={[
-                                {
-                                    key: 'StartTime', field: 'StartTime', label: 'Start Window Time', headerStyle: { width: 'calc(50%-40px)' }, rowStyle: { width: 'calc(50%-40px)' },
-                                    content: (item) => item.StartTime ? moment(item.StartTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window starts at meter creation'
-                                },
-                                {
-                                    key: 'EndTime', field: 'EndTime', label: 'End Window Time', headerStyle: { width: 'calc(50%-40x)' }, rowStyle: { width: 'calc(50%-40x)' },
-                                    content: (item) => item.EndTime ? moment(item.EndTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window has no end time'
-                                },
-                                {
-                                    key: 'EditDelete', label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
-                                    content: (item) => <>
-                                        <button className="btn btn-sm"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setActiveWindow(item);
-                                                setShowEditNew(true);
-                                            }}><span>{Pencil}</span></button>
-                                        <button className="btn btn-sm"
-                                            onClick={(e) => {
-                                                e.preventDefault();
-                                                setActiveWindow(item);
-                                                setShowDeleteWarning(true);
-                                            }}><span>{TrashCan}</span></button>
-                                    </>
-                                }
-                            ]}
-                            tableClass="table table-hover"
-                            data={tableData}
-                            sortKey={sortKey}
-                            ascending={ascending}
-                            onSort={(d) => {
+                        <ReactTable.Table<MaintenanceWindow>
+                            TableClass="table table-hover"
+                            Data={tableData}
+                            SortKey={sortKey}
+                            Ascending={ascending}
+                            OnSort={(d) => {
                                 if (d.colKey === 'EditDelete')
                                     return;
                                 if (d.colKey == sortKey)
@@ -177,12 +150,52 @@ const MeterMaintenanceWindow = (props: IProps) => {
                                     setSortKey(d.colKey as keyof MaintenanceWindow);
                                 }
                             }}
-                            onClick={(fld) => { }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
-                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={(item) => false}
-                        />
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, width: '100%' }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <ReactTable.Column<MaintenanceWindow>
+                                Key={'StartTime'}
+                                AllowSort={true}
+                                Field={'StartTime'}
+                                HeaderStyle={{ width: 'calc(50%-40px)' }}
+                                RowStyle={{ width: 'calc(50%-40px)' }}
+                                Content={({ item }) => item.StartTime ? moment(item.StartTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window starts at meter creation' }
+                            > Start Window Time
+                            </ReactTable.Column>
+                            <ReactTable.Column<MaintenanceWindow>
+                                Key={'EndTime'}
+                                AllowSort={true}
+                                Field={'EndTime'}
+                                HeaderStyle={{ width: 'calc(50%-40px)' }}
+                                RowStyle={{ width: 'calc(50%-40px)' }}
+                                Content={({ item }) => item.EndTime ? moment(item.EndTime, defaultFormat).format('MM/DD/YYYY hh:mm A') : 'This window has no end time' }
+                            > End Window Time
+                            </ReactTable.Column>
+                            <ReactTable.Column<MaintenanceWindow>
+                                Key={'EditDelete'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                                RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                                Content={({ item }) => <>
+                                    <button className="btn btn-sm"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setActiveWindow(item);
+                                            setShowEditNew(true);
+                                        }}><span>{Pencil}</span></button>
+                                    <button className="btn btn-sm"
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            setActiveWindow(item);
+                                            setShowDeleteWarning(true);
+                                        }}><span>{TrashCan}</span></button>
+                                </> }
+                            > <p></p>
+                            </ReactTable.Column>
+                        </ReactTable.Table>
                     </div>
                 </div>
             </div>);

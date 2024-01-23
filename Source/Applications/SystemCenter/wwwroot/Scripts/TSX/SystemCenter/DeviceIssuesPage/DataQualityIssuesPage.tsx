@@ -30,7 +30,7 @@ import { SystemCenter as SC } from '../global';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { orderBy } from 'lodash';
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import Reason from './Reason';
 import moment from 'moment';
 
@@ -70,22 +70,12 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
             </div>
         </div>
         <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
-            <Table<SC.MeterDataQualitySummary>
-                cols={[
-                    { key: 'Date', label: 'Date', field: 'Date', headerStyle: { width: 'auto', textAlign: 'left' }, rowStyle: { width: 'auto', textAlign: 'left' }, content: (item, key, style) => moment(item[key], "YYYY-MM-DDTHH:mm:ss").format("MM/DD/YYYY")},
-                    { key: 'ExpectedPoints', label: 'Expected Points Succ', field: 'ExpectedPoints', headerStyle: { width: '15%', textAlign: 'center' }, rowStyle: { width: '15%', textAlign: 'center' }},
-                    { key: 'GoodPoints', label: 'Good Points', field: 'GoodPoints', headerStyle: { width: '15%', textAlign: 'center' }, rowStyle: { width: '15%', textAlign: 'center' }},
-                    { key: 'LatchedPoints', label: 'Latched Points', field: 'LatchedPoints', headerStyle: { width: '15%', textAlign: 'center' }, rowStyle: { width: '15%', textAlign: 'center' } },
-                    { key: 'UnreasonablePoints', label: 'Unreasonable Points', field: 'UnreasonablePoints', headerStyle: { width: '15%', textAlign: 'center' }, rowStyle: { width: '15%', textAlign: 'center' } },
-                    { key: 'NoncongruentPoints', label: 'Noncongruent Points', field: 'NoncongruentPoints', headerStyle: { width: '15%', textAlign: 'center' }, rowStyle: { width: '15%', textAlign: 'center' } },
-                    { key: 'DuplicatePoints', label: 'Duplicate Points', field: 'DuplicatePoints', headerStyle: { width: '15%', textAlign: 'center' }, rowStyle: { width: '15%', textAlign: 'center' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
-                tableClass="table table-hover"
-                data={data}
-                sortKey={sortField}
-                ascending={ascending}
-                onSort={(d) => {
+            <ReactTable.Table<SC.MeterDataQualitySummary>
+                TableClass="table table-hover"
+                Data={data}
+                SortKey={sortField}
+                Ascending={ascending}
+                OnSort={(d) => {
                     if (d.colField == sortField) {
                         setAscending(!ascending);
                     }
@@ -94,16 +84,74 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         setSortField(d.colField);
                     }
                 }}
-                onClick={() => { }}
-                tableStyle={{
+                TableStyle={{
                     padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                     tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                 }}
-                theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                selected={() => false}
-            />
+                TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                Selected={(item) => false}
+                KeySelector={(item) => item.ID}
+            >
+                <ReactTable.Column<SC.MeterDataQualitySummary>
+                    Key={'Date'}
+                    AllowSort={true}
+                    Field={'Date'}
+                    HeaderStyle={{ width: 'auto', textAlign: 'left' }}
+                    RowStyle={{ width: 'auto', textAlign: 'left' }}
+                    Content={({ item, key }) => moment(item[key], "YYYY-MM-DDTHH:mm:ss").format("MM/DD/YYYY") }
+                > Date
+                </ReactTable.Column>
+                <ReactTable.Column<SC.MeterDataQualitySummary>
+                    Key={'ExpectedPoints'}
+                    AllowSort={true}
+                    Field={'ExpectedPoints'}
+                    HeaderStyle={{ width: '15%', textAlign: 'center' }}
+                    RowStyle={{ width: '15%', textAlign: 'center' }}
+                > Expected Points Succ
+                </ReactTable.Column>
+                <ReactTable.Column<SC.MeterDataQualitySummary>
+                    Key={'GoodPoints'}
+                    AllowSort={true}
+                    Field={'GoodPoints'}
+                    HeaderStyle={{ width: '15%', textAlign: 'center' }}
+                    RowStyle={{ width: '15%', textAlign: 'center' }}
+                > Good Points
+                </ReactTable.Column>
+                <ReactTable.Column<SC.MeterDataQualitySummary>
+                    Key={'LatchedPoints'}
+                    AllowSort={true}
+                    Field={'LatchedPoints'}
+                    HeaderStyle={{ width: '15%', textAlign: 'center' }}
+                    RowStyle={{ width: '15%', textAlign: 'center' }}
+                > Latched Points
+                </ReactTable.Column>
+                <ReactTable.Column<SC.MeterDataQualitySummary>
+                    Key={'UnreasonablePoints'}
+                    AllowSort={true}
+                    Field={'UnreasonablePoints'}
+                    HeaderStyle={{ width: '15%', textAlign: 'center' }}
+                    RowStyle={{ width: '15%', textAlign: 'center' }}
+                > Unreasonable Points
+                </ReactTable.Column>
+                <ReactTable.Column<SC.MeterDataQualitySummary>
+                    Key={'NoncongruentPoints'}
+                    AllowSort={true}
+                    Field={'NoncongruentPoints'}
+                    HeaderStyle={{ width: '15%', textAlign: 'center' }}
+                    RowStyle={{ width: '15%', textAlign: 'center' }}
+                > Noncongruent Points
+                </ReactTable.Column>
+                <ReactTable.Column<SC.MeterDataQualitySummary>
+                    Key={'DuplicatePoints'}
+                    AllowSort={true}
+                    Field={'DuplicatePoints'}
+                    HeaderStyle={{ width: '15%', textAlign: 'center' }}
+                    RowStyle={{ width: '15%', textAlign: 'center' }}
+                > Duplicate Points
+                </ReactTable.Column>
+            </ReactTable.Table>
         </div>
         <div className="card-footer">
         </div>

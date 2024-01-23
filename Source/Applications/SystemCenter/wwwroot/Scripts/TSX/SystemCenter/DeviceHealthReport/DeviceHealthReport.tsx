@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table'
+import { ReactTable } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SCGlobal } from '../global';
@@ -178,30 +178,124 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
             </div>
             <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
                 <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
-                <Table<SCGlobal.DeviceHealthReport>
-                    cols={[
-                        { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[field]}</a> },
-                        { key: 'OpenMIC', label: 'openMIC ID', field: 'OpenMIC', headerStyle: { width: 120 }, rowStyle: { width: 120 }, content: (item, key, field, style) => <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{trimString(item.OpenMIC,10)}</a> },
-                        { key: 'LocationKey', label: 'Substn', field: 'LocationKey', headerStyle: { width: 100 }, rowStyle: { width: 100 }, content: (item, key, field, style) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink')?.Value.replace('<AssetKey>', item.LocationID.toString())} target='_blank'>{item.LocationKey}</a> },
-                        { key: 'Model', label: 'Model', field: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item, key, field, style) => <a href={`${settings.find(s => s.Name == 'MiMD.Url')?.Value}/Diagnostic/Meter/${item.ID}`} target='_blank'>{item[field]}</a> },
-                        { key: 'TSC', label: 'TSC', field: 'TSC', headerStyle: { width: 50 }, rowStyle: { width: 50 }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSC}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[field]}</a> },
-                        { key: 'Sector', label: 'Sector', field: 'Sector', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, field, style) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.Sector}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[field]}</a> },
-                        { key: 'IP', label: 'IP', field: 'IP', headerStyle: { width: 150 }, rowStyle: { width: 150 }, content: (item, key, field, style) => (item.OpenMIC != undefined ? <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[field]}</a> : item[field]) },
-                        {
-                            key: 'LastGood', label: 'Last Succ Conn', field: 'LastGood', headerStyle: { width: 150 }, rowStyle: { width: 150, textAlign: 'center' }, content: (item, key, field) => {
+                    <ReactTable.Table<SCGlobal.DeviceHealthReport>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey === sortKey)
+                                setAscending(!ascending);
+                            else {
+                                setAscending(true);
+                                setSortKey(d.colKey);
+                            }
+                        }}
+                        OnClick={handleSelect}
+                        TableStyle={{
+                            padding: 0, width: 'calc(100%)', height: '100%',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                        }}
+                        TheadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=Meter&MeterID=${item.ID}&MeterName=${item.Name}`} target='_blank'>{item[field]}</a> }
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'OpenMIC'}
+                            AllowSort={true}
+                            Field={'OpenMIC'}
+                            HeaderStyle={{ width: 120 }}
+                            RowStyle={{ width: 120 }}
+                            Content={({ item }) => <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{trimString(item.OpenMIC, 10)}</a> }
+                        > openMIC ID
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'LocationKey'}
+                            AllowSort={true}
+                            Field={'LocationKey'}
+                            HeaderStyle={{ width: 100 }}
+                            RowStyle={{ width: 100 }}
+                            Content={({ item }) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink')?.Value.replace('<AssetKey>', item.LocationID.toString())} target='_blank'>{item.LocationKey}</a>}
+                        > Substn
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'Model'}
+                            AllowSort={true}
+                            Field={'Model'}
+                            HeaderStyle={{ width: '8%' }}
+                            RowStyle={{ width: '8%' }}
+                            Content={({ item, field }) => <a href={`${settings.find(s => s.Name == 'MiMD.Url')?.Value}/Diagnostic/Meter/${item.ID}`} target='_blank'>{item[field]}</a> }
+                        > Model
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'TSC'}
+                            AllowSort={true}
+                            Field={'TSC'}
+                            HeaderStyle={{ width: 50 }}
+                            RowStyle={{ width: 50 }}
+                            Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.TSC}&Name=${item.TSC}&Field=TSC`} target='_blank'>{item[field]}</a> }
+                        > TSC
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'Sector'}
+                            AllowSort={true}
+                            Field={'Sector'}
+                            HeaderStyle={{ width: '5%' }}
+                            RowStyle={{ width: '5%' }}
+                            Content={({ item, field }) => <a href={`${homePath}index.cshtml?name=DeviceContacts&ID=${item.Sector}&Name=${item.Sector}&Field=Sector`} target='_blank'>{item[field]}</a> }
+                        > Sector
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'IP'}
+                            AllowSort={true}
+                            Field={'IP'}
+                            HeaderStyle={{ width: 150 }}
+                            RowStyle={{ width: 150 }}
+                            Content={({ item, field }) => (item.OpenMIC != undefined ? <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[field]}</a> : item[field]) }
+                        > IP
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'LastGood'}
+                            AllowSort={true}
+                            Field={'LastGood'}
+                            HeaderStyle={{ width: 150 }}
+                            RowStyle={{ width: 150, textAlign: 'center' }}
+                            Content={({ item, field }) => {
                                 let className = 'light'
                                 if (moment().diff(moment(item[field]), 'hours') > 4) className = 'info';
                                 if (moment().diff(moment(item[field]), 'hours') > 24) className = 'warning';
                                 else if (moment().diff(moment(item[field]), 'days') > 7) className = 'danger';
                                 return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic`} target='_blank'>
-                                    <span className={`badge badge-pill badge-${className}`}>{moment(item[field]).format('MM/DD/YYYY HH:mm')}</span>
-                                    </a>
-                            }
-                        },
-                        { key: 'BadDays', label: 'Bad Days', field: 'BadDays', headerStyle: { width: 100 }, rowStyle: { width: 100, textAlign: 'center'} },
-                        {
-                            key: 'LastConfigChange', label: 'Last Cfg Chg', field: 'LastConfigChange', headerStyle: { width: 120 }, rowStyle: { width: 120, textAlign: 'center' }, content: (item, key, field, style) => {
-
+                                    <span className={`badge badge-pill badge-${className}`}>{moment(item[field]).format('MM/DD/YYYY HH:mm')}</span></a>
+                            }}
+                        > Last Succ Conn
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'BadDays'}
+                            AllowSort={true}
+                            Field={'BadDays'}
+                            HeaderStyle={{ width: 100 }}
+                            RowStyle={{ width: 100, textAlign: 'center' }}
+                        > Bad Days
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'LastConfigChange'}
+                            AllowSort={true}
+                            Field={'LastConfigChange'}
+                            HeaderStyle={{ width: 120 }}
+                            RowStyle={{ width: 120, textAlign: 'center' }}
+                            Content={({ item, key, field, style }) => {
                                 if (item[key] == undefined)
                                     return '';
                                 else {
@@ -211,10 +305,16 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
 
                                     return <a href={`${settings.find(s => s.Name == 'MiMD.Url')?.Value}/Configuration/Meter/${item.ID}`} target='_blank'>{moment(item[field]).format('MM/DD/YYYY')}</a>
                                 }
-                            }
-                        },
-                        {
-                            key: 'MICStatus', label: 'MIC', field: 'MICStatus', headerStyle: { width: 50 }, rowStyle: { width: 50, textAlign: 'center' }, content: (item, key, field, style) => {
+                            }}
+                        > Last Cfg Chg
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'MICStatus'}
+                            AllowSort={true}
+                            Field={'MICStatus'}
+                            HeaderStyle={{ width: 50 }}
+                            RowStyle={{ width: 50, textAlign: 'center' }}
+                            Content={({ item, field, style }) => {
                                 if (item[field] == 'Error') {
                                     style.backgroundColor = 'palevioletred';
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' >{CrossMark}</a>;
@@ -228,24 +328,39 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                 }
                                 else
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank'>{HeavyCheckMark}</a>;
-                            }
-                        },
-                        {
-                            key: 'MiMDStatus', label: 'miMD', field: 'MiMDStatus', headerStyle: { width: 50 }, rowStyle: { width: 50, textAlign: 'center' }, content: (item, key, field, style) => {
+                            }}
+                        > MIC
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'MiMDStatus'}
+                            AllowSort={true}
+                            Field={'MiMDStatus'}
+                            HeaderStyle={{ width: 50 }}
+                            RowStyle={{ width: 50, textAlign: 'center' }}
+                            Content={({ item, field, style }) => {
                                 if (item[field] == 'Error') {
                                     style.backgroundColor = 'palevioletred';
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=mimd`} target='_blank' >{CrossMark}</a>;
+                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' >{CrossMark}</a>;
                                 }
                                 else if (item[field] == 'Warning') {
                                     style.backgroundColor = 'antiquewhite';
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=mimd`} target='_blank' >{Warning}</a>;
+                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' >{Warning}</a>;
+                                }
+                                else if (item.LastGood == null && item.MICBadDays == null) {
+                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank' >{Questionmark}</a>;
                                 }
                                 else
-                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=mimd`} target='_blank'>{HeavyCheckMark}</a>;
-                            }
-                        },
-                        {
-                            key: 'XDAStatus', label: 'XDA', field: 'XDAStatus', headerStyle: { width: 50 }, rowStyle: { width: 50, textAlign: 'center' }, content: (item, key, field, style) => {
+                                    return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=openmic&OpenMICAcronym=${item.OpenMIC}`} target='_blank'>{HeavyCheckMark}</a>;
+                            }}
+                        > miMD
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'XDAStatus'}
+                            AllowSort={true}
+                            Field={'XDAStatus'}
+                            HeaderStyle={{ width: 50 }}
+                            RowStyle={{ width: 50, textAlign: 'center' }}
+                            Content={({ item, field, style }) => {
                                 if (item[field] == 'Error') {
                                     style.backgroundColor = 'palevioletred';
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=xda`} target='_blank' >{CrossMark}</a>;
@@ -256,10 +371,16 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                 }
                                 else
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=xda`} target='_blank'>{HeavyCheckMark}</a>;
-                            }
-                        },
-                        {
-                            key: 'DQStatus', label: 'DQ', field: 'DQStatus', headerStyle: { width: 50 }, rowStyle: { width: 50, textAlign: 'center' }, content: (item, key, field, style) => {
+                            }}
+                        > XDA
+                        </ReactTable.Column>
+                        <ReactTable.Column<SCGlobal.DeviceHealthReport>
+                            Key={'DQStatus'}
+                            AllowSort={true}
+                            Field={'DQStatus'}
+                            HeaderStyle={{ width: 50 }}
+                            RowStyle={{ width: 50, textAlign: 'center' }}
+                            Content={({ item, field, style }) => {
                                 if (item.DQStatus == 'Error') {
                                     style.backgroundColor = 'palevioletred';
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=xda`} target='_blank' >{CrossMark}</a>;
@@ -270,38 +391,10 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                                 }
                                 else
                                     return <a href={`${homePath}index.cshtml?name=DeviceIssuesPage&MeterID=${item.ID}&Tab=dq`} target='_blank'>{HeavyCheckMark}</a>;
-                            }
-                        },
-
-                        { key: 'Scroll', label: '', headerStyle: { width: 21, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortKey}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colKey === "Scroll")
-                            return;
-
-                        if (d.colKey === sortKey)
-                            setAscending(!ascending);
-                        else {
-                            setAscending(true);
-                            setSortKey(d.colKey);
-                        }
-                        
-                    }}
-                    onClick={handleSelect}
-                        theadStyle={{ fontSize: 'smaller', tableLayout: 'fixed', display: 'table', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tableStyle={{
-                            padding: 0, width: 'calc(100%)', height: '100%',
-                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
-                        }}
-                    selected={(item) => false}
-                    />
+                            }}
+                        > DQ
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
         </div>

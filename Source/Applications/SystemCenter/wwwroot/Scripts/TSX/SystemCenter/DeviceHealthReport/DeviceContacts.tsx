@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { SystemCenter } from '../global';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings'
 
@@ -77,42 +77,72 @@ function DeviceContacts(props: {ID: string, Name: string, Field: 'TSC' | 'Sector
                     }}>Select All</button>
                 </div>
             </div>
-            
-            <Table<UserAccount>
-                cols={[
-                    { key: 'Selected', field: 'Selected', label: '', headerStyle: { width: '5%' }, rowStyle: { width: '5%' }, content: (item, key, style) => item.Selected ? <span>{HeavyCheckMark}</span> : '' },
-                    { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                    { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                    { key: 'Email', field: 'Email', label: 'Email', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item, key, style) => <a href={`mailto:${item[key]}`}>{ item[key]}</a>},
-                    { key: 'Phone', field: 'Phone', label: 'Phone', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                    { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-
-                ]}
-                tableClass="table table-hover"
-                data={data}
-                sortKey={sortKey}
-                ascending={ascending}
-                onSort={({ colKey, ascending }) => {
-                    if (colKey === "Scroll")
-                        return;
-
-                    if (colKey !== sortKey)
-                        setSortKey(colKey);
+            <ReactTable.Table<UserAccount>
+                TableClass="table table-hover"
+                Data={data}
+                SortKey={sortKey}
+                Ascending={ascending}
+                OnSort={(d) => {
+                    if (d.colKey !== sortKey)
+                        setSortKey(d.colKey);
                     else
-                        setAscending(ascending);
+                        setAscending(d.ascending);
                 }}
-                onClick={(d, evt) => {
+                OnClick={(d) => {
                     if (d.colKey !== "Email") {
                         let newData = [...data];
                         newData[d.index].Selected = !newData[d.index].Selected;
                         setData(newData);
                     }
                 }}
-                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 160, width: '100%' }}
-                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                selected={(item) => false}
-            />
+                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 160, width: '100%' }}
+                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                Selected={(item) => false}
+                KeySelector={(item) => item.ID}
+            >
+                <ReactTable.Column<UserAccount>
+                    Key={'Selected'}
+                    AllowSort={true}
+                    HeaderStyle={{ width: '5%' }}
+                    RowStyle={{ width: '5%' }}
+                    Content={({ item }) => item.Selected ? <span>{HeavyCheckMark}</span> : ''}
+                > <p></p>
+                </ReactTable.Column>
+                <ReactTable.Column<UserAccount>
+                    Key={'FirstName'}
+                    AllowSort={true}
+                    Field={'FirstName'}
+                    HeaderStyle={{ width: '10%' }}
+                    RowStyle={{ width: '10%' }}
+                > First Name
+                </ReactTable.Column>
+                <ReactTable.Column<UserAccount>
+                    Key={'LastName'}
+                    AllowSort={true}
+                    Field={'LastName'}
+                    HeaderStyle={{ width: '10%' }}
+                    RowStyle={{ width: '10%' }}
+                > Last Name
+                </ReactTable.Column>
+                <ReactTable.Column<UserAccount>
+                    Key={'Email'}
+                    AllowSort={true}
+                    Field={'Email'}
+                    HeaderStyle={{ width: '15%' }}
+                    RowStyle={{ width: '15%' }}
+                    Content={({ item, key }) => <a href={`mailto:${item[key]}`}>{item[key]}</a>}
+                > Email
+                </ReactTable.Column>
+                <ReactTable.Column<UserAccount>
+                    Key={'Phone'}
+                    AllowSort={true}
+                    Field={'Phone'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                > Phone
+                </ReactTable.Column>
+            </ReactTable.Table>
         </div>
 
     )

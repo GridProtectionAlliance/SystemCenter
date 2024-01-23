@@ -28,7 +28,7 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ChannelGroupDetailsSlice } from '../Store/Store';
 import ChannelGroupItemForm from './ChannelGroupItemForm';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
@@ -94,47 +94,77 @@ export default function ChannelGroupDetails(props: IProps) {
             <div className="card-body">
                 <div className="row">
                     <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0, overflowY: 'auto' }}>
-                        <Table<SystemCenter.Types.ChannelGroupDetails>
-                            cols={[
-                                { key: 'DisplayName', field: 'DisplayName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'MeasurementType', field: 'MeasurementType', label: 'Measurement Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'MeasurementCharacteristic', field: 'MeasurementCharacteristic', label: 'Measurement Characteristic', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'Unit', field: 'Unit', label: 'Unit', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                {
-                                    key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                    content: (item) => <>
-                                        <button className="btn btn-sm" onClick={(e) => {
-                                            e.preventDefault();
-                                            setRecord(item);
-                                            setShowModal(true);
-                                        }}>{Pencil}</button>
-                                        <button className="btn btn-sm" onClick={(e) => {
-                                            e.preventDefault();
-                                            setRecord(item);
-                                            setShowWarning(true)
-                                        }}>{TrashCan}</button>
-                                    </>
-                                },
-                                { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                            ]}
-                            tableClass="table table-hover"
-                            data={data}
-                            sortKey={sortKey}
-                            ascending={asc}
-                            onSort={(d) => {
-                                if (d.colKey == 'btns' || d.colKey == 'scroll')
+                        <ReactTable.Table<SystemCenter.Types.ChannelGroupDetails>
+                            TableClass="table table-hover"
+                            Data={data}
+                            SortKey={sortKey}
+                            Ascending={asc}
+                            OnSort={(d) => {
+                                if (d.colKey == 'btns')
                                     return;
                                 if (d.colKey === sortKey)
                                     dispatch(ChannelGroupDetailsSlice.Sort({ SortField: d.colField, Ascending: !asc }));
                                 else
                                     dispatch(ChannelGroupDetailsSlice.Sort({ SortField: d.colField, Ascending: true }));
                             }}
-                            onClick={() => { }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', maxHeight: window.innerHeight - 455, }}
-                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={() => false}
-                        />
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', maxHeight: window.innerHeight - 455, width: '100%' }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <ReactTable.Column<SystemCenter.Types.ChannelGroupDetails>
+                                Key={'DisplayName'}
+                                AllowSort={true}
+                                Field={'DisplayName'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Name
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.ChannelGroupDetails>
+                                Key={'MeasurementType'}
+                                AllowSort={true}
+                                Field={'MeasurementType'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Measurement Type
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.ChannelGroupDetails>
+                                Key={'MeasurementCharacteristic'}
+                                AllowSort={true}
+                                Field={'MeasurementCharacteristic'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Measurement Characteristic
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.ChannelGroupDetails>
+                                Key={'Unit'}
+                                AllowSort={true}
+                                Field={'Unit'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Unit
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.ChannelGroupDetails>
+                                Key={'btns'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => <>
+                                    <button className="btn btn-sm" onClick={(e) => {
+                                        e.preventDefault();
+                                        setRecord(item);
+                                        setShowModal(true);
+                                    }}>{Pencil}</button>
+                                    <button className="btn btn-sm" onClick={(e) => {
+                                        e.preventDefault();
+                                        setRecord(item);
+                                        setShowWarning(true);
+                                    }}>{TrashCan}</button>
+                                </> }
+                            > <p></p>
+                            </ReactTable.Column>
+                        </ReactTable.Table>
                     </div>
                 </div>
             </div>

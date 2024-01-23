@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table'
+import { ReactTable } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
@@ -123,37 +123,74 @@ const ByMeter: Application.Types.iByComponent = (props) => {
                 </li>
             </DefaultSearch.Meter>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<SystemCenter.Types.DetailedMeter>
-                    cols={[
-                        { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                        { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'MappedAssets', field: 'MappedAssets', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortKey}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colKey === "Scroll")
-                            return;
-
+                <ReactTable.Table<SystemCenter.Types.DetailedMeter>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortKey}
+                    Ascending={ascending}
+                    OnSort={(d) => {
                         if (d.colKey === sortKey)
                             dispatch(ByMeterSlice.Sort({ SortField: sortKey, Ascending: ascending }));
                         else {
                             dispatch(ByMeterSlice.Sort({ SortField: d.colField as keyof SystemCenter.Types.DetailedMeter, Ascending: true }));
                         }
                     }}
-                    onClick={handleSelect}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%'  }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(item) => false}
-                />
+                    OnClick={handleSelect}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                        Key={'AssetKey'}
+                        AllowSort={true}
+                        Field={'AssetKey'}
+                        HeaderStyle={{ width: '15%' }}
+                        RowStyle={{ width: '15%' }}
+                    > Key
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                        Key={'Location'}
+                        AllowSort={true}
+                        Field={'Location'}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                    > Substation
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                        Key={'MappedAssets'}
+                        AllowSort={true}
+                        Field={'MappedAssets'}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                    > Assets
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                        Key={'Make'}
+                        AllowSort={true}
+                        Field={'Make'}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                    > Make
+                    </ReactTable.Column>
+                    <ReactTable.Column<SystemCenter.Types.DetailedMeter>
+                        Key={'Model'}
+                        AllowSort={true}
+                        Field={'Model'}
+                        HeaderStyle={{ width: '10%' }}
+                        RowStyle={{ width: '10%' }}
+                    > Model
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
             <Modal Show={showEXTModal} Size={'xlg'} Title={'Meter External Database Fields'}
                 ShowCancel={true} ConfirmText={'Update All'} CancelText={'Close'} CallBack={(c) => {

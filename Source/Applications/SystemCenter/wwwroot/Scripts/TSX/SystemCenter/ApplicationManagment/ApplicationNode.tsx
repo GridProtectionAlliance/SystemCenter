@@ -22,7 +22,7 @@
 
 import * as React from 'react';
 import { Input } from '@gpa-gemstone/react-forms';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, Warning, LoadingScreen, ServerErrorIcon, GenericSlice } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
@@ -41,9 +41,8 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
     const data: Application.Types.iApplicationNode[] = useAppSelector(ApplicationNodeSlice.SearchResults);
     const allApplications: Application.Types.iApplicationNode[] = useAppSelector(ApplicationNodeSlice.Data);
     const status: Application.Types.Status = useAppSelector(ApplicationNodeSlice.Status);
-
-    const [sortField, setSortField] = React.useState<keyof Application.Types.iApplicationNode>('Name');
-    const [ascending, setAscending] = React.useState<boolean>(true);
+    const sortField = useAppSelector(ApplicationNodeSlice.SortField);
+    const ascending = useAppSelector(ApplicationNodeSlice.Ascending);
 
     const [editnewNode, setEditNewNode] = React.useState<Application.Types.iApplicationNode>({ ID: CreateGuid(), Name: '' });
     const [editNew, setEditNew] = React.useState<Application.Types.NewEdit>('New');
@@ -105,35 +104,38 @@ const ByApplicationNode: Application.Types.iByComponent = (props) => {
                 </SearchBar>
 
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <Table<Application.Types.iApplicationNode>
-                        cols={[
-                            { key: 'Name', field: 'Name', label: 'Application Name', headerStyle: { width: '50%' }, rowStyle: { width: '50%' } },
-                            { key: 'NodeID', field: 'ID', label: 'Node ID', headerStyle: { width: '50%' }, rowStyle: { width: '50%' } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortField}
-                        ascending={ascending}
-                        onSort={(d) => {
-                            if (d.colKey === 'scroll' || d.colField === undefined)
-                                return;
-                            if (d.colField === sortField)
-                                setAscending(!ascending);
-                            else {
-                                setAscending(true);
-                                setSortField(d.colField);
-                            }
-                            if (d.colField === sortField)
-                                dispatch(ApplicationNodeSlice.DBSearch({ filter: search, sortField, ascending: true }));
-                            else
-                                dispatch(ApplicationNodeSlice.DBSearch({ filter: search, sortField: d.colField, ascending }));
+                    <ReactTable.Table<Application.Types.iApplicationNode>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            dispatch(ApplicationNodeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        onClick={(item) => { setEditNewNode(item.row); setShowModal(true); setEditNew('Edit'); }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={() => false}
-                    />
+                        OnClick={(item) => { setEditNewNode(item.row); setShowModal(true); setEditNew('Edit'); }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<Application.Types.iApplicationNode>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: '50%' }}
+                            RowStyle={{ width: '50%' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<Application.Types.iApplicationNode>
+                            Key={'NodeID'}
+                            AllowSort={true}
+                            Field={'ID'}
+                            HeaderStyle={{ width: '50%' }}
+                            RowStyle={{ width: '50%' }}
+                        > Node ID
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <Modal Title={editNew === 'Edit' ? ('Edit ' + (editnewNode?.Name ?? 'SSO Application')) : 'Add New SSO Application'}

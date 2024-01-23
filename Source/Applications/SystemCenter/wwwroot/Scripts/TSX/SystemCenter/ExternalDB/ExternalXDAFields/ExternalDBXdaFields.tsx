@@ -26,7 +26,7 @@ import { useAppSelector, useAppDispatch } from '../../hooks';
 import { ExternalXDAFieldsSlice } from '../../Store/Store';
 import ExternalDBXdaFieldsForm from './ExternalDBXdaFieldsForm';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
@@ -71,47 +71,64 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
-                                    <Table<SystemCenter.Types.ExternalOpenXDAField>
-                                        cols={[
-                                            { key: 'FieldName', field: 'FieldName', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                            { key: 'ParentTable', field: 'ParentTable', label: 'Parent Type', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                            {
-                                                key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                                content: (item) => <>
-                                                    <button className="btn btn-sm" onClick={(e) => {
-                                                        e.preventDefault();
-                                                        setRecord(item);
-                                                        setShowEdit(true);
-                                                    }}>{Pencil}</button>
-                                                    <button className="btn btn-sm" onClick={(e) => {
-                                                        e.preventDefault();
-                                                        setRecord(item);
-                                                        setShowRemove(true);
-                                                    }}>{TrashCan}</button>
-                                                </>
-                                            },
-                                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } }
-                                        ]}
-                                        tableClass="table table-hover"
-                                        data={data}
-                                        sortKey={sortKey}
-                                        ascending={asc}
-                                        onSort={(d) => {
-                                            if (d.colKey == 'btns' || d.colKey == 'scroll' || d.colField == null) return;
+                                    <ReactTable.Table<SystemCenter.Types.ExternalOpenXDAField>
+                                        TableClass="table table-hover"
+                                        Data={data}
+                                        SortKey={sortKey}
+                                        Ascending={asc}
+                                        OnSort={(d) => {
+                                            if (d.colKey == 'btns') return;
                                             if (d.colField != sortKey)
                                                 dispatch(ExternalXDAFieldsSlice.Sort({ SortField: d.colField, Ascending: asc }));
                                             else
                                                 dispatch(ExternalXDAFieldsSlice.Sort({ SortField: sortKey, Ascending: !asc }));
                                         }}
-                                        tableStyle={{
+                                        TableStyle={{
                                             padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
                                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                                         }}
-                                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        tbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                        selected={() => false}
-                                    />
+                                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        Selected={(item) => false}
+                                        KeySelector={(item) => item.ID}
+                                    >
+                                        <ReactTable.Column<SystemCenter.Types.ExternalOpenXDAField>
+                                            Key={'FieldName'}
+                                            AllowSort={true}
+                                            Field={'FieldName'}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                        > Name
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<SystemCenter.Types.ExternalOpenXDAField>
+                                            Key={'ParentTable'}
+                                            AllowSort={true}
+                                            Field={'ParentTable'}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                        > Parent Type
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<SystemCenter.Types.ExternalOpenXDAField>
+                                            Key={'btns'}
+                                            AllowSort={false}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                            Content={({ item }) => <>
+                                                <button className="btn btn-sm" onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setRecord(item);
+                                                    setShowEdit(true);
+                                                }}>{Pencil}</button>
+                                                <button className="btn btn-sm" onClick={(e) => {
+                                                    e.preventDefault();
+                                                    setRecord(item);
+                                                    setShowRemove(true);
+                                                }}>{TrashCan}</button>
+                                            </>}
+                                        > <p></p>
+                                        </ReactTable.Column>
+                                    </ReactTable.Table>
                                 </div>
                             </div>
                         </div>
@@ -123,34 +140,33 @@ export default function ExternalDBXdaFields(props: { ID: number }) {
                             >Link New Field</button>
                         </div>
                     </div>
+                    <Warning
+                        Message={'This will permanently delete this Linked Field and cannot be undone.'}
+                        Show={showRemove} Title={`Delete ${record.ParentTable}: ${record.FieldName} Linked Field`}
+                        CallBack={(conf) => {
+                            if (conf) {
+                                dispatch(ExternalXDAFieldsSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
+                                setRecord(emptyRecord);
+                            }
+                            setShowRemove(false);
+                        }}
+                    />
+                    <Modal Title={record.ID === -1 ? 'Link New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showEdit} ShowCancel={true} ConfirmText={record.ID === -1 ? 'Link' : 'Save'}
+                        ConfirmShowToolTip={errors.length > 0} DisableConfirm={errors.length > 0} ShowX={true}
+                        ConfirmToolTipContent={
+                            <>
+                                { errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>) }
+                            </>
+                        }
+                        CallBack={(conf) => {
+                            setShowEdit(false);
+                            if (conf) dispatch(ExternalXDAFieldsSlice.DBAction({ verb: (record.ID > 0 ? 'PATCH' : 'POST'), record }));
+                        }}
+                    >
+                        <ExternalDBXdaFieldsForm Record={record} Setter={setRecord} SetErrors={setErrors} />
+                    </Modal>
                 </div>
             </div>
-
-            <Warning
-                Message={'This will permanently delete this Linked Field and cannot be undone.'}
-                Show={showRemove} Title={`Delete ${record.ParentTable}: ${record.FieldName} Linked Field`}
-                CallBack={(conf) => {
-                    if (conf) {
-                        dispatch(ExternalXDAFieldsSlice.DBAction({ verb: 'DELETE', record: { ...record } }));
-                        setRecord(emptyRecord);
-                    }
-                    setShowRemove(false);
-                }}
-            />
-            <Modal Title={record.ID === -1 ? 'Link New Field' : 'Edit ' + (record?.FieldName ?? 'Field')} Show={showEdit} ShowCancel={true} ConfirmText={record.ID === -1 ? 'Link' : 'Save'}
-                ConfirmShowToolTip={errors.length > 0} DisableConfirm={errors.length > 0} ShowX={true}
-                ConfirmToolTipContent={
-                    <>
-                        { errors.map((e, i) => <p key={i}>{CrossMark} {e}</p>) }
-                    </>
-                }
-                CallBack={(conf) => {
-                    setShowEdit(false);
-                    if (conf) dispatch(ExternalXDAFieldsSlice.DBAction({ verb: (record.ID > 0 ? 'PATCH' : 'POST'), record }));
-                }}
-            >
-                <ExternalDBXdaFieldsForm Record={record} Setter={setRecord} SetErrors={setErrors} />
-            </Modal>
         </div>
 
 

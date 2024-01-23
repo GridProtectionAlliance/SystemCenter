@@ -25,7 +25,7 @@ import * as React from 'react';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { EventTagSlice } from '../Store/Store';
 
-import Table from '@gpa-gemstone/react-table'
+import { ReactTable } from '@gpa-gemstone/react-table'
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
@@ -106,29 +106,47 @@ const EventTags: Application.Types.iByComponent = (props) => {
             </SearchBar>
 
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <Table<OpenXDA.Types.EventTag>
-                    cols={[
-                        { key: 'Name', label: 'Name', field: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                        {
-                            key: 'ShowInFilter', label: 'Show in Filter', field: 'ShowInFilter', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                            content: (item) => item.ShowInFilter ? HeavyCheckMark : CrossMark
-                        },
-                        { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={sortField}
-                    ascending={ascending}
-                    onSort={(d) => {
-                        if (d.colField == null) return;
+                <ReactTable.Table<OpenXDA.Types.EventTag>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={sortField}
+                    Ascending={ascending}
+                    OnSort={(d) => {
                         dispatch(EventTagSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                     }}
-                    onClick={(item) => { setRecord(item.row); setMode('Edit'); }}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                />
+                    OnClick={(item) => { setRecord(item.row); setMode('Edit'); }}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<OpenXDA.Types.EventTag>
+                        Key={'Name'}
+                        AllowSort={true}
+                        Field={'Name'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Name
+                    </ReactTable.Column>
+                    <ReactTable.Column<OpenXDA.Types.EventTag>
+                        Key={'Description'}
+                        AllowSort={true}
+                        Field={'Description'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > Description
+                    </ReactTable.Column>
+                    <ReactTable.Column<OpenXDA.Types.EventTag>
+                        Key={'ShowInFilter'}
+                        AllowSort={true}
+                        Field={'ShowInFilter'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={({ item }) => item.ShowInFilter ? HeavyCheckMark : CrossMark }
+                    > Show in Filter
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
 
             <Modal Title={mode === 'Add' ? 'Add New Event Tag' : 'Edit ' + record.Name}

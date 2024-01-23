@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { useAppDispatch, useAppSelector } from '../hooks';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
 import { RemoteXDAAssetSlice, ByAssetSlice } from '../Store/Store';
 import { LoadingScreen, Modal, Search, ServerErrorIcon, ToolTip, Warning } from '@gpa-gemstone/react-interactive';
@@ -105,30 +105,84 @@ const RemoteAssetTab = (props: IProps) => {
         cardBody = <LoadingScreen Show={true} />
     } else {
         cardBody =
-            <Table<OpenXDA.Types.RemoteXDAAsset>
-                cols={[
-                { key: 'LocalAssetName', field: 'LocalAssetName', label: 'Local Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                { key: 'LocalAssetKey', field: 'LocalAssetKey', label: 'Local Asset Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                {
-                    key: 'RemoteAssetName', field: 'RemoteXDAAssetKey', label: 'Remote Asset Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                    content: (item) => (item.Obsfucate ? item.RemoteXDAAssetKey : item.LocalAssetName)
-                },
-                {
-                    key: 'RemoteXDAAssetKey', field: 'RemoteXDAAssetKey', label: 'Remote Asset Key', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                    content: (item) => (item.Obsfucate ? item.RemoteXDAAssetKey : item.LocalAssetKey)
-                },
-
-                {
-                    key: 'Obfuscated', field: 'Obsfucate', label: 'Obfuscated', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                    content: (item) => (item.Obsfucate ? HeavyCheckMark : null)
-                },
-                {
-                    key: 'Synced', field: 'Synced', label: 'Synced', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                    content: (item) => (item.Synced ? HeavyCheckMark : null)
-                },
-                {
-                    key: 'Edit', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-                    content: (item) => (isEditable(item) ? 
+            <ReactTable.Table<OpenXDA.Types.RemoteXDAAsset>
+                TableClass="table table-hover"
+                Data={searchResults}
+                SortKey={sortKey}
+                Ascending={ascending}
+                OnSort={(d) => {
+                    if (d.colKey == 'Edit' || d.colKey == 'Delete') return;
+                    if (d.colKey === sortKey)
+                        setAscending(!ascending);
+                    else {
+                        setAscending(true);
+                        setSortKey(d.colField);
+                    }
+                }}
+                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                Selected={(item) => false}
+                KeySelector={(item) => item.ID}
+            >
+                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                    Key={'LocalAssetName'}
+                    AllowSort={true}
+                    Field={'LocalAssetName'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                > Local Asset Name
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                    Key={'LocalAssetKey'}
+                    AllowSort={true}
+                    Field={'LocalAssetKey'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                > Local Asset Key
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                    Key={'RemoteAssetName'}
+                    AllowSort={true}
+                    Field={'RemoteXDAAssetKey'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                    Content={({ item }) => item.Obsfucate ? item.RemoteXDAAssetKey : item.LocalAssetName }
+                > Remote Asset Name
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                    Key={'RemoteAssetKey'}
+                    AllowSort={true}
+                    Field={'RemoteXDAAssetKey'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                    Content={({ item }) => item.Obsfucate ? item.RemoteXDAAssetKey : item.LocalAssetKey }
+                > Remote Asset Key
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                    Key={'Obsfucate'}
+                    AllowSort={true}
+                    Field={'Obsfucate'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                    Content={({ item }) => item.Obsfucate ? HeavyCheckMark : null }
+                > Obsfucated
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                    Key={'Synced'}
+                    AllowSort={true}
+                    Field={'Synced'}
+                    HeaderStyle={{ width: 'auto' }}
+                    RowStyle={{ width: 'auto' }}
+                    Content={({ item }) => item.Synced ? HeavyCheckMark : null}
+                > Synced
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                    Key={'Edit'}
+                    AllowSort={false}
+                    HeaderStyle={{ width: '10%' }}
+                    RowStyle={{ width: '10%' }}
+                    Content={({ item }) => (isEditable(item) ?
                         <button
                             className={"btn btn-edit" + (isEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
                             onClick={(e) => {
@@ -142,10 +196,15 @@ const RemoteAssetTab = (props: IProps) => {
                             }}>
                             <span>{Pencil}</span>
                         </button> : null)
-                },
-                {
-                    key: 'Delete', label: '', headerStyle: { width: '10%' }, rowStyle: { width: '10%' },
-                    content: (item) => (isEditable(item) ? 
+                    }
+                > <p></p>
+                </ReactTable.Column>
+                <ReactTable.Column<OpenXDA.Types.RemoteXDAAsset>
+                    Key={'Delete'}
+                    AllowSort={false}
+                    HeaderStyle={{ width: '10%' }}
+                    RowStyle={{ width: '10%' }}
+                    Content={({ item }) => (isEditable(item) ?
                         <button
                             className={"btn btn-delete" + (isEditable(item) ? '' : ' disabled') + (hasPermissions() ? '' : ' disabled')}
                             onClick={(e) => {
@@ -159,29 +218,10 @@ const RemoteAssetTab = (props: IProps) => {
                             }}>
                             <span>{TrashCan}</span>
                         </button> : null)
-                },
-                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                ]}
-                tableClass="table table-hover"
-                data={searchResults}
-                sortKey={sortKey}
-                ascending={ascending}
-                onSort={(d) => {
-                    if (d.colKey === "Scroll")
-                        return;
-                    if (d.colKey === sortKey)
-                        setAscending(!ascending);
-                    else {
-                        setAscending(true);
-                        setSortKey(d.colField);
                     }
-                }}
-                onClick={(item) => { }}
-                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                selected={(item) => false}
-            />
+                > <p></p>
+                </ReactTable.Column>
+            </ReactTable.Table>
     }
 
     return (

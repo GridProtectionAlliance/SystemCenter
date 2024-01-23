@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table'
+import { ReactTable } from '@gpa-gemstone/react-table'
 import { Warning, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { OpenXDA as OpenXDAGlobal } from '../../global';
@@ -388,25 +388,56 @@ function DataRescueTable(props: {
     const renderChannelAdjustments = (item: OpenXDAGlobal.DataRescueOperation) => <>{item.ChannelAdjustments.length}</>;
 
     return (
-        <Table
-            cols={[
-                { key: 'StartTime', field: 'StartTime', label: 'Start', headerStyle: { width: '25%', cursor: 'initial' }, rowStyle: { width: '25%' }, content: renderStartTime },
-                { key: 'EndTime', field: 'EndTime', label: 'End', headerStyle: { width: '25%', cursor: 'initial' }, rowStyle: { width: '25%' }, content: renderEndTime },
-                { key: 'TimeShift', field: 'TimeShift', label: 'Time Shift', headerStyle: { width: '25%', cursor: 'initial' }, rowStyle: { width: '25%' }, content: renderTimeShift },
-                { key: 'ChannelAdjustments', field: 'ChannelAdjustments', label: 'Channel Adjustments', headerStyle: { width: '25%', cursor: 'initial' }, rowStyle: { width: '25%' }, content: renderChannelAdjustments },
-                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0, cursor: 'initial' }, rowStyle: { width: 0, padding: 0 } },
-            ]}
-            tableClass="table table-hover"
-            data={props.DataRescueOperations}
-            sortKey={"None"}
-            ascending={false}
-            onSort={() => { /* Sorting not supported */ }}
-            onClick={(data) => props.RowClick(data.row)}
-            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
-            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-            selected={() => false}
-        />
+        <ReactTable.Table<OpenXDAGlobal.DataRescueOperation>
+            TableClass="table table-hover"
+            Data={props.DataRescueOperations}
+            SortKey={"None"}
+            Ascending={false}
+            OnSort={() => { /* Sorting not supported */ }}
+            OnClick={(d) => props.RowClick(d.row)}
+            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
+            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+            Selected={(item) => false}
+            KeySelector={(item) => item.ID}
+        >
+            <ReactTable.Column<OpenXDAGlobal.DataRescueOperation>
+                Key={'StartTime'}
+                AllowSort={false}
+                Field={'StartTime'}
+                HeaderStyle={{ width: '25%', cursor: 'initial' }}
+                RowStyle={{ width: '25%' }}
+                Content={({ item }) => renderStartTime(item)}
+            > Start
+            </ReactTable.Column>
+            <ReactTable.Column<OpenXDAGlobal.DataRescueOperation>
+                Key={'EndTime'}
+                AllowSort={false}
+                Field={'EndTime'}
+                HeaderStyle={{ width: '25%', cursor: 'initial' }}
+                RowStyle={{ width: '25%' }}
+                Content={({ item }) => renderEndTime(item)}
+            > End
+            </ReactTable.Column>
+            <ReactTable.Column<OpenXDAGlobal.DataRescueOperation>
+                Key={'TimeShift'}
+                AllowSort={false}
+                Field={'TimeShift'}
+                HeaderStyle={{ width: '25%', cursor: 'initial' }}
+                RowStyle={{ width: '25%' }}
+                Content={({ item }) => renderTimeShift(item)}
+            > Time Shift
+            </ReactTable.Column>
+            <ReactTable.Column<OpenXDAGlobal.DataRescueOperation>
+                Key={'ChannelAdjustments'}
+                AllowSort={false}
+                Field={'ChannelAdjustments'}
+                HeaderStyle={{ width: '25%', cursor: 'initial' }}
+                RowStyle={{ width: '25%' }}
+                Content={({ item }) => renderChannelAdjustments(item)}
+            > Channel Adjustments
+            </ReactTable.Column>
+        </ReactTable.Table>
     );
 }
 
@@ -634,24 +665,45 @@ function ChannelAdjustmentTable(props: {
     }
 
     return (
-        <Table
-            cols={[
-                { key: 'Channel', field: 'Channel', label: 'Channel', headerStyle: { width: 'auto', cursor: 'initial' }, rowStyle: { width: 'auto', cursor: 'initial' } },
-                { key: 'Adder', field: 'Adder', label: 'Adder', headerStyle: { width: '15rem', cursor: 'initial' }, rowStyle: { width: '15rem', cursor: 'initial' }, content: (item) => renderAdderInput(item) },
-                { key: 'Multiplier', field: 'Multiplier', label: 'Multiplier', headerStyle: { width: '15rem', cursor: 'initial' }, rowStyle: { width: '15rem', cursor: 'initial' }, content: (item) => renderMultiplierInput(item) },
-                { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0, cursor: 'initial' }, rowStyle: { width: 0, padding: 0 } },
-            ]}
-            tableClass="table table-hover"
-            data={channelAdjustments}
-            sortKey={"None"}
-            ascending={false}
-            onSort={() => { /* Sorting not supported */ }}
-            onClick={() => { /* Default click behavior */ }}
-            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
-            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-            selected={() => false}
-        />
+        <ReactTable.Table<OpenXDAGlobal.DataRescueChannelAdjustment>
+            TableClass="table table-hover"
+            Data={channelAdjustments}
+            SortKey={"None"}
+            Ascending={false}
+            OnSort={() => { /* Sorting not supported */ }}
+            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
+            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+            Selected={(item) => false}
+            KeySelector={(item) => item.ID}
+        >
+            <ReactTable.Column<OpenXDAGlobal.DataRescueChannelAdjustment>
+                Key={'Channel'}
+                AllowSort={false}
+                Field={'Channel'}
+                HeaderStyle={{ width: 'auto', cursor: 'initial' }}
+                RowStyle={{ width: 'auto', cursor: 'initial' }}
+            > Channel
+            </ReactTable.Column>
+            <ReactTable.Column<OpenXDAGlobal.DataRescueChannelAdjustment>
+                Key={'Adder'}
+                AllowSort={false}
+                Field={'Adder'}
+                HeaderStyle={{ width: '15rem', cursor: 'initial' }}
+                RowStyle={{ width: '15rem', cursor: 'initial' }}
+                Content={({ item }) => renderAdderInput(item)}
+            > Adder
+            </ReactTable.Column>
+            <ReactTable.Column<OpenXDAGlobal.DataRescueChannelAdjustment>
+                Key={'Multiplier'}
+                AllowSort={false}
+                Field={'Multiplier'}
+                HeaderStyle={{ width: '15rem', cursor: 'initial' }}
+                RowStyle={{ width: '15rem', cursor: 'initial' }}
+                Content={({ item }) => renderMultiplierInput(item)}
+            > Multiplier
+            </ReactTable.Column>
+        </ReactTable.Table>
     );
 }
 

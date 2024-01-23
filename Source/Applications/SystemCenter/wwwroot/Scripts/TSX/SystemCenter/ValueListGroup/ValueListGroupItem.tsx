@@ -28,7 +28,7 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListSlice } from '../Store/Store';
 import ValueListForm from './ValueListForm';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
 
@@ -70,47 +70,70 @@ export default function ValueListGroupItems(props: IProps) {
             </div>
             <div className="card-body">
                 <div className="row">
-                    <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0, overflowY: 'auto' }}>
-                        <Table<SystemCenter.Types.ValueListItem>
-                            cols={[
-                                { key: 'Value', field: 'Value', label: 'Value', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'AltValue', field: 'AltValue', label: 'Label', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'SortOrder', field: 'SortOrder', label: 'Sort Order', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                {
-                                    key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                    content: (item) => <>
-                                        <button className="btn btn-sm" onClick={(e) => {
-                                            e.preventDefault();
-                                            setRecord(item);
-                                            setShowModal(true);
-                                        }}>{Pencil}</button>
-                                        <button className="btn btn-sm" onClick={(e) => {
-                                            e.preventDefault();
-                                            setRecord(item);
-                                            setShowWarning(true)
-                                        }}>{TrashCan}</button>                                       
-                                    </>
-                                },
-                                { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                            ]}
-                            tableClass="table table-hover"
-                            data={data}
-                            sortKey={sortKey}
-                            ascending={asc}
-                            onSort={(d) => {
-                                if (d.colKey == 'btns' || d.colKey == 'scroll')
+                    <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0 }}>
+                        <ReactTable.Table<SystemCenter.Types.ValueListItem>
+                            TableClass="table table-hover"
+                            Data={data}
+                            SortKey={sortKey}
+                            Ascending={asc}
+                            OnSort={(d) => {
+                                if (d.colKey == 'btns')
                                     return;
                                 if (d.colKey === sortKey)
                                     dispatch(ValueListSlice.Sort({ SortField: d.colField, Ascending: !asc }));
                                 else
                                     dispatch(ValueListSlice.Sort({ SortField: d.colField, Ascending: true }));
                             }}
-                            onClick={() => { }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
-                            rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={() => false}
-                        />
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, width: '100%' }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <ReactTable.Column<SystemCenter.Types.ValueListItem>
+                                Key={'Value'}
+                                AllowSort={true}
+                                Field={'Value'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Value
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.ValueListItem>
+                                Key={'AltValue'}
+                                AllowSort={true}
+                                Field={'AltValue'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Label
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.ValueListItem>
+                                Key={'SortOrder'}
+                                AllowSort={true}
+                                Field={'SortOrder'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Sort Order
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.ValueListItem>
+                                Key={'btns'}
+                                AllowSort={false}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                                Content={({ item }) => <>
+                                    <button className="btn btn-sm" onClick={(e) => {
+                                        e.preventDefault();
+                                        setRecord(item);
+                                        setShowModal(true);
+                                    }}>{Pencil}</button>
+                                    <button className="btn btn-sm" onClick={(e) => {
+                                        e.preventDefault();
+                                        setRecord(item);
+                                        setShowWarning(true)
+                                    }}>{TrashCan}</button>
+                                </> }
+                            > <p></p>
+                            </ReactTable.Column>
+                        </ReactTable.Table>
                     </div>
                 </div>
             </div>

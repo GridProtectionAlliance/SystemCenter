@@ -29,7 +29,7 @@ import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { useAppSelector, useAppDispatch } from '../../hooks';
 import { MeasurementCharacteristicSlice, MeasurmentTypeSlice, PhaseSlice } from '../../Store/Store';
 import { LoadingIcon, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { ChannelScalingWrapper, ChannelScalingType, IMultiplier } from './ChannelScalingWrapper';
 import { Input } from '@gpa-gemstone/react-forms';
 import { SelectRoles } from '../../Store/UserSettings';
@@ -202,34 +202,75 @@ const ChannelScalingForm = (props: IProps) => {
                 </div>
                 </div>
                 <div style={{ width: '100%' }}>
-                    <Table<ChannelScalingWrapper>
-                        cols={[
-                            { key: 'Descriptor', field: 'Descriptor', label: 'Description', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'Identity', field: 'Identity', label: 'Type', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
-                            {
-                                key: 'ScalingType', label: 'Scaling Type', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (item, key, fld, style, index) => <select className='form-control' value={item.ScalingTypeName} disabled={!hasPermissions()} onChange={(event) => {
+                    <ReactTable.Table<ChannelScalingWrapper>
+                        TableClass="table table-hover"
+                        Data={Wrappers}
+                        SortKey={''}
+                        Ascending={false}
+                        OnSort={(d) => { }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 530, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.Channel.ID.toString()}
+                    >
+                        <ReactTable.Column<ChannelScalingWrapper>
+                            Key={'Descriptor'}
+                            AllowSort={false}
+                            Field={'Descriptor'}
+                            HeaderStyle={{ width: '30%' }}
+                            RowStyle={{ width: '30%' }}
+                        > Description
+                        </ReactTable.Column>
+                        <ReactTable.Column<ChannelScalingWrapper>
+                            Key={'Identity'}
+                            AllowSort={false}
+                            Field={'Identity'}
+                            HeaderStyle={{ width: '20%' }}
+                            RowStyle={{ width: '20%' }}
+                        > Type
+                        </ReactTable.Column>
+                        <ReactTable.Column<ChannelScalingWrapper>
+                            Key={'ScalingType'}
+                            AllowSort={false}
+                            Field={'ScalingType'}
+                            HeaderStyle={{ width: '20%' }}
+                            RowStyle={{ width: '20%' }}
+                            Content={({ item, index }) => 
+                                <select className='form-control' value={item.ScalingTypeName} disabled={!hasPermissions()} onChange={(event) => {
                                     const scalingTypeName = event.target.value;
                                     const wrapper = _.cloneDeep(Wrappers);
                                     wrapper[index].ScalingType = ChannelScalingType[scalingTypeName];
                                     recalculateChannelMultipliers(wrapper);
                                 }}>{ScalingTypes.map(a => <option key={ChannelScalingType[a]} value={ChannelScalingType[a]}>{ChannelScalingType[a]}</option>)}</select>
-                            },
-                            { key: 'Multiplier', field: 'PresentMultiplier', label: 'Applied Multiplier', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Replaced', field: 'ReplacedMultiplier', label: 'If Replaced', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Adjusted', field: 'AdjustedMultiplier', label: 'If Adjusted', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={Wrappers}
-                        sortKey={''}
-                        ascending={false}
-                        onSort={(d) => { }}
-                        onClick={(fld) => { }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 510, }}
-                        rowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                        keySelector={(item) => item.Channel.ID.toString()}
-                    />
+                            }
+                        > Scaling Type
+                        </ReactTable.Column>
+                        <ReactTable.Column<ChannelScalingWrapper>
+                            Key={'PresentMultiplier'}
+                            AllowSort={false}
+                            Field={'PresentMultiplier'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Applied Multiplier
+                        </ReactTable.Column>
+                        <ReactTable.Column<ChannelScalingWrapper>
+                            Key={'ReplacedMultiplier'}
+                            AllowSort={false}
+                            Field={'ReplacedMultiplier'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > If Replaced
+                        </ReactTable.Column>
+                        <ReactTable.Column<ChannelScalingWrapper>
+                            Key={'AdjustedMultiplier'}
+                            AllowSort={false}
+                            Field={'AdjustedMultiplier'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > If Adjusted
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </>
 

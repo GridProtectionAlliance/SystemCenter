@@ -28,7 +28,7 @@ import { AssetAttributes } from './Asset';
 import {   } from '../../../TS/Services/Asset';
 import LineSegmentAttributes from './LineSegment';
 import { LoadingScreen, Modal, Warning, Search, ServerErrorIcon, ToolTip } from '@gpa-gemstone/react-interactive';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark, HeavyCheckMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
@@ -176,18 +176,50 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
             </div>
             <div className="card-body">
                 <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                        <Table<OpenXDA.Types.SourceImpedance>
-                        cols={[
-                                {
-                                    key: 'AssetLocationID', field: 'AssetLocationID', label: 'Substation',
-                                    headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                    content: (r) => getLocationName(r)
-                                },
-                                { key: 'RSrc', field: 'RSrc', label: 'R (pu)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'XSrc', field: 'XSrc', label: 'X (pu)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            {
-                                key: 'EditDelete', label: '', headerStyle: { width: 80, paddingLeft: 0, paddingRight: 5 }, rowStyle: { width: 80, paddingLeft: 0, paddingRight: 5 },
-                                content: (item) => <> <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                    <ReactTable.Table<OpenXDA.Types.SourceImpedance>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={'AssetLocationID'}
+                        Ascending={true}
+                        OnSort={(d) => { }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<OpenXDA.Types.SourceImpedance>
+                            Key={'AssetLocationID'}
+                            AllowSort={true}
+                            Field={'AssetLocationID'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => getLocationName(item)}
+                        > Substation
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.SourceImpedance>
+                            Key={'RSrc'}
+                            AllowSort={true}
+                            Field={'RSrc'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > R (pu)
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.SourceImpedance>
+                            Key={'XSrc'}
+                            AllowSort={true}
+                            Field={'XSrc'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > X (pu)
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.SourceImpedance>
+                            Key={'EditDelete'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                            RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                            Content={({ item }) => <>
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
                                     onClick={(e) => {
                                         if (hasPermissions()) {
                                             setShowAdd(true);
@@ -195,28 +227,17 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
                                             setNewEdit('Edit');
                                         }
                                     }}><span>{Pencil}</span></button>
-                                    <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                        onClick={(e) => {
+                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                    onClick={(e) => {
                                             if (hasPermissions()) {
                                                 setNewEditImpedance(item);
                                                 setshowWarning(true);
                                             }
-                                        }}><span>{TrashCan}</span></button>
-                                </>
-                            }
-
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={'AssetlocationID'}
-                        ascending={true}
-                        onSort={(d) => { }}
-                        onClick={() => {}}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                    />
+                                    }}><span>{TrashCan}</span></button>
+                            </> }
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <div className="card-footer">

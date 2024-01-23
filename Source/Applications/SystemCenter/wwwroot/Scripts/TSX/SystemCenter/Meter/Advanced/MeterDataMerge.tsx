@@ -22,7 +22,7 @@
 //******************************************************************************************************
 
 import * as React from 'react';
-import Table from '@gpa-gemstone/react-table'
+import { ReactTable } from '@gpa-gemstone/react-table'
 import { Search, SearchBar, Warning } from '@gpa-gemstone/react-interactive';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 
@@ -238,27 +238,61 @@ export default function DataMergeWindow(props: {
                     >
                         {" "}
                     </SearchBar>
-                    
-                    <Table
-                        cols={[
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssetKey', field: 'AssetKey', label: 'Key', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            { key: 'Location', field: 'Location', label: 'Substation', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Make', field: 'Make', label: 'Make', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Model', field: 'Model', label: 'Model', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={meters}
-                        sortKey={sortKey}
-                        ascending={ascending}
-                        onSort={handleSort}
-                        onClick={(data) => setMergeMeter(data.row)}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 660, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(meter) => meter === mergeMeter}
-                    />
+
+                    <ReactTable.Table<Meter>
+                        TableClass="table table-hover"
+                        Data={meters}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={handleSort}
+                        OnClick={(d) => setMergeMeter(d.row)}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 660, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => item === mergeMeter}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<Meter>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<Meter>
+                            Key={'AssetKey'}
+                            AllowSort={true}
+                            Field={'AssetKey'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Key
+                        </ReactTable.Column>
+                        <ReactTable.Column<Meter>
+                            Key={'Location'}
+                            AllowSort={true}
+                            Field={'Location'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Substation
+                        </ReactTable.Column>
+                        <ReactTable.Column<Meter>
+                            Key={'Make'}
+                            AllowSort={true}
+                            Field={'Make'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Make
+                        </ReactTable.Column>
+                        <ReactTable.Column<Meter>
+                            Key={'Model'}
+                            AllowSort={true}
+                            Field={'Model'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Model
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <div className="card-footer">

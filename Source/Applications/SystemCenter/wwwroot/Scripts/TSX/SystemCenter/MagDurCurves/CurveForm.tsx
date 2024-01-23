@@ -28,7 +28,7 @@ import { CustomerSlice, SEBrowserWidgetSlice, WidgetCategorySlice } from '../Sto
 import { Input, Select, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
 import { OpenXDA as LocalXDA } from '../global';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { Circle, Line, Plot } from '@gpa-gemstone/react-graph';
 import { DownArrow, TrashCan, UpArrow } from '@gpa-gemstone/gpa-symbols';
 
@@ -102,7 +102,7 @@ export default function CurveForm(props: IProps) {
     function calculateArea(area: string): Point[] {
         if (area == null || area.length == 0)
             return []; 
-        return area.split(',').map(p => {
+        return area.split(',').map((p, i) => {
             let s = p.trim().split(" ");
             return [parseFloat(s[0]), parseFloat(s[1])] as Point;
         })
@@ -125,97 +125,118 @@ export default function CurveForm(props: IProps) {
             </div>
             <div className="row">
                 <div className="col-6">
-                    <Table<Point>
-                        cols={[
-                            {
-                                key: 'Index', label: 'Point Index', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item, key, fld, style, i) => <>
-                                    <p>{i+1}</p>
-                                </>
-                            },
-                            {
-                                key: 'Magnitude', field: '1', label: 'Magnitude (pu)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item, key, fld, style, i) => <Input<Point>
+                    <ReactTable.Table<Point>
+                        TableClass="table table-hover"
+                        Data={curve}
+                        SortKey={''}
+                        Ascending={false}
+                        OnSort={() => { }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item, index) => `${item.toString()}-${index}`}
+                    >
+                        <ReactTable.Column<Point>
+                            Key={'Index'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ index }) => <>
+                                <p>{index + 1}</p>
+                            </> }
+                        > Point Index
+                        </ReactTable.Column>
+                        <ReactTable.Column<Point>
+                            Key={'Magnitude'}
+                            AllowSort={false}
+                            Field={'1'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item, index }) =>
+                                <Input<Point>
                                     Type={'number'}
                                     Record={item}
                                     Field={'1'}
                                     Label=''
                                     Valid={(k) => validPoint(k, item)}
                                     Feedback={'Magnitude must be between 0 and 9999.'}
-                                    Setter={(record) => setCurve((d) => { let u = _.cloneDeep(d); u[i][1] = record[1]; return u; })}
+                                    Setter={(record) => setCurve((d) => { let u = _.cloneDeep(d); u[index][1] = record[1]; return u; })}
                                 />
-                            },
-                            {
-                                key: 'Duration', field: '0', label: 'Duration (s)', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item, key, fld, style, i) => <Input<Point>
+                            }
+                        > Magnitude (pu)
+                        </ReactTable.Column>
+                        <ReactTable.Column<Point>
+                            Key={'Duration'}
+                            AllowSort={false}
+                            Field={'1'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item, index }) =>
+                                <Input<Point>
                                     Record={item}
                                     Type={'number'}
                                     Field={'0'}
                                     Label=''
                                     Valid={(k) => validPoint(k, item)}
                                     Feedback={'Duration must be between 0 and 1000.'}
-                                    Setter={(record) => setCurve((d) => { let u = _.cloneDeep(d); u[i][0] = record[0]; return u; })}
+                                    Setter={(record) => setCurve((d) => { let u = _.cloneDeep(d); u[index][0] = record[0]; return u; })}
                                 />
-                            },
-                            {
-                                key: 'Remove', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item, key, fld, style, i) => <>
-                                    <button className="btn btn-sm"
-                                        onClick={(e) => {
-                                            setCurve((d) => {
-                                                const u = _.cloneDeep(d);
-                                                u.splice(i, 1);
-                                                return u;
-                                            })
-                                        }}
-                                        disabled={curve.length < 4}
-                                    >
-                                        <span>{TrashCan}</span>
-                                    </button>
-                                    <button className="btn btn-sm"
-                                        onClick={(e) => {
-                                            setCurve((d) => {
-                                                const u = _.cloneDeep(d);
-                                                const p = u.splice(i, 1, u[i - 1]);
-                                                u[i - 1] = p[0];
-                                                return u;
-                                            })
-                                        }}
-                                        disabled={i == 0}
-                                    >
-                                        <span>{UpArrow}</span>
-                                    </button>
-                                    <button className="btn btn-sm"
-                                        onClick={(e) => {
-                                            setCurve((d) => {
-                                                const u = _.cloneDeep(d);
-                                                const p = u.splice(i, 1, u[i + 1]);
-                                                u[i + 1] = p[0];
-                                                return u;
-                                            })
-                                        }}
-                                        disabled={i+1 == curve.length }
-                                    >
-                                        <span>{DownArrow}</span>
-                                    </button>
-                                </>
-                            },
-                            { key: 'Scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={curve}
-                        sortKey={''}
-                        ascending={false}
-                        onSort={() => { } }
-                        onClick={() => { } }
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={(item) => false}
-                    />
+                            }
+                        > Duration (s)
+                        </ReactTable.Column>
+                        <ReactTable.Column<Point>
+                            Key={'Remove'}
+                            AllowSort={false}
+                            Field={'1'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ index }) => <>
+                                <button className="btn btn-sm"
+                                    onClick={(e) => {
+                                        setCurve((d) => {
+                                            const u = _.cloneDeep(d);
+                                            u.splice(index, 1);
+                                            return u;
+                                        })
+                                    }}
+                                    disabled={curve.length < 4}
+                                >
+                                    <span>{TrashCan}</span>
+                                </button>
+                                <button className="btn btn-sm"
+                                    onClick={(e) => {
+                                        setCurve((d) => {
+                                            const u = _.cloneDeep(d);
+                                            const p = u.splice(index, 1, u[index - 1]);
+                                            u[index - 1] = p[0];
+                                            return u;
+                                        })
+                                    }}
+                                    disabled={index == 0}
+                                >
+                                    <span>{UpArrow}</span>
+                                </button>
+                                <button className="btn btn-sm"
+                                    onClick={(e) => {
+                                        setCurve((d) => {
+                                            const u = _.cloneDeep(d);
+                                            const p = u.splice(index, 1, u[index + 1]);
+                                            u[index + 1] = p[0];
+                                            return u;
+                                        })
+                                    }}
+                                    disabled={index + 1 == curve.length}
+                                >
+                                    <span>{DownArrow}</span>
+                                </button>
+                            </> }
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                     <form>
                         <button className="btn btn-primary"
-                            onClick={(event) => { event.preventDefault(); setCurve((d) => [...d, [d[d.length-1][0], d[d.length-1][1]]]); }}
+                            onClick={(event) => { event.preventDefault(); setCurve((d) => [...d, [d[d.length - 1][0], d[d.length - 1][1]]]); }}
                         >Add Point</button>
                     </form>
                 </div>

@@ -26,7 +26,7 @@ import * as React from 'react';
 import { SystemCenter } from '@gpa-gemstone/application-typings'
 import { LocationDrawingSlice } from '../../Store/Store';
 import { Modal, ToolTip } from '@gpa-gemstone/react-interactive';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import { CreateGuid } from '@gpa-gemstone/helper-functions';
 
@@ -66,27 +66,54 @@ const LocationDrawings = (props: IProps) => {
             <Modal Show={showDrawings} Title={'Drawings'} ShowX={true} Size={'lg'} CallBack={() => setShowDrawings(false)} ShowCancel={false} ConfirmText={'Done'}>
                 <div className="row">
                     <div className="col" style={{ width: '100%' }}>
-                        <Table<SystemCenter.Types.LocationDrawing>
-                            cols={[
-                                { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'Description', field: 'Description', label: 'Description', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'Number', field: 'Number', label: 'Number', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                                { key: 'Category', field: 'Category', label: 'Category', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            ]}
-                        tableClass="table table-hover"
-                        data={drawingData}
-                            sortKey={drawingSortKey}
-                            ascending={drawingAscending}
-                            onSort={(d) => {
+                        <ReactTable.Table<SystemCenter.Types.LocationDrawing>
+                            TableClass="table table-hover"
+                            Data={drawingData}
+                            SortKey={drawingSortKey}
+                            Ascending={drawingAscending}
+                            OnSort={(d) => {
                                 dispatch(LocationDrawingSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                             }}
-                            onClick={(d) => {
-                                window.open(d.row.Link, '_blank');
-                            }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: '400px', width: '100%' }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        />
+                            OnClick={(d) => window.open(d.row.Link, '_blank')}
+                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: '400px', width: '100%' }}
+                            RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                Key={'Name'}
+                                AllowSort={true}
+                                Field={'Name'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Name
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                Key={'Description'}
+                                AllowSort={true}
+                                Field={'Description'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Description
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                Key={'Number'}
+                                AllowSort={true}
+                                Field={'Number'}
+                                HeaderStyle={{ width: '15%' }}
+                                RowStyle={{ width: '15%' }}
+                            > Number
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.LocationDrawing>
+                                Key={'Category'}
+                                AllowSort={true}
+                                Field={'Category'}
+                                HeaderStyle={{ width: '15%' }}
+                                RowStyle={{ width: '15%' }}
+                            > Category
+                            </ReactTable.Column>
+                        </ReactTable.Table>
                     </div>
                 </div>
             </Modal>

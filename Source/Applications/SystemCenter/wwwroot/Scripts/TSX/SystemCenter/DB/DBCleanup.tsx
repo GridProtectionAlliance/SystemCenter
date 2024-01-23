@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { Input, TextArea } from '@gpa-gemstone/react-forms';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import { SearchBar, Search, Modal, Warning, LoadingScreen } from '@gpa-gemstone/react-interactive';
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
@@ -116,19 +116,12 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                 </SearchBar>
 
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <Table<DBCleanup>
-                        cols={[
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '50%' }, rowStyle: { width: '10%' } },
-                            { key: 'Schedule', field: 'Schedule', label: 'Schedule', headerStyle: { width: '50%' }, rowStyle: { width: '10%' } },
-                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortField}
-                        ascending={ascending}
-                        onSort={(d) => {
-                            if (d.colKey === 'scroll' || d.colField === undefined)
-                                return;
+                    <ReactTable.Table<DBCleanup>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={ascending}
+                        OnSort={(d) => {
                             if (d.colField === sortField)
                                 setAscending(!ascending);
                             else {
@@ -140,12 +133,30 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                             else
                                 dispatch(DBCleanupSlice.DBSearch({ filter: search, sortField: d.colField, ascending }));
                         }}
-                        onClick={(item) => { setEditNewDBCleanup(item.row); setShowModal(true); setEditNew('Edit'); }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={() => false}
-                    />
+                        OnClick={(item) => { setEditNewDBCleanup(item.row); setShowModal(true); setEditNew('Edit'); }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 500, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<DBCleanup>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: '50%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<DBCleanup>
+                            Key={'Schedule'}
+                            AllowSort={true}
+                            Field={'Schedule'}
+                            HeaderStyle={{ width: '50%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Schedule
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <Modal Title={editNew === 'Edit' ? 'Edit ' + (editNewDBCleanup?.Name ?? 'Database Cleanup') : 'Add New Database Cleanup'}
