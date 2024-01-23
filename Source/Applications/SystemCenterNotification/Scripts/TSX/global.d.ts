@@ -183,3 +183,12 @@ export interface IScheduledEmailDataSourceSetting {
     Value: string,
     Name: string
 }
+
+export interface INode {
+    ID: number,
+    NodeTypeID: number,
+    HostRegistrationID: number,
+    AssignedHostRegistrationID: number,
+    Name: string,
+    MinimumHostCount: number
+}
