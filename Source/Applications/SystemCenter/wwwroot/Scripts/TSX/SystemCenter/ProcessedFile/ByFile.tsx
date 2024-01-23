@@ -194,7 +194,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         Field={'DataStartTime'}
                         HeaderStyle={{ width: '15%' }}
                         RowStyle={{ width: '15%' }}
-                        Content={({ item }) => moment(item.DataStartTime).format('MM/DD/YYYY HH:mm.ss.ssss')}
+                        Content={({ item }) => ((moment(item.DataStartTime).isValid() )? moment(item.DataStartTime).format('MM/DD/YYYY HH:mm.ss.ssss') : 'N/A')}
                     > Data Start
                     </ReactTable.Column>
                 </ReactTable.Table>
