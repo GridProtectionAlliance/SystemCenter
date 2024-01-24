@@ -104,7 +104,7 @@ const MultipleAssetsPage: React.FC<IProps> = (props) => {
                                 TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
                                 RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                                 Selected={(item) => (item.ID === currentAsset?.ID && item.AssetKey === currentAsset?.AssetKey)}
-                                KeySelector={(item) => item.ID}
+                                KeySelector={(item) => item.AssetKey}
                             >
                                 <ReactTable.Column<OpenXDA.Types.Asset>
                                     Key={'AssetName'}
@@ -165,7 +165,7 @@ const MultipleAssetsPage: React.FC<IProps> = (props) => {
                                 TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
                                 RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                                 Selected={(item) => (item.ID === currentAsset?.ID)}
-                                KeySelector={(item) => item.ID}
+                                KeySelector={(item) => item.AssetKey}
                             >
                                 <ReactTable.Column<OpenXDA.Types.Asset>
                                     Key={'AssetKey'}

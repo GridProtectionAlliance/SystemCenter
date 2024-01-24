@@ -252,7 +252,6 @@ export default function ConnectionPage(props: IProps) {
                     <ReactTable.Column<IConnection>
                         Key={'AssetName'}
                         AllowSort={true}
-                        Field={'Asset'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => item.Asset.AssetName}
@@ -261,7 +260,6 @@ export default function ConnectionPage(props: IProps) {
                     <ReactTable.Column<IConnection>
                         Key={'AssetKey'}
                         AllowSort={true}
-                        Field={'Asset'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => item.Asset.AssetKey}
@@ -270,7 +268,6 @@ export default function ConnectionPage(props: IProps) {
                     <ReactTable.Column<IConnection>
                         Key={'AssetType'}
                         AllowSort={true}
-                        Field={'Asset'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => item.Asset.AssetType}
@@ -279,9 +276,9 @@ export default function ConnectionPage(props: IProps) {
                     <ReactTable.Column<IConnection>
                         Key={'VoltageKV'}
                         AllowSort={true}
-                        Field={'Asset'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
+                        Content={({ item }) => item.Asset.VoltageKV}
                     > Voltage (kV)
                     </ReactTable.Column>
                     <ReactTable.Column<IConnection>
@@ -323,7 +320,6 @@ export default function ConnectionPage(props: IProps) {
                     <ReactTable.Column<IConnection>
                         Key={'AssetName'}
                         AllowSort={true}
-                        Field={'Asset'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => item.Asset.AssetName}
@@ -332,7 +328,6 @@ export default function ConnectionPage(props: IProps) {
                     <ReactTable.Column<IConnection>
                         Key={'AssetKey'}
                         AllowSort={true}
-                        Field={'Asset'}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => item.Asset.AssetKey}
