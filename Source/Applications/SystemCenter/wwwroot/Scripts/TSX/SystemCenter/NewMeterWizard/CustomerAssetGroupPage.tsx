@@ -164,7 +164,7 @@ export default function CustomerAssetGroupPage(props: IProps) {
             url: `${homePath}api/SystemCenter/Customer${props.Type}/SearchableList`,
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify({
-                Searches: [{ FieldName: (props.Type === 'Meter' ? 'MeterID' : 'AssetID'), Operator: "=", SearchText: props.ID, Type: 'string', isPivotColumn: false }],
+                Searches: [{ FieldName: (props.Type === 'Meter' ? 'MeterID' : 'AssetID'), Operator: "=", SearchText: props.ID, Type: 'string', IsPivotColumn: false }],
                 OrderBy: customerKey,
                 Ascending: customerAsc
             }),
@@ -208,7 +208,7 @@ export default function CustomerAssetGroupPage(props: IProps) {
             url: `${homePath}api/SystemCenter/AssetGroup${props.Type}/SearchableList`,
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify({
-                Searches: [{ FieldName: (props.Type === 'Meter' ? 'MeterID' : 'AssetID'), Operator: "=", SearchText: props.ID, Type: 'string', isPivotColumn: false }],
+                Searches: [{ FieldName: (props.Type === 'Meter' ? 'MeterID' : 'AssetID'), Operator: "=", SearchText: props.ID, Type: 'string', IsPivotColumn: false }],
                 OrderBy: groupKey,
                 Ascending: groupAsc
             }),

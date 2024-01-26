@@ -51,7 +51,7 @@ const RemoteMeterTab = (props: IProps) => {
             SearchText: props.ID.toString(),
             Operator: '=',
             Type: 'number',
-            isPivotColumn: false
+            IsPivotColumn: false
         }]
 
     // Shared Consts

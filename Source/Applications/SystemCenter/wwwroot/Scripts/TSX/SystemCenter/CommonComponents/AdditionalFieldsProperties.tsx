@@ -59,13 +59,13 @@ function AdditionalFieldsProperties(props: IProps): JSX.Element {
             Operator: '=',
             SearchText: props.ParentTable,
             Type: "string",
-            isPivotColumn: false
+            IsPivotColumn: false
         }, {
             FieldName: 'IsInfo',
             Operator: '=',
             SearchText: "1",
             Type: "boolean",
-            isPivotColumn: false
+            IsPivotColumn: false
         }];
         let handle = $.ajax({
             type: "POST",

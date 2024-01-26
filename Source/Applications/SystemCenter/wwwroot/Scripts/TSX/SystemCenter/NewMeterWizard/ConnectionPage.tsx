@@ -76,7 +76,7 @@ export default function ConnectionPage(props: IProps) {
                     SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID ${selectedType !== props.CurrentAsset.AssetType ? "WHERE" : "GROUP BY AssetTypeID, AssetRelationshipTypeID, Name HAVING Count(Name) > 1 AND"} Name = '${props.CurrentAsset.AssetType}')`,
                     Operator: 'IN',
                     Type: 'number',
-                    isPivotColumn: false
+                    IsPivotColumn: false
                 }
             ]
         if (selectedType !== props.CurrentAsset.AssetType)
@@ -86,7 +86,7 @@ export default function ConnectionPage(props: IProps) {
                     SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${selectedType}')`,
                     Operator: 'IN',
                     Type: 'number',
-                    isPivotColumn: false
+                    IsPivotColumn: false
                 });
         dispatch(AssetConnectionTypeSlice.DBSearch({ filter: typeFilter }));
 
@@ -99,7 +99,7 @@ export default function ConnectionPage(props: IProps) {
             return;
         setSelectedAssetKey(selectedAsset.AssetKey);
         const connFilter: Search.IFilter<OpenXDA.Types.AssetConnection>[] = [
-            { FieldName: 'ParentID', SearchText: `${props.CurrentAsset.ID} OR ChildID = ${props.CurrentAsset.ID}`, Operator: '=', Type: 'number', isPivotColumn: false },
+            { FieldName: 'ParentID', SearchText: `${props.CurrentAsset.ID} OR ChildID = ${props.CurrentAsset.ID}`, Operator: '=', Type: 'number', IsPivotColumn: false },
         ];
         let handle = getAssetConnections(connFilter);
         return () => {

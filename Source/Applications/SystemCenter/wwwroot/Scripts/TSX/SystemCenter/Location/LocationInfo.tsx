@@ -159,8 +159,8 @@ const LocationInfo = (props: IProps) => {
             dataType: 'json',
             data: JSON.stringify({
                 Searches: [
-                    { FieldName: 'LocationKey', SearchText: location.LocationKey, Operator: '=', Type: 'string', isPivotColumn: false },
-                    { FieldName: 'ID', SearchText: location.ID, Operator: '<>', Type: 'number', isPivotColumn: false }                ], OrderBy: 'ID', Ascending: false
+                    { FieldName: 'LocationKey', SearchText: location.LocationKey, Operator: '=', Type: 'string', IsPivotColumn: false },
+                    { FieldName: 'ID', SearchText: location.ID, Operator: '<>', Type: 'number', IsPivotColumn: false }                ], OrderBy: 'ID', Ascending: false
             }),
             cache: false,
             async: true

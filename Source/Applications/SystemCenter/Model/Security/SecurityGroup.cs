@@ -282,8 +282,8 @@ namespace SystemCenter.Model.Security
             }
 
             IEnumerable<DataRow> filteredRows = dataTable.AsEnumerable();
-            IEnumerable<Search> searchesToApply = postData.Searches.Where(flt => !IsInDatabase(flt.FieldName));
-            foreach (Search search in searchesToApply)
+            IEnumerable<SQLSearchFilter> searchesToApply = postData.Searches.Where(flt => !IsInDatabase(flt.FieldName));
+            foreach (SQLSearchFilter search in searchesToApply)
             {
                 string wildcardPattern = Regex.Escape(search.SearchText.ToLower()).Replace(@"\*", ".*");
                 switch (search.Operator)

@@ -117,7 +117,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
             SearchText: ``,
             Operator: "LIKE",
             Type: "integer",
-            isPivotColumn: false
+            IsPivotColumn: false
         }]));
     }, [props.ID]);
     */

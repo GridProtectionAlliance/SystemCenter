@@ -56,7 +56,7 @@ function AssetGroupAssetGroupWindow(props: { AssetGroupID: number}) {
         SearchText: props.AssetGroupID.toString(),
         Operator: '<>',
         Type: 'number',
-        isPivotColumn: false
+        IsPivotColumn: false
     };
 
     React.useEffect(() => {

@@ -65,7 +65,7 @@ const CustomerMeterWindow = (props: IProps) => {
                 SearchText: props.Customer.ID.toString(),
                 Operator: '=',
                 Type: 'number',
-                isPivotColumn: false
+                IsPivotColumn: false
             }], sortField, ascending
         }));
     }

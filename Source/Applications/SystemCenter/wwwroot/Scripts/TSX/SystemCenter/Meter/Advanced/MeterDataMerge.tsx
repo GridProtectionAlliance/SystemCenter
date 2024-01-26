@@ -66,7 +66,7 @@ export default function DataMergeWindow(props: {
 
         const searches = search.map(filter => {
             if (!searchColumns.some(column => column.key === filter.FieldName))
-                return { ...filter, isPivotColumn: true };
+                return { ...filter, IsPivotColumn: true };
 
             return filter;
         });

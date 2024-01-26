@@ -78,7 +78,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
             url: `${homePath}api/OpenXDA/MaintenanceWindow/SearchableList`,
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify({
-                Searches: [{ FieldName: 'MeterID', Operator: "=", SearchText: props.Meter.ID, Type: 'string', isPivotColumn: false }],
+                Searches: [{ FieldName: 'MeterID', Operator: "=", SearchText: props.Meter.ID, Type: 'string', IsPivotColumn: false }],
                 OrderBy: sortKey,
                 Ascending: ascending
             }),

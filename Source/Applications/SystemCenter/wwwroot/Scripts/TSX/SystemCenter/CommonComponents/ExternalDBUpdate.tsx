@@ -97,7 +97,7 @@ const ExternalDBUpdate = React.memo((props: {
                         ExternalDatabases ON extDBTables.ExtDBID = ExternalDatabases.ID 
                         WHERE AdditionalField.ParentTable = '${props.Type}')`,
                     Operator: 'IN',
-                    isPivotColumn: false
+                    IsPivotColumn: false
                 }], OrderBy: sort, Ascending: asc }),
             dataType: 'json',
             cache: false,

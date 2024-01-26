@@ -50,7 +50,7 @@ export default function TargetSelection(props: IProps) {
                     SearchText: `(${props.Table.replace(/\s/g, "")})`,
                     Operator: "IN",
                     Type: "enum",
-                    isPivotColumn: false
+                    IsPivotColumn: false
                 }]));
                 return 'Asset';
         }

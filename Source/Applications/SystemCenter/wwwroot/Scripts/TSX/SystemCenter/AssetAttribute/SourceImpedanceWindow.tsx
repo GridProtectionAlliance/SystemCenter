@@ -67,7 +67,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     //#ToDo Swap Type to query
     React.useEffect(() => {
         const filter = [
-            { FieldName: "AssetLocationID", Operator: "IN", Type: "number", isPivotColumn: false, SearchText: `(SELECT ID FROM AssetLocation WHERE AssetID=${props.ID})` }
+            { FieldName: "AssetLocationID", Operator: "IN", Type: "number", IsPivotColumn: false, SearchText: `(SELECT ID FROM AssetLocation WHERE AssetID=${props.ID})` }
         ] as Search.IFilter<OpenXDA.Types.SourceImpedance>[]
         dispatch(SourceImpedanceSlice.DBSearch({ filter }))
     }, [props.ID]);
@@ -89,7 +89,7 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
     React.useEffect(() => {
         if (sourceImpedanceStatus == 'changed' || sourceImpedanceStatus == 'unintiated') {
             const filter = [
-                { FieldName: "AssetLocationID", Operator: "IN", Type: "number", isPivotColumn: false, SearchText: `(SELECT ID FROM AssetLocation WHERE AssetID=${props.ID})` }
+                { FieldName: "AssetLocationID", Operator: "IN", Type: "number", IsPivotColumn: false, SearchText: `(SELECT ID FROM AssetLocation WHERE AssetID=${props.ID})` }
             ] as Search.IFilter<OpenXDA.Types.SourceImpedance>[]
             dispatch(SourceImpedanceSlice.DBSearch({ filter }))
         }

@@ -129,10 +129,10 @@ export default class NoteSlice {
     private GetNotes(parentID: number | void, sortField: keyof OpenXDA.Types.Note, Ascending: boolean): JQuery.jqXHR<string> {
 
         const filter = [
-            { FieldName: 'NoteTypeID', SearchText: "(SELECT ID FROM NoteType WHERE ReferenceTableName = '" + this.NoteType + "')", Operator: '=', Type: 'integer', isPivotColumn: false },
-            { FieldName: 'ReferenceTableID', SearchText: parentID, Operator: '=', Type: 'integer', isPivotColumn: false },
-            { FieldName: 'NoteApplicationID', SearchText: "(SELECT ID From NoteApplication WHERE Name = 'SystemCenter')", Operator: '=', Type: 'integer', isPivotColumn: false },
-            { FieldName: 'NoteTagID', SearchText: "(SELECT ID From NoteTag WHERE Name = 'Configuration')", Operator: '=', Type: 'integer', isPivotColumn: false }
+            { FieldName: 'NoteTypeID', SearchText: "(SELECT ID FROM NoteType WHERE ReferenceTableName = '" + this.NoteType + "')", Operator: '=', Type: 'integer', IsPivotColumn: false },
+            { FieldName: 'ReferenceTableID', SearchText: parentID, Operator: '=', Type: 'integer', IsPivotColumn: false },
+            { FieldName: 'NoteApplicationID', SearchText: "(SELECT ID From NoteApplication WHERE Name = 'SystemCenter')", Operator: '=', Type: 'integer', IsPivotColumn: false },
+            { FieldName: 'NoteTagID', SearchText: "(SELECT ID From NoteTag WHERE Name = 'Configuration')", Operator: '=', Type: 'integer', IsPivotColumn: false }
         ]
 
         return $.ajax({

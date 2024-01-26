@@ -1527,7 +1527,7 @@ namespace SystemCenter.Controllers
             using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
             {
                 extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
-                return Ok(QueryExternal(table, xdaConnection, new Search[0], orderBy, asc, start, end));
+                return Ok(QueryExternal(table, xdaConnection, new SQLSearchFilter[0], orderBy, asc, start, end));
             }
         }
 
@@ -1554,7 +1554,7 @@ namespace SystemCenter.Controllers
             using (AdoDataConnection xdaConnection = new AdoDataConnection(Connection))
             {
                 extDBTables table = new TableOperations<extDBTables>(xdaConnection).QueryRecordWhere("ID={0}", extTableID);
-                return Ok(QueryExternalCount(table, xdaConnection, new Search[0]));
+                return Ok(QueryExternalCount(table, xdaConnection, new SQLSearchFilter[0]));
             }            
         }
 
@@ -1611,7 +1611,7 @@ namespace SystemCenter.Controllers
             }
         }
 
-        private DataTable QueryExternal(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<Search> filters, string orderBy=null, bool asc=true, int? start=null, int? end=null)
+        private DataTable QueryExternal(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<SQLSearchFilter> filters, string orderBy=null, bool asc=true, int? start=null, int? end=null)
         {
             int count = -1;
             if (!(start is null) && !(end is null) )
@@ -1623,7 +1623,7 @@ namespace SystemCenter.Controllers
                 return ScheduledExtDBTask.RetrieveDataTable(table, extConnection, filters.Select(f => ProcessExternalFilter(extConnection, f)).ToArray(), orderBy,asc,(start ?? 1)-1, count);
         }
 
-        private int QueryExternalCount(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<Search> filters)
+        private int QueryExternalCount(extDBTables table, AdoDataConnection xdaConnection, IEnumerable<SQLSearchFilter> filters)
         {
             ExternalDatabases extDB = new TableOperations<ExternalDatabases>(xdaConnection).QueryRecordWhere("ID={0}", table.ExtDBID);
             if (extDB is null) throw new NullReferenceException($"Could not find external database associated with table ${table.TableName}");
@@ -1631,7 +1631,7 @@ namespace SystemCenter.Controllers
                 return ScheduledExtDBTask.RetrieveDataCount(table, extConnection, filters.Select(f => ProcessExternalFilter(extConnection,f)).ToArray());
         }
 
-        private Condition ProcessExternalFilter(AdoDataConnection connection, Search search)
+        private Condition ProcessExternalFilter(AdoDataConnection connection, SQLSearchFilter search)
         {
             string fieldName = search.FieldName;
             if (connection.IsOracle)

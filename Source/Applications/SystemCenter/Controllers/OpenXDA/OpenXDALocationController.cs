@@ -118,7 +118,7 @@ namespace SystemCenter.Controllers.OpenXDA
             try
             {
 
-                string whereClause = BuildWhereClause(searches.Searches);
+                string whereClause = BuildWhereClause(searches.Searches, new List<object>());
 
 
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))

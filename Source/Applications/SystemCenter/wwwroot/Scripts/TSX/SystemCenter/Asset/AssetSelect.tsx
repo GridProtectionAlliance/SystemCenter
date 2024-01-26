@@ -54,7 +54,7 @@ export default function AssetSelect(props: IProps) {
         SearchText: 'LineSegment',
         Operator: '<>',
         Type: 'string',
-        isPivotColumn: false
+        IsPivotColumn: false
     };
 
     React.useEffect(() => {

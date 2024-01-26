@@ -95,7 +95,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
 
     function getMeters(): JQuery.jqXHR<string>{
         setSearchState('Loading');
-        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, isPivotColumn: true }; else return s; })
+        let searches = search.map(s => { if (defaultSearchcols.findIndex(item => item.key == s.FieldName) == -1) return { ...s, IsPivotColumn: true }; else return s; })
 
         return $.ajax({
             type: "Post",

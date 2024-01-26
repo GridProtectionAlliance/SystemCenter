@@ -97,7 +97,7 @@ export default function AssetPage(props: IProps) {
         SearchText: `(SELECT AssetID FROM AssetLocation WHERE LocationID = ${props.Location.ID})`,
         Operator: 'IN',
         Type: 'number',
-        isPivotColumn: false
+        IsPivotColumn: false
     }
 
     React.useEffect(() => {

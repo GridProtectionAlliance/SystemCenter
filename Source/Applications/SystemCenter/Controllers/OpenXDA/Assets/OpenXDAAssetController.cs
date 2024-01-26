@@ -192,7 +192,7 @@ namespace SystemCenter.Controllers.OpenXDA
             try
             {
 
-                string whereClause = BuildWhereClause(searches.Searches);
+                string whereClause = BuildWhereClause(searches.Searches, new List<object>());
 
 
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -246,7 +246,7 @@ namespace SystemCenter.Controllers.OpenXDA
 
                     string sql = "";
 
-                    string pivotCollums = "(" + String.Join(",",searches.Searches.Where(item => item.isPivotColumn).Select(search => "'" + search.FieldName + "'")) + ")";
+                    string pivotCollums = "(" + String.Join(",",searches.Searches.Where(item => item.IsPivotColumn).Select(search => "'" + search.FieldName + "'")) + ")";
 
                     if (pivotCollums == "()")
                         pivotCollums = "('')";

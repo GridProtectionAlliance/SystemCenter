@@ -75,9 +75,9 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
             sqlString = sqlString +  `GROUP BY AssetRelationshipTypeAssetType.AssetTypeID, AssetRelationshipTypeAssetType.AssetRelationshipTypeID `
             sqlString = sqlString +  `HAVING COUNT(Asset.ID) > 0)`
             const filter: Search.IFilter<OpenXDA.Types.AssetConnectionType>[] = [
-                { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType WHERE AssetTypeID = ${props.TypeID})`, Operator: 'IN', Type: 'number', isPivotColumn: false },
+                { FieldName: 'ID', SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType WHERE AssetTypeID = ${props.TypeID})`, Operator: 'IN', Type: 'number', IsPivotColumn: false },
                 {
-                    FieldName: 'ID', SearchText: sqlString, Operator: 'IN', Type: 'number', isPivotColumn: false
+                    FieldName: 'ID', SearchText: sqlString, Operator: 'IN', Type: 'number', IsPivotColumn: false
                 }
                 ]
             dispatch(AssetConnectionTypeSlice.DBSearch({ filter: filter }))
@@ -123,8 +123,8 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
     function getAssets(): JQuery.jqXHR<string> {
         const filter = [
-            { FieldName: 'ID', SearchText: `(SELECT AssetID FROM AssetLocation WHERE LocationID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = ${props.ID}))`, Operator: 'IN', Type: 'number', isPivotColumn: false },
-            { FieldName: 'AssetTypeID', SearchText: `(SELECT AssetTypeID FROM AssetRelationshipTypeAssetType WHERE AssetRelationshipTypeID = ${selectedTypeID} AND AssetTypeID <> ${props.TypeID})`, Operator: 'IN', Type: 'number', isPivotColumn: false }
+            { FieldName: 'ID', SearchText: `(SELECT AssetID FROM AssetLocation WHERE LocationID IN (SELECT LocationID FROM AssetLocation WHERE AssetID = ${props.ID}))`, Operator: 'IN', Type: 'number', IsPivotColumn: false },
+            { FieldName: 'AssetTypeID', SearchText: `(SELECT AssetTypeID FROM AssetRelationshipTypeAssetType WHERE AssetRelationshipTypeID = ${selectedTypeID} AND AssetTypeID <> ${props.TypeID})`, Operator: 'IN', Type: 'number', IsPivotColumn: false }
         ]
         setStatus('loading');
         return $.ajax({
