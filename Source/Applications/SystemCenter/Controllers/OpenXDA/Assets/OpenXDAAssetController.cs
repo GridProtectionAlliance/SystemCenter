@@ -191,8 +191,8 @@ namespace SystemCenter.Controllers.OpenXDA
 
             try
             {
-
-                string whereClause = BuildWhereClause(searches.Searches, new List<object>());
+                List<object> param = new List<object>();
+                string whereClause = BuildWhereClause(searches.Searches, param);
 
 
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -289,7 +289,12 @@ namespace SystemCenter.Controllers.OpenXDA
 
                         exec sp_executesql @SQLStatement";
 
-                    DataTable table = connection.RetrieveData(sql, "");
+
+                    DataTable table;
+                    if (param.Count() > 0)
+                        table = connection.RetrieveData(sql, param.ToArray());
+                    else
+                        table = connection.RetrieveData(sql, "");
 
                     return Ok(table);
                 }
