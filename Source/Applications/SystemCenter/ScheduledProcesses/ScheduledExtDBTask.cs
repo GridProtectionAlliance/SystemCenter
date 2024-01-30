@@ -388,11 +388,11 @@ namespace SystemCenter.ScheduledProcesses
                         limit = $"where rn < {count+1}";
                     else if (skip > 0)
                         limit = $"where rn > {skip}";
-                    string order = "";
+                    string order = "null";
                     if (!String.IsNullOrEmpty(orderBy))
                         order = $"{orderBy} {(ascending ? "ASC" : "DESC")}";
 
-                    fullQuery = $"select * from ( select T.*, row_number() over (order by {orderBy}) rn from ({fullQuery}) T {filters}) {limit}";
+                    fullQuery = $"select * from ( select T.*, row_number() over (order by {order}) rn from ({fullQuery}) T {filters}) {limit}";
                 }
                 else if (externalConnection.IsMySQL || externalConnection.IsPostgreSQL)
                 {
@@ -477,7 +477,7 @@ namespace SystemCenter.ScheduledProcesses
             catch (Exception ex)
             {
                 Log.Error($"Error when parsing query for external database update: ${ex.Message}. Query not ran.");
-                throw ex;
+                throw;
             }
         }
         #endregion
