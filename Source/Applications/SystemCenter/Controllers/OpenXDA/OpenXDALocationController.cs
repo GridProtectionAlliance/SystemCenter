@@ -189,8 +189,9 @@ namespace SystemCenter.Controllers.OpenXDA
                         exec sp_executesql @SQLStatement";
 
                     DataTable table;
+                    object[] paramArray = param.ToArray();
                     if (param.Count() > 0)
-                        table = connection.RetrieveData(sql, param.ToArray());
+                        table = connection.RetrieveData(sql, paramArray);
                     else
                         table = connection.RetrieveData(sql, "");
 
