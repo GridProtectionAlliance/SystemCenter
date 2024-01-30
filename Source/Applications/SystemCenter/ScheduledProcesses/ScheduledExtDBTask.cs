@@ -477,7 +477,7 @@ namespace SystemCenter.ScheduledProcesses
             catch (Exception ex)
             {
                 Log.Error($"Error when parsing query for external database update: ${ex.Message}. Query not ran.");
-                throw ex;
+                throw;
             }
         }
         #endregion
