@@ -39,7 +39,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
     let dispatch = useAppDispatch();
 
     const [data, setData] = React.useState<SC.OpenMICDailyStatistic[]>([]);
-    const [sortField, setSortField] = React.useState<keyof SC.OpenMICDailyStatistic>('Date');
+    const [sortField, setSortField] = React.useState<keyof SC.OpenMICDailyStatistic>('LastSuccessfulConnection');
     const [ascending, setAscending] = React.useState<boolean>(false);
     const settings = useAppSelector(SystemCenterSettingSlice.Data);
     const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
@@ -47,13 +47,13 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
     React.useEffect(() => {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/Statistics/OpenMIC/${props.Meter.AssetKey}`,
+            url: `${homePath}api/SystemCenter/Statistics/OpenMIC/${props.Meter.AssetKey}/${sortField}/${ascending ? '1' : '0'}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-        }) as JQuery.jqXHR<SC.OpenMICDailyStatistic[]>;
-        handle.done(d => setData(orderBy(d, [sortField], [ascending? "asc" : "desc"])))
+        });
+        handle.done(d => setData(JSON.parse(d.toString())))
 
         return () => {
             if (handle.abort != undefined) handle.abort();
@@ -61,7 +61,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
     }, [props.Meter]);
 
     React.useEffect(() => {
-        setData(orderBy(data, [sortField], [ascending ? "asc" : "desc"]))
+        setData(orderBy(data, [sortField === 'Date' ? (item) => new Date(item[sortField]) : sortField], [ascending ? 'asc' : 'desc']))
     }, [sortField, ascending]);
 
     React.useEffect(() => {
@@ -101,7 +101,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         setAscending(!ascending);
                     }
                     else {
-                        setAscending(!ascending);
+                        setAscending(true);
                         setSortField(d.colField);
                     }
                 }}
@@ -133,7 +133,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         Key={'LastUnsuccessfulConnection'}
                         AllowSort={true}
                         Field={'LastUnsuccessfulConnection'}
-                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : 'N/A'}
                         HeaderStyle={{ width: 'auto', textAlign: 'center' }}
                         RowStyle={{ width: 'auto', textAlign: 'center' }}
                     >

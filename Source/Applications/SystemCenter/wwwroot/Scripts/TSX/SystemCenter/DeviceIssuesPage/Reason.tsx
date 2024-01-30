@@ -24,7 +24,13 @@
 import * as React from 'react';
 
 const Reason = (props: { ID: number, Text: string }) => {
-    if (props.Text == '') return null;
+    if (props.Text == '') {
+        return (
+            <div>
+                <p>N/A</p>
+            </div>
+        );
+    }
 
     return (
         <div>
