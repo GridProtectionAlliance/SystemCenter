@@ -96,7 +96,7 @@ export default function AssetPage(props: IProps) {
         FieldName: 'ID',
         SearchText: `(SELECT AssetID FROM AssetLocation WHERE LocationID = ${props.Location.ID})`,
         Operator: 'IN',
-        Type: 'number',
+        Type: 'query',
         IsPivotColumn: false
     }
 

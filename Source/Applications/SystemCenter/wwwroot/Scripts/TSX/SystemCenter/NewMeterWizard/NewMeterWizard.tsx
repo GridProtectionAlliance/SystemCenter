@@ -269,7 +269,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             url: `${homePath}api/OpenXDA/ByAsset/SearchableList`,
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify({
-                Searches: [{ FieldName: "ID", Operator: "in", SearchText: `(SELECT AssetID FROM MeterAsset WHERE MeterID = ${meterID})`, Type: 'number', IsPivotColumn: false }],
+                Searches: [{ FieldName: "ID", Operator: "in", SearchText: `(SELECT AssetID FROM MeterAsset WHERE MeterID = ${meterID})`, Type: 'query', IsPivotColumn: false }],
                 OrderBy: "ID",
                 Ascending: "true"
             }),
