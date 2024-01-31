@@ -321,6 +321,7 @@ export default function ChannelPage(props: IProps) {
             'spare current',
             'voltage spare',
             'spare voltage',
+            'spare trigger',
             'spare channel'].includes(ch.Description.toLowerCase());
         
         return sparePhrase || digital;
