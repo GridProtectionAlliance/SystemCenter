@@ -286,58 +286,6 @@ export default function ConnectionPage(props: IProps) {
                         AllowSort={false}
                         HeaderStyle={{ width: 'auto' }}
                         RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => item.Asset.ID > 0 ? null :
-                            <button className="btn btn-sm"
-                                onClick={(e) => deleteAssetConnection(item.Connection)}>
-                                {TrashCan}
-                            </button>
-                        }
-                    > <p></p>
-                    </ReactTable.Column>
-                </ReactTable.Table>
-            </div>
-            <div className="col d-sm-block d-none d-lg-none">
-                <ReactTable.Table<IConnection>
-                    TableClass="table table-hover"
-                    Data={currentConnections}
-                    SortKey={sortKey}
-                    Ascending={asc}
-                    OnSort={(d) => {
-                        if (d.colKey == 'btns')
-                            return;
-                        if (d.colKey === sortKey)
-                            setAsc((x) => !x);
-                        else
-                            setAsc(false);
-                        setSortKey(d.colKey);
-                    }}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
-                    RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => `${item.Connection.ID}-${item.Asset.ID}`}
-                >
-                    <ReactTable.Column<IConnection>
-                        Key={'AssetName'}
-                        AllowSort={true}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => item.Asset.AssetName}
-                    > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<IConnection>
-                        Key={'AssetKey'}
-                        AllowSort={true}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => item.Asset.AssetKey}
-                    > Key
-                    </ReactTable.Column>
-                    <ReactTable.Column<IConnection>
-                        Key={'btns'}
-                        AllowSort={false}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
                         Content={({ item }) => item.Connection.ID > 0 ? null :
                             <button className="btn btn-sm"
                                 onClick={(e) => deleteAssetConnection(item.Connection)}>
