@@ -185,7 +185,7 @@ const ByAllSubscription = (props: IProps) => {
                     />
                 </div>
             </div>
-            <Warning Show={showApproveWarning} Title={'Approve Norification Subscriptions'} Message={`This will approve all ${nApproval} Subscriptions that are currently pending`}
+            <Warning Show={showApproveWarning} Title={'Approve Notification Subscriptions'} Message={`This will approve all ${nApproval} Subscriptions that are currently pending.`}
                 CallBack={(c) => { setShowApproveWarning(false); if (c) approveAll(); }} />
             <Warning Show={showRemoveWarning} Title={'Remove Subscription'} Message={`Are you sure you want to remove this subscription?`}
                 CallBack={(c) => { setShowRemoveWarning(false); if (c) removeSubscription(); }} />
