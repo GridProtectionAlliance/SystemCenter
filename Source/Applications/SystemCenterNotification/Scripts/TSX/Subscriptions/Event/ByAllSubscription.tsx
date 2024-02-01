@@ -24,7 +24,7 @@
 import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import { LoadingScreen, SearchBar, Warning } from '@gpa-gemstone/react-interactive'
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { CrossMark, HeavyCheckMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
 import Table from '@gpa-gemstone/react-table';
 import { ActiveSubscriptionSlice } from '../../Store';
@@ -161,7 +161,7 @@ const ByAllSubscription = (props: IProps) => {
                                         e.preventDefault();
                                         setRecord(item);
                                         setShowRemoveWarning(true);
-                                }}><span>{CrossMark}</span></button>
+                                }}><span>{TrashCan}</span></button>
                             },
                             { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
