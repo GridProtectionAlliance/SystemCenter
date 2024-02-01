@@ -49,10 +49,12 @@ const ByAllSubscription = (props: IProps) => {
     const asc = useAppSelector(ActiveSubscriptionSlice.Ascending);
     const filter = useAppSelector(ActiveSubscriptionSlice.SearchFilters);
     const searchStatus = useAppSelector(ActiveSubscriptionSlice.SearchStatus);
-    const [showWarning, setShowWarning] = React.useState<boolean>(false);
+    const [showApproveWarning, setShowApproveWarning] = React.useState<boolean>(false);
+    const [showRemoveWarning, setShowRemoveWarning] = React.useState<boolean>(false);
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [force, setForce] = React.useState<number>(0);
     const [nApproval, setNApproval] = React.useState<number>(0);
+    const [record, setRecord] = React.useState<ActiveSubscription>();
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed' || parentID != null)
@@ -104,6 +106,10 @@ const ByAllSubscription = (props: IProps) => {
         });
     }
 
+    const removeSubscription = () => {
+        dispatch(ActiveSubscriptionSlice.DBAction({ verb: 'DELETE', record }));
+    };
+
     return (
         <>
             <LoadingScreen Show={status === 'loading'} />
@@ -128,7 +134,7 @@ const ByAllSubscription = (props: IProps) => {
                             <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                             <form>
                                 <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowModal(true); }}>New Subscription</button>
-                                <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowWarning(true) }}>Approve All</button>
+                                <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowApproveWarning(true) }}>Approve All</button>
                             </form>
                         </fieldset>
                     </li>
@@ -147,7 +153,16 @@ const ByAllSubscription = (props: IProps) => {
                                 key: 'Approved', field: 'Approved', label: 'Approved', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => item.Approved ? HeavyCheckMark : <button className="btn btn-sm" onClick={(e) => {
                                     e.preventDefault();
                                     approve(item.UserAccountEmailID);
-                                }}><span>{CrossMark}</span></button> },
+                                }}><span>{CrossMark}</span></button>
+                            },
+                            {
+                                key: 'Remove', label: 'Remove', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) =>
+                                    <button className="btn btn-sm" onClick={(e) => {
+                                        e.preventDefault();
+                                        setRecord(item);
+                                        setShowRemoveWarning(true);
+                                }}><span>{CrossMark}</span></button>
+                            },
                             { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
                         ]}
                         tableClass="table table-hover"
@@ -170,8 +185,10 @@ const ByAllSubscription = (props: IProps) => {
                     />
                 </div>
             </div>
-            <Warning Show={showWarning} Title={'Approve Norification Subscriptions'} Message={`This will approve all ${nApproval} Subscriptions that are currently pending`}
-                CallBack={(c) => { setShowWarning(false); if (c) approveAll(); }} />
+            <Warning Show={showApproveWarning} Title={'Approve Norification Subscriptions'} Message={`This will approve all ${nApproval} Subscriptions that are currently pending`}
+                CallBack={(c) => { setShowApproveWarning(false); if (c) approveAll(); }} />
+            <Warning Show={showRemoveWarning} Title={'Remove Subscription'} Message={`Are you sure you want to remove this subscription?`}
+                CallBack={(c) => { setShowRemoveWarning(false); if (c) removeSubscription(); }} />
             <AddAllSubscription OnClose={() => setShowModal(false)} show={showModal} />
         </>)
 }
