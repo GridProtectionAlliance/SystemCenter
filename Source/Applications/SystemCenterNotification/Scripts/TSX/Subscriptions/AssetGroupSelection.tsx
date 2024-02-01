@@ -56,7 +56,7 @@ const AssetGroupSelection = (props: IProps) => {
     }, [])
 
     React.useEffect(() => {
-        const flt: Search.IFilter<OpenXDA.Types.AssetGroup> = { FieldName: 'ID', IsPivotColumn: false, SearchText: `(SELECT ChildAssetGroupID FROM AssetGroupAssetGroup WHERE ParentAssetGroupID = ${selectedParent})`, Type: 'number', Operator: 'IN' }
+        const flt: Search.IFilter<OpenXDA.Types.AssetGroup> = { FieldName: 'ID', IsPivotColumn: false, SearchText: `(SELECT ChildAssetGroupID FROM AssetGroupAssetGroup WHERE ParentAssetGroupID = ${selectedParent})`, Type: 'query', Operator: 'IN' }
         if (selectedParent == -1) {
             flt.SearchText = " (SELECT ChildAssetGroupID FROM AssetGroupAssetGroup X WHERE X.ParentAssetGroupID IN (SELECT ID FROM AssetGroup Y WHERE Y.DisplayEmail =1))";
             flt.Operator = "NOT IN"
