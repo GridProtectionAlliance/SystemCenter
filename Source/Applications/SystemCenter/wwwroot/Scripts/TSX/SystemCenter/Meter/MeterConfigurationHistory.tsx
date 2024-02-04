@@ -62,16 +62,17 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
     }
 
     return (
-            <div className="card" style={{ marginBottom: 10 }}>
-                <div className="card-header">
-                    <div className="row">
-                        <div className="col">
-                            <h4>Configuration History:</h4>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col">
+                                <h4>Configuration History:</h4>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div className="card-body">
-                    <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30 }}>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
                         <ReactTable.Table<MeterConfiguration>
                             TableClass="table table-hover"
                             Data={meterConfigurations}
@@ -113,8 +114,8 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                     </div>
                 </div>
             </div>
-                
-        );
+        </div>
+    );
 }
 
 export default MeterConfigurationHistoryWindow;
