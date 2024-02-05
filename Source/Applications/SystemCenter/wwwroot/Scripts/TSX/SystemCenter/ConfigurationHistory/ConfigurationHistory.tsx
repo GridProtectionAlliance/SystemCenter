@@ -24,23 +24,28 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
+import { TabSelector } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { useHistory } from 'react-router-dom';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 import { ToolTip } from '@gpa-gemstone/react-interactive';
+
 declare var homePath: string;
 declare var ace: any;
 
 function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: string }) {
     const history = useHistory();
     const [meterConfiguration, setMeterConfiguration] = React.useState<OpenXDA.Types.MeterConfiguration>(null);
-    const [tab, setTab] = React.useState<'configuration' | 'filesProcessed'>('configuration');
+    const [tab, setTab] = React.useState<string>('configuration');
     const [filesProcessed, setFilesProcessed] = React.useState<Array<OpenXDA.Types.DataFile>>([]);
     const [changed, setChanged] = React.useState<boolean>(false);
     const roles = useAppSelector(SelectRoles);
     const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None')>('None');
-    React.useLayoutEffect(() => getData(), [props.MeterConfigurationID]);
+
+    React.useEffect(() => {
+        getData();
+    }, [props.MeterConfigurationID, tab])
 
     function getData() {
         getFilesProcessed();
@@ -70,10 +75,10 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
             dataType: 'json',
             cache: false,
             async: true
-        }).done((data: Array<OpenXDA.Types.DataFile>) => setFilesProcessed( data));
+        }).done((data: Array<OpenXDA.Types.DataFile>) => setFilesProcessed(data));
     }
 
-    function saveEdit(): void{
+    function saveEdit(): void {
         let newRecord: OpenXDA.Types.MeterConfiguration = _.clone(meterConfiguration);
         newRecord.ID = 0;
         newRecord.ConfigText = ace.edit('template').getValue();
@@ -110,71 +115,89 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
         return true;
     }
     
+    const Tabs = [
+        { Id: "configuration", Label: "Configuration" },
+        { Id: "filesProcessed", Label: "Files Processed" }
+    ];
+    
     if (meterConfiguration == null) return null;
+
     return (
-        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
             <div className="row">
-                <div className="col">
+                <div className="col-8 align-self-center">
                     <h2>{props.MeterKey} - Configuration Revision: {meterConfiguration.RevisionMajor + '.' + meterConfiguration.RevisionMinor}</h2>
                 </div>
-                <div className="col">
+                <div className="col-4 align-self-center">
                     <button className="btn btn-primary pull-right" onClick={() => history.push({ pathname: homePath + 'index.cshtml', search: '?name=Meter&MeterID=' + meterConfiguration.MeterID, state: {} })}>Meter Details</button>
                 </div>
             </div>
 
+            <div className="row">
+                <TabSelector CurrentTab={tab} SetTab={setTab} Tabs={Tabs} />
+            </div>
 
-            <hr />
-            <ul className="nav nav-tabs">
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "configuration" ? " active" : "")} onClick={() => setTab('configuration')} data-toggle="tab" href="#configuration">Configuration</a>
-                </li>
-                <li className="nav-item">
-                    <a className={"nav-link" + (tab == "filesProcessed" ? " active" : "")} onClick={() => setTab('filesProcessed')} data-toggle="tab" href="#filesProcessed">Files Processed</a>
-                </li>
-            </ul>
-
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "configuration" ? " active" : "fade")} id="configuration">
-                    <div id="template" style={{ height: window.innerHeight - 275 }} ></div>
-                    <div className="btn-group mr-2">
-                        <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} onClick={saveEdit} disabled={!changed} data-tooltip='SaveEdits'
-                            onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}>Save Edit</button>
-                    </div>
-                    <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"SaveEdits"}>
-                        <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
-                    </ToolTip>
-                    <div className="btn-group mr-2">
-                        <button className="btn btn-danger pull-right" onClick={getData} disabled={!changed}>Reset</button>
-                    </div>
-                </div>
-                <div className={"tab-pane " + (tab == "filesProcessed" ? " active" : "fade")} id="filesProcessed">
-                    <div style={{ width: '100%', maxHeight: window.innerHeight - 275, padding: 30, overflowY: 'auto' }}>
-                        <ReactTable.Table<OpenXDA.Types.DataFile>
-                            TableClass="table table-hover"
-                            Data={filesProcessed}
-                            SortKey={'FilePath'}
-                            Ascending={false}
-                            OnSort={(d) => { }}
-                            Selected={(item) => false}
-                            KeySelector={(item) => item.ID}
-                        >
-                            <ReactTable.Column
-                                Key={'FilePath'}
-                                AllowSort={false}
-                                Field={'FilePath'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > File Path
-                            </ReactTable.Column>
-                            <ReactTable.Column
-                                Key={'CreationTime'}
-                                AllowSort={false}
-                                Field={'CreationTime'}
-                                HeaderStyle={{ width: 'auto' }}
-                                RowStyle={{ width: 'auto' }}
-                            > Creation Time
-                            </ReactTable.Column>
-                        </ReactTable.Table>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="col-12" style={{ padding: 0 }}>
+                    <div className="tab-content" style={{ height: "100%" }}>
+                        {tab == "configuration" ?
+                            <div className="tab-pane active">
+                                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                    <div className="col-12">
+                                        {/*Have to keep window.innerHeight here because ace won't auto-adjust the height of the div when generated */}
+                                        <div id="template" style={{ height: window.innerHeight - 225 }}></div>
+                                    </div>
+                                </div>
+                                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                    <div className="col-12" style={{ paddingTop: 10 }}>
+                                        <div className="btn-group mr-2">
+                                            <button className={"btn btn-primary pull-right" + (!hasPermissions() ? ' disabled' : '')} onClick={saveEdit} disabled={!changed} data-tooltip='SaveEdits'
+                                                onMouseEnter={() => setHover('Update')} onMouseLeave={() => setHover('None')}>Save Edit</button>
+                                        </div>
+                                        <ToolTip Show={hover == 'Update' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"SaveEdits"}>
+                                            <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
+                                        </ToolTip>
+                                        <div className="btn-group mr-2">
+                                            <button className="btn btn-danger pull-right" onClick={getData} disabled={!changed}>Reset</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        : null}
+                        {tab == "filesProcessed" ?
+                            <div className="tab-pane active">
+                                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                    <div className="col-12">
+                                        <ReactTable.Table<OpenXDA.Types.DataFile>
+                                            TableClass="table table-hover"
+                                            Data={filesProcessed}
+                                            SortKey={'FilePath'}
+                                            Ascending={false}
+                                            OnSort={(d) => { }}
+                                            Selected={(item) => false}
+                                            KeySelector={(item) => item.ID}
+                                        >
+                                            <ReactTable.Column
+                                                Key={'FilePath'}
+                                                AllowSort={false}
+                                                Field={'FilePath'}
+                                                HeaderStyle={{ width: 'auto' }}
+                                                RowStyle={{ width: 'auto' }}
+                                            > File Path
+                                            </ReactTable.Column>
+                                            <ReactTable.Column
+                                                Key={'CreationTime'}
+                                                AllowSort={false}
+                                                Field={'CreationTime'}
+                                                HeaderStyle={{ width: 'auto' }}
+                                                RowStyle={{ width: 'auto' }}
+                                            > Creation Time
+                                            </ReactTable.Column>
+                                        </ReactTable.Table>
+                                    </div>
+                                </div>
+                            </div>
+                        : null}
                     </div>
                 </div>
             </div>
