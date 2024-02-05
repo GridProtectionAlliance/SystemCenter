@@ -28,6 +28,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { IUserAccount } from '../Types';
 import * as CryptoJS from 'crypto-js';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import moment from 'moment';
 
 interface IProps {
     UserAccount: IUserAccount,
@@ -71,6 +72,12 @@ function UserForm(props: IProps) {
             e.push('The User could not be validated by the AD or Azure.')
         if (props.UserAccount.DisplayName !== null && allUsers.findIndex(u => u.DisplayName.toLowerCase() == props.UserAccount.DisplayName.toLowerCase() && u.ID !== props.UserAccount.ID) > -1)
             e.push('Username must be unique.')
+
+        if (props.UserAccount.ChangePasswordOn && moment(props.UserAccount.ChangePasswordOn).isBefore(moment('1753-01-01'))) {
+            e.push('Change Password On date cannot be before 01/01/1753.');
+        }
+        props.UserAccount.ChangePasswordOn
+
         setErrors(e);
     }, [props.UserAccount, valid])
 
