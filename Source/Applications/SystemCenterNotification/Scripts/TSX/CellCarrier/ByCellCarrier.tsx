@@ -25,7 +25,7 @@ import * as React from 'react';
 import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import moment from 'moment';
 import { ICellCarrier } from '../global';
 import { CellCarrierSlice } from '../Store';
@@ -92,30 +92,43 @@ const ByCellCarrier = (props: IProps) => {
                 </SearchBar>
 
                 <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <Table<ICellCarrier>
-                        cols={[
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '50%' }, rowStyle: { width: '50%' } },
-                            { key: 'Transform', field: 'Transform', label: 'Transform', headerStyle: { width: '50%' }, rowStyle: { width: '50%' } },
-                             { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortField}
-                        ascending={asc}
-                        onSort={(d) => {
-                            if (d.colKey === 'scroll' || d.colKey === 'undefined')
-                                return
-                            if (d.colField === sortField)
-                                dispatch(CellCarrierSlice.Sort({ SortField: sortField, Ascending: asc }));
-                            else
-                                dispatch(CellCarrierSlice.Sort({ SortField: d.colField, Ascending: true }));
+                    <ReactTable.Table<ICellCarrier>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={asc}
+                        OnSort={(d) => {
+                            if (d.colKey === null) return;
+                            dispatch(CellCarrierSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        onClick={(item) => { setCarrier(item.row); setShowModal('Edit'); }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={() => false}
-                    />
+                        OnClick={(item) => { setCarrier(item.row); setShowModal('Edit'); }}
+                        TableStyle={{
+                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                        }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<ICellCarrier>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<ICellCarrier>
+                            Key={'Transform'}
+                            AllowSort={true}
+                            Field={'Transform'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Transform
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <Modal Show={showModal != 'Hide'} ShowCancel={showModal == 'Edit'} CancelText={'Delete'} ShowX={true} Size='lg' Title={''} ConfirmText={showModal == 'Edit' ? 'Save' : 'Add'}
