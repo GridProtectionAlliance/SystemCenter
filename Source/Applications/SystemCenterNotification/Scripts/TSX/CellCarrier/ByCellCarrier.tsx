@@ -69,29 +69,33 @@ const ByCellCarrier = (props: IProps) => {
     }, [status])
 
     return (
-        <>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
             <LoadingScreen Show={status === 'loading'} />
-            <div style={{ width: '100%', height: '100%' }}>
-                <SearchBar<ICellCarrier> CollumnList={searchFields}
-                    SetFilter={(flds) => dispatch(CellCarrierSlice.DBSearch({ filter: flds }))}
-                    Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Cell Carrier(s)'}
-                    GetEnum={() => {
-                        return () => { }
-                    }}>
-                    <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                            <form>
-                                <button className="btn btn-primary" onClick={(event) => { setCarrier({ Name: '', Transform: '', ID: 0 }); setShowModal('New'); event.preventDefault() }}>
-                                    Add Cell Carrier
-                                </button>
-                            </form>
-                        </fieldset>
-                    </li>
-                </SearchBar>
+            <div className="row">
+                <div className="col">
+                    <SearchBar<ICellCarrier> CollumnList={searchFields}
+                        SetFilter={(flds) => dispatch(CellCarrierSlice.DBSearch({ filter: flds }))}
+                        Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
+                        ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Cell Carrier(s)'}
+                        GetEnum={() => {
+                            return () => { }
+                        }}>
+                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                                <form>
+                                    <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowModal('New'); }}>
+                                        Add Cell Carrier
+                                    </button>
+                                </form>
+                            </fieldset>
+                        </li>
+                    </SearchBar>
+                </div>
+            </div>
 
-                <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
+            <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
+                <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
                     <ReactTable.Table<ICellCarrier>
                         TableClass="table table-hover"
                         Data={data}
@@ -107,8 +111,8 @@ const ByCellCarrier = (props: IProps) => {
                             tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
                         }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
                     >
@@ -131,7 +135,8 @@ const ByCellCarrier = (props: IProps) => {
                     </ReactTable.Table>
                 </div>
             </div>
-            <Modal Show={showModal != 'Hide'} ShowCancel={showModal == 'Edit'} CancelText={'Delete'} ShowX={true} Size='lg' Title={''} ConfirmText={showModal == 'Edit' ? 'Save' : 'Add'}
+
+            <Modal Show={showModal != 'Hide'} ShowCancel={showModal == 'Edit'} CancelText={'Delete'} ShowX={true} Size='lg' Title={showModal == 'Edit' ? `Edit ${carrier.Name}` : 'Add New Carrier'} ConfirmText={showModal == 'Edit' ? 'Save' : 'Add'}
                 DisableConfirm={carrier.Name == null || carrier.Transform == null || carrier.Name.length == 0 || carrier.Transform.length == 0 || allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1}
                 ConfirmShowToolTip={carrier.Name == null || carrier.Transform == null || carrier.Name.length == 0 || carrier.Transform.length == 0 || allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) > -1}
                 ConfirmToolTipContent={<>
@@ -148,21 +153,18 @@ const ByCellCarrier = (props: IProps) => {
                         dispatch(CellCarrierSlice.DBAction({ verb: 'DELETE', record: carrier }))
 
                     setShowModal('Hide');
-
                 }}
             >
-                <div className="row">
-                    <div className="col">
-                        <Input<ICellCarrier> Record={carrier} Field={'Name'} Label={'Name'}
-                            Valid={() => allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) < 0 && carrier.Name != null && carrier.Name.length > 0}
-                            Setter={(record) => setCarrier(record)} />
-                        <Input<ICellCarrier> Record={carrier} Field={'Transform'} Label={'Transform'} Help={'\'{0}\' will be replaced with the users Phone number.'}
-                            Valid={() => carrier.Transform != null && carrier.Transform.length > 0}
+                <form>
+                    <Input<ICellCarrier> Record={carrier} Field={'Name'} Label={'Name'}
+                        Valid={() => allData.findIndex(c => c.Name == carrier.Name && c.ID != carrier.ID) < 0 && carrier.Name != null && carrier.Name.length > 0}
                         Setter={(record) => setCarrier(record)} />
-                    </div>
-                </div>
+                    <Input<ICellCarrier> Record={carrier} Field={'Transform'} Label={'Transform'} Help={'\'{0}\' will be replaced with the users Phone number.'}
+                        Valid={() => carrier.Transform != null && carrier.Transform.length > 0}
+                    Setter={(record) => setCarrier(record)} />
+                </form>
             </Modal>
-        </>)
+        </div>)
 }
 
 export default ByCellCarrier;
