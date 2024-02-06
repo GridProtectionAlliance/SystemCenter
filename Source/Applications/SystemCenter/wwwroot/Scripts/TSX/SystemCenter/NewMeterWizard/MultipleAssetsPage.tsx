@@ -66,125 +66,81 @@ const MultipleAssetsPage: React.FC<IProps> = (props) => {
 
   
     return (
-        <><div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
-            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="col-6 d-none d-xl-flex" style={{
-                    height: '100%',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column'
-                }}>
-                    <div className="row">
-                        <div className="col">
-                            <h4>Select Asset: </h4>
+        <>
+            <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="col-6 d-none d-xl-flex" style={{
+                        height: '100%',
+                        overflow: 'hidden',
+                        display: 'flex',
+                        flexDirection: 'column'
+                    }}>
+                        <div className="row">
+                            <div className="col">
+                                <h4>Select Asset: </h4>
+                            </div>
+                        </div>
+                        <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                            <div className="col" style={{
+                                height: '100%', overflow: 'hidden',
+                                display: 'flex', flexDirection: 'column'
+                            }}>
+                                <ReactTable.Table<OpenXDA.Types.Asset>
+                                    TableClass="table table-hover"
+                                    Data={tableData}
+                                    SortKey={sortKey}
+                                    Ascending={asc}
+                                    OnSort={(d) => {
+                                        if (d.colKey === sortKey)
+                                            setAsc((x) => !x);
+                                        else
+                                            setAsc(false);
+                                        setSortKey(d.colKey);
+                                    }}
+                                    TableStyle={{
+                                        padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                        tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                    }}
+                                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                    TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                    RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                    Selected={(item) => (item.ID === currentAsset?.ID && item.AssetKey === currentAsset?.AssetKey)}
+                                    KeySelector={(item) => item.AssetKey}
+                                    OnClick={(item) => setCurrentAsset(item.row)}
+                                >
+                                    <ReactTable.Column<OpenXDA.Types.Asset>
+                                        Key={'AssetName'}
+                                        AllowSort={true}
+                                        Field={'AssetName'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                    > Name
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<OpenXDA.Types.Asset>
+                                        Key={'AssetKey'}
+                                        AllowSort={true}
+                                        Field={'AssetKey'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                    > Key
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<OpenXDA.Types.Asset>
+                                        Key={'AssetType'}
+                                        AllowSort={true}
+                                        Field={'AssetType'}
+                                        HeaderStyle={{ width: 'auto' }}
+                                        RowStyle={{ width: 'auto' }}
+                                    > Type
+                                    </ReactTable.Column>
+                                </ReactTable.Table>
+                            </div>
                         </div>
                     </div>
-                    <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                        <div className="col" style={{
-                            height: '100%', overflow: 'hidden',
-                            display: 'flex', flexDirection: 'column'
-                        }}>
-                            <ReactTable.Table<OpenXDA.Types.Asset>
-                                TableClass="table table-hover"
-                                Data={tableData}
-                                SortKey={sortKey}
-                                Ascending={asc}
-                                OnSort={(d) => {
-                                    if (d.colKey === sortKey)
-                                        setAsc((x) => !x);
-                                    else
-                                        setAsc(false);
-                                    setSortKey(d.colKey);
-                                }}
-                                TableStyle={{
-                                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                                    tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                                }}
-                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                Selected={(item) => (item.ID === currentAsset?.ID && item.AssetKey === currentAsset?.AssetKey)}
-                                KeySelector={(item) => item.AssetKey}
-                            >
-                                <ReactTable.Column<OpenXDA.Types.Asset>
-                                    Key={'AssetName'}
-                                    AllowSort={true}
-                                    Field={'AssetName'}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                > Name
-                                </ReactTable.Column>
-                                <ReactTable.Column<OpenXDA.Types.Asset>
-                                    Key={'AssetKey'}
-                                    AllowSort={true}
-                                    Field={'AssetKey'}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                > Key
-                                </ReactTable.Column>
-                                <ReactTable.Column<OpenXDA.Types.Asset>
-                                    Key={'AssetType'}
-                                    AllowSort={true}
-                                    Field={'AssetType'}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                > Type
-                                </ReactTable.Column>
-                            </ReactTable.Table>
-                        </div>
+                    <div className="col-6" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
+                        {props.GetInnerComponent(currentAsset)}
                     </div>
-                </div>
-                <div className="col-6 d-flex d-xl-none" style={{
-                    height: '100%',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    flexDirection: 'column'
-                }}>
-                    <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                        <div className="col" style={{
-                            height: '100%', overflow: 'hidden',
-                            display: 'flex', flexDirection: 'column'
-                        }}>
-                            <ReactTable.Table<OpenXDA.Types.Asset>
-                                TableClass="table table-hover"
-                                Data={tableData}
-                                SortKey={sortKey}
-                                Ascending={asc}
-                                OnSort={(d) => {
-                                    if (d.colKey === sortKey)
-                                        setAsc((x) => !x);
-                                    else
-                                        setAsc(false);
-                                    setSortKey(d.colKey);
-                                }}
-                                TableStyle={{
-                                    padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
-                                    tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
-                                }}
-                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
-                                RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                Selected={(item) => (item.ID === currentAsset?.ID)}
-                                KeySelector={(item) => item.AssetKey}
-                            >
-                                <ReactTable.Column<OpenXDA.Types.Asset>
-                                    Key={'AssetKey'}
-                                    AllowSort={true}
-                                    Field={'AssetKey'}
-                                    HeaderStyle={{ width: 'auto' }}
-                                    RowStyle={{ width: 'auto' }}
-                                > Key
-                                </ReactTable.Column>
-                            </ReactTable.Table>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-6" style={{ display: 'flex', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
-                    {props.GetInnerComponent(currentAsset)}
                 </div>
             </div>
-
-        </div>
         </>
     );
 

@@ -75,7 +75,7 @@ export default function ConnectionPage(props: IProps) {
                     FieldName: 'ID',
                     SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID ${selectedType !== props.CurrentAsset.AssetType ? "WHERE" : "GROUP BY AssetTypeID, AssetRelationshipTypeID, Name HAVING Count(Name) > 1 AND"} Name = '${props.CurrentAsset.AssetType}')`,
                     Operator: 'IN',
-                    Type: 'number',
+                    Type: 'query',
                     IsPivotColumn: false
                 }
             ]
@@ -85,7 +85,7 @@ export default function ConnectionPage(props: IProps) {
                     FieldName: 'ID',
                     SearchText: `(SELECT AssetRelationshipTypeID FROM AssetRelationshipTypeAssetType LEFT JOIN AssetType ON AssetTypeID = AssetType.ID WHERE Name = '${selectedType}')`,
                     Operator: 'IN',
-                    Type: 'number',
+                    Type: 'query',
                     IsPivotColumn: false
                 });
         dispatch(AssetConnectionTypeSlice.DBSearch({ filter: typeFilter }));
@@ -99,7 +99,7 @@ export default function ConnectionPage(props: IProps) {
             return;
         setSelectedAssetKey(selectedAsset.AssetKey);
         const connFilter: Search.IFilter<OpenXDA.Types.AssetConnection>[] = [
-            { FieldName: 'ParentID', SearchText: `${props.CurrentAsset.ID} OR ChildID = ${props.CurrentAsset.ID}`, Operator: '=', Type: 'number', IsPivotColumn: false },
+            { FieldName: 'ParentID', SearchText: `${props.CurrentAsset.ID} OR ChildID = ${props.CurrentAsset.ID}`, Operator: '=', Type: 'query', IsPivotColumn: false },
         ];
         let handle = getAssetConnections(connFilter);
         return () => {
@@ -280,58 +280,6 @@ export default function ConnectionPage(props: IProps) {
                         RowStyle={{ width: 'auto' }}
                         Content={({ item }) => item.Asset.VoltageKV}
                     > Voltage (kV)
-                    </ReactTable.Column>
-                    <ReactTable.Column<IConnection>
-                        Key={'btns'}
-                        AllowSort={false}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => item.Asset.ID > 0 ? null :
-                            <button className="btn btn-sm"
-                                onClick={(e) => deleteAssetConnection(item.Connection)}>
-                                {TrashCan}
-                            </button>
-                        }
-                    > <p></p>
-                    </ReactTable.Column>
-                </ReactTable.Table>
-            </div>
-            <div className="col d-sm-block d-none d-lg-none">
-                <ReactTable.Table<IConnection>
-                    TableClass="table table-hover"
-                    Data={currentConnections}
-                    SortKey={sortKey}
-                    Ascending={asc}
-                    OnSort={(d) => {
-                        if (d.colKey == 'btns')
-                            return;
-                        if (d.colKey === sortKey)
-                            setAsc((x) => !x);
-                        else
-                            setAsc(false);
-                        setSortKey(d.colKey);
-                    }}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, }}
-                    RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => `${item.Connection.ID}-${item.Asset.ID}`}
-                >
-                    <ReactTable.Column<IConnection>
-                        Key={'AssetName'}
-                        AllowSort={true}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => item.Asset.AssetName}
-                    > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<IConnection>
-                        Key={'AssetKey'}
-                        AllowSort={true}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                        Content={({ item }) => item.Asset.AssetKey}
-                    > Key
                     </ReactTable.Column>
                     <ReactTable.Column<IConnection>
                         Key={'btns'}

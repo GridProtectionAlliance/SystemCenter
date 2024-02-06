@@ -89,7 +89,7 @@ const ExternalDBUpdate = React.memo((props: {
             contentType: "application/json; charset=utf-8",
             data: JSON.stringify({
                 Searches: [{
-                    Type: 'number',
+                    Type: 'query',
                     FieldName: 'ID',
                     SearchText: `(SELECT DISTINCT ExternalDatabases.ID
                         FROM AdditionalField INNER JOIN 
