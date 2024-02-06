@@ -370,7 +370,7 @@ export default function ChannelPage(props: IProps) {
                         {NSpare == 0 ? <p>No spare channels were identified.</p> : null}
                         {NSpare > 0 ? <p>Channels are considered Spare if the Description is
                             "spare", "virtual spare", "voltage spare", "current spare", "spare virtual",
-                            "spare channel", "spare voltage", "spare current" or they are digital with description "A00 analog channel 00". </p> : null}
+                            "spare channel", "spare voltage", "spare current", "spare trigger" or they are digital with description "A00 analog channel 00". </p> : null}
                     </>}
                 />
                 </div>
