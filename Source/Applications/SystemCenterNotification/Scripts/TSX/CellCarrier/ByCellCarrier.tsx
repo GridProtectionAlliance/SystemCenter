@@ -54,8 +54,9 @@ const ByCellCarrier = (props: IProps) => {
     const sortField = useAppSelector(CellCarrierSlice.SortField);
     const asc = useAppSelector(CellCarrierSlice.Ascending);
     const filters = useAppSelector(CellCarrierSlice.SearchFilters);
-    const [showModal, setShowModal] = React.useState<'New'|'Edit'|'Hide'>('Hide');
-    const [carrier, setCarrier] = React.useState<ICellCarrier>({ Name: '', Transform: '', ID: 0 })
+    const [showModal, setShowModal] = React.useState<'New' | 'Edit' | 'Hide'>('Hide');
+    const emptyCarrier = { Name: '', Transform: '', ID: 0 };
+    const [carrier, setCarrier] = React.useState<ICellCarrier>(emptyCarrier);
 
 
     React.useEffect(() => {
@@ -84,7 +85,7 @@ const ByCellCarrier = (props: IProps) => {
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                                 <form>
-                                    <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowModal('New'); }}>
+                                    <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setCarrier(emptyCarrier); setShowModal('New'); }}>
                                         Add Cell Carrier
                                     </button>
                                 </form>
