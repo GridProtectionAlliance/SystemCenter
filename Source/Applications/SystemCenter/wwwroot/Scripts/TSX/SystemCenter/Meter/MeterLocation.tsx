@@ -174,7 +174,7 @@ const LocationWindow = (props: IProps) => {
                         setHasChanged(props.Meter.LocationID != (m.LocationID != null ? parseInt(m.LocationID.toString()) : 0));
                         setMeter({ ...m, LocationID: (m.LocationID != null ? parseInt(m.LocationID.toString()) : 0) });
                     }}
-                    DisableLocation={false}
+                    DisableLocation={location.ID > 0}
                 />
              </div>
             <div className="card-footer">
