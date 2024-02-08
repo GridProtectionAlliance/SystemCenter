@@ -80,7 +80,7 @@ namespace SystemCenter.Controllers.OpenXDA
             {
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    IEnumerable<DataFile> records = new TableOperations<DataFile>(connection).QueryRecordsWhere(@"FileGroupID IN (SELECT FileGroupID FROM FileGroupMeterConfiguration WHERE MeterConfigurationID = {0})", meterConfigurationID);
+                    IEnumerable<DataFileDb> records = new TableOperations<DataFileDb>(connection).QueryRecordsWhere(@"FileGroupID IN (SELECT FileGroupID FROM FileGroupMeterConfiguration WHERE MeterConfigurationID = {0})", meterConfigurationID);
                     return Ok(records);
                 }
             }

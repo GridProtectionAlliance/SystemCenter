@@ -111,8 +111,8 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
                         <form>
                             <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0} onClick={(event) => {
-                                if (props.Roles.indexOf('Administrator') < 0) {
-                                    event.preventDefault()
+                                if (props.Roles.indexOf('Administrator') > -1) {
+                                    event.preventDefault();
                                     setShowNew(true);
                                 }
                             }}>Add Remote Connection</button>

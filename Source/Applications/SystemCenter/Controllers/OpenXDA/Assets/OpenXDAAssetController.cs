@@ -291,8 +291,9 @@ namespace SystemCenter.Controllers.OpenXDA
 
 
                     DataTable table;
+                    object[] paramArray = param.ToArray();
                     if (param.Count() > 0)
-                        table = connection.RetrieveData(sql, param.ToArray());
+                        table = connection.RetrieveData(sql, paramArray.ToArray());
                     else
                         table = connection.RetrieveData(sql, "");
 

@@ -126,7 +126,7 @@ export namespace TransformSearchFields {
                     text = '%';
                 text.replace('*', '%');
                 text = " '" + text + "'";
-                return { FieldName: 'ID', SearchText: meterQuery + s.Operator + text + ' or Meter.Name ' + s.Operator + text + ' )', Operator: 'IN', Type: 'number', IsPivotColumn: false }
+                return { FieldName: 'ID', SearchText: meterQuery + s.Operator + text + ' or Meter.Name ' + s.Operator + text + ' )', Operator: 'IN', Type: 'query', IsPivotColumn: false }
             }
             if (s.FieldName == 'Asset') {
                 let text: string = s.SearchText;
@@ -134,7 +134,7 @@ export namespace TransformSearchFields {
                     text = '%';
                 text.replace('*', '%');
                 text = " '" + text + "'";
-                return { FieldName: 'ID', SearchText: assetQuery + s.Operator + text + ' or Asset.AssetKey ' + s.Operator + text + ' )', Operator: 'IN', Type: 'number', IsPivotColumn: false }
+                return { FieldName: 'ID', SearchText: assetQuery + s.Operator + text + ' or Asset.AssetKey ' + s.Operator + text + ' )', Operator: 'IN', Type: 'query', IsPivotColumn: false }
             }
             if (SearchFields.Location.findIndex(item => item.key == s.FieldName) == -1)
                 return { ...s, IsPivotColumn: true };
