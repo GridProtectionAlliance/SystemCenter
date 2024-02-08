@@ -30,7 +30,8 @@ import { CheckBox, Input } from '@gpa-gemstone/react-forms';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
-function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Breaker, UpdateState: (newEditAsset: OpenXDA.Types.Breaker) => void, ShowSpare?: boolean }): JSX.Element {
+function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Breaker,
+     UpdateState: (newEditAsset: OpenXDA.Types.Breaker) => void, ShowSpare?: boolean,  AllowEdit?: boolean }): JSX.Element {
 
     const roles = useAppSelector(SelectRoles);
 
@@ -70,26 +71,26 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
         <>
         <div className="row">
             <div className="col-6">
-                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'A numeric Thermal Rating value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'ThermalRating'} Label={'Thermal Rating'} Feedback={'A numeric Thermal Rating value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
             </div>
             <div className="col-6">
-                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Speed'} Feedback={'A numeric Speed value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Speed'} Feedback={'A numeric Speed value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
             </div>
             <div className="col-4">
-                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripTime'} Label={'Trip Time Limit'} Feedback={'An integer Trip Time Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripTime'} Label={'Trip Time Limit'} Feedback={'An integer Trip Time Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
             </div>
             <div className="col-4">
-                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'PickupTime'} Label={'Pickup Time Limit'} Feedback={'An integer Pickup Time Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'PickupTime'} Label={'Pickup Time Limit'} Feedback={'An integer Pickup Time Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
             </div>
             <div className="col-4">
-                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition Limit'} Feedback={'A numeric Trip Coil Condition Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                <Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'TripCoilCondition'} Label={'Trip Coil Condition Limit'} Feedback={'A numeric Trip Coil Condition Limit value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
             </div>
-            <div className="col-6"><Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'EDNAPoint'} Label={'eDNA Point'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
-                <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'AirGapResistor'} Label={'Air Gap Resistor'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+            <div className="col-6"><Input<OpenXDA.Types.Breaker> Record={props.Asset} Field={'EDNAPoint'} Label={'eDNA Point'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
+                <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'AirGapResistor'} Label={'Air Gap Resistor'} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
             </div>
             {props.ShowSpare ? <>
                 <div className="col-6">
-                    <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Spare'} Label={'Use Spare Instead'} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <CheckBox<OpenXDA.Types.Breaker> Record={props.Asset} Field={'Spare'} Label={'Use Spare Instead'} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
                 <div className="col-12">
                     <div className="alert alert-info" role="alert">
@@ -105,7 +106,7 @@ function BreakerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: O
                     else
                         record.SpareBreakerID = parseInt(evt.target.value as string);
                     props.UpdateState(record)
-                }} disabled={props.NewEdit == 'New' && props.Asset.ID != 0}>
+                }} disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)}>
                     <option value={0} key={0} >None</option>
                     {
                         spares.map(spare => <option value={spare.ID} key={spare.ID} >{spare.AssetKey}</option>)
