@@ -29,7 +29,9 @@ import { Input } from '@gpa-gemstone/react-forms';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
-function TransformerAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Transformer, UpdateState: (newEditAsset: OpenXDA.Types.Transformer) => void }): JSX.Element {
+function TransformerAttributes(props: { 
+    NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Transformer, UpdateState: (newEditAsset: OpenXDA.Types.Transformer) => void,  AllowEdit?: boolean
+ }): JSX.Element {
 
     const roles = useAppSelector(SelectRoles);
 
@@ -73,40 +75,40 @@ function TransformerAttributes(props: { NewEdit: Application.Types.NewEdit, Asse
         <>
             <div className="row">
                 <div className="col-6">
-                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'R0'} Label={'R0 (p.u.)'} Feedback={'A numeric R0 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'R0'} Label={'R0 (p.u.)'} Feedback={'A numeric R0 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
                 <div className="col-6">
-                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'X0'} Label={'X0 (p.u.)'} Feedback={'A numeric X0 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'X0'} Label={'X0 (p.u.)'} Feedback={'A numeric X0 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
                 <div className="col-6">
-                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'R1'} Label={'R1 (p.u.)'} Feedback={'A numeric R1 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'R1'} Label={'R1 (p.u.)'} Feedback={'A numeric R1 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
                 <div className="col-6">
-                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'X1'} Label={'X1 (p.u.)'} Feedback={'A numeric X1 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'X1'} Label={'X1 (p.u.)'} Feedback={'A numeric X1 value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
                 <div className="col-6">
-                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'ThermalRating'} Label={'Rating (kVA)'} Feedback={'A numeric Thermal Rating value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'ThermalRating'} Label={'Rating (kVA)'} Feedback={'A numeric Thermal Rating value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
                 <div className="col-6"> 
-                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'Tap'} Feedback={'A numeric Tap value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'Tap'} Feedback={'A numeric Tap value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
                 <div className="col-4">
-                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'PrimaryVoltageKV'} Label={'Primary Voltage (kV)'} Feedback={'A numeric Primary Voltage value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'PrimaryVoltageKV'} Label={'Primary Voltage (kV)'} Feedback={'A numeric Primary Voltage value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
                 <div className="col-4"> 
-                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'SecondaryVoltageKV'} Label={'Secondary Voltage (kV)'} Feedback={'A numeric Secondary Voltage is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'SecondaryVoltageKV'} Label={'Secondary Voltage (kV)'} Feedback={'A numeric Secondary Voltage is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
                 <div className="col-4"> 
-                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'TertiaryVoltageKV'} Label={'Tertiary Voltage (kV)'} Feedback={'Tertiary Voltage must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'TertiaryVoltageKV'} Label={'Tertiary Voltage (kV)'} Feedback={'Tertiary Voltage must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
                 <div className="col-4">
-                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'PrimaryWinding'} Label={'Primary Winding'} Feedback={'A numeric Primary Winding value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'PrimaryWinding'} Label={'Primary Winding'} Feedback={'A numeric Primary Winding value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
                 <div className="col-4"> 
-                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'SecondaryWinding'} Label={'Secondary Winding'} Feedback={'A numeric Secondary Winding value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'SecondaryWinding'} Label={'Secondary Winding'} Feedback={'A numeric Secondary Winding value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
                 <div className="col-4"> 
-                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'TertiaryWinding'} Label={'Tertiary Winding'} Feedback={'Tertiary Winding must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+                    <Input<OpenXDA.Types.Transformer> Record={props.Asset} Field={'TertiaryWinding'} Label={'Tertiary Winding'} Feedback={'Tertiary Winding must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
                 </div>
             </div>
         </>
