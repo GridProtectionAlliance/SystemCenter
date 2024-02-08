@@ -485,6 +485,7 @@ export default function AssetPage(props: IProps) {
                     <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
                         <div className="col">
                             <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
+                                AllowEdit={newEditAsset.ID === 0}
                                 UpdateState={(record) => {
                                     if (record.AssetType == newEditAsset.AssetType)
                                         setNewEditAsset(record);
