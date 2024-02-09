@@ -184,17 +184,25 @@ const MeterAssetWindow = (props: IProps) => {
                                     Key={'VoltageKV'}
                                     AllowSort={true}
                                     Field={'VoltageKV'}
-                                    HeaderStyle={{ width: 'calc(10%-16x)' }}
-                                    RowStyle={{ width: 'calc(10%-16x)' }}
+                                    HeaderStyle={{ width: 'calc(5%-16x)' }}
+                                    RowStyle={{ width: 'calc(5%-16x)' }}
                                 > Base kV
                                 </ReactTable.Column>
                                 <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                     Key={'FaultDetectionLogic'}
                                     AllowSort={true}
                                     Field={'FaultDetectionLogic'}
-                                    HeaderStyle={{ width: 'calc(15%-16px)' }}
-                                    RowStyle={{ width: 'calc(15%-16px)' }}
+                                    HeaderStyle={{ width: 'calc(10%-16px)' }}
+                                    RowStyle={{ width: 'calc(10%-16px)' }}
                                 > Fault Detection Logic
+                                </ReactTable.Column>
+                                <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                    Key={'Designation'}
+                                    AllowSort={true}
+                                    Field={'Designation'}
+                                    HeaderStyle={{ width: 'calc(10%-16px)' }}
+                                    RowStyle={{ width: 'calc(10%-16px)' }}
+                                > Designation
                                 </ReactTable.Column>
                                 <ReactTable.Column<OpenXDA.Types.MeterAsset>
                                     Key={'EditDelete'}

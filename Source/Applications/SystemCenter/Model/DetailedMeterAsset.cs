@@ -32,12 +32,14 @@ namespace SystemCenter.Model
         Asset.*,
         MeterAsset.MeterID,
         AssetType.Name AssetType,
-        FaultDetectionLogic.Expression FaultDetectionLogic
+        FaultDetectionLogic.Expression FaultDetectionLogic,
+        MeterDependentAssetDesignation.Designation
     FROM 
         Asset JOIN
         AssetType ON Asset.AssetTypeID = AssetType.ID JOIN
         MeterAsset ON MeterAsset.AssetID = Asset.ID LEFT JOIN
-        FaultDetectionLogic ON FaultDetectionLogic.MeterAssetID = MeterAsset.ID
+        FaultDetectionLogic ON FaultDetectionLogic.MeterAssetID = MeterAsset.ID LEFT JOIN
+        MeterDependentAssetDesignation ON MeterDependentAssetDesignation.MeterAssetID = MeterAsset.ID
     ")]
     public class DetailedMeterAsset : Asset
     {
@@ -47,5 +49,7 @@ namespace SystemCenter.Model
         public string AssetType { get; set; }
 
         public string FaultDetectionLogic { get; set; }
+
+        public string Designation { get; set; }
     }
 }
