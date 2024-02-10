@@ -30,7 +30,7 @@ import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
 function TransformerAttributes(props: { 
-    NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Transformer, UpdateState: (newEditAsset: OpenXDA.Types.Transformer) => void,  AllowEdit?: boolean
+    NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Transformer, UpdateState: (newEditAsset: OpenXDA.Types.Transformer) => void,  Disabled?: boolean
  }): JSX.Element {
 
     const roles = useAppSelector(SelectRoles);
