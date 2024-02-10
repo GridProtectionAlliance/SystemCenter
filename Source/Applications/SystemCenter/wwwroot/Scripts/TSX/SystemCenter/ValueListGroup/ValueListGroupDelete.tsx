@@ -28,17 +28,25 @@ import { SystemCenter } from '@gpa-gemstone/application-typings';
 
 declare var homePath: string;
 interface IProps { CallBack: (conf: boolean) => void, Record: SystemCenter.Types.ValueListGroup, Show: boolean }
+export const requiredValueLists = ["TimeZones","Make","Model","Unit","Category"]
 
 export default function ValueListGroupDelete(props: IProps) {
     const [message, setMessage] = React.useState<string>('')
-
+    const [prevent, setPrevent]  = React.useState<boolean>(false)
+  
     React.useEffect(() => {
+        if (requiredValueLists.includes(props.Record?.Name)) {
+            setPrevent(true);
+            setMessage('This Value List Group is required and cannot be removed.')
+            return
+        }
+        setPrevent(false);
         setMessage('This will permanently delete this Value List Group and cannot be undone.')
     }, [props.Record])
 
     return ( <Warning
                 Message={message}
                 Show={props.Show} Title={'Delete ' + (props.Record?.Name ?? 'Value List Group')}
-                CallBack={props.CallBack} />
+                CallBack={(c) => {props.CallBack(c && !prevent)}} />
     )
 }
