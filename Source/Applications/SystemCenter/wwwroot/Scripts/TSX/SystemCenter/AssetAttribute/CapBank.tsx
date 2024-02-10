@@ -179,7 +179,7 @@ function CapBankAttributes(props: {
                     {(props.Asset.Compensated ? 
                         <>
                         <div className="col-12">
-                            <DoubleInput<OpenXDA.Types.CapBank> Record={props.Asset} Field2={'RelayPTRatioSecondary'} Field1={'RelayPTRatioPrimary'} Label={'Relay PT Ratio (Primary - Secondary V)'} Feedback={'An integer Relay PT Ratio value is required.'} Valid={valid} Setter={props.UpdateState} Disable={disable}/>
+                            <DoubleInput<OpenXDA.Types.CapBank> Record={props.Asset} Field2={'RelayPTRatioSecondary'} Field1={'RelayPTRatioPrimary'} Label={'Relay PT Ratio (Primary - Secondary V)'} Feedback={'An integer Relay PT Ratio value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable}/>
                         </div>
                         <div className="col-6">
                             <Input<OpenXDA.Types.CapBank> Record={props.Asset} Field={'Rh'} Label={'Vt Input Resistor (Ohm)'} Feedback={'A numeric Vt Input Resistor value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
