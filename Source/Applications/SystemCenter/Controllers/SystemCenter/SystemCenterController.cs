@@ -96,11 +96,15 @@ namespace SystemCenter.Controllers
             return Ok(records);
         }
 
-         public override IHttpActionResult Post([FromBody] JObject record)
+         public override IHttpActionResult Patch([FromBody] openXDA.Model.ChannelGroupDetails newRecord)
          {
+             if (!PatchAuthCheck())
+            {
+                return Unauthorized();
+            }
+
             // Check if Value changed
             bool changeVal = false;
-            openXDA.Model.ValueList newRecord = record.ToObject<openXDA.Model.ValueList>();
             openXDA.Model.ValueList oldRecord;
 
              using (AdoDataConnection connection = new AdoDataConnection(Connection))
@@ -158,7 +162,63 @@ namespace SystemCenter.Controllers
             return base.Post(record);
 
          }
-    }
+
+        public override IHttpActionResult Delete(openXDA.Model.ValueList record)
+        {
+            if (!DeleteAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            ValueListGroup group;
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ValueTypeID);
+                if (RequiredGroups.ContainsKey(groupName))
+                {
+                    int count;
+                    if (group.Name == "TimeZones") {
+                        count = connection.ExecuteScalar<int>(@"SELECT COUNT(ID) FROM 
+                        Meter
+                        WHERE [TimeZone] = {0} ", record.Value)
+                    }
+                    if (group.Name == "Make") {
+                        connection.ExecuteScalar(@"SELECT COUNT(ID) FROM  
+                        Meter
+                        WHERE
+                        [Make] = {1}", record.Value)
+                    }
+                    if (group.Name == "Model") {
+                        connection.ExecuteScalar(@"SELECT COUNT(ID) FROM  
+                        Meter
+                        WHERE
+                        [Model] = {1}", record.Value)
+                    }
+                    if (group.Name == "Category") {
+                        connection.ExecuteScalar(@"SELECT COUNT(ID) FROM  
+                        LocationDrawing
+                        WHERE
+                        [Category] = {1}", record.Value)
+                    }
+
+                    //ToDo Add Unit Logic
+
+                    if (count > 0)
+                        return Unauthorized();
+ 
+                }
+                else 
+                {
+                    connection.ExecuteScalar(@"DELETE FROM AditionalFieldValue AFV
+                                WHERE
+                                [Value] = {0} AND
+                                (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {1}", record.Value, group.Name)
+                }
+
+                return base.Delete(record);
+            }
+
+        }
 
     [RoutePrefix("api/ChannelGroup")]
     public class ChannelGroupController : ModelController<openXDA.Model.ChannelGroup> { }

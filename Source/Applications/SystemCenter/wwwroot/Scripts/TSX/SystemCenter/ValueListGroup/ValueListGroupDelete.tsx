@@ -64,23 +64,26 @@ export function ValueListItemDelete(props: IPropsItem) {
     const [message, setMessage] = React.useState<string>('')
     const [prevent, setPrevent]  = React.useState<boolean>(false)
     const [removalCount, setRemovalCount] = React.useState<number>(0);
-    const [showReplace, setShowReplace] = React.useState<boolean>(false);
+
     React.useEffect(() => {
         if (requiredValueLists.includes(props.Group?.Name) && itemCount == 1) {
             setPrevent(true);
             setMessage('This Value List Group is required and needs to contain at least 1 item. Therfore this Item cannot be removed.')
-            setShowReplace(false)
             return
         }
         if (itemCount == 1 && removalCount > 0)
         {
             setMessage('Removing this Item will result in an empty Value List Group. All Fields using this Value List Group will be changed to strings.')
             setPrevent(false);
-            setShowReplace(false);
+    
             return;
         }
-
-        setShowReplace(false)
+        if (removalCount > 0)
+        {
+            setMessage(`There are some fields using this Value List Group, with ${removalCount} values corresponding to this item. These values will be unasigned.`)
+            setPrevent(false);
+            return;
+        }
         setPrevent(false);
         setMessage('This will permanently delete this Value List Item and cannot be undone.')
     }, [props.Group, removalCount, itemCount])
