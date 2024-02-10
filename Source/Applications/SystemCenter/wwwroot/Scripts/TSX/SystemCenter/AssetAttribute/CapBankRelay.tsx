@@ -59,7 +59,7 @@ function CapBankRelayAttributes(props: {
             <Input<OpenXDA.Types.CapBankRelay> Record={props.Asset} Field={'CapBankNumber'} Label={'Protected CapBank'} Feedback={'An integer Protected CapBank value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
         </div>
         <div className="col-6">
-            <Input<OpenXDA.Types.CapBankRelay> Record={props.Asset} Field={'OnVoltageThreshhold'} Label={'Relay On Voltage Threshhold (pu)'} Feedback={'A numeric Relay On Voltage Threshhold value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disabled} />
+            <Input<OpenXDA.Types.CapBankRelay> Record={props.Asset} Field={'OnVoltageThreshhold'} Label={'Relay On Voltage Threshhold (pu)'} Feedback={'A numeric Relay On Voltage Threshhold value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
         </div>
     </div>
        </>;
