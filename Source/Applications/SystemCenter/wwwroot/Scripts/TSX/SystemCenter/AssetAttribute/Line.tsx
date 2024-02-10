@@ -29,7 +29,11 @@ import { Input } from '@gpa-gemstone/react-forms';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
-function LineAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.Line, UpdateState: (newEditAsset: OpenXDA.Types.Line) => void }): JSX.Element {
+function LineAttributes(props: { 
+    NewEdit: Application.Types.NewEdit,
+    Asset: OpenXDA.Types.Line,
+    UpdateState: (newEditAsset: OpenXDA.Types.Line) => void,
+    Disabled?: boolean }): JSX.Element {
 
     const roles = useAppSelector(SelectRoles);
 
@@ -71,13 +75,15 @@ function LineAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: Open
     }, [props.Asset]);
 
     if (props.Asset == null || props.Asset.Detail == null) return null;
+
+    const disable = (props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false);
     return (
         <div className="row">
             <div className="col-6">
-            <Input<OpenXDA.Types.Line> Record={props.Asset} Help={'If this field is left blank the system will use Length as the maximum fault distance.'} Field={'MaxFaultDistance'} Label={'Max Fault Distance'} Feedback={'Max Fault Distance must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+            <Input<OpenXDA.Types.Line> Record={props.Asset} Help={'If this field is left blank the system will use Length as the maximum fault distance.'} Field={'MaxFaultDistance'} Label={'Max Fault Distance'} Feedback={'Max Fault Distance must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
             </div>
             <div className="col-6">
-            <Input<OpenXDA.Types.Line> Record={props.Asset} Help={'If this field is left blank the system will use 0 as the minimum fault distance.'} Field={'MinFaultDistance'} Label={'Min Fault Distance'} Feedback={'Min Fault Distance must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+            <Input<OpenXDA.Types.Line> Record={props.Asset} Help={'If this field is left blank the system will use 0 as the minimum fault distance.'} Field={'MinFaultDistance'} Label={'Min Fault Distance'} Feedback={'Min Fault Distance must be a numeric value.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
             </div>
             <div className="col-12">
             <div className="alert alert-info" role="alert">
