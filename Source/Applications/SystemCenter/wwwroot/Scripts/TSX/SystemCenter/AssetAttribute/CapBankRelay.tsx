@@ -52,7 +52,7 @@ function CapBankRelayAttributes(props: {
         return true;
     }
 
-    const disable = (props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || props.Disabled
+    const disable = (props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (props.Disabled ?? false)
     return <>
     <div className="row">
         <div className="col-6">

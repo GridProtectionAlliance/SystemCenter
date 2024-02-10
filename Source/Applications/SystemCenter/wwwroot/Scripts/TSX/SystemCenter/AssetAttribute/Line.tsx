@@ -76,7 +76,7 @@ function LineAttributes(props: {
 
     if (props.Asset == null || props.Asset.Detail == null) return null;
 
-    const disable = (props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false);
+    const disable = (props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (props.Disabled ?? false);
     return (
         <div className="row">
             <div className="col-6">
