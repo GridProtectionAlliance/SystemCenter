@@ -34,7 +34,7 @@ import { SelectRoles } from '../Store/UserSettings';
 function DERAttributes<T extends OpenXDA.Types.DER>(props: { 
     NewEdit: Application.Types.NewEdit,
      Asset: T, 
-     UpdateState: (newEditAsset: T) => ,
+     UpdateState: (newEditAsset: T) => void,
     Disabled?: boolean
  }): JSX.Element {
 
