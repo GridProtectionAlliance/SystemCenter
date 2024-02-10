@@ -125,7 +125,7 @@ export namespace AssetAttributes {
                         else
                             props.UpdateState(AssetAttributes.getNewAsset('Line'));
                     }}
-                    Disabled={!props.AllowEdit ?? false}
+                    Disabled={!props.AllowEdit ?? true}
                 /> : null}
             { !props.HideAssetType ?
                 <Select<OpenXDA.Types.Asset> Record={props.Asset} Label={'Type'} Field={'AssetType'}
@@ -133,24 +133,24 @@ export namespace AssetAttributes {
                     Setter={(asset) => {
                         changeAssetType(asset.AssetType)
                     }}
-                    Disabled={!props.AllowEdit ?? false}
+                    Disabled={!props.AllowEdit ?? true}
                 /> : null}
             <Input<OpenXDA.Types.Asset> 
                 Record={props.Asset}
                 Field={'AssetKey'}
                 Label={'Key'} Feedback={'A unique Key of less than 50 characters is required.'} Valid={valid}
-                Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
+                Setter={props.UpdateState} Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? true)} />
             <Input<OpenXDA.Types.Asset> Record={props.Asset} Field={'AssetName'}
                 Label={'Name'} Feedback={'A Name of less than 200 characters is required.'} 
                 Valid={valid} Setter={props.UpdateState} 
-                Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
+                Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? true)} />
             <Input<OpenXDA.Types.Asset> 
                 Record={props.Asset} Field={'VoltageKV'} Label={'Nominal Voltage (L-L kV)'}
                 Feedback={'A numeric Nominal Voltage value is required.'} Valid={valid} Setter={props.UpdateState}
-                Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
+                Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? true)} />
             <TextArea<OpenXDA.Types.Asset> Rows={3} Record={props.Asset} 
                 Field={'Description'} Valid={valid} Setter={props.UpdateState} 
-                Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? false)} />
+                Disabled={(props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || (!props.AllowEdit ?? true)} />
         </React.Fragment >
         );
     }
