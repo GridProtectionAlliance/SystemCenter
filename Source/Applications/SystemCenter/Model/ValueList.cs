@@ -51,28 +51,5 @@ namespace SystemCenter.Model
         public int SortOrder { get; set; }
     }
 
-    [RoutePrefix("api/ValueList")]
-    public class ValueListController : ModelController<ValueList> {
-        #region [ Constructor ]
-       
-        [HttpGet, Route("Group/{groupName}")]
-        public IHttpActionResult GetValueListForGroup(string groupName)
-        {
-            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    string tableName = new TableOperations<ValueListGroup>(connection).TableName;
-                    IEnumerable<ValueList> records = new TableOperations<ValueList>(connection).QueryRecordsWhere($"GroupID = ( SELECT ID FROM {tableName} WHERE Name = {{0}})", groupName);
-                    return Ok(records);
-                }
-            }
-            else
-                return Unauthorized();
-        }
-
-
-        #endregion
-
-    }
+   
 }
