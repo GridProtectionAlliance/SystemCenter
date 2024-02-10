@@ -96,7 +96,7 @@ namespace SystemCenter.Controllers
             return Ok(records);
         }
 
-         public override IHttpActionResult Patch([FromBody] openXDA.Model.ChannelGroupDetails newRecord)
+         public override IHttpActionResult Patch([FromBody] openXDA.Model.ValueList newRecord)
          {
              if (!PatchAuthCheck())
             {
@@ -159,7 +159,7 @@ namespace SystemCenter.Controllers
                     // #ToDo Add Logic for Unit - not sure where that is used
                 }
             }
-            return base.Post(record);
+            return base.Patch(record);
 
          }
 
@@ -276,8 +276,60 @@ namespace SystemCenter.Controllers
     public class LSCVSAccountController : ModelController<LSCVSAccount> { }
 
     [RoutePrefix("api/ValueListGroup")]
-    public class ValueListGroupController : ModelController<ValueListGroup> { }
+    public class ValueListGroupController : ModelController<ValueListGroup>
+    {
+        public override IHttpActionResult Patch([FromBody] openXDA.Model.ValueListGroup newRecord)
+         {
+             if (!PatchAuthCheck())
+            {
+                return Unauthorized();
+            }
 
+            // Check if Value changed
+            bool changeVal = false;
+            openXDA.Model.ValueListGroup oldRecord;
+
+             using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                oldRecord = new TableOperations<openXDA.Model.ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ID)
+                changeVal = !(newRecord.Value == oldRecord.Value);
+            }
+
+            if (changeVal)
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    // Update Additional Fields
+                    connection.ExecuteScalar(@"UPDATE 
+                        AdditionalField AF
+                        SET [Type] = {0} 
+                        WHERE
+                        [Type] = {1}", newRecord.Value, oldRecord.Value)
+                }
+            }
+            return base.Patch(record);
+
+         }
+
+        public override IHttpActionResult Delete(openXDA.Model.ValueListGroup record)
+        {
+            if (!DeleteAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                // Update Additional Fields
+                connection.ExecuteScalar(@"UPDATE 
+                    AdditionalField AF
+                    SET [Type] = 'string' 
+                    WHERE
+                    [Type] = {1}", record.Value)
+            }
+            return base.Delete(record);
+        }
+    }    
     [RoutePrefix("api/OpenXDA/DBCleanup")]
     public class DBCleanupController : ModelController<openXDA.Model.DBCleanup> { }
 
