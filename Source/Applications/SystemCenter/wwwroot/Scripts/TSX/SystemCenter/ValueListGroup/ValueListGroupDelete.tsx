@@ -50,3 +50,44 @@ export default function ValueListGroupDelete(props: IProps) {
                 CallBack={(c) => {props.CallBack(c && !prevent)}} />
     )
 }
+
+interface IPropsItem { 
+    CallBack: (conf: boolean) => void,
+    Record: SystemCenter.Types.ValueListItem, 
+    Show: boolean, 
+    ItemCount: number, 
+    Group: SystemCenter.Types.ValueListGroup
+}
+
+export function ValueListItemDelete(props: IPropsItem) {
+
+    const [message, setMessage] = React.useState<string>('')
+    const [prevent, setPrevent]  = React.useState<boolean>(false)
+    const [removalCount, setRemovalCount] = React.useState<number>(0);
+    const [showReplace, setShowReplace] = React.useState<boolean>(false);
+    React.useEffect(() => {
+        if (requiredValueLists.includes(props.Group?.Name) && itemCount == 1) {
+            setPrevent(true);
+            setMessage('This Value List Group is required and needs to contain at least 1 item. Therfore this Item cannot be removed.')
+            setShowReplace(false)
+            return
+        }
+        if (itemCount == 1 && removalCount > 0)
+        {
+            setMessage('Removing this Item will result in an empty Value List Group. All Fields using this Value List Group will be changed to strings.')
+            setPrevent(false);
+            setShowReplace(false);
+            return;
+        }
+
+        setShowReplace(false)
+        setPrevent(false);
+        setMessage('This will permanently delete this Value List Item and cannot be undone.')
+    }, [props.Group, removalCount, itemCount])
+
+    return ( <Warning
+                Message={message}
+                Show={props.Show} Title={'Delete ' + (props.Record.AltValue ?? props.Record.Value)}
+                CallBack={(c) => {props.CallBack(c && !prevent)}} />
+    )
+}

@@ -31,6 +31,7 @@ import ValueListForm from './ValueListForm';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { CrossMark, Pencil, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Modal, Warning } from '@gpa-gemstone/react-interactive';
+import { ValueListItemDelete } from './ValueListGroupDelete';
 
 interface IProps { Record: SystemCenter.Types.ValueListGroup }
 export default function ValueListGroupItems(props: IProps) {
@@ -144,10 +145,13 @@ export default function ValueListGroupItems(props: IProps) {
                     >Add Item</button>
                 </div>
             </div>
-            <Warning
-                Message={'This will permanently delete this Value List Item and cannot be undone.'}
-                Show={showWarning} Title={'Delete ' + (record.AltValue ?? record.Value)}
-                CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }} />
+            <ValueListItemDelete
+                Show={showWarning}
+                CallBack={(conf) => { if (conf) Delete(); setShowWarning(false); }}
+                Record={record}
+                ItemCount={data.length}
+                Group={props.Record}
+                />
             <Modal Title={record.ID == 0 ? 'Add New Value List Item' : 'Edit ' + (record.AltValue ?? record.Value)} Show={showModal} ShowCancel={false} ConfirmText={record.ID == 0 ? 'Add' : 'Save'}
                 ConfirmShowToolTip={errors.length > 0}
                 CancelToolTipContent={<> {errors.map(e => <p>{CrossMark} {e}</p>)}</>}
