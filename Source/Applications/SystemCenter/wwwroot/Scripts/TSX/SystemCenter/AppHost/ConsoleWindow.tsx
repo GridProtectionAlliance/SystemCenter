@@ -105,7 +105,7 @@ const ConsoleWindow = (props: IProps) => {
     }, [props.ConsoleURL])
 
     React.useEffect(() => { cmdRef.current = cmd; }, [cmd]);
-    React.useEffect(() => { lastCmd.current = lastCmd; }, [lastCmd]);
+    React.useEffect(() => { lastCmdRef.current = lastCmd; }, [lastCmd]);
     
     function handleKeyPress(event) {
 
