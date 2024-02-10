@@ -95,6 +95,69 @@ namespace SystemCenter.Controllers
             IEnumerable<ValueList> records = valueTable.QueryRecordsWhere("GroupID in ({0})", string.Join(", ", groupIds));
             return Ok(records);
         }
+
+         public override IHttpActionResult Post([FromBody] JObject record)
+         {
+            // Check if Value changed
+            bool changeVal = false;
+            openXDA.Model.ValueList newRecord = record.ToObject<openXDA.Model.ValueList>();
+            openXDA.Model.ValueList oldRecord;
+
+             using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                oldRecord = new TableOperations<openXDA.Model.ValueList>(connection).QueryRecordWhere("ID = {0}", newRecord.ID)
+                changeVal = !(newRecord.Value == oldRecord.Value);
+            }
+
+            if (changeVal)
+            {
+                ValueListGroup group;
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ValueTypeID);
+                    // Update Additional Fields
+                    connection.ExecuteScalar(@"UPDATE 
+                        AdditionalFieldValue AFV
+                        SET [Value] = {0} 
+                        WHERE
+                        [Value] = {1} AND
+                        (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {2}", newRecord.Value, oldRecord.Value, group.Name)
+
+                    if (group.Name == "TimeZones") {
+                        connection.ExecuteScalar(@"UPDATE 
+                        Meter
+                        SET [TimeZone] = {0} 
+                        WHERE
+                        [TimeZone] = {1}", newRecord.Value, oldRecord.Value)
+                    }
+                    if (group.Name == "Make") {
+                        connection.ExecuteScalar(@"UPDATE 
+                        Meter
+                        SET [Make] = {0} 
+                        WHERE
+                        [Make] = {1}", newRecord.Value, oldRecord.Value)
+                    }
+                    if (group.Name == "Model") {
+                        connection.ExecuteScalar(@"UPDATE 
+                        Meter
+                        SET [Model] = {0} 
+                        WHERE
+                        [Model] = {1}", newRecord.Value, oldRecord.Value)
+                    }
+                    if (group.Name == "Category") {
+                        connection.ExecuteScalar(@"UPDATE 
+                        LocationDrawing
+                        SET [Category] = {0} 
+                        WHERE
+                        [Category] = {1}", newRecord.Value, oldRecord.Value)
+                    }
+
+                    // #ToDo Add Logic for Unit - not sure where that is used
+                }
+            }
+            return base.Post(record);
+
+         }
     }
 
     [RoutePrefix("api/ChannelGroup")]
