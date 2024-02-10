@@ -27,7 +27,8 @@ import ValueListGroupInfo from './ValueListGroupInfo';
 import ValueListGroupItems from './ValueListGroupItem';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { ValueListGroupSlice } from '../Store/Store';
-import { TabSelector, Warning } from '@gpa-gemstone/react-interactive';
+import { TabSelector } from '@gpa-gemstone/react-interactive';
+import { ValueListGroupDelete } from './ValueListGroupDelete';
 
 declare var homePath: string;
 declare type Tab = 'info' | 'items'
@@ -91,9 +92,9 @@ export default function ValueListGroup(props: IProps) {
                 </div>
             </div>
 
-            <Warning
-                Message={'This will permanently delete this Value List Group and cannot be undone.'}
-                Show={showRemove} Title={'Delete ' + (record?.Name ?? 'Value List Group')}
+            <ValueListGroupDelete
+                Show={showRemove} 
+                Record={record}
                 CallBack={(conf) => { if (conf) Delete(); setShowRemove(false); }} />
         </div>
     )
