@@ -561,7 +561,7 @@ export default function AssetPage(props: IProps) {
                                 </select>
                             </div> </> : null}
                         {newEditAsset.AssetType == 'Transformer' ?
-                            <div className="col-4">
+                            <div className="col-6">
                                 <div className="row">
                                     <div className="col-4">
                                         <label>Associated Channels Primary Side</label>
