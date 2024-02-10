@@ -47,6 +47,8 @@ const remoteConsoleStyle = {
 
 const ConsoleWindow = (props: IProps) => {
     const consoleDiv = React.useRef<HTMLPreElement>(null);
+    const cmdRef = React.useRef<string>('');
+    const lastCmdRef = React.useRef<string>('');
 
     const [sessionID, setSessionID] = React.useState<string>('');
     const [update, setUpdate] = React.useState<boolean>(false);
@@ -102,17 +104,20 @@ const ConsoleWindow = (props: IProps) => {
         }
     }, [props.ConsoleURL])
 
+    React.useEffect(() => { cmdRef.current = cmd; }, [cmd]);
+    React.useEffect(() => { lastCmd.current = lastCmd; }, [lastCmd]);
+    
     function handleKeyPress(event) {
 
         if (event.keyCode == 38 && cmd.length > 0) // arrow down key
         {
             event.preventDefault();
-            setCMD(lastCmd); 
+            setCMD(cmdRef.current); 
         }
         else if (event.keyCode == 13)  // enter key
         {
             event.preventDefault();
-            sendCmd(cmd);
+            sendCmd(lastCmdRef.current);
             setCMD(''); 
         }
     }
