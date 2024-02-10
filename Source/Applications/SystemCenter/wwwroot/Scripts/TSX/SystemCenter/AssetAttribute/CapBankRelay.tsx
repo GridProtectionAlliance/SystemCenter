@@ -29,7 +29,12 @@ import { Input } from '@gpa-gemstone/react-forms';
 import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
-function CapBankRelayAttributes(props: { NewEdit: Application.Types.NewEdit, Asset: OpenXDA.Types.CapBankRelay, UpdateState: (newEditAsset: OpenXDA.Types.CapBankRelay) => void }): JSX.Element {
+function CapBankRelayAttributes(props: { 
+    NewEdit: Application.Types.NewEdit,
+    Asset: OpenXDA.Types.CapBankRelay,
+    UpdateState: (newEditAsset: OpenXDA.Types.CapBankRelay) => void,
+    Disabled?: boolean
+    }): JSX.Element {
 
     const roles = useAppSelector(SelectRoles);
 
@@ -46,13 +51,15 @@ function CapBankRelayAttributes(props: { NewEdit: Application.Types.NewEdit, Ass
             return props.Asset.CapBankNumber != null && AssetAttributes.isInteger(props.Asset.CapBankNumber);
         return true;
     }
+
+    const disable = (props.NewEdit == 'New' && props.Asset.ID != 0) || !hasPermissions() || props.Disabled
     return <>
     <div className="row">
         <div className="col-6">
-            <Input<OpenXDA.Types.CapBankRelay> Record={props.Asset} Field={'CapBankNumber'} Label={'Protected CapBank'} Feedback={'An integer Protected CapBank value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+            <Input<OpenXDA.Types.CapBankRelay> Record={props.Asset} Field={'CapBankNumber'} Label={'Protected CapBank'} Feedback={'An integer Protected CapBank value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disable} />
         </div>
         <div className="col-6">
-            <Input<OpenXDA.Types.CapBankRelay> Record={props.Asset} Field={'OnVoltageThreshhold'} Label={'Relay On Voltage Threshhold (pu)'} Feedback={'A numeric Relay On Voltage Threshhold value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={props.NewEdit == 'New' && props.Asset.ID != 0 || !hasPermissions()} />
+            <Input<OpenXDA.Types.CapBankRelay> Record={props.Asset} Field={'OnVoltageThreshhold'} Label={'Relay On Voltage Threshhold (pu)'} Feedback={'A numeric Relay On Voltage Threshhold value is required.'} Valid={valid} Setter={props.UpdateState} Disabled={disabled} />
         </div>
     </div>
        </>;
