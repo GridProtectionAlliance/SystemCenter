@@ -107,7 +107,7 @@ namespace SystemCenter.Controllers
             bool changeVal = false;
             openXDA.Model.ValueList oldRecord;
 
-             using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 oldRecord = new TableOperations<openXDA.Model.ValueList>(connection).QueryRecordWhere("ID = {0}", newRecord.ID)
                 changeVal = !(newRecord.Value == oldRecord.Value);
@@ -219,8 +219,23 @@ namespace SystemCenter.Controllers
             }
 
         }
+
+        [Route("Count/{groupName}/{value}"), HttpGet]
+        public IHttpActionResult GetCount(string groupName, string value)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                int nAddlFields = connection.ExecuteScalar(@"SELECT COUNT(AFV.ID) FROM AdditionalFieldValue AFV WHERE 
+                        [Value] = {0} AND (SELECT TOP 1 AF.ID FROM AdditionalField AF WHERE Type = {1}) = AFV.AdditionaFieldID
+                        ", value, groupName);
+                return Ok(nAddlFields);
+            }
+           
+        }
     }
-    
+
     [RoutePrefix("api/ChannelGroup")]
     public class ChannelGroupController : ModelController<openXDA.Model.ChannelGroup> { }
 

@@ -66,6 +66,18 @@ export function ValueListItemDelete(props: IPropsItem) {
     const [removalCount, setRemovalCount] = React.useState<number>(0);
 
     React.useEffect(() => {
+        const h =  $.ajax({
+            type: "GET",
+            url: `${homePath}api/ValueList/Count/${props.Group?.Name ?? 'Make'}/${props.Record?.Value}`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            cache: false,
+            async: true
+        }).then((c: number) => {setRemovalCount(c);});
+        return () => { if (h != null && h.abort != null) h.abort();}
+    }, [props.Group, props.Record])
+    
+    React.useEffect(() => {
         if (requiredValueLists.includes(props.Group?.Name) && itemCount == 1) {
             setPrevent(true);
             setMessage('This Value List Group is required and needs to contain at least 1 item. Therfore this Item cannot be removed.')
@@ -75,8 +87,12 @@ export function ValueListItemDelete(props: IPropsItem) {
         {
             setMessage('Removing this Value List Item will result in an empty Value List Group. All Fields using this Value List Group will be changed to strings.')
             setPrevent(false);
-    
             return;
+        }
+        if (requiredValueLists.includes(props.Group?.Name) && removalCount > 0) {
+            setPrevent(true);
+            setMessage('This Value List Group is required and this Value List Item is still in use. Use of this Value List Item must be removed before it can be deleted.')
+            return
         }
         if (removalCount > 0)
         {
