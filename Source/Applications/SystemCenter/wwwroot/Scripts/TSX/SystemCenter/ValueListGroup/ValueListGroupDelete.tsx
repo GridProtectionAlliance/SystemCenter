@@ -30,7 +30,7 @@ declare var homePath: string;
 interface IProps { CallBack: (conf: boolean) => void, Record: SystemCenter.Types.ValueListGroup, Show: boolean }
 export const requiredValueLists = ["TimeZones","Make","Model","Unit","Category"]
 
-export default function ValueListGroupDelete(props: IProps) {
+export function ValueListGroupDelete(props: IProps) {
     const [message, setMessage] = React.useState<string>('')
     const [prevent, setPrevent]  = React.useState<boolean>(false)
   
@@ -73,7 +73,8 @@ export function ValueListItemDelete(props: IPropsItem) {
             dataType: 'json',
             cache: false,
             async: true
-        }).then((c: number) => {setRemovalCount(c);});
+        });
+        h.then((c: number) => {setRemovalCount(c);});
         return () => { if (h != null && h.abort != null) h.abort();}
     }, [props.Group, props.Record])
     
@@ -82,7 +83,7 @@ export function ValueListItemDelete(props: IPropsItem) {
             setPrevent(true);
             setMessage('This Value List Group is required and needs to contain at least 1 item. Therfore this Item cannot be removed.')
         }
-        else if (itemCount == 1 && removalCount > 0)
+        else if (props.ItemCount == 1 && removalCount > 0)
         {
             setMessage('Removing this Value List Item will result in an empty Value List Group. All Fields using this Value List Group will be changed to strings.')
             setPrevent(false);
@@ -100,7 +101,7 @@ export function ValueListItemDelete(props: IPropsItem) {
             setPrevent(false);
             setMessage('This will permanently delete this Value List Item and cannot be undone.')   
         }
-    }, [props.Group, removalCount, itemCount])
+    }, [props.Group, removalCount, props.ItemCount])
 
     return ( <Warning
                 Message={message}

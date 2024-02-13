@@ -35,7 +35,7 @@ export default function ValueListGroupForm(props: { Record: SystemCenter.Types.V
         return false;
     }
 
-    const required = requiredValueLists.contains(props.Record?.Name)
+    const required = requiredValueLists.includes(props.Record?.Name)
     return (
         <form>
             <Input<SystemCenter.Types.ValueListGroup> Record={props.Record} Field={'Name'} Feedback={'Name must be less than 200 characters.'} 
