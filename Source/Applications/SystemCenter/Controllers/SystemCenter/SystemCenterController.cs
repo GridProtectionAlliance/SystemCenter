@@ -53,14 +53,7 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/ValueList")]
     public class ValueListController : ModelController<ValueList>
     {
-        private IDictionary<string, string> RequiredGroups = new Dictionary<string, string>
-        {
-            {"TimeZones", "UTC"},
-            {"Make", "GPA"},
-            {"Model", "PQMeter"},
-            {"Unit", "Unknown"},
-            {"Category", "Oneline"}
-        };
+       
 
         [HttpGet, Route("Group/{groupName}")]
         public IHttpActionResult GetValueListForGroup(string groupName)
@@ -71,23 +64,31 @@ namespace SystemCenter.Controllers
             List<int> groupIds = groupTable.QueryRecordsWhere("Name = {0}", groupName).Select(group => group.ID).ToList();
             if (groupIds.Count() == 0)
             {
-                if (RequiredGroups.ContainsKey(groupName))
+                RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == groupName)
+                if (!(restriction is null))
                 {
+
                     groupTable.AddNewRecord(
                         new ValueListGroup()
                         {
                             Description = "",
-                            Name = groupName
+                            Name = restriction.Name
                         });
                     groupIds.Add(connection.ExecuteScalar<int>("SELECT @@IDENTITY"));
+
+                    int sortOrder = 1;
+                    foreach (string item in restriction.DefaultItems)
+                    {
                     valueTable.AddNewRecord(
                         new ValueList()
                         {
                             GroupID = groupIds[0],
-                            Value = RequiredGroups[groupName],
-                            AltValue = RequiredGroups[groupName],
-                            SortOrder = 1
+                            Value = item,
+                            AltValue = item,
+                            SortOrder = sortOrder
                         });
+                        sortOrder++;
+                    }
                 }
                 else
                     return Ok(new List<ValueList>());
@@ -127,36 +128,11 @@ namespace SystemCenter.Controllers
                         [Value] = {1} AND
                         (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {2}", newRecord.Value, oldRecord.Value, group.Name)
 
-                    if (group.Name == "TimeZones") {
-                        connection.ExecuteScalar(@"UPDATE 
-                        Meter
-                        SET [TimeZone] = {0} 
-                        WHERE
-                        [TimeZone] = {1}", newRecord.Value, oldRecord.Value)
+                    RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name)
+                    if (!(restriction is null))
+                    {
+                        connection.ExecuteScalar(restriction.UpdateSQL, newRecord.Value, oldRecord.Value)
                     }
-                    if (group.Name == "Make") {
-                        connection.ExecuteScalar(@"UPDATE 
-                        Meter
-                        SET [Make] = {0} 
-                        WHERE
-                        [Make] = {1}", newRecord.Value, oldRecord.Value)
-                    }
-                    if (group.Name == "Model") {
-                        connection.ExecuteScalar(@"UPDATE 
-                        Meter
-                        SET [Model] = {0} 
-                        WHERE
-                        [Model] = {1}", newRecord.Value, oldRecord.Value)
-                    }
-                    if (group.Name == "Category") {
-                        connection.ExecuteScalar(@"UPDATE 
-                        LocationDrawing
-                        SET [Category] = {0} 
-                        WHERE
-                        [Category] = {1}", newRecord.Value, oldRecord.Value)
-                    }
-
-                    // #ToDo Add Logic for Unit - not sure where that is used
                 }
             }
             return base.Patch(record);
@@ -174,47 +150,19 @@ namespace SystemCenter.Controllers
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ValueTypeID);
-                if (RequiredGroups.ContainsKey(groupName))
+                RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name)
+                if (!(restriction is null))
                 {
-                    int count;
-                    if (group.Name == "TimeZones") {
-                        count = connection.ExecuteScalar<int>(@"SELECT COUNT(ID) FROM 
-                        Meter
-                        WHERE [TimeZone] = {0} ", record.Value)
-                    }
-                    if (group.Name == "Make") {
-                        connection.ExecuteScalar(@"SELECT COUNT(ID) FROM  
-                        Meter
-                        WHERE
-                        [Make] = {1}", record.Value)
-                    }
-                    if (group.Name == "Model") {
-                        connection.ExecuteScalar(@"SELECT COUNT(ID) FROM  
-                        Meter
-                        WHERE
-                        [Model] = {1}", record.Value)
-                    }
-                    if (group.Name == "Category") {
-                        connection.ExecuteScalar(@"SELECT COUNT(ID) FROM  
-                        LocationDrawing
-                        WHERE
-                        [Category] = {1}", record.Value)
-                    }
-
-                    //ToDo Add Unit Logic
-
+                    int count = connection.ExecuteScalar<int>(restriction.CountSQL, record.Value);
                     if (count > 0)
                         return Unauthorized();
- 
                 }
-                else 
-                {
-                    connection.ExecuteScalar(@"DELETE FROM AditionalFieldValue AFV
-                                WHERE
-                                [Value] = {0} AND
-                                (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {1}", record.Value, group.Name)
-                }
-
+                
+                connection.ExecuteScalar(@"DELETE FROM AditionalFieldValue AFV
+                            WHERE
+                            [Value] = {0} AND
+                            (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {1}", record.Value, group.Name)
+            
                 return base.Delete(record);
             }
 
@@ -230,7 +178,13 @@ namespace SystemCenter.Controllers
                 int nAddlFields = connection.ExecuteScalar(@"SELECT COUNT(AFV.ID) FROM AdditionalFieldValue AFV WHERE 
                         [Value] = {0} AND (SELECT TOP 1 AF.ID FROM AdditionalField AF WHERE Type = {1}) = AFV.AdditionaFieldID
                         ", value, groupName);
-                return Ok(nAddlFields);
+                RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == groupName);
+                int count = 0;
+                if (!(restriction is null))
+                {
+                    count = connection.ExecuteScalar<int>(restriction.CountSQL, record.Value); 
+                }
+                return Ok(nAddlFields + count);
             }
            
         }
