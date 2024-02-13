@@ -81,27 +81,25 @@ export function ValueListItemDelete(props: IPropsItem) {
         if (requiredValueLists.includes(props.Group?.Name) && itemCount == 1) {
             setPrevent(true);
             setMessage('This Value List Group is required and needs to contain at least 1 item. Therfore this Item cannot be removed.')
-            return
         }
-        if (itemCount == 1 && removalCount > 0)
+        else if (itemCount == 1 && removalCount > 0)
         {
             setMessage('Removing this Value List Item will result in an empty Value List Group. All Fields using this Value List Group will be changed to strings.')
             setPrevent(false);
-            return;
         }
-        if (requiredValueLists.includes(props.Group?.Name) && removalCount > 0) {
+        else if (requiredValueLists.includes(props.Group?.Name) && removalCount > 0) {
             setPrevent(true);
             setMessage('This Value List Group is required and this Value List Item is still in use. Use of this Value List Item must be removed before it can be deleted.')
-            return
         }
-        if (removalCount > 0)
+        else if (removalCount > 0)
         {
             setMessage(`There are some fields using this Value List Group, with ${removalCount} values corresponding to this Value List Item. These values will be unasigned.`)
             setPrevent(false);
-            return;
         }
-        setPrevent(false);
-        setMessage('This will permanently delete this Value List Item and cannot be undone.')
+        else {
+            setPrevent(false);
+            setMessage('This will permanently delete this Value List Item and cannot be undone.')   
+        }
     }, [props.Group, removalCount, itemCount])
 
     return ( <Warning
