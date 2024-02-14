@@ -141,7 +141,7 @@ const MultipleAssetsPage: React.FC<IProps> = (props) => {
                         {props.SkipExisting && currentAsset?.ID === 0? <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                             <div className={'row'} style={{ flex: 1, overflow: 'hidden' }}>
                                 <div className={'col-12'} style={{ height: '100%', overflow: 'hidden' }}>
-                                        <h3> This can not be edited in the New Meter Wizard for Existing Assets.</h3>
+                                        <h3> This cannot be edited in the New Meter Wizard for Existing Assets.</h3>
                                 </div>
                             </div> 
                         </div> : props.GetInnerComponent(currentAsset)}
