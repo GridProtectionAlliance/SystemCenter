@@ -79,7 +79,7 @@ export function ValueListItemDelete(props: IPropsItem) {
     }, [props.Group, props.Record])
     
     React.useEffect(() => {
-        if (requiredValueLists.includes(props.Group?.Name) && itemCount == 1) {
+        if (requiredValueLists.includes(props.Group?.Name) && props.ItemCount == 1) {
             setPrevent(true);
             setMessage('This Value List Group is required and needs to contain at least 1 item. Therfore this Item cannot be removed.')
         }
