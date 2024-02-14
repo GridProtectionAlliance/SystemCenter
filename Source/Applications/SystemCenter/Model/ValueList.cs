@@ -36,27 +36,13 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
-    [PrimaryLabel("Text")]
-    [TableName("ValueList"), UseEscapedName]
-
-    public class ValueList
-    {
-
-        [PrimaryKey(true)]
-        public int ID { get; set; }
-        [ParentKey(typeof(ValueListGroup))]
-        public int GroupID { get; set; }
-        public string Value { get; set; }
-        public string AltValue { get; set; }
-        public int SortOrder { get; set; }
-    }
 
    public class RestrictedValueList 
    {
-        public string Name { get; }
-        public string CountSQL { get; }
-        public string UpdateSQL { get; }
-        public string[] DefaultItems { get; }
+        public string Name { get; set; }
+        public string CountSQL { get; set;  }
+        public string UpdateSQL { get; set;  }
+        public string[] DefaultItems { get; set; }
 
         public static List<RestrictedValueList> List = new List<RestrictedValueList>(){
             new RestrictedValueList() {

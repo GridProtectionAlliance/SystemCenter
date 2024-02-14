@@ -97,7 +97,7 @@ namespace SystemCenter.Controllers
             return Ok(records);
         }
 
-         public override IHttpActionResult Patch([FromBody] openXDA.Model.ValueList newRecord)
+         public override IHttpActionResult Patch([FromBody] SystemCenter.Model.ValueList newRecord)
          {
              if (!PatchAuthCheck())
             {
@@ -106,11 +106,11 @@ namespace SystemCenter.Controllers
 
             // Check if Value changed
             bool changeVal = false;
-            openXDA.Model.ValueList oldRecord;
+            SystemCenter.Model.ValueList oldRecord;
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                oldRecord = new TableOperations<openXDA.Model.ValueList>(connection).QueryRecordWhere("ID = {0}", newRecord.ID);
+                oldRecord = new TableOperations<SystemCenter.Model.ValueList>(connection).QueryRecordWhere("ID = {0}", newRecord.ID);
                 changeVal = !(newRecord.Value == oldRecord.Value);
             }
 
@@ -119,7 +119,7 @@ namespace SystemCenter.Controllers
                 ValueListGroup group;
                 using (AdoDataConnection connection = new AdoDataConnection(Connection))
                 {
-                    group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ValueTypeID);
+                    group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.GroupID);
                     // Update Additional Fields
                     connection.ExecuteScalar(@"UPDATE 
                         AdditionalFieldValue AFV
@@ -135,11 +135,11 @@ namespace SystemCenter.Controllers
                     }
                 }
             }
-            return base.Patch(record);
+            return base.Patch(newRecord);
 
          }
 
-        public override IHttpActionResult Delete(openXDA.Model.ValueList record)
+        public override IHttpActionResult Delete(SystemCenter.Model.ValueList record)
         {
             if (!DeleteAuthCheck())
             {
@@ -149,7 +149,7 @@ namespace SystemCenter.Controllers
             ValueListGroup group;
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ValueTypeID);
+                group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", record.GroupID);
                 RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name);
                 if (!(restriction is null))
                 {
@@ -175,14 +175,14 @@ namespace SystemCenter.Controllers
                 return Unauthorized();
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                int nAddlFields = connection.ExecuteScalar(@"SELECT COUNT(AFV.ID) FROM AdditionalFieldValue AFV WHERE 
+                int nAddlFields = connection.ExecuteScalar<int>(@"SELECT COUNT(AFV.ID) FROM AdditionalFieldValue AFV WHERE 
                         [Value] = {0} AND (SELECT TOP 1 AF.ID FROM AdditionalField AF WHERE Type = {1}) = AFV.AdditionaFieldID
                         ", value, groupName);
                 RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == groupName);
                 int count = 0;
                 if (!(restriction is null))
                 {
-                    count = connection.ExecuteScalar<int>(restriction.CountSQL, record.Value); 
+                    count = connection.ExecuteScalar<int>(restriction.CountSQL, value); 
                 }
                 return Ok(nAddlFields + count);
             }
@@ -248,7 +248,7 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/ValueListGroup")]
     public class ValueListGroupController : ModelController<ValueListGroup>
     {
-        public override IHttpActionResult Patch([FromBody] openXDA.Model.ValueListGroup newRecord)
+        public override IHttpActionResult Patch([FromBody] SystemCenter.Model.ValueListGroup newRecord)
          {
              if (!PatchAuthCheck())
             {
@@ -257,12 +257,12 @@ namespace SystemCenter.Controllers
 
             // Check if Value changed
             bool changeVal = false;
-            openXDA.Model.ValueListGroup oldRecord;
+            SystemCenter.Model.ValueListGroup oldRecord;
 
              using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                oldRecord = new TableOperations<openXDA.Model.ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ID);
-                changeVal = !(newRecord.Value == oldRecord.Value);
+                oldRecord = new TableOperations<SystemCenter.Model.ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ID);
+                changeVal = !(newRecord.Name == oldRecord.Name);
             }
 
             if (changeVal)
@@ -274,14 +274,14 @@ namespace SystemCenter.Controllers
                         AdditionalField AF
                         SET [Type] = {0} 
                         WHERE
-                        [Type] = {1}", newRecord.Value, oldRecord.Value);
+                        [Type] = {1}", newRecord.Name, oldRecord.Name);
                 }
             }
-            return base.Patch(record);
+            return base.Patch(newRecord);
 
          }
 
-        public override IHttpActionResult Delete(openXDA.Model.ValueListGroup record)
+        public override IHttpActionResult Delete(SystemCenter.Model.ValueListGroup record)
         {
             if (!DeleteAuthCheck())
             {
@@ -295,7 +295,7 @@ namespace SystemCenter.Controllers
                     AdditionalField AF
                     SET [Type] = 'string' 
                     WHERE
-                    [Type] = {1}", record.Value);
+                    [Type] = {0}", record.Name);
             }
             return base.Delete(record);
         }
