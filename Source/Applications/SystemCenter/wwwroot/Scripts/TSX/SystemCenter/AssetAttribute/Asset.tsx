@@ -125,7 +125,7 @@ export namespace AssetAttributes {
                         else
                             props.UpdateState(AssetAttributes.getNewAsset('Line'));
                     }}
-                    Disabled={!props.AllowEdit ?? true}
+                    Disabled={!(props.AllowEdit ?? true)}
                 /> : null}
             { !props.HideAssetType ?
                 <Select<OpenXDA.Types.Asset> Record={props.Asset} Label={'Type'} Field={'AssetType'}
