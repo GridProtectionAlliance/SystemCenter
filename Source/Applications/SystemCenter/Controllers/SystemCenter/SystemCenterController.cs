@@ -64,7 +64,7 @@ namespace SystemCenter.Controllers
             List<int> groupIds = groupTable.QueryRecordsWhere("Name = {0}", groupName).Select(group => group.ID).ToList();
             if (groupIds.Count() == 0)
             {
-                RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == groupName)
+                RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == groupName);
                 if (!(restriction is null))
                 {
 
@@ -110,7 +110,7 @@ namespace SystemCenter.Controllers
 
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                oldRecord = new TableOperations<openXDA.Model.ValueList>(connection).QueryRecordWhere("ID = {0}", newRecord.ID)
+                oldRecord = new TableOperations<openXDA.Model.ValueList>(connection).QueryRecordWhere("ID = {0}", newRecord.ID);
                 changeVal = !(newRecord.Value == oldRecord.Value);
             }
 
@@ -126,12 +126,12 @@ namespace SystemCenter.Controllers
                         SET [Value] = {0} 
                         WHERE
                         [Value] = {1} AND
-                        (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {2}", newRecord.Value, oldRecord.Value, group.Name)
+                        (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {2}", newRecord.Value, oldRecord.Value, group.Name);
 
-                    RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name)
+                    RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name);
                     if (!(restriction is null))
                     {
-                        connection.ExecuteScalar(restriction.UpdateSQL, newRecord.Value, oldRecord.Value)
+                        connection.ExecuteScalar(restriction.UpdateSQL, newRecord.Value, oldRecord.Value);
                     }
                 }
             }
@@ -150,7 +150,7 @@ namespace SystemCenter.Controllers
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ValueTypeID);
-                RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name)
+                RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name);
                 if (!(restriction is null))
                 {
                     int count = connection.ExecuteScalar<int>(restriction.CountSQL, record.Value);
@@ -161,7 +161,7 @@ namespace SystemCenter.Controllers
                 connection.ExecuteScalar(@"DELETE FROM AditionalFieldValue AFV
                             WHERE
                             [Value] = {0} AND
-                            (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {1}", record.Value, group.Name)
+                            (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {1}", record.Value, group.Name);
             
                 return base.Delete(record);
             }
@@ -261,7 +261,7 @@ namespace SystemCenter.Controllers
 
              using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
-                oldRecord = new TableOperations<openXDA.Model.ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ID)
+                oldRecord = new TableOperations<openXDA.Model.ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ID);
                 changeVal = !(newRecord.Value == oldRecord.Value);
             }
 
@@ -274,7 +274,7 @@ namespace SystemCenter.Controllers
                         AdditionalField AF
                         SET [Type] = {0} 
                         WHERE
-                        [Type] = {1}", newRecord.Value, oldRecord.Value)
+                        [Type] = {1}", newRecord.Value, oldRecord.Value);
                 }
             }
             return base.Patch(record);
@@ -295,7 +295,7 @@ namespace SystemCenter.Controllers
                     AdditionalField AF
                     SET [Type] = 'string' 
                     WHERE
-                    [Type] = {1}", record.Value)
+                    [Type] = {1}", record.Value);
             }
             return base.Delete(record);
         }
