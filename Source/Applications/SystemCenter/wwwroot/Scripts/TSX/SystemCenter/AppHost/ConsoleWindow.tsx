@@ -112,12 +112,12 @@ const ConsoleWindow = (props: IProps) => {
         if (event.keyCode == 38 && cmd.length > 0) // arrow down key
         {
             event.preventDefault();
-            setCMD(cmdRef.current); 
+            setCMD(lastCmdRef.current); 
         }
         else if (event.keyCode == 13)  // enter key
         {
             event.preventDefault();
-            sendCmd(lastCmdRef.current);
+            sendCmd(cmdRef.current);
             setCMD(''); 
         }
     }
