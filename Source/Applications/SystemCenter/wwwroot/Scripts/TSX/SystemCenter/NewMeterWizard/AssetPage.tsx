@@ -253,19 +253,19 @@ export default function AssetPage(props: IProps) {
 
     function showAttributes(): JSX.Element {
         if (newEditAsset.AssetType == 'Breaker')
-            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Breaker} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID === 0}/>;
+            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Breaker} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID > 0}/>;
         else if (newEditAsset.AssetType == 'Bus')
             return <BusAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset}/>;
         else if (newEditAsset.AssetType == 'CapacitorBank')
-            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBank} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID === 0}/>;
+            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBank} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID > 0}/>;
         else if (newEditAsset.AssetType == 'CapacitorBankRelay')
-            return <CapBankRelayAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBankRelay} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID === 0}/>;
+            return <CapBankRelayAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBankRelay} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID > 0}/>;
         else if (newEditAsset.AssetType == 'Line')
-            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID === 0}/>;
+            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID > 0}/>;
         else if (newEditAsset.AssetType == 'Transformer')
-            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID === 0}/>;
+            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID > 0}/>;
         else if (newEditAsset.AssetType == 'DER')
-            return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID === 0}/>;
+            return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID > 0}/>;
         else if (newEditAsset.AssetType == 'Generation')
             return <GenerationAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'StationAux')
@@ -485,7 +485,7 @@ export default function AssetPage(props: IProps) {
                     <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
                         <div className="col-4">
                             <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
-                                AllowEdit={newEditAsset.ID === 0}
+                                AllowEdit={newEditAsset.ID > 0}
                                 UpdateState={(record) => {
                                     if (record.AssetType == newEditAsset.AssetType)
                                         setNewEditAsset(record);
