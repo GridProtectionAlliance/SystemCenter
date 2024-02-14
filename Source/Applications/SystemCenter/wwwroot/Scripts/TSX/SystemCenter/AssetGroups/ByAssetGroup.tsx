@@ -307,7 +307,7 @@ const ByAssetGroup: Application.Types.iByComponent = (props) => {
                         </ReactTable.Column>
                         <ReactTable.Column<OpenXDA.Types.AssetGroup>
                             Key={'DisplayDashboard'}
-                            AllowSort={false}
+                            AllowSort={true}
                             Field={'DisplayDashboard'}
                             HeaderStyle={{ width: 'auto' }}
                             RowStyle={{ width: 'auto' }}
