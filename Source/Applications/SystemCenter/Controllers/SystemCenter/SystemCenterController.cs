@@ -161,7 +161,7 @@ namespace SystemCenter.Controllers
                 connection.ExecuteScalar(@"DELETE FROM AditionalFieldValue AFV
                             WHERE
                             [Value] = {0} AND
-                            (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {1}", record.Value, group.Name);
+                            (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID) = {1}", record.Value, group.Name);
             
                 return base.Delete(record);
             }
@@ -176,7 +176,7 @@ namespace SystemCenter.Controllers
             using (AdoDataConnection connection = new AdoDataConnection(Connection))
             {
                 int nAddlFields = connection.ExecuteScalar<int>(@"SELECT COUNT(AFV.ID) FROM AdditionalFieldValue AFV WHERE 
-                        [Value] = {0} AND (SELECT TOP 1 AF.ID FROM AdditionalField AF WHERE Type = {1}) = AFV.AdditionaFieldID
+                        [Value] = {0} AND (SELECT TOP 1 AF.ID FROM AdditionalField AF WHERE Type = {1}) = AFV.AdditionalFieldID
                         ", value, groupName);
                 RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == groupName);
                 int count = 0;
