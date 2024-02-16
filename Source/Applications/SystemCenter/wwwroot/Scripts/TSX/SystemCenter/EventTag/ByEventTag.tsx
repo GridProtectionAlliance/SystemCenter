@@ -89,6 +89,7 @@ const EventTags: Application.Types.iByComponent = (props) => {
                 Direction={'left'}
                 defaultCollumn={EventTagDefaultSearchField as Search.IField<OpenXDA.Types.EventTag>}
                 Width={'50%'}
+                StorageID="EventTagsFilter"
                 Label={'Search'}
                 ShowLoading={status === 'loading'}
                 ResultNote={status === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Event Tag(s)'}

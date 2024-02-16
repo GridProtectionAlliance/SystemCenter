@@ -96,6 +96,7 @@ const ChannelGroups: Application.Types.iByComponent = (props) => {
                 Direction={'left'}
                 defaultCollumn={ChannelGroupDefaultSearchField as Search.IField<SystemCenter.Types.ChannelGroup>}
                 Width={'50%'}
+                StorageID="ChannelGroupsFilter"
                 Label={'Search'}
                 ShowLoading={status == 'loading'}
                 ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Channel Groups(s)'}

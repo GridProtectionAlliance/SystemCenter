@@ -91,6 +91,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
                         defaultCollumn={ExternalDBDefaultSearchField}
                         Width={'50%'}
                         Label={'Search'}
+                        StorageID="ExternalDatabasesFilter"
                         ShowLoading={status == 'loading'}
                         ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' External Database(s)'}
                     >

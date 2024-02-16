@@ -153,7 +153,7 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
             <div className="row">
-            <SearchBar<SCGlobal.DeviceHealthReport> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'}
+                <SearchBar<SCGlobal.DeviceHealthReport> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={standardSearch} Width={'50%'} Label={'Search'} StorageID="DeviceHealthReportFilter"
                 ShowLoading={searchState == 'Loading'} ResultNote={searchState == 'Error' ? 'Could not complete Search' : 'Found ' + data.length + ' Meter(s)'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;

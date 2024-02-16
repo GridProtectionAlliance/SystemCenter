@@ -260,7 +260,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <DefaultSearch.Asset Slice={ByAssetSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields}>
+            <DefaultSearch.Asset Slice={ByAssetSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID="AssetsFilter">
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>

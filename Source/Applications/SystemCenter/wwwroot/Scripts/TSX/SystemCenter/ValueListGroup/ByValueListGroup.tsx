@@ -92,6 +92,7 @@ const ValueListGroups: Application.Types.iByComponent = (props) => {
                 defaultCollumn={DefaultSearchField.ValueListGroup as Search.IField<SystemCenter.Types.ValueListGroup>}
                 Width={'50%'}
                 Label={'Search'}
+                StorageID="ValueListsFilter"
                 ShowLoading={status == 'loading'}
                 ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Value List(s)'}
                 GetEnum={(setOptions, field) => {
