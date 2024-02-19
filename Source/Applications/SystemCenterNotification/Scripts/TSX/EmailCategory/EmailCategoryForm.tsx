@@ -40,20 +40,16 @@ const EmailCategoryForm = (props: IProps) => {
             dispatch(EmailCategorySlice.Fetch());
     }, [status]);
 
-    return (
-        <>
-            
+    return ( 
         <div className="row">
-                <div className="col">
-                    <Input<EmailCategory> Record={props.record} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'}
-                        Valid={field => props.record.Name != null && props.record.Name.length > 0 && emailCategories.findIndex(s => s.Name === props.record.Name && s.ID !== props.record.ID) < 0}
-                        Setter={(record) => { props.setRecord(record)}}
-                    />
-                    <CheckBox<EmailCategory> Record={props.record} Field={'SelfSubscribe'} Label={'Show in Self Subscription'} Setter={(record) => props.setRecord(record)} />
-                </div>
+            <div className="col">
+                <Input<EmailCategory> Record={props.record} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'}
+                    Valid={field => props.record.Name != null && props.record.Name.length > 0 && emailCategories.findIndex(s => s.Name === props.record.Name && s.ID !== props.record.ID) < 0}
+                    Setter={(record) => { props.setRecord(record)}}
+                />
+                <CheckBox<EmailCategory> Record={props.record} Field={'SelfSubscribe'} Label={'Show in Self Subscription'} Setter={(record) => props.setRecord(record)} />
             </div>
-            
-        </>)
+        </div>)
 }
 
 export default EmailCategoryForm;

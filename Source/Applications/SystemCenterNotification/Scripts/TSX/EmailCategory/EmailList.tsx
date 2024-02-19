@@ -23,20 +23,11 @@
 
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { useParams } from 'react-router-dom';
-import { LoadingScreen, Modal, Search, SearchBar, TabSelector, ToolTip, Warning } from '@gpa-gemstone/react-interactive'
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
-import { Application } from '@gpa-gemstone/application-typings';
-import { EmailCategory, EmailType } from '../global';
-import { EmailCategorySlice, EmailTypeSlice } from '../Store';
-import Table from '@gpa-gemstone/react-table';
-import EmailCategoryForm from './EmailCategoryForm';
-
-declare var homePath;
-declare var version;
+import { EmailType } from '../global';
+import { EmailTypeSlice } from '../Store';
+import { ReactTable } from '@gpa-gemstone/react-table';
 
 interface IProps { CategoryID: number}
-
 
 
 const EmailList = (props: IProps) => {
@@ -56,51 +47,80 @@ const EmailList = (props: IProps) => {
     }, [parentID, status, props.CategoryID])
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Emails:</h4>
+        <div className="container-fluid d-flex h-100 flex-column">
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col">
+                                <h4>Emails:</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
+                                    <ReactTable.Table<EmailType>
+                                        TableClass="table table-hover"
+                                        Data={emails}
+                                        SortKey={sortField}
+                                        Ascending={ascending}
+                                        OnSort={(d) => {
+                                            if (d.colKey === null) return;
+                                            dispatch(EmailTypeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                                        }}
+                                        TableStyle={{
+                                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                        }}
+                                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        Selected={(item) => false}
+                                        KeySelector={(item) => item.ID}
+                                    >
+                                        <ReactTable.Column<EmailType>
+                                            Key={'Name'}
+                                            AllowSort={true}
+                                            Field={'Name'}
+                                            HeaderStyle={{ width: '70%' }}
+                                            RowStyle={{ width: '70%' }}
+                                        > Name
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<EmailType>
+                                            Key={'MinDelay'}
+                                            AllowSort={true}
+                                            Field={'MinDelay'}
+                                            HeaderStyle={{ width: '10%' }}
+                                            RowStyle={{ width: '10%' }}
+                                        > Min Delay
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<EmailType>
+                                            Key={'MaxDelay'}
+                                            AllowSort={true}
+                                            Field={'MaxDelay'}
+                                            HeaderStyle={{ width: '10%' }}
+                                            RowStyle={{ width: '10%' }}
+                                        > Max Delay
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<EmailType>
+                                            Key={'SMS'}
+                                            AllowSort={true}
+                                            Field={'SMS'}
+                                            HeaderStyle={{ width: '10%' }}
+                                            RowStyle={{ width: '10%' }}
+                                            Content={({ item }) => item.SMS ? 'Text' : 'Email' }
+                                        > Type
+                                        </ReactTable.Column>
+                                    </ReactTable.Table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
-                    <Table<EmailType>
-                        cols={[
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '60%' }, rowStyle: { width: '60%' } },
-                            //{ key: 'Type', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'MinDelay', field: 'MinDelay', label: 'Min Delay', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'MaxDelay', field: 'MaxDelay', label: 'Max Delay', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'SMS', field: 'SMS', label: 'Type', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => item.SMS? 'Text' : 'Email' },
-                        ]}
-                        tableClass="table table-hover"
-                        data={emails}
-                        sortKey={sortField}
-                        ascending={ascending}
-                        onSort={(d) => {
-                            if (d.colKey === 'scroll' || d.colKey === 'undefined')
-                                return
-                            if (d.colField === sortField)
-                                dispatch(EmailTypeSlice.Sort({ SortField: sortField, Ascending: true }));
-                            else
-                                dispatch(EmailTypeSlice.Sort({ SortField: sortField, Ascending: ascending }));
-                        }}
-                        onClick={() => { }}
-                        //theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        //tbodyStyle={{ display: 'block', overflowY: 'auto', maxHeight: window.innerHeight - 182, width: '100%' }}
-                        //rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={() => false}
-                    />
-
-                </div>
-            </div>
-            <div className="card-footer">
-                
-            </div>
-
-        </div>
-        )
+        </div>)
 }
 
 export default EmailList;
