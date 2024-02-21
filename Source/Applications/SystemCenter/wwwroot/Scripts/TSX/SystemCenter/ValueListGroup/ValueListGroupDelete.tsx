@@ -66,7 +66,7 @@ export function ValueListItemDelete(props: IPropsItem) {
     const [removalCount, setRemovalCount] = React.useState<number>(0);
 
     React.useEffect(() => {
-        if ((props.Group?.Name?.lengt ?? 0) === 0 || (props.Record?.Value ?? 0) === 0)
+        if ((props.Group?.Name?.length ?? 0) === 0 || (props.Record?.Value ?? 0) === 0)
             return;
         
         const h =  $.ajax({
