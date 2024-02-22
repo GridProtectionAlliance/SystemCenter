@@ -419,19 +419,19 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             case assetStep:
                 return <AssetPage AssetConnections={assetConnections} Location={locationInfo} Channels={channels} Assets={assets} UpdateChannels={setChannels} UpdateAssets={setAssets} UpdateAssetConnections={setAssetConnections} SetWarning={setWarning} PageID={assetPageID} />
             case connectionStep:
-                return <MultipleAssetsPage Assets={assets.filter(asset => asset.AssetType != 'LineSegment')} GetInnerComponent={(currentAsset) => <ConnectionPage AllAssets={assets} CurrentAsset={currentAsset} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />} />
+                return <MultipleAssetsPage SkipExisting={false} Assets={assets.filter(asset => asset.AssetType != 'LineSegment')} GetInnerComponent={(currentAsset) => <ConnectionPage AllAssets={assets} CurrentAsset={currentAsset} AssetConnections={assetConnections} UpdateAssetConnections={setAssetConnections} />} />
             case additionalFieldMeterStep:
                 return <AdditionalFieldsWindow ID={meterID} Type='Meter' HideExternal={true} InnerOnly={true} />
             case externalFieldStep:
                 return <ExternalDBUpdate ID={meterID} Type='Meter'/>
             case lineSegmentStep:
-                return <MultipleAssetsPage Assets={lines} GetInnerComponent={(currentAsset) => <LineSegmentWindow ID={currentAsset.ID} InnerOnly={true} />} />
+                return <MultipleAssetsPage Assets={lines} SkipExisting={false} GetInnerComponent={(currentAsset) => <LineSegmentWindow ID={currentAsset.ID} InnerOnly={true} />} />
             case additionalFieldAssetStep:
-                return <MultipleAssetsPage Assets={assets} GetInnerComponent={(currentAsset) => <AdditionalFieldsWindow ID={currentAsset.ID} Type='Asset' InnerOnly={true} HideExternal={true} />}/>
+                return <MultipleAssetsPage Assets={assets} SkipExisting={true} GetInnerComponent={(currentAsset) => <AdditionalFieldsWindow ID={currentAsset.ID} Type='Asset' InnerOnly={true} HideExternal={true} />}/>
             case customerAssetGroupMeterStep:
                 return <CustomerAssetGroupPage ID={meterID} Type={'Meter'} Name={meterInfo.AssetKey} SetWarning={setWarning} />
             case customerAssetGroupAssetStep:
-                return <MultipleAssetsPage Assets={assets} GetInnerComponent={(currentAsset) => <CustomerAssetGroupPage ID={currentAsset.ID} Type={'Asset'} Name={currentAsset.AssetKey} SetWarning={setWarning} />} />
+                return <MultipleAssetsPage Assets={assets} SkipExisting={true} GetInnerComponent={(currentAsset) => <CustomerAssetGroupPage ID={currentAsset.ID} Type={'Asset'} Name={currentAsset.AssetKey} SetWarning={setWarning} />} />
         }
     };
 

@@ -253,19 +253,19 @@ export default function AssetPage(props: IProps) {
 
     function showAttributes(): JSX.Element {
         if (newEditAsset.AssetType == 'Breaker')
-            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Breaker} UpdateState={setNewEditAsset} />;
+            return <BreakerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Breaker} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID > 0}/>;
         else if (newEditAsset.AssetType == 'Bus')
             return <BusAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset}/>;
         else if (newEditAsset.AssetType == 'CapacitorBank')
-            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBank} UpdateState={setNewEditAsset} />;
+            return <CapBankAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBank} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID > 0}/>;
         else if (newEditAsset.AssetType == 'CapacitorBankRelay')
-            return <CapBankRelayAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBankRelay} UpdateState={setNewEditAsset} />;
+            return <CapBankRelayAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.CapBankRelay} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID > 0}/>;
         else if (newEditAsset.AssetType == 'Line')
-            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset} />;
+            return <LineAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Line} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID > 0}/>;
         else if (newEditAsset.AssetType == 'Transformer')
-            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset} />;
+            return <TransformerAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.Transformer} UpdateState={setNewEditAsset}  Disabled={newEditAsset?.ID > 0}/>;
         else if (newEditAsset.AssetType == 'DER')
-            return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} />;
+            return <DERAttributes NewEdit={newEdit} Asset={newEditAsset as OpenXDA.Types.DER} UpdateState={setNewEditAsset} Disabled={newEditAsset?.ID > 0}/>;
         else if (newEditAsset.AssetType == 'Generation')
             return <GenerationAttributes NewEdit={newEdit} Asset={newEditAsset} UpdateState={setNewEditAsset} />;
         else if (newEditAsset.AssetType == 'StationAux')
@@ -483,8 +483,9 @@ export default function AssetPage(props: IProps) {
                     }
                 >
                     <div className="row" style={{ maxHeight: innerHeight - 300, overflow:'auto' }}>
-                        <div className="col">
+                        <div className="col-4">
                             <AssetAttributes.AssetAttributeFields Asset={newEditAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={assets}
+                                AllowEdit={newEditAsset.ID > 0}
                                 UpdateState={(record) => {
                                     if (record.AssetType == newEditAsset.AssetType)
                                         setNewEditAsset(record);
@@ -501,11 +502,13 @@ export default function AssetPage(props: IProps) {
                                 }}
                                 GetDifferentAsset={getDifferentAsset} HideAssetType={newEdit == 'Edit'} HideSelectAsset={true} />
                         </div>
-                        <div className="col">
+                        <div className="col-4">
                             {showAttributes()}
                         </div>
+                        <div className="col-4">
+                            <div className="row">
                         {newEditAsset.AssetType != 'Transformer' && newEditAsset.AssetType != 'Breaker' ?
-                            <div className="col">
+                            <div className="col-12">
                                 <label>Associated Channels</label>
                                 <select multiple style={{ height: innerHeight - 330, width: '100%' }} onChange={(evt) => {
                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -520,8 +523,8 @@ export default function AssetPage(props: IProps) {
                                     }
                                 </select>
                             </div> : null}
-                        {newEditAsset.AssetType == 'Breaker'?
-                            <div className="col">
+                        {newEditAsset.AssetType == 'Breaker'? <>
+                            <div className="col-6">
                                 <label>Associated Channels Bus Side</label>
                                 <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -538,6 +541,8 @@ export default function AssetPage(props: IProps) {
                                         props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
                                     }
                                 </select>
+                            </div>
+                            <div className="col-6">
                                 <label>Associated Channels Line/XFR Side</label>
                                 <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -554,11 +559,11 @@ export default function AssetPage(props: IProps) {
                                         props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
                                     }
                                 </select>
-                            </div> : null}
+                            </div> </> : null}
                         {newEditAsset.AssetType == 'Transformer' ?
-                            <div className="col">
+                            <div className="col-6">
                                 <div className="row">
-                                    <div className="col" style={{ width: "33.3%" }}>
+                                    <div className="col-4">
                                         <label>Associated Channels Primary Side</label>
                                         <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
                                             let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -576,7 +581,7 @@ export default function AssetPage(props: IProps) {
                                             }
                                         </select>
                                     </div>
-                                    <div className="col" style={{ width: "33.3%" }}>
+                                    <div className="col-4" >
                                         <label>Associated Channels Secondary Side</label>
                                         <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
                                             let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -594,7 +599,7 @@ export default function AssetPage(props: IProps) {
                                             }
                                         </select>
                                     </div>
-                                    <div className="col" style={{ width: "33.3%" }}>
+                                    <div className="col-4">
                                         <label>Associated Channels Tertiary Side</label>
                                         <select multiple style={{ height: innerHeight - 430, width: '100%' }} onChange={(evt) => {
                                             let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -614,6 +619,8 @@ export default function AssetPage(props: IProps) {
                                     </div>
                                 </div>
                             </div> : null}
+                            </div>
+                            </div>
                         </div>
                 </Modal>
             </div>

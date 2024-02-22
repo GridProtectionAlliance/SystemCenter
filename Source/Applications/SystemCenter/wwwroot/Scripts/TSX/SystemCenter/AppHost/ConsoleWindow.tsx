@@ -47,11 +47,14 @@ const remoteConsoleStyle = {
 
 const ConsoleWindow = (props: IProps) => {
     const consoleDiv = React.useRef<HTMLPreElement>(null);
+    const cmdRef = React.useRef<string>('');
+    const lastCmdRef = React.useRef<string>('');
 
     const [sessionID, setSessionID] = React.useState<string>('');
     const [update, setUpdate] = React.useState<boolean>(false);
     const [messages, setMessages] = React.useState<IConsoleMessage[]>([]);
     const [cmd, setCMD] = React.useState<string>('');
+    const [lastCmd, setLastCmd] = React.useState<string>('');
     const [autoScroll, setAutoScroll] = React.useState<boolean>(true);
 
     const [lastUpdate, setLastUpdate] = React.useState<string|null>('');
@@ -92,6 +95,34 @@ const ConsoleWindow = (props: IProps) => {
     }, [update]);
 
 
+    React.useEffect(() => {
+        if (props.ConsoleURL != undefined && props.ConsoleURL.length > 0) 
+            document.addEventListener("keydown", handleKeyPress, false);
+
+        return () => {
+            document.removeEventListener("keydown", handleKeyPress, false);
+        }
+    }, [props.ConsoleURL])
+
+    React.useEffect(() => { cmdRef.current = cmd; }, [cmd]);
+    React.useEffect(() => { lastCmdRef.current = lastCmd; }, [lastCmd]);
+    
+    function handleKeyPress(event) {
+
+        if (event.keyCode == 38 && cmd.length > 0) // arrow down key
+        {
+            event.preventDefault();
+            setCMD(lastCmdRef.current); 
+        }
+        else if (event.keyCode == 13)  // enter key
+        {
+            event.preventDefault();
+            sendCmd(cmdRef.current);
+            setCMD(''); 
+        }
+    }
+
+
     function connect() {
         const h = $.ajax({
             type: "GET",
@@ -106,6 +137,7 @@ const ConsoleWindow = (props: IProps) => {
     }
 
     function sendCmd(cmd: string) {
+        setLastCmd(cmd)
         const h = $.ajax({
             type: "POST",
             url: `${props.ConsoleURL}/Send/${sessionID}`,
