@@ -35,7 +35,7 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
-import { Search, Modal, LoadingIcon, ServerErrorIcon } from '@gpa-gemstone/react-interactive';
+import { Search, Modal, LoadingIcon, ServerErrorIcon, TabSelector } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table'
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
@@ -77,6 +77,17 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     const allAssets = useAppSelector(SelectAssets);
     const aStatus = useAppSelector(SelectAssetStatus);
     const dispatch = useAppDispatch();
+
+    const extDBTabList = [
+        { Label: 'Buses', Id: 'Bus' },
+        { Label: 'Lines', Id: 'Line' },
+        { Label: 'Breakers', Id: 'Breaker' },
+        { Label: 'Transformers', Id: 'Transformer' },
+        { Label: 'CapBanks', Id: 'CapacitorBank' },
+        { Label: 'Generation', Id: 'Generation' },
+        { Label: 'StationAux', Id: 'StationAux' },
+        { Label: 'StationBattery', Id: 'StationBattery' },
+    ];
 
     React.useEffect(() => {
         if (byAssetStatus == 'changed' || byAssetStatus == 'unintiated')
@@ -371,32 +382,12 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                     if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
                     if (!c) setShowExtModal(false);
                 }}>
-                <ul className="nav nav-tabs">
-                    <li className="nav-item">
-                        <a className={"nav-link" + (extDBTab === "Bus" ? " active" : "")} onClick={() => setExtDBTab('Bus')} data-toggle="tab">Buses</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (extDBTab === "Line" ? " active" : "")} onClick={() => setExtDBTab('Line')} data-toggle="tab">Lines</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (extDBTab === "Breaker" ? " active" : "")} onClick={() => setExtDBTab('Breaker')} data-toggle="tab">Breakers</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (extDBTab === "Transformer" ? " active" : "")} onClick={() => setExtDBTab('Transformer')} data-toggle="tab">Transformers</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (extDBTab === "CapacitorBank" ? " active" : "")} onClick={() => setExtDBTab('CapacitorBank')} data-toggle="tab">CapBanks</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (extDBTab == "Generation" ? " active" : "")} onClick={() => setExtDBTab('Generation')} data-toggle="tab" href="#extDBGeneration">Generation</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (extDBTab == "StationAux" ? " active" : "")} onClick={() => setExtDBTab('StationAux')} data-toggle="tab" href="#extDBStationAux">StationAux</a>
-                    </li>
-                    <li className="nav-item">
-                        <a className={"nav-link" + (extDBTab == "StationBattery" ? " active" : "")} onClick={() => setExtDBTab('StationBattery')} data-toggle="tab" href="#extDBStationBattery">StationBattery</a>
-                    </li>
-                </ul>
+
+                <TabSelector
+                    Tabs={extDBTabList}
+                    SetTab={(tabId) => setExtDBTab(tabId as OpenXDA.Types.AssetTypeName)}
+                    CurrentTab={extDBTab}
+                />
 
                 <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
                     <div className={"tab-pane active"}>
