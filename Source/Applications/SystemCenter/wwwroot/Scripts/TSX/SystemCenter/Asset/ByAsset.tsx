@@ -83,10 +83,10 @@ const ByAsset: Application.Types.iByComponent = (props) => {
         { Label: 'Lines', Id: 'Line' },
         { Label: 'Breakers', Id: 'Breaker' },
         { Label: 'Transformers', Id: 'Transformer' },
-        { Label: 'CapBanks', Id: 'CapacitorBank' },
+        { Label: 'Cap Banks', Id: 'CapacitorBank' },
         { Label: 'Generation', Id: 'Generation' },
-        { Label: 'StationAux', Id: 'StationAux' },
-        { Label: 'StationBattery', Id: 'StationBattery' },
+        { Label: 'Station Auxiliary', Id: 'StationAux' },
+        { Label: 'Station Battery', Id: 'StationBattery' },
     ];
 
     React.useEffect(() => {
