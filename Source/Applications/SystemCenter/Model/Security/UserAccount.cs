@@ -220,6 +220,8 @@ namespace SystemCenter.Model.Security
 
             if (graphClient is null)
                 return false;
+            if (string.IsNullOrWhiteSpace(userName))
+                return false;
 
             try
             {
@@ -247,6 +249,8 @@ namespace SystemCenter.Model.Security
 
         private bool IsValidADUser(string userName)
         {
+            if (string.IsNullOrWhiteSpace(userName))
+                return false;
             string sid = UserInfo.GroupNameToSID(userName);
             return UserInfo.IsUserSID(sid);
         }
