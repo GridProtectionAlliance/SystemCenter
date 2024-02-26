@@ -97,7 +97,7 @@ export function ValueListItemDelete(props: IPropsItem) {
         }
         else if (removalCount > 0)
         {
-            setMessage(`There are some fields using this Value List Group, with ${removalCount} values corresponding to this Value List Item. These values will be unasigned.`)
+            setMessage(`This Value List Group is in use, with ${removalCount} values corresponding to this Value List Item. These values will be unassigned.`)
             setPrevent(false);
         }
         else {
