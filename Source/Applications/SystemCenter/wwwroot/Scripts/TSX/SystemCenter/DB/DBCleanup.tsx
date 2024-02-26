@@ -101,6 +101,7 @@ const DBCleanup: Application.Types.iByComponent = (props) => {
                 <SearchBar<DBCleanup> CollumnList={searchFields} SetFilter={(flds) => dispatch(DBCleanupSlice.DBSearch({ filter: flds, sortField, ascending }))}
                     Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Database Cleanup(s)'}
+                    StorageID="DatabaseCleanupFilters"
                     GetEnum={() => {
                         return () => { }
                     }}

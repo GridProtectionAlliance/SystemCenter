@@ -85,6 +85,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
                 defaultCollumn={standardSearch}
                 Width={'50%'}
                 Label={'Search'}
+                StorageID="RemoteOpenXDAInstancesFilter"
                 ShowLoading={searchState == 'loading'}
                 ResultNote={searchState == 'error' ? 'Could not complete Search' : 'Found ' + searchResults.length + ' Remote openXDA Intance(s)'}
                 GetEnum={(setOptions, field) => {

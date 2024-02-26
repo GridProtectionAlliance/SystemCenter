@@ -124,6 +124,7 @@ const MATLABAnalytics: Application.Types.iByComponent = (props) => {
                     defaultCollumn={MATLABAnalyticDefaultSearchField as Search.IField<OpenXDA.Types.MATLABAnalytic>}
                     Width={'50%'}
                     Label={'Search'}
+                    StorageID="MatlabAnalysticsFilter"
                     ShowLoading={analyticStatus == 'loading'}
                     ResultNote={analyticStatus == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' MATLAB Analytic(s)'}
                 >

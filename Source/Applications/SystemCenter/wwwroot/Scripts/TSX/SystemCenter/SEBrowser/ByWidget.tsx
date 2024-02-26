@@ -70,6 +70,7 @@ const ByWidget: Application.Types.iByComponent = (props) => {
                 Direction={'left'}
                 defaultCollumn={{ key: 'Name', isPivotField: false, label: 'Name', type: 'string' }}
                 Width={'50%'} Label={'Search'}
+                StorageID="WidgetFilter"
                 ShowLoading={cState == 'loading'}
                 ResultNote={cState == 'error' ? 'Could not complete Search' : 'Found ' + data.length + 'PQ Browser Widget(s)'}
             >

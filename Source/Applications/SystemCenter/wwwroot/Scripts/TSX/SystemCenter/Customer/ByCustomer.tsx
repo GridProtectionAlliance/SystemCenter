@@ -120,7 +120,7 @@ const ByCustomer: Application.Types.iByComponent = (props) => {
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<OpenXDA.Types.Customer> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Customer as Search.IField<OpenXDA.Types.Customer>} Width={'50%'} Label={'Search'}
+            <SearchBar<OpenXDA.Types.Customer> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.Customer as Search.IField<OpenXDA.Types.Customer>} Width={'50%'} Label={'Search'} StorageID="CustomersFilter"
                 ShowLoading={cState == 'loading'} ResultNote={cState == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Customer(s)'}
                 GetEnum={(setOptions, field) => {
                     let handle = null;

@@ -122,6 +122,7 @@ const ByAdditionalField: Application.Types.iByComponent = (props) => {
                         Direction={'left'}
                         defaultCollumn={AdditionalFieldDefaultSearchField}
                         Width={'50%'}
+                        StorageID="AdditionalFieldsFilter"
                         Label={'Search'}
                         ShowLoading={status == 'loading'}
                         ResultNote={status == 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Additional Field(s)'}

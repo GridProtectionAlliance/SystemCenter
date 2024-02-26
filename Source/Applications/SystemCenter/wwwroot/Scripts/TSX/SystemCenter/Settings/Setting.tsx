@@ -56,7 +56,6 @@ function Setting(props: IProps) {
     const [hasChanged, setHasChanged] = React.useState<boolean>(false);
 
     const [errors, setErrors] = React.useState<string[]>([]);
-
     React.useEffect(() => {
         if (status === 'unintiated' || status === 'changed')
             dispatch(props.SettingsSlice.Fetch());
@@ -99,7 +98,7 @@ function Setting(props: IProps) {
             <LoadingScreen Show={status === 'loading'} />
             <div style={{ width: '100%', height: '100%' }}>
                 <SearchBar<SystemCenter.Types.Setting> CollumnList={searchFields} SetFilter={(flds) => dispatch(props.SettingsSlice.DBSearch({ filter: flds, sortField, ascending }))}
-                    Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
+                    Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Setting Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'} StorageID={`${props.SettingsSlice.Name}Filter`}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Setting(s)'}
                     GetEnum={() => {
                         return () => { }

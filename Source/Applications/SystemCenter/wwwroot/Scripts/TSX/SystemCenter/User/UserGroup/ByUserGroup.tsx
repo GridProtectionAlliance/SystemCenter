@@ -89,6 +89,7 @@ const ByUser: Application.Types.iByComponent = (props) => {
                 <SearchBar<ISecurityGroup> CollumnList={defaultSearchcols} SetFilter={(flds) => dispatch(SecurityGroupSlice.DBSearch({ sortField, ascending, filter: flds }))}
                     Direction={'left'} defaultCollumn={{ label: 'Name', key: 'DisplayName', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                     ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' User Group(s)'}
+                    StorageID="UsersGroupFilter"
                     GetEnum={() => {
                         return () => { }
                     }}
