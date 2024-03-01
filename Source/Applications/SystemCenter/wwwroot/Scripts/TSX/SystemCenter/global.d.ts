@@ -133,7 +133,8 @@ export namespace OpenXDA {
         YLow: number,
         UpperCurve: string,
         LowerCurve: string,
-        Area: string
+        Area: string,
+        Color: string
     }
 
 }

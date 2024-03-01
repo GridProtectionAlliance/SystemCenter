@@ -22,15 +22,15 @@
 //******************************************************************************************************
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { CustomerSlice, SEBrowserWidgetSlice, WidgetCategorySlice } from '../Store/Store';
-import { Input, Select, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
+import { SEBrowserWidgetSlice } from '../Store/Store';
+import { Input } from '@gpa-gemstone/react-forms';
 import { OpenXDA as LocalXDA } from '../global';
-import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { Circle, Line, Plot } from '@gpa-gemstone/react-graph';
 import { DownArrow, TrashCan, UpArrow } from '@gpa-gemstone/gpa-symbols';
+import { BlockPicker } from 'react-color';
+import { Modal } from '@gpa-gemstone/react-interactive';
 
 declare var homePath: string;
 
@@ -49,7 +49,11 @@ export default function CurveForm(props: IProps) {
 
     const [curve, setCurve] = React.useState<Point[]>(calculateArea(props.Curve.Area));
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
-
+    const [showColorModal, setShowColorModal] = React.useState<boolean>(false);
+    const colorsArray = ["#A30000", "#0029A3", "#007A29", "#d3d3d3", "#edc240",
+        "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed", "#BD9B33", "#EE2E2F",
+        "#008C48", "#185AA9", "#F47D23", "#662C91", "#A21D21", "#B43894",
+        "#737373"]
 
     React.useEffect(() => {
         if (acStatus == 'changed' || acStatus == 'unintiated')
@@ -92,7 +96,7 @@ export default function CurveForm(props: IProps) {
 
     React.useLayoutEffect(() => {
         setPlotWidth(div?.current?.offsetWidth ?? 0)
- })
+    })
     function valid(field: keyof (LocalXDA.IMagDurCurve)): boolean {
         if (field == 'Name')
             return props.Curve.Name != null && props.Curve.Name.length > 0 && props.Curve.Name.length <= 30;
@@ -101,7 +105,7 @@ export default function CurveForm(props: IProps) {
 
     function calculateArea(area: string): Point[] {
         if (area == null || area.length == 0)
-            return []; 
+            return [];
         return area.split(',').map((p, i) => {
             let s = p.trim().split(" ");
             return [parseFloat(s[0]), parseFloat(s[1])] as Point;
@@ -118,9 +122,33 @@ export default function CurveForm(props: IProps) {
     return (
         <div className="col">
             <div className="row">
-                <div className="col">
+                <div className="col-9">
                     <Input<LocalXDA.IMagDurCurve> Record={props.Curve} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'}
                         Valid={valid} Setter={(record) => props.stateSetter(record)} />
+                </div>
+                <div className="col-3">
+                    {showColorModal ?
+                        <Modal Show={showColorModal} Title={'Edit Color'} Size={'sm'} CallBack={() => {
+                            setShowColorModal(!showColorModal)
+                        }}
+                            ShowX={true}
+                            ShowCancel={false}
+                            ShowConfirm={false}>
+                            <div className="d-flex justify-content-center align-items-center">
+                                <BlockPicker
+                                    color={props.Curve?.Color ? props.Curve.Color : ""}
+                                    colors={colorsArray}
+                                    onChangeComplete={(updatedColor) => {
+                                        const newRecord = { ...props.Curve, Color: updatedColor.hex };
+                                        props.stateSetter(newRecord);
+                                    }}
+                                    triangle={"hide"}
+                                    ShowConfirm={false}
+                                    ShowCancel={false}
+                                />
+                            </div>
+                        </Modal>
+                        : <button className="btn btn-block" onClick={() => setShowColorModal(!showColorModal)} style={{ marginTop: '30px', backgroundColor: props.Curve.Color, borderColor: props.Curve.Color }}>Color</button>}
                 </div>
             </div>
             <div className="row">
@@ -144,7 +172,7 @@ export default function CurveForm(props: IProps) {
                             RowStyle={{ width: 'auto' }}
                             Content={({ index }) => <>
                                 <p>{index + 1}</p>
-                            </> }
+                            </>}
                         > Point Index
                         </ReactTable.Column>
                         <ReactTable.Column<Point>
@@ -230,7 +258,7 @@ export default function CurveForm(props: IProps) {
                                 >
                                     <span>{DownArrow}</span>
                                 </button>
-                            </> }
+                            </>}
                         > <p></p>
                         </ReactTable.Column>
                     </ReactTable.Table>
@@ -256,11 +284,11 @@ export default function CurveForm(props: IProps) {
                         yDomain={'Manual'}
                         zoom={true} pan={false}
                         useMetricFactors={false} XAxisType={'log'}
-                        >
+                    >
                         <Line highlightHover={false} showPoints={false} lineStyle={'-'}
                             color={"#A30000"} data={curve} />
-                        {curve.map((p,i) => (i == curve.length-1? null : <Circle data={[p[0], p[1]]} color={"#FFFFFF"} radius={8} borderColor={"#A30000"} borderThickness={2} text={String(curve.indexOf(p) + 1)} key={i} />))}
-                    </Plot> 
+                        {curve.map((p, i) => (i == curve.length - 1 ? null : <Circle data={[p[0], p[1]]} color={"#FFFFFF"} radius={8} borderColor={"#A30000"} borderThickness={2} text={String(curve.indexOf(p) + 1)} key={i} />))}
+                    </Plot>
                 </div>
             </div>
         </div>

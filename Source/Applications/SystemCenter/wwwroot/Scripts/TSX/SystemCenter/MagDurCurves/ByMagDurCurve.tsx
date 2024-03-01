@@ -44,7 +44,8 @@ const emptyCurve: LocalXDA.IMagDurCurve = {
     YLow: 0,
     UpperCurve: '',
     LowerCurve: '',
-    Area: '0.00001 0, 1000 0, 1000 1, 0.00001 1, 0.00001 0'
+    Area: '0.00001 0, 1000 0, 1000 1, 0.00001 1, 0.00001 0',
+    Color: ''
 };
 
 const ByMagDurCurve: Application.Types.iByComponent = (props) => {
@@ -129,7 +130,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
                 if (!c && b)
                     setShowDelete(true)
                 if (c)
-                    dispatch(MagDurCurveSlice.DBAction({ verb: curve.ID == 0? 'POST' : 'PATCH', record: curve }));
+                    dispatch(MagDurCurveSlice.DBAction({ verb: curve.ID == 0 ? 'POST' : 'PATCH', record: curve }));
                 if (c || !b)
                     setCurve(emptyCurve);
             }}
