@@ -1484,7 +1484,9 @@ namespace SystemCenter.Controllers
             {
                 string name = record["Name"].ToObject<string>();
                 string area = Geometry(record["Area"].ToObject<string>());
-                connection.ExecuteNonQuery("INSERT StandardMagDurCurve (Name, XHigh,XLow,YHigh,YLow, LowerCurve, UpperCurve, Area) VALUES ({0}, 0,0,0,0, NULL, NULL, {1})",name, area );
+                string color = record["Color"].ToObject<string>();
+
+                connection.ExecuteNonQuery("INSERT StandardMagDurCurve (Name, XHigh,XLow,YHigh,YLow, LowerCurve, UpperCurve, Area, Color) VALUES ({0}, 0,0,0,0, NULL, NULL, {1}, {2})",name, area, color );
                 return Ok(1);
             }
         }
@@ -1498,6 +1500,7 @@ namespace SystemCenter.Controllers
             {
                 connection.ExecuteNonQuery("UPDATE StandardMagDurCurve SET Name = {0} WHERE ID = {1}", record.Name, record.ID);
                 connection.ExecuteNonQuery("UPDATE StandardMagDurCurve SET Area = {0} WHERE ID = {1}", Geometry(record.Area), record.ID);
+                connection.ExecuteNonQuery("UPDATE StandardMagDurCurve SET Color = {0} WHERE ID = {1}", record.Color, record.ID);
                 return Ok(1);
             }
         }
