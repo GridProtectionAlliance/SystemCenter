@@ -29,10 +29,8 @@ import { OpenXDA as LocalXDA } from '../global';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { Circle, Line, Plot } from '@gpa-gemstone/react-graph';
 import { DownArrow, TrashCan, UpArrow } from '@gpa-gemstone/gpa-symbols';
-import { BlockPicker } from 'react-color';
-import { Modal } from '@gpa-gemstone/react-interactive';
+import { ColorPicker } from '@gpa-gemstone/react-forms'
 
-declare var homePath: string;
 
 interface IProps { Curve: LocalXDA.IMagDurCurve, stateSetter: (tab: LocalXDA.IMagDurCurve) => void, setErrors?: (e: string[]) => void }
 
@@ -49,12 +47,11 @@ export default function CurveForm(props: IProps) {
 
     const [curve, setCurve] = React.useState<Point[]>(calculateArea(props.Curve.Area));
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
-    const [showColorModal, setShowColorModal] = React.useState<boolean>(false);
     const colorsArray = ["#A30000", "#0029A3", "#007A29", "#d3d3d3", "#edc240",
         "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed", "#BD9B33", "#EE2E2F",
         "#008C48", "#185AA9", "#F47D23", "#662C91", "#A21D21", "#B43894",
         "#737373"]
-
+        
     React.useEffect(() => {
         if (acStatus == 'changed' || acStatus == 'unintiated')
             dispatch(SEBrowserWidgetSlice.Fetch());
@@ -119,6 +116,7 @@ export default function CurveForm(props: IProps) {
             return p[1] != null && p[1] >= 0 && p[1] <= 9999;
         return true
     }
+
     return (
         <div className="col">
             <div className="row">
@@ -126,29 +124,16 @@ export default function CurveForm(props: IProps) {
                     <Input<LocalXDA.IMagDurCurve> Record={props.Curve} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'}
                         Valid={valid} Setter={(record) => props.stateSetter(record)} />
                 </div>
-                <div className="col-3">
-                    {showColorModal ?
-                        <Modal Show={showColorModal} Title={'Edit Color'} Size={'sm'} CallBack={() => {
-                            setShowColorModal(!showColorModal)
+                <div className="col-3" style={{marginTop: '30px'}}>
+                    <ColorPicker
+                        CurrentColor={props.Curve?.Color ? props.Curve.Color : ""}
+                        Colors={colorsArray}
+                        OnColorChange={(updatedColor) => {
+                            const newRecord = { ...props.Curve, Color: updatedColor.hex };
+                            props.stateSetter(newRecord);
                         }}
-                            ShowX={true}
-                            ShowCancel={false}
-                            ShowConfirm={false}>
-                            <div className="d-flex justify-content-center align-items-center">
-                                <BlockPicker
-                                    color={props.Curve?.Color ? props.Curve.Color : ""}
-                                    colors={colorsArray}
-                                    onChangeComplete={(updatedColor) => {
-                                        const newRecord = { ...props.Curve, Color: updatedColor.hex };
-                                        props.stateSetter(newRecord);
-                                    }}
-                                    triangle={"hide"}
-                                    ShowConfirm={false}
-                                    ShowCancel={false}
-                                />
-                            </div>
-                        </Modal>
-                        : <button className="btn btn-block" onClick={() => setShowColorModal(!showColorModal)} style={{ marginTop: '30px', backgroundColor: props.Curve.Color, borderColor: props.Curve.Color }}>Color</button>}
+                        Triangle={'hide'}
+                    />
                 </div>
             </div>
             <div className="row">
