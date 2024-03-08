@@ -253,7 +253,7 @@ export default function CurveForm(props: IProps) {
                         Ylabel={'Magnitude (pu)'}
                         showMouse={false}
                         showGrid={true}
-                        zoomMode={'Rect'}
+                        yDomain={'Manual'}
                         zoom={true} pan={false}
                         useMetricFactors={false} XAxisType={'log'}
                         >
