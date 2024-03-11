@@ -32,7 +32,7 @@ import { DownArrow, TrashCan, UpArrow } from '@gpa-gemstone/gpa-symbols';
 import { ColorPicker } from '@gpa-gemstone/react-forms'
 import { OpenXDA } from '@gpa-gemstone/application-typings'
 
-interface IProps { Curve: OpenXDA.Types.MagDurCurve, stateSetter: (tab: OpenXDA.Types.MagDurCurve) => void, setErrors?: (e: string[]) => void }
+interface IProps { Curve: OpenXDA.Types.MagDurCurve, stateSetter: (curve: OpenXDA.Types.MagDurCurve) => void, setErrors?: (e: string[]) => void }
 
 type Point = [number, number];
 
@@ -271,8 +271,8 @@ export default function CurveForm(props: IProps) {
                         useMetricFactors={false} XAxisType={'log'}
                     >
                         <Line highlightHover={false} showPoints={false} lineStyle={'-'}
-                            color={"#A30000"} data={curve} />
-                        {curve.map((p, i) => (i == curve.length - 1 ? null : <Circle data={[p[0], p[1]]} color={"#FFFFFF"} radius={8} borderColor={"#A30000"} borderThickness={2} text={String(curve.indexOf(p) + 1)} key={i} />))}
+                            color={props.Curve.Color} data={curve} />
+                        {curve.map((p, i) => (i == curve.length - 1 ? null : <Circle data={[p[0], p[1]]} color={props.Curve.Color} radius={8} borderColor={props.Curve.Color} borderThickness={2} text={String(curve.indexOf(p) + 1)} key={i} />))}
                     </Plot>
                 </div>
             </div>
