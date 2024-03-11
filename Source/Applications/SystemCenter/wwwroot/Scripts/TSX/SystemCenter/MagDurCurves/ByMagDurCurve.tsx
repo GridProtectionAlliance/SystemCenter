@@ -25,7 +25,7 @@ import * as React from 'react';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
-import { Application } from '@gpa-gemstone/application-typings';
+import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { OpenXDA as LocalXDA } from '../global';
 import { SearchBar, Search, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import { useAppSelector, useAppDispatch } from '../hooks';
@@ -35,7 +35,7 @@ import CurveForm from './CurveForm';
 
 
 declare var homePath: string;
-const emptyCurve: LocalXDA.IMagDurCurve = {
+const emptyCurve: OpenXDA.Types.MagDurCurve = {
     ID: 0,
     Name: 'Curve',
     XHigh: 0,
@@ -58,7 +58,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
     const filters = useAppSelector(MagDurCurveSlice.SearchFilters);
     const ascending = useAppSelector(MagDurCurveSlice.Ascending);
 
-    const [curve, setCurve] = React.useState<LocalXDA.IMagDurCurve>(emptyCurve);
+    const [curve, setCurve] = React.useState<OpenXDA.Types.MagDurCurve>(emptyCurve);
 
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
@@ -77,12 +77,12 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
         setNewEdit('Edit');
     }
 
-    const searchFields: Search.IField<LocalXDA.IMagDurCurve>[] = [
+    const searchFields: Search.IField<OpenXDA.Types.MagDurCurve>[] = [
         { key: 'Name', isPivotField: false, label: 'Name', type: 'string' }
     ]
     return (
         <div style={{ width: '100%', height: '100%' }}>
-            <SearchBar<LocalXDA.IMagDurCurve> CollumnList={searchFields}
+            <SearchBar<OpenXDA.Types.MagDurCurve> CollumnList={searchFields}
                 SetFilter={(flds) => dispatch(MagDurCurveSlice.DBSearch({ ascending, filter: flds }))}
                 Direction={'left'}
                 defaultCollumn={{ key: 'Name', isPivotField: false, label: 'Name', type: 'string' }}
@@ -101,7 +101,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
                 </li>
             </SearchBar>
             <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <ReactTable.Table<LocalXDA.IMagDurCurve>
+                <ReactTable.Table<OpenXDA.Types.MagDurCurve>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortKey}
@@ -114,7 +114,7 @@ const ByMagDurCurve: Application.Types.iByComponent = (props) => {
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
                 >
-                    <ReactTable.Column<LocalXDA.IMagDurCurve>
+                    <ReactTable.Column<OpenXDA.Types.MagDurCurve>
                         Key={'Name'}
                         AllowSort={true}
                         Field={'Name'}

@@ -32,7 +32,7 @@ import { DownArrow, TrashCan, UpArrow } from '@gpa-gemstone/gpa-symbols';
 import { ColorPicker } from '@gpa-gemstone/react-forms'
 import { OpenXDA } from '@gpa-gemstone/application-typings'
 
-interface IProps { Curve: OpenXDA.Types.MagDurCurve, stateSetter: (tab: LocalXDA.IMagDurCurve) => void, setErrors?: (e: string[]) => void }
+interface IProps { Curve: OpenXDA.Types.MagDurCurve, stateSetter: (tab: OpenXDA.Types.MagDurCurve) => void, setErrors?: (e: string[]) => void }
 
 type Point = [number, number];
 
@@ -94,7 +94,7 @@ export default function CurveForm(props: IProps) {
     React.useLayoutEffect(() => {
         setPlotWidth(div?.current?.offsetWidth ?? 0)
     })
-    function valid(field: keyof (LocalXDA.IMagDurCurve)): boolean {
+    function valid(field: keyof (OpenXDA.Types.MagDurCurve)): boolean {
         if (field == 'Name')
             return props.Curve.Name != null && props.Curve.Name.length > 0 && props.Curve.Name.length <= 30;
         return true;
@@ -121,7 +121,7 @@ export default function CurveForm(props: IProps) {
         <div className="col">
             <div className="row">
                 <div className="col-9">
-                    <Input<LocalXDA.IMagDurCurve> Record={props.Curve} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'}
+                    <Input<OpenXDA.Types.MagDurCurve> Record={props.Curve} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'}
                         Valid={valid} Setter={(record) => props.stateSetter(record)} />
                 </div>
                 <div className="col-3" style={{marginTop: '30px'}}>
