@@ -57,7 +57,7 @@ const ByUserInformation = (props: IProps) => {
     }, [carrierStatus]);
 
     React.useEffect(() => {
-        if (userPhone.length > 0)
+        if (userPhone != null && userPhone.length > 0)
             setPhone(userPhone);
     }, [userPhone]);
 
