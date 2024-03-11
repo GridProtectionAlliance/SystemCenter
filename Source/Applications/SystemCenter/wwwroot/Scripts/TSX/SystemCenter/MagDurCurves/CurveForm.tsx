@@ -30,9 +30,9 @@ import { ReactTable } from '@gpa-gemstone/react-table';
 import { Circle, Line, Plot } from '@gpa-gemstone/react-graph';
 import { DownArrow, TrashCan, UpArrow } from '@gpa-gemstone/gpa-symbols';
 import { ColorPicker } from '@gpa-gemstone/react-forms'
+import { OpenXDA } from '@gpa-gemstone/application-typings'
 
-
-interface IProps { Curve: LocalXDA.IMagDurCurve, stateSetter: (tab: LocalXDA.IMagDurCurve) => void, setErrors?: (e: string[]) => void }
+interface IProps { Curve: OpenXDA.Types.MagDurCurve, stateSetter: (tab: LocalXDA.IMagDurCurve) => void, setErrors?: (e: string[]) => void }
 
 type Point = [number, number];
 
@@ -50,7 +50,7 @@ export default function CurveForm(props: IProps) {
     const colorsArray = ["#A30000", "#0029A3", "#007A29", "#d3d3d3", "#edc240",
         "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed", "#BD9B33", "#EE2E2F",
         "#008C48", "#185AA9", "#F47D23", "#662C91", "#A21D21", "#B43894",
-        "#737373"]
+        "#737373", "#ff904f", "#ff9999"]
         
     React.useEffect(() => {
         if (acStatus == 'changed' || acStatus == 'unintiated')
