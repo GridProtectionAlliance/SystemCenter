@@ -290,6 +290,7 @@
     <Compile Include="Model\Security\RemoteUserAccount.cs" />
     <Compile Include="Model\Security\ApplicationRole.cs" />
     <Compile Include="Model\Security\SecurityGroup.cs" />
+    <Compile Include="Model\ValueList.cs" />
     <Compile Include="ScheduledProcesses\ScheduledExtDBTask.cs" />
     <Compile Include="ScheduledProcesses\OpenMICMeterStatisticOperation.cs" />
     <Compile Include="ScheduledTasks\UserAccountMetaDataUpdater.cs" />
@@ -732,6 +733,7 @@
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\User\Permissions.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroup.tsx" />
+    <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupDelete.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupForm.tsx" />
     <TypeScriptCompile Include="wwwroot\Scripts\TSX\SystemCenter\ValueListGroup\ValueListGroupInfo.tsx" />
     <Content Include="wwwroot\Scripts\TS\PQDIFParser.ts" />

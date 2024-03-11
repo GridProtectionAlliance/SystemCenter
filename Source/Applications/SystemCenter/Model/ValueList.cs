@@ -36,43 +36,76 @@ using SystemCenter.Controllers;
 
 namespace SystemCenter.Model
 {
-    [PrimaryLabel("Text")]
-    [TableName("ValueList"), UseEscapedName]
 
-    public class ValueList
-    {
+   public class RestrictedValueList 
+   {
+        public string Name { get; set; }
+        public string CountSQL { get; set;  }
+        public string UpdateSQL { get; set;  }
+        public string[] DefaultItems { get; set; }
 
-        [PrimaryKey(true)]
-        public int ID { get; set; }
-        [ParentKey(typeof(ValueListGroup))]
-        public int GroupID { get; set; }
-        public string Value { get; set; }
-        public string AltValue { get; set; }
-        public int SortOrder { get; set; }
-    }
-
-    [RoutePrefix("api/ValueList")]
-    public class ValueListController : ModelController<ValueList> {
-        #region [ Constructor ]
-       
-        [HttpGet, Route("Group/{groupName}")]
-        public IHttpActionResult GetValueListForGroup(string groupName)
-        {
-            if (GetRoles == string.Empty || User.IsInRole(GetRoles))
-            {
-                using (AdoDataConnection connection = new AdoDataConnection(Connection))
-                {
-                    string tableName = new TableOperations<ValueListGroup>(connection).TableName;
-                    IEnumerable<ValueList> records = new TableOperations<ValueList>(connection).QueryRecordsWhere($"GroupID = ( SELECT ID FROM {tableName} WHERE Name = {{0}})", groupName);
-                    return Ok(records);
-                }
+        public static List<RestrictedValueList> List = new List<RestrictedValueList>(){
+            new RestrictedValueList() {
+                Name = "TimeZones",
+                CountSQL = @"SELECT COUNT(ID) FROM 
+                        Meter
+                        WHERE [TimeZone] = {0}",
+                UpdateSQL = @"UPDATE Meter
+                            SET [TimeZone] = {0} 
+                        WHERE
+                            [TimeZone] = {1}",
+                DefaultItems = new string[] {"UTC"}
+            },
+             new RestrictedValueList() {
+                Name = "Make",
+                CountSQL = @"SELECT COUNT(ID) FROM 
+                        Meter
+                        WHERE [Make] = {0}",
+                UpdateSQL = @"UPDATE 
+                        Meter
+                        SET [Make] = {0} 
+                        WHERE
+                        [Make] = {1}",
+                DefaultItems = new string[] {"GPA"}
+            },
+             new RestrictedValueList() {
+                Name = "Model",
+                CountSQL = @"SELECT COUNT(ID) FROM 
+                        Meter
+                        WHERE [Model] = {0}",
+                UpdateSQL = @"UPDATE 
+                        Meter
+                        SET [Model] = {0} 
+                        WHERE
+                        [Model] = {1}",
+                DefaultItems = new string[] {"PQMeter"}
+            },
+             new RestrictedValueList() {
+                Name = "Unit",
+                CountSQL = @"SELECT COUNT(ID) FROM  
+                        ChannelGroupType
+                        WHERE
+                        [Unit] = {0}",
+                UpdateSQL = @"UPDATE 
+                        ChannelGroupType
+                        SET [Unit] = {0} 
+                        WHERE
+                        [Unit] = {1}",
+                DefaultItems = new string[] {"Unknown"}
+            },
+             new RestrictedValueList() {
+                Name = "Category",
+                CountSQL = @"SELECT COUNT(ID) FROM  
+                        LocationDrawing
+                        WHERE
+                        [Category] = {0}",
+                UpdateSQL = @"UPDATE 
+                        LocationDrawing
+                        SET [Category] = {0} 
+                        WHERE
+                        [Category] = {1}",
+                DefaultItems = new string[] {"Oneline"}
             }
-            else
-                return Unauthorized();
-        }
-
-
-        #endregion
-
-    }
+        };       
+   }
 }

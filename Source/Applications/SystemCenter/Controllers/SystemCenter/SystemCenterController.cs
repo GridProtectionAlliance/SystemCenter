@@ -53,14 +53,7 @@ namespace SystemCenter.Controllers
     [RoutePrefix("api/ValueList")]
     public class ValueListController : ModelController<ValueList>
     {
-        private IDictionary<string, string> RequiredGroups = new Dictionary<string, string>
-        {
-            {"TimeZones", "UTC"},
-            {"Make", "GPA"},
-            {"Model", "PQMeter"},
-            {"Unit", "Unknown"},
-            {"Category", "Oneline"}
-        };
+       
 
         [HttpGet, Route("Group/{groupName}")]
         public IHttpActionResult GetValueListForGroup(string groupName)
@@ -71,29 +64,129 @@ namespace SystemCenter.Controllers
             List<int> groupIds = groupTable.QueryRecordsWhere("Name = {0}", groupName).Select(group => group.ID).ToList();
             if (groupIds.Count() == 0)
             {
-                if (RequiredGroups.ContainsKey(groupName))
+                RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == groupName);
+                if (!(restriction is null))
                 {
+
                     groupTable.AddNewRecord(
                         new ValueListGroup()
                         {
                             Description = "",
-                            Name = groupName
+                            Name = restriction.Name
                         });
                     groupIds.Add(connection.ExecuteScalar<int>("SELECT @@IDENTITY"));
+
+                    int sortOrder = 1;
+                    foreach (string item in restriction.DefaultItems)
+                    {
                     valueTable.AddNewRecord(
                         new ValueList()
                         {
                             GroupID = groupIds[0],
-                            Value = RequiredGroups[groupName],
-                            AltValue = RequiredGroups[groupName],
-                            SortOrder = 1
+                            Value = item,
+                            AltValue = item,
+                            SortOrder = sortOrder
                         });
+                        sortOrder++;
+                    }
                 }
                 else
                     return Ok(new List<ValueList>());
             }
             IEnumerable<ValueList> records = valueTable.QueryRecordsWhere("GroupID in ({0})", string.Join(", ", groupIds));
             return Ok(records);
+        }
+
+         public override IHttpActionResult Patch([FromBody] SystemCenter.Model.ValueList newRecord)
+         {
+             if (!PatchAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            // Check if Value changed
+            bool changeVal = false;
+            SystemCenter.Model.ValueList oldRecord;
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                oldRecord = new TableOperations<SystemCenter.Model.ValueList>(connection).QueryRecordWhere("ID = {0}", newRecord.ID);
+                changeVal = !(newRecord.Value == oldRecord.Value);
+            }
+
+            if (changeVal)
+            {
+                ValueListGroup group;
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.GroupID);
+                    // Update Additional Fields
+                    connection.ExecuteScalar(@"UPDATE 
+                        AdditionalFieldValue AFV
+                        SET [Value] = {0} 
+                        WHERE
+                        [Value] = {1} AND
+                        (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID ) = {2}", newRecord.Value, oldRecord.Value, group.Name);
+
+                    RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name);
+                    if (!(restriction is null))
+                    {
+                        connection.ExecuteScalar(restriction.UpdateSQL, newRecord.Value, oldRecord.Value);
+                    }
+                }
+            }
+            return base.Patch(newRecord);
+
+         }
+
+        public override IHttpActionResult Delete(SystemCenter.Model.ValueList record)
+        {
+            if (!DeleteAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            ValueListGroup group;
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                group = new TableOperations<ValueListGroup>(connection).QueryRecordWhere("ID = {0}", record.GroupID);
+                RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == group.Name);
+                if (!(restriction is null))
+                {
+                    int count = connection.ExecuteScalar<int>(restriction.CountSQL, record.Value);
+                    if (count > 0)
+                        return Unauthorized();
+                }
+                
+                connection.ExecuteScalar(@"DELETE FROM AditionalFieldValue AFV
+                            WHERE
+                            [Value] = {0} AND
+                            (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID) = {1}", record.Value, group.Name);
+            
+                return base.Delete(record);
+            }
+
+        }
+
+        [Route("Count/{groupName}/{value}"), HttpGet]
+        public IHttpActionResult GetCount(string groupName, string value)
+        {
+            if (!PatchAuthCheck())
+                return Unauthorized();
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                int nAddlFields = connection.ExecuteScalar<int>(@"SELECT COUNT(AFV.ID) FROM AdditionalFieldValue AFV WHERE 
+                        [Value] = {0} AND (SELECT TOP 1 AF.ID FROM AdditionalField AF WHERE Type = {1}) = AFV.AdditionalFieldID
+                        ", value, groupName);
+                RestrictedValueList restriction = RestrictedValueList.List.Find((g) => g.Name == groupName);
+                int count = 0;
+                if (!(restriction is null))
+                {
+                    count = connection.ExecuteScalar<int>(restriction.CountSQL, value); 
+                }
+                return Ok(nAddlFields + count);
+            }
+           
         }
     }
 
@@ -153,8 +246,60 @@ namespace SystemCenter.Controllers
     public class LSCVSAccountController : ModelController<LSCVSAccount> { }
 
     [RoutePrefix("api/ValueListGroup")]
-    public class ValueListGroupController : ModelController<ValueListGroup> { }
+    public class ValueListGroupController : ModelController<ValueListGroup>
+    {
+        public override IHttpActionResult Patch([FromBody] SystemCenter.Model.ValueListGroup newRecord)
+         {
+             if (!PatchAuthCheck())
+            {
+                return Unauthorized();
+            }
 
+            // Check if Value changed
+            bool changeVal = false;
+            SystemCenter.Model.ValueListGroup oldRecord;
+
+             using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                oldRecord = new TableOperations<SystemCenter.Model.ValueListGroup>(connection).QueryRecordWhere("ID = {0}", newRecord.ID);
+                changeVal = !(newRecord.Name == oldRecord.Name);
+            }
+
+            if (changeVal)
+            {
+                using (AdoDataConnection connection = new AdoDataConnection(Connection))
+                {
+                    // Update Additional Fields
+                    connection.ExecuteScalar(@"UPDATE 
+                        AdditionalField AF
+                        SET [Type] = {0} 
+                        WHERE
+                        [Type] = {1}", newRecord.Name, oldRecord.Name);
+                }
+            }
+            return base.Patch(newRecord);
+
+         }
+
+        public override IHttpActionResult Delete(SystemCenter.Model.ValueListGroup record)
+        {
+            if (!DeleteAuthCheck())
+            {
+                return Unauthorized();
+            }
+
+            using (AdoDataConnection connection = new AdoDataConnection(Connection))
+            {
+                // Update Additional Fields
+                connection.ExecuteScalar(@"UPDATE 
+                    AdditionalField AF
+                    SET [Type] = 'string' 
+                    WHERE
+                    [Type] = {0}", record.Name);
+            }
+            return base.Delete(record);
+        }
+    }    
     [RoutePrefix("api/OpenXDA/DBCleanup")]
     public class DBCleanupController : ModelController<openXDA.Model.DBCleanup> { }
 
