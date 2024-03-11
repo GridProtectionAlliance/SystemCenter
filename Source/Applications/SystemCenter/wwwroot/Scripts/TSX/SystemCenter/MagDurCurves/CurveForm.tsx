@@ -22,19 +22,17 @@
 //******************************************************************************************************
 import * as React from 'react';
 import * as _ from 'lodash';
-import { Application, OpenXDA } from '@gpa-gemstone/application-typings'
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { CustomerSlice, SEBrowserWidgetSlice, WidgetCategorySlice } from '../Store/Store';
-import { Input, Select, TextArea, CheckBox } from '@gpa-gemstone/react-forms';
+import { SEBrowserWidgetSlice } from '../Store/Store';
+import { Input } from '@gpa-gemstone/react-forms';
 import { OpenXDA as LocalXDA } from '../global';
-import { IsNumber } from '@gpa-gemstone/helper-functions';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { Circle, Line, Plot } from '@gpa-gemstone/react-graph';
 import { DownArrow, TrashCan, UpArrow } from '@gpa-gemstone/gpa-symbols';
+import { ColorPicker } from '@gpa-gemstone/react-forms'
+import { OpenXDA } from '@gpa-gemstone/application-typings'
 
-declare var homePath: string;
-
-interface IProps { Curve: LocalXDA.IMagDurCurve, stateSetter: (tab: LocalXDA.IMagDurCurve) => void, setErrors?: (e: string[]) => void }
+interface IProps { Curve: OpenXDA.Types.MagDurCurve, stateSetter: (curve: OpenXDA.Types.MagDurCurve) => void, setErrors?: (e: string[]) => void }
 
 type Point = [number, number];
 
@@ -49,8 +47,7 @@ export default function CurveForm(props: IProps) {
 
     const [curve, setCurve] = React.useState<Point[]>(calculateArea(props.Curve.Area));
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
-
-
+        
     React.useEffect(() => {
         if (acStatus == 'changed' || acStatus == 'unintiated')
             dispatch(SEBrowserWidgetSlice.Fetch());
@@ -92,8 +89,8 @@ export default function CurveForm(props: IProps) {
 
     React.useLayoutEffect(() => {
         setPlotWidth(div?.current?.offsetWidth ?? 0)
- })
-    function valid(field: keyof (LocalXDA.IMagDurCurve)): boolean {
+    })
+    function valid(field: keyof (OpenXDA.Types.MagDurCurve)): boolean {
         if (field == 'Name')
             return props.Curve.Name != null && props.Curve.Name.length > 0 && props.Curve.Name.length <= 30;
         return true;
@@ -101,7 +98,7 @@ export default function CurveForm(props: IProps) {
 
     function calculateArea(area: string): Point[] {
         if (area == null || area.length == 0)
-            return []; 
+            return [];
         return area.split(',').map((p, i) => {
             let s = p.trim().split(" ");
             return [parseFloat(s[0]), parseFloat(s[1])] as Point;
@@ -115,12 +112,23 @@ export default function CurveForm(props: IProps) {
             return p[1] != null && p[1] >= 0 && p[1] <= 9999;
         return true
     }
+
     return (
         <div className="col">
             <div className="row">
-                <div className="col">
-                    <Input<LocalXDA.IMagDurCurve> Record={props.Curve} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'}
+                <div className="col-9">
+                    <Input<OpenXDA.Types.MagDurCurve> Record={props.Curve} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'}
                         Valid={valid} Setter={(record) => props.stateSetter(record)} />
+                </div>
+                <div className="col-3" style={{marginTop: '30px'}}>
+                    <ColorPicker
+                        CurrentColor={props.Curve?.Color ? props.Curve.Color : ""}
+                        OnColorChange={(updatedColor) => {
+                            const newRecord = { ...props.Curve, Color: updatedColor.hex };
+                            props.stateSetter(newRecord);
+                        }}
+                        Triangle={'hide'}
+                    />
                 </div>
             </div>
             <div className="row">
@@ -144,7 +152,7 @@ export default function CurveForm(props: IProps) {
                             RowStyle={{ width: 'auto' }}
                             Content={({ index }) => <>
                                 <p>{index + 1}</p>
-                            </> }
+                            </>}
                         > Point Index
                         </ReactTable.Column>
                         <ReactTable.Column<Point>
@@ -230,7 +238,7 @@ export default function CurveForm(props: IProps) {
                                 >
                                     <span>{DownArrow}</span>
                                 </button>
-                            </> }
+                            </>}
                         > <p></p>
                         </ReactTable.Column>
                     </ReactTable.Table>
@@ -256,11 +264,11 @@ export default function CurveForm(props: IProps) {
                         yDomain={'Manual'}
                         zoom={true} pan={false}
                         useMetricFactors={false} XAxisType={'log'}
-                        >
+                    >
                         <Line highlightHover={false} showPoints={false} lineStyle={'-'}
-                            color={"#A30000"} data={curve} />
-                        {curve.map((p,i) => (i == curve.length-1? null : <Circle data={[p[0], p[1]]} color={"#FFFFFF"} radius={8} borderColor={"#A30000"} borderThickness={2} text={String(curve.indexOf(p) + 1)} key={i} />))}
-                    </Plot> 
+                            color={props.Curve.Color} data={curve} />
+                        {curve.map((p, i) => (i == curve.length - 1 ? null : <Circle data={[p[0], p[1]]} color={props.Curve.Color} radius={8} borderColor={props.Curve.Color} borderThickness={2} text={String(curve.indexOf(p) + 1)} key={i} />))}
+                    </Plot>
                 </div>
             </div>
         </div>
