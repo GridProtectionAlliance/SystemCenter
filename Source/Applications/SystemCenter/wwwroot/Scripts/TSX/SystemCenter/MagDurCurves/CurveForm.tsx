@@ -47,10 +47,6 @@ export default function CurveForm(props: IProps) {
 
     const [curve, setCurve] = React.useState<Point[]>(calculateArea(props.Curve.Area));
     const [plotWidth, setPlotWidth] = React.useState<number>(100);
-    const colorsArray = ["#A30000", "#0029A3", "#007A29", "#d3d3d3", "#edc240",
-        "#afd8f8", "#cb4b4b", "#4da74d", "#9440ed", "#BD9B33", "#EE2E2F",
-        "#008C48", "#185AA9", "#F47D23", "#662C91", "#A21D21", "#B43894",
-        "#737373", "#ff904f", "#ff9999"]
         
     React.useEffect(() => {
         if (acStatus == 'changed' || acStatus == 'unintiated')
@@ -127,7 +123,6 @@ export default function CurveForm(props: IProps) {
                 <div className="col-3" style={{marginTop: '30px'}}>
                     <ColorPicker
                         CurrentColor={props.Curve?.Color ? props.Curve.Color : ""}
-                        Colors={colorsArray}
                         OnColorChange={(updatedColor) => {
                             const newRecord = { ...props.Curve, Color: updatedColor.hex };
                             props.stateSetter(newRecord);
