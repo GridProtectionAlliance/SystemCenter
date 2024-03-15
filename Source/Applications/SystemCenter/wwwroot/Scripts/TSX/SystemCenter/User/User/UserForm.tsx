@@ -28,6 +28,7 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import { IUserAccount } from '../Types';
 import * as CryptoJS from 'crypto-js';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import moment from 'moment';
 
 interface IProps {
     UserAccount: IUserAccount,
@@ -71,6 +72,11 @@ function UserForm(props: IProps) {
             e.push('The User could not be validated by the AD or Azure.')
         if (props.UserAccount.DisplayName !== null && allUsers.findIndex(u => u.DisplayName.toLowerCase() == props.UserAccount.DisplayName.toLowerCase() && u.ID !== props.UserAccount.ID) > -1)
             e.push('Username must be unique.')
+
+        if (props.UserAccount.ChangePasswordOn == null || moment(props.UserAccount.ChangePasswordOn).isBefore(moment())) {
+            e.push('Account Expiration date cannot be before today.');
+        }
+        
         setErrors(e);
     }, [props.UserAccount, valid])
 
@@ -201,8 +207,9 @@ function UserForm(props: IProps) {
 
                                         {props.UserAccount.Type == 'Database' ?
                                             <DatePicker<IUserAccount> Record={props.UserAccount}
-                                                Field={'ChangePasswordOn'} Label='Change Password On'
-                                                Setter={props.Setter} Valid={() => { return true }} />
+                                                Field={'ChangePasswordOn'} Label='Account Expiration' MinDate={moment().subtract(1, 'days')}
+                                                Setter={props.Setter} Valid={() => { return true }} 
+                                            />
                                             : null}
                                     </div>
                                 </div>
