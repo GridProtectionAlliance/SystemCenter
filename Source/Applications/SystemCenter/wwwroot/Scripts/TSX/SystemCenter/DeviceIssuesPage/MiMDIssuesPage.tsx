@@ -39,7 +39,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     let dispatch = useAppDispatch();
 
     const [data, setData] = React.useState<SC.MiMDDailyStatistic[]>([]);
-    const [sortField, setSortField] = React.useState<keyof SC.MiMDDailyStatistic>('Date');
+    const [sortField, setSortField] = React.useState<keyof SC.MiMDDailyStatistic>('LastSuccessfulFileProcessed');
     const [ascending, setAscending] = React.useState<boolean>(false);
     const settings = useAppSelector(SystemCenterSettingSlice.Data);
     const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
@@ -47,18 +47,22 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     React.useEffect(() => {
         let handle = $.ajax({
             type: "GET",
-            url: `${homePath}api/SystemCenter/Statistics/MiMD/${props.Meter.AssetKey}`,
+            url: `${homePath}api/SystemCenter/Statistics/MiMD/${props.Meter.AssetKey}/${sortField}/${ascending ? '1' : '0'}`,
             contentType: "application/json; charset=utf-8",
             dataType: 'json',
             cache: false,
             async: true
-        }) as JQuery.jqXHR<SC.MiMDDailyStatistic[]>;
-        handle.done(d => setData(orderBy(d, [sortField], [ascending ? "asc" : "desc"])))
+        });
+        handle.done(d => setData(JSON.parse(d.toString())))
 
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
     }, [props.Meter]);
+
+    React.useEffect(() => {
+        setData(orderBy(data, [sortField === 'Date' ? (item) => new Date(item[sortField]) : sortField], [ascending ? 'asc' : 'desc']))
+    }, [sortField, ascending]);
 
     React.useEffect(() => {
         if (settingStatus == 'unintiated' || settingStatus == 'changed')
@@ -90,7 +94,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         setAscending(!ascending);
                     }
                     else {
-                        setAscending(!ascending);
+                        setAscending(true);
                         setSortField(d.colField);
                     }
                 }}
@@ -122,7 +126,7 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         Key={'LastUnsuccessfulFileProcessed'}
                         AllowSort={true}
                         Field={'LastUnsuccessfulFileProcessed'}
-                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : 'N/A'}
                         HeaderStyle={{ width: 'auto', textAlign: 'center' }}
                         RowStyle={{ width: 'auto', textAlign: 'center' }}
                     >
