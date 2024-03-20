@@ -207,7 +207,7 @@ function UserForm(props: IProps) {
 
                                         {props.UserAccount.Type == 'Database' ?
                                             <DatePicker<IUserAccount> Record={props.UserAccount}
-                                                Field={'ChangePasswordOn'} Label='Account Expiration' MinDate={moment().subtract(1, 'days')}
+                                                Field={'ChangePasswordOn'} Label='Account Expiration' MinDate={moment()}
                                                 Setter={props.Setter} Valid={() => { return true }} 
                                             />
                                             : null}
