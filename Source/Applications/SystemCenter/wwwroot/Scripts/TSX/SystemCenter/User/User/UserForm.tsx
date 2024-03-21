@@ -74,7 +74,7 @@ function UserForm(props: IProps) {
             e.push('Username must be unique.')
 
         if (props.UserAccount.ChangePasswordOn == null || moment(props.UserAccount.ChangePasswordOn).isBefore(moment())) {
-            e.push('Account Expiration date cannot be before today.');
+            e.push('Account Expiration date cannot be in the past.');
         }
         
         setErrors(e);
