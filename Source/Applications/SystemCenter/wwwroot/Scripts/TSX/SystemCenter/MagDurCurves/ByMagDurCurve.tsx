@@ -38,12 +38,6 @@ declare var homePath: string;
 const emptyCurve: OpenXDA.Types.MagDurCurve = {
     ID: 0,
     Name: 'Curve',
-    XHigh: 0,
-    XLow: 0,
-    YHigh: 0,
-    YLow: 0,
-    UpperCurve: '',
-    LowerCurve: '',
     Area: '0.00001 0, 1000 0, 1000 1, 0.00001 1, 0.00001 0',
     Color: ''
 };
