@@ -24,12 +24,10 @@
 import * as React from 'react';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { OpenXDA as LocalXDA } from '../global';
 import { SearchBar, Search, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import { useAppSelector, useAppDispatch } from '../hooks';
-import { MagDurCurveSlice, WidgetCategorySlice } from '../Store/Store';
+import { MagDurCurveSlice } from '../Store/Store';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
 import CurveForm from './CurveForm';
 
@@ -38,12 +36,6 @@ declare var homePath: string;
 const emptyCurve: OpenXDA.Types.MagDurCurve = {
     ID: 0,
     Name: 'Curve',
-    XHigh: 0,
-    XLow: 0,
-    YHigh: 0,
-    YLow: 0,
-    UpperCurve: '',
-    LowerCurve: '',
     Area: '0.00001 0, 1000 0, 1000 1, 0.00001 1, 0.00001 0',
     Color: ''
 };
