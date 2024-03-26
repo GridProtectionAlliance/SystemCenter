@@ -1486,7 +1486,7 @@ namespace SystemCenter.Controllers
                 string area = Geometry(record["Area"].ToObject<string>());
                 string color = record["Color"].ToObject<string>();
 
-                connection.ExecuteNonQuery("INSERT StandardMagDurCurve (Name, XHigh,XLow,YHigh,YLow, LowerCurve, UpperCurve, Area, Color) VALUES ({0}, 0,0,0,0, NULL, NULL, {1}, {2})",name, area, color );
+                connection.ExecuteNonQuery("INSERT StandardMagDurCurve (Name, Area, Color) VALUES ({0}, {1}, {2})",name, area, color );
                 return Ok(1);
             }
         }

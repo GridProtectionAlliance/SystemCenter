@@ -25,7 +25,6 @@ import * as _ from 'lodash';
 import { useAppSelector, useAppDispatch } from '../hooks';
 import { SEBrowserWidgetSlice } from '../Store/Store';
 import { Input } from '@gpa-gemstone/react-forms';
-import { OpenXDA as LocalXDA } from '../global';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { Circle, Line, Plot } from '@gpa-gemstone/react-graph';
 import { DownArrow, TrashCan, UpArrow } from '@gpa-gemstone/gpa-symbols';
