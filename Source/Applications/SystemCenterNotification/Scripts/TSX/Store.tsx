@@ -25,7 +25,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import {
     ActiveSubscription, EmailCategory, EmailType,
     IDataSourceTriggeredEmailType, ITriggeredDataSource,
-    ITriggeredEmailDataSourceSetting, SubscibeEmails,
+    ITriggeredEmailDataSourceSetting, SubscribeEmails,
     ICellCarrier, ScheduledEmailType, ActiveReportSubscription,
     IScheduledDataSource, IScheduledEmailDataSourceSetting, IDataSourceScheduledEmailType,
     SubscribeReports
@@ -45,7 +45,7 @@ export const EmailTypeSlice = new GenericSlice<EmailType>("EmailType", `${homePa
 export const ScheduledEmailTypeSlice = new GenericSlice<ScheduledEmailType>("ScheduledEmailType", `${homePath}api/OpenXDA/ScheduledEmailType`, "Name", true);
 export const AssetGroupSlice = new GenericSlice<OpenXDA.Types.AssetGroup>("AssetGroup", `${homePath}api/OpenXDA/AssetGroup`, "Name", true);
 export const SettingSlice = new GenericSlice<SystemCenter.Types.Setting>('Setting', `${homePath}api/Setting`, 'Name');
-export const EventSubscriptionSlice = new GenericSlice<SubscibeEmails>('EventSubscription', `${homePath}api/EventSubscription`, 'FirstName');
+export const EventSubscriptionSlice = new GenericSlice<SubscribeEmails>('EventSubscription', `${homePath}api/EventSubscription`, 'FirstName');
 export const ReportSubscriptionSlice = new GenericSlice<SubscribeReports>('ReportSubscription', `${homePath}api/ReportSubscription`, 'FirstName');
 export const ActiveSubscriptionSlice = new GenericSlice<ActiveSubscription>('ActiveSubscription', `${homePath}api/ActiveSubscription`, 'Email');
 export const ActiveReportSubscriptionSlice = new GenericSlice<ActiveReportSubscription>('ActiveReportSubscription', `${homePath}api/ActiveScheduleSubscription`, 'Email');

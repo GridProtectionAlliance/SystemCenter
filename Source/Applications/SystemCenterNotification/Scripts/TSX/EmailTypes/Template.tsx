@@ -21,14 +21,12 @@
 //
 //******************************************************************************************************
 
-import { useAppDispatch, useAppSelector } from '../hooks';
+import { useAppDispatch } from '../hooks';
 import * as React from 'react';
-import {ToolTip } from '@gpa-gemstone/react-interactive'
+import { ToolTip } from '@gpa-gemstone/react-interactive'
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
-import {  EmailType } from '../global';
-import {  EmailTypeSlice } from '../Store';
-import { IsNumber } from '@gpa-gemstone/helper-functions';
-import EmailForm from './EmailForm';
+import { EmailType } from '../global';
+import { EmailTypeSlice } from '../Store';
 import { TextArea } from '@gpa-gemstone/react-forms';
 
 declare var homePath;
@@ -59,38 +57,44 @@ const Template = (props: IProps) => {
 
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Template:</h4>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col-12">
+                                <h4>Template:</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <div className="row">
+                            <div className="col-12">
+                                <TextArea<EmailType> Record={email} Setter={setEmail} Field={'Template'} Rows={12} Label='' Valid={(r) => email.Template != null && email.Template.length > 0} />
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card-footer">
+                        <div className="btn-group mr-2">
+                            <button className={"btn btn-primary" + (email.Template != null && email.Template.length > 0 && hasChanged ? '' : ' disabled')} type="submit"
+                                onClick={() => { if (email.Template != null && email.Template.length > 0 && hasChanged) dispatch(EmailTypeSlice.DBAction({ verb: 'PATCH', record: email })); }}
+                                data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                        </div>
+                        <div className="btn-group mr-2">
+                            <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
+                                onClick={() => { setEmail(props.Record); setHasChanged(false); }}
+                                onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
+                        </div>
+                        <ToolTip Show={(email.Template == null || email.Template.length == 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+                            {!hasChanged ? <p> No changes made.</p> : null}
+                            {email.Template == null || email.Template.length == 0 ? <p> {CrossMark} A valid Template is required.</p> : null}
+                        </ToolTip>
+                        <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+                            {hasChanged ? <p> {Warning} Changes to Template will be discarded.</p> : null}
+                        </ToolTip>
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <TextArea<EmailType> Record={email} Setter={setEmail} Field={'Template'} Rows={12} Label='' Valid={(r) => email.Template != null && email.Template.length > 0} />
-            </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (email.Template != null && email.Template.length > 0 && hasChanged ? '' : ' disabled')} type="submit"
-                        onClick={() => { if (email.Template != null && email.Template.length > 0 && hasChanged) dispatch(EmailTypeSlice.DBAction({ verb: 'PATCH', record: email })); }}
-                        data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
-                </div>
-                <ToolTip Show={(email.Template == null || email.Template.length == 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                    {!hasChanged ? <p> No changes made.</p> : null}
-                    {email.Template == null || email.Template.length == 0 ? <p> {CrossMark} A valid Template is required.</p> : null}
-                   
-                </ToolTip>
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
-                        onClick={() => { setEmail(props.Record); setHasChanged(false); }}
-                        onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
-                </div>
-                <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
-                    {hasChanged? <p> {Warning} Changes to Template will be discarded.</p> : null}
-                </ToolTip>
-            </div>
-
         </div>
         )
 }
