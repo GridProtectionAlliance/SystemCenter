@@ -24,7 +24,7 @@
 import * as React from 'react';
 import * as $ from 'jquery';
 import moment from 'moment';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { IEvent } from '../../global';
 
 declare var homePath;
@@ -64,39 +64,78 @@ const EventDetails = (props: IProps) => {
     }, [props.CombineSQL, props.SelectedEventID]);
     
     
-    return (<div className="card" style={{ width: '100%' }}>
-        <div className="card-header">
-            <div className="row">
-                <div className="col">
-                    <h5>Suppressed Events </h5>
+    return (
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col">
+                                <h5>Suppressed Events </h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
+                                    <ReactTable.Table<IEvent>
+                                        TableClass="table table-hover"
+                                        Data={data}
+                                        SortKey={'StartTime'}
+                                        Ascending={false}
+                                        OnSort={() => { }}
+                                        TableStyle={{
+                                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                        }}
+                                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        Selected={(item) => false}
+                                        KeySelector={(item, index) => index}
+                                    >
+                                        <ReactTable.Column<IEvent>
+                                            Key={'StartTime'}
+                                            AllowSort={false}
+                                            Field={'StartTime'}
+                                            HeaderStyle={{ width: '20%' }}
+                                            RowStyle={{ width: '20%' }}
+                                            Content={({ item }) => <> {moment(item.StartTime).format("MM/DD/YYYY")} <br /> {moment(item.StartTime).format("HH:mm:ss.ssss")}  </> }
+                                        > Time
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<IEvent>
+                                            Key={'Asset'}
+                                            AllowSort={false}
+                                            Field={'Asset'}
+                                            HeaderStyle={{ width: '40%' }}
+                                            RowStyle={{ width: '40%' }}
+                                        > Asset
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<IEvent>
+                                            Key={'Meter'}
+                                            AllowSort={false}
+                                            Field={'Meter'}
+                                            HeaderStyle={{ width: '40%' }}
+                                            RowStyle={{ width: '40%' }}
+                                        > Meter
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<IEvent>
+                                            Key={'EventType'}
+                                            AllowSort={false}
+                                            Field={'EventType'}
+                                            HeaderStyle={{ width: '20%' }}
+                                            RowStyle={{ width: '20%' }}
+                                        > Type
+                                        </ReactTable.Column>
+                                    </ReactTable.Table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        <div className="card-body">
-            <Table<IEvent>
-                cols={[
-                    {
-                        key: 'StartTime', field: 'StartTime', label: 'Time', headerStyle: { width: '20%' }, rowStyle: { width: '20%' },
-                        content: (r) => <> {moment(r.StartTime).format("MM/DD/YYYY")} <br /> {moment(r.StartTime).format("HH:mm:ss.ssss")}  </>
-                    },
-                    { key: 'Asset', field: 'Asset', label: 'Asset', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
-                    { key: 'Meter', field: 'Meter', label: 'Meter', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
-                    { key: 'EventType', field: 'EventType', label: 'Type', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } }
-                ]}
-                tableClass="table table-hover"
-                data={data}
-                sortKey={'StartTime'}
-                ascending={false}
-                onSort={(d) => { }}
-                onClick={(item) => { }}
-                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                tbodyStyle={{ display: 'block', overflowY: 'scroll', height: 'calc(100 % - 50 px)', width: '100%' }}
-                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                selected={() => false}
-            />
-        </div>
-    </div>
-                       
         )
 }
 

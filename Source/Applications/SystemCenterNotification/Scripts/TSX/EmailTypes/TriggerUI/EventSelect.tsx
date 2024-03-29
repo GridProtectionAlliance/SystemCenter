@@ -24,7 +24,7 @@ import * as React from 'react';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import * as $ from 'jquery';
 import moment from 'moment';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import EventFilter from '../../EventFilterComponents/EventFilter';
 import { IEvent, IEventFilter } from '../../global';
 import { LoadingIcon } from '@gpa-gemstone/react-interactive';
@@ -87,46 +87,93 @@ const EventSelect = (props: IProps) => {
 
     }, [props.TriggerSQL, filter]);
 
-    return (<>
-        <div className="card" style={{ width: '100%' }}>
-                <div className="card-header">
-                    <div className="row">
-                        <div className="col">
-                            <h5>Notification Events:</h5>
+    return (
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col-6 align-self-center">
+                                <h5>Notification Events:</h5>
+                            </div>
+                            <div className="col-6 align-self-center">
+                                <button className="btn btn-primary float-right" style={{ marginLeft: 5 }} onClick={() => setShowModal(true)}>Filter</button>
+                            </div>
                         </div>
-                        <div className="col">
-                        <button className="btn btn-primary float-right" style={{ marginLeft: 5 }} onClick={() => setShowModal(true)}>Filter</button>
+                    </div>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
+                                    <LoadingIcon Show={loading} />
+                                    <ReactTable.Table<IEvent>
+                                        TableClass="table table-hover"
+                                        Data={data}
+                                        SortKey={'StartTime'}
+                                        Ascending={false}
+                                        OnSort={() => { }}
+                                        OnClick={(item) => props.SetSelectedEvent(item.row.EventID)}
+                                        TableStyle={{
+                                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                        }}
+                                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        Selected={(item) => item.EventID == props.SelectedEventID }
+                                        KeySelector={(item, index) => index }
+                                    >
+                                        <ReactTable.Column<IEvent>
+                                            Key={'StartTime'}
+                                            AllowSort={false}
+                                            Field={'StartTime'}
+                                            HeaderStyle={{ width: '20%' }}
+                                            RowStyle={{ width: '20%' }}
+                                            Content={({ item }) => <> {moment(item.StartTime).format("MM/DD/YYYY")} <br /> {moment(item.StartTime).format("HH:mm:ss.ssss")}  </>}
+                                        > Time
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<IEvent>
+                                            Key={'Asset'}
+                                            AllowSort={false}
+                                            Field={'Asset'}
+                                            HeaderStyle={{ width: '40%' }}
+                                            RowStyle={{ width: '40%' }}
+                                        > Asset
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<IEvent>
+                                            Key={'Meter'}
+                                            AllowSort={false}
+                                            Field={'Meter'}
+                                            HeaderStyle={{ width: '40%' }}
+                                            RowStyle={{ width: '40%' }}
+                                        > Meter
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<IEvent>
+                                            Key={'EventType'}
+                                            AllowSort={false}
+                                            Field={'EventType'}
+                                            HeaderStyle={{ width: '20%' }}
+                                            RowStyle={{ width: '20%' }}
+                                        > Type
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<IEvent>
+                                            Key={'Triggered'}
+                                            AllowSort={false}
+                                            Field={'Triggered'}
+                                            HeaderStyle={{ width: '20%' }}
+                                            RowStyle={{ width: '20%' }}
+                                            Content={({ item }) => item.Triggered ? HeavyCheckMark : CrossMark }
+                                        > Notified
+                                        </ReactTable.Column>
+                                    </ReactTable.Table>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div className="card-body">
-                {loading ? <LoadingIcon Show={true} /> :<Table<IEvent>
-                    cols={[
-                        {
-                            key: 'StartTime', field: 'StartTime', label: 'Time', headerStyle: { width: '20%' }, rowStyle: { width: '20%' },
-                            content: (r) => <> {moment(r.StartTime).format("MM/DD/YYYY")} <br /> {moment(r.StartTime).format("HH:mm:ss.ssss")}  </>
-                        },
-                        { key: 'Asset', field: 'Asset', label: 'Asset', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
-                        { key: 'Meter', field: 'Meter', label: 'Meter', headerStyle: { width: '40%' }, rowStyle: { width: '40%' } },
-                        { key: 'EventType', field: 'EventType', label: 'Type', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
-                        { key: 'Triggered', field: 'Triggered', label: 'Notified', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (r) => r.Triggered ? HeavyCheckMark : CrossMark }
-                    ]}
-                    tableClass="table table-hover"
-                    data={data}
-                    sortKey={'StartTime'}
-                    ascending={false}
-                    onSort={(d) => { }}
-                    onClick={(item) => { props.SetSelectedEvent(item.row.EventID); }}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', height: 'calc(100 % - 50 px)', width: '100%', maxHeight: 200 }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={(record) => record.EventID == props.SelectedEventID}
-                />}
-                </div>
+            </div>
+            <EventFilter Show={showModal} Close={() => setShowModal(false)} SetFilter={setFilter} Filter={filter} RenderPortalId={props.RenderPortalId} />
         </div>
-        <EventFilter Show={showModal} Close={() => setShowModal(false)} SetFilter={setFilter} Filter={filter} RenderPortalId={props.RenderPortalId} />
-        </>
-                  
         )
 }
 
