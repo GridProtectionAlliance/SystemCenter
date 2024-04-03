@@ -176,7 +176,7 @@ GO
 
 /* FAWG Query for Transformers */
 INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES('Transformer', (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'), '
-            SELECT
+		SELECT
 				XFR.PosSeqResistanceHigh,
 				XFR.PosSeqReactanceHigh,
 				XFR.ZeroSeqResistanceHigh,
@@ -202,8 +202,8 @@ INSERT INTO extDBTables (TableName,ExtDBID,Query) VALUES('Transformer', (SELECT 
 			WHERE
 				(Branches.Description = ''Fawg One'' AND XFR.isInService = 1) AND
 				(
-					("FAWG High Side Bus" = {0} AND "FAWG Low Side Bus" = {1}) OR
-					({0} is NULL AND {1} is NULL)
+					(Bh.ShortName = {Transformer.Field.FAWG High Side Bus} AND Bl.ShortName = {Transformer.Field.FAWG Low Side Bus}) OR
+					({Transformer.Field.FAWG High Side Bus} is NULL AND {Transformer.Field.FAWG Low Side Bus} is NULL)
 				)')
 GO
 
@@ -211,7 +211,7 @@ GO
 INSERT INTO AdditionalField (ParentTable, FieldName, ExternalDBTableID) VALUES
 ('Transformer', 'FAWG High Side Bus', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'))),
 ('Transformer', 'FAWG Low Side Bus', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'))),
-('Transformer', 'XFR Type', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG'))y)
+('Transformer', 'XFR Type', (SELECT ID FROM extDBTables WHERE TableName = 'Transformer' AND ExtDBID = (SELECT ID FROM ExternalDatabases WHERE Name='FAWG')))
 GO
 
 INSERT INTO ExternalOpenXDAField (ParentTable, FieldName, ExternalDBTableID) VALUES
