@@ -306,49 +306,53 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                 ConfirmShowToolTip={errors.length > 0}
                 ConfirmToolTipContent={errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)}
             >
-                <ProgressBar height={40} steps={[
-                    { id: 'SetupTap', long: 'Setup Tappoints', short: 'Taps' },
-                    { id: 'SelectSection', long: 'Select Sections of Line', short: 'Sections' },
-                    { id: 'EditSection', long: 'Update Segments of Line', short: 'Segments' },
-                ]} activeStep={step} />
-                {fawgSuccess && showFawgError ? <div className="row">
-                    <div className="col">
-                        <div className="alert alert-danger" role="alert">
-                            <h4 className="alert-heading">Unable to find Line {props.LineName} in FAWG.</h4>
+                <div className="row">
+                    <div className="d-none col-12 d-md-block">
+                        <ProgressBar width={'100%'} height={80} steps={[
+                            { id: 'SetupTap', long: 'Setup Tappoints', short: 'Taps' },
+                            { id: 'SelectSection', long: 'Select Sections of Line', short: 'Sections' },
+                            { id: 'EditSection', long: 'Update Segments of Line', short: 'Segments' },
+                            ]} activeStep={step} />
                         </div>
-                    </div>
-                </div> : null}
-                {step == 'SetupTap' ? <TapSelect
-                    Taps={taps} AddTap={(t) => { setTaps((d) => [...d, t]) }}
-                    SaveTap={editTap}
-                    RemoveTap={removeTap}
-                    Locations={locations}
-                    External={fawgSuccess} /> : null}
-                {step == 'SelectSection' ? <SectionSelect Taps={taps}
-                    Sections={sections} SaveSection={editSection}
-                    AddSection={() => {
-                        setSections((d) => [...d, {
-                            EndBus: taps[1].Bus,
-                            Segments: [],
-                            StartBus: taps[0].Bus,
-                            StartStationID: taps[0].StationID,
-                            EndStationID: taps[1].StationID,
-                            IsExternal: false,
-                            IsXDA: false,
-                            IsDifferent: false
-                        }])
-                    }}
-                    RemoveSections={(i) =>
-                        setSections((d) => {
-                            const u = [...d];
-                            u.splice(i, 1);
-                            return u;
-                        })}
-                    Locations={locations}
-                    External={fawgSuccess} /> : null}
-                {step == 'EditSection' ? <SectionEdit
-                    Section={sections[currentSegment]} SetSection={(s) => editSection(s, currentSegment)} LineKey={props.LineKey} LineName={props.LineName}
-                    /> : null}
+                </div>
+                    {fawgSuccess && showFawgError ? <div className="row">
+                        <div className="col">
+                            <div className="alert alert-danger" role="alert">
+                                <h4 className="alert-heading">Unable to find Line {props.LineName} in FAWG.</h4>
+                            </div>
+                        </div>
+                    </div> : null}
+                    {step == 'SetupTap' ? <TapSelect
+                        Taps={taps} AddTap={(t) => { setTaps((d) => [...d, t]) }}
+                        SaveTap={editTap}
+                        RemoveTap={removeTap}
+                        Locations={locations}
+                        External={fawgSuccess} /> : null}
+                    {step == 'SelectSection' ? <SectionSelect Taps={taps}
+                        Sections={sections} SaveSection={editSection}
+                        AddSection={() => {
+                            setSections((d) => [...d, {
+                                EndBus: taps[1].Bus,
+                                Segments: [],
+                                StartBus: taps[0].Bus,
+                                StartStationID: taps[0].StationID,
+                                EndStationID: taps[1].StationID,
+                                IsExternal: false,
+                                IsXDA: false,
+                                IsDifferent: false
+                            }])
+                        }}
+                        RemoveSections={(i) =>
+                            setSections((d) => {
+                                const u = [...d];
+                                u.splice(i, 1);
+                                return u;
+                            })}
+                        Locations={locations}
+                        External={fawgSuccess} /> : null}
+                    {step == 'EditSection' ? <SectionEdit
+                        Section={sections[currentSegment]} SetSection={(s) => editSection(s, currentSegment)} LineKey={props.LineKey} LineName={props.LineName}
+                        /> : null}
             </Modal>
             <LoadingScreen Show={showLoading} />
             <Warning Title={'Cancel FAWG Update'} Message={'This will cancel the update and retain the Line Segments currently in openXDA.'}
