@@ -142,7 +142,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             async: true
         }).done(data => {
             setSections(data["Sections"] as ISection[]);
-            setTaps(data["Taps"] as ITap[])
+            setTaps((data["Taps"] as ITap[]).map((t,i) => ({...t, ID: i})))
             setFAWGSucess(data["UsedFAWG"] as boolean)
             setShowFawgError(data["setShowFawgError"] as boolean)
         });
@@ -178,8 +178,6 @@ function LineSegmentWizard(props: IProps): JSX.Element {
     }
 
     function removeTap(index: number) {
-
-        const bus = taps[index].Bus;
 
         setTaps((d) => {
             const u = [...d];
@@ -322,8 +320,8 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                             </div>
                         </div>
                     </div> : null}
-                    {step == 'SetupTap' ? <TapSelect
-                        Taps={taps} AddTap={(t) => { setTaps((d) => [...d, t]) }}
+                {step == 'SetupTap' ? <TapSelect
+                    Taps={taps} AddTap={(t) => { setTaps((d) => [...d, { ...t, ID: (d.length > 0? Math.max(...d.map(t => t.ID)) : 0) + 1 }]) }}
                         SaveTap={editTap}
                         RemoveTap={removeTap}
                         Locations={locations}
