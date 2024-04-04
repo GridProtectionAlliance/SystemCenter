@@ -307,7 +307,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                 <div className="row">
                     <div className="d-none col-12 d-md-block">
                         <ProgressBar width={'100%'} height={80} steps={[
-                            { id: 'SetupTap', long: 'Setup Tappoints', short: 'Taps' },
+                            { id: 'SetupTap', long: 'Setup Taps and Endpoints', short: 'Taps' },
                             { id: 'SelectSection', long: 'Select Sections of Line', short: 'Sections' },
                             { id: 'EditSection', long: 'Update Segments of Line', short: 'Segments' },
                             ]} activeStep={step} />
