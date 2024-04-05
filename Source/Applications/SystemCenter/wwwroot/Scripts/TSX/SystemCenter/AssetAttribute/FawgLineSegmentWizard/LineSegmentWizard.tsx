@@ -343,12 +343,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                                 ID: d.length > 0 ? Math.max(...d.map(s => s.ID ?? 0)) + 1 : 1
                             }])
                         }}
-                        RemoveSections={(i) =>
-                            setSections((d) => {
-                                const u = [...d];
-                                u.splice(i, 1);
-                                return u;
-                            })}
+                        RemoveSections={(i) => setSections((d) =>  d.filter(item => item.ID !== i))}
                         Locations={locations}
                         External={fawgSuccess} /> : null}
                     {step == 'EditSection' ? <SectionEdit

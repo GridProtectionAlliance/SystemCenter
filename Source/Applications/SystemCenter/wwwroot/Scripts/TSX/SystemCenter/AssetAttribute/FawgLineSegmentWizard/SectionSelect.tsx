@@ -171,9 +171,9 @@ function SectionSelect(props: IProps): JSX.Element {
                                 AllowSort={false}
                                 HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
                                 RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
-                                Content={({ item, key, field, index }) => <>
+                                Content={({ item }) => <>
                                     <button className="btn btn-sm"
-                                        onClick={(e) => props.RemoveSections(index)}><span>{TrashCan}</span></button>
+                                        onClick={(e) => props.RemoveSections(item.ID)}><span>{TrashCan}</span></button>
                                 </> }
                             > <p></p>
                             </ReactTable.Column>
