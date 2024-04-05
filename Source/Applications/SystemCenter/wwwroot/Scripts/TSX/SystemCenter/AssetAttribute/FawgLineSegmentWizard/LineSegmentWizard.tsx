@@ -72,7 +72,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
         let e = [];
         if (step == 'SetupTap' && taps.length < 2)
             e.push('At least 2 Taps or Endpoints are required.')
-        if (step == 'SetupTap' && _.uniqBy(taps, (t) => t.Bus).length != taps.length)
+        if (step == 'SetupTap' && (_.uniqBy(taps, (t) => t.Bus).length != taps.length || taps.some((t) => t.Bus == undefined || t.Bus.length == 0)))
             e.push('All Taps must have unique Bus Names.')
         if (step == 'SelectSection' && sections.length == 0)
             e.push('At least 1 Section of the Line is required.')
