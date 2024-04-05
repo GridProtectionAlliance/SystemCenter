@@ -209,6 +209,7 @@ function SectionEdit(props: IProps): JSX.Element {
                             Selected={(item) => false}
                             KeySelector={(item) => item.AssetKey}
                             OnSort={() => { }}
+                            LocalStorageKey={'SystemCenter.LSW.SectionEdit'}
                         >
                             <ConfigTable.Configurable Key='AssetName' Label='Segment' Default={false}>
                                 <ReactTable.Column<ISegment>
