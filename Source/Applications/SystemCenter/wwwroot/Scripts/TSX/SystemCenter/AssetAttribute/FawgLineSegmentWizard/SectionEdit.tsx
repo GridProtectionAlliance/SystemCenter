@@ -30,8 +30,6 @@ import { ConfigTable } from '@gpa-gemstone/react-interactive';
 import { ReactTable  } from '@gpa-gemstone/react-table'
 import { WarningWTooltip } from './Common';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
-import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { config } from 'process';
 
 declare var homePath: string;
 interface IProps {
