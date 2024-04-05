@@ -289,20 +289,22 @@ function LineSegmentWizard(props: IProps): JSX.Element {
     return (
         <>
             <Modal Title={'Line Segment Wizard'} ShowX={true} Show={true} Size={'xlg'}
-                CancelText={'Back'} DisableCancel={step == 'SetupTap'}
-                ConfirmBtnClass={'btn-success'}
-                ConfirmText={step == 'EditSection' && currentSegment == (sections.length - 1) ? 'Confirm' : 'Next'}
+                ConfirmBtnClass={'btn-danger mr-auto'}
+                ConfirmText={'Back'}
+                DisableConfirm={step == 'SetupTap'}
+                CancelBtnClass={'btn-success'}
+                CancelText={step == 'EditSection' && currentSegment == (sections.length - 1) ? 'Confirm' : 'Next'}
                 CallBack={(conf, btn) => {
                     if (!btn)
                         setShowWarning(true);
-                    if (conf && btn)
-                        next();
                     if (!conf && btn)
+                        next();
+                    if (conf && btn)
                         back();
                 }}
-                DisableConfirm={errors.length > 0}
-                ConfirmShowToolTip={errors.length > 0}
-                ConfirmToolTipContent={errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)}
+                DisableCancel={errors.length > 0}
+                CancelShowToolTip={errors.length > 0}
+                CancelToolTipContent={errors.map((t, i) => <p key={i}>{CrossMark} {t} </p>)}
             >
                 <div className="row">
                     <div className="d-none col-12 d-md-block">
