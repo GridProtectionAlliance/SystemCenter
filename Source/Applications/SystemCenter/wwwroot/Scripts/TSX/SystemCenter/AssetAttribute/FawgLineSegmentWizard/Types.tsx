@@ -37,6 +37,7 @@ export interface ISegment extends OpenXDA.Types.LineSegment {
 };
 
 export interface ISection {
+    ID?: number,
     StartBus: string,
     EndBus: string,
     StartStationID: (number | null),

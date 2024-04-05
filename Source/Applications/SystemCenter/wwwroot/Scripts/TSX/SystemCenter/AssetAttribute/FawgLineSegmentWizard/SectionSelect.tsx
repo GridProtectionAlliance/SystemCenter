@@ -110,7 +110,7 @@ function SectionSelect(props: IProps): JSX.Element {
                             TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             Selected={(item) => false}
-                            KeySelector={(item) => `${item.StartStationID}-${item.EndStationID}-${item.Segments.length}`}
+                            KeySelector={(item) => item.ID ?? `${item.StartStationID}-${item.EndStationID}-${item.Segments.length}`}
                         >
                             <ReactTable.Column<ISection>
                                 Key={'StartBus'}

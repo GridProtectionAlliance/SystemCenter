@@ -141,7 +141,7 @@ function LineSegmentWizard(props: IProps): JSX.Element {
             cache: true,
             async: true
         }).done(data => {
-            setSections(data["Sections"] as ISection[]);
+            setSections((data["Sections"] as ISection[]).map((t, i) => ({ ...t, ID: i })));
             setTaps((data["Taps"] as ITap[]).map((t,i) => ({...t, ID: i})))
             setFAWGSucess(data["UsedFAWG"] as boolean)
             setShowFawgError(data["setShowFawgError"] as boolean)
@@ -339,7 +339,8 @@ function LineSegmentWizard(props: IProps): JSX.Element {
                                 EndStationID: taps[1].StationID,
                                 IsExternal: false,
                                 IsXDA: false,
-                                IsDifferent: false
+                                IsDifferent: false,
+                                ID: d.length > 0 ? Math.max(...d.map(s => s.ID ?? 0)) + 1 : 1
                             }])
                         }}
                         RemoveSections={(i) =>
