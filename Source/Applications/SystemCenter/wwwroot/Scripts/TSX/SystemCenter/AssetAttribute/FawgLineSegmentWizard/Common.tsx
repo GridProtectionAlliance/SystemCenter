@@ -40,8 +40,8 @@ export const WarningWTooltip = (props: IWarningProps) => {
             onMouseLeave={() => setHover(false)}
         > {Warning} </div>
         <ToolTip Show={hover} Position={'bottom'} Target={guid} Zindex={9999}>
-            {props.Warnings.map((w, i) => <>{Warning} <p key={i}> {w} </p></>)}
-            {props.Errors.map((e, i) => <> {CrossMark} <p key={i}> {e}</p></>)}
+            {props.Warnings.map((w, i) => <>{Warning} <p key={`w-${i}`}> {w} </p></>)}
+            {props.Errors.map((e, i) => <> {CrossMark} <p key={`i-${i}`}> {e}</p></>)}
         </ToolTip>
     </>
 }

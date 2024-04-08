@@ -110,7 +110,7 @@ function SectionSelect(props: IProps): JSX.Element {
                             TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             Selected={(item) => false}
-                            KeySelector={(item) => `${item.StartStationID}-${item.EndStationID}-${item.Segments.length}`}
+                            KeySelector={(item) => item.ID ?? `${item.StartStationID}-${item.EndStationID}-${item.Segments.length}`}
                         >
                             <ReactTable.Column<ISection>
                                 Key={'StartBus'}
@@ -171,9 +171,9 @@ function SectionSelect(props: IProps): JSX.Element {
                                 AllowSort={false}
                                 HeaderStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
                                 RowStyle={{ width: 40, paddingLeft: 0, paddingRight: 5 }}
-                                Content={({ item, key, field, index }) => <>
+                                Content={({ item }) => <>
                                     <button className="btn btn-sm"
-                                        onClick={(e) => props.RemoveSections(index)}><span>{TrashCan}</span></button>
+                                        onClick={(e) => props.RemoveSections(item.ID)}><span>{TrashCan}</span></button>
                                 </> }
                             > <p></p>
                             </ReactTable.Column>

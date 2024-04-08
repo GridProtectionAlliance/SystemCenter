@@ -73,7 +73,7 @@ function TapSelect(props: IProps): JSX.Element {
                             TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 600, width: '100%' }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             Selected={(item) => item.StationID != null}
-                            KeySelector={(item) => `${item.Bus}-${item.StationID}`}
+                            KeySelector={(item) => item.ID ?? `${item.Bus}-${item.StationID}`}
                         >
                             <ReactTable.Column<ITap>
                                 Key={'Bus'}
@@ -127,9 +127,15 @@ function TapSelect(props: IProps): JSX.Element {
             <div className="row">
                 <div className="col">
                     <button className="btn btn-primary" onClick={() => {
+                        let bus = 'Bus'
+                        let i = 1;
+                        while (props.Taps.find(t => t.Bus == bus) != null) {
+                            bus = `Bus ${i}`;
+                            i++;
+                        }
                         props.AddTap({
                             IsXDA: true,
-                            Bus: 'Bus',
+                            Bus: bus,
                             StationID: null,
                             IsExternal: false,
                         })

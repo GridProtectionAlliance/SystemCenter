@@ -28,6 +28,8 @@ export interface ITap {
     StationID: (number | null),
     IsExternal: boolean,
     IsXDA: boolean,
+    /* Completly Optional Generated in the UI */
+    ID?: number
 }
 
 export interface ISegment extends OpenXDA.Types.LineSegment {
@@ -35,6 +37,7 @@ export interface ISegment extends OpenXDA.Types.LineSegment {
 };
 
 export interface ISection {
+    ID?: number,
     StartBus: string,
     EndBus: string,
     StartStationID: (number | null),
