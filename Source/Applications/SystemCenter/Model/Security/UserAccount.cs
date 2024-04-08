@@ -225,12 +225,10 @@ namespace SystemCenter.Model.Security
 
             try
             {
-                IUserRequest request = graphClient.Users[userName].Request();
+                IGraphServiceUsersCollectionRequest request = graphClient.Users.Request().Filter($"mail eq '{userName}'");
 
                 // Load user data - note that external users need to be looked up by userPrincipalName
-                User user = userName.Contains("#EXT#") ?
-                    (await graphClient.Users.Request().Filter($"userPrincipalName eq '{userName}'").GetAsync()).FirstOrDefault() :
-                    await request.GetAsync();
+                User user = (await request.GetAsync()).FirstOrDefault();
 
                 return user is not null;
             }
@@ -285,10 +283,12 @@ namespace SystemCenter.Model.Security
         {
             GraphServiceClient graphClient = GraphClient;
 
-            User user = username.Contains("#EXT#") ?
-                               graphClient.Users.Request().Filter($"userPrincipalName eq '{username}'").GetAsync().Result.FirstOrDefault() :
-                               graphClient.Users[username].Request().GetAsync().Result;
-          
+
+            IGraphServiceUsersCollectionRequest request = graphClient.Users.Request().Filter($"mail eq '{username}'");
+
+            // Load user data - note that external users need to be looked up by userPrincipalName
+            User user = request.GetAsync().Result.FirstOrDefault();
+
             return new UserAccount() {
                 Name = user.UserPrincipalName,
                 Approved = true,
