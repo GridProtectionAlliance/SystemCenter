@@ -160,7 +160,7 @@ const DataSourceTesting = (props: IProps) => {
                                     rows={10}
                                     className={'form-control'}
                                     disabled={true}
-                                    value={pd.Xml(selectedSource.Data)}
+                                    value={pd.xml(selectedSource.Data)}
                                 />
                             </div> :
                                 <div className="alert alert-danger">

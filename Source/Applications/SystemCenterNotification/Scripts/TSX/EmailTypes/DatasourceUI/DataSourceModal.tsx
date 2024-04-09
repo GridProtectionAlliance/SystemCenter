@@ -31,6 +31,7 @@ import { Select } from '@gpa-gemstone/react-forms';
 import SQLDataSource from './SQLDataSource';
 import { cloneDeep } from 'lodash'
 import PQIDataSource from './PQIDataSource';
+import FTTDataSource from './FTTDataSource';
 
 declare var homePath;
 declare var version;
@@ -40,25 +41,35 @@ interface IProps {
     OnClose: () => void
 }
 
-
 const DataSourceModal = (props: IProps) => {
     const dispatch = useAppDispatch();
     const typeStatus = useAppSelector(TriggeredDataSourceSlice.Status);
     const types = useAppSelector(TriggeredDataSourceSlice.Data);
     const [record, setRecord] = React.useState<IDataSourceTriggeredEmailType>();
+    const dataSourceID = React.useMemo(() => record != null ? record.TriggeredEmailDataSourceID : null, [record]);
 
     const originalsettings = useAppSelector(TriggeredDataSourceSettingSlice.Data);
     const settingStatus = useAppSelector(TriggeredDataSourceSettingSlice.Status);
     const settingsParentID = useAppSelector(TriggeredDataSourceSettingSlice.ParentID);
-    const [currentSetings, setCurrentSettings] = React.useState<ITriggeredEmailDataSourceSetting[]>([]);
+    const [currentSettings, setCurrentSettings] = React.useState<ITriggeredEmailDataSourceSetting[]>([]);
 
     const [errors, setErrors] = React.useState<string[]>([]);
     const [changes, setChanges] = React.useState<string[]>([]);
 
-      React.useEffect(() => {
-          if (typeStatus == 'unintiated' || typeStatus == 'changed')
-              dispatch(TriggeredDataSourceSlice.Fetch());
-      }, [typeStatus]);
+    function resetCurrentSettings() {
+        const d = cloneDeep(originalsettings);
+        getDefaults().forEach((ds) => {
+            if (d.find(s => s.Name == ds.Name) == null)
+                d.push({ ...ds, TriggeredEmailDataSourceEmailTypeID: props.Record.ID });
+        });
+        console.log(d);
+        setCurrentSettings(d);
+    }
+
+    React.useEffect(() => {
+        if (typeStatus == 'unintiated' || typeStatus == 'changed')
+            dispatch(TriggeredDataSourceSlice.Fetch());
+    }, [typeStatus]);
 
     React.useEffect(() => {
         if (props.Record == null)
@@ -67,6 +78,8 @@ const DataSourceModal = (props: IProps) => {
             dispatch(TriggeredDataSourceSettingSlice.Fetch(props.Record.ID));
     }, [settingStatus, props.Record]);
 
+    React.useEffect(() => resetCurrentSettings(), [dataSourceID]);
+
     React.useEffect(() => {
         if (props.Record == null)
             return;
@@ -74,32 +87,25 @@ const DataSourceModal = (props: IProps) => {
             setRecord({ ...props.Record, TriggeredEmailDataSourceID: types[0].ID });
         else
             setRecord(props.Record);
-    }, [props.Record])
+    }, [props.Record]);
 
     React.useEffect(() => {
         if (types.length == 0 || props.Record == null)
             return;
         if (types.find(t => t.ID == props.Record.TriggeredEmailDataSourceID) == null)
             setRecord({ ...props.Record, TriggeredEmailDataSourceID: types[0].ID });
-    }, [types])
+    }, [types]);
 
     React.useEffect(() => {
         if (props.Record == null)
             return;
-        const d = cloneDeep(originalsettings);
-        getDefaults().forEach((ds) => {
-            if (d.find(s => s.Name == ds.Name) == null)
-                d.push({ ...ds, TriggeredEmailDataSourceEmailTypeID: props.Record.ID })
-        })
-        setCurrentSettings(d);
-
-
-    }, [originalsettings])
+        resetCurrentSettings();
+    }, [originalsettings]);
 
     // Determine Changes to Settings
     React.useEffect(() => {
         const w = [];
-        currentSetings.forEach(s => {
+        currentSettings.forEach(s => {
             let saved = originalsettings.find(item => item.Name == s.Name);
             if (saved == null)
                 w.push(`Changes to ${s.Name} will be lost`);
@@ -107,7 +113,7 @@ const DataSourceModal = (props: IProps) => {
                 w.push(`Changes to ${s.Name} will be lost`);
         });
         setChanges(w);
-    }, [originalsettings, currentSetings])
+    }, [originalsettings, currentSettings]);
 
     function getUI() {
         if (record == null)
@@ -121,15 +127,22 @@ const DataSourceModal = (props: IProps) => {
                 DataSourceID={record.ID}
                 SetErrors={setErrors}
                 SetSetting={updateSettings}
-                Settings={currentSetings}
+                Settings={currentSettings}
             > {StandardUI()}</SQLDataSource.UI>;
         if (type.ConfigUI == 'pqi')
             return <PQIDataSource.UI
                 DataSourceID={record.ID}
                 SetErrors={setErrors}
                 SetSetting={updateSettings}
-                Settings={currentSetings}
+                Settings={currentSettings}
             > {StandardUI()}</PQIDataSource.UI>;
+        if (type.ConfigUI == 'ftt')
+            return <FTTDataSource.UI
+                DataSourceID={record.ID}
+                SetErrors={setErrors}
+                SetSetting={updateSettings}
+                Settings={currentSettings}
+            > {StandardUI()}</FTTDataSource.UI>;
 
         return null;
     }
@@ -142,9 +155,11 @@ const DataSourceModal = (props: IProps) => {
             return [];
 
         if (type.ConfigUI == 'sql')
-            return SQLDataSource.Defaults
+            return SQLDataSource.Defaults;
         if (type.ConfigUI == 'pqi')
-            return PQIDataSource.Defaults
+            return PQIDataSource.Defaults;
+        if (type.ConfigUI == 'ftt')
+            return FTTDataSource.Defaults;
         return [];
     }
     function StandardUI() {
@@ -173,14 +188,14 @@ const DataSourceModal = (props: IProps) => {
         <Modal Show={props.Record != null} Title={'Data Source'} ShowCancel={true} ShowX={false} CancelText={'Close'} ConfirmText={'Save'} Size={'lg'}
             CallBack={(c) => {
                 if (c && record.ID < 0) {
-                    dispatch(TriggeredEmailDataSourceSlice.DBAction({ verb: 'POST', record: { ...record, Settings: currentSetings.filter(s => s.Value != null) } }))
+                    dispatch(TriggeredEmailDataSourceSlice.DBAction({ verb: 'POST', record: { ...record, Settings: currentSettings.filter(s => s.Value != null) } }))
                 }
                 if (c && record.ID >= 0) {
                     dispatch(TriggeredEmailDataSourceSlice.DBAction({ verb: 'PATCH', record }))
-                    currentSetings.forEach((s) => { if (s.Value != null) dispatch(TriggeredDataSourceSettingSlice.DBAction({ verb: s.ID == 0 ? 'POST' : 'PATCH', record: s }));});
+                    currentSettings.forEach((s) => { if (s.Value != null) dispatch(TriggeredDataSourceSettingSlice.DBAction({ verb: s.ID == 0 ? 'POST' : 'PATCH', record: s }));});
                 }
                 if (!c)
-                    setCurrentSettings(originalsettings);
+                    resetCurrentSettings();
                 props.OnClose();
              }}
             DisableConfirm={(props.Record == null || record == null) || (props.Record.TriggeredEmailDataSourceID == record.TriggeredEmailDataSourceID && changes.length == 0) || errors.length > 0}

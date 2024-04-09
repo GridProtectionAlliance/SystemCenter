@@ -51,7 +51,7 @@ const DataSourceWindow = (props: IProps) => {
             dispatch(TriggeredEmailDataSourceSlice.Fetch(props.Record.ID));
     }, [status, props.Record.ID, emailID]);
 
-    return ( <>
+    return (<>
         <div className="card" style={{ marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
@@ -81,9 +81,9 @@ const DataSourceWindow = (props: IProps) => {
                             rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             selected={() => false}
                         />
-                   </div>      
+                    </div>
                 </div>
-               
+
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
@@ -95,9 +95,9 @@ const DataSourceWindow = (props: IProps) => {
 
         </div>
         <DataSourceModal Record={dataSource} OnClose={() => setDataSource(null)} />
-        <DataSourceTesting Record={props.Record} OnClose={() => setShowTest(false)} Show={showTest}/>;
-        </>
-        )
+        <DataSourceTesting Record={props.Record} OnClose={() => setShowTest(false)} Show={showTest} />
+    </>
+    );
 }
 
 export default DataSourceWindow;
