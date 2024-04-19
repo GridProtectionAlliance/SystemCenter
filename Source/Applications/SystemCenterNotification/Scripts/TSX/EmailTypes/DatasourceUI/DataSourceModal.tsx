@@ -59,19 +59,19 @@ const DataSourceModal = (props: IProps) => {
     const [changes, setChanges] = React.useState<string[]>([]);
 
     const dataSourceUI = React.useMemo(() => {
-        const type = types.find(item => item.ID == record.TriggeredEmailDataSourceID)
-        return AllDataSources.find(ds => ds.Name == type.ConfigUI) ?? {Name: 'standard', UI: defaultDSUI, Defaults: []}
-    }, [types, record.TriggeredEmailDataSourceID])
+        const type = types.find(item => item.ID == dataSourceID);
+        const dataSourceName = type != null ? type.ConfigUI : null;
+        return AllDataSources.find(ds => ds.Name == dataSourceName) ?? { Name: 'standard', UI: defaultDSUI, Defaults: [] };
+    }, [types, dataSourceID]);
 
-    
-    resetCurrentSettings = React.useCallback(() => {
+    const resetCurrentSettings = React.useCallback(() => {
         const d = cloneDeep(originalsettings);
         dataSourceUI.Defaults.forEach((ds) => {
             if (d.find(s => s.Name == ds.Name) == null)
                 d.push({ ...ds, TriggeredEmailDataSourceEmailTypeID: props.Record.ID });
         });
         setCurrentSettings(d);
-    }, [dataSourceUI])
+    }, [originalsettings, dataSourceUI]);
 
     React.useEffect(() => {
         if (typeStatus == 'unintiated' || typeStatus == 'changed')
@@ -84,8 +84,6 @@ const DataSourceModal = (props: IProps) => {
         if (settingStatus == 'unintiated' || settingStatus == 'changed' || settingsParentID != props.Record.ID)
             dispatch(TriggeredDataSourceSettingSlice.Fetch(props.Record.ID));
     }, [settingStatus, props.Record]);
-
-    React.useEffect(() => resetCurrentSettings(), [dataSourceID]);
 
     React.useEffect(() => {
         if (props.Record == null)
@@ -103,11 +101,7 @@ const DataSourceModal = (props: IProps) => {
             setRecord({ ...props.Record, TriggeredEmailDataSourceID: types[0].ID });
     }, [types]);
 
-    React.useEffect(() => {
-        if (props.Record == null)
-            return;
-        resetCurrentSettings();
-    }, [originalsettings]);
+    React.useEffect(() => resetCurrentSettings(), [resetCurrentSettings]);
 
     // Determine Changes to Settings
     React.useEffect(() => {
@@ -170,14 +164,14 @@ const DataSourceModal = (props: IProps) => {
                 {errors.map((e, i) => <p key={i}> {CrossMark} {e} </p>)}
             </>}
         >
-            <dataSourceUI.UI
+            {record == null ? null : <dataSourceUI.UI
                 DataSourceID={record.ID}
                 SetErrors={setErrors}
                 SetSetting={updateSettings}
                 Settings={currentSettings}
-             > 
+            >
                 {StandardUI()}
-            </dataSourceUI.UI>
+            </dataSourceUI.UI>}
         </Modal>
         )
 }
@@ -197,4 +191,4 @@ export interface DataSourceSettingUI {
     Name: string
 }
 
-const defaultDSUI: React.FC<ISettingsUIProps> = (props) => props.children;
+const defaultDSUI: React.FC<ISettingsUIProps> = (props) => <>{props.children}</>;
