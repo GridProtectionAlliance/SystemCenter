@@ -38,7 +38,7 @@
     "@reduxjs/toolkit": "1.8.3",
     "assert": "2.0.0",
     "buffer": "6.0.3",
-    "crypto-js": "4.0.0",
+    "crypto-js": "4.2.0",
     "history": "5.2.0",
     "jquery": "3.6.0",
     "lodash": "4.17.21",
