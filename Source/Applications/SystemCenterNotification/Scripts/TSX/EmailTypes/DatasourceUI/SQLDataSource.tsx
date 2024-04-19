@@ -47,7 +47,7 @@ const SQLDataSource: React.FC<ISettingsUIProps> = (props) => {
 
     React.useEffect(() => {
         let e = [];
-        if (props.Settings.find(s => s.Name != 'DataProviderString') == null || props.Settings.find(s => s.Name == 'DataProviderString').Value.length <= 1)
+        if (props.Settings.find(s => s.Name == 'DataProviderString') == null || props.Settings.find(s => s.Name == 'DataProviderString').Value.length <= 1)
             e.push("A Data Provider String is required");
         if (props.Settings.find(s => s.Name == 'SQLStatement') == null || props.Settings.find(s => s.Name == 'SQLStatement').Value.length <= 1)
             e.push('A SQL Query is required')
@@ -86,7 +86,7 @@ const SQLDataSource: React.FC<ISettingsUIProps> = (props) => {
                             <label>Data Provider String</label>
                             <textarea
                                 rows={2}
-                                className={props.Settings.find(s => s.Name != 'DataProviderString') != null && props.Settings.find(s => s.Name == 'DataProviderString').Value.length > 1? 'form-control' : 'form-control is-invalid'}
+                                className={props.Settings.find(s => s.Name == 'DataProviderString') != null && props.Settings.find(s => s.Name == 'DataProviderString').Value.length > 1? 'form-control' : 'form-control is-invalid'}
                                 onChange={(evt) => {
                                     if (evt.target.value !== '')
                                         props.SetSetting({
@@ -141,4 +141,4 @@ const SQLDataSource: React.FC<ISettingsUIProps> = (props) => {
         )
 }
 
-export default { UI: SQLDataSource, Defaults: DefaultSettings} as DataSourceSettingUI
+export default { UI: SQLDataSource, Defaults: DefaultSettings, Name: 'sql'} as DataSourceSettingUI
