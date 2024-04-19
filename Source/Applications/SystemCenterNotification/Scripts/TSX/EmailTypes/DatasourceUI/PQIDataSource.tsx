@@ -49,4 +49,4 @@ const PQIDataSource: React.FC<ISettingsUIProps> = (props) => {
         )
 }
 
-export default { UI: PQIDataSource, Defaults: DefaultSettings} as DataSourceSettingUI
+export default { UI: PQIDataSource, Defaults: DefaultSettings, Name: 'pqi'} as DataSourceSettingUI

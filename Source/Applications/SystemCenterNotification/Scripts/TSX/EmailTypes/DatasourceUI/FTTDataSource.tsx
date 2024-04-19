@@ -308,4 +308,4 @@ const FTTDataSource: React.FC<ISettingsUIProps> = (props) => {
     );
 }
 
-export default { UI: FTTDataSource, Defaults: DefaultSettings} as DataSourceSettingUI
+export default { UI: FTTDataSource, Defaults: DefaultSettings, Name: 'ftt'} as DataSourceSettingUI

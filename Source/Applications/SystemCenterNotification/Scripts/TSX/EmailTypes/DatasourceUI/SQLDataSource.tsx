@@ -141,4 +141,4 @@ const SQLDataSource: React.FC<ISettingsUIProps> = (props) => {
         )
 }
 
-export default { UI: SQLDataSource, Defaults: DefaultSettings} as DataSourceSettingUI
+export default { UI: SQLDataSource, Defaults: DefaultSettings, Name: 'sql'} as DataSourceSettingUI

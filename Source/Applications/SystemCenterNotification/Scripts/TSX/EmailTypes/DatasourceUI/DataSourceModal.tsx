@@ -41,6 +41,8 @@ interface IProps {
     OnClose: () => void
 }
 
+const AllDataSources: DataSourceSettingUI[] = [SQLDataSource, PQIDataSource, FTTDataSource];
+
 const DataSourceModal = (props: IProps) => {
     const dispatch = useAppDispatch();
     const typeStatus = useAppSelector(TriggeredDataSourceSlice.Status);
@@ -56,15 +58,20 @@ const DataSourceModal = (props: IProps) => {
     const [errors, setErrors] = React.useState<string[]>([]);
     const [changes, setChanges] = React.useState<string[]>([]);
 
-    function resetCurrentSettings() {
+    const dataSourceUI = React.useMemo(() => {
+        const type = types.find(item => item.ID == record.TriggeredEmailDataSourceID)
+        return AllDataSources.find(ds => ds.Name == type.ConfigUI) ?? {Name: 'standard', UI: defaultDSUI, Defaults: []}
+    }, [types, record.TriggeredEmailDataSourceID])
+
+    
+    resetCurrentSettings = React.useCallback(() => {
         const d = cloneDeep(originalsettings);
-        getDefaults().forEach((ds) => {
+        dataSourceUI.Defaults.forEach((ds) => {
             if (d.find(s => s.Name == ds.Name) == null)
                 d.push({ ...ds, TriggeredEmailDataSourceEmailTypeID: props.Record.ID });
         });
-        console.log(d);
         setCurrentSettings(d);
-    }
+    }, [dataSourceUI])
 
     React.useEffect(() => {
         if (typeStatus == 'unintiated' || typeStatus == 'changed')
@@ -115,53 +122,6 @@ const DataSourceModal = (props: IProps) => {
         setChanges(w);
     }, [originalsettings, currentSettings]);
 
-    function getUI() {
-        if (record == null)
-            return null;
-        const type = types.find(item => item.ID == record.TriggeredEmailDataSourceID)
-        if (type == null)
-            return StandardUI();
-
-        if (type.ConfigUI == 'sql')
-            return <SQLDataSource.UI
-                DataSourceID={record.ID}
-                SetErrors={setErrors}
-                SetSetting={updateSettings}
-                Settings={currentSettings}
-            > {StandardUI()}</SQLDataSource.UI>;
-        if (type.ConfigUI == 'pqi')
-            return <PQIDataSource.UI
-                DataSourceID={record.ID}
-                SetErrors={setErrors}
-                SetSetting={updateSettings}
-                Settings={currentSettings}
-            > {StandardUI()}</PQIDataSource.UI>;
-        if (type.ConfigUI == 'ftt')
-            return <FTTDataSource.UI
-                DataSourceID={record.ID}
-                SetErrors={setErrors}
-                SetSetting={updateSettings}
-                Settings={currentSettings}
-            > {StandardUI()}</FTTDataSource.UI>;
-
-        return null;
-    }
-
-    function getDefaults() {
-        if (record == null)
-            return [];
-        const type = types.find(item => item.ID == record.TriggeredEmailDataSourceID)
-        if (type == null)
-            return [];
-
-        if (type.ConfigUI == 'sql')
-            return SQLDataSource.Defaults;
-        if (type.ConfigUI == 'pqi')
-            return PQIDataSource.Defaults;
-        if (type.ConfigUI == 'ftt')
-            return FTTDataSource.Defaults;
-        return [];
-    }
     function StandardUI() {
         return <div className="row">
                 <div className="col">
@@ -210,7 +170,14 @@ const DataSourceModal = (props: IProps) => {
                 {errors.map((e, i) => <p key={i}> {CrossMark} {e} </p>)}
             </>}
         >
-            {getUI()}
+            <dataSourceUI.UI
+                DataSourceID={record.ID}
+                SetErrors={setErrors}
+                SetSetting={updateSettings}
+                Settings={currentSettings}
+             > 
+                {StandardUI()}
+            </dataSourceUI.UI>
         </Modal>
         )
 }
@@ -227,5 +194,7 @@ export interface ISettingsUIProps {
 export interface DataSourceSettingUI {
     UI: React.FC<ISettingsUIProps>,
     Defaults: ITriggeredEmailDataSourceSetting[],
-
+    Name: string
 }
+
+const defaultDSUI: React.FC<ISettingsUIProps> = (props) => props.children;
