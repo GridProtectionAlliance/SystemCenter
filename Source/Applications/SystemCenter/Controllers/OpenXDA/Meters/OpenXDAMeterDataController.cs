@@ -94,9 +94,7 @@ namespace SystemCenter.Controllers.OpenXDA.Meters
                 DeleteDuplicateRecords(connection, "MeterDataQualitySummary", new[] { "Date" }, fromMeterID, toMeterID);
                 DeleteDuplicateRecords(connection, "MeterFacility", new[] { "FacilityID" }, fromMeterID, toMeterID);
                 DeleteDuplicateRecords(connection, "PQMarkAggregate", new[] { "Year", "Month" }, fromMeterID, toMeterID);
-                DeleteDuplicateRecords(connection, "PQTrendStat", new[] { "PQMeasurementTypeID", "Date" }, fromMeterID, toMeterID);
                 DeleteDuplicateRecords(connection, "Report", new[] { "Year", "Month" }, fromMeterID, toMeterID);
-                DeleteDuplicateRecords(connection, "StepChangeStat", new[] { "StepChangeMeasurementID", "Date" }, fromMeterID, toMeterID);
 
                 DisableChannels(connection, fromMeterID);
                 MoveRecords(connection, "Channel", fromMeterID, toMeterID);
@@ -107,9 +105,7 @@ namespace SystemCenter.Controllers.OpenXDA.Meters
                 MoveRecords(connection, "MeterDataQualitySummary", fromMeterID, toMeterID);
                 MoveRecords(connection, "MeterFacility", fromMeterID, toMeterID);
                 MoveRecords(connection, "PQMarkAggregate", fromMeterID, toMeterID);
-                MoveRecords(connection, "PQTrendStat", fromMeterID, toMeterID);
                 MoveRecords(connection, "Report", fromMeterID, toMeterID);
-                MoveRecords(connection, "StepChangeStat", fromMeterID, toMeterID);
 
                 CascadeDelete(connection, "Meter", $"ID = {fromMeterID}");
             }
