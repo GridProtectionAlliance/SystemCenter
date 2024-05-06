@@ -23,37 +23,17 @@
 
 import { useAppDispatch } from '../../hooks';
 import * as React from 'react';
-import { LoadingIcon, Modal, ToolTip, ServerErrorIcon } from '@gpa-gemstone/react-interactive'
-import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
-import { EmailType, IDataSourceTriggeredEmailType, IEvent, ITriggeredDataSource, ITriggeredEmailDataSourceSetting } from '../../global';
-import { TriggeredDataSourceSettingSlice, TriggeredDataSourceSlice, TriggeredEmailDataSourceSlice } from '../../Store';
-import { Select } from '@gpa-gemstone/react-forms';
-import SQLDataSource from './SQLDataSource';
-import { cloneDeep } from 'lodash'
+import { LoadingIcon, Modal, ServerErrorIcon } from '@gpa-gemstone/react-interactive'
+import { CrossMark, SVGIcons } from '@gpa-gemstone/gpa-symbols';
+import { EmailType, ITriggeredDataSource } from '../../global';
 import EventSelect from '../TriggerUI/EventSelect';
 import * as $ from 'jquery';
 import { Application } from '@gpa-gemstone/application-typings';
 import { pd } from 'pretty-data';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 
 declare var homePath;
 declare var version;
-
-// #ToDO move to gpa-gemstone
-const CircledX = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-    fill="currentColor" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-    className="feather feather-file-text">
-        <circle stroke="rgb(139, 0, 0)" fill={'none'} cx="12" cy="12" r="11"/>
-        <path stroke="rgb(139, 0, 0)" strokeWidth={3} d="M 6 6 L 18 18" />
-        <path stroke="rgb(139, 0, 0)" strokeWidth={3} d="M 18 6 L 6 18" />
-    </svg>
-
-const CircleCheck = <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-    viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="2"
-    strokeLinecap="round" strokeLinejoin="round" className="feather feather-file-text">
-        <circle stroke="rgb(0, 100, 0)" fill={'none'} cx="12" cy="12" r="11" />
-    <path stroke="rgb(0, 100, 0)" fill={'none'}  strokeWidth={3} d="M 5 15 L 10 20 L 18 5"/>
-    </svg>
 
 interface IProps {
     Record: EmailType,
@@ -127,50 +107,65 @@ const DataSourceTesting = (props: IProps) => {
                 {step == 2 && status == 'loading' ? <LoadingIcon Show={true} /> : null}
                 {step == 2 && status == 'error' ? <ServerErrorIcon Show={true} Label={'Unable to process this event. Please check your Data Sources.'} /> : null}
                 {step == 2 && status == 'idle' ? 
-                    <div className="row">
-                        <div className="col-4">
-                            <Table<IResults>
-                                cols={[
-                                    {
-                                        key: 'Success', field: 'Success', label: '', headerStyle: { width: 'auto' },
-                                        rowStyle: { width: 'auto' },
-                                        content: (item) => (item.Created && item.Success) ? CircleCheck : CircledX
-                                    },
-                                    {
-                                        key: 'Name', field: 'Model', label: '', headerStyle: { width: 'auto' },
-                                        rowStyle: { width: 'auto', fontWeight: 'bold' },
-                                        content: (item) => `${item.Model.Name}`
-                                    },
-                                ]}
-                                data={data}
-                                sortKey={'Error'}
-                                ascending={false}
-                                onSort={() => { }}
-                                onClick={(item) => { setSelectedSource(item.row); }}
-                                theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                tbodyStyle={{ display: 'block', overflowY: 'scroll', height: 'calc(100 % - 50 px)', width: '100%' }}
-                                rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                selected={(item) => selectedSource !== null && selectedSource.Model.ID == item.Model.ID }
-                            />
+                        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className="col-4" style={{ height: '100%', overflow: 'hidden' }}>
+                                    <ReactTable.Table<IResults>
+                                        TableClass="table table-hover"
+                                        Data={data}
+                                        SortKey={'Error'}
+                                        Ascending={false}
+                                        OnSort={() => { }}
+                                        OnClick={(item) => setSelectedSource(item.row)}
+                                        TableStyle={{
+                                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                        }}
+                                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        Selected={(item) => selectedSource !== null && selectedSource.Model.ID == item.Model.ID}
+                                        KeySelector={(item, index) => index}
+                                    >
+                                        <ReactTable.Column<IResults>
+                                            Key={'Success'}
+                                            AllowSort={false}
+                                            Field={'Success'}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                            Content={({ item }) => (item.Created && item.Success) ? SVGIcons.CircleCheck : SVGIcons.CircledX }
+                                        > Data Source
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<IResults>
+                                            Key={'Name'}
+                                            AllowSort={false}
+                                            Field={'Model'}
+                                            HeaderStyle={{ width: 'auto' }}
+                                            RowStyle={{ width: 'auto' }}
+                                            Content={({ item }) => item.Model.Name}
+                                        > 
+                                        </ReactTable.Column>
+                                    </ReactTable.Table>
+                                </div>
+                                <div className="col-8">
+                                    {selectedSource != null ? (selectedSource.Success? <div className="form-group">
+                                        <label>Data</label>
+                                        <textarea
+                                            rows={10}
+                                            className={'form-control'}
+                                            disabled={true}
+                                            value={pd.xml(selectedSource.Data)}
+                                        />
+                                    </div> :
+                                        <div className="alert alert-danger">
+                                            An error occured processing this datasource: {selectedSource.Exception?.Message}
+                                        </div>) :
+                                        <div className="alert alert-info">
+                                        Select a DataSource on the left to see it's return
+                                    </div> }
+                                </div>
+                            </div>
                         </div>
-                        <div className="col-8">
-                            {selectedSource != null ? (selectedSource.Success? < div className="form-group">
-                                <label>Data</label>
-                                <textarea
-                                    rows={10}
-                                    className={'form-control'}
-                                    disabled={true}
-                                    value={pd.xml(selectedSource.Data)}
-                                />
-                            </div> :
-                                <div className="alert alert-danger">
-                                    An error occured processing this datasource: {selectedSource.Exception?.Message}
-                                </div>) :
-                                <div className="alert alert-info">
-                                Select a DataSource on the left to see it's return
-                            </div> }
-                        </div>
-                    </div>
                     : null}
             </div>
         </Modal>
