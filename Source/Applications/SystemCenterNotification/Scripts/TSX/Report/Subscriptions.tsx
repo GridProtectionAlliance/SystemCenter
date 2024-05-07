@@ -23,11 +23,10 @@
 
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { LoadingScreen, Modal, Search, SearchBar, TabSelector, ToolTip, Warning } from '@gpa-gemstone/react-interactive'
-import {  HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { LoadingScreen } from '@gpa-gemstone/react-interactive'
 import {  ScheduledEmailType, SubscribeReports } from '../global';
 import { ReportSubscriptionSlice } from '../Store';
-import Table, { Column } from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import * as $ from 'jquery';
 import { Application } from '@gpa-gemstone/application-typings';
 
@@ -35,7 +34,6 @@ declare var homePath;
 declare var version;
 
 interface IProps { Record: ScheduledEmailType }
-
 
 
 const Subscriptions = (props: IProps) => {

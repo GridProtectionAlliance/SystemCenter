@@ -25,16 +25,15 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
 import {ToolTip } from '@gpa-gemstone/react-interactive'
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
-import {  EmailType, ScheduledEmailType } from '../global';
-import {  ScheduledEmailTypeSlice } from '../Store';
-import { IsCron, IsNumber } from '@gpa-gemstone/helper-functions';
+import { ScheduledEmailType } from '../global';
+import { ScheduledEmailTypeSlice } from '../Store';
+import { IsCron } from '@gpa-gemstone/helper-functions';
 import ReportForm from './ReportForm';
 
 declare var homePath;
 declare var version;
 
 interface IProps { Record: ScheduledEmailType }
-
 
 
 const GeneralInfo = (props: IProps) => {
@@ -61,7 +60,6 @@ const GeneralInfo = (props: IProps) => {
         setErrors(e);
     }, [email])
 
-
     React.useEffect(() => {
         setEmail(props.Record);
     }, [props.Record])
@@ -80,43 +78,46 @@ const GeneralInfo = (props: IProps) => {
 
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Report Information:</h4>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col">
+                                <h4>Report Information:</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <ReportForm record={email} setRecord={(e) => { setEmail(e); }} />
+                    </div>
+                    <div className="card-footer">
+                        <div className="btn-group mr-2">
+                            <button className={"btn btn-primary" + (errors.length == 0 && hasChanged ? '' : ' disabled')} type="submit"
+                                onClick={() => { if (errors.length == 0 && hasChanged) dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email })); }}
+                                data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                        </div>
+                        <div className="btn-group mr-2">
+                            <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
+                                onClick={() => { setEmail(props.Record); setHasChanged(false); }}
+                                onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <ReportForm record={email} setRecord={(e) => { setEmail(e); }} />
-            </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + (errors.length == 0 && hasChanged ? '' : ' disabled')} type="submit"
-                        onClick={() => { if (errors.length == 0 && hasChanged) dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email })); }}
-                        data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
-                </div>
-                <ToolTip Show={(errors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                    {!hasChanged ? <p> No changes made.</p> : null}
-                    {errors.map((t, i) => <p key={i}>
-                        {CrossMark} {t}
-                    </p>)}
-                </ToolTip>
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
-                        onClick={() => { setEmail(props.Record); setHasChanged(false); }}
-                        onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
-                </div>
-                <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
-                    {props.Record.Name != email.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
-                    {props.Record.EmailCategoryID != email.EmailCategoryID ? <p> {Warning} Changes to Category will be discarded.</p> : null}
-                    {props.Record.SMS != email.SMS ? <p> {Warning} Changes to delivery type will be discarded.</p> : null}
-                    {props.Record.Schedule != email.Schedule ? <p> {Warning} Changes to schedule will be discarded.</p> : null}
-                    {props.Record.FilePath != email.FilePath ? <p> {Warning} Changes to the file path will be discarded.</p> : null}
-                </ToolTip>
-            </div>
-
+            <ToolTip Show={(errors.length > 0 || !hasChanged) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+                {!hasChanged ? <p> No changes made.</p> : null}
+                {errors.map((t, i) => <p key={i}>
+                    {CrossMark} {t}
+                </p>)}
+            </ToolTip>
+            <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+                {props.Record.Name != email.Name ? <p> {Warning} Changes to Name will be discarded.</p> : null}
+                {props.Record.EmailCategoryID != email.EmailCategoryID ? <p> {Warning} Changes to Category will be discarded.</p> : null}
+                {props.Record.SMS != email.SMS ? <p> {Warning} Changes to delivery type will be discarded.</p> : null}
+                {props.Record.Schedule != email.Schedule ? <p> {Warning} Changes to schedule will be discarded.</p> : null}
+                {props.Record.FilePath != email.FilePath ? <p> {Warning} Changes to the file path will be discarded.</p> : null}
+            </ToolTip>
         </div>
         )
 }
