@@ -115,7 +115,12 @@ const EmailPage = (props: IProps) => {
 
             <TestEmail show={showTest} OnClose={() => setShowTest(false)} record={email} />
             <Warning Message={'This will permanently delete this notification and can not be undone.'} Show={showDelete} Title={'Delete ' + (email !== undefined? email.Name : '')}
-                CallBack={(conf) => { if (conf) dispatch(EmailTypeSlice.DBAction({ verb: 'DELETE', record: email })); }} />
+                CallBack={(conf) => {
+                    if (conf) {
+                        dispatch(EmailTypeSlice.DBAction({ verb: 'DELETE', record: email }));
+                        window.location.href = `${homePath}EventEmails`;
+                    }
+                }} />
         </div>)
 }
 
