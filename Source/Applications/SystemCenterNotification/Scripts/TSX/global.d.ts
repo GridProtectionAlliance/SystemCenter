@@ -57,7 +57,9 @@ export interface ScheduledEmailType {
     Template: string,
     TriggerEmailSQL: string,
     SMS: boolean,
-    FilePath: string | null
+    FilePath: string | null,
+    ShowSubscription: boolean,
+    RequireApproval: boolean
 }
 
 export interface SubscribeEmails {

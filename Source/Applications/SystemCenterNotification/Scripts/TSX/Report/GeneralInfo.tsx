@@ -69,6 +69,8 @@ const GeneralInfo = (props: IProps) => {
         h = h && email.Name == props.Record.Name;
         h = h && email.EmailCategoryID == props.Record.EmailCategoryID;
         h = h && email.Schedule == props.Record.Schedule;
+        h = h && email.ShowSubscription == props.Record.ShowSubscription;
+        h = h && email.RequireApproval == props.Record.RequireApproval;
 
         h = h && email.FilePath == props.Record.FilePath;
         h = h && email.SMS == props.Record.SMS;
@@ -94,7 +96,12 @@ const GeneralInfo = (props: IProps) => {
                     <div className="card-footer">
                         <div className="btn-group mr-2">
                             <button className={"btn btn-primary" + (errors.length == 0 && hasChanged ? '' : ' disabled')} type="submit"
-                                onClick={() => { if (errors.length == 0 && hasChanged) dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email })); }}
+                                onClick={() => {
+                                    if (errors.length == 0 && hasChanged) {
+                                        console.log(email)
+                                        dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email }));
+                                    }
+                                }}
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
                         <div className="btn-group mr-2">

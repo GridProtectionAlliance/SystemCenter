@@ -59,6 +59,8 @@ const ByReport = (props: IProps) => {
         SMS: false, TriggerEmailSQL: 'SELECT 1',
         EmailCategoryID: -1, Template: '',
         Schedule: '23 59 * * *',
+        ShowSubscription: true,
+        RequireApproval: false,
     } as ScheduledEmailType
     const [newEmail, setNewEmail] = React.useState<ScheduledEmailType>(emptyEmail);
 
@@ -177,6 +179,24 @@ const ByReport = (props: IProps) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => item.SMS ? HeavyCheckMark : CrossMark }
                         > Text Message
+                        </ReactTable.Column>
+                        <ReactTable.Column<ScheduledEmailType>
+                            Key={'ShowSubscription'}
+                            AllowSort={true}
+                            Field={'ShowSubscription'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                            Content={({ item }) => item.ShowSubscription ? HeavyCheckMark : CrossMark }
+                        > Self Subscription
+                        </ReactTable.Column>
+                        <ReactTable.Column<ScheduledEmailType>
+                            Key={'RequireApproval'}
+                            AllowSort={true}
+                            Field={'RequireApproval'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => item.RequireApproval ? HeavyCheckMark : CrossMark }
+                        > Requires Approval
                         </ReactTable.Column>
                     </ReactTable.Table>
                 </div>

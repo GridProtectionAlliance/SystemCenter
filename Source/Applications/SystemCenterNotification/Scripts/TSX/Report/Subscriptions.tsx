@@ -23,8 +23,9 @@
 
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { LoadingScreen } from '@gpa-gemstone/react-interactive'
-import {  ScheduledEmailType, SubscribeReports } from '../global';
+import { LoadingScreen } from '@gpa-gemstone/react-interactive';
+import { HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import { ScheduledEmailType, SubscribeReports } from '../global';
 import { ReportSubscriptionSlice } from '../Store';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import * as $ from 'jquery';
@@ -82,63 +83,101 @@ const Subscriptions = (props: IProps) => {
         }, () => { setApprovalStatus('error'); });
     }
 
-    const tblColumns: Column<SubscribeReports>[] = [
-        { key: 'FirstName', field: 'FirstName', label: 'First Name', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
-        { key: 'LastName', field: 'LastName', label: 'Last Name', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
-        { key: 'Email', field: 'Email', label: 'Email', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } },
-        { key: 'AssetGroup', field: 'AssetGroup', label: 'Assets', headerStyle: { width: '20%' }, rowStyle: { width: '20%' } }
-    ]
-    /*if (props.Record)
-        tblColumns.push(
-            {
-                key: 'Approved', field: 'Approved', label: 'Approved', headerStyle: { width: '20%' }, rowStyle: { width: '20%' }, content: (item) => item.Approved ? HeavyCheckMark :
-                    <button type="button" className="btn btn-primary btn-sm" onClick={() => approve(item)}>Approve</button>
-            });
-            */
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Subscriptions:</h4>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col-6 align-self-center">
+                                <h4>Subscriptions:</h4>
+                            </div>
+                            <div className="col-6 align-self-center">
+                                {props.Record.RequireApproval ?
+                                    <button className="btn btn-danger float-right"
+                                        disabled={!subscriptions.some(s => !s.Approved)}
+                                        onClick={() => approveAll()}>
+                                        Approve All
+                                    </button> : null}
+                            </div>
+                        </div>
                     </div>
-                    <div className="col">
-                        {/*props.Record.RequireApproval ?
-                            <button className="btn btn-danger float-right"
-                                disabled={!subscriptions.some(s => !s.Approved)}
-                                onClick={() => approveAll()}>
-                                Approve All
-                            </button> : null*/}
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
+                                    <LoadingScreen Show={status == 'loading' || approvalStatus == 'loading'} />
+                                    <ReactTable.Table<SubscribeReports>
+                                        TableClass="table table-hover"
+                                        Data={subscriptions}
+                                        SortKey={sortKey}
+                                        Ascending={asc}
+                                        OnSort={(d) => {
+                                            if (d.colKey === null) return;
+                                            dispatch(ReportSubscriptionSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                                        }}
+                                        TableStyle={{
+                                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                        }}
+                                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        Selected={(item) => false}
+                                        KeySelector={(item) => item.ID}
+                                    >
+                                        <ReactTable.Column<SubscribeReports>
+                                            Key={'FirstName'}
+                                            AllowSort={true}
+                                            Field={'FirstName'}
+                                            HeaderStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
+                                            RowStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
+                                        > First Name
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<SubscribeReports>
+                                            Key={'LastName'}
+                                            AllowSort={true}
+                                            Field={'LastName'}
+                                            HeaderStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
+                                            RowStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
+                                        > Last Name
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<SubscribeReports>
+                                            Key={'Email'}
+                                            AllowSort={true}
+                                            Field={'Email'}
+                                            HeaderStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
+                                            RowStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
+                                        > Email
+                                        </ReactTable.Column>
+                                        <ReactTable.Column<SubscribeReports>
+                                            Key={'AssetGroup'}
+                                            AllowSort={true}
+                                            Field={'AssetGroup'}
+                                            HeaderStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
+                                            RowStyle={{ width: props.Record.RequireApproval ? '20%' : '25%' }}
+                                        > Assets
+                                        </ReactTable.Column>
+                                        {props.Record.RequireApproval ?
+                                            <ReactTable.Column<SubscribeReports>
+                                                Key={'Approved'}
+                                                AllowSort={true}
+                                                Field={'Approved'}
+                                                HeaderStyle={{ width: '20%' }}
+                                                RowStyle={{ width: '20%' }}
+                                                Content={({ item }) => item.Approved ? HeavyCheckMark :
+                                                    <button type="button" className="btn btn-primary btn-sm" onClick={() => approve(item)}>Approve</button>}
+                                            > Approved
+                                            </ReactTable.Column>
+                                        : null}
+                                    </ReactTable.Table>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <LoadingScreen Show={status == 'loading' || approvalStatus == 'loading'} />
-                <Table<SubscribeReports>
-                    cols={tblColumns}
-                    tableClass="table table-hover"
-                    data={subscriptions}
-                    sortKey={sortKey}
-                    ascending={asc}
-                    onSort={(d) => {
-                        if (d.colKey === 'scroll' || d.colKey === 'undefined')
-                            return
-                        if (d.colField === sortKey)
-                            dispatch(ReportSubscriptionSlice.Sort({ SortField: sortKey, Ascending: asc }));
-                        else
-                            dispatch(ReportSubscriptionSlice.Sort({ SortField: d.colField, Ascending: true }));
-                    }}
-                    onClick={(item) => { }}
-                    theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    selected={() => false}
-                />
-            </div>
-            <div className="card-footer">
-            </div>
-
         </div>
         )
 }
