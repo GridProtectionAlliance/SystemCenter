@@ -128,7 +128,7 @@ const DataSourceTesting = (props: IProps) => {
                                     HeaderStyle={{ width: 'auto' }}
                                     RowStyle={{ width: 'auto' }}
                                     Content={({ item }) => item.Model.Name}
-                                >
+                                > <p></p>
                                 </ReactTable.Column>
                             </ReactTable.Table>
                         </div>
