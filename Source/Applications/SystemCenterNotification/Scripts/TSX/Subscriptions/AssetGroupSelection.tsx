@@ -23,10 +23,11 @@
 import * as React from 'react';
 import { LoadingIcon, Search, Warning } from '@gpa-gemstone/react-interactive'
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
-import { AssetGroupSlice, EmailCategorySlice, EmailTypeSlice } from '../Store';
+import { AssetGroupSlice } from '../Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as $ from 'jquery';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
+import { Select } from '@gpa-gemstone/react-forms';
 
 declare var homePath;
 declare var version;
@@ -41,7 +42,17 @@ const AssetGroupSelection = (props: IProps) => {
     const [parentGroups, setParentGroups] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
     const [parentGroupState, setParentGroupState] = React.useState<Application.Types.Status>('unintiated');
 
-    const [selectedParent, setSelectedParent] = React.useState<number>(-1);
+    const otherParent = {
+        ID: -1,
+        Name: 'Other',
+        DisplayDashboard: false,
+        AssetGroups: 0,
+        Meters: 0,
+        Assets: 0,
+        Users: 0,
+        DisplayEmail: false
+    };
+    const [selectedParent, setSelectedParent] = React.useState<OpenXDA.Types.AssetGroup>(otherParent);
     const assetGrpStatus = useAppSelector(AssetGroupSlice.Status);
     const assetGrps = useAppSelector(AssetGroupSlice.SearchResults);
 
@@ -57,10 +68,10 @@ const AssetGroupSelection = (props: IProps) => {
 
     React.useEffect(() => {
         const flt: Search.IFilter<OpenXDA.Types.AssetGroup> = { FieldName: 'ID', IsPivotColumn: false, SearchText: `(SELECT ChildAssetGroupID FROM AssetGroupAssetGroup WHERE ParentAssetGroupID = ${selectedParent})`, Type: 'query', Operator: 'IN' }
-        if (selectedParent == -1) {
+        if (selectedParent.ID == -1) {
             flt.SearchText = " (SELECT ChildAssetGroupID FROM AssetGroupAssetGroup X WHERE X.ParentAssetGroupID IN (SELECT ID FROM AssetGroup Y WHERE Y.DisplayEmail =1))";
             flt.Operator = "NOT IN"
-            }
+        }
         dispatch(AssetGroupSlice.DBSearch({ ascending: asc, sortField: sort, filter: [flt] }));
     }, [asc, sort, selectedParent])
 
@@ -68,15 +79,15 @@ const AssetGroupSelection = (props: IProps) => {
         if (parentGroups.length > 0) {
             const keys = localStorage.getItem("SystemCenter.Notifications.SelectedGroup");
             if (keys == null || parentGroups.findIndex(e => e.ID == parseInt(keys)) < 0)
-                setSelectedParent(parentGroups[0].ID);
-            else
-                setSelectedParent(parseInt(keys));
+                setSelectedParent(otherParent);
+            else if (selectedParent.ID != parseInt(keys))
+                setSelectedParent(parentGroups.find(p => p.ID == parseInt(keys)));
         }
     }, [selectedParent])
 
     React.useEffect(() => {
-        if (selectedParent !== -1)
-            localStorage.setItem("SystemCenter.Notifications.SelectedGroup", selectedParent.toString());
+        if (selectedParent.ID !== -1)
+            localStorage.setItem("SystemCenter.Notifications.SelectedGroup", selectedParent.ID.toString());
     }, [selectedParent]);
 
     function getParents() {
@@ -110,60 +121,67 @@ const AssetGroupSelection = (props: IProps) => {
     }
 
     return (
-        <>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
+            <LoadingIcon Show={parentGroupState == 'loading' || assetGrpStatus == 'loading'} />
             <div className="row">
                 <div className="col">
                     <div className="form-group">
-                        {parentGroupState == 'loading' ? <LoadingIcon Show={true}/>:
-                            <><label> Asset Category </label>
-                        <select
-                            className="form-control"
-                            onChange={(evt) => {
-                                setSelectedParent(parseInt((evt.target.value as any).toString()));
-                            }}
-                            value={selectedParent}
-                        >
-                            {parentGroups.map((c, i) => (
-                                <option key={i} value={c.ID}>
-                                    {c.Name}
-                                </option>
-                            ))}
-                            <option value={-1}>
-                                Other
-                            </option>
-                        </select></>}
+                        <Select<OpenXDA.Types.AssetGroup> Record={selectedParent} Field={'ID'} Label='Asset Category' Setter={setSelectedParent}
+                            Options={[{ Label: 'Other', Value: '-1' }].concat(parentGroups.map((p) => {
+                                return { Label: p.Name, Value: p.ID.toString() }
+                            }))} />
                     </div>
                 </div>
-                <div className="col">
-                    {assetGrpStatus == 'loading' ? <LoadingIcon Show={true} /> :
-                        <Table<OpenXDA.Types.AssetGroup>
-                            cols={[
-                                { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'Meters', field: 'Meters', label: 'Num. Meters', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'Assets', field: 'Assets', label: 'Num. Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                                { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                            ]}
-                            tableClass="table table-hover"
-                            data={assetGrps}
-                            sortKey={sort}
-                            ascending={asc}
-                            onSort={(d) => {
-                                if (d.colKey === "Scroll")
-                                    return;
-
-                                if (d.colKey === sort)
-                                    setAsc(x => !x);
-                                else {
-                                    setAsc(false);
-                                    setSort(d.colField);
-                                }
-                            }}
-                            onClick={handleSelected}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', height: window.innerHeight - 550, width: '100%' }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={(item) => props.assetGroupID.includes(item.ID)}
-                        />}
+                <div className='col'>
+                    <ReactTable.Table<OpenXDA.Types.AssetGroup>
+                        TableClass="table table-hover"
+                        Data={assetGrps}
+                        SortKey={sort}
+                        Ascending={asc}
+                        OnSort={(d) => {
+                            if (d.colKey === sort)
+                                setAsc(x => !x);
+                            else {
+                                setAsc(false);
+                                setSort(d.colField);
+                            }
+                        }}
+                        OnClick={handleSelected}
+                        TableStyle={{
+                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                        }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => props.assetGroupID.includes(item.ID)}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                            Key={'Meters'}
+                            AllowSort={true}
+                            Field={'Meters'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Num. Meters
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.AssetGroup>
+                            Key={'Assets'}
+                            AllowSort={true}
+                            Field={'Assets'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Num. Assets
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <Warning
@@ -172,7 +190,7 @@ const AssetGroupSelection = (props: IProps) => {
                 Show={showWarning}
                 CallBack={(c) => { setShowWarning(false); }}
             />
-        </>
+        </div>
     );
 }
 
