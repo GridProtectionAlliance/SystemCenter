@@ -164,7 +164,7 @@ const ByAllSubscription = (props: IProps) => {
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
                         RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(item) => false}
-                        KeySelector={(item, index) => item.ID}
+                        KeySelector={(item, index) => index}
                     >
                         <ReactTable.Column<ActiveSubscription>
                             Key={'Category'}
