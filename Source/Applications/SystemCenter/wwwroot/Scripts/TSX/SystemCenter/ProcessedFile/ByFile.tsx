@@ -64,6 +64,17 @@ const ByFile: Application.Types.iByComponent = (props) => {
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [page, setPage] = React.useState<number>(currentPage);
     const totalRecords = useAppSelector(DataFileSlice.TotalRecords);
+    const [update, setUpdate] = React.useState<boolean>(false);
+
+    React.useEffect(() => {
+        const h = setTimeout(() => {
+            setUpdate((a) => !a);
+        }, 60000);
+
+        return () => {
+            if (h !== null) clearTimeout(h);
+        };
+    }, [update]);
 
     React.useEffect(() => {
         dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search, page }))
@@ -80,6 +91,10 @@ const ByFile: Application.Types.iByComponent = (props) => {
         const h = loadEvents(selectedID.ID);
         return () => { if (h !== null && h.abort != null) h.abort(); }
     }, [selectedID])
+
+    React.useEffect(() => {
+        dispatch(DataFileSlice.SetChanged());
+    }, [update]);
 
     function loadEvents(fileID: number) {
         if (fileID < 0)
