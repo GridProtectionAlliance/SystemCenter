@@ -67,7 +67,7 @@ const AssetGroupSelection = (props: IProps) => {
     }, [])
 
     React.useEffect(() => {
-        const flt: Search.IFilter<OpenXDA.Types.AssetGroup> = { FieldName: 'ID', IsPivotColumn: false, SearchText: `(SELECT ChildAssetGroupID FROM AssetGroupAssetGroup WHERE ParentAssetGroupID = ${selectedParent})`, Type: 'query', Operator: 'IN' }
+        const flt: Search.IFilter<OpenXDA.Types.AssetGroup> = { FieldName: 'ID', IsPivotColumn: false, SearchText: `(SELECT ChildAssetGroupID FROM AssetGroupAssetGroup WHERE ParentAssetGroupID = ${selectedParent.ID})`, Type: 'query', Operator: 'IN' }
         if (selectedParent.ID == -1) {
             flt.SearchText = " (SELECT ChildAssetGroupID FROM AssetGroupAssetGroup X WHERE X.ParentAssetGroupID IN (SELECT ID FROM AssetGroup Y WHERE Y.DisplayEmail =1))";
             flt.Operator = "NOT IN"
@@ -80,13 +80,13 @@ const AssetGroupSelection = (props: IProps) => {
             const keys = localStorage.getItem("SystemCenter.Notifications.SelectedGroup");
             if (keys == null || parentGroups.findIndex(e => e.ID == parseInt(keys)) < 0)
                 setSelectedParent(otherParent);
-            else if (selectedParent.ID != parseInt(keys))
+            else
                 setSelectedParent(parentGroups.find(p => p.ID == parseInt(keys)));
         }
-    }, [selectedParent])
+    }, []);
 
     React.useEffect(() => {
-        if (selectedParent.ID !== -1)
+        if (selectedParent.ID != -1)
             localStorage.setItem("SystemCenter.Notifications.SelectedGroup", selectedParent.ID.toString());
     }, [selectedParent]);
 
@@ -120,8 +120,7 @@ const AssetGroupSelection = (props: IProps) => {
         props.SetAssetGroupID([...props.assetGroupID, x.row.ID]);    
     }
 
-    return (
-        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
+    return (<>
             <LoadingIcon Show={parentGroupState == 'loading' || assetGrpStatus == 'loading'} />
             <div className="row">
                 <div className="col">
@@ -190,7 +189,7 @@ const AssetGroupSelection = (props: IProps) => {
                 Show={showWarning}
                 CallBack={(c) => { setShowWarning(false); }}
             />
-        </div>
+        </>
     );
 }
 
