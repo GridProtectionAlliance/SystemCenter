@@ -124,81 +124,93 @@ const ByFile: Application.Types.iByComponent = (props) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <LoadingScreen Show={showWarning == 'loading'} />
-            <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'} StorageID="DataFilesFilter"
-                ShowLoading={cState == 'loading'}
-                ResultNote={cState == 'error' ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
-                GetEnum={(setOptions, field) => {
-                    let handle = null;
+            <div className="container-fluid d-flex h-100 flex-column">
+                <div className="row">
+                    <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'} StorageID="DataFilesFilter"
+                        ShowLoading={cState == 'loading'}
+                        ResultNote={cState == 'error' ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
+                        GetEnum={(setOptions, field) => {
+                            let handle = null;
                    
-                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
-                        return () => { };
+                            if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
+                                return () => { };
 
-                    handle = $.ajax({
-                        type: "GET",
-                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-                        contentType: "application/json; charset=utf-8",
-                        dataType: 'json',
-                        cache: true,
-                        async: true
-                    });
+                            handle = $.ajax({
+                                type: "GET",
+                                url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
+                                contentType: "application/json; charset=utf-8",
+                                dataType: 'json',
+                                cache: true,
+                                async: true
+                            });
 
-                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
-                }}
+                            handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
+                            return () => { if (handle != null && handle.abort == null) handle.abort(); }
+                        }}
 
-            >
-                
-            </SearchBar>
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <ReactTable.Table<OpenXDA.Types.DataFile>
-                    TableClass="table table-hover"
-                    Data={data}
-                    SortKey={sortKey}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                        if (d.colKey === sortKey)
-                            setAscending(!ascending);
-                        else {
-                            setAscending(true);
-                            setSortKey(d.colField);
-                        }
-                    }}
-                    OnClick={(item) => setSelectetID(item.row)}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 320, width: '100%' }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <ReactTable.Column<OpenXDA.Types.DataFile>
-                        Key={'FilePath'}
-                        AllowSort={true}
-                        Field={'FilePath'}
-                        HeaderStyle={{ width: '70%' }}
-                        RowStyle={{ width: '70%' }}
-                        Content={({ item }) => item.FilePath.length > 100 ? item.FilePath.substr(item.FilePath.length - 100, 100) : item.FilePath}
-                    > File Path
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.DataFile>
-                        Key={'CreationTime'}
-                        AllowSort={true}
-                        Field={'CreationTime'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
-                        Content={({ item }) => moment(item.CreationTime).format('MM/DD/YYYY HH:mm.ss.SSS')}
-                    > File Created
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.DataFile>
-                        Key={'DataStartTime'}
-                        AllowSort={true}
-                        Field={'DataStartTime'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
-                        Content={({ item }) => ((moment(item.DataStartTime).isValid()) ? moment(item.DataStartTime).format('MM/DD/YYYY HH:mm.ss.SSS') : 'N/A')}
-                    > Data Start
-                    </ReactTable.Column>
-                </ReactTable.Table>
-                <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p-1)} />
+                    >
+                    </SearchBar>
+                </div>
+
+                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                    <ReactTable.Table<OpenXDA.Types.DataFile>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey === sortKey)
+                                setAscending(!ascending);
+                            else {
+                                setAscending(true);
+                                setSortKey(d.colField);
+                            }
+                        }}
+                        OnClick={(item) => setSelectetID(item.row)}
+                        TableStyle={{
+                            padding: 0, width: 'calc(100%)', height: '100%',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                        }}
+                        TheadStyle={{ fontSize: 'auto', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<OpenXDA.Types.DataFile>
+                            Key={'FilePath'}
+                            AllowSort={true}
+                            Field={'FilePath'}
+                            HeaderStyle={{ width: '70%' }}
+                            RowStyle={{ width: '70%' }}
+                            Content={({ item }) => item.FilePath.length > 100 ? item.FilePath.substr(item.FilePath.length - 100, 100) : item.FilePath}
+                        > File Path
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.DataFile>
+                            Key={'CreationTime'}
+                            AllowSort={true}
+                            Field={'CreationTime'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                            Content={({ item }) => moment(item.CreationTime).format('MM/DD/YYYY HH:mm.ss.SSS')}
+                        > File Created
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.DataFile>
+                            Key={'DataStartTime'}
+                            AllowSort={true}
+                            Field={'DataStartTime'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                            Content={({ item }) => ((moment(item.DataStartTime).isValid()) ? moment(item.DataStartTime).format('MM/DD/YYYY HH:mm.ss.SSS') : 'N/A')}
+                        > Data Start
+                        </ReactTable.Column>
+                    </ReactTable.Table>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                    </div>
+                </div>
             </div>
 
             <Modal Show={selectedID != null} Title={'File Details'} CallBack={(c,b) => {
