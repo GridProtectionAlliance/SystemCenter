@@ -33,6 +33,7 @@ import { DataFileSlice } from '../Store/Store';
 import { OpenXDA as GlobalXDA } from '../global';
 import moment from 'moment';
 import { Paging } from '@gpa-gemstone/react-table';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 
 declare var homePath: string;
@@ -71,7 +72,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (cState == 'unintiated' || cState == 'changed')
             dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search }))
-    }, [cState, dispatch]);
+    }, [cState]);
 
     React.useEffect(() => {
         if (selectedID == null)
@@ -181,8 +182,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             Key={'FilePath'}
                             AllowSort={true}
                             Field={'FilePath'}
-                            HeaderStyle={{ width: '70%' }}
-                            RowStyle={{ width: '70%' }}
+                            HeaderStyle={{ width: '60%' }}
+                            RowStyle={{ width: '60%' }}
                             Content={({ item }) => item.FilePath.length > 100 ? item.FilePath.substr(item.FilePath.length - 100, 100) : item.FilePath}
                         > File Path
                         </ReactTable.Column>
@@ -203,6 +204,15 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             RowStyle={{ width: '15%' }}
                             Content={({ item }) => ((moment(item.DataStartTime).isValid()) ? moment(item.DataStartTime).format('MM/DD/YYYY HH:mm.ss.SSS') : 'N/A')}
                         > Data Start
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.DataFile>
+                            Key={'ProcessingState'}
+                            AllowSort={true}
+                            Field={'ProcessingState'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => <ProcessingStatus Status={item.ProcessingState} />}
+                        > Status
                         </ReactTable.Column>
                     </ReactTable.Table>
                 </div>
@@ -293,6 +303,53 @@ const ByFile: Application.Types.iByComponent = (props) => {
             </Modal>
         </div>
     )
+}
+
+const ProcessingStatus = (props: { Status: number }) => {
+
+    const visual = React.useMemo(() => {
+        if (props.Status == 0) //Added - Unknown
+            return "badge-light";
+        if (props.Status == 1) //Queued
+            return "badge-info";
+        if (props.Status == 2) // Processing
+            return "badge-primary";
+        if (props.Status == 3) // Processed
+            return "badge-success";
+        if (props.Status == 4) // Error
+            return "badge-danger";
+        return "badge-warning";
+    }, [props.Status]);
+
+    const text = React.useMemo(() => {
+        if (props.Status == 0) //Added - Unknown
+            return "Unknown";
+        if (props.Status == 1) //Queued
+            return "Queued";
+        if (props.Status == 2) // Processing
+            return "Processing";
+        if (props.Status == 3) // Processed
+            return "Processed";
+        if (props.Status == 4) // Error
+            return "Error";
+        return "Unknwown";
+    }, [props.Status]);
+
+    const Symbol = React.useMemo(() => {
+        if (props.Status == 0) //Added - Unknown
+            return <ReactIcons.Warning Size={5} />;
+        if (props.Status == 1) //Queued
+            return <ReactIcons.Document Size={5} />;
+        if (props.Status == 2) // Processing
+            return <LoadingIcon Show={true} Size={5} />;
+        if (props.Status == 3) // Processed
+            return <ReactIcons.CircleCheck Size={5} />
+        if (props.Status == 4) // Error
+            return <ReactIcons.CircledX Size={5} />;
+        return <ReactIcons.Warning Size={5} />;
+    }, [props.Status]);
+
+    return <span className={`"badge badge-pill ${visual}`} > {Symbol}  {text} </span>
 }
 
 export default ByFile;
