@@ -57,7 +57,16 @@ const ByFile: Application.Types.iByComponent = (props) => {
     const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
         { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
         { isPivotField: false, key: 'CreationTime', label: 'File Created', type: 'datetime' },
-        { isPivotField: false, key: 'DataStartTime', label: 'Data Start', type: 'datetime' }        
+        { isPivotField: false, key: 'DataStartTime', label: 'Data Start', type: 'datetime' },
+        {
+            isPivotField: false, key: 'ProcessingState', label: 'Status', type: 'enum', enum: [
+                { Value: "0", Label: "Unknown" },
+                { Value: "1", Label: "Queued" },
+                { Value: "2", Label: "Processing" },
+                { Value: "3", Label: "Processed" },
+                { Value: "4", Label: "Error" }
+            ]
+        }     
     ]
 
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.DataFile>('DataStartTime');
@@ -146,22 +155,8 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         ShowLoading={cState == 'loading'}
                         ResultNote={cState == 'error' ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
                         GetEnum={(setOptions, field) => {
-                            let handle = null;
-                   
-                            if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
-                                return () => { };
-
-                            handle = $.ajax({
-                                type: "GET",
-                                url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-                                contentType: "application/json; charset=utf-8",
-                                dataType: 'json',
-                                cache: true,
-                                async: true
-                            });
-
-                            handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-                            return () => { if (handle != null && handle.abort == null) handle.abort(); }
+                            setOptions(field.enum);
+                            return () => { };
                         }}
 
                     >
