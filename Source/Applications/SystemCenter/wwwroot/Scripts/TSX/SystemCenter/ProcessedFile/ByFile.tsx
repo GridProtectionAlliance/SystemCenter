@@ -352,16 +352,16 @@ const ProcessingStatus = (props: { Status: number }) => {
 
     const Symbol = React.useMemo(() => {
         if (props.Status == 0) //Added - Unknown
-            return <ReactIcons.Warning Size={5} />;
+            return <ReactIcons.Warning Size={15} />;
         if (props.Status == 1) //Queued
-            return <ReactIcons.Document Size={5} />;
+            return <ReactIcons.Document Size={15} />;
         if (props.Status == 2) // Processing
-            return <LoadingIcon Show={true} Size={5} />;
+            return <LoadingIcon Show={true} Size={15} />;
         if (props.Status == 3) // Processed
-            return <ReactIcons.CircleCheck Size={5} />
+            return <ReactIcons.CircleCheck Size={15} />
         if (props.Status == 4) // Error
-            return <ReactIcons.CircledX Size={5} />;
-        return <ReactIcons.Warning Size={5} />;
+            return <ReactIcons.CircledX Size={15} />;
+        return <ReactIcons.Warning Size={15} />;
     }, [props.Status]);
 
     return <span className={`"badge badge-pill ${visual}`} > {Symbol}  {text} </span>
