@@ -48,7 +48,8 @@ namespace SystemCenter.Model
 	        DataFile.*,
 	        FileGroup.DataStartTime,
 	        FileGroup.ProcessingEndTime,
-	        FileGroup.MeterID
+	        FileGroup.MeterID,
+            FileGroup.ProcessingStatus AS ProcessingState
         FROM
 	        DataFile JOIN
 	        FileGroup ON DataFile.FileGroupID = FileGroup.ID
@@ -61,6 +62,7 @@ namespace SystemCenter.Model
         [DefaultSortOrder(false)]
         public DateTime ProcessingEndTime { get; set; }
         public DateTime DataStartTime { get; set; }
+        public int ProcessingState { get; set; }
     }
 
     [RoutePrefix("api/OpenXDA/DataFile")]
