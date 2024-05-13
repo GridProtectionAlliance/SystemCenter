@@ -25,6 +25,8 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import { LoadingIcon } from '@gpa-gemstone/react-interactive'
 import { EmailCategorySlice, EmailTypeSlice } from '../../Store';
+import { EmailCategory, EmailType } from '../../global';
+import { Select } from '@gpa-gemstone/react-forms';
 
 interface IProps {
     SetEmailTypeID: (id: number) => void,
@@ -36,11 +38,28 @@ const EmailSelect = (props: IProps) => {
     const emailCategoryStatus = useAppSelector(EmailCategorySlice.Status);
     const emailCategories = useAppSelector(EmailCategorySlice.Data);
 
-    const [selectedCategory, setSelectedCategory] = React.useState<number>(-1);
+    const emptyCategory = { ID: -1, Name: '', SelfSubscribe: false };
+    const [selectedCategory, setSelectedCategory] = React.useState<EmailCategory>(emptyCategory);
 
     const emailTypeStatus = useAppSelector(EmailTypeSlice.Status);
     const emailTypes = useAppSelector(EmailTypeSlice.Data);
     const emailTypeParentID = useAppSelector(EmailTypeSlice.ParentID);
+
+    const emptyEmailType = {
+        ID: -1,
+        EmailCategoryID: 0,
+        Name: '',
+        Template: '',
+        TriggerEmailSQL: '',
+        CombineEventsSQL: '',
+        MinDelay: 0,
+        MaxDelay: 0,
+        SMS: false,
+        ShowSubscription: false,
+        RequireApproval: false,
+        FilePath: ''
+    };
+    const [selectedEmailType, setSelectedEmailType] = React.useState<EmailType>(emptyEmailType);
 
     React.useEffect(() => {
         if (emailCategoryStatus === 'unintiated' || emailCategoryStatus === 'changed')
@@ -51,16 +70,16 @@ const EmailSelect = (props: IProps) => {
         if (emailCategories.length > 0) {
             const keys = localStorage.getItem("SystemCenter.Notifications.SelectedCategory");
             if (keys == null || emailCategories.findIndex(e => e.ID == parseInt(keys)) < 0)
-                setSelectedCategory(emailCategories[0].ID);
+                setSelectedCategory(emailCategories[0]);
             else
-                setSelectedCategory(parseInt(keys));
+                setSelectedCategory(emailCategories.find(e => e.ID == parseInt(keys)));
 
         }
-    }, [emailCategories])
+    }, [])
 
     React.useEffect(() => {
-        if (selectedCategory !== emailTypeParentID || emailTypeStatus == 'unintiated' || emailTypeStatus == 'changed')
-            dispatch(EmailTypeSlice.Fetch(selectedCategory));
+        if (selectedCategory.ID != emailTypeParentID || emailTypeStatus == 'unintiated' || emailTypeStatus == 'changed')
+            dispatch(EmailTypeSlice.Fetch(selectedCategory.ID));
     }, [selectedCategory, emailTypeParentID, emailTypeStatus])
 
     React.useEffect(() => {
@@ -71,49 +90,31 @@ const EmailSelect = (props: IProps) => {
     }, [emailTypes])
 
     React.useEffect(() => {
-        if (selectedCategory !== -1)
-            localStorage.setItem("SystemCenter.Notifications.SelectedCategory", selectedCategory.toString());
+        if (selectedCategory.ID != -1)
+            localStorage.setItem("SystemCenter.Notifications.SelectedCategory", selectedCategory.ID.toString());
     }, [selectedCategory]);
 
-    return (
-        <>
+    React.useEffect(() => {
+        props.SetEmailTypeID(selectedEmailType != null ? selectedEmailType.ID : -1);
+    }, [selectedEmailType]);
+
+    return (<>
+        <LoadingIcon Show={emailCategoryStatus == 'loading' || emailTypeStatus == 'loading'} />
             <div className="row">
                 <div className="col">
                     <div className="form-group">
-                        {emailCategoryStatus == 'loading' ? <LoadingIcon Show={true}/>:
-                            <><label> Notification Category </label>
-                        <select
-                            className="form-control"
-                            onChange={(evt) => {
-                                setSelectedCategory(parseInt((evt.target.value as any).toString()));
-                            }}
-                            value={selectedCategory}
-                                >
-                                    {emailCategories.map((c, i) => c.SelfSubscribe?
-                                <option key={i} value={c.ID}>
-                                    {c.Name}
-                                </option>
-                            : null)}
-                        </select></>}
+                        <Select<EmailCategory> Record={selectedCategory} Field={'ID'} Label='Notification Category' Setter={setSelectedCategory}
+                            Options={emailCategories.map((e) => {
+                                if (e.SelfSubscribe) return { Label: e.Name, Value: e.ID.toString() }
+                            })} />
                     </div>
                 </div>
                 <div className="col">
-                    <div className="form-group">
-                        {emailTypeStatus == 'loading' ? <LoadingIcon Show={true} /> :
-                            <><label> Notification Template </label>
-                                <select
-                                    className="form-control"
-                                    onChange={(evt) => {
-                                        props.SetEmailTypeID(parseInt((evt.target.value as any).toString()));
-                                    }}
-                                    value={props.emailTypeID}
-                                >
-                                    {emailTypes.map((c, i) => (c.ShowSubscription? 
-                                        <option key={i} value={c.ID}>
-                                            {c.Name}
-                                        </option>
-                                     : null))}
-                                </select></>}
+                <div className="form-group">
+                    <Select<EmailType> Record={selectedEmailType} Field={'ID'} Label='Notification Template' Setter={(record) => setSelectedEmailType({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
+                            Options={emailTypes.map((e) => {
+                                if (e.ShowSubscription) return { Label: e.Name, Value: e.ID.toString() }
+                            })} />
                     </div>
                 </div>
             </div>

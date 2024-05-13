@@ -90,6 +90,12 @@ const AssetGroupSelection = (props: IProps) => {
             localStorage.setItem("SystemCenter.Notifications.SelectedGroup", selectedParent.ID.toString());
     }, [selectedParent]);
 
+    React.useEffect(() => {
+        if (assetGrpStatus == 'unintiated' || assetGrpStatus == 'changed') {
+            dispatch(AssetGroupSlice.Fetch());
+        }
+    }, [assetGrpStatus]);
+
     function getParents() {
         setParentGroupState('loading');
         return $.ajax({
