@@ -32,7 +32,6 @@ import CapBankAttributes from '../AssetAttribute/CapBank';
 import BusAttributes from '../AssetAttribute/Bus';
 import LineAttributes from '../AssetAttribute/Line';
 import TransformerAttributes from '../AssetAttribute/Transformer';
-import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
 import { Search, Modal, LoadingIcon, ServerErrorIcon, TabSelector, SearchBar, GenericController } from '@gpa-gemstone/react-interactive';
@@ -168,7 +167,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
 
             let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedAsset>
-                )), ['label'], ["asc"]);
+            )), ['label'], ["asc"]);
             setAddlFieldCols(ordered);
         });
         return () => {
@@ -216,8 +215,6 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             return <CapBankRelayAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.CapBankRelay} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'Line')
             return <LineAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.Line} UpdateState={setNewAsset} />;
-        else if (newAsset.AssetType == 'LineSegment')
-            return <LineSegmentAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.LineSegment} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'Transformer')
             return <TransformerAttributes NewEdit={'New'} Asset={newAsset as OpenXDA.Types.Transformer} UpdateState={setNewAsset} />;
         else if (newAsset.AssetType == 'DER')
@@ -238,8 +235,8 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     function getEnum(setOptions, field) {
             let handle = null;
 
-            if (field.key == 'AssetType') {
-                setOptions(assetType.map((t) => ({ Value: t.Name, Label: t.Name })))
+        if (field.key == 'AssetType') {
+                setOptions(assetType.filter(t => t.Name != 'LineSegment').map((t) => ({ Value: t.Name, Label: t.Name })))
                 return () => { }
             }
 
@@ -257,8 +254,8 @@ const ByAsset: Application.Types.iByComponent = (props) => {
 
             handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
             return () => { if (handle != null && handle.abort == null) handle.abort(); }
-        }
-    
+    }
+
     // ToDo: This search bar is not the default select. Default select should probably be paged in the future if it doesn't break anything else
     return (
         <div className="container-fluid d-flex h-100 flex-column">
@@ -298,15 +295,15 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
                 {
                     pageState === 'idle' ?
-                <ReactTable.Table<SystemCenter.Types.DetailedAsset>
-                    TableClass="table table-hover"
-                    Data={data}
-                    SortKey={sortKey.toString()}
-                    Ascending={ascending}
-                    OnSort={(d) => {
+                        <ReactTable.Table<SystemCenter.Types.DetailedAsset>
+                            TableClass="table table-hover"
+                            Data={data}
+                            SortKey={sortKey.toString()}
+                            Ascending={ascending}
+                            OnSort={(d) => {
                                 if (d.colKey === sortKey) setAscending(a => !a);
                                 else setSortKey(d.colField);
-                    }}
+                            }}
                             TableStyle={{
                                 padding: 0, width: 'calc(100%)', height: '100%',
                                 tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
@@ -314,58 +311,58 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                             TheadStyle={{ fontSize: 'auto', tableLayout: 'fixed', display: 'table', width: '100%' }}
                             TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
                             RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    OnClick={(item) => handleSelect(item.row.ID)}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <ReactTable.Column<SystemCenter.Types.DetailedAsset>
-                        Key={'AssetName'}
-                        AllowSort={true}
-                        Field={'AssetName'}
-                        HeaderStyle={{ width: 'auto' }}
-                        RowStyle={{ width: 'auto' }}
-                    > Name
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedAsset>
-                        Key={'AssetKey'}
-                        AllowSort={true}
-                        Field={'AssetKey'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
-                    > Key
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedAsset>
-                        Key={'AssetType'}
-                        AllowSort={true}
-                        Field={'AssetType'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
-                    > Type
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedAsset>
-                        Key={'VoltageKV'}
-                        AllowSort={true}
-                        Field={'VoltageKV'}
+                            OnClick={(item) => handleSelect(item.row.ID)}
+                            Selected={(item) => false}
+                            KeySelector={(item) => item.ID}
+                        >
+                            <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                                Key={'AssetName'}
+                                AllowSort={true}
+                                Field={'AssetName'}
+                                HeaderStyle={{ width: 'auto' }}
+                                RowStyle={{ width: 'auto' }}
+                            > Name
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                                Key={'AssetKey'}
+                                AllowSort={true}
+                                Field={'AssetKey'}
+                                HeaderStyle={{ width: '15%' }}
+                                RowStyle={{ width: '15%' }}
+                            > Key
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                                Key={'AssetType'}
+                                AllowSort={true}
+                                Field={'AssetType'}
                                 HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
-                    > Nominal Voltage (L-L kV)
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedAsset>
-                        Key={'Meters'}
-                        AllowSort={true}
-                        Field={'Meters'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
-                    > Meters
-                    </ReactTable.Column>
-                    <ReactTable.Column<SystemCenter.Types.DetailedAsset>
-                        Key={'Locations'}
-                        AllowSort={true}
-                        Field={'Locations'}
-                        HeaderStyle={{ width: '10%' }}
-                        RowStyle={{ width: '10%' }}
-                    > Substations
-                    </ReactTable.Column>
+                                RowStyle={{ width: '10%' }}
+                            > Type
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                                Key={'VoltageKV'}
+                                AllowSort={true}
+                                Field={'VoltageKV'}
+                                HeaderStyle={{ width: '10%' }}
+                                RowStyle={{ width: '10%' }}
+                            > Nominal Voltage (L-L kV)
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                                Key={'Meters'}
+                                AllowSort={true}
+                                Field={'Meters'}
+                                HeaderStyle={{ width: '10%' }}
+                                RowStyle={{ width: '10%' }}
+                            > Meters
+                            </ReactTable.Column>
+                            <ReactTable.Column<SystemCenter.Types.DetailedAsset>
+                                Key={'Locations'}
+                                AllowSort={true}
+                                Field={'Locations'}
+                                HeaderStyle={{ width: '10%' }}
+                                RowStyle={{ width: '10%' }}
+                            > Substations
+                            </ReactTable.Column>
                         </ReactTable.Table> :
                         <>
                             <LoadingIcon Show={pageState === 'loading'} Size={40} />
@@ -397,13 +394,13 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             >
                 <div className="container-fluid d-flex h-100 flex-column">
                     <div className="tab-content row" style={{ flex: 1, overflow: 'hidden' }}>
-                    <div className="col">
-                        <AssetAttributes.AssetAttributeFields Asset={newAsset} NewEdit={'New'} AssetTypes={assetType} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} HideAssetType={false} />
+                        <div className="col">
+                            <AssetAttributes.AssetAttributeFields Asset={newAsset} NewEdit={'New'} AssetTypes={assetType} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} HideAssetType={false} />
+                        </div>
+                        <div className="col">
+                            {showAttributes()}
+                        </div>
                     </div>
-                    <div className="col">
-                        {showAttributes()}
-                    </div>
-                </div>
                 </div>
             </Modal>
            
@@ -419,10 +416,10 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                 />
                 <div className="container-fluid d-flex h-100 flex-column">
                     <div className="tab-content row" style={{ flex: 1, overflow: 'hidden' }}>
-                    <div className={"tab-pane active"}>
-                        <ExternalDBUpdate Type={extDBTab} UpdateAll={extDbUpdateAll} />
+                        <div className={"tab-pane active"}>
+                            <ExternalDBUpdate Type={extDBTab} UpdateAll={extDbUpdateAll} />
+                        </div>
                     </div>
-                </div>
                 </div>
             </Modal>
             
