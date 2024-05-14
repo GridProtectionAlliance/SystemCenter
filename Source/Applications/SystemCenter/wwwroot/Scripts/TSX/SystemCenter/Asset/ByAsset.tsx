@@ -35,12 +35,11 @@ import TransformerAttributes from '../AssetAttribute/Transformer';
 import LineSegmentAttributes from '../AssetAttribute/LineSegment';
 import ExternalDBUpdate from '../CommonComponents/ExternalDBUpdate';
 import CapBankRelayAttributes from '../AssetAttribute/CapBankRelay';
-import { Search, Modal, LoadingIcon, ServerErrorIcon, TabSelector } from '@gpa-gemstone/react-interactive';
-import { ReactTable } from '@gpa-gemstone/react-table'
+import { Search, Modal, LoadingIcon, ServerErrorIcon, TabSelector, SearchBar, GenericController } from '@gpa-gemstone/react-interactive';
+import { Paging, ReactTable } from '@gpa-gemstone/react-table'
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SelectAssetStatus, FetchAsset, SelectAssets } from '../Store/AssetSlice';
-import { AssetTypeSlice, ByAssetSlice } from '../Store/Store';
-import { DefaultSearch } from '@gpa-gemstone/common-pages';
+import { AssetTypeSlice } from '../Store/Store';
 import DERAttributes from '../AssetAttribute/DER';
 import GenerationAttributes from '../AssetAttribute/Generation';
 import StationAuxAttributes from '../AssetAttribute/StationAux';
@@ -48,17 +47,41 @@ import StationBatteryAttributes from '../AssetAttribute/StationBattery';
 
 
 
-declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Breaker' | 'Generation' | 'StationAux' | 'StationBattery'
+declare type AssetTab = 'Bus' | 'Line' | 'Transformer' | 'CapacitorBank' | 'Breaker' | 'Generation' | 'StationAux' | 'StationBattery';
+const PagingID = 'ByAssetPage';
+const extDBTabList = [
+    { Label: 'Buses', Id: 'Bus' },
+    { Label: 'Lines', Id: 'Line' },
+    { Label: 'Breakers', Id: 'Breaker' },
+    { Label: 'Transformers', Id: 'Transformer' },
+    { Label: 'Cap Banks', Id: 'CapacitorBank' },
+    { Label: 'Generation', Id: 'Generation' },
+    { Label: 'Station Auxiliary', Id: 'StationAux' },
+    { Label: 'Station Battery', Id: 'StationBattery' },
+];
+const AssetController = new GenericController<SystemCenter.Types.DetailedAsset>(`${homePath}api/OpenXDA/ByRestrictedDetailedAsset`, "AssetName", true);
 
 declare var homePath: string;
 
 const ByAsset: Application.Types.iByComponent = (props) => {
-
     let history = useHistory();
-    const data = useAppSelector(ByAssetSlice.SearchResults);
-    const byAssetStatus = useAppSelector(ByAssetSlice.SearchStatus);
-    const sortKey = useAppSelector(ByAssetSlice.SortField);
-    const ascending = useAppSelector(ByAssetSlice.Ascending);
+    const dispatch = useAppDispatch();
+
+    const assetType = useAppSelector(AssetTypeSlice.Data);
+    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
+
+    const [data, setData] = React.useState<SystemCenter.Types.DetailedAsset[]>([]);
+    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [sortKey, setSortKey] = React.useState<keyof SystemCenter.Types.DetailedAsset>('AssetName');
+    const [filters, setFilters] = React.useState<Search.IFilter<SystemCenter.Types.DetailedAsset>[]>([]);
+    const [page, setPage] = React.useState<number>(0);
+    const [pageInfo, setPageInfo] = React.useState<{ RecordsPerPage: number, NumberOfPages: number, TotalRecords: number }>({ RecordsPerPage: 0, NumberOfPages: 0, TotalRecords: 0 });
+    const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle');
+
+    const allAssets = useAppSelector(SelectAssets);
+    const aStatus = useAppSelector(SelectAssetStatus);
+
+    const [addlFieldCols, setAddlFieldCols] = React.useState<Search.IField<SystemCenter.Types.DetailedAsset>[]>([]);
 
     const [newAsset, setNewAsset] = React.useState<OpenXDA.Types.Asset>(AssetAttributes.getNewAsset('Line'));
     const [loadAssetKey, setLoadAssetKey] = React.useState<string>(null);
@@ -70,29 +93,6 @@ const ByAsset: Application.Types.iByComponent = (props) => {
     const extDbUpdateAll = React.useRef<() => (() => void)>(undefined);
 
     const [assetErrors, setAssetErrors] = React.useState<string[]>([]);
-    const [pageState, setPageState] = React.useState<'error' | 'idle' | 'loading'>('idle')
-
-    const assetType = useAppSelector(AssetTypeSlice.Data);
-    const assetTypeStatus = useAppSelector(AssetTypeSlice.Status);
-    const allAssets = useAppSelector(SelectAssets);
-    const aStatus = useAppSelector(SelectAssetStatus);
-    const dispatch = useAppDispatch();
-
-    const extDBTabList = [
-        { Label: 'Buses', Id: 'Bus' },
-        { Label: 'Lines', Id: 'Line' },
-        { Label: 'Breakers', Id: 'Breaker' },
-        { Label: 'Transformers', Id: 'Transformer' },
-        { Label: 'Cap Banks', Id: 'CapacitorBank' },
-        { Label: 'Generation', Id: 'Generation' },
-        { Label: 'Station Auxiliary', Id: 'StationAux' },
-        { Label: 'Station Battery', Id: 'StationBattery' },
-    ];
-
-    React.useEffect(() => {
-        if (byAssetStatus == 'changed' || byAssetStatus == 'unintiated')
-            dispatch(ByAssetSlice.Fetch());
-    }, [byAssetStatus]);
 
     React.useEffect(() => {
         if (assetTypeStatus == 'changed' || assetTypeStatus == 'unintiated')
@@ -105,7 +105,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
         let asset = AssetAttributes.getNewAsset('Line');
         asset['AssetTypeID'] = assetType.find(ats => ats.Name == 'Line').ID;
         setNewAsset(asset);
-    }, [assetType])
+    }, [assetType]);
 
     React.useEffect(() => {
         if (aStatus === 'unintiated' || aStatus === 'changed')
@@ -117,7 +117,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                 setLoadAssetKey(null);
             }
         }
-    }, [dispatch, aStatus, loadAssetKey]);
+    }, [aStatus, loadAssetKey]);
 
     React.useEffect(() => {
         const errors = AssetAttributes.AssetError(newAsset, newAsset.AssetType);
@@ -127,7 +127,27 @@ const ByAsset: Application.Types.iByComponent = (props) => {
         setAssetErrors(errors);
     }, [newAsset]);
 
-    function getAdditionalFields(setFields) {
+    React.useEffect(() => {
+        const storedInfo = JSON.parse(localStorage.getItem(PagingID) as string);
+        if (storedInfo == null) return;
+        setPage(storedInfo);
+    }, []);
+
+    React.useEffect(() => {
+        localStorage.setItem(PagingID, JSON.stringify(page));
+    }, [page]);
+
+    React.useEffect(() => {
+        setPageState('loading');
+        const handle = AssetController.PagedSearch(filters, sortKey, ascending, page).done((result) => {
+            setData(JSON.parse(result.Data as unknown as string));
+            setPageInfo(result);
+            setPageState('idle');
+        }).fail(() => setPageState('error'));
+        return () => { if (handle != null && handle?.abort != null) handle.abort(); }
+    }, [filters, sortKey, ascending, page]);
+
+    React.useEffect(() => {
         let handle = $.ajax({
             type: "GET",
             url: `${homePath}api/SystemCenter/AdditionalFieldView/ParentTable/Asset/FieldName/0`,
@@ -149,12 +169,12 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             let ordered = _.orderBy(d.filter(item => item.Searchable).map(item => (
                 { label: `[AF${item.ExternalDB != undefined ? " " + item.ExternalDB : ''}] ${item.FieldName}`, key: item.FieldName, ...ConvertType(item.Type), isPivotField: true } as Search.IField<SystemCenter.Types.DetailedAsset>
                 )), ['label'], ["asc"]);
-                setFields(ordered);
+            setAddlFieldCols(ordered);
         });
         return () => {
             if (handle != null && handle.abort == null) handle.abort();
         };
-    }
+    }, []);
 
     function getExtDBTab(): AssetTab {
         if (sessionStorage.hasOwnProperty('AssetTab.AssetTab'))
@@ -239,28 +259,26 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             return () => { if (handle != null && handle.abort == null) handle.abort(); }
         }
     
-
-    if (pageState == 'loading')
-        return <div style={{ width: '100%', height: '100%' }}>
-            <div style={{ width: '100%', height: '200px', opacity: 0.5, backgroundColor: '#000000', }}>
-                <div style={{ height: '100%', width: '100%', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                    <LoadingIcon Show={true} Size={40} />
-                </div>
-            </div>
-        </div>
-    if (pageState == 'error')
-        return <div style={{ width: '100%', height: '100%' }}>
-            <div style={{ width: '100%', height: '200px' }}>
-            <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
-                <ServerErrorIcon Show={true} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
-            </div>
-            </div>
-        </div>
-
-
+    // ToDo: This search bar is not the default select. Default select should probably be paged in the future if it doesn't break anything else
     return (
-        <div style={{ width: '100%', height: '100%' }}>
-            <DefaultSearch.Asset Slice={ByAssetSlice} GetEnum={getEnum} GetAddlFields={getAdditionalFields} StorageID="AssetsFilter">
+        <div className="container-fluid d-flex h-100 flex-column">
+            <SearchBar<SystemCenter.Types.DetailedAsset>
+                CollumnList={[
+                    { label: 'Key', key: 'AssetKey', type: 'string', isPivotField: false },
+                    { label: 'Name', key: 'AssetName', type: 'string', isPivotField: false },
+                    { label: 'Nominal Voltage (L-L kV)', key: 'VoltageKV', type: 'number', isPivotField: false },
+                    { label: 'Type', key: 'AssetType', type: 'enum', isPivotField: false },
+                    { label: 'Meter Key', key: 'Meter', type: 'string', isPivotField: false },
+                    { label: 'Substation Key', key: 'Location', type: 'string', isPivotField: false },
+                    { label: 'Number of Meters', key: 'Meters', type: 'integer', isPivotField: false },
+                    { label: 'Number of Substations', key: 'Locations', type: 'integer', isPivotField: false },
+                    { label: 'Description', key: 'Description', type: 'string', isPivotField: false },
+                    ...addlFieldCols]}
+                SetFilter={setFilters} Direction='left' Width='50%' Label='Search' ShowLoading={pageState === 'loading'} GetEnum={getEnum} StorageID={'AssetFilter'}
+                defaultCollumn={{ label: 'Name', key: 'AssetName', type: 'string', isPivotField: false }}
+                ResultNote={pageState === 'error' ? 'Could not complete Search' :
+                    ('Displaying Transmission Asset(s) ' + (pageInfo.TotalRecords > 0 ? (pageInfo.RecordsPerPage * page + 1) : 0) + ' - ' + (pageInfo.RecordsPerPage * page + data.length)) + ' out of ' + pageInfo.TotalRecords}
+            >
                 <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                     <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                         <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
@@ -276,19 +294,18 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                         </form>
                     </fieldset>
                 </li>
-            </DefaultSearch.Asset>
-            <div style={{ width: '100%', height: 'calc( 100% - 180px)' }}>
+            </SearchBar>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                {
+                    pageState === 'idle' ?
                 <ReactTable.Table<SystemCenter.Types.DetailedAsset>
                     TableClass="table table-hover"
                     Data={data}
                     SortKey={sortKey.toString()}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        if (d.colKey === sortKey)
-                            dispatch(ByAssetSlice.Sort({ SortField: sortKey, Ascending: ascending }));
-                        else {
-                            dispatch(ByAssetSlice.Sort({ SortField: d.colField as keyof SystemCenter.Types.DetailedAsset, Ascending: true }));
-                        }
+                                if (d.colKey === sortKey) setAscending(a => !a);
+                                else setSortKey(d.colField);
                     }}
                     TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                     TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
@@ -345,7 +362,15 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                         RowStyle={{ width: '10%' }}
                     > Substations
                     </ReactTable.Column>
-                </ReactTable.Table>
+                        </ReactTable.Table> :
+                        <>
+                            <LoadingIcon Show={pageState === 'loading'} Size={40} />
+                            <ServerErrorIcon Show={pageState === 'error'} Size={40} Label={'A Server Error Occurred. Please Reload the Application.'} />
+                        </>
+                }
+            </div>
+            <div style={{ width: '100%' }}>
+                <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p-1)} />
             </div>
 
             <Modal Show={showNewModal} Size={'lg'} Title={'Add New Asset'}
