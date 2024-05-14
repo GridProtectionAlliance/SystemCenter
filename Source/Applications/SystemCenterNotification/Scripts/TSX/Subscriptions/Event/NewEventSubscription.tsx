@@ -140,10 +140,16 @@ const NewEventSubscription = (props: {}) => {
                         {currentStep == 'Success' ? <Success assetGroupID={assetGroupID} emailTypeID={emailTypeID} /> : null}
                     </div>
                     <div className="card-footer">
-                        {currentStep != 'Selection' && currentStep != 'Success' ? <button className="btn btn-danger pull-left" onClick={prev}>Previous</button> : null}
-                        {currentStep == 'Selection' || currentStep == 'Carrier' ? <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
-                            data-tooltip='Next' onMouseEnter={() => setHoverNext(true)} onMouseLeave={() => setHoverNext(false)}
-                        >Continue</button> : null}
+                        {currentStep != 'Selection' && currentStep != 'Success' ?
+                            <div className="btn-group mr-2">
+                                <button className="btn btn-danger pull-left" onClick={prev}>Previous</button>
+                            </div> : null}
+                        {currentStep == 'Selection' || currentStep == 'Carrier' ?
+                            <div className="btn-group mr-2">
+                                <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
+                                    data-tooltip='Next' onMouseEnter={() => setHoverNext(true)} onMouseLeave={() => setHoverNext(false)}
+                                >Continue</button>
+                            </div> : null}
                     </div>
                 </div>
             </div>

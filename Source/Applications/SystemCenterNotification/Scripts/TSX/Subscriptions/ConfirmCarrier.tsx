@@ -24,13 +24,20 @@
 import * as React from 'react';
 import { CellCarrierSlice, UserInfoSlice } from '../Store';
 import { useAppDispatch, useAppSelector } from '../hooks';
+import { Select } from '@gpa-gemstone/react-forms';
+import { ICellCarrier } from '../global';
 
 interface IProps {}
 
 const ConfirmPhoneCarrier = (props: IProps) => {
     const dispatch = useAppDispatch();
 
-    const [currentCarrier, setCurrentCarrier] = React.useState<number>(-1);
+    const emptyCarrier = {
+        ID: -1,
+        Name: '',
+        Transform: '',
+    };
+    const [currentCarrier, setCurrentCarrier] = React.useState<ICellCarrier>(emptyCarrier);
     const userCarrier = useAppSelector(UserInfoSlice.CellCarrierID);
 
     const carriers = useAppSelector(CellCarrierSlice.Data);
@@ -43,50 +50,39 @@ const ConfirmPhoneCarrier = (props: IProps) => {
 
     React.useEffect(() => {
         if (userCarrier == null && carriers.length > 0)
-            setCurrentCarrier(carriers[0].ID)
+            setCurrentCarrier(carriers[0])
         else if (userCarrier == null)
-            setCurrentCarrier(-1);
-        else
-            setCurrentCarrier(userCarrier);
-    }, [userCarrier, carriers])
+            setCurrentCarrier(emptyCarrier);
+        else if (carriers.length > 0)
+            setCurrentCarrier(carriers.find((c) => c.ID == userCarrier));
+    }, [userCarrier, carriers]);
 
     React.useEffect(() => {
-        if (currentCarrier != userCarrier && currentCarrier > 0)
-            dispatch(UserInfoSlice.UpdateCarrier(currentCarrier));
-    }, [currentCarrier])
+        if (currentCarrier.ID != userCarrier && currentCarrier.ID > 0)
+            dispatch(UserInfoSlice.UpdateCarrier(currentCarrier.ID));
+    }, [currentCarrier]);
 
-    return <> <div className="row">
-        <div className="col">
-            <div className="row">
-                <div className="col">
-                    <div className="alert alert-info" style={{ margin: 'auto' }}>
-                    Please confirm your Cell Carrier.
+
+    return (
+        <div className="row">
+            <div className="col">
+                <div className="row">
+                    <div className="col">
+                        <div className="alert alert-info" style={{ margin: 'auto' }}>
+                        Please confirm your Cell Carrier.
+                        </div>
+                    </div>
+                </div>
+                <div className="row" style={{ marginTop: 15 }}>
+                    <div className="col">
+                        <div className="form-group">
+                            <Select<ICellCarrier> Record={currentCarrier} Field={'ID'} Label='Cell Carrier' Setter={(record) => setCurrentCarrier({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
+                                Options={carriers.map((e) => { return { Label: e.Name, Value: e.ID.toString() } })} />
+                        </div>
                     </div>
                 </div>
             </div>
-            <div className="row" style={{ marginTop: 15 }}>
-                <div className="col">
-                    <div className="form-group">
-                            <label>Cell Carrier</label>
-                        <select
-                            className="form-control"
-                            onChange={(evt) => {
-                                setCurrentCarrier(parseInt(evt.target.value));
-                            }}
-                            value={currentCarrier.toString()}
-                        >
-                            {carriers.map((c, i) => (
-                                <option key={i} value={c.ID}>
-                                    {c.Name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    </>;
+        </div>);
 }
 
 export default ConfirmPhoneCarrier;
