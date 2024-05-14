@@ -67,6 +67,13 @@ namespace SystemCenter.Controllers.OpenXDA
     [RoutePrefix("api/OpenXDA/Phase")]
     public class PhaseController:ModelController<Phase> {}
 
+    [RoutePrefix("api/OpenXDA/ByLineSegment")]
+    public class ByLineSegmentController : ModelController<LineSegment> { }
+
+    // ToDo: ByAsset and ByRestrictedDetailedAsset should eventually be combined, but only when it is assured that this combination will not break things
+    [RoutePrefix("api/OpenXDA/ByRestrictedDetailedAsset")]
+    public class RestrictedDetailedAssetController : ModelController<RestrictedDetailedAsset> { }
+
     [RoutePrefix("api/OpenXDA/ByAsset")]
     public class OpenXDAByAssetController : DetailedAssetController<DetailedAsset>
     {
