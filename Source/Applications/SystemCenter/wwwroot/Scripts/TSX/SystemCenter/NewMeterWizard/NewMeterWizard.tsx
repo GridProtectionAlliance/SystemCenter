@@ -316,6 +316,22 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
         localStorage.setItem('NewMeterWizard.CurrentStep', currentStep.toString())
     }
 
+    function meterDetails() {
+        setError([]);
+        setWarning([]);
+        if (meterID > 0) {
+            // Construct the URL with the meterID
+            const url = `${homePath}index.cshtml?name=Meter&MeterID=${meterID}#meterInfo`;
+
+            // Open the new URL in a new tab
+            window.open(url, '_blank');
+        }
+        else {
+            // Handle the case where meterID is not valid (e.g., when it's 0 or undefined)
+            setError(["No valid meter ID found. Unable to open meter details."]);
+        }
+    }
+
     function clearData(): void {
         clearLocalStorage();
 
@@ -388,14 +404,27 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     const secondaryHeader = React.useMemo(() => {
         if (currentStep === eventChannelsStep)
             return <p className="pull-right">
-                Number of Event Channels: {channels.reduce((p, c) => c.Trend? p : (p+1),0)}
+                Number of Event Channels: {channels.reduce((p, c) => c.Trend ? p : (p + 1), 0)}
             </p>;
         else if (currentStep === trendChannelsStep)
             return <p className="pull-right">
-                Number of Trend Channels: {channels.reduce((p, c) => c.Trend ? (p+1) : p, 0)}
+                Number of Trend Channels: {channels.reduce((p, c) => c.Trend ? (p + 1) : p, 0)}
             </p>;
         else if (currentStep === assetStep)
             return <LocationDrawings LocationID={locationInfo.ID} />
+        else if (currentStep >= additionalFieldMeterStep) {
+            return (
+                <div>
+                    <button
+                        className="btn btn-primary"
+                        style={{ position: 'absolute', top: 0, right: 0, marginRight: '80px' }}
+                        onClick={meterDetails}
+                    >
+                        Meter Details
+                    </button>
+                </div>
+            );
+        }
         return null;
     }, [currentStep, channels ]);
 
