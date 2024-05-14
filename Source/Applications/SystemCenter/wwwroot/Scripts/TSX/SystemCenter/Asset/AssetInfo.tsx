@@ -376,14 +376,14 @@ function AssetInfoWindow(props: IProps) {
         <div className="card-header">
             <div className="row">
                 <div className="col">
-                    <h4>Asset Information:</h4>
+                    <h4>{editAsset.AssetType === 'LineSegment' ? 'Line Segment' : 'Asset'} Information:</h4>
                 </div>
             </div>
         </div>
         <div className="card-body">
             <div className="row" style={{ height: window.innerHeight - 420, maxHeight: window.innerHeight - 420, overflowY: 'auto' }}>
                 <div className="col">
-                    <AssetAttributes.AssetAttributeFields Asset={editAsset} NewEdit='Edit' AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setEditAsset} GetDifferentAsset={() => { }} HideAssetType={false} HideSelectAsset={true} />
+                    <AssetAttributes.AssetAttributeFields Asset={editAsset} NewEdit='Edit' AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setEditAsset} GetDifferentAsset={() => { }} HideAssetType={editAsset.AssetType === 'LineSegment'} HideSelectAsset={true} />
                     <AdditionalFieldsProperties ID={editAsset.ID} ParentTable={"Asset"} AddlFieldSaveRef={saveAddlAsset} SetChangedList={setAddlFieldChangedAsset} SetErrorList={setAddlFieldErrorAsset} ResetAddlFieldRef={resetAddlAsset} SingleColumn={true} />
                 </div>
                 <div className="col">
