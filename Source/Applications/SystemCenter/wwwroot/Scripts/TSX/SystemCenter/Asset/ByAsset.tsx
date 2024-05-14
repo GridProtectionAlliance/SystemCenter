@@ -26,7 +26,7 @@ import * as _ from 'lodash';
 import { useHistory } from "react-router-dom";
 import { AssetAttributes } from '../AssetAttribute/Asset';
 import { Application, OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 import BreakerAttributes from '../AssetAttribute/Breaker';
 import CapBankAttributes from '../AssetAttribute/CapBank';
 import BusAttributes from '../AssetAttribute/Bus';
@@ -353,7 +353,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                 DisableConfirm={assetErrors.length > 0}
                 ConfirmShowToolTip={assetErrors.length > 0}
                 ConfirmToolTipContent={
-                    assetErrors.map((t, i) => <p key={i}> {CrossMark} {t} </p>)
+                    assetErrors.map((t, i) => <p key={i}> {ReactIcons.CrossMark} {t} </p>)
                 }
                 CallBack={(conf) => {
                     if (conf) {
