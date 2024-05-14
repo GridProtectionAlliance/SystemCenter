@@ -307,9 +307,13 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                                 if (d.colKey === sortKey) setAscending(a => !a);
                                 else setSortKey(d.colField);
                     }}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                            TableStyle={{
+                                padding: 0, width: 'calc(100%)', height: '100%',
+                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                            }}
+                            TheadStyle={{ fontSize: 'auto', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                     OnClick={(item) => handleSelect(item.row.ID)}
                     Selected={(item) => false}
                     KeySelector={(item) => item.ID}
@@ -342,7 +346,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                         Key={'VoltageKV'}
                         AllowSort={true}
                         Field={'VoltageKV'}
-                        HeaderStyle={{ width: '15%' }}
+                                HeaderStyle={{ width: '10%' }}
                         RowStyle={{ width: '10%' }}
                     > Nominal Voltage (L-L kV)
                     </ReactTable.Column>
@@ -372,8 +376,7 @@ const ByAsset: Application.Types.iByComponent = (props) => {
             <div style={{ width: '100%' }}>
                 <Paging Current={page + 1} Total={pageInfo.NumberOfPages} SetPage={(p) => setPage(p-1)} />
             </div>
-
-            <Modal Show={showNewModal} Size={'lg'} Title={'Add New Asset'}
+            <Modal Show={showNewModal} Size={'xlg'} Title={'Add New Asset'}
                 ConfirmText={'Save'}
                 DisableConfirm={assetErrors.length > 0}
                 ConfirmShowToolTip={assetErrors.length > 0}
@@ -392,13 +395,15 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                     setShowNewModal(false);
                 }}
             >
-                <div className="row" style={{ maxHeight: innerHeight - 300, overflow: 'auto' }}>
+                <div className="container-fluid d-flex h-100 flex-column">
+                    <div className="tab-content row" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className="col">
                         <AssetAttributes.AssetAttributeFields Asset={newAsset} NewEdit={'New'} AssetTypes={assetType} AllAssets={allAssets} UpdateState={setNewAsset} GetDifferentAsset={(assetID) => { }} HideSelectAsset={true} HideAssetType={false} />
                     </div>
                     <div className="col">
                         {showAttributes()}
                     </div>
+                </div>
                 </div>
             </Modal>
            
@@ -407,17 +412,17 @@ const ByAsset: Application.Types.iByComponent = (props) => {
                     if (c && extDbUpdateAll.current !== undefined) extDbUpdateAll.current();
                     if (!c) setShowExtModal(false);
                 }}>
-
                 <TabSelector
                     Tabs={extDBTabList}
                     SetTab={(tabId) => setExtDBTab(tabId as OpenXDA.Types.AssetTypeName)}
                     CurrentTab={extDBTab}
                 />
-
-                <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
+                <div className="container-fluid d-flex h-100 flex-column">
+                    <div className="tab-content row" style={{ flex: 1, overflow: 'hidden' }}>
                     <div className={"tab-pane active"}>
                         <ExternalDBUpdate Type={extDBTab} UpdateAll={extDbUpdateAll} />
                     </div>
+                </div>
                 </div>
             </Modal>
             
