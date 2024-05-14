@@ -44,6 +44,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
     const ByMeter = React.lazy(() => import(/*webpackChunkName: "ByMeter"*/'./Meter/ByMeter'));
     const ByLocation = React.lazy(() => import(/* webpackChunkName: "ByLocation" */ './Location/ByLocation'));
     const ByAsset = React.lazy(() => import(/* webpackChunkName: "ByAsset" */ './Asset/ByAsset'));
+    const ByLineSegment = React.lazy(() => import(/* webpackChunkName: "ByLineSegment" */ './LineSegment/ByLineSegment'));
     const ByCustomer = React.lazy(() => import(/* webpackChunkName: "ByCustomer" */ './Customer/ByCustomer'));
     const RemoteXDAInstanceMain = React.lazy(() => import(/* webpackChunkname: "RemoteXDA" */ './RemoteXDA/RemoteXDAInstanceMain'))
     const RemoteXDAInstance = React.lazy(() => import(/* webpackChunkname: "RemoteXDA" */ './RemoteXDA/RemoteXDAInstance'))
@@ -161,6 +162,11 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                 </li>
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=AssetGroup")} to={controllerViewPath + "?name=AssetGroups"}>Asset Groups</NavLink>
+                                </li>
+                                <li className="nav-item">
+                                    <NavLink activeClassName='nav-link active' className="nav-link"
+                                        isActive={(match, location) => (location.pathname + location.search).includes(controllerViewPath + "?name=LineSegment")}
+                                        to={controllerViewPath + "?name=LineSegments"}>Line Segments</NavLink>
                                 </li>
                                 <li className="nav-item">
                                     <NavLink activeClassName='nav-link active' className="nav-link" isActive={(match, location) => (location.pathname + location.search == controllerViewPath + "?name=PQViewCustomers") || (location.pathname + location.search).includes(controllerViewPath + "?name=Customer")} to={controllerViewPath + "?name=PQViewCustomers"}>Customers</NavLink>
@@ -286,7 +292,9 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                             <Route children={({ match, ...rest }) => {
                                 let qs = queryString.parse(rest.location.search);
                                 if (qs['?name'] == "Locations") 
-                                    return <ByLocation Roles={roles} />                            
+                                    return <ByLocation Roles={roles} />
+                                else if (qs['?name'] == "LineSegments")
+                                    return <ByLineSegment Roles={roles} />
                                 else if (qs['?name'] == "Assets")
                                     return <ByAsset Roles={roles} />
                                 else if (qs['?name'] == "AssetGroups")
@@ -325,7 +333,7 @@ const SystemCenter: React.FunctionComponent = (props: {}) => {
                                     return <Meter MeterID={parseInt(qs.MeterID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "Location")
                                     return <Location LocationID={parseInt(qs.LocationID as string)} Tab={qs.Tab as any} />
-                                else if (qs['?name'] == "Asset")
+                                else if (qs['?name'] == "Asset" || qs['?name'] == "LineSegment")
                                     return <Asset AssetID={parseInt(qs.AssetID as string)} Tab={qs.Tab as any} />
                                 else if (qs['?name'] == "AssetGroup")
                                     return <AssetGroup AssetGroupID={parseInt(qs.AssetGroupID as string)} Tab={qs.Tab as any} />
