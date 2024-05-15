@@ -28,6 +28,8 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { CellCarrierSlice, UserInfoSlice } from '../Store';
 import { IsInteger } from '@gpa-gemstone/helper-functions';
 import EmailConfirm from '../Subscriptions/ConfirmEmail';
+import { ICellCarrier } from '../global';
+import { Select } from '@gpa-gemstone/react-forms';
 
 
 declare var homePath;
@@ -38,7 +40,8 @@ interface IProps {}
 const ByUserInformation = (props: IProps) => {
     const dispatch = useAppDispatch();
     const [phone, setPhone] = React.useState<string>('');
-    const [carrierID, setCarrierID] = React.useState<number>(-1);
+    const emptyCarrier = { ID: -1, Name: '', Transform: '' };
+    const [carrier, setCarrier] = React.useState<ICellCarrier>(emptyCarrier);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 
     const [validPhone, setValidPhone] = React.useState<boolean>(false);
@@ -62,9 +65,9 @@ const ByUserInformation = (props: IProps) => {
     }, [userPhone]);
 
     React.useEffect(() => {
-        if (userCarrier >= 0)
-            setCarrierID(userCarrier);
-    }, [userCarrier])
+        if (userCarrier >= 0 && carriers.length > 0)
+            setCarrier(carriers.find((c) => c.ID == userCarrier));
+    }, [userCarrier, carriers]);
 
     React.useEffect(() => {
         let r = phone != null && phone.length >= 10;
@@ -73,9 +76,9 @@ const ByUserInformation = (props: IProps) => {
     }, [phone])
 
     return (
-        <>
-            <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
-                <div className="card" style={{ marginBottom: 10 }}>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
                     <div className="card-header">
                         <div className="row">
                             <div className="col">
@@ -83,7 +86,7 @@ const ByUserInformation = (props: IProps) => {
                             </div>
                         </div>
                     </div>
-                    <div className="card-body">
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
                         <div className="row">
                             <div className="col">
                                 <div className="form-group">
@@ -104,20 +107,8 @@ const ByUserInformation = (props: IProps) => {
                             </div>
                             <div className="col">
                                 <div className="form-group">
-                                    <label>Cell Carrier</label>
-                                    <select
-                                        className={"form-control"}
-                                        onChange={(evt) => {
-                                            setCarrierID(parseInt(evt.target.value));
-                                        }}
-                                        value={carrierID != null? carrierID.toString() : -1}
-                                    >
-                                        {carriers.map((c, i) => (
-                                            <option key={i} value={c.ID}>
-                                                {c.Name}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    <Select<ICellCarrier> Record={carrier} Field={'ID'} Label='Cell Carrier' Setter={(record) => setCarrier({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
+                                        Options={carriers.map((e) => { return { Label: e.Name, Value: e.ID.toString() } })} />
                                 </div>
                             </div>
                         </div>
@@ -125,36 +116,36 @@ const ByUserInformation = (props: IProps) => {
                     </div>
                     <div className="card-footer">
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-primary" + (validPhone && (phone != userPhone || carrierID != userCarrier) ? '' : ' disabled')} type="submit"
+                            <button className={"btn btn-primary" + (validPhone && (phone != userPhone || carrier.ID != userCarrier) ? '' : ' disabled')} type="submit"
                                 onClick={() => {
                                     if (validPhone && phone != userPhone)
                                         dispatch(UserInfoSlice.UpdatePhone(userPhone));
-                                    if (carrierID != userCarrier)
-                                        dispatch(UserInfoSlice.UpdateCarrier(carrierID));
+                                    if (carrier.ID != userCarrier)
+                                        dispatch(UserInfoSlice.UpdateCarrier(carrier.ID));
                                 }}
                                 data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
                         </div>
-                        <ToolTip Show={(!validPhone || (phone == userPhone && carrierID == userCarrier)) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                            {!validPhone ? <p> {CrossMark} A valid Cell Phone is required.</p> : null}
-                            {(phone == userPhone && carrierID == userCarrier) ? <p> No Changes were made.</p> : null}
-                        </ToolTip>
                         <div className="btn-group mr-2">
-                            <button className={"btn btn-default" + (phone != userPhone || carrierID != userCarrier ? '' : ' disabled')} data-tooltip="clear"
+                            <button className={"btn btn-default" + (phone != userPhone || carrier.ID != userCarrier ? '' : ' disabled')} data-tooltip="clear"
                                 onClick={() => {
                                     setPhone(userPhone);
-                                    setCarrierID(userCarrier);
+                                    setCarrier(carriers.find((c) => c.ID == userCarrier));
                                 }}
                                 onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
                         </div>
-                        <ToolTip Show={hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
-                            {(phone == userPhone && carrierID == userCarrier) ? <p> No Changes were made.</p> : null}
-                            {(phone != userPhone) ? <p> {Warning} Changes to Cell Phone will be lost.</p> : null}
-                            {(carrierID != userCarrier) ? <p> {Warning} Changes to Cell Carrier will be lost.</p> : null}
-                        </ToolTip>
                     </div>
                 </div>
             </div>
-        </>)
+            <ToolTip Show={(!validPhone || (phone == userPhone && carrier.ID == userCarrier)) && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+                {!validPhone ? <p> {CrossMark} A valid Cell Phone is required.</p> : null}
+                {(phone == userPhone && carrier.ID == userCarrier) ? <p> No Changes were made.</p> : null}
+            </ToolTip>
+            <ToolTip Show={hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+                {(phone == userPhone && carrier.ID == userCarrier) ? <p> No Changes were made.</p> : null}
+                {(phone != userPhone) ? <p> {Warning} Changes to Cell Phone will be lost.</p> : null}
+                {(carrier.ID != userCarrier) ? <p> {Warning} Changes to Cell Carrier will be lost.</p> : null}
+            </ToolTip>
+        </div>)
 }
 
 export default ByUserInformation;
