@@ -69,7 +69,6 @@ const ReportForm = (props: IProps) => {
                 <Input<ScheduledEmailType> Record={props.record} Field={'Schedule'} Label={'Schedule'} Valid={Valid} Setter={(record) => props.setRecord(record)}
                     Feedback={'Schedule needs to be a valid Cron Syntax'} Help={'Schedule is the frequency and time when the report is sent. This field uses CRON syntax. Examples are: daily = "23 59 * * *", weekly = "23 59 * * 5", monthly = "0 0 1 * *"'}
                 />
-                {/* TODO: For some reason, these don't update */}
                 <CheckBox<ScheduledEmailType> Record={props.record} Field={'ShowSubscription'} Label={'Allow Self Subscription'} Setter={(record) => props.setRecord(record)} />
                 <CheckBox<ScheduledEmailType> Record={props.record} Field={'RequireApproval'} Label={'Requires Approval'} Setter={(record) => props.setRecord(record)} />
             </div>
