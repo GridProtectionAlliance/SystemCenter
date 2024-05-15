@@ -73,7 +73,7 @@ const EventFilter = (props: IProps) => {
         <div id='baseEventFilterPortal'>
             {domReady ? createPortal(<>
                 <Modal Title={'Event Filter'}
-                    Show={props.Show} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Apply'}
+                    Show={props.Show} ShowX={true} Size={'lg'} ShowCancel={false} ConfirmText={'Apply'} BodyStyle={{ overflowY: 'scroll' }}
                     CallBack={(conf, isBtn) => {
                         if (conf)
                             props.SetFilter(filter);
