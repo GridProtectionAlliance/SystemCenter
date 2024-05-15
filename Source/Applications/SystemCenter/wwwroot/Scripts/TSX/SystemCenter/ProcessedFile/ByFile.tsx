@@ -56,7 +56,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.DataFile>>>([]);
     const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
         { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
-        { isPivotField: false, key: 'CreationTime', label: 'File Created', type: 'datetime' },
+        { isPivotField: false, key: 'CreationTime', label: 'File Processed', type: 'datetime' },
         { isPivotField: false, key: 'DataStartTime', label: 'Data Start', type: 'datetime' },
         {
             isPivotField: false, key: 'ProcessingState', label: 'Status', type: 'enum', enum: [
@@ -230,7 +230,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                             HeaderStyle={{ width: '15%' }}
                             RowStyle={{ width: '15%' }}
                             Content={({ item }) => moment(item.CreationTime).format('MM/DD/YYYY HH:mm.ss.SSS')}
-                        > File Created
+                        > File Processed
                         </ReactTable.Column>
                         <ReactTable.Column<OpenXDA.Types.DataFile>
                             Key={'DataStartTime'}
