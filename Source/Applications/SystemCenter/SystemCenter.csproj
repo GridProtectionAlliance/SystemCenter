@@ -287,6 +287,7 @@
     <Compile Include="Model\ChannelTemplate.cs" />
     <Compile Include="Model\DetailedMeterAsset.cs" />
     <Compile Include="Model\Condition.cs" />
+    <Compile Include="Model\RestrictedDetailedAsset.cs" />
     <Compile Include="Model\Security\RemoteUserAccount.cs" />
     <Compile Include="Model\Security\ApplicationRole.cs" />
     <Compile Include="Model\Security\SecurityGroup.cs" />
