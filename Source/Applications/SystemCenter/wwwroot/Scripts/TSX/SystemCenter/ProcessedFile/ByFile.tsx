@@ -155,6 +155,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
                         ShowLoading={cState == 'loading'}
                         ResultNote={cState == 'error' ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
                         GetEnum={(setOptions, field) => {
+                            if (field.enum != null)
                             setOptions(field.enum);
                             return () => { };
                         }}
