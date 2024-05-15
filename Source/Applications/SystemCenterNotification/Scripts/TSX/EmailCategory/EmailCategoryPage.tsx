@@ -67,47 +67,49 @@ const EmailCategoryPage = (props: IProps) => {
 
     return (
         <div className="container-fluid d-flex h-100 flex-column">
-            <LoadingScreen Show={status === 'loading'} />
-            <div className="row">
-                <div className="col-6 align-self-center">
-                    <h2>{category?.Name ?? 'Email Category'}</h2>
-                </div>
-                <div className="col-6 align-self-center">
-                    <button className="btn btn-danger float-right" hidden={category == null}
-                        onClick={() => setShowDelete(true)}>Delete EmailCategory</button>
-                </div>
-            </div>
-
-            <div className="row">
-                <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            </div>
-
-            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="col-12" style={{ padding: 0 }}>
-                    <div className="tab-content" style={{ height: '100%' }}>
-                        {tab == "settings" ?
-                            <div className="tab-pane active" style={{ height: 'inherit' }}>
-                                <EmailCategoryWindow Category={category} />
-                            </div>
-                        : null}
-                        {tab == "emails" ?
-                            <div className="tab-pane active" style={{ height: 'inherit' }}>
-                                <EmailList CategoryID={category.ID} />
-                            </div>
-                        : null}
+            <LoadingScreen Show={status === 'loading' || !category} />
+            {!category ? <></> : <>
+                <div className="row">
+                    <div className="col-6 align-self-center">
+                        <h2>{category?.Name ?? 'Email Category'}</h2>
+                    </div>
+                    <div className="col-6 align-self-center">
+                        <button className="btn btn-danger float-right" hidden={category == null}
+                            onClick={() => setShowDelete(true)}>Delete EmailCategory</button>
                     </div>
                 </div>
-            </div>
 
-            <Warning Message={'This will permanently Delete this Category and can not be undone.'} Show={showDelete}
-                Title={`Delete ${category?.Name ?? 'Email Category'}`}
-                CallBack={(conf) => {
-                    if (conf) {
-                        dispatch(EmailCategorySlice.DBAction({ verb: 'DELETE', record: category }));
-                        window.location.href = `${homePath}/Categories`;
-                    }
-                    setShowDelete(false);
-                }} />
+                <div className="row">
+                    <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
+                </div>
+
+                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="col-12" style={{ padding: 0 }}>
+                        <div className="tab-content" style={{ height: '100%' }}>
+                            {tab == "settings" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <EmailCategoryWindow Category={category} />
+                                </div>
+                                : null}
+                            {tab == "emails" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <EmailList CategoryID={category.ID} />
+                                </div>
+                                : null}
+                        </div>
+                    </div>
+                </div>
+
+                <Warning Message={'This will permanently Delete this Category and can not be undone.'} Show={showDelete}
+                    Title={`Delete ${category?.Name ?? 'Email Category'}`}
+                    CallBack={(conf) => {
+                        if (conf) {
+                            dispatch(EmailCategorySlice.DBAction({ verb: 'DELETE', record: category }));
+                            window.location.href = `${homePath}/Categories`;
+                        }
+                        setShowDelete(false);
+                    }} />
+            </>}
         </div>)
 }
 
