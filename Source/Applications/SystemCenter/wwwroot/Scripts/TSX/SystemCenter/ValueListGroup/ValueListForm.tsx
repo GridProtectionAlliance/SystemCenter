@@ -43,14 +43,17 @@ export default function ValueListForm(props: IProps) {
             e.push('Value must be less than 200 characters.');
         if (props.Record.AltValue != null && props.Record.AltValue.length > 200)
             e.push('Label must be less than 200 characters.');
-        
-    }, [props.Record])
+
+        props.SetErrors(e);
+    }, [props.Record, props.SetErrors])
 
     function Valid(field: keyof (SystemCenter.Types.ValueListItem)): boolean {
         if (field == 'Value')
             return props.Record.Value != null && props.Record.Value.length > 0 && props.Record.Value.length <= 200;
         else if (field == 'AltValue')
             return props.Record.AltValue == null || props.Record.AltValue.length <= 200;
+        else if (field == 'SortOrder')
+            return props.Record.SortOrder != null && props.Record.SortOrder >= 0
         return true;
     }
 
