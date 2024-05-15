@@ -30,6 +30,7 @@ using GSF.EMAX;
 using GSF.PQDIF.Logical;
 using GSF.SELEventParser;
 using GSF.Web.Model;
+using Microsoft.AspNet.SignalR.Infrastructure;
 using Microsoft.Graph;
 using Newtonsoft.Json.Linq;
 using openXDA.Configuration;
@@ -158,10 +159,10 @@ namespace SystemCenter.Controllers
                         return Unauthorized();
                 }
                 
-                connection.ExecuteScalar(@"DELETE FROM AditionalFieldValue AFV
+                connection.ExecuteScalar(@"DELETE FROM AdditionalFieldValue
                             WHERE
                             [Value] = {0} AND
-                            (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AFV.AdditionalFieldID) = {1}", record.Value, group.Name);
+                            (SELECT TOP 1 Type FROM AdditionalField AF WHERE AF.ID = AdditionalFieldValue.AdditionalFieldID) = {1}", (object)record.Value, group.Name);
             
                 return base.Delete(record);
             }
