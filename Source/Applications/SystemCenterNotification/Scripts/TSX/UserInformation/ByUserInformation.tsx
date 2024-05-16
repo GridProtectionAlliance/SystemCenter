@@ -65,7 +65,7 @@ const ByUserInformation = (props: IProps) => {
     }, [userPhone]);
 
     React.useEffect(() => {
-        if (userCarrier >= 0 && carriers.length > 0)
+        if (userCarrier != null && userCarrier >= 0 && carriers.length > 0)
             setCarrier(carriers.find((c) => c.ID == userCarrier));
     }, [userCarrier, carriers]);
 
@@ -73,7 +73,7 @@ const ByUserInformation = (props: IProps) => {
         let r = phone != null && phone.length >= 10;
         r = r && IsInteger(phone.replace('-', ''));
         setValidPhone(r);
-    }, [phone])
+    }, [phone]);
 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
@@ -119,7 +119,7 @@ const ByUserInformation = (props: IProps) => {
                             <button className={"btn btn-primary" + (validPhone && (phone != userPhone || carrier.ID != userCarrier) ? '' : ' disabled')} type="submit"
                                 onClick={() => {
                                     if (validPhone && phone != userPhone)
-                                        dispatch(UserInfoSlice.UpdatePhone(userPhone));
+                                        dispatch(UserInfoSlice.UpdatePhone(phone));
                                     if (carrier.ID != userCarrier)
                                         dispatch(UserInfoSlice.UpdateCarrier(carrier.ID));
                                 }}
