@@ -90,6 +90,7 @@ export default function EventTypeForm(props: IProps) {
                     <Input<OpenXDA.Types.EventType> Record={props.Record} Field={'Name'} Label={'Name'} Disabled={true} Help={'Name cannot be changed. To change what is displayed in various visualization apps, use Label.'} Valid={() => true} Setter={() => { } } />
                     <Input<OpenXDA.Types.EventType> Record={props.Record} Field={'Category'} Label={'Category'} Feedback={'Category must be less than 50 characters.'} Valid={Valid} Setter={props.Setter} />
                     <CheckBox<OpenXDA.Types.EventType> Label={'Show in User Interfaces'} Record={props.Record} Field={'ShowInFilter'} Setter={props.Setter} />
+                    <br/>
                     <Input<OpenXDA.Types.EventType> Label={'Label'} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} Feedback={'A Label of less than 50 characters is required.'} />
                 </div>
                 <div className="col">
