@@ -33,6 +33,23 @@ interface IProps {
     SetErrors?: (e: string[]) => void
 }
 
+const typeOptions = [
+    { Label: 'Meter', Value: 'Meter' },
+    { Label: 'Substation', Value: 'Location' },
+    { Label: 'Customer', Value: 'Customer' },
+    { Label: 'Line', Value: 'Line' },
+    { Label: 'Line Segment', Value: 'Line Segment' },
+    { Label: 'Breaker', Value: 'Breaker' },
+    { Label: 'Bus', Value: 'Bus' },
+    { Label: 'Transformer', Value: 'Transformer' },
+    { Label: 'Capacitor Bank', Value: 'CapBank' },
+    { Label: 'Capacitor Bank Relay', Value: 'CapBankRelay' },
+    { Label: 'DER', Value: 'DER' },
+    { Value: 'Generation', Label: 'Generation' },
+    { Value: 'StationAux', Label: 'Station Auxiliary' },
+    { Value: 'StationBattery', Label: 'Station Battery' }
+];
+
 export default function ExternalDBXdaFieldsForm(props: IProps) {
     const dispatch = useAppDispatch();
 
@@ -56,12 +73,6 @@ export default function ExternalDBXdaFieldsForm(props: IProps) {
             dispatch(ExternalXDAFieldsSlice.Fetch(props.Record.ExternalDBTableID));
     }, [status, parentID, props.Record.ExternalDBTableID]);
 
-    const typeOptions = ['Meter', 'Location', 'Customer',
-        'Line', 'Line Segment', 'Breaker', 'Bus', 'Transformer', 'Cap Bank', 'Cap Bank Relay', 'DER'].map(str => ({
-            Value: str.replace(/\s/, ""),
-            Label: str
-        }));
-
     const fieldOptions = React.useMemo(() => {
         let fields = ["AssetName", "VoltageKV", "Spare", "Description"];
         switch (props.Record.ParentTable) {
@@ -78,6 +89,9 @@ export default function ExternalDBXdaFieldsForm(props: IProps) {
             case 'CapBank': fields.push("Number Of Banks", "Capacitance Per Bank", "Max KV", "Unit KV", "Unit KVAr", "Neg Reactance Tol", "Pos Reactance Tol"); break;
             case 'CapBankRelay': fields.push("On Voltage Threshhold", "Cap Bank Number"); break;
             case 'DER': fields.push("Full Rated Output Current", "Voltage Level"); break;
+            case 'Generation': break;
+            case 'StationAux': break;
+            case 'StationBattery': break;
         }
         return fields.map(str => ({
             Value: str.replace(/\s/, ""),
