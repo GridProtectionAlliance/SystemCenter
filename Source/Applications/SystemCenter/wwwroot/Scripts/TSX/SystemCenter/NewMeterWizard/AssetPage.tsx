@@ -560,10 +560,10 @@ export default function AssetPage(props: IProps) {
                                     }
                                 </select>
                             </div> </> : null}
-                                {newEditAsset.AssetType === 'Transformer' ?
+                                {newEditAsset.AssetType === 'Transformer' ? (
                                     <div className="col-12">
                                         <div className="row justify-content-center">
-                                            <div className="col-3 mr-5">
+                                            <div className="col-4 pr-4">
                                                 <label>Associated Channels Primary Side</label>
                                                 <select multiple style={{ height: innerHeight - 430, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -576,12 +576,14 @@ export default function AssetPage(props: IProps) {
 
                                                     props.UpdateChannels(channels);
                                                 }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 0).map(a => a.ID.toString())}>
-                                                    {
-                                                        props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
-                                                    }
+                                                    {props.Channels.map((channel, index) => (
+                                                        <option key={index} value={channel.ID} hidden={channel.Asset !== newEditAsset.AssetKey && channel.Asset.length > 0}>
+                                                            {channel.Name + ' - ' + channel.Description}
+                                                        </option>
+                                                    ))}
                                                 </select>
                                             </div>
-                                            <div className="col-3 mr-5">
+                                            <div className="col-4 px-4">
                                                 <label>Associated Channels Secondary Side</label>
                                                 <select multiple style={{ height: innerHeight - 430, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -594,12 +596,14 @@ export default function AssetPage(props: IProps) {
 
                                                     props.UpdateChannels(channels);
                                                 }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 1).map(a => a.ID.toString())}>
-                                                    {
-                                                        props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
-                                                    }
+                                                    {props.Channels.map((channel, index) => (
+                                                        <option key={index} value={channel.ID} hidden={channel.Asset !== newEditAsset.AssetKey && channel.Asset.length > 0}>
+                                                            {channel.Name + ' - ' + channel.Description}
+                                                        </option>
+                                                    ))}
                                                 </select>
                                             </div>
-                                            <div className="col-3">
+                                            <div className="col-4 pl-4">
                                                 <label>Associated Channels Tertiary Side</label>
                                                 <select multiple style={{ height: innerHeight - 430, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -612,13 +616,16 @@ export default function AssetPage(props: IProps) {
 
                                                     props.UpdateChannels(channels);
                                                 }} value={newEditAsset.Channels.filter(ch => ch.ConnectionPriority == 2).map(a => a.ID.toString())}>
-                                                    {
-                                                        props.Channels.map((channel, index) => <option key={index} value={channel.ID} hidden={channel.Asset != newEditAsset.AssetKey && channel.Asset.length > 0}>{channel.Name + ' - ' + channel.Description}</option>)
-                                                    }
+                                                    {props.Channels.map((channel, index) => (
+                                                        <option key={index} value={channel.ID} hidden={channel.Asset !== newEditAsset.AssetKey && channel.Asset.length > 0}>
+                                                            {channel.Name + ' - ' + channel.Description}
+                                                        </option>
+                                                    ))}
                                                 </select>
                                             </div>
                                         </div>
-                                    </div> : null}
+                                    </div>
+                                ) : null}
                             </div>
                             </div> 
                         </div>
