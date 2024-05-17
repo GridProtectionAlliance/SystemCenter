@@ -37,7 +37,7 @@ interface IProps {
 const ConfirmPhone = (props: IProps) => {
     const dispatch = useAppDispatch();
 
-    const [forceResend, setForceResend] = React.useState<number>(-1);
+    const [forceResend, setForceResend] = React.useState<number>(0);
     const [number, setNumber] = React.useState<number>(0);
     const [code, setCode] = React.useState<number>(-1);
 
