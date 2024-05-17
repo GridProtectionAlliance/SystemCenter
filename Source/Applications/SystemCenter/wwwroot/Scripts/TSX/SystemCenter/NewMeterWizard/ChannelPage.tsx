@@ -385,8 +385,7 @@ export default function ChannelPage(props: IProps) {
                     <div className="col-4 col-lg-2">
                         <button className="btn btn-primary btn-block" onClick={() => {
                             let channel: OpenXDA.Types.Channel = { ID: props.Channels.length == 0 ? 1 : Math.max(...props.Channels.map(ch => ch.ID)) + 1, Meter: props.MeterKey, Asset: '', MeasurementType: 'Voltage', MeasurementCharacteristic: 'Instantaneous', Phase: 'AN', Name: 'VAN', Adder: 0, Multiplier: 1, SamplesPerHour: 0, PerUnitValue: null, HarmonicGroup: 0, Description: 'Voltage AN', Enabled: true, Series: [{ ID: 0, ChannelID: 0, SeriesType: 'Values', SourceIndexes: '' } as OpenXDA.Types.Series], ConnectionPriority: 0, Trend: false } as OpenXDA.Types.Channel
-                            let channels: Array<OpenXDA.Types.Channel> = _.cloneDeep(props.Channels);
-                            channels.push(channel);
+                            let channels: Array<OpenXDA.Types.Channel> = [channel].concat(_.cloneDeep(props.Channels));
                             props.UpdateChannels(channels);
                         }}>Add</button>
                     </div>}
