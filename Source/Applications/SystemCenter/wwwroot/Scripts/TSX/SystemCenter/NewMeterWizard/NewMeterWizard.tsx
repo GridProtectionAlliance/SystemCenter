@@ -328,7 +328,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
         }
         else {
             // Handle the case where meterID is not valid (e.g., when it's 0 or undefined)
-            setError(["No valid meter ID found. Unable to open meter details."]);
+            setError(["No valid Meter ID found. Unable to open Meter details."]);
         }
     }
 
