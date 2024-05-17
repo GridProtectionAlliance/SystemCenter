@@ -377,7 +377,7 @@ const ProcessingStatus = (props: { Status: number }) => {
         if (props.Status == 1) //Queued
             return <ReactIcons.Document Size={15} />;
         if (props.Status == 2) // Processing
-            return <LoadingIcon Show={true} Size={15} />;
+            return <ReactIcons.SpiningIcon Size={15} />;
         if (props.Status == 3) // Processed
             return <ReactIcons.CircleCheck Size={15} />
         if (props.Status == 4) // Error
