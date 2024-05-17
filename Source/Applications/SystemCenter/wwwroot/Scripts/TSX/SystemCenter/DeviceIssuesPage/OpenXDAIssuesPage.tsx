@@ -23,40 +23,29 @@
 
 
 
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { orderBy } from 'lodash';
 import * as React from 'react';
-import { ConfigTable } from '@gpa-gemstone/react-interactive';
+import { ConfigTable, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table'
 import Reason from './Reason';
 import moment from 'moment';
+
+const OpenXDADailyStatisticController = new GenericController<SC.OpenXDADailyStatistic>(`${homePath}api/SystemCenter/Statistics/OpenXDA`, "LastSuccessfulFileProcessed", true);
 
 function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [data, setData] = React.useState<SC.OpenXDADailyStatistic[]>([]);
     const [sortField, setSortField] = React.useState<keyof SC.OpenXDADailyStatistic>('LastSuccessfulFileProcessed');
     const [ascending, setAscending] = React.useState<boolean>(false);
-    
+
     React.useEffect(() => {
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/Statistics/OpenXDA/${props.Meter.AssetKey}/${sortField}/${ascending ? '1' : '0'}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-        handle.done(d => setData(JSON.parse(d.toString())))
+        const handle = OpenXDADailyStatisticController.Fetch(props.Meter.AssetKey, sortField, ascending).done(d => setData(d));
 
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [props.Meter]);
-
-    React.useEffect(() => {
-        setData(orderBy(data, [sortField === 'Date' ? (item) => new Date(item[sortField]) : sortField], [ascending ? 'asc' : 'desc']))
-    }, [sortField, ascending]);
+    }, [props.Meter, sortField, ascending]);
 
     return <div className="card" style={{ width: '100%', height: '100%' }}>
         <div className="card-header">
@@ -256,11 +245,8 @@ function OpenXDAIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 </ConfigTable.Configurable>
             </ConfigTable.Table>
         </div>
-        <div className="card-footer">
-        </div>
-
+        <div className="card-footer"/>
     </div>
-
 }
 
 export default OpenXDAIssuesPage

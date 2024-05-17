@@ -23,46 +23,34 @@
 
 
 
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
-import { orderBy } from 'lodash';
 import * as React from 'react';
-import { ConfigTable } from '@gpa-gemstone/react-interactive';
+import { ConfigTable, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table'
 import Reason from './Reason';
 import moment from 'moment';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { SystemCenterSettingSlice } from '../Store/Store';
 
+const MiMDDailyStatisticController = new GenericController<SC.MiMDDailyStatistic>(`${homePath}api/SystemCenter/Statistics/MiMD`, "LastSuccessfulFileProcessed", true);
+
 function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     let dispatch = useAppDispatch();
 
     const [data, setData] = React.useState<SC.MiMDDailyStatistic[]>([]);
     const [sortField, setSortField] = React.useState<keyof SC.MiMDDailyStatistic>('LastSuccessfulFileProcessed');
-    const [ascending, setAscending] = React.useState<boolean>(false);
+    const [ascending, setAscending] = React.useState<boolean>(true);
     const settings = useAppSelector(SystemCenterSettingSlice.Data);
     const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
 
     React.useEffect(() => {
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/Statistics/MiMD/${props.Meter.AssetKey}/${sortField}/${ascending ? '1' : '0'}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        });
-        handle.done(d => setData(JSON.parse(d.toString())))
+        const handle = MiMDDailyStatisticController.Fetch(props.Meter.AssetKey, sortField, ascending).done(d => setData(d));
 
         return () => {
-            if (handle.abort != undefined) handle.abort();
+            if (handle != null || handle.abort != null) handle.abort();
         }
-    }, [props.Meter]);
-
-    React.useEffect(() => {
-        setData(orderBy(data, [sortField === 'Date' ? (item) => new Date(item[sortField]) : sortField], [ascending ? 'asc' : 'desc']))
-    }, [sortField, ascending]);
+    }, [props.Meter, sortField, ascending]);
 
     React.useEffect(() => {
         if (settingStatus == 'unintiated' || settingStatus == 'changed')
@@ -219,11 +207,8 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 </ConfigTable.Configurable>
             </ConfigTable.Table>
         </div>
-        <div className="card-footer">
-        </div>
-
+        <div className="card-footer"/>
     </div>
-
 }
 
 export default MiMDIssuesPage
