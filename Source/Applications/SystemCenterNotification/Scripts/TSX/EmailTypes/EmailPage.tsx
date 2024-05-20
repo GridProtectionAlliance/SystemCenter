@@ -57,56 +57,73 @@ const EmailPage = (props: IProps) => {
             dispatch(EmailTypeSlice.Fetch());
     }, [status]);
 
-    if (status == 'error')
-        return <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
-            <ServerErrorIcon Show={true} Label={'An error occured. Please reload this page.'} />
-        </div>
-    if (status == 'loading' || status == 'unintiated' || email == undefined)
-        return <LoadingScreen Show={true} />
-
     return (
-        <>
-            <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div className="container-fluid d-flex h-100 flex-column">
+            <ServerErrorIcon Show={status == 'error'} Label={'An error occured. Please reload this page.'} />
+            <LoadingScreen Show={status == 'loading' || status == 'unintiated' || email == undefined} />
+            {!email ? <></> : <>
                 <div className="row">
-                    <div className="col">
+                    <div className="col-6 align-self-center">
                         <h2>{email != null ? email.Name : ''}</h2>
                     </div>
-                    <div className="col">
+                    <div className="col-6 align-self-center">
                         <button className="btn btn-danger float-right" onClick={() => setShowDelete(true)}>Delete Email</button>
                         <button className="btn btn-primary float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Email</button>
                     </div>
                 </div>
 
-                <hr />
-                <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={[
-                    { Label: 'Settings', Id: 'settings' },
-                    { Label: ' Template', Id: 'template' },
-                    { Label: ' Data Sources', Id: 'dataSources' },
-                    { Label: ' Trigger', Id: 'trigger' },
-                    { Label: ' Subscriptions', Id: 'subscriptions' }
-                ]} />
+                <div className="row">
+                    <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={[
+                        { Label: 'Settings', Id: 'settings' },
+                        { Label: ' Template', Id: 'template' },
+                        { Label: ' Data Sources', Id: 'dataSources' },
+                        { Label: ' Trigger', Id: 'trigger' },
+                        { Label: ' Subscriptions', Id: 'subscriptions' }
+                    ]} />
+                </div>
 
-               
-                {tab == "settings" ? <div className={"tab-pane active"} id="settings">
-                    <GeneralInfo Record={email} />
-                </div> : null}
-                {tab == "template" ? <div className={"tab-pane active"} id="template">
-                    <Template Record={email} />
-                </div> : null}
-                {tab == "dataSources" ? <div className={"tab-pane active"} id="dataSources">
-                    <DataSourceWindow Record={email} />
-                </div> : null}
-                {tab == 'trigger' ? <div className={"tab-pane active"} id="trigger">
-                    <TriggerWindow Record={email} />
-                </div> : null}
-                {tab == 'subscriptions' ? <div className={"tab-pane active"} id="subscriptions">
-                    <Subscriptions Record={email} />
-                </div> : null}
+                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="col-12" style={{ padding: 0 }}>
+                        <div className="tab-content" style={{ height: '100%' }}>
+                            {tab == "settings" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <GeneralInfo Record={email} />
+                                </div>
+                                : <></>}
+                            {tab == "template" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <Template Record={email} />
+                                </div>
+                                : <></>}
+                            {tab == "dataSources" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <DataSourceWindow Record={email} />
+                                </div>
+                                : <></>}
+                            {tab == "trigger" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <TriggerWindow Record={email} />
+                                </div>
+                                : <></>}
+                            {tab == "subscriptions" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <Subscriptions Record={email} />
+                                </div>
+                                : <></>}
+                        </div>
+                    </div>
+                </div>
+
                 <TestEmail show={showTest} OnClose={() => setShowTest(false)} record={email} />
-                <Warning Message={'This will permanently delete this notification and can not be undone.'} Show={showDelete} Title={'Delete ' + (email !== undefined? email.Name : '')}
-                    CallBack={(conf) => { if (conf) dispatch(EmailTypeSlice.DBAction({ verb: 'DELETE', record: email })); }} />
-            </div>
-        </>)
+                <Warning Message={'This will permanently delete this notification and can not be undone.'} Show={showDelete} Title={'Delete ' + (email !== undefined ? email.Name : '')}
+                    CallBack={(conf) => {
+                        if (conf) {
+                            dispatch(EmailTypeSlice.DBAction({ verb: 'DELETE', record: email }));
+                            window.location.href = `${homePath}EventEmails`;
+                        }
+                    }} />
+            </>}
+        </div>)
 }
 
 export default EmailPage;

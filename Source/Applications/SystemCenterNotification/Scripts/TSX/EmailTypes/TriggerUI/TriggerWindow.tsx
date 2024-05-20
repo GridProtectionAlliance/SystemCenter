@@ -25,8 +25,8 @@ import { useAppDispatch } from '../../hooks';
 import * as React from 'react';
 import { ToolTip } from '@gpa-gemstone/react-interactive'
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
-import {  EmailType, IEvent } from '../../global';
-import {  EmailTypeSlice } from '../../Store';
+import { EmailType } from '../../global';
+import { EmailTypeSlice } from '../../Store';
 import EventSelect from './EventSelect';
 import EventDetails from './EventDetails';
 
@@ -71,79 +71,80 @@ const TriggerWindow = (props: IProps) => {
     }, [triggerSQL, aggregateSQL]);
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Notification Trigger:</h4>
-                    </div>
-                </div>
-            </div>
-            <div className="card-body" style={{}}>
-                <div className="row">
-                    <div className="col">
-                        <EditSection
-                            SetCombineSQL={setAggregaterSQL} SetTriggerSQL={setTriggerSQL} ValidCombine={aggregateStatus != 'invalid'}
-                            TriggerSQL={triggerSQL} CombineSQL={aggregateSQL} ValidTrigger={triggerStatus != 'invalid'}
-                        />
-                    </div>
-                    <div className="col">
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
                         <div className="row">
                             <div className="col">
-                                <EventSelect TriggerSQL={triggerSQL} SetStatus={(v, l) => {
-                                    if (l) setTriggerStatus('loading');
-                                    else if (v) setTriggerStatus('valid');
-                                    else setTriggerStatus('invalid');
-                                }}
-                                    SetSelectedEvent={setSelectedEvent}
-                                    SelectedEventID={selectedEvent}
+                                <h4>Notification Trigger:</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <div className="row">
+                            <div className="col">
+                                <EditSection
+                                    SetCombineSQL={setAggregaterSQL} SetTriggerSQL={setTriggerSQL} ValidCombine={aggregateStatus != 'invalid'}
+                                    TriggerSQL={triggerSQL} CombineSQL={aggregateSQL} ValidTrigger={triggerStatus != 'invalid'}
                                 />
                             </div>
-                        </div>
-                        <div className="row">
                             <div className="col">
-                                <EventDetails CombineSQL={aggregateSQL} SetStatus={(v, l) => {
-                                    if (l) setAggregateStatus('loading');
-                                    else if (v) setAggregateStatus('valid');
-                                    else setAggregateStatus('invalid');
-                                }}
-                                    SelectedEventID={selectedEvent} />
+                                <div className="row">
+                                    <div className="col">
+                                        <EventSelect TriggerSQL={triggerSQL} SetStatus={(v, l) => {
+                                            if (l) setTriggerStatus('loading');
+                                            else if (v) setTriggerStatus('valid');
+                                            else setTriggerStatus('invalid');
+                                        }}
+                                            SetSelectedEvent={setSelectedEvent}
+                                            SelectedEventID={selectedEvent}
+                                        />
+                                    </div>
+                                </div>
+                                <div className="row">
+                                    <div className="col">
+                                        <EventDetails CombineSQL={aggregateSQL} SetStatus={(v, l) => {
+                                            if (l) setAggregateStatus('loading');
+                                            else if (v) setAggregateStatus('valid');
+                                            else setAggregateStatus('invalid');
+                                        }}
+                                            SelectedEventID={selectedEvent} />
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-               
-            </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + ((triggerStatus == 'valid' || triggerStatus == 'idle') &&
-                        (aggregateStatus == 'valid' || aggregateStatus == 'idle')
-                        && hasChanged ? '' : ' disabled')}
-                        type="submit"
-                        onClick={() => {
-                            if ((triggerStatus == 'valid' || triggerStatus == 'idle') &&
+                    <div className="card-footer">
+                        <div className="btn-group mr-2">
+                            <button className={"btn btn-primary" + ((triggerStatus == 'valid' || triggerStatus == 'idle') &&
                                 (aggregateStatus == 'valid' || aggregateStatus == 'idle')
-                                && hasChanged)
-                                dispatch(EmailTypeSlice.DBAction({ verb: 'PATCH', record: email }));
-                        }}
-                        data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                                && hasChanged ? '' : ' disabled')}
+                                type="submit"
+                                onClick={() => {
+                                    if ((triggerStatus == 'valid' || triggerStatus == 'idle') &&
+                                        (aggregateStatus == 'valid' || aggregateStatus == 'idle')
+                                        && hasChanged)
+                                        dispatch(EmailTypeSlice.DBAction({ verb: 'PATCH', record: email }));
+                                }}
+                                data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                        </div>
+                        <div className="btn-group mr-2">
+                            <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
+                                onClick={() => { setEmail(props.Record); setHasChanged(false); }}
+                                onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
+                        </div>
+                    </div>
                 </div>
-                
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
-                        onClick={() => { setEmail(props.Record); setHasChanged(false); }}
-                        onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
-                </div>
-                <ToolTip Show={(triggerStatus == 'invalid' || aggregateStatus == 'invalid') && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                    {triggerStatus == 'invalid' ? <p> {CrossMark} Trigger SQL is invalid.</p> : null}
-                    {aggregateStatus == 'invalid' ? <p> {CrossMark} Suppression SQL is invalid.</p> : null}
-                </ToolTip>
-                <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
-                    {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> {Warning} Changes to Trigger SQL will be discarded.</p> : null}
-                    {props.Record.CombineEventsSQL != email.CombineEventsSQL ? <p> {Warning} Changes to Suppression SQL will be discarded.</p> : null}
-                </ToolTip>
             </div>
-
+            <ToolTip Show={(triggerStatus == 'invalid' || aggregateStatus == 'invalid') && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+                {triggerStatus == 'invalid' ? <p> {CrossMark} Trigger SQL is invalid.</p> : null}
+                {aggregateStatus == 'invalid' ? <p> {CrossMark} Suppression SQL is invalid.</p> : null}
+            </ToolTip>
+            <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+                {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> {Warning} Changes to Trigger SQL will be discarded.</p> : null}
+                {props.Record.CombineEventsSQL != email.CombineEventsSQL ? <p> {Warning} Changes to Suppression SQL will be discarded.</p> : null}
+            </ToolTip>
         </div>
         )
 }

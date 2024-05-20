@@ -26,18 +26,34 @@ import * as React from 'react';
 import { LoadingScreen, Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive'
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import { EmailCategory, EmailType } from '../global';
+import { EmailType } from '../global';
 import { EmailCategorySlice, EmailTypeSlice } from '../Store';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import EmailForm from './EmailForm';
 import { IsNumber } from '@gpa-gemstone/helper-functions';
+import { useNavigate } from 'react-router-dom';
 
 declare var homePath;
 declare var version;
 
-interface IProps {}
+interface IProps { }
+
+const emptyEmail = {
+    ID: -1,
+    Name: '',
+    ShowSubscription: true,
+    SMS: false,
+    CombineEventsSQL: '',
+    TriggerEmailSQL: '',
+    EmailCategoryID: -1,
+    MaxDelay: 0,
+    MinDelay: 0,
+    Template: '',
+    RequireApproval: false
+} as EmailType
 
 const ByEmailType = (props: IProps) => {
+    const navigate = useNavigate();
     const dispatch = useAppDispatch();
 
     const search: Search.IFilter<EmailType>[] = useAppSelector(EmailTypeSlice.SearchFilters);
@@ -52,12 +68,10 @@ const ByEmailType = (props: IProps) => {
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
-    const emptyEmail = { ID: -1, Name: '', ShowSubscription: true, SMS: false, CombineEventsSQL: '', TriggerEmailSQL: '', EmailCategoryID: -1, MaxDelay: 0, MinDelay: 0, Template: '', RequireApproval: false } as EmailType
     const [newEmail, setNewEmail] = React.useState<EmailType>(emptyEmail);
 
     const sortField = useAppSelector(EmailTypeSlice.SortField);
     const asc = useAppSelector(EmailTypeSlice.Ascending);
-
 
 
     React.useEffect(() => {
@@ -107,58 +121,104 @@ const ByEmailType = (props: IProps) => {
         { key: "ShowSubscription", label: "Self Subscription", type: "boolean", isPivotField: false },
         { key: "RequireApproval", label: "Requires Approval", type: "boolean", isPivotField: false },
         { key: "EmailCategoryID", label: "Category", type: "enum", isPivotField: false, enum: categories.map(item => ({ Label: item.Name, Value: item.ID.toString() })) },
-    ]
+    ];
+
     return (
-        <>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
             <LoadingScreen Show={status === 'loading'} />
-            <div style={{ width: '100%', height: '100%' }}>
-                <SearchBar<EmailType> CollumnList={searchFields}
-                    SetFilter={(flds) => dispatch(EmailTypeSlice.DBSearch({ filter: flds }))}
-                    Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Event Notification(s)'}
-                    GetEnum={() => {
-                        return () => { }
-                    }}>
-                    <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                            <form>
-                                <button className="btn btn-primary" onClick={(event) => { setNewEmail(emptyEmail); setShowModal(true); event.preventDefault() }}>
-                                    Add Email
-                                </button>
-                            </form>
-                        </fieldset>
-                    </li>
-                </SearchBar>
-                <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <Table<EmailType>
-                        cols={[
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: '30%' }, rowStyle: { width: '30%' } },
-                            { key: 'MaxDelay', field: 'MaxDelay', label: 'Maximum Delay (s)', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            { key: 'MinDelay', field: 'MinDelay', label: 'Minimum Delay (s)', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            { key: 'SMS', field: 'SMS', label: 'Text Message', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item) => item.SMS ? HeavyCheckMark : CrossMark },
-                            { key: 'ShowSubscription', field: 'ShowSubscription', label: 'Self Subscription', headerStyle: { width: '15%' }, rowStyle: { width: '15%' }, content: (item) => item.ShowSubscription ? HeavyCheckMark : CrossMark },
-                            { key: 'RequireApproval', field: 'RequireApproval', label: 'Requires Approval', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => item.RequireApproval ? HeavyCheckMark : CrossMark },
-                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortField}
-                        ascending={asc}
-                        onSort={(d) => {
-                            if (d.colKey === 'scroll' || d.colKey === 'undefined')
-                                return
-                            if (d.colField === sortField)
-                                dispatch(EmailTypeSlice.Sort({ SortField: sortField, Ascending: asc }));
-                            else
-                                dispatch(EmailTypeSlice.Sort({ SortField: d.colField, Ascending: true }));
+            <div className="row">
+                <div className="col">
+                    <SearchBar<EmailType> CollumnList={searchFields}
+                        SetFilter={(flds) => dispatch(EmailTypeSlice.DBSearch({ filter: flds }))}
+                        Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
+                        ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Event Notification(s)'}
+                    >
+                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                                <form>
+                                    <button className="btn btn-primary" onClick={(event) => { setNewEmail(emptyEmail); setShowModal(true); event.preventDefault() }}>
+                                        Add Email
+                                    </button>
+                                </form>
+                            </fieldset>
+                        </li>
+                    </SearchBar>
+                </div>
+            </div>
+            <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
+                <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
+                    <ReactTable.Table<EmailType>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={asc}
+                        OnSort={(d) => {
+                            dispatch(EmailTypeSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        onClick={(item) => { window.location.href = `${homePath}EventEmail/${item.row.ID}`  }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={() => false}
-                    />
+                        OnClick={(item) => navigate(`/EventEmail/${item.row.ID}`)}
+                        TableStyle={{
+                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                        }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<EmailType>
+                            Key={'Name'}
+                            AllowSort={true}
+                            Field={'Name'}
+                            HeaderStyle={{ width: '30%' }}
+                            RowStyle={{ width: '30%' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<EmailType>
+                            Key={'MaxDelay'}
+                            AllowSort={true}
+                            Field={'MaxDelay'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Maximum Delay (s)
+                        </ReactTable.Column>
+                        <ReactTable.Column<EmailType>
+                            Key={'MinDelay'}
+                            AllowSort={true}
+                            Field={'MinDelay'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Minimum Delay (s)
+                        </ReactTable.Column>
+                        <ReactTable.Column<EmailType>
+                            Key={'SMS'}
+                            AllowSort={true}
+                            Field={'SMS'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                            Content={({ item }) => item.SMS ? HeavyCheckMark : CrossMark }
+                        > Text Message
+                        </ReactTable.Column>
+                        <ReactTable.Column<EmailType>
+                            Key={'ShowSubscription'}
+                            AllowSort={true}
+                            Field={'ShowSubscription'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                            Content={({ item }) => item.ShowSubscription ? HeavyCheckMark : CrossMark }
+                        > Self Subscription
+                        </ReactTable.Column>
+                        <ReactTable.Column<EmailType>
+                            Key={'RequireApproval'}
+                            AllowSort={true}
+                            Field={'RequireApproval'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => item.RequireApproval ? HeavyCheckMark : CrossMark }
+                        > Requires Approval
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <Modal Title={'Add New Email'}
@@ -175,9 +235,8 @@ const ByEmailType = (props: IProps) => {
                 }
             >
                 <EmailForm record={newEmail} setRecord={setNewEmail} />
-               
             </Modal>
-        </>)
+        </div>)
 }
 
 export default ByEmailType;

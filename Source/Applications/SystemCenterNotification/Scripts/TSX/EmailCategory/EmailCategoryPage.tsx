@@ -23,23 +23,19 @@
 
 import { useAppDispatch, useAppSelector } from '../hooks';
 import * as React from 'react';
-import { useParams } from 'react-router-dom';
-import { LoadingScreen, Modal, Search, SearchBar, TabSelector, Warning } from '@gpa-gemstone/react-interactive'
-import { CrossMark } from '@gpa-gemstone/gpa-symbols';
+import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { Application } from '@gpa-gemstone/application-typings';
-import { EmailCategory } from '../global';
 import { EmailCategorySlice } from '../Store';
-import Table from '@gpa-gemstone/react-table';
-import EmailCategoryForm from './EmailCategoryForm';
 import EmailCategoryWindow from './EmailCategoryWindow';
 import EmailList from './EmailList';
 
-declare var homePath;
-declare var version;
+interface IProps { useParams: { id: string } }
 
-interface IProps { useParams: {id: string} }
-
-type tab = 'settings' | 'emails' 
+declare type Tab = 'settings' | 'emails';
+const Tabs = [
+    { Label: 'General Settings', Id: 'settings' },
+    { Label: ' Emails', Id: 'emails' },
+];
 
 
 const EmailCategoryPage = (props: IProps) => {
@@ -50,40 +46,71 @@ const EmailCategoryPage = (props: IProps) => {
     const category = useAppSelector((state) => EmailCategorySlice.Datum(state, parseInt(props.useParams.id)));
     const status: Application.Types.Status = useAppSelector(EmailCategorySlice.Status);
 
-    const [tab, setTab] = React.useState<tab>('settings');
+    const getTab = React.useCallback(() => {
+        if (sessionStorage.hasOwnProperty('EmailCategory.Tab'))
+            return JSON.parse(sessionStorage.getItem('EmailCategory.Tab'));
+        else return 'settings';
+    }, []);
+
+    const [tab, setTab] = React.useState<Tab>(getTab());
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
             dispatch(EmailCategorySlice.Fetch());
     }, [status]);
 
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('EmailCategory.Tab', JSON.stringify(tab));
+    }, [tab]);
+
     return (
-        <>
-            <LoadingScreen Show={status === 'loading'} />
-            <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div className="container-fluid d-flex h-100 flex-column">
+            <LoadingScreen Show={status === 'loading' || !category} />
+            {!category ? <></> : <>
                 <div className="row">
-                    <div className="col">
-                        <h2>{category != null ? category.Name : ''}</h2>
+                    <div className="col-6 align-self-center">
+                        <h2>{category?.Name ?? 'Email Category'}</h2>
                     </div>
-                    <div className="col">
-                        <button className="btn btn-danger pull-right" hidden={location == null} onClick={() => setShowDelete(true)}>Delete EmailCategory</button>
+                    <div className="col-6 align-self-center">
+                        <button className="btn btn-danger float-right" hidden={category == null}
+                            onClick={() => setShowDelete(true)}>Delete EmailCategory</button>
                     </div>
                 </div>
 
-                <hr />
-                <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={[{ Label: 'General Settings', Id: 'settings' }, { Label: ' Emails', Id:'emails' }]} />
+                <div className="row">
+                    <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
+                </div>
 
-                <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
-                    <div className={"tab-pane " + (tab == "settings" ? " active" : "fade")} id="settings">
-                        {category != null ? <EmailCategoryWindow Category={category} /> : null}
-                    </div>
-                    <div className={"tab-pane " + (tab == "emails" ? " active" : "fade")} id="emails">
-                        {category != null ? <EmailList CategoryID={category.ID} /> : null}
+                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="col-12" style={{ padding: 0 }}>
+                        <div className="tab-content" style={{ height: '100%' }}>
+                            {tab == "settings" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <EmailCategoryWindow Category={category} />
+                                </div>
+                                : <></>}
+                            {tab == "emails" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <EmailList CategoryID={category.ID} />
+                                </div>
+                                : <></>}
+                        </div>
                     </div>
                 </div>
-                <Warning Message={'This will permanently Delete this Category and can not be undone.'} Show={showDelete} Title={'Delete Email Category ' + (category != null? category.Name : '')} CallBack={(conf) => { if (conf) dispatch(EmailCategorySlice.DBAction({ verb: 'DELETE', record: category })); }} />
-            </div>
-        </>)
+
+                <Warning Message={'This will permanently Delete this Category and can not be undone.'} Show={showDelete}
+                    Title={`Delete ${category?.Name ?? 'Email Category'}`}
+                    CallBack={(conf) => {
+                        if (conf) {
+                            dispatch(EmailCategorySlice.DBAction({ verb: 'DELETE', record: category }));
+                            window.location.href = `${homePath}/Categories`;
+                        }
+                        setShowDelete(false);
+                    }} />
+            </>}
+        </div>)
 }
 
 export default EmailCategoryPage;

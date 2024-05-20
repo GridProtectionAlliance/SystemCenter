@@ -60,7 +60,7 @@ export interface ScheduledEmailType {
     FilePath: string | null
 }
 
-export interface SubscibeEmails {
+export interface SubscribeEmails {
     ID: number,
     Approved: boolean,
     EmailID: number

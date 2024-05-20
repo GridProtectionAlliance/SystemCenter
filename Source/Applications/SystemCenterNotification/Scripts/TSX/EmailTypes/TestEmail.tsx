@@ -34,6 +34,8 @@ import * as $ from 'jquery';
 declare var homePath;
 declare var version;
 
+const portalID: string = "TestEmailOuter";
+
 interface IProps { show: boolean, record: EmailType, OnClose: () => void  }
 
 const TestEmail = (props: IProps) => {
@@ -41,7 +43,6 @@ const TestEmail = (props: IProps) => {
     const [eventID, setEventID] = React.useState<number>(-1);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const userID = useAppSelector(UserInfoSlice.UserAccountID);
-    let portalID: string = "TestEmailOuter";
 
     React.useEffect(() => {
         if (!props.show)
