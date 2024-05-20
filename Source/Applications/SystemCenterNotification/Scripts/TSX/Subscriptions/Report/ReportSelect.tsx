@@ -28,6 +28,21 @@ import { EmailCategorySlice, ScheduledEmailTypeSlice } from '../../Store';
 import { Select } from '@gpa-gemstone/react-forms';
 import { EmailCategory, ScheduledEmailType } from '../../global';
 
+const emptyReport = {
+    ID: -1,
+    EmailCategoryID: 0,
+    Name: '',
+    Schedule: '',
+    Template: '',
+    TriggerEmailSQL: '',
+    SMS: false,
+    FilePath: '',
+    ShowSubscription: false,
+    RequireApproval: false
+} as ScheduledEmailType;
+
+const emptyCategory = { ID: -1, Name: '', SelfSubscribe: false } as EmailCategory;
+
 interface IProps {
     SetScheduledEmailTypeID: (id: number) => void,
     scheduledEmailTypeID: number
@@ -38,25 +53,12 @@ const ReportSelect = (props: IProps) => {
     const emailCategoryStatus = useAppSelector(EmailCategorySlice.Status);
     const emailCategories = useAppSelector(EmailCategorySlice.Data);
 
-    const emptyCategory = { ID: -1, Name: '', SelfSubscribe: false };
     const [selectedCategory, setSelectedCategory] = React.useState<EmailCategory>(emptyCategory);
 
     const reportTypeStatus = useAppSelector(ScheduledEmailTypeSlice.Status);
     const reportTypes = useAppSelector(ScheduledEmailTypeSlice.Data);
     const reportTypeParentID = useAppSelector(ScheduledEmailTypeSlice.ParentID);
 
-    const emptyReport = {
-        ID: -1,
-        EmailCategoryID: 0,
-        Name: '',
-        Schedule: '',
-        Template: '',
-        TriggerEmailSQL: '',
-        SMS: false,
-        FilePath: '',
-        ShowSubscription: false,
-        RequireApproval: false
-    };
     const [selectedReport, setSelectedReport] = React.useState<ScheduledEmailType>(emptyReport);
 
     React.useEffect(() => {

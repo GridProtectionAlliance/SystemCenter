@@ -27,16 +27,17 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { Select } from '@gpa-gemstone/react-forms';
 import { ICellCarrier } from '../global';
 
+const emptyCarrier = {
+    ID: -1,
+    Name: '',
+    Transform: '',
+} as ICellCarrier;
+
 interface IProps {}
 
 const ConfirmPhoneCarrier = (props: IProps) => {
     const dispatch = useAppDispatch();
 
-    const emptyCarrier = {
-        ID: -1,
-        Name: '',
-        Transform: '',
-    };
     const [currentCarrier, setCurrentCarrier] = React.useState<ICellCarrier>(emptyCarrier);
     const userCarrier = useAppSelector(UserInfoSlice.CellCarrierID);
 

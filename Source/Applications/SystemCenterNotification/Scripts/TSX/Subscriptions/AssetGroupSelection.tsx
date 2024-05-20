@@ -32,6 +32,17 @@ import { Select } from '@gpa-gemstone/react-forms';
 declare var homePath;
 declare var version;
 
+const otherParent = {
+    ID: -1,
+    Name: 'Other',
+    DisplayDashboard: false,
+    AssetGroups: 0,
+    Meters: 0,
+    Assets: 0,
+    Users: 0,
+    DisplayEmail: false
+} as OpenXDA.Types.AssetGroup;
+
 interface IProps {
     SetAssetGroupID: (ids: number[]) => void,
     assetGroupID: number[]
@@ -42,16 +53,6 @@ const AssetGroupSelection = (props: IProps) => {
     const [parentGroups, setParentGroups] = React.useState<OpenXDA.Types.AssetGroup[]>([]);
     const [parentGroupState, setParentGroupState] = React.useState<Application.Types.Status>('unintiated');
 
-    const otherParent = {
-        ID: -1,
-        Name: 'Other',
-        DisplayDashboard: false,
-        AssetGroups: 0,
-        Meters: 0,
-        Assets: 0,
-        Users: 0,
-        DisplayEmail: false
-    };
     const [selectedParent, setSelectedParent] = React.useState<OpenXDA.Types.AssetGroup>(otherParent);
     const assetGrpStatus = useAppSelector(AssetGroupSlice.Status);
     const assetGrps = useAppSelector(AssetGroupSlice.SearchResults);

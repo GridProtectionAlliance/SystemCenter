@@ -36,6 +36,15 @@ import { useNavigate } from 'react-router-dom';
 declare var homePath;
 declare var version;
 
+const emptyEmail = {
+    ID: -1, Name: '',
+    SMS: false, TriggerEmailSQL: 'SELECT 1',
+    EmailCategoryID: -1, Template: '',
+    Schedule: '23 59 * * *',
+    ShowSubscription: true,
+    RequireApproval: false,
+} as ScheduledEmailType;
+
 interface IProps {}
 
 const ByReport = (props: IProps) => {
@@ -54,14 +63,6 @@ const ByReport = (props: IProps) => {
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
-    const emptyEmail = {
-        ID: -1, Name: '',
-        SMS: false, TriggerEmailSQL: 'SELECT 1',
-        EmailCategoryID: -1, Template: '',
-        Schedule: '23 59 * * *',
-        ShowSubscription: true,
-        RequireApproval: false,
-    } as ScheduledEmailType
     const [newEmail, setNewEmail] = React.useState<ScheduledEmailType>(emptyEmail);
 
     const sortField = useAppSelector(ScheduledEmailTypeSlice.SortField);

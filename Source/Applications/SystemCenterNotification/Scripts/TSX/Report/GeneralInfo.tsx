@@ -98,7 +98,6 @@ const GeneralInfo = (props: IProps) => {
                             <button className={"btn btn-primary" + (errors.length == 0 && hasChanged ? '' : ' disabled')} type="submit"
                                 onClick={() => {
                                     if (errors.length == 0 && hasChanged) {
-                                        console.log(email)
                                         dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email }));
                                     }
                                 }}

@@ -92,7 +92,7 @@ const Template = (props: IProps) => {
 
             </ToolTip>
             <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
-                {hasChanged ? <p> {Warning} Changes to Template will be discarded.</p> : null}
+                <p> {Warning} Changes to Template will be discarded.</p>
             </ToolTip>
         </div>
         )

@@ -38,7 +38,14 @@ declare var version;
 
 interface IProps { useParams: {id: string}}
 
-declare type Tab = 'settings' | 'template' | 'dataSources' | 'subscriptions'  | 'trigger'
+declare type Tab = 'settings' | 'template' | 'dataSources' | 'subscriptions' | 'trigger'
+const Tabs = [
+    { Label: 'Settings', Id: 'settings' },
+    { Label: 'Template', Id: 'template' },
+    { Label: 'Data Sources', Id: 'dataSources' },
+    { Label: 'Trigger', Id: 'trigger' },
+    { Label: 'Subscriptions', Id: 'subscriptions' }
+];
 
 
 const EmailPage = (props: IProps) => {
@@ -50,25 +57,18 @@ const EmailPage = (props: IProps) => {
     const email = useAppSelector((state) => ScheduledEmailTypeSlice.Datum(state, parseInt(props.useParams.id)));
     const status: Application.Types.Status = useAppSelector(ScheduledEmailTypeSlice.Status);
 
+    const getTab = React.useCallback(() => {
+        if (sessionStorage.hasOwnProperty('ReportPage.Tab'))
+            return JSON.parse(sessionStorage.getItem('ReportPage.Tab'));
+        else return 'settings';
+    }, []);
+
     const [tab, setTab] = React.useState<Tab>(getTab());
-    const Tabs = [
-        { Label: 'Settings', Id: 'settings' },
-        { Label: 'Template', Id: 'template' },
-        { Label: 'Data Sources', Id: 'dataSources' },
-        { Label: 'Trigger', Id: 'trigger' },
-        { Label: 'Subscriptions', Id: 'subscriptions' }
-    ];
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
             dispatch(ScheduledEmailTypeSlice.Fetch());
     }, [status]);
-
-    function getTab(): Tab {
-        if (sessionStorage.hasOwnProperty('ReportPage.Tab'))
-            return JSON.parse(sessionStorage.getItem('ReportPage.Tab'));
-        else return 'settings';
-    }
 
     React.useEffect(() => {
         const saved = getTab();
@@ -101,27 +101,27 @@ const EmailPage = (props: IProps) => {
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <GeneralInfo Record={email} />
                                 </div>
-                                : null}
+                                : <></>}
                             {tab == "template" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <Template Record={email} />
                                 </div>
-                                : null}
+                                : <></>}
                             {tab == "dataSources" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <DataSourceWindow Record={email} />
                                 </div>
-                                : null}
+                                : <></>}
                             {tab == 'trigger' ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <TriggerWindow Record={email} />
                                 </div>
-                                : null}
+                                : <></>}
                             {tab == 'subscriptions' ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <Subscriptions Record={email} />
                                 </div>
-                                : null}
+                                : <></>}
                         </div>
                     </div>
                 </div>

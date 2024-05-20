@@ -35,12 +35,13 @@ import { Select } from '@gpa-gemstone/react-forms';
 declare var homePath;
 declare var version;
 
+const emptyCarrier = { ID: -1, Name: '', Transform: '' } as ICellCarrier;
+
 interface IProps {}
 
 const ByUserInformation = (props: IProps) => {
     const dispatch = useAppDispatch();
     const [phone, setPhone] = React.useState<string>('');
-    const emptyCarrier = { ID: -1, Name: '', Transform: '' };
     const [carrier, setCarrier] = React.useState<ICellCarrier>(emptyCarrier);
     const [hover, setHover] = React.useState<('submit' | 'clear' | 'none')>('none');
 

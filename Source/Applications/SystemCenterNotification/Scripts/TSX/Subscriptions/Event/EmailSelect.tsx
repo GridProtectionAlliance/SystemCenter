@@ -28,6 +28,24 @@ import { EmailCategorySlice, EmailTypeSlice } from '../../Store';
 import { EmailCategory, EmailType } from '../../global';
 import { Select } from '@gpa-gemstone/react-forms';
 
+
+const emptyEmailType = {
+    ID: -1,
+    EmailCategoryID: 0,
+    Name: '',
+    Template: '',
+    TriggerEmailSQL: '',
+    CombineEventsSQL: '',
+    MinDelay: 0,
+    MaxDelay: 0,
+    SMS: false,
+    ShowSubscription: false,
+    RequireApproval: false,
+    FilePath: ''
+} as EmailType;
+
+const emptyCategory = { ID: -1, Name: '', SelfSubscribe: false } as EmailCategory;
+
 interface IProps {
     SetEmailTypeID: (id: number) => void,
     emailTypeID: number
@@ -38,27 +56,13 @@ const EmailSelect = (props: IProps) => {
     const emailCategoryStatus = useAppSelector(EmailCategorySlice.Status);
     const emailCategories = useAppSelector(EmailCategorySlice.Data);
 
-    const emptyCategory = { ID: -1, Name: '', SelfSubscribe: false };
+    
     const [selectedCategory, setSelectedCategory] = React.useState<EmailCategory>(emptyCategory);
 
     const emailTypeStatus = useAppSelector(EmailTypeSlice.Status);
     const emailTypes = useAppSelector(EmailTypeSlice.Data);
     const emailTypeParentID = useAppSelector(EmailTypeSlice.ParentID);
 
-    const emptyEmailType = {
-        ID: -1,
-        EmailCategoryID: 0,
-        Name: '',
-        Template: '',
-        TriggerEmailSQL: '',
-        CombineEventsSQL: '',
-        MinDelay: 0,
-        MaxDelay: 0,
-        SMS: false,
-        ShowSubscription: false,
-        RequireApproval: false,
-        FilePath: ''
-    };
     const [selectedEmailType, setSelectedEmailType] = React.useState<EmailType>(emptyEmailType);
 
     React.useEffect(() => {
