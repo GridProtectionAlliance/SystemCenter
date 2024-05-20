@@ -68,6 +68,11 @@ function Meter(props: IProps) {
 
     function getTab(): Tab {
         if (props.Tab != undefined) return props.Tab;
+        else if (localStorage.hasOwnProperty('Meter.InfoTab')) {
+            const tab = localStorage.getItem('Meter.InfoTab') as Tab;
+            localStorage.removeItem('Meter.InfoTab')
+            return tab;
+        }
         else if (sessionStorage.hasOwnProperty('Meter.Tab'))
             return JSON.parse(sessionStorage.getItem('Meter.Tab'));
         else

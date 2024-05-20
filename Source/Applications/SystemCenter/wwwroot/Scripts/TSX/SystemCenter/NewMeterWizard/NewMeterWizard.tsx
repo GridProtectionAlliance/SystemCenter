@@ -316,20 +316,12 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
         localStorage.setItem('NewMeterWizard.CurrentStep', currentStep.toString())
     }
 
-    function meterDetails() {
-        setError([]);
-        setWarning([]);
-        if (meterID > 0) {
-            // Construct the URL with the meterID
-            const url = `${homePath}index.cshtml?name=Meter&MeterID=${meterID}#meterInfo`;
-
-            // Open the new URL in a new tab
-            window.open(url, '_blank');
-        }
-        else {
-            // Handle the case where meterID is not valid (e.g., when it's 0 or undefined)
-            setError(["No valid Meter ID found. Unable to open Meter details."]);
-        }
+    function openMeterDetails() {
+        // Construct the URL with the meterID
+        localStorage.setItem('Meter.InfoTab', 'meterInfo');
+        const url = `${homePath}index.cshtml?name=Meter&MeterID=${meterID}`;
+        // Open the new URL in a new tab
+        window.open(url, '_blank');
     }
 
     function clearData(): void {
@@ -417,8 +409,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
                 <div>
                     <button
                         className="btn btn-primary"
-                        style={{ position: 'absolute', top: 0, right: 0, marginRight: '80px' }}
-                        onClick={meterDetails}
+                        onClick={openMeterDetails}
                     >
                         Meter Details
                     </button>
