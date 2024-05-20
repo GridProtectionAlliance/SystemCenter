@@ -90,7 +90,7 @@ const Template = (props: IProps) => {
                             {email.Template == null || email.Template.length == 0 ? <p> {CrossMark} A valid Template is required.</p> : null}
                         </ToolTip>
                         <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
-                            {hasChanged ? <p> {Warning} Changes to Template will be discarded.</p> : null}
+                            <p>{Warning} Changes to Template will be discarded.</p>
                         </ToolTip>
                     </div>
                 </div>

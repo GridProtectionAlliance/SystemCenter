@@ -37,15 +37,16 @@ import { castArray } from 'lodash';
 declare var homePath;
 declare var version;
 
+const emptyCarrier = { Name: '', Transform: '', ID: 0 };
+const searchFields: Search.IField<ICellCarrier>[] = [
+    { key: "Name", label: "Name", type: "string", isPivotField: false },
+    { key: "Transform", label: "Transform", type: "string", isPivotField: false },
+];
+
 interface IProps {}
 
 const ByCellCarrier = (props: IProps) => {
     const dispatch = useAppDispatch();
-
-    const searchFields: Search.IField<ICellCarrier>[] = [
-        { key: "Name", label: "Name", type: "string", isPivotField: false },
-        { key: "Transform", label: "Transform", type: "string", isPivotField: false },
-    ]
 
     const searchStatus: Application.Types.Status = useAppSelector(CellCarrierSlice.SearchStatus);
     const status: Application.Types.Status = useAppSelector(CellCarrierSlice.Status);
@@ -55,7 +56,6 @@ const ByCellCarrier = (props: IProps) => {
     const asc = useAppSelector(CellCarrierSlice.Ascending);
     const filters = useAppSelector(CellCarrierSlice.SearchFilters);
     const [showModal, setShowModal] = React.useState<'New' | 'Edit' | 'Hide'>('Hide');
-    const emptyCarrier = { Name: '', Transform: '', ID: 0 };
     const [carrier, setCarrier] = React.useState<ICellCarrier>(emptyCarrier);
 
 
@@ -78,9 +78,7 @@ const ByCellCarrier = (props: IProps) => {
                         SetFilter={(flds) => dispatch(CellCarrierSlice.DBSearch({ filter: flds }))}
                         Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                         ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Cell Carrier(s)'}
-                        GetEnum={() => {
-                            return () => { }
-                        }}>
+                    >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>

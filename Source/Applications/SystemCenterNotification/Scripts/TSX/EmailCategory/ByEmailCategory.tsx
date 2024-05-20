@@ -81,9 +81,7 @@ const ByEmailCategory = (props: IProps) => {
                         SetFilter={(flds) => dispatch(EmailCategorySlice.DBSearch({ filter: flds }))}
                         Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                         ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Email Category(s)'}
-                        GetEnum={() => {
-                            return () => { }
-                        }}>
+                    >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>

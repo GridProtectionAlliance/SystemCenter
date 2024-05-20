@@ -32,6 +32,10 @@ import EmailList from './EmailList';
 interface IProps { useParams: { id: string } }
 
 declare type Tab = 'settings' | 'emails';
+const Tabs = [
+    { Label: 'General Settings', Id: 'settings' },
+    { Label: ' Emails', Id: 'emails' },
+];
 
 
 const EmailCategoryPage = (props: IProps) => {
@@ -42,22 +46,18 @@ const EmailCategoryPage = (props: IProps) => {
     const category = useAppSelector((state) => EmailCategorySlice.Datum(state, parseInt(props.useParams.id)));
     const status: Application.Types.Status = useAppSelector(EmailCategorySlice.Status);
 
+    const getTab = React.useCallback(() => {
+        if (sessionStorage.hasOwnProperty('EmailCategory.Tab'))
+            return JSON.parse(sessionStorage.getItem('EmailCategory.Tab'));
+        else return 'settings';
+    }, []);
+
     const [tab, setTab] = React.useState<Tab>(getTab());
-    const Tabs = [
-        { Label: 'General Settings', Id: 'settings' },
-        { Label: ' Emails', Id: 'emails' },
-    ];
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
             dispatch(EmailCategorySlice.Fetch());
     }, [status]);
-
-    function getTab(): Tab {
-        if (sessionStorage.hasOwnProperty('EmailCategory.Tab'))
-            return JSON.parse(sessionStorage.getItem('EmailCategory.Tab'));
-        else return 'settings';
-    }
 
     React.useEffect(() => {
         const saved = getTab();
@@ -90,12 +90,12 @@ const EmailCategoryPage = (props: IProps) => {
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <EmailCategoryWindow Category={category} />
                                 </div>
-                                : null}
+                                : <></>}
                             {tab == "emails" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <EmailList CategoryID={category.ID} />
                                 </div>
-                                : null}
+                                : <></>}
                         </div>
                     </div>
                 </div>

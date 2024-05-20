@@ -36,7 +36,21 @@ import { useNavigate } from 'react-router-dom';
 declare var homePath;
 declare var version;
 
-interface IProps {}
+interface IProps { }
+
+const emptyEmail = {
+    ID: -1,
+    Name: '',
+    ShowSubscription: true,
+    SMS: false,
+    CombineEventsSQL: '',
+    TriggerEmailSQL: '',
+    EmailCategoryID: -1,
+    MaxDelay: 0,
+    MinDelay: 0,
+    Template: '',
+    RequireApproval: false
+} as EmailType
 
 const ByEmailType = (props: IProps) => {
     const navigate = useNavigate();
@@ -54,12 +68,10 @@ const ByEmailType = (props: IProps) => {
     const [showModal, setShowModal] = React.useState<boolean>(false);
     const [errors, setErrors] = React.useState<string[]>([]);
 
-    const emptyEmail = { ID: -1, Name: '', ShowSubscription: true, SMS: false, CombineEventsSQL: '', TriggerEmailSQL: '', EmailCategoryID: -1, MaxDelay: 0, MinDelay: 0, Template: '', RequireApproval: false } as EmailType
     const [newEmail, setNewEmail] = React.useState<EmailType>(emptyEmail);
 
     const sortField = useAppSelector(EmailTypeSlice.SortField);
     const asc = useAppSelector(EmailTypeSlice.Ascending);
-
 
 
     React.useEffect(() => {
@@ -109,7 +121,8 @@ const ByEmailType = (props: IProps) => {
         { key: "ShowSubscription", label: "Self Subscription", type: "boolean", isPivotField: false },
         { key: "RequireApproval", label: "Requires Approval", type: "boolean", isPivotField: false },
         { key: "EmailCategoryID", label: "Category", type: "enum", isPivotField: false, enum: categories.map(item => ({ Label: item.Name, Value: item.ID.toString() })) },
-    ]
+    ];
+
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
             <LoadingScreen Show={status === 'loading'} />
@@ -119,9 +132,7 @@ const ByEmailType = (props: IProps) => {
                         SetFilter={(flds) => dispatch(EmailTypeSlice.DBSearch({ filter: flds }))}
                         Direction={'left'} defaultCollumn={{ key: 'Name', label: 'Name', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
                         ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Event Notification(s)'}
-                        GetEnum={() => {
-                            return () => { }
-                        }}>
+                    >
                         <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
                             <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
                                 <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>

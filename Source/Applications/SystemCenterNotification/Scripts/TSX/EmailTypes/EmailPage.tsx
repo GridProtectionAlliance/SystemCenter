@@ -89,27 +89,27 @@ const EmailPage = (props: IProps) => {
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <GeneralInfo Record={email} />
                                 </div>
-                                : null}
+                                : <></>}
                             {tab == "template" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <Template Record={email} />
                                 </div>
-                                : null}
+                                : <></>}
                             {tab == "dataSources" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <DataSourceWindow Record={email} />
                                 </div>
-                                : null}
+                                : <></>}
                             {tab == "trigger" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <TriggerWindow Record={email} />
                                 </div>
-                                : null}
+                                : <></>}
                             {tab == "subscriptions" ?
                                 <div className="tab-pane active" style={{ height: 'inherit' }}>
                                     <Subscriptions Record={email} />
                                 </div>
-                                : null}
+                                : <></>}
                         </div>
                     </div>
                 </div>
