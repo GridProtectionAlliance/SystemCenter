@@ -27,11 +27,11 @@ import { useAppDispatch, useAppSelector } from '../hooks';
 import { Select } from '@gpa-gemstone/react-forms';
 import { ICellCarrier } from '../global';
 
-const emptyCarrier = {
+const emptyCarrier: ICellCarrier = {
     ID: -1,
     Name: '',
     Transform: '',
-} as ICellCarrier;
+};
 
 interface IProps {}
 

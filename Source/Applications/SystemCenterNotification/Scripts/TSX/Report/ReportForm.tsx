@@ -71,13 +71,13 @@ const ReportForm = (props: IProps) => {
                 />
             </div>
             <div className="col">
-                <CheckBox<ScheduledEmailType> Record={props.record} Field={'ShowSubscription'} Label={'Allow Self Subscription'} Setter={(record) => props.setRecord(record)} />
-                <CheckBox<ScheduledEmailType> Record={props.record} Field={'RequireApproval'} Label={'Requires Approval'} Setter={(record) => props.setRecord(record)} />
-                <CheckBox<ScheduledEmailType> Record={props.record} Field={'SMS'} Label={'Send as a Text'} Setter={(record) => props.setRecord(record)} />
                 <Input<ScheduledEmailType> Record={props.record} Field={'FilePath'}
                     Label={'File Path'}
                     Help={'If the path is empty the system will not save the report to a file. Otherwise the system will save the notification to the specified path with the subject as the filename.'}
                     Valid={Valid} Setter={(record) => props.setRecord(record)} />
+                <CheckBox<ScheduledEmailType> Record={props.record} Field={'ShowSubscription'} Label={'Allow Self Subscription'} Setter={(record) => props.setRecord(record)} />
+                <CheckBox<ScheduledEmailType> Record={props.record} Field={'RequireApproval'} Label={'Requires Approval'} Setter={(record) => props.setRecord(record)} />
+                <CheckBox<ScheduledEmailType> Record={props.record} Field={'SMS'} Label={'Send as a Text'} Setter={(record) => props.setRecord(record)} />
             </div>
         </div>)
 }

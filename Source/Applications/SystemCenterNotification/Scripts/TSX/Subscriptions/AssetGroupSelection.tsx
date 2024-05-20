@@ -32,7 +32,7 @@ import { Select } from '@gpa-gemstone/react-forms';
 declare var homePath;
 declare var version;
 
-const otherParent = {
+const otherParent: OpenXDA.Types.AssetGroup = {
     ID: -1,
     Name: 'Other',
     DisplayDashboard: false,
@@ -41,7 +41,7 @@ const otherParent = {
     Assets: 0,
     Users: 0,
     DisplayEmail: false
-} as OpenXDA.Types.AssetGroup;
+};
 
 interface IProps {
     SetAssetGroupID: (ids: number[]) => void,

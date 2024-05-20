@@ -35,7 +35,7 @@ import { Select } from '@gpa-gemstone/react-forms';
 declare var homePath;
 declare var version;
 
-const emptyCarrier = { ID: -1, Name: '', Transform: '' } as ICellCarrier;
+const emptyCarrier: ICellCarrier = { ID: -1, Name: '', Transform: '' };
 
 interface IProps {}
 

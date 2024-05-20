@@ -36,14 +36,15 @@ import { useNavigate } from 'react-router-dom';
 declare var homePath;
 declare var version;
 
-const emptyEmail = {
+const emptyEmail: ScheduledEmailType = {
     ID: -1, Name: '',
     SMS: false, TriggerEmailSQL: 'SELECT 1',
     EmailCategoryID: -1, Template: '',
     Schedule: '23 59 * * *',
     ShowSubscription: true,
     RequireApproval: false,
-} as ScheduledEmailType;
+    FilePath: ''
+};
 
 interface IProps {}
 

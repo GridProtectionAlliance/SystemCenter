@@ -29,7 +29,7 @@ import { EmailCategory, EmailType } from '../../global';
 import { Select } from '@gpa-gemstone/react-forms';
 
 
-const emptyEmailType = {
+const emptyEmailType: EmailType = {
     ID: -1,
     EmailCategoryID: 0,
     Name: '',
@@ -44,7 +44,7 @@ const emptyEmailType = {
     FilePath: ''
 } as EmailType;
 
-const emptyCategory = { ID: -1, Name: '', SelfSubscribe: false } as EmailCategory;
+const emptyCategory: EmailCategory = { ID: -1, Name: '', SelfSubscribe: false };
 
 interface IProps {
     SetEmailTypeID: (id: number) => void,

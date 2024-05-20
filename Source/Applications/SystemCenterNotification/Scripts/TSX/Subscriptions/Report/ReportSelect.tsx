@@ -28,7 +28,7 @@ import { EmailCategorySlice, ScheduledEmailTypeSlice } from '../../Store';
 import { Select } from '@gpa-gemstone/react-forms';
 import { EmailCategory, ScheduledEmailType } from '../../global';
 
-const emptyReport = {
+const emptyReport: ScheduledEmailType = {
     ID: -1,
     EmailCategoryID: 0,
     Name: '',
@@ -39,7 +39,7 @@ const emptyReport = {
     FilePath: '',
     ShowSubscription: false,
     RequireApproval: false
-} as ScheduledEmailType;
+};
 
 const emptyCategory = { ID: -1, Name: '', SelfSubscribe: false } as EmailCategory;
 
