@@ -408,7 +408,7 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
             return (
                 <div>
                     <button
-                        className="btn btn-primary"
+                        className="btn btn-primary pull-right"
                         onClick={openMeterDetails}
                     >
                         Meter Details
