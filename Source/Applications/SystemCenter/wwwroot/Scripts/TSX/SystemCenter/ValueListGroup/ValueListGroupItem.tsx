@@ -163,7 +163,7 @@ export default function ValueListGroupItems(props: IProps) {
                     else if (conf && record.ID == 0)
                         dispatch(ValueListSlice.DBAction({ verb: 'POST', record }));
                 }}
-            >             
+            >
                 <ValueListForm Record={record} Setter={setRecord} SetErrors={setErrors} />
             </Modal>
             </div>

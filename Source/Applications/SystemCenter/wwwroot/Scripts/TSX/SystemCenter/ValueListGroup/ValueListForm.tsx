@@ -46,7 +46,7 @@ export default function ValueListForm(props: IProps) {
             e.push('Label must be less than 200 characters.');
         if (props.Record.SortOrder != null && !IsInteger(props.Record.SortOrder))
             e.push('Sort Order must be an integer.');
-
+        props.SetErrors(e);
     }, [props.Record])
 
     function Valid(field: keyof (SystemCenter.Types.ValueListItem)): boolean {

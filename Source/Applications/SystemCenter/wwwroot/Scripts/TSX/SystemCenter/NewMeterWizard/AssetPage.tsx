@@ -563,7 +563,7 @@ export default function AssetPage(props: IProps) {
                                 {newEditAsset.AssetType === 'Transformer' ? (
                                     <div className="col-12">
                                         <div className="row justify-content-center">
-                                            <div className="col-4 pr-4">
+                                            <div className="col-4">
                                                 <label>Associated Channels Primary Side</label>
                                                 <select multiple style={{ height: innerHeight - 430, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -583,7 +583,7 @@ export default function AssetPage(props: IProps) {
                                                     ))}
                                                 </select>
                                             </div>
-                                            <div className="col-4 px-4">
+                                            <div className="col-4">
                                                 <label>Associated Channels Secondary Side</label>
                                                 <select multiple style={{ height: innerHeight - 430, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
@@ -603,7 +603,7 @@ export default function AssetPage(props: IProps) {
                                                     ))}
                                                 </select>
                                             </div>
-                                            <div className="col-4 pl-4">
+                                            <div className="col-4">
                                                 <label>Associated Channels Tertiary Side</label>
                                                 <select multiple style={{ height: innerHeight - 430, width: '100%', overflowX: 'auto' }} onChange={(evt) => {
                                                     let asset = _.clone(newEditAsset as OpenXDA.Types.Asset);
