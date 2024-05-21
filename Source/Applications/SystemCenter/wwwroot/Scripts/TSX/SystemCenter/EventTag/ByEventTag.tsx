@@ -27,7 +27,7 @@ import { EventTagSlice } from '../Store/Store';
 
 import { ReactTable } from '@gpa-gemstone/react-table'
 import { OpenXDA, Application } from '@gpa-gemstone/application-typings';
-import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
+import { SearchBar, Search, Modal, Warning } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import EventTagForm from './EventTagForm';
 
@@ -46,6 +46,8 @@ const EventTags: Application.Types.iByComponent = (props) => {
 
     const [mode, setMode] = React.useState<'View'|'Add'|'Edit'>('View');
     const [errors, setErrors] = React.useState<string[]>([]);
+    const [showWarning, setShowWarning] = React.useState<boolean>(false);
+    const [showModal, setShowModal] = React.useState<boolean>(false);
 
     const emptyRecord = { ID: 0, Name: '', Description: '', ShowInFilter: false };
     const [record, setRecord] = React.useState<OpenXDA.Types.EventTag>(emptyRecord);
@@ -80,6 +82,12 @@ const EventTags: Application.Types.iByComponent = (props) => {
 
         setErrors(e);
     }, [record]);
+
+    const deleteTag = () => {
+        dispatch(EventTagSlice.DBAction({ verb: 'DELETE', record }));
+        setShowWarning(false);
+        setMode('View');
+    };
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
@@ -155,8 +163,9 @@ const EventTags: Application.Types.iByComponent = (props) => {
                     if (conf)
                         dispatch(EventTagSlice.DBAction({ verb: mode === 'Add' ? 'POST' : 'PATCH', record }));
                     else if (isBtn)
-                        dispatch(EventTagSlice.DBAction({ verb: 'DELETE', record }));
-                    setMode('View');
+                        setShowWarning(true);
+                    else
+                        setMode('View');
                 }}
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
@@ -169,6 +178,16 @@ const EventTags: Application.Types.iByComponent = (props) => {
                 Show={mode === 'Add' || mode === 'Edit'} >
                 <EventTagForm Record={record} Setter={setRecord} />
             </Modal>
+
+            <Warning
+                Title={`Delete ${record.Name}`}
+                Show={showWarning}
+                Message={'This will permanently delete this Event Tag and cannot be undone.'}
+                CallBack={(c) => {
+                    if (c) deleteTag();
+                    setShowWarning(false);
+                }}
+            />
         </div>
     )
 }
