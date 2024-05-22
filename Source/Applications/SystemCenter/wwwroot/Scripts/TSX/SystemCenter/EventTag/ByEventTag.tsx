@@ -47,7 +47,6 @@ const EventTags: Application.Types.iByComponent = (props) => {
     const [mode, setMode] = React.useState<'View'|'Add'|'Edit'>('View');
     const [errors, setErrors] = React.useState<string[]>([]);
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
-    const [showModal, setShowModal] = React.useState<boolean>(false);
 
     const emptyRecord = { ID: 0, Name: '', Description: '', ShowInFilter: false };
     const [record, setRecord] = React.useState<OpenXDA.Types.EventTag>(emptyRecord);
@@ -160,12 +159,15 @@ const EventTags: Application.Types.iByComponent = (props) => {
 
             <Modal Title={mode === 'Add' ? 'Add New Event Tag' : 'Edit ' + record.Name}
                 CallBack={(conf, isBtn) => {
-                    if (conf)
+                    if (conf) {
                         dispatch(EventTagSlice.DBAction({ verb: mode === 'Add' ? 'POST' : 'PATCH', record }));
-                    else if (isBtn)
-                        setShowWarning(true);
-                    else
+
+                    }
+                    else if (isBtn) {
                         setMode('View');
+                        setShowWarning(true);
+                    }
+                    setMode('View');
                 }}
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
