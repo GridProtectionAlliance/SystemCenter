@@ -99,6 +99,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
         let editor = ace.edit("template");
         editor.getSession().setMode("ace/mode/xml");
         editor.setFontSize("14px");
+        editor.setPrintMarginColumn(false);
         editor.setValue(record.ConfigText);
         editor.clearSelection();
         editor.gotoLine(0);
