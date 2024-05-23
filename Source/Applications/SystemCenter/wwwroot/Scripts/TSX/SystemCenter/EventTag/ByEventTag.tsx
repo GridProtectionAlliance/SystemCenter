@@ -82,11 +82,11 @@ const EventTags: Application.Types.iByComponent = (props) => {
         setErrors(e);
     }, [record]);
 
-    const deleteTag = () => {
+    const deleteTag = React.useCallback(() => {
         dispatch(EventTagSlice.DBAction({ verb: 'DELETE', record }));
         setShowWarning(false);
         setMode('View');
-    };
+    }, []);
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
@@ -161,13 +161,12 @@ const EventTags: Application.Types.iByComponent = (props) => {
                 CallBack={(conf, isBtn) => {
                     if (conf) {
                         dispatch(EventTagSlice.DBAction({ verb: mode === 'Add' ? 'POST' : 'PATCH', record }));
-
+                        setMode('View');
                     }
                     else if (isBtn) {
                         setMode('View');
                         setShowWarning(true);
                     }
-                    setMode('View');
                 }}
                 ShowX={true}
                 ConfirmBtnClass={'btn-primary'}
