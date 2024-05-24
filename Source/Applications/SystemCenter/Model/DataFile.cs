@@ -143,8 +143,7 @@ namespace SystemCenter.Model
             if (PatchAuthCheck())
             {
                 APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
-                //APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
-                APIQuery query = new APIQuery(settings.Key, settings.Token, new string[] { "http://localhost:8989" });
+                APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
                 void ConfigureRequest(HttpRequestMessage request)
                 {
                     request.Method = HttpMethod.Post;
