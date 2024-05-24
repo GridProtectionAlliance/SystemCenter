@@ -86,7 +86,7 @@ const EventTags: Application.Types.iByComponent = (props) => {
         dispatch(EventTagSlice.DBAction({ verb: 'DELETE', record }));
         setShowWarning(false);
         setMode('View');
-    }, []);
+    }, [record]);
 
     return (
         <div style={{ width: '100%', height: '100%' }}>
@@ -159,12 +159,11 @@ const EventTags: Application.Types.iByComponent = (props) => {
 
             <Modal Title={mode === 'Add' ? 'Add New Event Tag' : 'Edit ' + record.Name}
                 CallBack={(conf, isBtn) => {
+                    setMode('View');
                     if (conf) {
                         dispatch(EventTagSlice.DBAction({ verb: mode === 'Add' ? 'POST' : 'PATCH', record }));
-                        setMode('View');
                     }
                     else if (isBtn) {
-                        setMode('View');
                         setShowWarning(true);
                     }
                 }}
