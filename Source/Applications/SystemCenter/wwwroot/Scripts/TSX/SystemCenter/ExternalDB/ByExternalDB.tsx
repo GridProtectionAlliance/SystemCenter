@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import { ReactTable } from '@gpa-gemstone/react-table'
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, SystemCenter } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -45,7 +45,7 @@ const ExternalDBDefaultSearchField: Search.IField<SystemCenter.Types.DetailedExt
 const emptyRecord = { ID: 0, Name: '', Schedule: '', ConnectionString: '', DataProviderString: '', Encrypt: false };
 
 const ByExternalDB: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let history = useNavigate();
     const dispatch = useAppDispatch();
 
     const data = useAppSelector(ExternalDatabasesSlice.SearchResults);
@@ -77,7 +77,7 @@ const ByExternalDB: Application.Types.iByComponent = (props) => {
     }, [record]);
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDB&ID=' + item.row.ID })
+        //history.push({ pathname: homePath + 'index.cshtml', search: '?name=ExternalDB&ID=' + item.row.ID })
     }
 
     return (

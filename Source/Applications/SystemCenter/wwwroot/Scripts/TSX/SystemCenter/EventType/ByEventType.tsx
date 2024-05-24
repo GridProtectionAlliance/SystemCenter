@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { ReactTable } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { Modal } from '@gpa-gemstone/react-interactive';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols'
@@ -35,7 +35,7 @@ import { EventTypeAssetTypeSlice, EventTypeSlice } from '../Store/Store';
 declare var homePath: string;
 
 const ByEventType: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let history = useNavigate();
 
     const dispatch = useAppDispatch();
     const eventTypes = useAppSelector(EventTypeSlice.Data) as OpenXDA.Types.EventType[];

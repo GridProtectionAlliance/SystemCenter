@@ -24,7 +24,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import { AssetGroupSlice, AssetTypeSlice } from '../Store/Store';
 import { SystemCenter } from '@gpa-gemstone/application-typings';
@@ -37,7 +37,7 @@ import { SelectRoles } from '../Store/UserSettings';
 declare var homePath: string;
 
 function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
-    let history = useHistory();
+    let history = useNavigate();
     const [assetList, setAssetList] = React.useState<Array<SystemCenter.Types.DetailedAsset>>([]);
     const [sortKey, setSortKey] = React.useState<string>('AssetName');
     const [ascending, setAscending] = React.useState<boolean>(true);
@@ -154,8 +154,8 @@ function AssetAssetGroupWindow(props: { AssetGroupID: number}) {
                             }
                         }}
                         OnClick={(data) => {
-                            if (data.colKey != 'Remove')
-                                history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.ID, state: {} });
+                            //if (data.colKey != 'Remove')
+                                //history.push({ pathname: homePath + 'index.cshtml', search: '?name=Asset&AssetID=' + data.row.ID, state: {} });
                         }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 590, width: '100%' }}

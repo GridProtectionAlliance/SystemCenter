@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { ReactTable } from '@gpa-gemstone/react-table'
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application, OpenXDA } from '@gpa-gemstone/application-typings';
 import { Modal, Search, SearchBar } from '@gpa-gemstone/react-interactive';
 import { CrossMark } from '@gpa-gemstone/gpa-symbols';
@@ -40,7 +40,7 @@ const defaultSearchcols: Array<Search.IField<OpenXDA.Types.RemoteXDAInstance>> =
 ];
 
 const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
-    let history = useHistory();
+    let history = useNavigate();
 
     const [showNew, setShowNew] = React.useState<boolean>(false);
 
@@ -71,7 +71,7 @@ const RemoteXDAInstanceMain: Application.Types.iByComponent = (props) => {
     }, [ascending, sortKey]);
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=RemoteXDAInstance&ID=' + item.row.ID, state: {} })
+        //history.push({ pathname: homePath + 'index.cshtml', search: '?name=RemoteXDAInstance&ID=' + item.row.ID, state: {} })
     }
 
     const standardSearch: Search.IField<OpenXDA.Types.RemoteXDAInstance> = { label: 'Name', key: 'Name', type: 'string', isPivotField: false };

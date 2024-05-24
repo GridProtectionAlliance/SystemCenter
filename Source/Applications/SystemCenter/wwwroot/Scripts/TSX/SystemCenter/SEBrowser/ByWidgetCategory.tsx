@@ -24,7 +24,7 @@
 import * as React from 'react';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Application } from '@gpa-gemstone/application-typings';
 import { OpenXDA as LocalXDA } from '../global';
 import { SearchBar, Search, Modal } from '@gpa-gemstone/react-interactive';
@@ -39,7 +39,7 @@ const emptyCategory: LocalXDA.IWidgetCategory = { ID: 0, Name: '', OrderBy: 0 };
 
 const ByWidgetCategory: Application.Types.iByComponent = (props) => {
     let dispatch = useAppDispatch();
-    let history = useHistory();
+    let history = useNavigate();
 
     const cState = useAppSelector(WidgetCategorySlice.SearchStatus);
     const data = useAppSelector(WidgetCategorySlice.SearchResults);
@@ -60,7 +60,7 @@ const ByWidgetCategory: Application.Types.iByComponent = (props) => {
     }, [cState]);
 
     function handleSelect(item) {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=SEBrowserTab&TabID=' + item.row.ID })
+        //history.push({ pathname: homePath + 'index.cshtml', search: '?name=SEBrowserTab&TabID=' + item.row.ID })
     }
 
     const searchFields: Search.IField<LocalXDA.IWidgetCategory>[] = [

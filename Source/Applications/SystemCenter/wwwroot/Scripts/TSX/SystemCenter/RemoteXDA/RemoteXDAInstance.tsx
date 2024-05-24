@@ -23,7 +23,7 @@
 
 import * as React from 'react';
 import * as _ from 'lodash';
-import { useHistory } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { LoadingScreen, TabSelector, Warning } from '@gpa-gemstone/react-interactive';
 import { useAppDispatch, useAppSelector } from '../hooks';
 import { RemoteXDAInstanceSlice } from '../Store/Store';
@@ -38,7 +38,7 @@ declare type Tab = 'systemSettings' | 'remoteMeter' | 'remoteAsset'
 interface IProps { Roles: Array<Application.Types.SecurityRoleName>, ID: number, Tab: Tab }
 
 function RemoteXDAInstance(props: IProps) {
-    let history = useHistory();
+    let history = useNavigate();
     const [tab, setTab] = React.useState(getTab());
     const [showDelete, setShowDelete] = React.useState<boolean>(false);
     const [loading, setLoading] = React.useState<boolean>(false);
@@ -68,7 +68,7 @@ function RemoteXDAInstance(props: IProps) {
     }, [tab]);
 
     function returnMain() {
-        history.push({ pathname: homePath + 'index.cshtml', search: '?name=RemoteXDAInstanceMain', state: {} })
+        //history.push({ pathname: homePath + 'index.cshtml', search: '?name=RemoteXDAInstanceMain', state: {} })
     }
 
     function deleteConnection(): void {
