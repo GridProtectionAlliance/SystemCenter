@@ -140,7 +140,7 @@ const AssetChannelWindow = (props: IProps) => {
         </div>
 
     return (
-        <div className="card" style={{ marginBottom: 10, display: 'flex', flexDirection: 'column', height: '100%' }}>
+        <div className="card" style={{ marginBottom: 10, display: 'flex', flexDirection: 'column', maxHeight: '70vh' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -148,8 +148,8 @@ const AssetChannelWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 10 }}>
+            <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'hidden' }}>
+                <div style={{ flex: 1, overflowY: 'auto' }}>
                     <ReactTable.Table<ChannelDetail>
                         TableClass="table table-hover"
                         Data={assetChannels}
@@ -169,7 +169,7 @@ const AssetChannelWindow = (props: IProps) => {
                             }
                         }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', width: '100%' }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.ID}
