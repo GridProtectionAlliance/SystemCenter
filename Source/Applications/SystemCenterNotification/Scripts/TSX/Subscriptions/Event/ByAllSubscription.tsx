@@ -26,7 +26,7 @@ import * as React from 'react';
 import { LoadingScreen, SearchBar, Warning } from '@gpa-gemstone/react-interactive'
 import { CrossMark, HeavyCheckMark, TrashCan } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { ActiveSubscriptionSlice } from '../../Store';
 import { ActiveSubscription } from '../../global';
 import moment from 'moment';
@@ -62,16 +62,15 @@ const ByAllSubscription = (props: IProps) => {
     }, [status, parentID]);
 
     React.useEffect(() => {
-        if (searchStatus === 'unintiated' || status === 'changed')
+        if (searchStatus === 'unintiated' || searchStatus === 'changed')
             dispatch(ActiveSubscriptionSlice.DBSearch({ filter, sortField, ascending: asc }));
     }, [searchStatus]);
 
     React.useEffect(() => {
-        if (force < 1)
-            return;
-        dispatch(ActiveSubscriptionSlice.DBSearch({ filter, sortField, ascending: asc }));
-        dispatch(ActiveSubscriptionSlice.Fetch());
-
+        if (force > 0) {
+            dispatch(ActiveSubscriptionSlice.DBSearch({ filter, sortField, ascending: asc }));
+            dispatch(ActiveSubscriptionSlice.Fetch());
+        }
     }, [force])
 
     React.useEffect(() => {
@@ -111,78 +110,140 @@ const ByAllSubscription = (props: IProps) => {
     };
 
     return (
-        <>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
             <LoadingScreen Show={status === 'loading'} />
-            <div style={{ width: '100%', height: '100%' }}>
-                <SearchBar<ActiveSubscription> CollumnList={[
-                    { key: 'EmailName', label: 'Notification', type: 'string', isPivotField: false},
-                    { key: 'AssetGroup', label: 'Assets', type: 'string', isPivotField: false },
-                    { key: 'UserName', label: 'User', type: 'string', isPivotField: false },
-                    { key: 'Email', label: 'Email', type: 'string', isPivotField: false },
-                    { key: 'Approved', label: 'Approved', type: 'boolean', isPivotField: false },
-                    { key: 'LastSent', label: 'Last Sent', type: 'datetime', isPivotField: false },
-                    { key: 'Category', label: 'Category', type: 'string', isPivotField: false },
-                ]} SetFilter={(flds) => dispatch(ActiveSubscriptionSlice.DBSearch({ filter: flds, sortField, ascending: asc }))}
-                    Direction={'left'} defaultCollumn={{ key: 'EmailName', label: 'Notification', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
-                    ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Subscriptions'}
-                    GetEnum={() => {
-                        return () => { }
-                    }}
-                >
-                    <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
-                        <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
-                            <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
-                            <form>
-                                <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowModal(true); }}>New Subscription</button>
-                                <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowApproveWarning(true) }}>Approve All</button>
-                            </form>
-                        </fieldset>
-                    </li>
-                </SearchBar>
-
-                <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <Table<ActiveSubscription>
-                        cols={[
-                            { key: 'Category', field: 'Category', label: 'Category', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            { key: 'EmailName', field: 'EmailName', label: 'Notification', headerStyle: { width: '15%' }, rowStyle: { width: '15%' } },
-                            { key: 'AssetGroup', field: 'AssetGroup', label: 'Assets', headerStyle: { width: '10%' }, rowStyle: { width: '10%' } },
-                            { key: 'LastSent', field: 'LastSent', label: 'Last Sent', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => (item.Approved && item.LastSent != null) ? moment(item.LastSent).format("dd/MM/yy hh:mm") : "N/A" },
-                            { key: 'UserName', field: 'UserName', label: 'User', headerStyle: { width: '20%', padding: 0 }, rowStyle: { width: '20%' } },
-                            { key: 'Email', field: 'Email', label: 'Email', headerStyle: { width: '20%', padding: 0 }, rowStyle: { width: '20%' } },
-                            {
-                                key: 'Approved', field: 'Approved', label: 'Approved', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) => item.Approved ? HeavyCheckMark : <button className="btn btn-sm" onClick={(e) => {
+            <div className="row">
+                <div className="col">
+                    <SearchBar<ActiveSubscription> CollumnList={[
+                        { key: 'EmailName', label: 'Notification', type: 'string', isPivotField: false},
+                        { key: 'AssetGroup', label: 'Assets', type: 'string', isPivotField: false },
+                        { key: 'UserName', label: 'User', type: 'string', isPivotField: false },
+                        { key: 'Email', label: 'Email', type: 'string', isPivotField: false },
+                        { key: 'Approved', label: 'Approved', type: 'boolean', isPivotField: false },
+                        { key: 'LastSent', label: 'Last Sent', type: 'datetime', isPivotField: false },
+                        { key: 'Category', label: 'Category', type: 'string', isPivotField: false },
+                    ]} SetFilter={(flds) => dispatch(ActiveSubscriptionSlice.DBSearch({ filter: flds, sortField, ascending: asc }))}
+                        Direction={'left'} defaultCollumn={{ key: 'EmailName', label: 'Notification', type: 'string', isPivotField: false }} Width={'50%'} Label={'Search'}
+                        ShowLoading={searchStatus === 'loading'} ResultNote={searchStatus === 'error' ? 'Could not complete Search' : 'Found ' + data.length + ' Subscriptions'}
+                        GetEnum={() => {
+                            return () => { }
+                        }}
+                    >
+                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                                <form>
+                                    <div className="form-group">
+                                        <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowModal(true); }}>New Subscription</button>
+                                    </div>
+                                    <div className="form-group">
+                                        <button className="btn btn-primary" onClick={(event) => { event.preventDefault(); setShowApproveWarning(true) }}>Approve All</button>
+                                    </div>
+                                </form>
+                            </fieldset>
+                        </li>
+                    </SearchBar>
+                </div>
+            </div>
+            <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
+                <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
+                    <ReactTable.Table<ActiveSubscription>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={asc}
+                        OnSort={(d) => {
+                            if (d.colKey === null) return;
+                            dispatch(ActiveSubscriptionSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                        }}
+                        TableStyle={{
+                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                        }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item, index) => index}
+                    >
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'Category'}
+                            AllowSort={true}
+                            Field={'Category'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Category
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'EmailName'}
+                            AllowSort={true}
+                            Field={'EmailName'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                        > Notification
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'AssetGroup'}
+                            AllowSort={true}
+                            Field={'AssetGroup'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                        > Assets
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'LastSent'}
+                            AllowSort={true}
+                            Field={'LastSent'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => (item.Approved && item.LastSent != null) ? moment(item.LastSent).format("dd/MM/yy hh:mm") : "N/A" }
+                        > Last Sent
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'UserName'}
+                            AllowSort={true}
+                            Field={'UserName'}
+                            HeaderStyle={{ width: '20%' }}
+                            RowStyle={{ width: '20%' }}
+                        > User
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'Email'}
+                            AllowSort={true}
+                            Field={'Email'}
+                            HeaderStyle={{ width: '20%' }}
+                            RowStyle={{ width: '20%' }}
+                        > Email
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'Approved'}
+                            AllowSort={true}
+                            Field={'Approved'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => item.Approved ? HeavyCheckMark :
+                                <button className="btn btn-sm" onClick={(e) => {
                                     e.preventDefault();
                                     approve(item.UserAccountEmailID);
                                 }}><span>{CrossMark}</span></button>
-                            },
-                            {
-                                key: 'Remove', label: 'Remove', headerStyle: { width: '10%' }, rowStyle: { width: '10%' }, content: (item) =>
-                                    <button className="btn btn-sm" onClick={(e) => {
-                                        e.preventDefault();
-                                        setRecord(item);
-                                        setShowRemoveWarning(true);
+                            }
+                        > Approved
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'Remove'}
+                            AllowSort={true}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) =>
+                                <button className="btn btn-sm" onClick={(e) => {
+                                    e.preventDefault();
+                                    setRecord(item);
+                                    setShowRemoveWarning(true);
                                 }}><span>{TrashCan}</span></button>
-                            },
-                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortField}
-                        ascending={asc}
-                        onSort={(d) => {
-                            if (d.colKey === 'scroll' || d.colKey === 'undefined')
-                                return
-                            if (d.colField === sortField)
-                                dispatch(ActiveSubscriptionSlice.Sort({ SortField: sortField, Ascending: asc }));
-                            else
-                                dispatch(ActiveSubscriptionSlice.Sort({ SortField: d.colField, Ascending: true }));
-                        }}
-                        onClick={(item) => { }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={() => false}
-                    />
+                            }
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
             </div>
             <Warning Show={showApproveWarning} Title={'Approve Notification Subscriptions'} Message={`This will approve all ${nApproval} Subscriptions that are currently pending.`}
@@ -190,7 +251,7 @@ const ByAllSubscription = (props: IProps) => {
             <Warning Show={showRemoveWarning} Title={'Remove Subscription'} Message={`Are you sure you want to remove this subscription?`}
                 CallBack={(c) => { setShowRemoveWarning(false); if (c) removeSubscription(); }} />
             <AddAllSubscription OnClose={() => setShowModal(false)} show={showModal} />
-        </>)
+        </div>)
 }
 
 export default ByAllSubscription;

@@ -25,6 +25,23 @@ import { useAppDispatch, useAppSelector } from '../../hooks';
 import * as React from 'react';
 import { LoadingIcon } from '@gpa-gemstone/react-interactive'
 import { EmailCategorySlice, ScheduledEmailTypeSlice } from '../../Store';
+import { Select } from '@gpa-gemstone/react-forms';
+import { EmailCategory, ScheduledEmailType } from '../../global';
+
+const emptyReport: ScheduledEmailType = {
+    ID: -1,
+    EmailCategoryID: 0,
+    Name: '',
+    Schedule: '',
+    Template: '',
+    TriggerEmailSQL: '',
+    SMS: false,
+    FilePath: '',
+    ShowSubscription: false,
+    RequireApproval: false
+};
+
+const emptyCategory = { ID: -1, Name: '', SelfSubscribe: false } as EmailCategory;
 
 interface IProps {
     SetScheduledEmailTypeID: (id: number) => void,
@@ -36,11 +53,13 @@ const ReportSelect = (props: IProps) => {
     const emailCategoryStatus = useAppSelector(EmailCategorySlice.Status);
     const emailCategories = useAppSelector(EmailCategorySlice.Data);
 
-    const [selectedCategory, setSelectedCategory] = React.useState<number>(-1);
+    const [selectedCategory, setSelectedCategory] = React.useState<EmailCategory>(emptyCategory);
 
     const reportTypeStatus = useAppSelector(ScheduledEmailTypeSlice.Status);
     const reportTypes = useAppSelector(ScheduledEmailTypeSlice.Data);
     const reportTypeParentID = useAppSelector(ScheduledEmailTypeSlice.ParentID);
+
+    const [selectedReport, setSelectedReport] = React.useState<ScheduledEmailType>(emptyReport);
 
     React.useEffect(() => {
         if (emailCategoryStatus === 'unintiated' || emailCategoryStatus === 'changed')
@@ -51,16 +70,15 @@ const ReportSelect = (props: IProps) => {
         if (emailCategories.length > 0) {
             const keys = localStorage.getItem("SystemCenter.Notifications.SelectedCategory");
             if (keys == null || emailCategories.findIndex(e => e.ID == parseInt(keys)) < 0)
-                setSelectedCategory(emailCategories[0].ID);
+                setSelectedCategory(emailCategories[0]);
             else
-                setSelectedCategory(parseInt(keys));
-
+                setSelectedCategory(emailCategories.find(e => e.ID == parseInt(keys)));
         }
-    }, [emailCategories])
+    }, [])
 
     React.useEffect(() => {
-        if (selectedCategory !== reportTypeParentID || reportTypeStatus == 'unintiated' || reportTypeStatus == 'changed')
-            dispatch(ScheduledEmailTypeSlice.Fetch(selectedCategory));
+        if (selectedCategory.ID !== reportTypeParentID || reportTypeStatus == 'unintiated' || reportTypeStatus == 'changed')
+            dispatch(ScheduledEmailTypeSlice.Fetch(selectedCategory.ID));
     }, [selectedCategory, reportTypeParentID, reportTypeStatus])
 
     React.useEffect(() => {
@@ -71,54 +89,34 @@ const ReportSelect = (props: IProps) => {
     }, [reportTypes])
 
     React.useEffect(() => {
-        if (selectedCategory !== -1)
-            localStorage.setItem("SystemCenter.Notifications.SelectedCategory", selectedCategory.toString());
+        if (selectedCategory.ID != -1)
+            localStorage.setItem("SystemCenter.Notifications.SelectedCategory", selectedCategory.ID.toString());
     }, [selectedCategory]);
 
-    return (
-        <>
-            <div className="row">
-                <div className="col">
-                    <div className="form-group">
-                        {emailCategoryStatus == 'loading' ? <LoadingIcon Show={true}/>:
-                            <><label> Notification Category </label>
-                        <select
-                            className="form-control"
-                            onChange={(evt) => {
-                                setSelectedCategory(parseInt((evt.target.value as any).toString()));
-                            }}
-                            value={selectedCategory}
-                                >
-                                    {emailCategories.map((c, i) => c.SelfSubscribe?
-                                <option key={i} value={c.ID}>
-                                    {c.Name}
-                                </option>
-                            : null)}
-                        </select></>}
-                    </div>
-                </div>
-                <div className="col">
-                    <div className="form-group">
-                        {reportTypeStatus == 'loading' ? <LoadingIcon Show={true} /> :
-                            <><label> Notification Template </label>
-                                <select
-                                    className="form-control"
-                                    onChange={(evt) => {
-                                        props.SetScheduledEmailTypeID(parseInt((evt.target.value as any).toString()));
-                                    }}
-                                    value={props.scheduledEmailTypeID}
-                                >
-                                    {reportTypes.map((c, i) =>  
-                                        <option key={i} value={c.ID}>
-                                            {c.Name}
-                                        </option>
-                                     )}
-                                </select></>}
-                    </div>
+    React.useEffect(() => {
+        props.SetScheduledEmailTypeID(selectedReport != null ? selectedReport.ID : -1);
+    }, [selectedReport]);
+
+
+    return (<>
+        <LoadingIcon Show={emailCategoryStatus == 'loading' || reportTypeStatus == 'loading'} />
+        <div className="row">
+            <div className="col">
+                <div className="form-group">
+                    <Select<EmailCategory> Record={selectedCategory} Field={'ID'} Label='Notification Category' Setter={setSelectedCategory}
+                        Options={emailCategories.map((e) => {
+                            if (e.SelfSubscribe) return { Label: e.Name, Value: e.ID.toString() }
+                        })} />
                 </div>
             </div>
-        </>
-    );
+            <div className="col">
+                <div className="form-group">
+                    <Select<ScheduledEmailType> Record={selectedReport} Field={'ID'} Label='Notification Template' Setter={(record) => setSelectedReport({ ...record, ID: typeof record.ID == 'string' ? parseInt(record.ID) : record.ID })}
+                        Options={reportTypes.map((e) => { return { Label: e.Name, Value: e.ID.toString() }})} />
+                </div>
+            </div>
+        </div>
+    </>);
 }
 
 export default ReportSelect;

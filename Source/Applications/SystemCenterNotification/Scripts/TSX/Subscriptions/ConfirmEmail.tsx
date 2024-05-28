@@ -38,7 +38,7 @@ const EmailConfirm = (props: IProps) => {
     const dispatch = useAppDispatch();
    
     const [force, setForce] = React.useState<number>(-1);
-    const [forceResend, setForceResend] = React.useState<number>(-1);
+    const [forceResend, setForceResend] = React.useState<number>(0);
 
     const confirmed = useAppSelector(UserInfoSlice.ConfirmedEmail);
     const status = useAppSelector(UserInfoSlice.Status);

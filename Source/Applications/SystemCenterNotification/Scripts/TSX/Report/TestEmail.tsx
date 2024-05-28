@@ -31,13 +31,14 @@ import * as $ from 'jquery';
 declare var homePath;
 declare var version;
 
+const portalID: string = "TestEmailOuter";
+
 interface IProps { show: boolean, record: ScheduledEmailType, OnClose: () => void }
 
 const TestEmail = (props: IProps) => {
     const dispatch = useAppDispatch();
     const [showWarning, setShowWarning] = React.useState<boolean>(false);
     const userID = useAppSelector(UserInfoSlice.UserAccountID);
-    let portalID: string = "TestEmailOuter";
 
     React.useEffect(() => {
         if (props.show)

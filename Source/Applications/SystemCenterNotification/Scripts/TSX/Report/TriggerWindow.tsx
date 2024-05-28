@@ -25,10 +25,9 @@ import { useAppDispatch } from '../hooks';
 import * as React from 'react';
 import { ToolTip } from '@gpa-gemstone/react-interactive'
 import { CrossMark, Warning } from '@gpa-gemstone/gpa-symbols';
-import {  EmailType, IEvent, ScheduledEmailType } from '../global';
-import {  EmailTypeSlice, ScheduledEmailTypeSlice } from '../Store';
+import { ScheduledEmailType } from '../global';
+import { ScheduledEmailTypeSlice } from '../Store';
 import moment from 'moment';
-import { DatePicker } from '@gpa-gemstone/react-forms';
 
 declare var homePath;
 declare var version;
@@ -69,72 +68,73 @@ const TriggerWindow = (props: IProps) => {
     }, [triggerSQL]);
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Report Trigger:</h4>
-                    </div>
-                </div>
-            </div>
-            <div className="card-body" style={{}}>
-                <div className="row">
-                    <div className={'col-12'}>
-                        {triggerStatus == 'valid' && triggers ?
-                            <div className="alert alert-success">
-                                Based on this SQL Trigger, this Report will be sent out.
-                            </div> : null}
-                        {triggerStatus == 'valid' && triggers ?
-                            <div className="alert alert-danger">
-                                Based on this SQL Trigger, this Report will not be send out.
-                            </div> : null}
-                    </div>
-                </div>
-                <div className="row">
-                    <div className="col">
-                        <div className="form-group">
-                            <label>Trigger SQL</label>
-                            <textarea
-                                rows={3}
-                                className={triggerStatus != 'invalid' ? 'form-control' : 'form-control is-invalid'}
-                                onChange={(evt) => {
-                                    if (evt.target.value !== '') setTriggerSQL(evt.target.value);
-                                    else setTriggerSQL(null)
-                                }}
-                                value={triggerSQL == null ? '' : triggerSQL}
-                            />
-                            <div className="invalid-feedback">
-                                Trigger SQL needs to be a valid SQL statement returning 1 or 0.
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col">
+                                <h4>Report Trigger:</h4>
                             </div>
                         </div>
                     </div>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <div className="row">
+                            <div className={'col-12'}>
+                                {triggerStatus == 'valid' && triggers ?
+                                    <div className="alert alert-success">
+                                        Based on this SQL Trigger, this Report will be sent out.
+                                    </div> : null}
+                                {triggerStatus == 'valid' && triggers ?
+                                    <div className="alert alert-danger">
+                                        Based on this SQL Trigger, this Report will not be send out.
+                                    </div> : null}
+                            </div>
+                        </div>
+                        <div className="row">
+                            <div className="col">
+                                <div className="form-group">
+                                    <label>Trigger SQL</label>
+                                    <textarea
+                                        rows={10}
+                                        className={triggerStatus != 'invalid' ? 'form-control' : 'form-control is-invalid'}
+                                        onChange={(evt) => {
+                                            if (evt.target.value !== '') setTriggerSQL(evt.target.value);
+                                            else setTriggerSQL(null)
+                                        }}
+                                        value={triggerSQL == null ? '' : triggerSQL}
+                                    />
+                                    <div className="invalid-feedback">
+                                        Trigger SQL needs to be a valid SQL statement returning 1 or 0.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card-footer">
+                        <div className="btn-group mr-2">
+                            <button className={"btn btn-primary" + ((triggerStatus == 'valid' || triggerStatus == 'idle') && hasChanged ? '' : ' disabled')}
+                                type="submit"
+                                onClick={() => {
+                                    if ((triggerStatus == 'valid' || triggerStatus == 'idle') && hasChanged)
+                                        dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email }));
+                                }}
+                                data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
+                        </div>
+                        <div className="btn-group mr-2">
+                            <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
+                                onClick={() => { setEmail(props.Record); setHasChanged(false); }}
+                                onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
+                        </div>
+                    </div>
                 </div>
-               
             </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-primary" + ((triggerStatus == 'valid' || triggerStatus == 'idle') && hasChanged ? '' : ' disabled')}
-                        type="submit"
-                        onClick={() => {
-                            if ((triggerStatus == 'valid' || triggerStatus == 'idle') && hasChanged)
-                                dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'PATCH', record: email }));
-                        }}
-                        data-tooltip='submit' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}>Save Changes</button>
-                </div>
-                
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-default" + (hasChanged ? '' : ' disabled')} data-tooltip="clear"
-                        onClick={() => { setEmail(props.Record); setHasChanged(false); }}
-                        onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')} >Clear Changes</button>
-                </div>
-                <ToolTip Show={triggerStatus == 'invalid' && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
-                    {triggerStatus == 'invalid' ? <p> {CrossMark} Trigger SQL is invalid.</p> : null}
-                </ToolTip>
-                <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
-                    {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> {Warning} Changes to Trigger SQL will be discarded.</p> : null}
-                </ToolTip>
-            </div>
-
+            <ToolTip Show={triggerStatus == 'invalid' && hover == 'submit'} Position={'top'} Theme={'dark'} Target={"submit"}>
+                {triggerStatus == 'invalid' ? <p> {CrossMark} Trigger SQL is invalid.</p> : null}
+            </ToolTip>
+            <ToolTip Show={hasChanged && hover == 'clear'} Position={'top'} Theme={'dark'} Target={"clear"}>
+                {props.Record.TriggerEmailSQL != email.TriggerEmailSQL ? <p> {Warning} Changes to Trigger SQL will be discarded.</p> : null}
+            </ToolTip>
         </div>
         )
 }

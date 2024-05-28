@@ -75,7 +75,7 @@ const EmailForm = (props: IProps) => {
                 <div className="col">
                     <Input<EmailType> Type={'number'} Record={props.record} Field={'MinDelay'} Label={'Minimum Delay'} Feedback={"Minimum Delay is required"} Valid={Valid} Setter={(record) => props.setRecord(record)} />
                     <Input<EmailType> Type={'number'} Record={props.record} Field={'MaxDelay'} Label={'Maximum Delay'} Feedback={"Maximum Delay is required"} Valid={Valid} Setter={(record) => props.setRecord(record)} />
-                    <CheckBox<EmailType> Record={props.record} Field={'SMS'} Label={'Send as a Text'} Setter={(record) => props.setRecord(record)} Disabled={true} />
+                    <CheckBox<EmailType> Record={props.record} Field={'SMS'} Label={'Send as a Text'} Setter={(record) => props.setRecord(record)} />
                     <Input<EmailType> Record={props.record} Field={'FilePath'}
                         Label={'File Path'}
                         Help={'If the path is empty the system will not save the notification to a file. Otherwhise the system will save the notification to the specified path with the subject as filename.'}

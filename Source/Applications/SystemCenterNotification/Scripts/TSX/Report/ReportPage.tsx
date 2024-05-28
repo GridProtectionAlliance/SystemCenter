@@ -38,7 +38,14 @@ declare var version;
 
 interface IProps { useParams: {id: string}}
 
-type tab = 'settings' | 'template' | 'dataSources' | 'subscriptions'  | 'trigger'
+declare type Tab = 'settings' | 'template' | 'dataSources' | 'subscriptions' | 'trigger'
+const Tabs = [
+    { Label: 'Settings', Id: 'settings' },
+    { Label: 'Template', Id: 'template' },
+    { Label: 'Data Sources', Id: 'dataSources' },
+    { Label: 'Trigger', Id: 'trigger' },
+    { Label: 'Subscriptions', Id: 'subscriptions' }
+];
 
 
 const EmailPage = (props: IProps) => {
@@ -50,60 +57,76 @@ const EmailPage = (props: IProps) => {
     const email = useAppSelector((state) => ScheduledEmailTypeSlice.Datum(state, parseInt(props.useParams.id)));
     const status: Application.Types.Status = useAppSelector(ScheduledEmailTypeSlice.Status);
 
-    const [tab, setTab] = React.useState<tab>('settings');
+    const getTab = React.useCallback(() => {
+        if (sessionStorage.hasOwnProperty('ReportPage.Tab'))
+            return JSON.parse(sessionStorage.getItem('ReportPage.Tab'));
+        else return 'settings';
+    }, []);
+
+    const [tab, setTab] = React.useState<Tab>(getTab());
 
     React.useEffect(() => {
         if (status == 'unintiated' || status == 'changed')
             dispatch(ScheduledEmailTypeSlice.Fetch());
     }, [status]);
 
-    if (status == 'error')
-        return <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
-            <ServerErrorIcon Show={true} Label={'An error occured. Please reload this page.'} />
-        </div>
-    if (status == 'loading' || status == 'unintiated' || email == undefined)
-        return <LoadingScreen Show={true} />
+    React.useEffect(() => {
+        const saved = getTab();
+        if (saved !== tab)
+            sessionStorage.setItem('ReportPage.Tab', JSON.stringify(tab));
+    }, [tab]);
+
 
     return (
-        <>
-            <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div className="container-fluid d-flex h-100 flex-column">
+            <ServerErrorIcon Show={status == 'error'} Label={'An error occured. Please reload this page.'} />
+            <LoadingScreen Show={status == 'loading' || status == 'unintiated' || email == undefined} />
+            {!email ? <></> : <>
                 <div className="row">
-                    <div className="col">
+                    <div className="col-6 align-self-center">
                         <h2>{email != null ? email.Name : ''}</h2>
                     </div>
-                    <div className="col">
+                    <div className="col-6 align-self-center">
                         <button className="btn btn-danger float-right" onClick={() => setShowDelete(true)}>Delete Report</button>
                         <button className="btn btn-primary float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Report</button>
                     </div>
                 </div>
-
-                <hr />
-                <TabSelector CurrentTab={tab} SetTab={(t: tab) => setTab(t)} Tabs={[
-                    { Label: 'Settings', Id: 'settings' },
-                    { Label: ' Template', Id: 'template' },
-                    { Label: ' Data Sources', Id: 'dataSources' },
-                    { Label: ' Trigger', Id: 'trigger' },
-                    { Label: ' Subscriptions', Id: 'subscriptions' }
-                ]} />
-
-               
-                {tab == "settings" ? <div className={"tab-pane active"} id="settings">
-                    <GeneralInfo Record={email} />
-                </div> : null}
-                {tab == "template" ? <div className={"tab-pane active"} id="template">
-                    <Template Record={email} />
-                </div> : null}
-                {tab == "dataSources" ? <div className={"tab-pane active"} id="dataSources">
-                    <DataSourceWindow Record={email} />
-                </div> : null}
-                {tab == 'trigger' ? <div className={"tab-pane active"} id="trigger">
-                    <TriggerWindow Record={email} />
-                </div> : null}
-                {tab == 'subscriptions' ? <div className={"tab-pane active"} id="subscriptions">
-                    <Subscriptions Record={email} />
-                </div> : null}
+                <div className="row">
+                    <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
+                </div>
+                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                    <div className="col-12" style={{ padding: 0 }}>
+                        <div className="tab-content" style={{ height: '100%' }}>
+                            {tab == "settings" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <GeneralInfo Record={email} />
+                                </div>
+                                : <></>}
+                            {tab == "template" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <Template Record={email} />
+                                </div>
+                                : <></>}
+                            {tab == "dataSources" ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <DataSourceWindow Record={email} />
+                                </div>
+                                : <></>}
+                            {tab == 'trigger' ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <TriggerWindow Record={email} />
+                                </div>
+                                : <></>}
+                            {tab == 'subscriptions' ?
+                                <div className="tab-pane active" style={{ height: 'inherit' }}>
+                                    <Subscriptions Record={email} />
+                                </div>
+                                : <></>}
+                        </div>
+                    </div>
+                </div>
                 <TestEmail show={showTest} OnClose={() => setShowTest(false)} record={email} />
-                <Warning Message={'This will permanently delete this report and can not be undone.'} Show={showDelete} Title={'Delete ' + (email !== undefined? email.Name : '')}
+                <Warning Message={'This will permanently delete this report and can not be undone.'} Show={showDelete} Title={'Delete ' + (email !== undefined ? email.Name : '')}
                     CallBack={(conf) => {
                         if (conf) {
                             dispatch(ScheduledEmailTypeSlice.DBAction({ verb: 'DELETE', record: email }));
@@ -111,8 +134,8 @@ const EmailPage = (props: IProps) => {
                         }
                         setShowDelete(false);
                     }} />
-            </div>
-        </>)
+            </>}
+        </div>)
 }
 
 export default EmailPage;

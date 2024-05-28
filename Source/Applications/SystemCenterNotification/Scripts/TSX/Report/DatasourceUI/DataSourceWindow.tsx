@@ -26,7 +26,7 @@ import * as React from 'react';
 import { ScheduledEmailType, IDataSourceScheduledEmailType } from '../../global';
 import { ScheduledEmailDataSourceSlice } from '../../Store';
 import DataSourceModal from './DataSourceModal';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import DataSourceTesting from './DataSourceTesting';
 
 
@@ -49,52 +49,66 @@ const DataSourceWindow = (props: IProps) => {
             dispatch(ScheduledEmailDataSourceSlice.Fetch(props.Record.ID));
     }, [status, props.Record.ID, emailID]);
 
-    return ( <>
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Data Sources:</h4>
+    return (
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col-6">
+                                <h4>Data Sources:</h4>
+                            </div>
+                            <div className="col-6">
+                                <button className="btn btn-primary float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Data Sources</button>
+                            </div>
+                        </div>
                     </div>
-                    <div className="col">
-                        <button className="btn btn-primary float-right" style={{ marginRight: 10 }} onClick={() => setShowTest(true)}>Test Data Sources</button>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
+                            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                                <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
+                                    <ReactTable.Table<IDataSourceScheduledEmailType>
+                                        TableClass="table table-hover"
+                                        Data={data}
+                                        SortKey={''}
+                                        Ascending={false}
+                                        OnSort={() => { }}
+                                        OnClick={(item) => setDataSource(item.row)}
+                                        TableStyle={{
+                                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                        }}
+                                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                        Selected={(item) => false}
+                                        KeySelector={(item, index) => index}
+                                    >
+                                        <ReactTable.Column<IDataSourceScheduledEmailType>
+                                            Key={'ScheduledEmailDataSourceName'}
+                                            AllowSort={false}
+                                            Field={'ScheduledEmailDataSourceName'}
+                                            HeaderStyle={{ width: '100%' }}
+                                            RowStyle={{ width: '100%' }}
+                                        > Data Source
+                                        </ReactTable.Column>
+                                    </ReactTable.Table>
+                                </div>
+                           </div>      
+                        </div>
+                    </div>
+                    <div className="card-footer">
+                        <div className="btn-group mr-2">
+                            <button className={"btn btn-primary"}
+                                type="submit"
+                                onClick={() => setDataSource({ ScheduledEmailTypeID: props.Record.ID, ID: -1, ScheduledEmailDataSourceID: -1, ScheduledEmailDataSourceName: '' })} >Add DataSource</button>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div className="row">
-                    <div className="col">
-                        <Table<IDataSourceScheduledEmailType>
-                            cols={[
-                                { key: 'ScheduledEmailDataSourceName', field: 'ScheduledEmailDataSourceName', label: 'DataSource', headerStyle: { width: '100%' }, rowStyle: { width: '100%' } },
-                            ]}
-                            tableClass="table table-hover"
-                            data={data}
-                            sortKey={''}
-                            ascending={false}
-                            onSort={(d) => { }}
-                            onClick={(item) => { setDataSource(item.row); }}
-                            theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            tbodyStyle={{ display: 'block', overflowY: 'scroll', height: 'calc(100 % - 50 px)', width: '100%' }}
-                            rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            selected={() => false}
-                        />
-                   </div>      
-                </div>
-               
-            </div>
-            <div className="card-footer">
-                <div className="btn-group mr-2">
-                    <button className={"btn btn-primary"}
-                        type="submit"
-                        onClick={() => setDataSource({ ScheduledEmailTypeID: props.Record.ID, ID: -1, ScheduledEmailDataSourceID: -1, ScheduledEmailDataSourceName: '' })} >Add DataSource</button>
-                </div>
-            </div>
-
+            <DataSourceModal Record={dataSource} OnClose={() => setDataSource(null)} />
+            <DataSourceTesting Record={props.Record} OnClose={() => setShowTest(false)} Show={showTest}/>
         </div>
-        <DataSourceModal Record={dataSource} OnClose={() => setDataSource(null)} />
-        <DataSourceTesting Record={props.Record} OnClose={() => setShowTest(false)} Show={showTest}/>;
-        </>
         )
 }
 

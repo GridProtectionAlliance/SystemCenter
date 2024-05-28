@@ -26,7 +26,7 @@ import * as React from 'react';
 import { LoadingScreen, Warning } from '@gpa-gemstone/react-interactive'
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
 import { Application } from '@gpa-gemstone/application-typings';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 import { ActiveSubscriptionSlice } from '../../Store';
 import { ActiveSubscription } from '../../global';
 import moment from 'moment';
@@ -57,79 +57,106 @@ const BySubscription = (props: IProps) => {
     }, [status, parentID, userID])
 
     return (
-        <>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
             <LoadingScreen Show={status === 'loading'} />
-            <div style={{ width: '100%', height: '100%' }}>
-                <div style={{ width: '100%' }}>
-                    <nav className="navbar navbar-expand-lg navbar-light bg-light">
-                        <div className="collapse navbar-collapse" style={{ width: '100%' }}>
-                            <ul className="navbar-nav mr-auto" style={{ width: '100%' }}>  
-                            </ul>
-                        </div>
-                    </nav>
-                </div>
-
-                <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <Table<ActiveSubscription>
-                        cols={[
-                            { key: 'Category', field: 'Category', label: 'Category', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'EmailName', field: 'EmailName', label: 'Notification', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'AssetGroup', field: 'AssetGroup', label: 'Assets', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            {
-                                key: 'Approved', field: 'Approved', label: 'Approved', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item) => item.Approved ? HeavyCheckMark : CrossMark
-                            },
-                            {
-                                key: 'LastSent', field: 'LastSent', label: 'Last Sent', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item) => (item.Approved && item.LastSent != null) ? moment(item.LastSent).format("dd/MM/yy hh:mm") : "N/A"
-                            },
-                            {
-                                key: 'Subject', field: 'Subject', label: 'Last Subject', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item) => (item.Approved && item.Subject != null) ? item.Subject : "N/A"
-                            },
-                            {
-                                key: 'btns', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' },
-                                content: (item) => <>
-                                    <button className="btn btn-sm" onClick={(e) => {
-                                        e.preventDefault();
-                                        setShowWarning(true);
-                                        setSubscription(item);
-                                    }}>Unsubscribe</button>
-                                   
-                                </>
-                            },
-                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={data}
-                        sortKey={sortField}
-                        ascending={asc}
-                        onSort={(d) => {
-                            if (d.colKey === 'scroll' || d.colKey === 'undefined')
-                                return
-                            if (d.colField === sortField)
-                                dispatch(ActiveSubscriptionSlice.Sort({ SortField: sortField, Ascending: asc }));
-                            else
-                                dispatch(ActiveSubscriptionSlice.Sort({ SortField: d.colField, Ascending: true }));
+            <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
+                <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
+                    <ReactTable.Table<ActiveSubscription>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortField}
+                        Ascending={asc}
+                        OnSort={(d) => {
+                            if (d.colKey === null || d.colKey === 'btns') return;
+                            dispatch(ActiveSubscriptionSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
                         }}
-                        onClick={(item) => { }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={() => false}
-                    />
+                        TableStyle={{
+                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                        }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item, index) => index}
+                    >
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'Category'}
+                            AllowSort={true}
+                            Field={'Category'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Category
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'EmailName'}
+                            AllowSort={true}
+                            Field={'EmailName'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Notification
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'AssetGroup'}
+                            AllowSort={true}
+                            Field={'AssetGroup'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Assets
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'Approved'}
+                            AllowSort={true}
+                            Field={'Approved'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => item.Approved ? HeavyCheckMark : CrossMark}
+                        > Approved
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'LastSent'}
+                            AllowSort={true}
+                            Field={'LastSent'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => (item.Approved && item.LastSent != null) ? moment(item.LastSent).format("dd/MM/yy hh:mm") : "N/A" }
+                        > Last Sent
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'Subject'}
+                            AllowSort={true}
+                            Field={'Subject'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => (item.Approved && item.Subject != null) ? item.Subject : "N/A" }
+                        > Last Subject
+                        </ReactTable.Column>
+                        <ReactTable.Column<ActiveSubscription>
+                            Key={'btns'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) =>
+                                <button className="btn btn-sm" onClick={(e) => {
+                                    e.preventDefault();
+                                    setShowWarning(true);
+                                    setSubscription(item);
+                                }}>Unsubscribe</button>}
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
                 </div>
-                <Warning Show={showWarning}
-                    Title={'Unsubscribe from ' + (subscription == undefined ? '' : subscription.EmailName)}
-                    Message={'This will unsubscribe you from these notifications. You will no longer recieve these notifications.'}
-                    CallBack={(c) => {
-                        if (c)
-                            dispatch(ActiveSubscriptionSlice.DBAction({ record: subscription, verb: 'DELETE' }));
-                        setShowWarning(false);
-                    }}
-                />
             </div>
-        </>)
+            <Warning Show={showWarning}
+                Title={'Unsubscribe from ' + (subscription == undefined ? '' : subscription.EmailName)}
+                Message={'This will unsubscribe you from these notifications. You will no longer recieve these notifications.'}
+                CallBack={(c) => {
+                    if (c)
+                        dispatch(ActiveSubscriptionSlice.DBAction({ record: subscription, verb: 'DELETE' }));
+                    setShowWarning(false);
+                }}
+            />
+        </div>)
 }
 
 export default BySubscription;

@@ -112,37 +112,50 @@ const NewEventSubscription = (props: {}) => {
 
 
     return (
-        <div style={{ padding: 10, height: 'inherit', overflowY: 'hidden' }}>
-            <h2>Subscribe to an openXDA Event Notification</h2>
-            <hr />
-            <div className="card" style={{ height: 'calc(100% - 75px)' }}>
-                <div className="card-header">
-                    <h4 style={{ width: '90%' }}>{getHeader()}</h4>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
+            <div className="row">
+                <div className="col">
+                    <h2>Subscribe to an openXDA Event Notification</h2>
                 </div>
-                <div className="card-body" style={{ maxHeight: 'calc(100% - 126px)' }}>
-                    {currentStep == 'Selection' ?
-                        <>
-                            <AssetGroupSelection assetGroupID={assetGroupID} SetAssetGroupID={setAssetGroupID} /> 
-                            <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} />
-                        </>
-                        : null}
-                    {currentStep == 'Email' ? <ConfirmEmail SetConfirmed={() => setCurrentStep('Success')} /> : null}
-                    {currentStep == 'Carrier' ? <ConfirmPhoneCarrier /> : null}
-                    {currentStep == 'Phone' ? <ConfirmPhone SetConfirmed={() => setCurrentStep('Success')} /> : null}
-                    {currentStep == 'Success' ? <Success assetGroupID={assetGroupID} emailTypeID={emailTypeID} /> : null}
-
-                </div>
-                <div className="card-footer">
-                    {currentStep != 'Selection' && currentStep != 'Success' ? <button className="btn btn-danger pull-left" onClick={prev}>Previous</button> : null}
-                    {currentStep == 'Selection' || currentStep == 'Carrier' ? <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
-                        data-tooltip='Next' onMouseEnter={() => setHoverNext(true)} onMouseLeave={() => setHoverNext(false)}
-                    >Continue</button> : null}
-                </div>
-                <ToolTip Show={hoverNext && error.length > 0} Position={'top'} Theme={'dark'} Target={"Next"}>
-                    {error.map((item, index) => <p key={index}> {CrossMark} {item} </p>)}
-                </ToolTip>
             </div>
-
+            <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
+                    <div className="card-header">
+                        <div className="row">
+                            <div className="col">
+                                <h4 style={{ width: '90%' }}>{getHeader()}</h4>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                        {currentStep == 'Selection' ?
+                            <>
+                                <AssetGroupSelection assetGroupID={assetGroupID} SetAssetGroupID={setAssetGroupID} /> 
+                                <EmailSelect emailTypeID={emailTypeID} SetEmailTypeID={setEmailTypeID} />
+                            </>
+                            : null}
+                        {currentStep == 'Email' ? <ConfirmEmail SetConfirmed={() => setCurrentStep('Success')} /> : null}
+                        {currentStep == 'Carrier' ? <ConfirmPhoneCarrier /> : null}
+                        {currentStep == 'Phone' ? <ConfirmPhone SetConfirmed={() => setCurrentStep('Success')} /> : null}
+                        {currentStep == 'Success' ? <Success assetGroupID={assetGroupID} emailTypeID={emailTypeID} /> : null}
+                    </div>
+                    <div className="card-footer">
+                        {currentStep != 'Selection' && currentStep != 'Success' ?
+                            <div className="btn-group mr-2">
+                                <button className="btn btn-danger pull-left" onClick={prev}>Previous</button>
+                            </div> : null}
+                        {currentStep == 'Selection' || currentStep == 'Carrier' ?
+                            <div className="btn-group mr-2">
+                                <button className={"btn btn-success pull-right" + (disableNext() ? ' disabled' : '')} onClick={next}
+                                    data-tooltip='Next' onMouseEnter={() => setHoverNext(true)} onMouseLeave={() => setHoverNext(false)}
+                                >Continue</button>
+                            </div> : null}
+                    </div>
+                </div>
+            </div>
+            <ToolTip Show={hoverNext && error.length > 0} Position={'top'} Theme={'dark'} Target={"Next"}>
+                {error.map((item, index) => <p key={index}> {CrossMark} {item} </p>)}
+            </ToolTip>
         </div>
     );
 }

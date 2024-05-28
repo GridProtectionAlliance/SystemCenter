@@ -25,7 +25,7 @@ import * as React from 'react';
 import { LoadingIcon, LoadingScreen } from '@gpa-gemstone/react-interactive'
 import { INode } from '../global';
 import * as $ from 'jquery';
-import Table from '@gpa-gemstone/react-table';
+import { ReactTable } from '@gpa-gemstone/react-table';
 
 declare var homePath;
 declare var version;
@@ -50,31 +50,51 @@ const ByTrippedNode = (props: IProps) => {
     }, [])
 
     return (
-        <>
+        <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit', padding: 0 }}>
             <LoadingScreen Show={loading} />
-            <div style={{ width: '100%', height: '100%' }}>
-                <div className="alert alert-info"> There are currently {nodes.length} notification service nodes in the system. </div>
-                <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                    <Table<INode>
-                        cols={[
-                            { key: 'Name', field: 'Name', label: 'Name', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' } },
-                            { key: 'btn', field: 'ID', label: '', headerStyle: { width: 'auto' }, rowStyle: { width: 'auto' }, content: (item) => <ReActivateBtn NodeID={item.ID} /> },
-                            { key: 'scroll', label: '', headerStyle: { width: 17, padding: 0 }, rowStyle: { width: 0, padding: 0 } },
-                        ]}
-                        tableClass="table table-hover"
-                        data={nodes}
-                        sortKey={''}
-                        ascending={false}
-                        onSort={(d) => { }}
-                        onClick={(item) => {  }}
-                        theadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        tbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        rowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        selected={() => false}
-                    />
+            <div className="row">
+                <div className="col">
+                    <div className="alert alert-info"> There {nodes.length == 1 ? 'is' : 'are'} currently {nodes.length} notification service node{nodes.length == 1 ? '' : 's'} in the system. </div>
                 </div>
             </div>
-        </>)
+            <div className='row' style={{ flex: 1, overflow: 'hidden' }}>
+                <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
+                    <ReactTable.Table<INode>
+                        TableClass="table table-hover"
+                        Data={nodes}
+                        SortKey={''}
+                        Ascending={false}
+                        OnSort={(d) => { }}
+                        TableStyle={{
+                            padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                        }}
+                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<INode>
+                            Key={'Name'}
+                            AllowSort={false}
+                            Field={'Name'}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                        > Name
+                        </ReactTable.Column>
+                        <ReactTable.Column<INode>
+                            Key={'btn'}
+                            AllowSort={false}
+                            HeaderStyle={{ width: 'auto' }}
+                            RowStyle={{ width: 'auto' }}
+                            Content={({ item }) => <ReActivateBtn NodeID={item.ID} /> }
+                        > <p></p>
+                        </ReactTable.Column>
+                    </ReactTable.Table>
+                </div>
+            </div>
+        </div>)
 }
 
 const ReActivateBtn = (props: { NodeID: number }) => {

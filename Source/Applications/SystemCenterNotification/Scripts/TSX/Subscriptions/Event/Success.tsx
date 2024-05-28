@@ -59,21 +59,18 @@ const Success = (props: IProps) => {
             }));
         });
     }, [props.assetGroupID, props.emailTypeID])
-    
 
 
-    return <> <div className="row">
-        <div className="col">
-            <div className="row">
-                <div className="alert alert-success">
-                    You have successfully subscribed to {email == null ? '' : email.Name}
+    return (
+        <div className="row">
+            <div className="col">
+                <div className="alert alert-success" style={{ margin: 'auto' }}>
+                    You have successfully subscribed to {email == null ? '' : email.Name + ' '}
                     for {assetGrp.length > 1 ? (assetGrp.length + " Asset groups") : (assetGrp[0]?.Name ?? null)}.
                     If approval is required an Administrator will need to approve the subscription before you receive notifications.
                 </div>
             </div>
-        </div>
-    </div>
-    </>;
+        </div>);
 }
 
 export default Success;
