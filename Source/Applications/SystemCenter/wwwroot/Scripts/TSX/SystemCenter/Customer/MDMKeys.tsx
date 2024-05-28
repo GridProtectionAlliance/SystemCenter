@@ -87,7 +87,7 @@ function MDMKeys(props: IProps) {
 
     return (
         <>
-            <div className="card" style={{ marginBottom: 10 }}>
+            <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '70vh', marginBottom: 10 }}>
                 <div className="card-header">
                     <div className="row">
                         <div className="col">
@@ -95,8 +95,8 @@ function MDMKeys(props: IProps) {
                         </div>
                     </div>
                 </div>
-                <div className="card-body">
-                    <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540 }}>
+                <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
+                    <div style={{ width: '100%' }}>
                         <ReactTable.Table<SystemCenter.Types.LSCVSAccount>
                             TableClass="table table-hover"
                             Data={data}
@@ -111,7 +111,7 @@ function MDMKeys(props: IProps) {
                                 }
                             }}
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                            TbodyStyle={{ display: 'block', width: '100%', flex: 1 }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}

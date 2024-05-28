@@ -64,7 +64,7 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="card" style={{ width: '100%', height: '100%' }}>
+                <div className="card" style={{ width: '100%', display: 'flex', flexDirection: 'column', height: '70vh', }}>
                     <div className="card-header">
                         <div className="row">
                             <div className="col">
@@ -72,7 +72,7 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                             </div>
                         </div>
                     </div>
-                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                    <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto', paddingTop: 10, paddingBottom: 0 }}>
                         <ReactTable.Table<MeterConfiguration>
                             TableClass="table table-hover"
                             Data={meterConfigurations}
@@ -81,7 +81,7 @@ function MeterConfigurationHistoryWindow(props: { Meter: OpenXDA.Types.Meter }) 
                             OnSort={(d) => { }}
                             OnClick={(d) => handleSelect(d.row)}
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 420, width: '100%' }}
+                            TbodyStyle={{ display: 'block', width: '100%', flex: 1 }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}

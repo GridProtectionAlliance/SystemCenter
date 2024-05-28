@@ -73,7 +73,7 @@ export default function CustomerInfo(props: IProps) {
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '70vh', marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -81,9 +81,11 @@ export default function CustomerInfo(props: IProps) {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ overflowY: "auto", maxHeight: window.innerHeight - 355 }}>
+            <div className="card-body" style={{ flex: '1', overflowY: 'auto' }}>
                 <CustomerForm Customer={customer} stateSetter={setCustomer} setErrors={setError} />
-                <AdditionalFieldsProperties ID={customer.ID} ParentTable={'Customer'} AddlFieldSaveRef={saveAddl} SetChangedList={setAddlFieldChanged} SetErrorList={setAddlFieldError} ResetAddlFieldRef={resetAddl} SingleColumn={true} />
+                <AdditionalFieldsProperties ID={customer.ID} ParentTable={'Customer'} AddlFieldSaveRef={saveAddl}
+                    SetChangedList={setAddlFieldChanged} SetErrorList={setAddlFieldError}
+                    ResetAddlFieldRef={resetAddl} SingleColumn={true} />
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">

@@ -209,7 +209,7 @@ const ChannelScalingForm = (props: IProps) => {
                         Ascending={false}
                         OnSort={(d) => { }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 530, width: '100%' }}
+                        TbodyStyle={{ display: 'block', width: '100%', flex: 1 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.Channel.ID.toString()}
@@ -276,7 +276,7 @@ const ChannelScalingForm = (props: IProps) => {
 
     return (
         <>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 365 }}>
+            <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto'  }}>
                 {cardBody}
             </div>
             <div className="card-footer">

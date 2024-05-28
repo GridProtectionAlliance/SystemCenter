@@ -148,7 +148,7 @@ const RemoteMeterTab = (props: IProps) => {
                     }
                 }}
                 TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                TbodyStyle={{ display: 'block', width: '100%', flex: 1 }}
                 RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 Selected={(item) => false}
                 KeySelector={(item) => item.ID}
@@ -268,7 +268,7 @@ const RemoteMeterTab = (props: IProps) => {
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', height: `70vh`, marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -276,7 +276,7 @@ const RemoteMeterTab = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+            <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
                 {cardBody}
             </div>
             <div className="card-footer">

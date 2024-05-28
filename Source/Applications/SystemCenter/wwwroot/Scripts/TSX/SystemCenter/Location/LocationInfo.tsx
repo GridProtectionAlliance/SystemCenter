@@ -213,7 +213,7 @@ const LocationInfo = (props: IProps) => {
         </div>
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '70vh', marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -221,7 +221,7 @@ const LocationInfo = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body">
+            <div className="card-body" style={{ flex: '1', overflowY: 'auto' }}>
                 <div className="row">
                     <div className="col">
                         <Input<OpenXDA.Types.Location> Record={location} Field={'LocationKey'} Label={'Key'} Feedback={'A unique Key of less than 50 characters is required.'} Valid={valid} Setter={(l) => setLocation(l)} Disabled={!hasPermissions()} />

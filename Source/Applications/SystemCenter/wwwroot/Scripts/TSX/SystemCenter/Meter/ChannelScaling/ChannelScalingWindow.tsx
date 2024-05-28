@@ -86,7 +86,7 @@ const ChannelScalingWindow = (props: IProps) => {
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '70vh', marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -94,7 +94,7 @@ const ChannelScalingWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <ChannelScalingForm UpdateChannels={updateChannels} ChannelStatus={status} Channels={channels}/>
+            <ChannelScalingForm UpdateChannels={updateChannels} ChannelStatus={status} Channels={channels} />
         </div>
     );
 }

@@ -55,7 +55,7 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '70vh', marginBottom: 10 }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -63,8 +63,8 @@ const LocationImagesWindow = (props: { Location: OpenXDA.Types.Location }) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30, overflowY: 'auto' }}>
+            <div className="card-body" style={{ flex: 1 }}>
+                <div style={{ width: '100%', padding: 30, overflowY: 'auto' }}>
                     {images.map((img, i) => <div className="col-xs-6 col-md-4 col-lg-2" key={i} onClick={() => {
                         setImage(img);
                     }}>

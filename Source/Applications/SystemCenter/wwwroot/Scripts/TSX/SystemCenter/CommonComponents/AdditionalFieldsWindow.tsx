@@ -269,7 +269,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
                 tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
             } : undefined}
             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-            TbodyStyle={(props.InnerOnly ?? false) ? { display: 'block', overflowY: 'scroll', flex: 1 } : { display: 'block', overflow: 'fixed', maxHeight: window.innerHeight - 455, }}
+            TbodyStyle={(props.InnerOnly ?? false) ? { display: 'block', overflowY: 'scroll', flex: 1 } : { display: 'block', overflow: 'fixed' }}
             RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
             Selected={(item) => false}
             KeySelector={(item) => item.ID}
@@ -366,11 +366,11 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         </>);
 
     return (
-        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215, height: '100%'}}>
+        <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '70vh', marginBottom: 10 }}>
             <div className="card-header">
                 <h4>Additional Fields:</h4>
             </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+            <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
                 {tableComponent}
                 <ToolTip Show={hoverEdit !== 'None'} Position={'left'} Theme={'dark'} Target={hoverEdit}>
                     Select Key Field Value

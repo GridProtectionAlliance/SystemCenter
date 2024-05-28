@@ -134,7 +134,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
         cardBody = (
             <div className="row" style={{ margin: -20 }}>
                 <div className="col" style={{ padding: 20 }}>
-                    <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
+                    <div style={{ width: '100%', padding: 30, flex: 1 }}>
                         <ReactTable.Table<MaintenanceWindow>
                             TableClass="table table-hover"
                             Data={tableData}
@@ -151,7 +151,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                                 }
                             }}
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, width: '100%' }}
+                            TbodyStyle={{ display: 'block', width: '100%', flex: 1 }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
@@ -202,7 +202,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
 
         return (
             <>
-                <div className="card" style={{ marginBottom: 10 }}>
+                <div className="card" style={{ display: 'flex', flexDirection: 'column', height: '70vh', marginBottom: 10 }}>
                     <div className="card-header">
                         <div className="row">
                             <div className="col">
@@ -210,7 +210,7 @@ const MeterMaintenanceWindow = (props: IProps) => {
                             </div>
                         </div>
                     </div>
-                    <div className="card-body">
+                    <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflowY: 'auto' }}>
                         {cardBody}
                     </div>
                     <div className="card-footer">
