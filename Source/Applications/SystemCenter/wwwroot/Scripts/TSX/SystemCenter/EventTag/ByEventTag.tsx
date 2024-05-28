@@ -84,8 +84,6 @@ const EventTags: Application.Types.iByComponent = (props) => {
 
     const deleteTag = React.useCallback(() => {
         dispatch(EventTagSlice.DBAction({ verb: 'DELETE', record }));
-        setShowWarning(false);
-        setMode('View');
     }, [record]);
 
     return (
