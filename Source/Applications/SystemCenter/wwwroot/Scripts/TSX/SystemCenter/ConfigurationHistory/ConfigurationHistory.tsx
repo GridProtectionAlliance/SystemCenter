@@ -99,6 +99,7 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
         let editor = ace.edit("template");
         editor.getSession().setMode("ace/mode/xml");
         editor.setFontSize("14px");
+        editor.setPrintMarginColumn(false);
         editor.setValue(record.ConfigText);
         editor.clearSelection();
         editor.gotoLine(0);
@@ -167,13 +168,20 @@ function ConfigurationHistory(props: { MeterConfigurationID: number, MeterKey: s
                         {tab == "filesProcessed" ?
                             <div className="tab-pane active">
                                 <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                                    <div className="col-12">
+                                    <div className='col-12' style={{ height: '100%', overflow: 'hidden' }}>
                                         <ReactTable.Table<OpenXDA.Types.DataFile>
                                             TableClass="table table-hover"
                                             Data={filesProcessed}
                                             SortKey={'FilePath'}
                                             Ascending={false}
                                             OnSort={(d) => { }}
+                                            TableStyle={{
+                                                padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
+                                                tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column'
+                                            }}
+                                            TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                            TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                                            RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
                                             Selected={(item) => false}
                                             KeySelector={(item) => item.ID}
                                         >
