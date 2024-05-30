@@ -94,7 +94,7 @@ namespace SystemCenter.Controllers
                 else
                     return Ok(new List<ValueList>());
             }
-            IEnumerable<ValueList> records = valueTable.QueryRecordsWhere("GroupID in ({0})", string.Join(", ", groupIds));
+            IEnumerable<ValueList> records = valueTable.QueryRecordsWhere("GroupID in ({0})", string.Join(", ", groupIds)).OrderBy(v => v.SortOrder);
             return Ok(records);
         }
 
