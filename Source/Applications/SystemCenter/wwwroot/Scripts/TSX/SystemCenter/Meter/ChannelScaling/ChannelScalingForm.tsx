@@ -47,7 +47,7 @@ interface IProps {
 const ChannelScalingForm = (props: IProps) => {
     const dispatch = useAppDispatch();
 
-    const [multiplier, setMultiplier] = React.useState<IMultiplier>({ Voltage: 1, Current: 1});
+    const [multiplier, setMultiplier] = React.useState<IMultiplier>({ Voltage: 1, Current: 1 });
     const [Wrappers, setWrappers] = React.useState<ChannelScalingWrapper[]>([]);
 
     const phases = useAppSelector(PhaseSlice.Data) as OpenXDA.Types.Phase[];
@@ -93,8 +93,8 @@ const ChannelScalingForm = (props: IProps) => {
         setMultiplier(multip);
     }, [])
     React.useEffect(() => {
-            localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.V', multiplier.Voltage.toString());
-            localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.I', multiplier.Current.toString());
+        localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.V', multiplier.Voltage.toString());
+        localStorage.setItem('SystemCenter.ChannelScaling.' + props.Key + '.I', multiplier.Current.toString());
     }, [multiplier.Voltage, multiplier.Current]);
 
     React.useEffect(() => {
@@ -130,7 +130,7 @@ const ChannelScalingForm = (props: IProps) => {
     }
 
     function recalculateChannelMultipliers(wrappers?: ChannelScalingWrapper[]): void {
-       
+
         if (wrappers == undefined)
             wrappers = _.cloneDeep(Wrappers);
 
@@ -169,7 +169,7 @@ const ChannelScalingForm = (props: IProps) => {
 
     let cardBody;
     if (status == 'loading' || pStatus == 'loading' || mcStatus == 'loading' || mtStatus == 'loading')
-        cardBody = 
+        cardBody =
             <div style={{ width: '100%', height: '200px' }}>
                 <div style={{ height: '40px', margin: 'auto', marginTop: 'calc(50% - 20 px)' }}>
                     <LoadingIcon Show={true} Size={40} Label={''} />
@@ -185,31 +185,32 @@ const ChannelScalingForm = (props: IProps) => {
     else
         cardBody =
             <>
-            <div className="row">
-                <div className="col-3">
-                    <Input<IMultiplier> Record={multiplier} AllowNull={true} Type={'number'} Label={'Voltage Multiplier'} Field={'Voltage'} Size={'small'} Disabled={!hasPermissions()} Setter={(r) => {
-                        setMultiplier({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
-                    }} Valid={(f) => true} />
-                </div>
-                <div className="col-3">
-                    <Input<IMultiplier> Size={'small'} Record={multiplier}
-                    Type={'number'}
-                        Label={'Current Multiplier'}
-                        AllowNull={true}
-                        Field={'Current'} Disabled={!hasPermissions()} Setter={(r) => {
+                <div className="row">
+                    <div className="col-3">
+                        <Input<IMultiplier> Record={multiplier} AllowNull={true} Type={'number'} Label={'Voltage Multiplier'} Field={'Voltage'} Size={'small'} Disabled={!hasPermissions()} Setter={(r) => {
                             setMultiplier({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
-                        }} Valid={(f) => true} />   
+                        }} Valid={(f) => true} />
+                    </div>
+                    <div className="col-3">
+                        <Input<IMultiplier> Size={'small'} Record={multiplier}
+                            Type={'number'}
+                            Label={'Current Multiplier'}
+                            AllowNull={true}
+                            Field={'Current'} Disabled={!hasPermissions()} Setter={(r) => {
+                                setMultiplier({ Voltage: r.Voltage ?? 1, Current: r.Current ?? 1 });
+                            }} Valid={(f) => true} />
+                    </div>
                 </div>
-                </div>
-                <div style={{ width: '100%' }}>
+            <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden'}}>
                     <ReactTable.Table<ChannelScalingWrapper>
                         TableClass="table table-hover"
                         Data={Wrappers}
                         SortKey={''}
                         Ascending={false}
-                        OnSort={(d) => { }}
+                    OnSort={(d) => { }}
+                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 530, width: '100%' }}
+                        TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         Selected={(item) => false}
                         KeySelector={(item) => item.Channel.ID.toString()}
@@ -236,7 +237,7 @@ const ChannelScalingForm = (props: IProps) => {
                             Field={'ScalingType'}
                             HeaderStyle={{ width: '20%' }}
                             RowStyle={{ width: '20%' }}
-                            Content={({ item, index }) => 
+                            Content={({ item, index }) =>
                                 <select className='form-control' value={item.ScalingTypeName} disabled={!hasPermissions()} onChange={(event) => {
                                     const scalingTypeName = event.target.value;
                                     const wrapper = _.cloneDeep(Wrappers);
@@ -271,17 +272,17 @@ const ChannelScalingForm = (props: IProps) => {
                         > If Adjusted
                         </ReactTable.Column>
                     </ReactTable.Table>
-                </div>
+                </div> 
             </>
 
     return (
         <>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 365 }}>
+            <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 {cardBody}
             </div>
             <div className="card-footer">
                 <div className="btn-group mr-2">
-                    <button className={"btn btn-primary pull-right" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if(multiplier.Voltage  != 1 || multiplier.Current != 1) useReplacedMultiplier(); }}
+                    <button className={"btn btn-primary pull-right" + ((multiplier.Voltage == 1 && multiplier.Current == 1) ? ' disabled' : '')} onClick={() => { if (multiplier.Voltage != 1 || multiplier.Current != 1) useReplacedMultiplier(); }}
                         onMouseEnter={() => setHover('Replace')} onMouseLeave={() => setHover('None')} data-tooltip={"rep"}
                     >Replace Multipliers</button>
                     <ToolTip Show={hover == 'Replace' && (multiplier.Voltage == 1 && multiplier.Current == 1)} Position={'top'} Theme={'dark'} Target={"rep"}>

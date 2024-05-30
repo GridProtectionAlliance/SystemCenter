@@ -123,166 +123,163 @@ const MeterAssetWindow = (props: IProps) => {
 
     return (
         <>
-        <div className="card" style={{ marginBottom: 10 }}>
-            <div className="card-header">
-                <div className="row">
-                    <div className="col">
-                        <h4>Assets:</h4>
-                    </div>
-                </div>
-            </div>
-            <div className="card-body">
-                <div className="row" style={{ margin: -20 }}>
-                    <div className="col" style={{ padding: 20 }}>
-                        <div style={{ width: '100%', maxHeight: window.innerHeight - 420, padding: 30, overflowY: 'auto' }}>
-                            <ReactTable.Table<OpenXDA.Types.MeterAsset>
-                                TableClass="table table-hover"
-                                Data={allAssets}
-                                SortKey={sortKey}
-                                Ascending={ascending}
-                                OnSort={(d) => {
-                                    if (d.colKey === 'EditDelete')
-                                        return;
-                                    if (d.colKey == sortKey)
-                                        setAscending(!ascending);
-                                    else {
-                                        setAscending(true);
-                                        setSortKey(d.colKey as keyof OpenXDA.Types.Asset);
-                                    }
-                                }}
-                                TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, width: '100%' }}
-                                RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                                Selected={(item) => false}
-                                KeySelector={(item) => item.ID}
-                            >
-                                <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                    Key={'AssetKey'}
-                                    AllowSort={true}
-                                    Field={'AssetKey'}
-                                    HeaderStyle={{ width: 'calc(20%-16px)' }}
-                                    RowStyle={{ width: 'calc(20%-16px)' }}
-                                > Key
-                                </ReactTable.Column>
-                                <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                    Key={'AssetName'}
-                                    AllowSort={true}
-                                    Field={'AssetName'}
-                                    HeaderStyle={{ width: 'calc(30%-16px)' }}
-                                    RowStyle={{ width: 'calc(30%-16px)' }}
-                                > Name
-                                </ReactTable.Column>
-                                <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                    Key={'AssetType'}
-                                    AllowSort={true}
-                                    Field={'AssetType'}
-                                    HeaderStyle={{ width: 'calc(10%-16px)' }}
-                                    RowStyle={{ width: 'calc(10%-16px)' }}
-                                > Type
-                                </ReactTable.Column>
-                                <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                    Key={'VoltageKV'}
-                                    AllowSort={true}
-                                    Field={'VoltageKV'}
-                                    HeaderStyle={{ width: 'calc(5%-16x)' }}
-                                    RowStyle={{ width: 'calc(5%-16x)' }}
-                                > Base kV
-                                </ReactTable.Column>
-                                <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                    Key={'FaultDetectionLogic'}
-                                    AllowSort={true}
-                                    Field={'FaultDetectionLogic'}
-                                    HeaderStyle={{ width: 'calc(10%-16px)' }}
-                                    RowStyle={{ width: 'calc(10%-16px)' }}
-                                > Fault Detection Logic
-                                </ReactTable.Column>
-                                <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                    Key={'Designation'}
-                                    AllowSort={true}
-                                    Field={'Designation'}
-                                    HeaderStyle={{ width: 'calc(10%-16px)' }}
-                                    RowStyle={{ width: 'calc(10%-16px)' }}
-                                > Designation
-                                </ReactTable.Column>
-                                <ReactTable.Column<OpenXDA.Types.MeterAsset>
-                                    Key={'EditDelete'}
-                                    AllowSort={false}
-                                    HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                                    RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                                    Content={({ item }) => <>
-                                        <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
-                                            onClick={(e) => {
-                                                if (hasPermissions()) {
-                                                    e.preventDefault();
-                                                    setActiveAsset(item.ID, item.AssetType);
-                                                    setShoweditNew(true);
-                                                }
-                                            }}><span>{Pencil}</span></button>
-                                        <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
-                                            onClick={(e) => {
-                                                if (hasPermissions()) {
-                                                    e.preventDefault();
-                                                    setActiveAsset(item.ID, item.AssetType);
-                                                    setShowDeleteWarning(true)
-                                                }
-                                            }}><span>{TrashCan}</span></button>
-                                    </>}
-                                > <p></p>
-                                </ReactTable.Column>
-                            </ReactTable.Table>
-
-                            <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove ' + (activeAsset?.AssetName ?? 'Asset') + ' from ' + (props.Meter?.Name ?? 'Meter')} Message={'This will permanently remove the Asset from this Meter.'} />
-                            <LoadingScreen Show={showLoading} />
-                            <Modal Show={showEditNew}
-                                    Title={newEdit == 'New' ? 'Add New Asset to ' + (props.Meter?.Name ?? 'Meter') : 'Edit ' + (activeAsset?.AssetKey ?? 'Asset')}
-                                Size={'lg'}
-                                ShowX={true}
-                                ShowCancel={false}
-                                ConfirmText={'Save'}
-                                CallBack={(confirm) => {
-                                    setShoweditNew(false);
-                                    if (confirm) {
-                                        dispatch(DBActionAsset({ verb: 'POST', record: activeAsset, meterID: props.Meter.ID, locationID: props.Meter.LocationID }));
-                                    }
-                                }}
-                                ConfirmShowToolTip={AssetAttributes.AttributeError(activeAsset).length > 0}
-                                DisableConfirm={AssetAttributes.AttributeError(activeAsset).length > 0}
-                                ConfirmToolTipContent={
-                                    AssetAttributes.AttributeError(activeAsset).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
-                                }
-                            >
-                                <div className="row">
-                                    <div className="col">
-                                        <AssetAttributes.AssetAttributeFields Asset={activeAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets}
-                                            UpdateState={changeActiveAsset}
-                                            GetDifferentAsset={(assetID) => {
-                                                setActiveAsset(assetID, assetTypes.find(at => (allAssets as any).find(a => a.ID == assetID).AssetTypeID).Name);
-                                            }} HideSelectAsset={true} HideAssetType={false} />
-                                    </div>
-                                    <div className="col">
-                                        {showAttributes()}
-                                    </div>
-                                </div>
-                            </Modal>
+            <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', marginBottom: 10, overflow: 'hidden' }}>
+                <div className="card-header">
+                    <div className="row">
+                        <div className="col">
+                            <h4>Assets:</h4>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className="card-footer">
+                <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+                            <div style={{ width: '100%', height: '100%', padding: 30, display: 'flex', flexDirection: 'column' }}>
+                                <ReactTable.Table<OpenXDA.Types.MeterAsset>
+                                    TableClass="table table-hover"
+                                    Data={allAssets}
+                                    SortKey={sortKey}
+                                    Ascending={ascending}
+                                    OnSort={(d) => {
+                                        if (d.colKey === 'EditDelete')
+                                            return;
+                                        if (d.colKey == sortKey)
+                                            setAscending(!ascending);
+                                        else {
+                                            setAscending(true);
+                                            setSortKey(d.colKey as keyof OpenXDA.Types.Asset);
+                                        }
+                                    }}
+                                    TableStyle={{ tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                    TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
+                                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                                    Selected={(item) => false}
+                                    KeySelector={(item) => item.ID}
+                                >
+                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                        Key={'AssetKey'}
+                                        AllowSort={true}
+                                        Field={'AssetKey'}
+                                        HeaderStyle={{ width: 'calc(20%-16px)' }}
+                                        RowStyle={{ width: 'calc(20%-16px)' }}
+                                    > Key
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                        Key={'AssetName'}
+                                        AllowSort={true}
+                                        Field={'AssetName'}
+                                        HeaderStyle={{ width: 'calc(30%-16px)' }}
+                                        RowStyle={{ width: 'calc(30%-16px)' }}
+                                    > Name
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                        Key={'AssetType'}
+                                        AllowSort={true}
+                                        Field={'AssetType'}
+                                        HeaderStyle={{ width: 'calc(10%-16px)' }}
+                                        RowStyle={{ width: 'calc(10%-16px)' }}
+                                    > Type
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                        Key={'VoltageKV'}
+                                        AllowSort={true}
+                                        Field={'VoltageKV'}
+                                        HeaderStyle={{ width: 'calc(5%-16x)' }}
+                                        RowStyle={{ width: 'calc(5%-16x)' }}
+                                    > Base kV
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                        Key={'FaultDetectionLogic'}
+                                        AllowSort={true}
+                                        Field={'FaultDetectionLogic'}
+                                        HeaderStyle={{ width: 'calc(10%-16px)' }}
+                                        RowStyle={{ width: 'calc(10%-16px)' }}
+                                    > Fault Detection Logic
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                        Key={'Designation'}
+                                        AllowSort={true}
+                                        Field={'Designation'}
+                                        HeaderStyle={{ width: 'calc(10%-16px)' }}
+                                        RowStyle={{ width: 'calc(10%-16px)' }}
+                                    > Designation
+                                    </ReactTable.Column>
+                                    <ReactTable.Column<OpenXDA.Types.MeterAsset>
+                                        Key={'EditDelete'}
+                                        AllowSort={false}
+                                        HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                                        RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                                        Content={({ item }) => <>
+                                            <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
+                                                onClick={(e) => {
+                                                    if (hasPermissions()) {
+                                                        e.preventDefault();
+                                                        setActiveAsset(item.ID, item.AssetType);
+                                                        setShoweditNew(true);
+                                                    }
+                                                }}><span>{Pencil}</span></button>
+                                            <button className={"btn btn-sm" + (hasPermissions() ? '' : ' disabled')}
+                                                onClick={(e) => {
+                                                    if (hasPermissions()) {
+                                                        e.preventDefault();
+                                                        setActiveAsset(item.ID, item.AssetType);
+                                                        setShowDeleteWarning(true)
+                                                    }
+                                                }}><span>{TrashCan}</span></button>
+                                        </>}
+                                    > <p></p>
+                                    </ReactTable.Column>
+                                </ReactTable.Table>
+
+                                <Warning Show={showDeleteWarning} CallBack={(confirmed) => { if (confirmed) dispatch(DBMeterAction({ verb: 'DELETE', assetID: activeAsset.ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID })); setShowDeleteWarning(false); }} Title={'Remove ' + (activeAsset?.AssetName ?? 'Asset') + ' from ' + (props.Meter?.Name ?? 'Meter')} Message={'This will permanently remove the Asset from this Meter.'} />
+                                <LoadingScreen Show={showLoading} />
+                                <Modal Show={showEditNew}
+                                    Title={newEdit == 'New' ? 'Add New Asset to ' + (props.Meter?.Name ?? 'Meter') : 'Edit ' + (activeAsset?.AssetKey ?? 'Asset')}
+                                    Size={'lg'}
+                                    ShowX={true}
+                                    ShowCancel={false}
+                                    ConfirmText={'Save'}
+                                    CallBack={(confirm) => {
+                                        setShoweditNew(false);
+                                        if (confirm) {
+                                            dispatch(DBActionAsset({ verb: 'POST', record: activeAsset, meterID: props.Meter.ID, locationID: props.Meter.LocationID }));
+                                        }
+                                    }}
+                                    ConfirmShowToolTip={AssetAttributes.AttributeError(activeAsset).length > 0}
+                                    DisableConfirm={AssetAttributes.AttributeError(activeAsset).length > 0}
+                                    ConfirmToolTipContent={
+                                        AssetAttributes.AttributeError(activeAsset).map((e, i) => <p key={i}>{CrossMark} {e}</p>)
+                                    }
+                                >
+                                    <div className="row">
+                                        <div className="col">
+                                            <AssetAttributes.AssetAttributeFields Asset={activeAsset} NewEdit={newEdit} AssetTypes={assetTypes} AllAssets={allAssets}
+                                                UpdateState={changeActiveAsset}
+                                                GetDifferentAsset={(assetID) => {
+                                                    setActiveAsset(assetID, assetTypes.find(at => (allAssets as any).find(a => a.ID == assetID).AssetTypeID).Name);
+                                                }} HideSelectAsset={true} HideAssetType={false} />
+                                        </div>
+                                        <div className="col">
+                                            {showAttributes()}
+                                        </div>
+                                    </div>
+                                </Modal>
+                            </div>
+                </div>
+                <div className="card-footer">
                     <div className="btn-group mr-2">
                         <button className={"btn btn-primary pull-left" + (hasPermissions() ? '' : ' disabled')} style={{ marginRight: 5 }} data-tooltip='ExistingAsset' onMouseEnter={() => setHover('submit')} onMouseLeave={() => setHover('none')}
-                            onClick={() => { if (hasPermissions()) setShowSelect(true)}}>Add Existing Asset</button>
+                            onClick={() => { if (hasPermissions()) setShowSelect(true) }}>Add Existing Asset</button>
                         <ToolTip Show={hover == 'submit' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"ExistingAsset"}>
                             <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                         </ToolTip>
 
                         <button className={"btn btn-primary pull-right" + (hasPermissions() ? '' : ' disabled')} data-tooltip='NewAsset' onMouseEnter={() => setHover('clear')} onMouseLeave={() => setHover('none')}
-                            onClick={() => {setActiveAsset(0, 'Line'); if (hasPermissions()) setShoweditNew(true); }}>Add New Asset</button>
+                            onClick={() => { setActiveAsset(0, 'Line'); if (hasPermissions()) setShoweditNew(true); }}>Add New Asset</button>
                         <ToolTip Show={hover == 'clear' && !hasPermissions()} Position={'top'} Theme={'dark'} Target={"NewAsset"}>
                             <p>Your role does not have permission. Please contact your Administrator if you believe this to be in error.</p>
                         </ToolTip>
                     </div>
-            </div>
+                </div>
             </div>
             <AssetSelect
                 SelectedAssets={[]}
@@ -292,11 +289,11 @@ const MeterAssetWindow = (props: IProps) => {
                 Title={`Add Asset to ${props.Meter.Name}`}
                 OnCloseFunction={(selected, confirm) => {
                     setShowSelect(false);
-                    if (confirm) 
-                      dispatch(DBMeterAction({ verb: 'POST', assetID: selected[0].ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID }));
+                    if (confirm)
+                        dispatch(DBMeterAction({ verb: 'POST', assetID: selected[0].ID, meterID: props.Meter.ID, locationID: props.Meter.LocationID }));
                 }}
             />
-            </>
+        </>
     );
 
 
