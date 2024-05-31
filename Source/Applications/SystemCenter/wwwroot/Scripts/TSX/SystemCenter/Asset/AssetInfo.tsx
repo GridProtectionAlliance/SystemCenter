@@ -372,7 +372,7 @@ function AssetInfoWindow(props: IProps) {
 
     }
 
-    return <div className="card" style={{ marginBottom: 10 }}>
+    return <div className="card" style={{ flex: 1, marginBottom: 10, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         <div className="card-header">
             <div className="row">
                 <div className="col">
@@ -380,8 +380,8 @@ function AssetInfoWindow(props: IProps) {
                 </div>
             </div>
         </div>
-        <div className="card-body">
-            <div className="row" style={{ height: window.innerHeight - 420, maxHeight: window.innerHeight - 420, overflowY: 'auto' }}>
+        <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
+            <div className="row">
                 <div className="col">
                     <AssetAttributes.AssetAttributeFields Asset={editAsset} NewEdit='Edit' AssetTypes={assetTypes} AllAssets={allAssets} UpdateState={setEditAsset} GetDifferentAsset={() => { }} HideAssetType={editAsset.AssetType === 'LineSegment'} HideSelectAsset={true} />
                     <AdditionalFieldsProperties ID={editAsset.ID} ParentTable={"Asset"} AddlFieldSaveRef={saveAddlAsset} SetChangedList={setAddlFieldChangedAsset} SetErrorList={setAddlFieldErrorAsset} ResetAddlFieldRef={resetAddlAsset} SingleColumn={true} />

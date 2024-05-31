@@ -224,7 +224,7 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
 
     const connectionsAvailable = !(assetConnectionTypes == undefined) && (assetConnectionTypes.length > 0);
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', marginBottom: 10, overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -232,8 +232,8 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                     </div>
                 </div>
             </div>
-            <div className="card-body">
-                <div style={{ width: '100%', maxHeight: window.innerHeight - 381, padding: 30 }}>
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+                <div style={{ width: '100%', padding: 30 }}>
                     <ReactTable.Table<AssetConnection>
                         TableClass="table table-hover"
                         Data={assetConnections}
@@ -255,8 +255,9 @@ function AssetConnectionWindow(props: { Name: string, ID: number, TypeID: number
                                 setSortKey(d.colKey);
                             }
                         }}
+                        TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                         TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
                         RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                         OnClick={handleSelect}
                         Selected={(item) => false}

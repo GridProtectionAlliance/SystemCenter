@@ -170,75 +170,74 @@ function SourceImpedanceWindow(props: { ID: number }): JSX.Element {
 
     return (
         <>
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', marginBottom: 10, overflow: 'hidden' }}>
             <div className="card-header">
                 <h4>Line Source Impedances:</h4>
             </div>
-            <div className="card-body">
-                <div style={{ height: window.innerHeight - 540, maxHeight: window.innerHeight - 540, overflowY: 'auto' }}>
-                    <ReactTable.Table<OpenXDA.Types.SourceImpedance>
-                        TableClass="table table-hover"
-                        Data={data}
-                        SortKey={'AssetLocationID'}
-                        Ascending={true}
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+                <ReactTable.Table<OpenXDA.Types.SourceImpedance>
+                    TableClass="table table-hover"
+                    Data={data}
+                    SortKey={'AssetLocationID'}
+                    Ascending={true}
                         OnSort={(d) => { }}
-                        TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
-                        RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                        Selected={(item) => false}
-                        KeySelector={(item) => item.ID}
-                    >
-                        <ReactTable.Column<OpenXDA.Types.SourceImpedance>
-                            Key={'AssetLocationID'}
-                            AllowSort={true}
-                            Field={'AssetLocationID'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                            Content={({ item }) => getLocationName(item)}
-                        > Substation
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.SourceImpedance>
-                            Key={'RSrc'}
-                            AllowSort={true}
-                            Field={'RSrc'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > R (pu)
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.SourceImpedance>
-                            Key={'XSrc'}
-                            AllowSort={true}
-                            Field={'XSrc'}
-                            HeaderStyle={{ width: 'auto' }}
-                            RowStyle={{ width: 'auto' }}
-                        > X (pu)
-                        </ReactTable.Column>
-                        <ReactTable.Column<OpenXDA.Types.SourceImpedance>
-                            Key={'EditDelete'}
-                            AllowSort={false}
-                            HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                            RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
-                            Content={({ item }) => <>
-                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                    onClick={(e) => {
+                    TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1 }}
+                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
+                    Selected={(item) => false}
+                    KeySelector={(item) => item.ID}
+                >
+                    <ReactTable.Column<OpenXDA.Types.SourceImpedance>
+                        Key={'AssetLocationID'}
+                        AllowSort={true}
+                        Field={'AssetLocationID'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                        Content={({ item }) => getLocationName(item)}
+                    > Substation
+                    </ReactTable.Column>
+                    <ReactTable.Column<OpenXDA.Types.SourceImpedance>
+                        Key={'RSrc'}
+                        AllowSort={true}
+                        Field={'RSrc'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > R (pu)
+                    </ReactTable.Column>
+                    <ReactTable.Column<OpenXDA.Types.SourceImpedance>
+                        Key={'XSrc'}
+                        AllowSort={true}
+                        Field={'XSrc'}
+                        HeaderStyle={{ width: 'auto' }}
+                        RowStyle={{ width: 'auto' }}
+                    > X (pu)
+                    </ReactTable.Column>
+                    <ReactTable.Column<OpenXDA.Types.SourceImpedance>
+                        Key={'EditDelete'}
+                        AllowSort={false}
+                        HeaderStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                        RowStyle={{ width: 80, paddingLeft: 0, paddingRight: 5 }}
+                        Content={({ item }) => <>
+                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                onClick={(e) => {
+                                    if (hasPermissions()) {
+                                        setShowAdd(true);
+                                        setNewEditImpedance(item);
+                                        setNewEdit('Edit');
+                                    }
+                                }}><span>{Pencil}</span></button>
+                            <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
+                                onClick={(e) => {
                                         if (hasPermissions()) {
-                                            setShowAdd(true);
                                             setNewEditImpedance(item);
-                                            setNewEdit('Edit');
+                                            setshowWarning(true);
                                         }
-                                    }}><span>{Pencil}</span></button>
-                                <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
-                                    onClick={(e) => {
-                                            if (hasPermissions()) {
-                                                setNewEditImpedance(item);
-                                                setshowWarning(true);
-                                            }
-                                    }}><span>{TrashCan}</span></button>
-                            </> }
-                        > <p></p>
-                        </ReactTable.Column>
-                    </ReactTable.Table>
-                </div>
+                                }}><span>{TrashCan}</span></button>
+                        </> }
+                    > <p></p>
+                    </ReactTable.Column>
+                </ReactTable.Table>
             </div>
             <div className="card-footer">
                     <div className="btn-group mr-2">
