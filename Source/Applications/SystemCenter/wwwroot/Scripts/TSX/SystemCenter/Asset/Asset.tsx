@@ -42,7 +42,7 @@ import { useAppSelector } from '../hooks';
 import { SelectRoles } from '../Store/UserSettings';
 
 declare var homePath: string;
-declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels'
+declare type Tab = 'notes' | 'assetInfo' | 'substations' | 'meters' | 'connections' | 'additionalFields' | 'extDB' | 'segments' | 'sourceImpedances' | 'channels';
 
 interface IProps { AssetID: number, Tab: Tab }
 
@@ -132,13 +132,13 @@ function Asset(props: IProps) {
 
     const Tabs = [
         { Id: "notes", Label: "Notes" },
-        { Id: "assetInfo", Label: "Asset Info" },
+        { Id: "assetInfo", Label: "Info" },
         { Id: "additionalFields", Label: "Additional Fields" },
         { Id: "substations", Label: "Substations" },
         { Id: "meters", Label: "Meters" },
         { Id: "channels", Label: "Channels" },
         { Id: "connections", Label: "Connections" },
-       ];
+    ];
 
     if (assetType == 'Line') {
         Tabs.push({ Id: "segments", Label: "Line Segments" });
