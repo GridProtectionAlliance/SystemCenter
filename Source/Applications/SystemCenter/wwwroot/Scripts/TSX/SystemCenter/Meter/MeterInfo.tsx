@@ -177,7 +177,7 @@ const MeterInforWindow = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
                 <MeterProperties Meter={meter} StateSetter={setMeter} />
                 <AdditionalFieldsProperties ID={meter.ID} ParentTable={'Meter'} AddlFieldSaveRef={saveAddl} SetChangedList={setAddlFieldChanged} SetErrorList={setAddlFieldError} ResetAddlFieldRef={resetAddl} />
                 <LoadingScreen Show={loading} />

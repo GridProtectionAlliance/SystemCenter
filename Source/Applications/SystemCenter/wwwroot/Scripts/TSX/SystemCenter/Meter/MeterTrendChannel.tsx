@@ -65,7 +65,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
     const [removeRecord, setRemoveRecord] = React.useState<OpenXDA.TrendChannel | null>(null);
 
     const [errors, setErrors] = React.useState<string[]>([]);
-    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' |'Add')>('None');
+    const [hover, setHover] = React.useState<('Update' | 'Reset' | 'None' | 'Add')>('None');
     const roles = useAppSelector(SelectRoles);
 
 
@@ -256,7 +256,6 @@ const MeterTrendChannelWindow = (props: IProps) => {
             </div>
             <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                 <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-
                     <ConfigTable.Table<OpenXDA.TrendChannel>
                         LocalStorageKey="MeterTrendChannelConfigTable"
                         TableClass="table table-hover"
@@ -284,7 +283,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                             RowStyle={{ width: 'auto' }}
                             Content={({ item }) => <Input<OpenXDA.TrendChannel> Record={item} Field={'Name'}
                                 Label={''} Setter={(r) => createChange(r, 'Name')}
-                                Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}
+                                Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}
                         >
                             Name </ReactTable.Column>
 
@@ -295,7 +294,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Input<OpenXDA.TrendChannel> Record={item}
                                     Field={'Description'} Label={''}
                                     Setter={(r) => createChange(r, 'Description')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
                             </ReactTable.Column>
                         </ConfigTable.Configurable>
                         <ConfigTable.Configurable Key='MeasurementType' Label='Type' Default={true}>
@@ -307,7 +306,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Select Record={item} Field={'MeasurementTypeID'}
                                     Label={''}
                                     Options={measurementTypes.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
-                                    Setter={(r) => createChange(r, 'MeasurementTypeID')} Disabled={!hasPermissions()}/>}>
+                                    Setter={(r) => createChange(r, 'MeasurementTypeID')} Disabled={!hasPermissions()} />}>
                                 Type
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
@@ -319,7 +318,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 RowStyle={{ width: '10%' }}
                                 Content={({ item }) => <Select Record={item} Field={'PhaseID'}
                                     Label={''} Options={phases.map(d => ({ Label: d.Name, Value: d.ID.toString() }))}
-                                    Setter={(r) => createChange(r, 'PhaseID')} Disabled={!hasPermissions()}/>}>
+                                    Setter={(r) => createChange(r, 'PhaseID')} Disabled={!hasPermissions()} />}>
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
                         <ConfigTable.Configurable Key='HarmonicGroup' Label='Harmonic' Default={false}>
@@ -331,7 +330,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                     Record={item} Field={'HarmonicGroup'} Type={'number'}
                                     Label={''}
                                     Setter={(r) => createChange(r, 'HarmonicGroup')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
                                 Harmonic
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
@@ -344,7 +343,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Input<OpenXDA.TrendChannel>
                                     Record={item} Field={'Adder'} Type={'number'}
                                     Label={''} Setter={(r) => createChange(r, 'Adder')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
                         <ConfigTable.Configurable Key='Multiplier' Label='Multiplier' Default={true}>
@@ -356,7 +355,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Input<OpenXDA.TrendChannel>
                                     Record={item} Field={'Multiplier'} Type={'number'}
                                     Label={''} Setter={(r) => createChange(r, 'Multiplier')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
                         <ConfigTable.Configurable Key='SamplesPerHour' Label='Sampling Rate' Default={false}>
@@ -367,7 +366,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Input<OpenXDA.TrendChannel>
                                     Record={item} Field={'SamplesPerHour'} Type={'number'}
                                     Label={''} Setter={(r) => createChange(r, 'SamplesPerHour')}
-                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()}/>}>
+                                    Valid={(f) => isValid(f, item)} Disabled={!hasPermissions()} />}>
                                 Sampling Rate (sph)
                             </ReactTable.Column>
                         </ConfigTable.Configurable>
@@ -391,7 +390,7 @@ const MeterTrendChannelWindow = (props: IProps) => {
                                 Content={({ item }) => <Select Record={item}
                                     Field={'AssetID'} Label={''}
                                     Options={assets.map(d => ({ Label: d.AssetKey, Value: d.ID.toString() }))}
-                                    Setter={(r) => createChange(r, 'AssetID')} Disabled={!hasPermissions()}/>}>
+                                    Setter={(r) => createChange(r, 'AssetID')} Disabled={!hasPermissions()} />}>
 
                             </ReactTable.Column>
                         </ConfigTable.Configurable >
@@ -416,9 +415,9 @@ const MeterTrendChannelWindow = (props: IProps) => {
                             RowStyle={{ width: '62px' }}
                             Content={({ item }) => <button className={"btn btn-sm" + (!hasPermissions() ? ' disabled' : '')}
                                 onClick={(e) => { if (hasPermissions()) setRemoveRecord(item) }}><span>{TrashCan}</span></button>}>
-                            
+
                         </ReactTable.Column>
-                    </ConfigTable.Table>                    
+                    </ConfigTable.Table>
                 </div>
             </div>
             <div className="card-footer">
@@ -487,4 +486,3 @@ const MeterTrendChannelWindow = (props: IProps) => {
 }
 
 export default MeterTrendChannelWindow;
-
