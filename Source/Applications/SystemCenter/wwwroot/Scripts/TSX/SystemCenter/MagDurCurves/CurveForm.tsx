@@ -124,6 +124,7 @@ export default function CurveForm(props: IProps) {
                         Field={'Color'}
                         Label={'Color'}
                         Record={props.Curve}
+                        Style={{ background: props.Curve.Color }}
                         Setter={(record) => props.stateSetter(record) }
                       
                     />
