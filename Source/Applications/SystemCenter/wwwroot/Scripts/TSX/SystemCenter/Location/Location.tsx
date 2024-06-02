@@ -115,7 +115,7 @@ function Location(props: IProps) {
     ];
 
     return (
-        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden', padding: 15 }}>
             <div className="row">
                 <div className="col">
                     <h2>{location != null ? location.Name + ' (' + location.LocationKey + ')' : ''}</h2>
@@ -127,29 +127,16 @@ function Location(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 215, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "notes" ? " active" : "fade")} id="notes">
-                    <NoteWindow ID={props.LocationID} Type='Location' />
-                </div>
-                <div className={"tab-pane " + (tab == "locationInfo" ? " active" : "fade")} id="locationInfo">
-                    <LocationInfoWindow Location={location} stateSetter={(l: OpenXDA.Types.Location) => setLocation(l)} />
-                </div>
-                <div className={"tab-pane " + (tab == "additionalFields" ? " active" : "fade")} id="additionalFields">
-                    <AdditionalFieldsWindow ID={props.LocationID} Type='Location' Tab={tab} />
-                </div>
-                <div className={"tab-pane " + (tab == "meters" ? " active" : "fade")} id="meters">
-                    <LocationMeterWindow Location={location} />
-                </div>
-                <div className={"tab-pane " + (tab == "assets" ? " active" : "fade")} id="assets">
-                    <LocationAssetWindow Location={location} />
-                </div>
-                <div className={"tab-pane " + (tab == "images" ? " active" : "fade")} id="images">
-                    <LocationImagesWindow Location={location} />
-                </div>
-                <div className={"tab-pane " + (tab == "drawings" ? " active" : "fade")} id="drawings">
-                    <LocationDrawingsWindow Location={location} />
-                </div>
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                {tab === 'notes' ? <NoteWindow ID={props.LocationID} Type='Location' /> : null}
+                {tab === 'locationInfo' ? <LocationInfoWindow Location={location} stateSetter={(l) => setLocation(l)} /> : null}
+                {tab === 'additionalFields' ? <AdditionalFieldsWindow ID={props.LocationID} Type='Location' Tab={tab} /> : null}
+                {tab === 'meters' ? <LocationMeterWindow Location={location} /> : null}
+                {tab === 'assets' ? <LocationAssetWindow Location={location} /> : null}
+                {tab === 'images' ? <LocationImagesWindow Location={location} /> : null}
+                {tab === 'drawings' ? <LocationDrawingsWindow Location={location} /> : null}
             </div>
+
 
             <Warning Message={'This will permanently delete this Substation and cannot be undone.'} Show={showDelete} Title={'Delete ' + (location?.Name ?? 'Substation')} CallBack={(conf) => { if (conf) deleteLocation(); setShowDelete(false); }} />
             <LoadingScreen Show={loadDelete} />
