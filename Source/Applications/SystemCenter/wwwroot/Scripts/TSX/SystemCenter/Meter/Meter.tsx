@@ -182,19 +182,19 @@ function Meter(props: IProps) {
             <hr />
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                {tab === 'notes' && <NoteWindow ID={props.MeterID} Type='Meter' />}
-                {tab === 'meterInfo' && <MeterInfoWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} />}
-                {tab === 'additionalFields' && <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={tab} />}
-                {tab === 'substation' && <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} />}
-                {tab === 'eventChannels' && <MeterEventChannelWindow Meter={meter} IsVisible={tab === "eventChannels"} />}
-                {tab === 'trendChannels' && <MeterTrendChannelWindow Meter={meter} IsVisible={tab === "trendChannels"} />}
-                {tab === 'channelScaling' && <ChannelScalingWindow Meter={meter} IsVisible={tab === "channelScaling"} />}
-                {tab === 'assets' && <MeterAssetWindow Meter={meter} />}
-                {tab === 'configurationHistory' && <MeterConfigurationHistoryWindow Meter={meter} />}
-                {tab === 'dataRescue' && dataRescueWindow}
-                {tab === 'dataMerge' && dataMergeWindow}
-                {tab === 'dataDelete' && dataDeleteWindow}
-                {tab === 'maintenance' && <MeterMaintenanceWindow Meter={meter} />}
+                {tab === 'notes' ? <NoteWindow ID={props.MeterID} Type='Meter' /> : null}
+                {tab === 'meterInfo' ? <MeterInfoWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} /> : null}
+                {tab === 'additionalFields' ? <AdditionalFieldsWindow ID={props.MeterID} Type='Meter' Tab={tab} /> : null}
+                {tab === 'substation' ? <MeterLocationWindow Meter={meter} StateSetter={(meter: OpenXDA.Types.Meter) => setMeter(meter)} /> : null}
+                {tab === 'eventChannels' ? <MeterEventChannelWindow Meter={meter} IsVisible={tab === "eventChannels"} /> : null}
+                {tab === 'trendChannels' ? <MeterTrendChannelWindow Meter={meter} IsVisible={tab === "trendChannels"} /> : null}
+                {tab === 'channelScaling' ? <ChannelScalingWindow Meter={meter} IsVisible={tab === "channelScaling"} /> : null}
+                {tab === 'assets' ? <MeterAssetWindow Meter={meter} />}
+                {tab === 'configurationHistory' ? <MeterConfigurationHistoryWindow Meter={meter} />}
+                {tab === 'dataRescue' ? dataRescueWindow}
+                {tab === 'dataMerge' ? dataMergeWindow}
+                {tab === 'dataDelete' ? dataDeleteWindow}
+                {tab === 'maintenance' ? <MeterMaintenanceWindow Meter={meter} />}
             </div>
 
             <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
