@@ -119,14 +119,14 @@ export default function CurveForm(props: IProps) {
                     <Input<OpenXDA.Types.MagDurCurve> Record={props.Curve} Field={'Name'} Label='Name' Feedback={'A unique Name is required.'}
                         Valid={valid} Setter={(record) => props.stateSetter(record)} />
                 </div>
-                <div className="col-3" style={{marginTop: '30px'}}>
-                    <ColorPicker
-                        CurrentColor={props.Curve?.Color ? props.Curve.Color : ""}
-                        OnColorChange={(updatedColor) => {
-                            const newRecord = { ...props.Curve, Color: updatedColor.hex };
-                            props.stateSetter(newRecord);
-                        }}
-                        Triangle={'hide'}
+                <div className="col-3" style={{ marginTop: '30px' }}>
+                    <ColorPicker<OpenXDA.Types.MagDurCurve>
+                        Field={'Color'}
+                        Label={'Color'}
+                        Record={props.Curve}
+                        Style={{ background: props.Curve.Color }}
+                        Setter={(record) => props.stateSetter(record) }
+                      
                     />
                 </div>
             </div>

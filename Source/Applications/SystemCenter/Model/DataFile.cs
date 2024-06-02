@@ -39,6 +39,11 @@ using GSF.Configuration;
 using System.Net.Http.Headers;
 using System.Net;
 using System.IO;
+using Newtonsoft.Json.Linq;
+using System.Text;
+using Newtonsoft.Json;
+using GSF.Communication;
+using GSF.Web.Security;
 
 namespace SystemCenter.Model
 {
@@ -48,7 +53,8 @@ namespace SystemCenter.Model
 	        DataFile.*,
 	        FileGroup.DataStartTime,
 	        FileGroup.ProcessingEndTime,
-	        FileGroup.MeterID
+	        FileGroup.MeterID,
+            FileGroup.ProcessingStatus AS ProcessingState
         FROM
 	        DataFile JOIN
 	        FileGroup ON DataFile.FileGroupID = FileGroup.ID
@@ -61,6 +67,7 @@ namespace SystemCenter.Model
         [DefaultSortOrder(false)]
         public DateTime ProcessingEndTime { get; set; }
         public DateTime DataStartTime { get; set; }
+        public int ProcessingState { get; set; }
     }
 
     [RoutePrefix("api/OpenXDA/DataFile")]
@@ -128,6 +135,34 @@ namespace SystemCenter.Model
             }
         }
 
+        [HttpPost]
+        [Route("ReprocessMany")]
+        public IHttpActionResult ReprocessMany([FromBody] IEnumerable<int> ids)
+        {
+
+            if (PatchAuthCheck())
+            {
+                APIConfiguration settings = new Settings(new ConfigurationLoader(CreateDbConnection).Configure).APISettings;
+                APIQuery query = new APIQuery(settings.Key, settings.Token, settings.Host.Split(';'));
+                void ConfigureRequest(HttpRequestMessage request)
+                {
+                    request.Method = HttpMethod.Post;
+                    request.Content = new StringContent(JsonConvert.SerializeObject(ids), Encoding.UTF8, "application/json");
+                    
+                }
+
+                HttpResponseMessage responseMessage = query.SendWebRequestAsync(ConfigureRequest, $"/api/Workbench/DataFiles/ReprocessFilesByID").Result;
+                if (responseMessage.IsSuccessStatusCode)
+                    return Ok(1);
+                else
+                    return InternalServerError();
+            }
+            else
+            {
+                return Unauthorized();
+            }
+        }
+
         [HttpGet]
         [Route("Download/{id:int}")]
         public IHttpActionResult Download(int id)
@@ -179,6 +214,8 @@ namespace SystemCenter.Model
             connection.DefaultTimeout = DataExtensions.DefaultTimeoutDuration;
             return connection;
         }
+
+ 
     }
 
 }

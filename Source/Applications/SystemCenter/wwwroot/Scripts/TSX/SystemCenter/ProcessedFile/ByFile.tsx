@@ -33,6 +33,7 @@ import { DataFileSlice } from '../Store/Store';
 import { OpenXDA as GlobalXDA } from '../global';
 import moment from 'moment';
 import { Paging } from '@gpa-gemstone/react-table';
+import { ReactIcons } from '@gpa-gemstone/gpa-symbols';
 
 
 declare var homePath: string;
@@ -55,14 +56,34 @@ const ByFile: Application.Types.iByComponent = (props) => {
     const [search, setSearch] = React.useState<Array<Search.IFilter<OpenXDA.Types.DataFile>>>([]);
     const filterableList: Search.IField<OpenXDA.Types.DataFile>[] = [
         { isPivotField: false, key: 'FilePath', label: 'File Path', type: 'string' },
-        { isPivotField: false, key: 'CreationTime', label: 'File Created', type: 'datetime' },
-        { isPivotField: false, key: 'DataStartTime', label: 'Data Start', type: 'datetime' }        
+        { isPivotField: false, key: 'CreationTime', label: 'File Processed', type: 'datetime' },
+        { isPivotField: false, key: 'DataStartTime', label: 'Data Start', type: 'datetime' },
+        {
+            isPivotField: false, key: 'ProcessingState', label: 'Status', type: 'enum', enum: [
+                { Value: "0", Label: "Unknown" },
+                { Value: "1", Label: "Queued" },
+                { Value: "2", Label: "Processing" },
+                { Value: "3", Label: "Processed" },
+                { Value: "4", Label: "Error" }
+            ]
+        }     
     ]
 
     const [sortKey, setSortKey] = React.useState<keyof OpenXDA.Types.DataFile>('DataStartTime');
     const [ascending, setAscending] = React.useState<boolean>(true);
     const [page, setPage] = React.useState<number>(currentPage);
     const totalRecords = useAppSelector(DataFileSlice.TotalRecords);
+    const [update, setUpdate] = React.useState<boolean>(false);
+
+    React.useEffect(() => {
+        const h = setTimeout(() => {
+            setUpdate((a) => !a);
+        }, 60000);
+
+        return () => {
+            if (h !== null) clearTimeout(h);
+        };
+    }, [update]);
 
     React.useEffect(() => {
         dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search, page }))
@@ -71,7 +92,7 @@ const ByFile: Application.Types.iByComponent = (props) => {
     React.useEffect(() => {
         if (cState == 'unintiated' || cState == 'changed')
             dispatch(DataFileSlice.PagedSearch({ sortField: sortKey, ascending, filter: search }))
-    }, [cState, dispatch]);
+    }, [cState]);
 
     React.useEffect(() => {
         if (selectedID == null)
@@ -79,6 +100,10 @@ const ByFile: Application.Types.iByComponent = (props) => {
         const h = loadEvents(selectedID.ID);
         return () => { if (h !== null && h.abort != null) h.abort(); }
     }, [selectedID])
+
+    React.useEffect(() => {
+        dispatch(DataFileSlice.SetChanged());
+    }, [update]);
 
     function loadEvents(fileID: number) {
         if (fileID < 0)
@@ -107,6 +132,19 @@ const ByFile: Application.Types.iByComponent = (props) => {
         }).fail(() => setShowWarning('error')).done((d) => { setShowWarning('complete'); });;
     }
 
+    function reprocessAll() {
+
+        $.ajax({
+            type: "POST",
+            url: `${homePath}api/OpenXDA/DataFile/ReprocessMany`,
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify(data.map(d => d.FileGroupID)),
+            cache: false,
+            async: true
+        }).fail(() => setShowWarning('error')).done((d) => { setShowWarning('complete'); });;
+    }
+
     function getFileName(file: OpenXDA.Types.DataFile) {
         if (file == null)
             return '';
@@ -124,81 +162,101 @@ const ByFile: Application.Types.iByComponent = (props) => {
     return (
         <div style={{ width: '100%', height: '100%' }}>
             <LoadingScreen Show={showWarning == 'loading'} />
-            <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'} StorageID="DataFilesFilter"
-                ShowLoading={cState == 'loading'}
-                ResultNote={cState == 'error' ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
-                GetEnum={(setOptions, field) => {
-                    let handle = null;
-                   
-                    if (field.type != 'enum' || field.enum == undefined || field.enum.length != 1)
-                        return () => { };
+            <div className="container-fluid d-flex h-100 flex-column">
+                <div className="row">
+                    <SearchBar<OpenXDA.Types.DataFile> CollumnList={filterableList} SetFilter={(flds) => setSearch(flds)} Direction={'left'} defaultCollumn={DefaultSearchField.DataFile as Search.IField<OpenXDA.Types.DataFile>} Width={'100%'} Label={'Search'} StorageID="DataFilesFilter"
+                        ShowLoading={cState == 'loading'}
+                        ResultNote={cState == 'error' ? 'Could not complete Search' : ('Displaying  Data File(s) ' + (totalRecords > 0? (50 * page + 1): 0 ) + ' - ' + (50 * page + data.length)) + ' out of ' + totalRecords}
+                        GetEnum={(setOptions, field) => {
+                            if (field.enum != null)
+                            setOptions(field.enum);
+                            return () => { };
+                        }}
 
-                    handle = $.ajax({
-                        type: "GET",
-                        url: `${homePath}api/ValueList/Group/${field.enum[0].Value}`,
-                        contentType: "application/json; charset=utf-8",
-                        dataType: 'json',
-                        cache: true,
-                        async: true
-                    });
+                    >
+                        <li className="nav-item" style={{ width: '15%', paddingRight: 10 }}>
+                            <fieldset className="border" style={{ padding: '10px', height: '100%' }}>
+                                <legend className="w-auto" style={{ fontSize: 'large' }}>Actions:</legend>
+                                <form>
+                                    <div className="form-group">
+                                        <button className="btn btn-primary" hidden={props.Roles.indexOf('Administrator') < 0 && props.Roles.indexOf('Transmission SME') < 0}
+                                            onClick={(event) => { event.preventDefault(); reprocessAll(); }}>Reprocess All {data.length}</button>
+                                    </div>
+                                   
+                                </form>
+                            </fieldset>
+                        </li>
+                    </SearchBar>
+                </div>
 
-                    handle.done(d => setOptions(d.map(item => ({ Value: item.Value.toString(), Label: item.Text }))))
-                    return () => { if (handle != null && handle.abort == null) handle.abort(); }
-                }}
-
-            >
-                
-            </SearchBar>
-            <div style={{ width: '100%', height: 'calc( 100% - 136px)' }}>
-                <ReactTable.Table<OpenXDA.Types.DataFile>
-                    TableClass="table table-hover"
-                    Data={data}
-                    SortKey={sortKey}
-                    Ascending={ascending}
-                    OnSort={(d) => {
-                        if (d.colKey === sortKey)
-                            setAscending(!ascending);
-                        else {
-                            setAscending(true);
-                            setSortKey(d.colField);
-                        }
-                    }}
-                    OnClick={(item) => setSelectetID(item.row)}
-                    TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 320, width: '100%' }}
-                    RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                    Selected={(item) => false}
-                    KeySelector={(item) => item.ID}
-                >
-                    <ReactTable.Column<OpenXDA.Types.DataFile>
-                        Key={'FilePath'}
-                        AllowSort={true}
-                        Field={'FilePath'}
-                        HeaderStyle={{ width: '70%' }}
-                        RowStyle={{ width: '70%' }}
-                        Content={({ item }) => item.FilePath.length > 100 ? item.FilePath.substr(item.FilePath.length - 100, 100) : item.FilePath}
-                    > File Path
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.DataFile>
-                        Key={'CreationTime'}
-                        AllowSort={true}
-                        Field={'CreationTime'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
-                        Content={({ item }) => moment(item.CreationTime).format('MM/DD/YYYY HH:mm.ss.SSS')}
-                    > File Created
-                    </ReactTable.Column>
-                    <ReactTable.Column<OpenXDA.Types.DataFile>
-                        Key={'DataStartTime'}
-                        AllowSort={true}
-                        Field={'DataStartTime'}
-                        HeaderStyle={{ width: '15%' }}
-                        RowStyle={{ width: '15%' }}
-                        Content={({ item }) => ((moment(item.DataStartTime).isValid()) ? moment(item.DataStartTime).format('MM/DD/YYYY HH:mm.ss.SSS') : 'N/A')}
-                    > Data Start
-                    </ReactTable.Column>
-                </ReactTable.Table>
-                <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p-1)} />
+                <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
+                    <ReactTable.Table<OpenXDA.Types.DataFile>
+                        TableClass="table table-hover"
+                        Data={data}
+                        SortKey={sortKey}
+                        Ascending={ascending}
+                        OnSort={(d) => {
+                            if (d.colKey === sortKey)
+                                setAscending(!ascending);
+                            else {
+                                setAscending(true);
+                                setSortKey(d.colField);
+                            }
+                        }}
+                        OnClick={(item) => setSelectetID(item.row)}
+                        TableStyle={{
+                            padding: 0, width: 'calc(100%)', height: '100%',
+                            tableLayout: 'fixed', overflow: 'hidden', display: 'flex', flexDirection: 'column', marginBottom: 0
+                        }}
+                        TheadStyle={{ fontSize: 'auto', tableLayout: 'fixed', display: 'table', width: '100%' }}
+                        TbodyStyle={{ display: 'block', overflowY: 'scroll', flex: 1 }}
+                        RowStyle={{ display: 'table', tableLayout: 'fixed', width: '100%' }}
+                        Selected={(item) => false}
+                        KeySelector={(item) => item.ID}
+                    >
+                        <ReactTable.Column<OpenXDA.Types.DataFile>
+                            Key={'FilePath'}
+                            AllowSort={true}
+                            Field={'FilePath'}
+                            HeaderStyle={{ width: '60%' }}
+                            RowStyle={{ width: '60%' }}
+                            Content={({ item }) => item.FilePath.length > 100 ? item.FilePath.substr(item.FilePath.length - 100, 100) : item.FilePath}
+                        > File Path
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.DataFile>
+                            Key={'CreationTime'}
+                            AllowSort={true}
+                            Field={'CreationTime'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                            Content={({ item }) => moment(item.CreationTime).format('MM/DD/YYYY HH:mm.ss.SSS')}
+                        > File Processed
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.DataFile>
+                            Key={'DataStartTime'}
+                            AllowSort={true}
+                            Field={'DataStartTime'}
+                            HeaderStyle={{ width: '15%' }}
+                            RowStyle={{ width: '15%' }}
+                            Content={({ item }) => ((moment(item.DataStartTime).isValid()) ? moment(item.DataStartTime).format('MM/DD/YYYY HH:mm.ss.SSS') : 'N/A')}
+                        > Data Start
+                        </ReactTable.Column>
+                        <ReactTable.Column<OpenXDA.Types.DataFile>
+                            Key={'ProcessingState'}
+                            AllowSort={true}
+                            Field={'ProcessingState'}
+                            HeaderStyle={{ width: '10%' }}
+                            RowStyle={{ width: '10%' }}
+                            Content={({ item }) => <ProcessingStatus Status={item.ProcessingState} />}
+                        > Status
+                        </ReactTable.Column>
+                    </ReactTable.Table>
+                </div>
+                <div className="row">
+                    <div className="col">
+                        <Paging Current={page + 1} Total={allPages} SetPage={(p) => setPage(p - 1)} />
+                    </div>
+                </div>
             </div>
 
             <Modal Show={selectedID != null} Title={'File Details'} CallBack={(c,b) => {
@@ -281,6 +339,53 @@ const ByFile: Application.Types.iByComponent = (props) => {
             </Modal>
         </div>
     )
+}
+
+const ProcessingStatus = (props: { Status: number }) => {
+
+    const visual = React.useMemo(() => {
+        if (props.Status == 0) //Added - Unknown
+            return "badge-light";
+        if (props.Status == 1) //Queued
+            return "badge-info";
+        if (props.Status == 2) // Processing
+            return "badge-primary";
+        if (props.Status == 3) // Processed
+            return "badge-success";
+        if (props.Status == 4) // Error
+            return "badge-danger";
+        return "badge-warning";
+    }, [props.Status]);
+
+    const text = React.useMemo(() => {
+        if (props.Status == 0) //Added - Unknown
+            return "Unknown";
+        if (props.Status == 1) //Queued
+            return "Queued";
+        if (props.Status == 2) // Processing
+            return "Processing";
+        if (props.Status == 3) // Processed
+            return "Processed";
+        if (props.Status == 4) // Error
+            return "Error";
+        return "Unknwown";
+    }, [props.Status]);
+
+    const Symbol = React.useMemo(() => {
+        if (props.Status == 0) //Added - Unknown
+            return <ReactIcons.Warning Size={15} />;
+        if (props.Status == 1) //Queued
+            return <ReactIcons.Document Size={15} />;
+        if (props.Status == 2) // Processing
+            return <ReactIcons.SpiningIcon Size={15} />;
+        if (props.Status == 3) // Processed
+            return <ReactIcons.CircleCheck Size={15} />
+        if (props.Status == 4) // Error
+            return <ReactIcons.CircledX Size={15} />;
+        return <ReactIcons.Warning Size={15} />;
+    }, [props.Status]);
+
+    return <span className={`"badge badge-pill ${visual}`} > {Symbol}  {text} </span>
 }
 
 export default ByFile;
