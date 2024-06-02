@@ -189,12 +189,12 @@ function Meter(props: IProps) {
                 {tab === 'eventChannels' ? <MeterEventChannelWindow Meter={meter} IsVisible={tab === "eventChannels"} /> : null}
                 {tab === 'trendChannels' ? <MeterTrendChannelWindow Meter={meter} IsVisible={tab === "trendChannels"} /> : null}
                 {tab === 'channelScaling' ? <ChannelScalingWindow Meter={meter} IsVisible={tab === "channelScaling"} /> : null}
-                {tab === 'assets' ? <MeterAssetWindow Meter={meter} />}
-                {tab === 'configurationHistory' ? <MeterConfigurationHistoryWindow Meter={meter} />}
-                {tab === 'dataRescue' ? dataRescueWindow}
-                {tab === 'dataMerge' ? dataMergeWindow}
-                {tab === 'dataDelete' ? dataDeleteWindow}
-                {tab === 'maintenance' ? <MeterMaintenanceWindow Meter={meter} />}
+                {tab === 'assets' ? <MeterAssetWindow Meter={meter} /> : null}
+                {tab === 'configurationHistory' ? <MeterConfigurationHistoryWindow Meter={meter} /> : null}
+                {tab === 'dataRescue' ? dataRescueWindow : null}
+                {tab === 'dataMerge' ? dataMergeWindow : null}
+                {tab === 'dataDelete' ? dataDeleteWindow : null}
+                {tab === 'maintenance' ? <MeterMaintenanceWindow Meter={meter} /> : null}
             </div>
 
             <Modal Title={'Advanced Options'} Show={showAdvanced} CallBack={() => setShowAdvanced(false)} ShowCancel={false} ConfirmText={'Close'}>
