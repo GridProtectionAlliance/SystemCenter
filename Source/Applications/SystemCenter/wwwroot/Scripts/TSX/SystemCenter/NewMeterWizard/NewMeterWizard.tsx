@@ -316,6 +316,14 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
         localStorage.setItem('NewMeterWizard.CurrentStep', currentStep.toString())
     }
 
+    function openMeterDetails() {
+        // Construct the URL with the meterID
+        localStorage.setItem('Meter.InfoTab', 'meterInfo');
+        const url = `${homePath}index.cshtml?name=Meter&MeterID=${meterID}`;
+        // Open the new URL in a new tab
+        window.open(url, '_blank');
+    }
+
     function clearData(): void {
         clearLocalStorage();
 
@@ -388,14 +396,26 @@ export default function NewMeterWizard(props: {IsEngineer: boolean}) {
     const secondaryHeader = React.useMemo(() => {
         if (currentStep === eventChannelsStep)
             return <p className="pull-right">
-                Number of Event Channels: {channels.reduce((p, c) => c.Trend? p : (p+1),0)}
+                Number of Event Channels: {channels.reduce((p, c) => c.Trend ? p : (p + 1), 0)}
             </p>;
         else if (currentStep === trendChannelsStep)
             return <p className="pull-right">
-                Number of Trend Channels: {channels.reduce((p, c) => c.Trend ? (p+1) : p, 0)}
+                Number of Trend Channels: {channels.reduce((p, c) => c.Trend ? (p + 1) : p, 0)}
             </p>;
         else if (currentStep === assetStep)
             return <LocationDrawings LocationID={locationInfo.ID} />
+        else if (currentStep >= additionalFieldMeterStep) {
+            return (
+                <div>
+                    <button
+                        className="btn btn-primary pull-right"
+                        onClick={openMeterDetails}
+                    >
+                        Meter Details
+                    </button>
+                </div>
+            );
+        }
         return null;
     }, [currentStep, channels ]);
 
