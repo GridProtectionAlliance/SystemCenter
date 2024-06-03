@@ -75,7 +75,7 @@ export default function ChannelGroup(props: IProps) {
     if (record == null) return null;
 
     return (
-        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
                     <h2>{record.Name}</h2>
@@ -88,13 +88,9 @@ export default function ChannelGroup(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
-                    <ChannelGroupInfo Record={record} />
-                </div>
-                <div className={"tab-pane " + (tab == "items" ? " active" : "fade")} id="items">
-                    <ChannelGroupItems Record={record} />
-                </div>
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                {tab === "info" ? <ChannelGroupInfo Record={record} /> : null}
+                {tab === "items" ? <ChannelGroupItems Record={record} /> : null}
             </div>
 
             <Warning

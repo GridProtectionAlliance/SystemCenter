@@ -51,7 +51,7 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
 
     if (record == null) return;
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -59,7 +59,7 @@ const ChannelGroupInfoWindow = (props: { Record: SystemCenter.Types.ChannelGroup
                     </div>
                 </div>
             </div>
-            <div className="card-body">
+            <div className="card-body" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
                 <ChannelGroupForm Record={record} Setter={(r) => setRecord(r)} />
             </div>
             <div className="card-footer">
