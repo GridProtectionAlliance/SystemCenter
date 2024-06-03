@@ -97,23 +97,11 @@ export default function ExternalDB(props: { ID: number, Tab: Tab }) {
 
 
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="col-12" style={{ padding: 0 }}>
-                    <div className="tab-content" style={{ height: '100%' }}>
-                        {tab == "info" ?
-                            <div className="tab-pane active" style={{ height: 'inherit' }}>
-                                <ExternalDBTableInfo Record={record} />
-                            </div>
-                        : null}
-                        {tab == "fields" ?
-                            <div className="tab-pane active" style={{ height: 'inherit' }}>
-                                <ExternalDBTableFields TableName={record.TableName} ID={record.ID} />
-                            </div>
-                        : null}
-                        {tab == "xda" ?
-                            <div className="tab-pane active" style={{ height: 'inherit' }}>
-                                <ExternalDBXdaFields ID={record.ID} />
-                            </div>
-                        : null}
+                <div className="col-12" style={{ padding: 0, width: '100%', height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+                    <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                        {tab === "info" ? <ExternalDBTableInfo Record={record} /> : null}
+                        {tab === "fields" ? <ExternalDBTableFields TableName={record.TableName} ID={record.ID} /> : null}
+                        {tab === "xda" ? <ExternalDBXdaFields ID={record.ID} /> : null}
                     </div>
                 </div>
             </div>
