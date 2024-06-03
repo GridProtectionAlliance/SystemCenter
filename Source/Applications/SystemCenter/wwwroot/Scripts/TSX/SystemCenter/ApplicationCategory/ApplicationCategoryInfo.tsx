@@ -47,7 +47,7 @@ export default function ApplicationCategoryInfo(props: IProps) {
     }, [applicationCategory, props.ApplicationCat])
 
     return (
-        <div className="card" style={{ marginBottom: 0 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -55,7 +55,7 @@ export default function ApplicationCategoryInfo(props: IProps) {
                     </div>
                 </div>
             </div>
-            <div className="card-body">
+            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
                     <ApplicationCategoryForm ApplicationCat={applicationCategory} stateSetter={setApplicationCategory} setErrors={setErrors} />
             </div>
             <div className="card-footer">

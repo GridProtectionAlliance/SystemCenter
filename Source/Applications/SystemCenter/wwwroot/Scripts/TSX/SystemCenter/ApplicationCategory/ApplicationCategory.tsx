@@ -70,7 +70,7 @@ function ApplicationCategory(props: IProps) {
     if (applicationCategory == null) return null;
 
     return (
-        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
                     <h2>{applicationCategory != null ? applicationCategory.Name : ''}</h2>
@@ -82,13 +82,9 @@ function ApplicationCategory(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "appCatInfo" ? " active" : "fade")} id="appCatInfo">
-                    <ApplicationCategoryInfo ApplicationCat={applicationCategory} stateSetter={(record) => dispatch(ApplicationCategorySlice.DBAction({verb: 'PATCH', record: record}))} />
-                </div>
-                <div className={"tab-pane " + (tab == "applications" ? " active" : "fade")} id="applications">
-                    <Applications ID={props.ID} Tab={tab}/>
-                </div>
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                {tab === "appCatInfo" ? ( <ApplicationCategoryInfo ApplicationCat={applicationCategory} stateSetter={(record) => dispatch(ApplicationCategorySlice.DBAction({ verb: 'PATCH', record: record }))} /> ) : null}
+                {tab === "applications" ? ( <Applications ID={props.ID} Tab={tab} /> ) : null}
             </div>
 
             <Warning Message={'This will permanently delete this Application Category and cannot be undone.'}
