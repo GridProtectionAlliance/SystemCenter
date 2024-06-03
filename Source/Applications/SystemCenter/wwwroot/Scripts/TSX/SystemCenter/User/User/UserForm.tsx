@@ -94,7 +94,7 @@ function UserForm(props: IProps) {
         else if (field === 'Email')
             return user.Email == null || user.Email.length <= 200;
         else if (field === 'ChangePasswordOn')
-            return props.UserAccount.ChangePasswordOn != null && moment(user.ChangePasswordOn).isBefore(moment())
+            return props.UserAccount.ChangePasswordOn != null && !moment(user.ChangePasswordOn).isBefore(moment())
         return false;
 
     }
