@@ -82,7 +82,7 @@ export default function WidgetCategory(props: IProps) {
     if (category == null) return null
 
     return (
-        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
                     <h2>{category != null ? category.Name : ''}</h2>
@@ -94,13 +94,9 @@ export default function WidgetCategory(props: IProps) {
             <hr />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="customerInfo">
-                    <CategoryInfo Tab={category} stateSetter={(record) => dispatch(WidgetCategorySlice.DBAction({ verb: 'PATCH', record: record }))} />
-                </div>
-                <div className={"tab-pane " + (tab == "widgets" ? " active" : "fade")} id="widgets" >
-                    <WidgetByCategory CategoryID={category.ID} />
-                </div>
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                {tab === "info" ? ( <CategoryInfo Tab={category} stateSetter={(record) => dispatch(WidgetCategorySlice.DBAction({ verb: 'PATCH', record: record }))} /> ) : null}
+                {tab === "widgets" ? ( <WidgetByCategory CategoryID={category.ID} /> ) : null}
             </div>
 
             <Warning Title={'Delete ' + (category?.Name ?? 'SE Browser Tab')} Show={showWarning} Message={'This will permanently delete this SE Browser Tab.'} CallBack={(c) => { if (c) deleteTab(); setShowWarning(false) }} />
