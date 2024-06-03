@@ -102,7 +102,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
     }
 
     return (
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -111,7 +111,7 @@ const LocationDrawingsWindow = (props: { Location: OpenXDA.Types.Location }) => 
                 </div>
             </div>
             <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 30 }}>
+                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
                     <ReactTable.Table<SystemCenter.Types.LocationDrawing>
                         TableClass="table table-hover"
                         Data={links}

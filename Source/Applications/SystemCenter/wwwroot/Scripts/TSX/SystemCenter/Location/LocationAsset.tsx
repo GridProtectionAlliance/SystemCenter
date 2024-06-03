@@ -281,7 +281,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     const assetChanged = !_.isEqual(editAsset, newEditAsset);
 
     return (
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
