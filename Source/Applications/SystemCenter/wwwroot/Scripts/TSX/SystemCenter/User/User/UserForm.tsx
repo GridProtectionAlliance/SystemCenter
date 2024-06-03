@@ -93,6 +93,8 @@ function UserForm(props: IProps) {
             return user.Phone == null || user.Phone.length <= 200;
         else if (field === 'Email')
             return user.Email == null || user.Email.length <= 200;
+        else if (field === 'ChangePasswordOn')
+            return props.UserAccount.ChangePasswordOn != null && moment(user.ChangePasswordOn).isBefore(moment())
         return false;
 
     }
@@ -206,6 +208,7 @@ function UserForm(props: IProps) {
                                         {props.UserAccount.Type == 'Database' ?
                                             <DatePicker<IUserAccount> Record={props.UserAccount}
                                                 Field={'ChangePasswordOn'} Label='Account Expiration' MinDate={moment().subtract(1, 'days')}
+                                                Feedback={'Account Expiration is required and must be after today.'}
                                                 Setter={props.Setter} Valid={field => validUserAccountField(props.UserAccount, field)} 
                                             />
                                             : null}
