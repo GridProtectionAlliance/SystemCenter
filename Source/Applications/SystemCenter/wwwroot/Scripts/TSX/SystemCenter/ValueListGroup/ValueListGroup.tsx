@@ -70,7 +70,7 @@ export default function ValueListGroup(props: IProps) {
 
     if (record == null) return null;
     return (
-        <div style={{ width: '100%', height: window.innerHeight - 63, maxHeight: window.innerHeight - 63, overflow: 'hidden', padding: 15 }}>
+        <div style={{ width: '100%', height: '100%', overflow: 'hidden', padding: 15, display: 'flex', flexDirection: 'column' }}>
             <div className="row">
                 <div className="col">
                     <h2>{record.Name}</h2>
@@ -82,14 +82,10 @@ export default function ValueListGroup(props: IProps) {
             </div>
             <hr />
 
-            <TabSelector CurrentTab={tab} SetTab={(t:Tab) => setTab(t)} Tabs={[{ Label: 'Value List Group Info', Id: 'info' }, { Label: 'List Items', Id: 'items'}]} />
-            <div className="tab-content" style={{ maxHeight: window.innerHeight - 235, overflow: 'hidden' }}>
-                <div className={"tab-pane " + (tab == "info" ? " active" : "fade")} id="info">
-                    <ValueListGroupInfo Record={record} />
-                </div>
-                <div className={"tab-pane " + (tab == "items" ? " active" : "fade")} id="items">
-                    <ValueListGroupItems Record={record} />
-                </div>
+            <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={[{ Label: 'Value List Group Info', Id: 'info' }, { Label: 'List Items', Id: 'items' }]} />
+            <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                {tab === "info" ? <ValueListGroupInfo Record={record} /> : null}
+                {tab === "items" ? <ValueListGroupItems Record={record} /> : null}
             </div>
 
             <ValueListGroupDelete
