@@ -72,7 +72,7 @@ function UserForm(props: IProps) {
             e.push('The User could not be validated by the AD or Azure.')
         if (props.UserAccount.DisplayName !== null && allUsers.findIndex(u => u.DisplayName.toLowerCase() == props.UserAccount.DisplayName.toLowerCase() && u.ID !== props.UserAccount.ID) > -1)
             e.push('Username must be unique.')
-        if (props.UserAccount.ChangePasswordOn == null || moment(props.UserAccount.ChangePasswordOn).isBefore(moment())) {
+        if (props.UserAccount.ChangePasswordOn == null || moment(props.UserAccount.ChangePasswordOn).isBefore(moment()))
             e.push('Account Expiration date cannot be before today.');
         
         setErrors(e);
@@ -206,6 +206,7 @@ function UserForm(props: IProps) {
                                         {props.UserAccount.Type == 'Database' ?
                                             <DatePicker<IUserAccount> Record={props.UserAccount}
                                                 Field={'ChangePasswordOn'} Label='Account Expiration' MinDate={moment().subtract(1, 'days')}
+                                                Setter={props.Setter} Valid={field => validUserAccountField(props.UserAccount, field)} 
                                             />
                                             : null}
                                     </div>
