@@ -61,7 +61,7 @@ export default function ValueListGroupItems(props: IProps) {
     }
 
     return (
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', marginBottom: 10, overflow: 'hidden' }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
