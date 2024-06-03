@@ -362,7 +362,7 @@ function AdditionalFieldsWindow(props: IProps): JSX.Element {
         </>);
 
     return (
-        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', marginBottom: 10, overflow: 'hidden' }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <h4>Additional Fields:</h4>
             </div>
