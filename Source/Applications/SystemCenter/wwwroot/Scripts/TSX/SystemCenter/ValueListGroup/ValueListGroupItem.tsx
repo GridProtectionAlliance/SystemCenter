@@ -61,7 +61,7 @@ export default function ValueListGroupItems(props: IProps) {
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', marginBottom: 10, overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -69,9 +69,9 @@ export default function ValueListGroupItems(props: IProps) {
                     </div>
                 </div>
             </div>
-            <div className="card-body">
+            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
                 <div className="row">
-                    <div style={{ width: '100%', height: window.innerHeight - 421, maxHeight: window.innerHeight - 421, padding: 0 }}>
+                    <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', padding: 0 }}>
                         <ReactTable.Table<SystemCenter.Types.ValueListItem>
                             TableClass="table table-hover"
                             Data={data}
@@ -85,8 +85,9 @@ export default function ValueListGroupItems(props: IProps) {
                                 else
                                     dispatch(ValueListSlice.Sort({ SortField: d.colField, Ascending: true }));
                             }}
+                            TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                             TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                            TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 455, width: '100%' }}
+                            TbodyStyle={{ display: 'block', overflowY: 'auto', flex: 1, width: '100%' }}
                             RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                             Selected={(item) => false}
                             KeySelector={(item) => item.ID}
