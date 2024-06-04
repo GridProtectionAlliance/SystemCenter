@@ -143,7 +143,7 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
     return (
         <div className="container-fluid d-flex h-100 flex-column">
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="card" style={{ flex: 1, width: '100%', height: '100%', overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
                     <div className="card-header">
                         <div className="row">
                             <div className="col">
@@ -151,10 +151,10 @@ export default function ExternalDBTableFields(props: { TableName: string, ID: nu
                             </div>
                         </div>
                     </div>
-                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, flex: 1, overflow: 'hidden' }}>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
                         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                                <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
+                                <div className="col-12" style={{ height: '100%', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                                     <LoadingScreen Show={tableStatus === 'loading'} />
                                     {tableStatus === 'error' ?
                                         <ServerErrorIcon Show={true} Label={'A Server Error Occurred. Please Reload the Application.'} /> :
