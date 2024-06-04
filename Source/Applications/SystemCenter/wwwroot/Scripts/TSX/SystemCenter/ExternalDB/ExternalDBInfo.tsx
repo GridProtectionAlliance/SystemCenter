@@ -54,7 +54,7 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Detai
     return (
         <div className="container-fluid d-flex h-100 flex-column" style={{ height: 'inherit' }}>
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="card" style={{ width: '100%', height: '100%' }}>
+                <div className="card" style={{ flex: 1, width: '100%', height: '100%', overflow: 'hidden' }}>
                     <div className="card-header">
                         <div className="row">
                             <div className="col">
@@ -62,7 +62,7 @@ export default function ExternalDBInfo(props: { Record: SystemCenter.Types.Detai
                             </div>
                         </div>
                     </div>
-                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, flex: 1, overflowY: 'auto' }}>
                         <ExternalDBForm Record={record} Setter={setRecord} ShowTestButton={true} />
                     </div>
                     <div className="card-footer">
