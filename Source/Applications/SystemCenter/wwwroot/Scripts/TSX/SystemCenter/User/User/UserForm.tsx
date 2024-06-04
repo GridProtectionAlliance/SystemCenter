@@ -73,7 +73,7 @@ function UserForm(props: IProps) {
         if (props.UserAccount.DisplayName !== null && allUsers.findIndex(u => u.DisplayName.toLowerCase() == props.UserAccount.DisplayName.toLowerCase() && u.ID !== props.UserAccount.ID) > -1)
             e.push('Username must be unique.')
         if (props.UserAccount.ChangePasswordOn == null || moment(props.UserAccount.ChangePasswordOn).isBefore(moment()))
-            e.push('Account Expiration date cannot be before today.');
+            e.push('Account Expiration date must be on or after tomorrow.');
         
         setErrors(e);
     }, [props.UserAccount, valid])
@@ -207,8 +207,8 @@ function UserForm(props: IProps) {
 
                                         {props.UserAccount.Type == 'Database' ?
                                             <DatePicker<IUserAccount> Record={props.UserAccount}
-                                                Field={'ChangePasswordOn'} Label='Account Expiration' MinDate={moment().subtract(1, 'days')}
-                                                Feedback={'Account Expiration is required and must be after today.'}
+                                                Field={'ChangePasswordOn'} Label='Account Expiration' MinDate={moment().add(1, 'day')}
+                                                Feedback={'Account Expiration is required.'}
                                                 Setter={props.Setter} Valid={field => validUserAccountField(props.UserAccount, field)} 
                                             />
                                             : null}
