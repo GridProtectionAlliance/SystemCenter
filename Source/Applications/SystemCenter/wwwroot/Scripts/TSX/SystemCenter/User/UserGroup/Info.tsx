@@ -56,7 +56,7 @@ const GroupInfo = (props: {Group: ISecurityGroup}) => {
     if (group == null)
         return null;
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -64,7 +64,7 @@ const GroupInfo = (props: {Group: ISecurityGroup}) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ height: window.innerHeight - 440, maxHeight: window.innerHeight - 440, overflowY: 'auto' }}>
+            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
                 {group.Type == 'Azure' ? <div className="alert alert-info">
                     Information for Azure Groups cannot be edited in System Center. To edit these fields, please contact your Azure Administrator.
                 </div> : null}
