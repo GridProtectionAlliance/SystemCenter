@@ -26,24 +26,36 @@
 import * as React from 'react';
 import * as _ from 'lodash';
 import { OpenXDA } from '@gpa-gemstone/application-typings';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { DataFileSlice } from '../Store/Store';
 import { ReactTable } from '@gpa-gemstone/react-table';
 import moment from 'moment';
+import { GenericController } from '@gpa-gemstone/react-interactive';
+
+const DataFileController = new GenericController<OpenXDA.Types.DataFile>(`${homePath}api/OpenXDA/DataFile`, "ProcessingEndTime", true);
 
 function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
-    const dispatch = useAppDispatch();
-    const files = useAppSelector(DataFileSlice.Data);
-    const status = useAppSelector(DataFileSlice.Status);
-    const sortKey = useAppSelector(DataFileSlice.SortField);
-    const ascending = useAppSelector(DataFileSlice.Ascending);
-    const meterID = useAppSelector(DataFileSlice.ParentID);
+    const [data, setData] = React.useState<OpenXDA.Types.DataFile[]>([]);
+    const [sortField, setSortField] = React.useState<keyof OpenXDA.Types.DataFile>('ProcessingEndTime');
+    const [ascending, setAscending] = React.useState<boolean>(false);
+
+    const order = React.useCallback((data: OpenXDA.Types.DataFile[]) => {
+        return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
+    }, [sortField, ascending]);
 
     React.useEffect(() => {
-        if (status == 'unintiated' || status == 'changed' || meterID != props.Meter.ID)
-            dispatch(DataFileSlice.Fetch(props.Meter.ID));
-        return () => { }
-    }, [dispatch, status, props.Meter.ID]);
+        const handle = DataFileController.PagedSearch([], undefined, undefined, 0, props.Meter.ID).done(result => {
+            const data = JSON.parse(result.Data as unknown as string);
+            setData(order(data));
+        });
+
+        return () => {
+            if (handle.abort != undefined) handle.abort();
+        }
+    }, [props.Meter.ID]);
+
+    React.useEffect(() => {
+        if (data.length === 0) return;
+        setData(order(data));
+    }, [order]);
 
     if (props.Meter.ID == undefined) return null;
 
@@ -59,11 +71,17 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
             <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>      
                 <ReactTable.Table<OpenXDA.Types.DataFile>
                     TableClass="table table-hover"
-                    Data={files}
-                    SortKey={sortKey}
+                    Data={data}
+                    SortKey={sortField}
                     Ascending={ascending}
                     OnSort={(d) => {
-                        dispatch(DataFileSlice.Sort({ SortField: d.colField, Ascending: d.ascending }));
+                        if (d.colField == sortField) {
+                            setAscending(!ascending);
+                        }
+                        else {
+                            setAscending(true);
+                            setSortField(d.colField);
+                        }
                     }}
                     TableStyle={{
                         padding: 0, width: 'calc(100%)', height: 'calc(100% - 16px)',
@@ -111,12 +129,8 @@ function DownloadedFilesPage(props: { Meter: OpenXDA.Types.Meter }) {
                     </ReactTable.Column>
                 </ReactTable.Table>
             </div>
-            <div className="card-footer">
-            </div>
-
+            <div className="card-footer"/>
         </div>
-
-
     )
 }
 

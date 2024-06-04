@@ -25,6 +25,7 @@
 
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
+import _ from 'lodash';
 import * as React from 'react';
 import { ConfigTable, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table'
@@ -44,13 +45,25 @@ function MiMDIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const settings = useAppSelector(SystemCenterSettingSlice.Data);
     const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
 
+    const order = React.useCallback((data: SC.MiMDDailyStatistic[]) => {
+        return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
+    }, [sortField, ascending]);
+
     React.useEffect(() => {
-        const handle = MiMDDailyStatisticController.Fetch(props.Meter.AssetKey, sortField, ascending).done(d => setData(d));
+        const handle = MiMDDailyStatisticController.PagedSearch([], undefined, undefined, 0, props.Meter.AssetKey).done(result => {
+            const data = JSON.parse(result.Data as unknown as string);
+            setData(order(data));
+        });
 
         return () => {
             if (handle != null || handle.abort != null) handle.abort();
         }
-    }, [props.Meter, sortField, ascending]);
+    }, [props.Meter.AssetKey, sortField, ascending]);
+
+    React.useEffect(() => {
+        if (data.length === 0) return;
+        setData(order(data));
+    }, [order]);
 
     React.useEffect(() => {
         if (settingStatus == 'unintiated' || settingStatus == 'changed')

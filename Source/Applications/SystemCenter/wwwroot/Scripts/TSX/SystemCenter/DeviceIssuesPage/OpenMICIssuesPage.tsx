@@ -26,6 +26,7 @@
 import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
+import _ from 'lodash';
 import * as React from 'react';
 import { ConfigTable, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table'
@@ -39,13 +40,25 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
     const [sortField, setSortField] = React.useState<keyof SC.OpenMICDailyStatistic>('LastSuccessfulConnection');
     const [ascending, setAscending] = React.useState<boolean>(false);
 
+    const order = React.useCallback((data: SC.OpenMICDailyStatistic[]) => {
+        return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
+    }, [sortField, ascending]);
+
     React.useEffect(() => {
-        const handle = OpenMICDailyStatisticController.Fetch(props.Meter.AssetKey, sortField, ascending).done(d => setData(d));
+        const handle = OpenMICDailyStatisticController.PagedSearch([], undefined, undefined, 0, props.Meter.AssetKey).done(result => {
+            const data = JSON.parse(result.Data as unknown as string);
+            setData(order(data));
+        });
 
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [props.Meter, sortField, ascending]);
+    }, [props.Meter.AssetKey]);
+
+    React.useEffect(() => {
+        if (data.length === 0) return;
+        setData(order(data));
+    }, [order]);
 
     return <div className="card" style={{ width: '100%', height: '100%' }}>
         <div className="card-header">
