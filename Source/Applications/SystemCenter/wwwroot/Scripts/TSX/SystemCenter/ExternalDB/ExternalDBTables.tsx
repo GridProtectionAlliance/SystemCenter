@@ -79,7 +79,7 @@ export default function ExternalDBTables(props: { ID: number }) {
     return (
         <div className="container-fluid d-flex h-100 flex-column">
             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                <div className="card" style={{ flex: 1, width: '100%', height: '100%', overflow: 'hidden' }}>
+                <div className="card" style={{ width: '100%', height: '100%' }}>
                     <div className="card-header">
                         <div className="row">
                             <div className="col">
@@ -87,10 +87,10 @@ export default function ExternalDBTables(props: { ID: number }) {
                             </div>
                         </div>
                     </div>
-                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, flex: 1, overflow: 'hidden' }}>
+                    <div className="card-body" style={{ paddingTop: 10, paddingBottom: 0, overflow: 'hidden' }}>
                         <div className="container-fluid d-flex h-100 flex-column" style={{ padding: 0 }}>
                             <div className="row" style={{ flex: 1, overflow: 'hidden' }}>
-                                <div className="col-12" style={{ height: '100%', overflow: 'hidden' }}>
+                                <div className="col-12" style={{ flex: 'display', flexDirection: 'column', height: '100%', overflow: 'hidden' }}>
                                     <ReactTable.Table<SystemCenter.Types.DetailedExtDBTables>
                                         TableClass="table table-hover"
                                         Data={data}
