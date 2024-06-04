@@ -74,7 +74,7 @@ const UserInfo = (props: { AccountId: string }) => {
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -82,7 +82,7 @@ const UserInfo = (props: { AccountId: string }) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ height: window.innerHeight - 440, maxHeight: window.innerHeight - 440, overflowY: 'auto' }}>
+            <div className="card-body" style={{ flex: 1, overflowY: 'auto' }}>
                 {user != null ? <UserForm UserAccount={user} Setter={(u) => setUser(u)} Edit={true} /> : null}
             </div>
             <div className="card-footer">
