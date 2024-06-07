@@ -25,41 +25,40 @@
 
 
 
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
-import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
-import { orderBy } from 'lodash';
 import * as React from 'react';
 import { ReactTable } from '@gpa-gemstone/react-table';
-import Reason from './Reason';
+import * as _ from 'lodash';
 import moment from 'moment';
+import { GenericController } from '@gpa-gemstone/react-interactive';
+
+const MeterDataQualitySummaryController = new GenericController<SC.MeterDataQualitySummary>(`${homePath}api/OpenXDA/MeterDataQualitySummary`, "Date", true);
 
 function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
     const [data, setData] = React.useState<SC.MeterDataQualitySummary[]>([]);
     const [sortField, setSortField] = React.useState<keyof SC.MeterDataQualitySummary>('Date');
     const [ascending, setAscending] = React.useState<boolean>(false);
 
-    React.useEffect(() => {
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/OpenXDA/MeterDataQualitySummary/${props.Meter.ID}/Date/0`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        }) as JQuery.jqXHR<SC.MeterDataQualitySummary[] | string>;
-        handle.done(d => {
-            let json = d;
-            if (typeof (d) == 'string')
-                json = JSON.parse(d);
+    const order = React.useCallback((data: SC.MeterDataQualitySummary[]) => {
+        return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
+    }, [sortField, ascending]);
 
-            setData(orderBy(json as SC.MeterDataQualitySummary[], [sortField], [ascending ? "asc" : "desc"]))
-        })
+    React.useEffect(() => {
+        const handle = MeterDataQualitySummaryController.PagedSearch([], undefined, undefined, 0, props.Meter.ID).done(result => {
+            const data = JSON.parse(result.Data as unknown as string);
+            setData(order(data));
+        });
 
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [props.Meter]);
+    }, [props.Meter.ID]);
+
+    React.useEffect(() => {
+        if (data.length === 0) return;
+        setData(order(data));
+    }, [order]);
 
     return <div className="card" style={{ width: '100%', height: '100%' }}>
         <div className="card-header">
@@ -80,7 +79,7 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                         setAscending(!ascending);
                     }
                     else {
-                        setAscending(!ascending);
+                        setAscending(true);
                         setSortField(d.colField);
                     }
                 }}
@@ -153,11 +152,8 @@ function DataQualityIssuesPage(props: { Meter: OpenXDA.Types.Meter }) {
                 </ReactTable.Column>
             </ReactTable.Table>
         </div>
-        <div className="card-footer">
-        </div>
-
+        <div className="card-footer"/>
     </div>
-
 }
 
 export default DataQualityIssuesPage

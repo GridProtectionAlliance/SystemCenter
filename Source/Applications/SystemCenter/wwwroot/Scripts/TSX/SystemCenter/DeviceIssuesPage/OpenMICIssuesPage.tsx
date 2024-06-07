@@ -23,51 +23,42 @@
 
 
 
-import { OpenXDA, SystemCenter } from '@gpa-gemstone/application-typings';
+import { OpenXDA } from '@gpa-gemstone/application-typings';
 import { SystemCenter as SC } from '../global';
 import { CrossMark, HeavyCheckMark } from '@gpa-gemstone/gpa-symbols';
-import { orderBy } from 'lodash';
+import _ from 'lodash';
 import * as React from 'react';
-import { ConfigTable } from '@gpa-gemstone/react-interactive';
+import { ConfigTable, GenericController } from '@gpa-gemstone/react-interactive';
 import { ReactTable } from '@gpa-gemstone/react-table'
 import Reason from './Reason';
 import moment from 'moment';
-import { useAppDispatch, useAppSelector } from '../hooks';
-import { SystemCenterSettingSlice } from '../Store/Store';
+
+const OpenMICDailyStatisticController = new GenericController<SC.OpenMICDailyStatistic>(`${homePath}api/SystemCenter/Statistics/OpenMIC`, "LastSuccessfulConnection", true);
 
 function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: string }) {
-    let dispatch = useAppDispatch();
-
     const [data, setData] = React.useState<SC.OpenMICDailyStatistic[]>([]);
-    const [sortField, setSortField] = React.useState<keyof SC.OpenMICDailyStatistic>('Date');
+    const [sortField, setSortField] = React.useState<keyof SC.OpenMICDailyStatistic>('LastSuccessfulConnection');
     const [ascending, setAscending] = React.useState<boolean>(false);
-    const settings = useAppSelector(SystemCenterSettingSlice.Data);
-    const settingStatus = useAppSelector(SystemCenterSettingSlice.Status);
+
+    const order = React.useCallback((data: SC.OpenMICDailyStatistic[]) => {
+        return _.orderBy(data, [sortField], [ascending ? 'asc' : 'desc'])
+    }, [sortField, ascending]);
 
     React.useEffect(() => {
-        let handle = $.ajax({
-            type: "GET",
-            url: `${homePath}api/SystemCenter/Statistics/OpenMIC/${props.Meter.AssetKey}`,
-            contentType: "application/json; charset=utf-8",
-            dataType: 'json',
-            cache: false,
-            async: true
-        }) as JQuery.jqXHR<SC.OpenMICDailyStatistic[]>;
-        handle.done(d => setData(orderBy(d, [sortField], [ascending? "asc" : "desc"])))
+        const handle = OpenMICDailyStatisticController.PagedSearch([], undefined, undefined, 0, props.Meter.AssetKey).done(result => {
+            const data = JSON.parse(result.Data as unknown as string);
+            setData(order(data));
+        });
 
         return () => {
             if (handle.abort != undefined) handle.abort();
         }
-    }, [props.Meter]);
+    }, [props.Meter.AssetKey]);
 
     React.useEffect(() => {
-        setData(orderBy(data, [sortField], [ascending ? "asc" : "desc"]))
-    }, [sortField, ascending]);
-
-    React.useEffect(() => {
-        if (settingStatus == 'unintiated' || settingStatus == 'changed')
-            dispatch(SystemCenterSettingSlice.Fetch());
-    }, [settingStatus]);
+        if (data.length === 0) return;
+        setData(order(data));
+    }, [order]);
 
     return <div className="card" style={{ width: '100%', height: '100%' }}>
         <div className="card-header">
@@ -101,7 +92,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         setAscending(!ascending);
                     }
                     else {
-                        setAscending(!ascending);
+                        setAscending(true);
                         setSortField(d.colField);
                     }
                 }}
@@ -133,7 +124,7 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                         Key={'LastUnsuccessfulConnection'}
                         AllowSort={true}
                         Field={'LastUnsuccessfulConnection'}
-                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : ''}
+                        Content={({ item, field }) => item[field] != undefined ? moment(item[field]).format('MM/DD/YY HH:mm') : 'N/A'}
                         HeaderStyle={{ width: 'auto', textAlign: 'center' }}
                         RowStyle={{ width: 'auto', textAlign: 'center' }}
                     >
@@ -185,11 +176,8 @@ function OpenMICIssuesPage(props: { Meter: OpenXDA.Types.Meter, OpenMICAcronym: 
                 </ConfigTable.Configurable>
             </ConfigTable.Table>
         </div>
-        <div className="card-footer">
-        </div>
-
+        <div className="card-footer"/>
     </div>
-
 }
 
 const Test = (props: { Meter: OpenXDA.Types.Meter }) => {
