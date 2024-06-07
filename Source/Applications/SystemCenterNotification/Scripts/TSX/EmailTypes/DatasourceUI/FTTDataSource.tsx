@@ -292,7 +292,7 @@ const FTTDataSource: React.FC<ISettingsUIProps> = (props) => {
                                     onChange={(evt) => {
                                         props.SetSetting({
                                             ID: 0, Name: 'IgnoreCertificateErrors',
-                                            Value: String(!evt.target.checked),
+                                            Value: String(evt.target.checked),
                                             TriggeredEmailDataSourceEmailTypeID: props.DataSourceID
                                         });
                                     }}
