@@ -85,6 +85,11 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
     }, []);
 
     React.useEffect(() => {
+        if (data.length === 0) return;
+        setData(_.orderBy(data, [sortKey], [ascending ? 'asc' : 'desc']));
+    }, [ascending, sortKey]);
+
+    React.useEffect(() => {
         let assetsHandle = getAssets();
         return () => { if (assetsHandle != null && assetsHandle.abort != null) assetsHandle.abort(); }
 
@@ -98,7 +103,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
             errors.push('Key must be unique.')
 
         setAssetErrors(errors);
-    }, [newEditAsset])
+    }, [newEditAsset]);
 
     React.useEffect(() => { setNewEditAsset(editAsset) }, [editAsset]);
 
@@ -113,7 +118,7 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
             cache: true,
             async: true
         }).done((d) => {
-            setData(d);
+            setData(_.orderBy(d, [sortKey], [ascending ? 'asc' : 'desc']));
             setLStatus('idle')
         }).fail(() => setLStatus('error'));
     }
@@ -296,14 +301,10 @@ function LocationAssetWindow(props: { Location: OpenXDA.Types.Location }): JSX.E
                                 return;
 
                             if (d.colKey === sortKey) {
-                                var ordered = _.orderBy(data, [d.colKey], [(!ascending ? "asc" : "desc")]);
-                                setAscending(!ascending);
-                                setData(ordered);
+                                setAscending(a => !a);
                             }
                             else {
-                                var ordered = _.orderBy(data, [d.colKey], ["asc"]);
-                                setAscending(!ascending);
-                                setData(ordered);
+                                setAscending(true);
                                 setSortKey(d.colKey);
                             }
                         }}
