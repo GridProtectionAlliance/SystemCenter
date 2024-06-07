@@ -100,7 +100,7 @@ function RemoteXDAInstance(props: IProps) {
                     <button className="btn btn-danger pull-right" disabled={!props.Roles.includes('Administrator')} onClick={() => setShowDelete(true)}>Delete Remote openXDA Instance Connection</button>
                 </div>
             </div>
-            <hr />
+            <hr style={{ width: '100%' }} />
 
             <TabSelector CurrentTab={tab} SetTab={(t: Tab) => setTab(t)} Tabs={Tabs} />
             <div className="tab-content" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>

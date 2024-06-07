@@ -234,7 +234,7 @@ const RemoteAssetTab = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ flex: 1, overflow: 'hidden' }}>
+            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {cardBody}
             </div>
             <div className="card-footer">
