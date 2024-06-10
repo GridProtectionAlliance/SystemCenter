@@ -119,8 +119,9 @@ const RemoteAssetTab = (props: IProps) => {
                         setSortKey(d.colField);
                     }
                 }}
+                TableStyle={{ padding: 0, width: '100%', tableLayout: 'fixed', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
                 TheadStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
-                TbodyStyle={{ display: 'block', overflowY: 'scroll', maxHeight: window.innerHeight - 300, width: '100%' }}
+                TbodyStyle={{ display: 'block', width: '100%', overflowY: 'auto', flex: 1 }}
                 RowStyle={{ fontSize: 'smaller', display: 'table', tableLayout: 'fixed', width: '100%' }}
                 Selected={(item) => false}
                 KeySelector={(item) => item.ID}
@@ -225,7 +226,7 @@ const RemoteAssetTab = (props: IProps) => {
     }
 
     return (
-        <div className="card" style={{ marginBottom: 10, maxHeight: window.innerHeight - 215 }}>
+        <div className="card" style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <div className="card-header">
                 <div className="row">
                     <div className="col">
@@ -233,7 +234,7 @@ const RemoteAssetTab = (props: IProps) => {
                     </div>
                 </div>
             </div>
-            <div className="card-body" style={{ maxHeight: window.innerHeight - 315, overflowY: 'auto' }}>
+            <div className="card-body" style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
                 {cardBody}
             </div>
             <div className="card-footer">
