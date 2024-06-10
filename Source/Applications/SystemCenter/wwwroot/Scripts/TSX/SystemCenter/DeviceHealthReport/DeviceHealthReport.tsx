@@ -217,7 +217,14 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Field={'OpenMIC'}
                             HeaderStyle={{ width: 120 }}
                             RowStyle={{ width: 120 }}
-                            Content={({ item }) => <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{trimString(item.OpenMIC, 10)}</a> }
+                            Content={({ item }) => {
+                                const OpenMicUrl = settings.find(s => s.Name == 'OpenMIC.Url')?.Value;
+
+                                if (OpenMicUrl != undefined)
+                                    return <a href={`${OpenMicUrl}/devices.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{trimString(item.OpenMIC, 10)}</a>
+                                else
+                                    return trimString(item.OpenMIC, 10)
+                            }}
                         > openMIC ID
                         </ReactTable.Column>
                         <ReactTable.Column<SCGlobal.DeviceHealthReport>
@@ -226,7 +233,16 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Field={'LocationKey'}
                             HeaderStyle={{ width: 100 }}
                             RowStyle={{ width: 100 }}
-                            Content={({ item }) => <a href={settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink')?.Value.replace('<AssetKey>', item.LocationID.toString())} target='_blank'>{item.LocationKey}</a>}
+                            Content={({ item }) => {
+                                const SubstationLink = settings.find(s => s.Name == 'DeviceHealthReport.SubstationLink')?.Value.replace('<AssetKey>', item.LocationID.toString());
+
+                                if (SubstationLink != undefined)
+                                    return <a href={SubstationLink} target='_blank'>{item.LocationKey}</a>
+                                else
+                                    return item.LocationKey
+                            }}
+
+                                
                         > Substn
                         </ReactTable.Column>
                         <ReactTable.Column<SCGlobal.DeviceHealthReport>
@@ -235,7 +251,14 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Field={'Model'}
                             HeaderStyle={{ width: '8%' }}
                             RowStyle={{ width: '8%' }}
-                            Content={({ item, field }) => <a href={`${settings.find(s => s.Name == 'MiMD.Url')?.Value}/Diagnostic/Meter/${item.ID}`} target='_blank'>{item[field]}</a> }
+                            Content={({ item, field }) => { 
+                                const MimdUrl = settings.find(s => s.Name == 'MiMD.Url')?.Value;
+
+                                if (MimdUrl != undefined)
+                                    return <a href={`${MimdUrl}/Diagnostic/Meter/${item.ID}`} target='_blank'>{item[field]}</a>
+                                else
+                                    return item[field]
+                            }}
                         > Model
                         </ReactTable.Column>
                         <ReactTable.Column<SCGlobal.DeviceHealthReport>
@@ -262,7 +285,14 @@ const DeviceHealthReport: Application.Types.iByComponent = (props) => {
                             Field={'IP'}
                             HeaderStyle={{ width: 150 }}
                             RowStyle={{ width: 150 }}
-                            Content={({ item, field }) => (item.OpenMIC != undefined ? <a href={`${settings.find(s => s.Name == 'OpenMIC.Url')?.Value}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[field]}</a> : item[field]) }
+                            Content={({ item, field }) => {
+                                const OpenMicUrl = settings.find(s => s.Name == 'OpenMIC.Url')?.Value;
+
+                                if (OpenMicUrl != undefined && item.OpenMIC != undefined)
+                                    return <a href={`${OpenMicUrl}/status.cshtml?Acronym=${item.OpenMIC}`} target='_blank'>{item[field]}</a>
+                                else
+                                    return item[field]
+                            }}
                         > IP
                         </ReactTable.Column>
                         <ReactTable.Column<SCGlobal.DeviceHealthReport>
