@@ -39,7 +39,7 @@ export default function ValueListGroupForm(props: { Record: SystemCenter.Types.V
     return (
         <form>
             <Input<SystemCenter.Types.ValueListGroup> Record={props.Record} Field={'Name'} Feedback={'Name must be less than 200 characters.'} 
-            Valid={Valid} Setter={props.Setter} Disabled={required} Help={required? 'This Value List Group is required and cannot be renamed.': ''}/>
+            Valid={Valid} Setter={props.Setter} Disabled={required} Help={required? 'This Value List Group is required and cannot be renamed.': undefined}/>
             <TextArea<SystemCenter.Types.ValueListGroup> Rows={3} Record={props.Record} Field={'Description'} Valid={Valid} Setter={props.Setter} />
         </form>
 
