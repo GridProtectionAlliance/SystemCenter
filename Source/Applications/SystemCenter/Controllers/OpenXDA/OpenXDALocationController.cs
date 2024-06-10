@@ -242,7 +242,7 @@ namespace SystemCenter.Controllers.OpenXDA
                     try
                     {
                         DataTable result = connection.RetrieveData($@"
-                        SELECT 
+                        SELECT DISTINCT
 	                        a.*,
 	                        at.Name as AssetType
                         FROM
