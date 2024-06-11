@@ -314,7 +314,7 @@
       <ComponentRef Id="openXDA.Model" />
       <ComponentRef Id="openXDA.PQI" />
       <ComponentRef Id="openXDA.APIAuthentication" />
-	  <ComponentRef Id="openXDA.APIMiddleware" />
+      <ComponentRef Id="openXDA.APIMiddleware" />
       <ComponentRef Id="openXDA.Configuration" />
       <ComponentRef Id="FaultData" />
       <ComponentRef Id="Oracle.ManagedDataAccess" />
@@ -441,8 +441,8 @@
       <Component Id="openXDA.APIAuthentication">
         <File Id="openXDA.APIAuthentication.dll" Name="openXDA.APIAuthentication.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.APIAuthentication.dll" />
       </Component>
-	   <Component Id="openXDA.APIMiddleware">
-	    <File Id="openXDA.APIAuthentication.dll" Name="openXDA.APIAuthentication.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.APIAuthentication.dll" />
+      <Component Id="openXDA.APIMiddleware">
+        <File Id="openXDA.APIAuthentication.dll" Name="openXDA.APIAuthentication.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.APIAuthentication.dll" />
       </Component>
       <Component Id="openXDA.Configuration">
         <File Id="openXDA.Configuration.dll" Name="openXDA.Configuration.dll" Source="$(var.SolutionDir)\Dependencies\openXDA\openXDA.Configuration.dll" />
