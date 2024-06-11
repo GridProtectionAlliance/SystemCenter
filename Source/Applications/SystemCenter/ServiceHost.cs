@@ -102,7 +102,7 @@ using log4net.Config;
 using log4net.Core;
 using log4net.Layout;
 using Microsoft.Owin.Hosting;
-using openXDA.APIAuthentication;
+using openXDA.APIMiddleware;
 using SystemCenter.Configuration;
 using SystemCenter.Logging;
 using SystemCenter.Model;
